@@ -1,0 +1,88 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main.constellation_info', 'Constellation information'),
+    ('main.constellation_stars', 'Constellation stars'),
+    ('main.constellation_deepskyobjects', 'Constellation deepsky objects'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui vertical fluid secondary menu">
+        {% for route, name in items %}
+            {% set href = url_for(route, constellation_id=constellation.id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ name }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro constellation_info(constellation) %}
+    <table class="ui compact definition table">
+        <tr><td>IAU code</td><td>{{ constellation.iau_code }}</td></tr>
+        <tr><td>Name</td><td>{{ constellation.name }}</td></tr>
+        <tr><td>Image</td><td><img src="{{ constellation.image }}"/></td></tr>
+        <tr><td>Description</td><td>{{ constellation.descr }}</td></tr>
+    </table>
+{% endmacro %}
+
+{% macro constellation_stars(constellation) %}
+{% endmacro %}
+
+{% macro constellation_dso(constellation) %}
+	<div style="overflow-x: scroll;">
+			<table class="ui searchable sortable unstackable selectable celled table">
+					<thead>
+							<tr>
+									<th class="sorted ascending">Name</th>
+									<th>Type</th>
+									<th>RA</th>
+									<th>DEC</th>
+									<th>h_mag</th>
+							</tr>
+					</thead>
+					<tbody>
+					{% for d in constellation.deep_sky_objects | sort(attribute='name') %}
+							<tr onclick="window.location.href = '{{ url_for('main.deepskyobject_info', dso_id=d.id) }}';">
+									<td>{{ d.name }}</td>
+									<td>{{ d.type }}</td>
+									<td>{{ d.ra }}</td>
+									<td>{{ d.dec }}</td>
+									<td>{{ d.h_mag }}</td>
+							</tr>
+					{% endfor %}
+					</tbody>
+			</table>
+	</div>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main.constellations') }}">
+                <i class="caret left icon"></i>
+                Back to all constellations
+            </a>
+            <h2 class="ui header">
+                {{ constellation.iau_code }} / {{ constellation.name }}
+            </h2>
+        </div>
+        <div class="stretched divided very relaxed row">
+            <div class="four wide column">
+                {{ navigation(endpoints) }}
+            </div>
+            <div class="eight wide column">
+            	{% if type == 'info' %}
+                	{{ constellation_info(constellation) }}
+                {% endif %}
+            	{% if type == 'stars' %}
+                	{{ constellation_stars(constellation) }}
+                {% endif %}
+            	{% if type == 'dso' %}
+                	{{ constellation_dso(constellation) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

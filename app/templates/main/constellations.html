@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="sixteen wide tablet twelve wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                Back to dashboard
+            </a>
+            <h2 class="ui header">
+                Constellations
+            </h2>
+
+            <div class="ui menu">
+                <div class="ui right search item">
+                    <div class="ui transparent icon input">
+                        <input id="search-constellations" type="text" placeholder="Search constellation…">
+                        <i class="search icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            {# Use overflow-x: scroll so that mobile views don't freak out
+             # when the table is too wide #}
+            <div style="overflow-x: scroll;">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">IAU code</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in constellations | sort(attribute='name') %}
+                        <tr onclick="window.location.href = '{{ url_for('main.constellation_info', constellation_id=c.id) }}';">
+                            <td>{{ c.iau_code }}</td>
+                            <td>{{ c.name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#search-constellations').keyup(function () {
+                var searchText = $(this).val();
+                if (searchText.length > 0) {
+                    $('tbody td:icontains(' + searchText + ')').addClass('positive');
+                    $('td.positive').not(':icontains(' + searchText + ')').removeClass('positive');
+                    $('tbody td').not(':icontains(' + searchText + ')').closest('tr').addClass('hidden').hide();
+                    $('tr.hidden:icontains(' + searchText + ')').removeClass('hidden').show();
+                } else {
+                    $('td.positive').removeClass('positive');
+                    $('tr.hidden').removeClass('hidden').show();
+                }
+            });
+        });
+    </script>
+{% endblock %}

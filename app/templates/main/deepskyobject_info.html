@@ -1,0 +1,45 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main.deepskyobject_info', 'Deepsky object information'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui vertical fluid secondary menu">
+        {% for route, name in items %}
+            {% set href = url_for(route, dso_id=dso.id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ name }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro deepskyobject_info(dso) %}
+    <table class="ui compact definition table">
+        <tr><td>Name</td><td>{{ dso.name }}</td></tr>
+    </table>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main.constellations') }}">
+                <i class="caret left icon"></i>
+                Back to all constellations
+            </a>
+            <h2 class="ui header">
+                {{ constellation.iau_code }} / {{ constellation.name }}
+            </h2>
+        </div>
+        <div class="stretched divided very relaxed row">
+            <div class="four wide column">
+                {{ navigation(endpoints) }}
+            </div>
+            <div class="eight wide column">
+            	{{ constellation_info(constellation) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

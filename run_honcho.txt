@@ -1,0 +1,2 @@
+#!/bin/bash
+honcho start -e config.env -f Local
