@@ -70,11 +70,11 @@ def add_fake_data(number_users):
 
 @manager.command
 def add_test_user():
-    user_email = 'lada.dvorak7@gmail.com'
+    user_email = 'test@test.test'
     if User.query.filter_by(email=user_email).first() is None:
         user = User(
-            first_name='Vladimir',
-            last_name='Dvorak',
+            first_name='test',
+            last_name='test',
             password='heslo',
             confirmed=True,
             email=user_email)
