@@ -4,6 +4,7 @@ from datetime import datetime
 class Observation(db.Model):
     __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     ranking = db.Column(db.Integer)

@@ -7,7 +7,7 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact button" href="{{ url_for('admin.index') }}">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
                 <i class="caret left icon"></i>
                 Back to dashboard
             </a>
@@ -24,6 +24,13 @@
 
             {{ f.begin_form(form, flashes) }}
 
+                <div class="ui calendar" id="odate">
+                  <div class="ui input left icon">
+                    <i class="calendar icon"></i>
+                    {{ f.render_form_field(form.date) }}
+                  </div>
+                </div>
+
                 {{ f.render_form_field(form.ranking) }}
                 {{ f.render_form_field(form.notes) }}
 
@@ -39,4 +46,20 @@
             {{ f.end_form() }}
         </div>
     </div>
+
+    <script type="text/javascript">
+        $('#odate').calendar({
+            type: 'date',
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var day = date.getDate();
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
+                }
+            }
+        });
+    </script>
+
 {% endblock %}

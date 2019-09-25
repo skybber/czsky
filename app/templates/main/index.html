@@ -24,13 +24,19 @@
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
             <h2 class="ui header">
-                User Dashboard
+                {% if not is_anonymous %}
+                    User Dashboard
+                {% else %}
+                    Dashboard
+                {% endif %}
             </h2>
             <div class="ui two column stackable grid">
-                {{ dashboard_option('Add observation', 'main.new_observation',
-                                    description='Add new observation', icon='users icon') }}
-                {{ dashboard_option('Observations', 'main.observations',
-                                    description='View observations', icon='users icon') }}
+                {% if not is_anonymous %}
+                    {{ dashboard_option('Add observation', 'main.new_observation',
+                                        description='Add new observation', icon='users icon') }}
+                    {{ dashboard_option('Observations', 'main.observations',
+                                        description='View observations', icon='users icon') }}
+                {% endif %}
                 {{ dashboard_option('Constellations', 'main.constellations',
                                     description='View constellations', icon='users icon') }}
                 {{ dashboard_option('Deepsky Objects', 'main.deepskyobjects',

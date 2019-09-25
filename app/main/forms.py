@@ -1,9 +1,13 @@
+from datetime import datetime
+
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
+    DateField,
     IntegerField,
     StringField,
-    SubmitField
+    SubmitField,
+    TextAreaField,
 )
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
@@ -19,12 +23,15 @@ class SearchForm(FlaskForm):
     q = StringField('Search', validators=[DataRequired()])
 
 class ObservationNewForm(FlaskForm):
+    date = DateField('Date', id='odate', format = '%d/%m/%Y')
+    date.data = datetime.now()
+    notes = TextAreaField('Notes')
     ranking = IntegerField('Ranking', validators=[NumberRange(min=0, max=10)])
-    notes = StringField('First name', validators=[Length(max=5000)])
-    submit = SubmitField('Confirm')
+    submit = SubmitField('Add')
 
 class ObservationEditForm(FlaskForm):
-    ranking = IntegerField('Ranking', validators=[NumberRange(min=0, max=10)])
+    date = DateField('Date', id='datepick')
     notes = StringField('First name', validators=[Length(max=5000)])
-    submit = SubmitField('Confirm')
+    ranking = IntegerField('Ranking', validators=[NumberRange(min=0, max=10)])
+    submit = SubmitField('Update')
 

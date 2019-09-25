@@ -8,6 +8,8 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
+from app import db
+
 from app.models import Constellation, DeepSkyObject, Observation, observation
 from app.models import EditableHTML
 from flask_paginate import Pagination, get_page_parameter, get_page_args
@@ -18,13 +20,14 @@ from .forms import (
     ObservationEditForm,
 )
 
+
 main = Blueprint('main', __name__)
 
 ITEMS_PER_PAGE = 10
 
 @main.route('/')
 def index():
-    return render_template('main/index.html')
+    return render_template('main/index.html', is_anonymous=current_user.is_anonymous)
 
 
 @main.route('/about')
@@ -105,22 +108,17 @@ def deepskyobject_info(dso_id):
 @login_required
 def observations():
     """View observations."""
-    search_form = SearchForm()
-
     page = request.args.get(get_page_parameter(), type=int, default=1)
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     observations = Observation.query.filter_by(user_id=current_user.id)
     search = False
-    if search_form.q.data:
-        observations = observations.filter(DeepSkyObject.name.description('%' + search_form.q.data + '%'))
-        search = True
 
     observations_for_render = observations.limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=observations.count(), search=search, record_name='observations', css_framework='foundation')
-    return render_template('main/observations.html', observations=observations_for_render, pagination=pagination, search_form=search_form)
+    return render_template('main/observations.html', observations=observations_for_render, pagination=pagination)
 
 @main.route('/observation/<int:observation_id>', methods=['GET'])
 @main.route('/observation/<int:observation_id>/info', methods=['GET'])
@@ -139,11 +137,13 @@ def observation_info(observation_id):
 def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
+    print(form.date.data)
     if form.validate_on_submit():
         observation = Observation(
-            date=datetime.now(),
-            ranking=form.ranking,
-            notes=form.notes
+            user_id = current_user.id,
+            date=form.date.data,
+            ranking=form.ranking.data,
+            notes=form.notes.data
             )
         db.session.add(observation)
         db.session.commit()
@@ -161,8 +161,9 @@ def observation_edit(observation_id):
         abort(404)
     form = ObservationEditForm()
     if form.validate_on_submit():
-        observation.ranking = form.ranking
-        observation.notes = form.notes
+        observation.date = form.date.data,
+        observation.ranking = form.ranking.data
+        observation.notes = form.notes.data
         db.session.add(observation)
         db.session.commit()
         flash('Observation successfully updated', 'form-success')
