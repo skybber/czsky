@@ -12,7 +12,7 @@ from app import db
 
 from app.models import Constellation, DeepSkyObject, Observation, observation
 from app.models import EditableHTML
-from flask_paginate import Pagination, get_page_parameter, get_page_args
+from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
 from .forms import (
     SearchForm,
@@ -91,7 +91,7 @@ def deepskyobjects():
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
 
-    pagination = Pagination(page=page, total=deepskyobjects.count(), search=search, record_name='deepskyobjects', css_framework='foundation')
+    pagination = Pagination(page=page, total=deepskyobjects.count(), search=search, record_name='deepskyobjects', css_framework='semantic')
     return render_template('main/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, pagination=pagination, search_form=search_form)
 
 
