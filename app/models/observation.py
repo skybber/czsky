@@ -12,6 +12,9 @@ class Observation(db.Model):
     # sql_readings = db.relationship('SqlReading', backref='observation', lazy=True)
     observation_items = db.relationship('ObservationItem', backref='observation', lazy=True)
 
+    def rating_to_int(self, m):
+        return int(round(self.ranking * m / 10))
+
 class ObservationItem(db.Model):
     __tablename__ = 'observation_items'
     id = db.Column(db.Integer, primary_key=True)

@@ -29,7 +29,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Location</th>
-                            <th>Ranking</th>
+                            <th>Rating</th>
                             <th>Notes</th>
                         </tr>
                     </thead>
@@ -38,7 +38,7 @@
                         <tr onclick="window.location.href = '{{ url_for('main.observation_info', observation_id=o.id) }}';">
                             <td>{{ o.date }}</td>
                             <td>{{ o.location.name if o.location else '' }}</td>
-                            <td>{{ o.ranking }}</td>
+                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(4) }}" data-max-rating="4"></div></td>
                             <td>{{ o.notes[:100] }}</td>
                         </tr>
                     {% endfor %}
@@ -63,5 +63,7 @@
                 }
             });
         });
+        $('.ui.rating')
+        .rating();
     </script>
 {% endblock %}

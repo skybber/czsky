@@ -2,7 +2,7 @@
 def normalize_dso_name(name):
     if name is None:
         return name
-    upper_name = name.upper().replace_all(' ','')
+    upper_name = name.upper().replace(' ','')
     if upper_name.startswith('NGC'):
         appendix = upper_name[3:]
         if len(appendix) < 4:
