@@ -2,7 +2,8 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main.deepskyobject_info', 'Deepsky object information'),
+    ('main.deepskyobject_info', 'Info'),
+    ('main.deepskyobject_info', 'Img'),
 ] %}
 
 {% macro navigation(items) %}
@@ -19,26 +20,46 @@
 {% macro deepskyobject_info(dso) %}
     <table class="ui compact definition table">
         <tr><td>Name</td><td>{{ dso.name }}</td></tr>
+        <tr><td>Type</td><td>{{ dso.type }}</td></tr>
+        <tr><td>Common name</td><td>{{ dso.common_name }}</td></tr>
+        <tr><td>descr</td><td>{{ dso.descr }}</td></tr>
+        <tr><td>RA</td><td>{{ dso.ra }}</td></tr>
+        <tr><td>Dec</td><td>{{ dso.dec }}</td></tr>
+        <tr><td>major_axis</td><td>{{ dso.major_axis }}</td></tr>
+        <tr><td>minor_axis</td><td>{{ dso.minor_axis }}</td></tr>
+        <tr><td>positon_angle</td><td>{{ dso.dec }}</td></tr>
+        <tr><td>b_mag</td><td>{{ dso.b_mag }}</td></tr>
+        <tr><td>v_mag</td><td>{{ dso.v_mag }}</td></tr>
+        <tr><td>j_mag</td><td>{{ dso.j_mag }}</td></tr>
+        <tr><td>h_mag</td><td>{{ dso.h_mag }}</td></tr>
+        <tr><td>k_mag</td><td>{{ dso.k_mag }}</td></tr>
+        <tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>
+        <tr><td>minor_axis</td><td>{{ dso.minor_axis }}</td></tr>
+        <tr><td>hubble_type</td><td>{{ dso.hubble_type }}</td></tr>
+        <tr><td>c_star_u_mag</td><td>{{ dso.c_star_u_mag }}</td></tr>
+        <tr><td>c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>
+        <tr><td>c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>
+        <tr><td>identifiers</td><td>{{ dso.identifiers }}</td></tr>
     </table>
 {% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact button" href="{{ url_for('main.constellations') }}">
+            <a class="ui basic compact button" href="{{ url_for('main.deepskyobjects') }}">
                 <i class="caret left icon"></i>
-                Back to all constellations
+                Back to deepsky objects
             </a>
             <h2 class="ui header">
-                {{ constellation.iau_code }} / {{ constellation.name }}
+                {{ dso.name }}
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
-            <div class="four wide column">
+            <div class="two wide column">
                 {{ navigation(endpoints) }}
             </div>
-            <div class="eight wide column">
-            	{{ constellation_info(constellation) }}
+            <div class="ten wide column">
+                {{ deepskyobject_info(dso) }}
             </div>
         </div>
     </div>

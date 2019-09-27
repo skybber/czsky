@@ -13,6 +13,7 @@ from app import db
 from app.models import Constellation, DeepSkyObject, Observation, observation
 from app.models import EditableHTML
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.dso_utils import normalize_dso_name
 
 from .forms import (
     SearchForm,
@@ -86,7 +87,7 @@ def deepskyobjects():
     deepskyobjects = DeepSkyObject.query
     search = False
     if search_form.q.data:
-        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + search_form.q.data + '%'))
+        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
         search = True
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
@@ -130,7 +131,18 @@ def observation_info(observation_id):
         abort(404)
     if observation.user_id != current_user.id:
         abort(404)
-    return render_template('main/observation_info.html', observation=observation)
+    return render_template('main/observation_info.html', observation=observation, type='info')
+
+@main.route('/observation/<int:observation_id>/sqm', methods=['GET'])
+@login_required
+def observation_sqm(observation_id):
+    """View a observation sqm."""
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if observation is None:
+        abort(404)
+    if observation.user_id != current_user.id:
+        abort(404)
+    return render_template('main/observation_info.html', observation=observation, type='sqm')
 
 @main.route('/new-observation', methods=['GET', 'POST'])
 @login_required

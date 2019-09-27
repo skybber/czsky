@@ -27,7 +27,6 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">Name</th>
                             <th>Date</th>
                             <th>Location</th>
                             <th>Ranking</th>
@@ -38,7 +37,7 @@
                     {% for o in observations | sort(attribute='date') %}
                         <tr onclick="window.location.href = '{{ url_for('main.observation_info', observation_id=o.id) }}';">
                             <td>{{ o.date }}</td>
-                            <td>None</td>
+                            <td>{{ o.location.name if o.location else '' }}</td>
                             <td>{{ o.ranking }}</td>
                             <td>{{ o.notes[:100] }}</td>
                         </tr>

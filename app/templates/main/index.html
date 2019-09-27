@@ -33,14 +33,14 @@
             <div class="ui two column stackable grid">
                 {% if not is_anonymous %}
                     {{ dashboard_option('Add observation', 'main.new_observation',
-                                        description='Add new observation', icon='users icon') }}
+                                        description='Add new observation', icon='pencil icon') }}
                     {{ dashboard_option('Observations', 'main.observations',
-                                        description='View observations', icon='users icon') }}
+                                        description='View observations', icon='binoculars icon') }}
                 {% endif %}
                 {{ dashboard_option('Constellations', 'main.constellations',
-                                    description='View constellations', icon='users icon') }}
+                                    description='View constellations', icon='lastfm icon') }}
                 {{ dashboard_option('Deepsky Objects', 'main.deepskyobjects',
-                                    description='View deepsky objects', icon='users icon') }}
+                                    description='View deepsky objects', icon='star icon') }}
             </div>
         </div>
     </div>

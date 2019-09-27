@@ -2,9 +2,9 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main.constellation_info', 'Constellation information'),
-    ('main.constellation_stars', 'Constellation stars'),
-    ('main.constellation_deepskyobjects', 'Constellation deepsky objects'),
+    ('main.constellation_info', 'Information'),
+    ('main.constellation_stars', 'Stars'),
+    ('main.constellation_deepskyobjects', 'Deepsky objects'),
 ] %}
 
 {% macro navigation(items) %}
@@ -31,30 +31,30 @@
 {% endmacro %}
 
 {% macro constellation_dso(constellation) %}
-	<div style="overflow-x: scroll;">
-			<table class="ui searchable sortable unstackable selectable celled table">
-					<thead>
-							<tr>
-									<th class="sorted ascending">Name</th>
-									<th>Type</th>
-									<th>RA</th>
-									<th>DEC</th>
-									<th>h_mag</th>
-							</tr>
-					</thead>
-					<tbody>
-					{% for d in constellation.deep_sky_objects | sort(attribute='name') %}
-							<tr onclick="window.location.href = '{{ url_for('main.deepskyobject_info', dso_id=d.id) }}';">
-									<td>{{ d.name }}</td>
-									<td>{{ d.type }}</td>
-									<td>{{ d.ra }}</td>
-									<td>{{ d.dec }}</td>
-									<td>{{ d.h_mag }}</td>
-							</tr>
-					{% endfor %}
-					</tbody>
-			</table>
-	</div>
+    <div style="overflow-x: scroll;">
+            <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                            <tr>
+                                    <th class="sorted ascending">Name</th>
+                                    <th>Type</th>
+                                    <th>RA</th>
+                                    <th>DEC</th>
+                                    <th>h_mag</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in constellation.deep_sky_objects | sort(attribute='name') %}
+                            <tr onclick="window.location.href = '{{ url_for('main.deepskyobject_info', dso_id=d.id) }}';">
+                                    <td>{{ d.name }}</td>
+                                    <td>{{ d.type }}</td>
+                                    <td>{{ d.ra }}</td>
+                                    <td>{{ d.dec }}</td>
+                                    <td>{{ d.h_mag }}</td>
+                            </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+    </div>
 {% endmacro %}
 
 {% block content %}
@@ -73,14 +73,14 @@
                 {{ navigation(endpoints) }}
             </div>
             <div class="eight wide column">
-            	{% if type == 'info' %}
-                	{{ constellation_info(constellation) }}
+                {% if type == 'info' %}
+                    {{ constellation_info(constellation) }}
                 {% endif %}
-            	{% if type == 'stars' %}
-                	{{ constellation_stars(constellation) }}
+                {% if type == 'stars' %}
+                    {{ constellation_stars(constellation) }}
                 {% endif %}
-            	{% if type == 'dso' %}
-                	{{ constellation_dso(constellation) }}
+                {% if type == 'dso' %}
+                    {{ constellation_dso(constellation) }}
                 {% endif %}
             </div>
         </div>

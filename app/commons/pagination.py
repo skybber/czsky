@@ -89,7 +89,7 @@ _bs33 = '<li class="disabled"><span>\
 <span aria-hidden="true">{0}</span></span></li>'
 _bs4 = '<li class="page-item disabled"><span class="page-link"> {0} \
 </span></li>'
-_se = '<a class="disabled item">...</a>'
+_se = '<a class="item arrow disabled">{0}</a>'
 _fa = '<li class="unavailable"><a>{0}</a></li>'
 PREV_DISABLED_PAGES = dict(bootstrap=_bs,
                            bootstrap2=_bs,
@@ -105,7 +105,7 @@ _bs33 = '<li class="disabled"><span>\
 <span aria-hidden="true">{0}</span></span></li>'
 _bs4 = '<li class="page-item disabled"><span class="page-link"> {0} \
 </span></li>'
-_se = '<a class="disabled item">...</a>'
+_se = '<a class="item arrow disabled">{0}</a>'
 _fa = '<li class="unavailable"><a>{0}</a></li>'
 NEXT_DISABLED_PAGES = dict(bootstrap=_bs,
                            bootstrap2=_bs,
