@@ -10,17 +10,8 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Constellation, DeepSkyObject, Observation, observation
 from app.models import EditableHTML
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
-from app.commons.dso_utils import normalize_dso_name
-
-from .forms import (
-    SearchForm,
-    ObservationNewForm,
-    ObservationEditForm,
-)
-
 
 main = Blueprint('main', __name__)
 
@@ -37,146 +28,8 @@ def about():
     return render_template(
         'main/about.html', editable_html_obj=editable_html_obj)
 
-
-
-@main.route('/constellations')
-def constellations():
-    """View all constellations."""
-    constellations = Constellation.query.all()
-    return render_template(
-        'main/constellations.html', constellations=constellations)
-
-
-@main.route('/constellation/<int:constellation_id>')
-@main.route('/constellation/<int:constellation_id>/info')
-def constellation_info(constellation_id):
-    """View a constellation info."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
-    if constellation is None:
-        abort(404)
-    return render_template('main/constellation_info.html', constellation=constellation, type='info')
-
-
-@main.route('/constellation/<int:constellation_id>/stars')
+@main.route('/settings', methods=['GET', 'POST'])
 @login_required
-def constellation_stars(constellation_id):
-    """View a constellation info."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
-    if constellation is None:
-        abort(404)
-    return render_template('main/constellation_info.html', constellation=constellation, type='stars')
+def settings():
+    return render_template('main/settings.html')
 
-
-@main.route('/constellation/<int:constellation_id>/deepskyobjects')
-def constellation_deepskyobjects(constellation_id):
-    """View a constellation deep sky objects."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
-    if constellation is None:
-        abort(404)
-    return render_template('main/constellation_info.html', constellation=constellation, type='dso')
-
-@main.route('/deepskyobjects', methods=['GET', 'POST'])
-def deepskyobjects():
-    """View deepsky objects."""
-    search_form = SearchForm()
-
-    page = request.args.get(get_page_parameter(), type=int, default=1)
-    per_page = ITEMS_PER_PAGE
-    offset = (page - 1) * per_page
-
-    deepskyobjects = DeepSkyObject.query
-    search = False
-    if search_form.q.data:
-        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
-        search = True
-
-    deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
-
-    pagination = Pagination(page=page, total=deepskyobjects.count(), search=search, record_name='deepskyobjects', css_framework='semantic')
-    return render_template('main/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, pagination=pagination, search_form=search_form)
-
-
-@main.route('/deepskyobject/<int:dso_id>')
-@main.route('/deepskyobject/<int:dso_id>/info')
-def deepskyobject_info(dso_id):
-    """View a deepsky object info."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
-    if dso is None:
-        abort(404)
-    return render_template('main/deepskyobject_info.html', dso=dso)
-
-@main.route('/observations', methods=['GET', 'POST'])
-@login_required
-def observations():
-    """View observations."""
-    page = request.args.get(get_page_parameter(), type=int, default=1)
-    per_page = ITEMS_PER_PAGE
-    offset = (page - 1) * per_page
-
-    observations = Observation.query.filter_by(user_id=current_user.id)
-    search = False
-
-    observations_for_render = observations.limit(per_page).offset(offset)
-
-    pagination = Pagination(page=page, total=observations.count(), search=search, record_name='observations', css_framework='foundation')
-    return render_template('main/observations.html', observations=observations_for_render, pagination=pagination)
-
-@main.route('/observation/<int:observation_id>', methods=['GET'])
-@main.route('/observation/<int:observation_id>/info', methods=['GET'])
-@login_required
-def observation_info(observation_id):
-    """View a observation info."""
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
-    return render_template('main/observation_info.html', observation=observation, type='info')
-
-@main.route('/observation/<int:observation_id>/sqm', methods=['GET'])
-@login_required
-def observation_sqm(observation_id):
-    """View a observation sqm."""
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
-    return render_template('main/observation_info.html', observation=observation, type='sqm')
-
-@main.route('/new-observation', methods=['GET', 'POST'])
-@login_required
-def new_observation():
-    """Create new observation"""
-    form = ObservationNewForm()
-    print(form.date.data)
-    if form.validate_on_submit():
-        observation = Observation(
-            user_id = current_user.id,
-            date=form.date.data,
-            ranking=form.ranking.data,
-            notes=form.notes.data
-            )
-        db.session.add(observation)
-        db.session.commit()
-        flash('Observation successfully created', 'form-success')
-    return render_template('main/observation_new.html', form=form)
-
-@main.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
-@login_required
-def observation_edit(observation_id):
-    """Update observation"""
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
-    form = ObservationEditForm()
-    if form.validate_on_submit():
-        observation.date = form.date.data,
-        observation.ranking = form.ranking.data
-        observation.notes = form.notes.data
-        db.session.add(observation)
-        db.session.commit()
-        flash('Observation successfully updated', 'form-success')
-    return render_template('main/observation_edit.html', form=form)

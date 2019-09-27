@@ -1,24 +1,6 @@
-{% extends 'layouts/base.html' %}
+{% import 'macros/dashboard_macros.html' as dash %}
 
-{% macro dashboard_option(title, endpoint, description=None, icon=None) %}
-    <a class="column" href="{{ url_for(endpoint) }}">
-        <div class="ui padded segment">
-            <h3 class="ui header">
-                {% if icon is not none %}
-                    <i class="{{ icon }}"></i>
-                {% endif %}
-                <div class="content">
-                    {{ title }}
-                    {% if description is not none %}
-                        <div class="sub header">
-                            {{ description }}
-                        </div>
-                    {% endif %}
-                </div>
-            </h3>
-        </div>
-    </a>
-{% endmacro %}
+{% extends 'layouts/base.html' %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -32,15 +14,19 @@
             </h2>
             <div class="ui two column stackable grid">
                 {% if not is_anonymous %}
-                    {{ dashboard_option('Add observation', 'main.new_observation',
+                    {{ dash.dashboard_option('Add observation', 'main_observation.new_observation',
                                         description='Add new observation', icon='pencil icon') }}
-                    {{ dashboard_option('Observations', 'main.observations',
+                    {{ dash.dashboard_option('Observations', 'main_observation.observations',
                                         description='View observations', icon='eye icon') }}
                 {% endif %}
-                {{ dashboard_option('Constellations', 'main.constellations',
+                {{ dash.dashboard_option('Constellations', 'main_catalogue.constellations',
                                     description='View constellations', icon='lastfm icon') }}
-                {{ dashboard_option('Deepsky Objects', 'main.deepskyobjects',
+                {{ dash.dashboard_option('Deepsky Objects', 'main_catalogue.deepskyobjects',
                                     description='View deepsky objects', icon='star icon') }}
+                {% if not is_anonymous %}
+                    {{ dash.dashboard_option('Settings', 'main.settings',
+                                        description='View settings', icon='cogs icon') }}
+                {% endif %}
             </div>
         </div>
     </div>

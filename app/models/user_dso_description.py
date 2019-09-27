@@ -7,5 +7,5 @@ class UserDsoDescription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    ranking = db.Column(db.Integer)
+    rating = db.Column(db.Integer)
     notes = db.Column(db.Text)

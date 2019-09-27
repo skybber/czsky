@@ -12,7 +12,7 @@
                 Back to dashboard
             </a>
             <h2 class="ui header">
-                Add New Observation
+                Add New Location
             </h2>
 
             {% set flashes = {
@@ -24,21 +24,16 @@
 
             {{ f.begin_form(form, flashes) }}
 
-                <div class="field">
-                    <label for="odate">Date</label>
-                    <div class="ui calendar" id="odate">
-                      <div class="ui input left icon">
-                        <i class="calendar icon"></i>
-                        <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
-                      </div>
-                    </div>
-                </div>
-
-                {{ f.render_form_field(form.ranking) }}
-                {{ f.render_form_field(form.notes) }}
+                {{ f.render_form_field(form.name) }}
+                {{ f.render_form_field(form.longitude) }}
+                {{ f.render_form_field(form.latitude) }}
+                {{ f.render_form_field(form.bortle) }}
+                {{ f.render_form_field(form.rating) }}
+                {{ f.render_form_field(form.is_public) }}
+                {{ f.render_form_field(form.descr) }}
 
                 {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
-                {{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
+                {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
                 {{ f.form_message(flashes['info'], header='Information', class='info') }}
                 {{ f.form_message(flashes['success'], header='Success!', class='success') }}
 
@@ -49,20 +44,5 @@
             {{ f.end_form() }}
         </div>
     </div>
-
-    <script type="text/javascript">
-        $('#odate').calendar({
-            type: 'date',
-            formatter: {
-                date: function (date, settings) {
-                if (!date) return '';
-                var day = date.getDate();
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-                return day + '/' + month + '/' + year;
-                }
-            }
-        });
-    </script>
 
 {% endblock %}

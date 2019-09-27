@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main_location.location_info', 'Location'),
+    ('main_location.location_info', 'Observations(TODO)'),
+    ('main_location.location_info', 'SQM (TODO)'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui vertical fluid secondary menu">
+        {% for route, name in items %}
+            {% set href = url_for(route, location_id=location.id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ name }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro location_info(location) %}
+    <table class="ui compact definition table">
+        <tr><td>Name</td><td>{{ location.name }}</td></tr>
+        <tr><td>Longitude</td><td>{{ location.longitude }}</td></tr>
+        <tr><td>Latitude</td><td>{{ location.latitude }}</td></tr>
+        <tr><td>Bortle</td><td>{{ location.bortle }}</td></tr>
+        <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(4) }}" data-max-rating="4"></div></td></tr>
+        <tr><td>Description</td><td>{{ location.description }}</td></tr>
+    </table>
+{% endmacro %}
+
+{% macro location_observations(location) %}
+{% endmacro %}
+
+{% macro location_sqm(location) %}
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main_location.locations') }}">
+                <i class="caret left icon"></i>
+                Back to locations
+            </a>
+            <h2 class="ui header">
+                {{ location.name }}
+            </h2>
+        </div>
+        <div class="stretched divided very relaxed row">
+            <div class="four wide column">
+                {{ navigation(endpoints) }}
+            </div>
+            <div class="eight wide column">
+                {% if type == 'info' %}
+                    {{ location_info(location) }}
+                {% elif type == 'observations' %}
+                    {{ location_observations(location) }}
+                {% elif type == 'sqm' %}
+                    {{ location_sqm(location) }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

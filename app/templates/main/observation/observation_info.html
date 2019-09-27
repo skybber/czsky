@@ -2,8 +2,8 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main.observation_info', 'Observation'),
-    ('main.observation_sqm', 'Observation SQM'),
+    ('main_observation.observation_info', 'Observation'),
+    ('main_observation.observation_sqm', 'SQM (TODO)'),
 ] %}
 
 {% macro navigation(items) %}
@@ -32,9 +32,9 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact button" href="{{ url_for('main.observations') }}">
+            <a class="ui basic compact button" href="{{ url_for('main_observation.observations') }}">
                 <i class="caret left icon"></i>
-                Back to all observations
+                Back to observations
             </a>
             <h2 class="ui header">
                 {{ observation.date }}
@@ -47,8 +47,7 @@
             <div class="eight wide column">
                 {% if type == 'info' %}
                     {{ observation_info(observation) }}
-                {% endif %}
-                {% if type == 'sqm' %}
+                {% elif type == 'sqm' %}
                     {{ observation_sqm(observation) }}
                 {% endif %}
             </div>

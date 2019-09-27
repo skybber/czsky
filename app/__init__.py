@@ -70,6 +70,12 @@ def create_app(config):
     # Create app blueprints
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+    from .main import main_catalogue as main_catalogue
+    app.register_blueprint(main_catalogue)
+    from .main import main_location as main_location
+    app.register_blueprint(main_location)
+    from .main import main_observation as main_observation
+    app.register_blueprint(main_observation)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

@@ -1,0 +1,69 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="sixteen wide tablet twelve wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                Back to dashboard
+            </a>
+            <h2 class="ui header">
+                Locations
+            </h2>
+
+            <div class="ui menu">
+                <div class="ui right search item">
+                    <div class="ui transparent icon input">
+                        <input id="search-dsos" type="text" placeholder="Search locations…">
+                        <i class="search icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            {# Use overflow-x: scroll so that mobile views don't freak out
+             # when the table is too wide #}
+            <div style="overflow-x: scroll;">
+                {{ pagination.info }}
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Longitude</th>
+                            <th>Latitude</th>
+                            <th>Bortle</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for l in locations | sort(attribute='name') %}
+                        <tr onclick="window.location.href = '{{ url_for('main_location.location_info', location_id=l.id) }}';">
+                            <td>{{ l.name }}</td>
+                            <td>{{ l.longitude }}</td>
+                            <td>{{ l.latitude }}</td>
+                            <td>{{ l.bortle }}</td>
+                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(4) }}" data-max-rating="4"></div></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {{ pagination.links }}
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#search-dsos').keyup(function () {
+                var searchText = $(this).val();
+                if (searchText.length > 0) {
+                    $('tbody td:icontains(' + searchText + ')').addClass('positive');
+                    $('td.positive').not(':icontains(' + searchText + ')').removeClass('positive');
+                    $('tbody td').not(':icontains(' + searchText + ')').closest('tr').addClass('hidden').hide();
+                    $('tr.hidden:icontains(' + searchText + ')').removeClass('hidden').show();
+                } else {
+                    $('td.positive').removeClass('positive');
+                    $('tr.hidden').removeClass('hidden').show();
+                }
+            });
+        });
+    </script>
+{% endblock %}

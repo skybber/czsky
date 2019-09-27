@@ -17,7 +17,7 @@ while True:
 
     print('-------- Scrapping location:' + str(loc_id))
     name = soup.select_one('.location__title').text.strip()
-    created_by = soup.find(text='Vytvořil/a').find_next().text.strip()
+    create_by = soup.find(text='Vytvořil/a').find_next().text.strip()
     coords = soup.find(text='Souřadnice').find_next().text.strip()
     elevation = soup.find(text='Nadm. výška').find_next().text.strip()
     descr = soup.find(text='Popis').find_next().text.strip()
@@ -31,7 +31,7 @@ while True:
     coords = coords[coords.index('(') + 1:coords.index(')')]
 
     print('Name:' + name)
-    print('Created by:' + created_by)
+    print('Created by:' + create_by)
     print('Coordinaktions:' + coords)
     print('Elevation:' + elevation)
     print('Descr:' + descr)

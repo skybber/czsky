@@ -8,13 +8,13 @@
                 Back to dashboard
             </a>
             <h2 class="ui header">
-                Constellations
+                Observations
             </h2>
 
             <div class="ui menu">
                 <div class="ui right search item">
                     <div class="ui transparent icon input">
-                        <input id="search-constellations" type="text" placeholder="Search constellation…">
+                        <input id="search-dsos" type="text" placeholder="Search deepsky objects…">
                         <i class="search icon"></i>
                     </div>
                 </div>
@@ -23,29 +23,34 @@
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}
             <div style="overflow-x: scroll;">
+                {{ pagination.info }}
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">IAU code</th>
-                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Rating</th>
+                            <th>Notes</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for c in constellations | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main.constellation_info', constellation_id=c.id) }}';">
-                            <td>{{ c.iau_code }}</td>
-                            <td>{{ c.name }}</td>
+                    {% for o in observations | sort(attribute='date') %}
+                        <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
+                            <td>{{ o.date }}</td>
+                            <td>{{ o.location.name if o.location else '' }}</td>
+                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(4) }}" data-max-rating="4"></div></td>
+                            <td>{{ o.notes[:100] }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+                {{ pagination.links }}
             </div>
         </div>
     </div>
-
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#search-constellations').keyup(function () {
+            $('#search-dsos').keyup(function () {
                 var searchText = $(this).val();
                 if (searchText.length > 0) {
                     $('tbody td:icontains(' + searchText + ')').addClass('positive');
@@ -58,5 +63,7 @@
                 }
             });
         });
+        $('.ui.rating')
+        .rating();
     </script>
 {% endblock %}

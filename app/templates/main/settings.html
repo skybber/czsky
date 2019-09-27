@@ -1,0 +1,19 @@
+{% import 'macros/dashboard_macros.html' as dash %}
+
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <h2 class="ui header">
+                    Settings
+            </h2>
+            <div class="ui two column stackable grid">
+                {{ dash.dashboard_option('Add location', 'main_location.new_location',
+                                    description='Add new location', icon='users icon') }}
+                {{ dash.dashboard_option('Locations', 'main_location.locations',
+                                    description='View all locations', icon='users icon') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
