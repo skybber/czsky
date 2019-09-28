@@ -90,4 +90,5 @@ def deepskyobject_info(dso_id):
     dso = DeepSkyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    return render_template('main/catalogue/deepskyobject_info.html', dso=dso)
+    from_constellation_id = request.args.get('from_constellation_id')
+    return render_template('main/catalogue/deepskyobject_info.html', dso=dso, from_constellation_id=from_constellation_id)

@@ -46,10 +46,17 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact button" href="{{ url_for('main_catalogue.deepskyobjects') }}">
-                <i class="caret left icon"></i>
-                Back to deepsky objects
-            </a>
+            {% if from_constellation_id %}
+                <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellation_info', constellation_id=from_constellation_id) }}">
+                    <i class="caret left icon"></i>
+                    Back to constellations
+                </a>
+            {% else %}
+                <a class="ui basic compact button" href="{{ url_for('main_catalogue.deepskyobjects') }}">
+                    <i class="caret left icon"></i>
+                    Back to deepsky objects
+                </a>
+            {% endif %}
             <h2 class="ui header">
                 {{ dso.name }}
             </h2>
@@ -58,7 +65,7 @@
             <div class="two wide column">
                 {{ navigation(endpoints) }}
             </div>
-            <div class="ten wide column">
+            <div class="fourteen wide tablet fourteen wide computer column">
                 {{ deepskyobject_info(dso) }}
             </div>
         </div>

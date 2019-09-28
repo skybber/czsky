@@ -2,17 +2,17 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_catalogue.constellation_info', 'Info'),
-    ('main_catalogue.constellation_stars', 'Stars'),
-    ('main_catalogue.constellation_deepskyobjects', 'DSO'),
+    ('main_catalogue.constellation_info', 'Info', 'info'),
+    ('main_catalogue.constellation_stars', 'Stars', 'star'),
+    ('main_catalogue.constellation_deepskyobjects', 'DSO', 'star'),
 ] %}
 
 {% macro navigation(items) %}
-    <div class="ui vertical fluid secondary menu">
-        {% for route, name in items %}
+    <div class="ui fluid vertical icon secondary menu">
+        {% for route, pupup_text, icon in items %}
             {% set href = url_for(route, constellation_id=constellation.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
-                {{ name }}
+                <i class="{{ icon }} icon"></i>
             </a>
         {% endfor %}
     </div>
@@ -21,7 +21,7 @@
 {% macro constellation_user_info(constellation, user_descr) %}
 {% filter commonmark %}
 {{ user_descr }}
-{% endfilter %}
+ {% endfilter %}
 {% endmacro %}
 
 {% macro constellation_info(constellation) %}
@@ -50,7 +50,7 @@
                     </thead>
                     <tbody>
                     {% for d in constellation.deep_sky_objects | sort(attribute='name') %}
-                            <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id) }}';">
+                            <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id, from_constellation_id=constellation.id) }}';">
                                     <td>{{ d.name }}</td>
                                     <td>{{ d.type }}</td>
                                     <td>{{ d.ra }}</td>
@@ -65,10 +65,10 @@
 
 {% block content %}
     <div class="ui stackable centered grid container">
-        <div class="twelve wide column">
+        <div class="fourteen wide tablet sixteen wide computer column">
             <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellations') }}">
                 <i class="caret left icon"></i>
-                Back to all constellations
+                Back to Constellations
             </a>
             <h2 class="ui header">
                 {{ constellation.iau_code }} / {{ constellation.name }}
@@ -78,7 +78,7 @@
             <div class="two wide column">
                 {{ navigation(endpoints) }}
             </div>
-            <div class="ten wide column">
+            <div class="fourteen wide tablet fourteen wide computer wide column">
                 {% if type == 'info' %}
                     {% if user_descr %}
                         {{ constellation_user_info(constellation, user_descr) }}
