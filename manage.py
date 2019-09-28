@@ -14,6 +14,7 @@ from config import Config
 from imports.import_catalogues import *
 from imports.import_constellations import *
 from imports.import_dso import *
+from imports.import_8mag import *
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -53,6 +54,12 @@ def initialize_catalogues():
     import_constellations('data/88-constellations.csv')
     import_deepsky_objects('data/OpenNGC.csv')
 
+@manager.command
+def import_8mag():
+    """
+    Import 8mag
+    """
+    do_import_8mag('data/8mag', 'app/static/webassets-external/users/8mag/cons', True)
 
 @manager.option(
     '-n',
@@ -81,6 +88,19 @@ def add_test_user():
         db.session.add(user)
         db.session.commit()
 
+@manager.command
+def add_8mag_user():
+    user_email = '8mag'
+    if User.query.filter_by(email=user_email).first() is None:
+        user = User(
+            first_name='',
+            last_name='',
+            password='',
+            confirmed=False,
+            email=user_email,
+            is_hidden=True)
+        db.session.add(user)
+        db.session.commit()
 
 @manager.command
 def setup_dev():

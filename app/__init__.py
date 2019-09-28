@@ -83,4 +83,7 @@ def create_app(config):
     from .admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
+    from flask_commonmark import Commonmark
+    cm = Commonmark(app)
+
     return app

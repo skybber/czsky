@@ -12,7 +12,7 @@ def import_constellations(data_file):
         for row in reader:
             c = Constellation(
                 iau_code = row['IAU code'],
-                name = row['Latin name / Nom latin '],
+                name = row['Latin name / Nom latin '].lower(),
                 descr = '',
                 image = row['Image']
                 )

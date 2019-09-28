@@ -2,9 +2,9 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_catalogue.constellation_info', 'Information'),
+    ('main_catalogue.constellation_info', 'Info'),
     ('main_catalogue.constellation_stars', 'Stars'),
-    ('main_catalogue.constellation_deepskyobjects', 'Deepsky objects'),
+    ('main_catalogue.constellation_deepskyobjects', 'DSO'),
 ] %}
 
 {% macro navigation(items) %}
@@ -16,6 +16,12 @@
             </a>
         {% endfor %}
     </div>
+{% endmacro %}
+
+{% macro constellation_user_info(constellation, user_descr) %}
+{% filter commonmark %}
+{{ user_descr }}
+{% endfilter %}
 {% endmacro %}
 
 {% macro constellation_info(constellation) %}
@@ -69,12 +75,16 @@
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
-            <div class="four wide column">
+            <div class="two wide column">
                 {{ navigation(endpoints) }}
             </div>
-            <div class="eight wide column">
+            <div class="ten wide column">
                 {% if type == 'info' %}
-                    {{ constellation_info(constellation) }}
+                    {% if user_descr %}
+                        {{ constellation_user_info(constellation, user_descr) }}
+                    {% else %}
+                        {{ constellation_info(constellation) }}
+                    {% endif %}
                 {% endif %}
                 {% if type == 'stars' %}
                     {{ constellation_stars(constellation) }}

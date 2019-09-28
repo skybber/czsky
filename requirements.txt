@@ -1,6 +1,7 @@
 alembic==1.1.0
 appdirs==1.4.3
 attrs==19.1.0
+beautifulsoup4==4.8.0 
 blinker==1.4
 certifi==2019.6.16
 chardet==3.0.4
@@ -8,6 +9,7 @@ Click==7.0
 Faker==2.0.1
 Flask==1.1.1
 Flask-Assets==0.12
+Flask-Commonmark==0.8
 Flask-Compress==1.4.0
 Flask-Login==0.4.1
 Flask-Mail==0.9.1

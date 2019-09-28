@@ -5,9 +5,9 @@ from .. import db
 class Observation(db.Model):
     __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    date = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.now(), index=True)
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

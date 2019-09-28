@@ -1,11 +1,12 @@
 import csv
 
+from sqlalchemy.exc import IntegrityError
+
 from app import db
 from app.models.catalogue import Catalogue
 
 def import_catalogues(data_file):
     """Initialize catagues table."""
-    from sqlalchemy.exc import IntegrityError
 
     with open(data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')

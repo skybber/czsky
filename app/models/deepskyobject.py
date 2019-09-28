@@ -5,7 +5,7 @@ from .. import db
 class DeepSkyObject(db.Model):
     __tablename__ = 'deep_sky_objects'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32))
+    name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
     ra = db.Column(db.String(32))
     dec = db.Column(db.String(32))
@@ -33,3 +33,11 @@ class DsoCatalogueLink(db.Model):
     catalogue_id = db.Column(db.Integer, db.ForeignKey('catalogues.id'), primary_key=True, nullable=False)
     dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), primary_key=True, nullable=False)
     name = db.Column(db.String(64))
+
+class UserDsoDescription(db.Model):
+    __tablename__ = 'user_dso_description'
+    id = db.Column(db.Integer, primary_key=True)
+    dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer)
+    text = db.Column(db.Text)

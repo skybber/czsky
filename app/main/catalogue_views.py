@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Constellation, DeepSkyObject
+from app.models import User, Constellation, DeepSkyObject, UserConsDescription
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.dso_utils import normalize_dso_name
 
@@ -37,7 +37,12 @@ def constellation_info(constellation_id):
     constellation = Constellation.query.filter_by(id=constellation_id).first()
     if constellation is None:
         abort(404)
-    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info')
+    user_descr = None
+    user_8mag = User.query.filter_by(email='8mag').first()
+    if user_8mag:
+        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id).first()
+        user_descr = ud.text if ud else None
+    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info', user_descr=user_descr)
 
 
 @main_catalogue.route('/constellation/<int:constellation_id>/stars')

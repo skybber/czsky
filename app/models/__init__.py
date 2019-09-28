@@ -11,4 +11,3 @@ from .miscellaneous import *
 from .observation import *
 from .skyquality import *
 from .user import *
-from .user_dso_description import *
