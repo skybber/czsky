@@ -59,7 +59,7 @@ def import_8mag():
     """
     Import 8mag
     """
-    do_import_8mag('data/8mag', 'app/static/webassets-external/users/8mag/cons', True)
+    do_import_8mag('data/8mag', True)
 
 @manager.option(
     '-n',
