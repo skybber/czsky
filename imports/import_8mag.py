@@ -90,9 +90,10 @@ def do_import_8mag(src_path, dst_path, debug_log):
                         if src.startswith('./'):
                             src = src[2:]
                         md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
-                of = dst_path + f[f.rfind('/') + 1:].replace('.htm', '.md')
-                with open(of, 'w') as ofile:
-                    ofile.write(md_text)
+                # of = dst_path + f[f.rfind('/') + 1:].replace('.htm', '.md')
+
+                # with open(of, 'w') as ofile:
+                #    ofile.write(md_text)
 
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
