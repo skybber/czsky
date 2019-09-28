@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
+import sys, re, getopt, os, glob, pathlib
+
 from bs4 import BeautifulSoup
 
 from sqlalchemy.exc import IntegrityError
-
-import sys, re, getopt, os, glob, pathlib
 
 from app import db
 from app.models.user import User
@@ -59,6 +59,8 @@ def do_import_8mag(src_path, dst_path, debug_log):
     if not user_8mag:
         print('User 8mag not found.')
         sys.exit(2)
+
+    os.makedirs(dst_path, exist_ok=True)
 
     files = [f for f in glob.glob(src_path + "/*.htm")]
     for f in files:
