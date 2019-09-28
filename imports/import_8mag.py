@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
+from googletrans import Translator
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -60,7 +61,11 @@ def do_import_8mag(src_path, dst_path, debug_log):
         print('User 8mag not found.')
         sys.exit(2)
 
+    UserConsDescription.query.filter_by(user_id=user_8mag.id).delete()
+
     os.makedirs(dst_path, exist_ok=True)
+
+    translator = Translator()
 
     files = [f for f in glob.glob(src_path + "/*.htm")]
     for f in files:
@@ -84,7 +89,8 @@ def do_import_8mag(src_path, dst_path, debug_log):
                     if elem.name == 'p':
                         ptext = elem.text.strip()
                         if len(ptext) > 0:
-                            md_text += elem.text.strip() + '\n\n'
+                            transl_text = translator.translate(ptext, src='sk', dest='cs').text
+                            md_text += transl_text + '\n\n'
                     else:
                         src = elem['src']
                         if src.startswith('./'):

@@ -19,6 +19,7 @@ Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.0
 Flask-SSLify==0.1.5
 Flask-WTF==0.14.2
+googletrans==2.4.0 
 gunicorn==19.9.0
 ephem==3.7.7.0
 honcho==1.0.1
