@@ -134,9 +134,9 @@ def do_import_8mag(src_path, debug_log):
                 if not cons:
                     print('Constellation "' + lat_name + '" not fount in db!')
                     continue
-                md_text = '## ' + cons_name + '\n\n'
+                # md_text = '## ' + cons_name + '\n\n'
 
-                md_text += extract_div_elem(translator, soup.select_one('div.level1'))
+                md_text = extract_div_elem(translator, soup.select_one('div.level1'))
                 md_text += extract_div_elem(translator, soup.select_one('div.level2'))
                 md_text += extract_cons_objects(soup, translator)
 
