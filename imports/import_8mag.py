@@ -5,6 +5,7 @@ import sys, re, getopt, os, glob, pathlib
 from bs4 import BeautifulSoup
 
 from sqlalchemy.exc import IntegrityError
+from json.decoder import JSONDecodeError
 
 from app import db
 from app.models.user import User
@@ -53,6 +54,29 @@ def main():
 
     do_import_8mag(src_path, dst_path, debug_log)
 
+
+def extract_element_text(soup, translator, selector):
+    level = soup.select_one(selector)
+    md_text = ''
+    for elem in level.find_all(['p', 'img']):
+        if elem.name == 'p':
+            ptext = elem.text.strip()
+            if len(ptext) > 0:
+                try:
+                    transl_text = translator.translate(ptext, src='sk', dest='cs').text
+                except JSONDecodeError:
+                    transl_text = ptext
+                    print('Translation failed text=' + ptext)
+                md_text += transl_text + '\n\n'
+        else:
+            src = elem['src']
+            if src.startswith('./'):
+                src = src[2:]
+            md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
+    return md_text
+
+
+
 def do_import_8mag(src_path, dst_path, debug_log):
 
     user_8mag = User.query.filter_by(email='8mag').first()
@@ -83,19 +107,10 @@ def do_import_8mag(src_path, dst_path, debug_log):
                     print('Constellation "' + lat_name + '" not fount in db!')
                     continue
                 md_text = '## ' + cons_name + '\n\n'
-                level_1 = soup.select_one('div.level1')
-                level_1.find_all(['p', 'img'])
-                for elem in level_1.find_all(['p', 'img']):
-                    if elem.name == 'p':
-                        ptext = elem.text.strip()
-                        if len(ptext) > 0:
-                            transl_text = translator.translate(ptext, src='sk', dest='cs').text
-                            md_text += transl_text + '\n\n'
-                    else:
-                        src = elem['src']
-                        if src.startswith('./'):
-                            src = src[2:]
-                        md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
+
+                md_text = extract_element_text(soup, translator, 'div.level1')
+                md_text += extract_element_text(soup, translator, 'div.level2')
+
                 # of = dst_path + f[f.rfind('/') + 1:].replace('.htm', '.md')
 
                 # with open(of, 'w') as ofile:
