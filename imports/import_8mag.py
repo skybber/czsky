@@ -77,7 +77,10 @@ def do_translate(translator, db_connection, ptext):
 
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
-        cur.execute('insert into translations values (?,?)', [hashv, trans_text])
+        icur = db_connection.cursor()
+        icur.execute('insert into translations values (?,?)', [hashv, trans_text])
+        db_connection.commit()
+        icur.close()
     except JSONDecodeError:
         print('Translation failed text=' + ptext)
         print('Automatic translator stopped.')
