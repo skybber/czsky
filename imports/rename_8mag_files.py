@@ -35,8 +35,8 @@ def main():
 
     files = [f for f in glob.glob(path + "**/*.php")]
     for f in files:
-        if '(' in f or ')' in f:
-            new_name = f.replace('(', '_').replace(')', '_')
+        if '(' in f or ')' in f or ' ' in f:
+            new_name = f.replace('(', '_').replace(')', '_').replace(' ', '_')
             print('Ranaming ' + f + ' to ' + new_name)
             os.rename(f, new_name)
 

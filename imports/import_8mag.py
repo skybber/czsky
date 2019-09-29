@@ -63,7 +63,7 @@ def main():
 def do_translate(translator, db_connection, ptext):
     global translator_stopped
 
-    if not translator or translator_stopped or not db_connection:
+    if not db_connection or not translator:
         return ptext
 
     hashv = hashlib.md5(ptext.encode('utf-8')).hexdigest()
@@ -73,10 +73,10 @@ def do_translate(translator, db_connection, ptext):
     c = c.fetchone();
     trans_text = c[0] if c else None
     if trans_text:
-        print('Hash code found. hash=' + hashv)
         return trans_text
 
-    print('Hash code NOT found. hash=' + hashv)
+    if translator_stopped:
+        return ptext
 
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
@@ -106,7 +106,7 @@ def extract_div_elem(translator, db_connection, div_elem):
             src = elem['src']
             if src.startswith('./'):
                 src = src[2:]
-            src = src.replace('(', '_').replace(')', '_')
+            src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
             md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
     return md_text
 
@@ -150,7 +150,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
 
     translator = Translator()
 
-    files = [f for f in glob.glob(src_path + '/*.htm')]
+    files = [f for f in sorted(glob.glob(src_path + '/*.htm'))]
     for f in files:
         if debug_log:
             print('Processing: ' + f)
@@ -165,6 +165,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
             if header:
                 cons_name = soup.select_one('h1').text.strip()
                 lat_name = cons_name[cons_name.find('(') + 1: cons_name.find(')')].strip().lower()
+                if lat_name == 'ursa maior':
+                    lat_name = 'ursa major'
                 cons = Constellation.query.filter_by(name=lat_name).first()
                 if not cons:
                     print('Constellation "' + lat_name + '" not fount in db!')
