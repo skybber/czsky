@@ -73,7 +73,10 @@ def do_translate(translator, db_connection, ptext):
     c = c.fetchone();
     trans_text = c[0] if c else None
     if trans_text:
+        print('Hash code found. hash=' + hashv)
         return trans_text
+
+    print('Hash code NOT found. hash=' + hashv)
 
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
