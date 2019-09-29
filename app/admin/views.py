@@ -41,6 +41,7 @@ def new_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
+            user_name=form.user_name,
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
@@ -61,6 +62,7 @@ def invite_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
+            user_name=form.user_name,
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data)

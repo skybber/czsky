@@ -12,6 +12,7 @@ class Location(db.Model):
     bortle = db.Column(db.Float)
     rating = db.Column(db.Integer)
     # sql_readings = db.relationship('SqlReading', backref='location', lazy=True)
+    country_code = db.Column(db.String(2))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     is_public = db.Column(db.Boolean)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

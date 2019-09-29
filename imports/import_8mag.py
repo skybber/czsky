@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import sys, re, getopt, os, glob, pathlib
+import sqlite3
+import hashlib
 
 from bs4 import BeautifulSoup
 
@@ -11,6 +13,8 @@ from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
 from googletrans import Translator
+
+translator_stopped = False
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -56,23 +60,42 @@ def main():
 
 
 
-def do_translate(translator, ptext):
-    return ptext
-#     try:
-#         return translator.translate(ptext, src='sk', dest='cs').text
-#     except JSONDecodeError:
-#         print('Translation failed text=' + ptext)
-#         return ptext
+def do_translate(translator, db_connection, ptext):
+    global translator_stopped
+
+    if not translator or translator_stopped or not db_connection:
+        return ptext
+
+    hashv = hashlib.md5(ptext.encode('utf-8')).hexdigest()
+    cur = db_connection.cursor()
+    sqlqry = "SELECT text FROM translations WHERE hash=:1;"
+    c = cur.execute(sqlqry, [hashv])
+    c = c.fetchone();
+    trans_text = c[0] if c else None
+    if trans_text:
+        return trans_text
+
+    try:
+        trans_text = translator.translate(ptext, src='sk', dest='cs').text
+        cur.execute('insert into translations values (?,?)', [hashv, trans_text])
+    except JSONDecodeError:
+        print('Translation failed text=' + ptext)
+        print('Automatic translator stopped.')
+        translator_stopped = True
+        trans_text = ptext
+    finally:
+        cur.close()
+    return trans_text
 
 
-def extract_div_elem(translator, div_elem):
+def extract_div_elem(translator, db_connection, div_elem):
     md_text = ''
     for elem in div_elem.find_all(['p', 'img']):
         if elem.name == 'p':
             elem.find()
             ptext = elem.text.strip()
             if len(ptext) > 0:
-                md_text += do_translate(translator, ptext) + '\n\n'
+                md_text += do_translate(translator, db_connection, ptext) + '\n\n'
         else:
             src = elem['src']
             if src.startswith('./'):
@@ -81,7 +104,7 @@ def extract_div_elem(translator, div_elem):
             md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
     return md_text
 
-def extract_cons_objects(soup, translator):
+def extract_cons_objects(translator, soup, db_connection):
     md_text = ''
     # exponaty , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy'
     elems = soup.find_all( [ 'a', 'h4', 'div' ])
@@ -90,20 +113,20 @@ def extract_cons_objects(soup, translator):
         if elem.name == 'a':
             if elem.has_attr('id') and elem['id'] in ['exponaty' , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy']:
                 part = elem['id']
-                md_text += '### ' + do_translate(translator, elem.text.strip()) + '\n\n'
+                md_text += '### ' + do_translate(translator, db_connection, elem.text.strip()) + '\n\n'
                 continue
             else:
                 continue
         elif not part:
             continue
         if elem.name == 'h4':
-            md_text += '#### ' + do_translate(translator, elem.text.strip()) + '\n\n'
+            md_text += '#### ' + do_translate(translator, db_connection, elem.text.strip()) + '\n\n'
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
-            md_text += extract_div_elem(translator, elem) + '\n\n'
+            md_text += extract_div_elem(translator, db_connection, elem) + '\n\n'
 
     return md_text
 
-def do_import_8mag(src_path, debug_log):
+def do_import_8mag(src_path, debug_log, translation_db_name):
 
     user_8mag = User.query.filter_by(email='8mag').first()
 
@@ -112,6 +135,12 @@ def do_import_8mag(src_path, debug_log):
         sys.exit(2)
 
     UserConsDescription.query.filter_by(user_id=user_8mag.id).delete()
+
+    db_connection = None
+    try:
+        db_connection = sqlite3.connect(translation_db_name)
+    except Exception:
+        print('Connection to db="' + translation_db_name + '" failed. Translations will not be used.')
 
     translator = Translator()
 
@@ -136,18 +165,38 @@ def do_import_8mag(src_path, debug_log):
                     continue
                 # md_text = '## ' + cons_name + '\n\n'
 
-                md_text = extract_div_elem(translator, soup.select_one('div.level1'))
-                md_text += extract_div_elem(translator, soup.select_one('div.level2'))
-                md_text += extract_cons_objects(soup, translator)
+                translator_was_stopped = False
+                if not translator_stopped:
+                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'))
+                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'))
+                    md_text += extract_cons_objects(translator, soup, db_connection)
 
-                ucd = UserConsDescription(
-                    constellation_id = cons.id,
-                    user_id = user_8mag.id,
-                    text = md_text
-                    )
-                db.session.add(ucd)
+                    ucd = UserConsDescription(
+                        constellation_id = cons.id,
+                        user_id = user_8mag.id,
+                        text = md_text,
+                        lang_code = 'cs'
+                        )
+                    db.session.add(ucd)
+                    translator_was_stopped = translator_stopped
+
+                if not translator_was_stopped:
+                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'))
+                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'))
+                    md_text += extract_cons_objects(translator, soup, db_connection)
+
+                    ucd = UserConsDescription(
+                        constellation_id = cons.id,
+                        user_id = user_8mag.id,
+                        text = md_text,
+                        lang_code = 'sk'
+                        )
+                    db.session.add(ucd)
                 try:
                     db.session.commit()
                 except IntegrityError:
                     db.session.rollback()
+
+    if db_connection:
+        db_connection.close()
 

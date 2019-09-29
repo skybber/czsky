@@ -48,13 +48,17 @@ class Role(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(64), unique=True, index=True)
     confirmed = db.Column(db.Boolean, default=False)
     first_name = db.Column(db.String(64), index=True)
     last_name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    lang_code = db.Column(db.String(2))
+    country_code = db.Column(db.String(2))
     is_hidden = db.Column(db.Boolean, default=False)
+    is_disabled = db.Column(db.Boolean, default=False)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -164,6 +168,7 @@ class User(UserMixin, db.Model):
         seed()
         for i in range(count):
             u = User(
+                user_name=fake.user_name(),
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 email=fake.email(),

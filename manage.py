@@ -59,7 +59,7 @@ def import_8mag():
     """
     Import 8mag
     """
-    do_import_8mag('data/8mag', True)
+    do_import_8mag('data/8mag', True, 'translations.sqlite')
 
 @manager.option(
     '-n',

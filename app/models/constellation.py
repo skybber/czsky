@@ -14,4 +14,5 @@ class UserConsDescription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    lang_code = db.Column(db.String(2))
     text = db.Column(db.Text)

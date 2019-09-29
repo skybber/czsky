@@ -40,4 +40,5 @@ class UserDsoDescription(db.Model):
     dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
+    lang_code = db.Column(db.String(2))
     text = db.Column(db.Text)
