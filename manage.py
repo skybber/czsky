@@ -45,22 +45,6 @@ def recreate_db():
     db.create_all()
     db.session.commit()
 
-@manager.command
-def initialize_catalogues():
-    """
-    Load catalogues
-    """
-    import_catalogues('data/astro_catalogues.csv')
-    import_constellations('data/88-constellations.csv')
-    import_deepsky_objects('data/OpenNGC.csv')
-
-@manager.command
-def import_8mag():
-    """
-    Import 8mag
-    """
-    do_import_8mag('data/8mag', True, 'translations.sqlite')
-
 @manager.option(
     '-n',
     '--number-users',
@@ -80,25 +64,12 @@ def add_test_user():
     user_email = 'test@test.test'
     if User.query.filter_by(email=user_email).first() is None:
         user = User(
+            user_name='test',
             first_name='test',
             last_name='test',
             password='heslo',
             confirmed=True,
             email=user_email)
-        db.session.add(user)
-        db.session.commit()
-
-@manager.command
-def add_8mag_user():
-    user_email = '8mag'
-    if User.query.filter_by(email=user_email).first() is None:
-        user = User(
-            first_name='',
-            last_name='',
-            password='',
-            confirmed=False,
-            email=user_email,
-            is_hidden=True)
         db.session.add(user)
         db.session.commit()
 
@@ -122,6 +93,7 @@ def setup_general():
     if admin_query.first() is not None:
         if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
             user = User(
+                user_name = 'admin',
                 first_name='Admin',
                 last_name='Account',
                 password=Config.ADMIN_PASSWORD,
@@ -159,6 +131,39 @@ def format():
     print('Running {}'.format(yapf))
     subprocess.call(yapf, shell=True)
 
+@manager.command
+def initialize_catalogues():
+    """
+    Load catalogues
+    """
+    import_catalogues('data/astro_catalogues.csv')
+    import_constellations('data/88-constellations.csv')
+    import_deepsky_objects('data/OpenNGC.csv')
+
+@manager.command
+def import_8mag():
+    """
+    Import 8mag
+    """
+    do_import_8mag('data/8mag', True, 'translations.sqlite')
+
+@manager.command
+def add_help_users():
+    add_help_user('8mag', '8mag')
+    add_help_user('skyquality', 'skyquality')
+
+def add_help_user(user_name, user_email):
+    if User.query.filter_by(email=user_email).first() is None:
+        user = User(
+            user_name = user_name,
+            first_name='',
+            last_name='',
+            password='',
+            confirmed=False,
+            email=user_email,
+            is_hidden=True)
+        db.session.add(user)
+        db.session.commit()
 
 if __name__ == '__main__':
     manager.run()
