@@ -3,8 +3,7 @@
 
 {% set endpoints = [
     ('main_location.location_info', 'Location'),
-    ('main_location.location_info', 'Observations(TODO)'),
-    ('main_location.location_info', 'SQM (TODO)'),
+    ('main_location.location_info', 'Measurements'),
 ] %}
 
 {% macro navigation(items) %}
@@ -25,7 +24,7 @@
         <tr><td>Latitude</td><td>{{ location.latitude }}</td></tr>
         <tr><td>Bortle</td><td>{{ location.bortle }}</td></tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(4) }}" data-max-rating="4"></div></td></tr>
-        <tr><td>Description</td><td>{{ location.description }}</td></tr>
+        <tr><td>Description</td><td>{{ location.descr }}</td></tr>
     </table>
 {% endmacro %}
 
