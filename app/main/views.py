@@ -34,7 +34,6 @@ def settings():
     return render_template('main/settings.html')
 
 @main.route('/skyquality', methods=['GET', 'POST'])
-@login_required
 def skyquality():
     return render_template('main/skyquality/skyquality.html')
 
