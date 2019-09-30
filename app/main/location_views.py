@@ -36,7 +36,7 @@ def locations():
     locations_for_render = locations.limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=locations.count(), search=search, record_name='locations', css_framework='semantic')
-    return render_template('main/location/locations.html', observations=locations_for_render, pagination=pagination)
+    return render_template('main/location/locations.html', locations=locations_for_render, pagination=pagination)
 
 @main_location.route('/location/<int:location_id>', methods=['GET'])
 @main_location.route('/location/<int:location_id>/info', methods=['GET'])

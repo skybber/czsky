@@ -20,6 +20,9 @@ class Location(db.Model):
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
+    def rating_to_int(self, m):
+        return int(round(self.rating * m / 10))
+
 user_to_location_links = db.Table('user_to_location_links',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
     db.Column('location_id', db.Integer, db.ForeignKey('locations.id'), primary_key=True)

@@ -11,27 +11,16 @@
                 Deepsky Objects
             </h2>
 
-            {% if js_search %}
+            <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search">
                 <div class="ui menu">
                     <div class="ui right search item">
                         <div class="ui transparent icon input">
-                            <input id="search-dsos" type="text" placeholder="Search deepsky objects…">
+                            {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
                             <i class="search icon"></i>
                         </div>
                     </div>
                 </div>
-            {% else %}
-                <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search">
-                    <div class="ui menu">
-                        <div class="ui right search item">
-                            <div class="ui transparent icon input">
-                                {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
-                                <i class="search icon"></i>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            {% endif %}
+            </form>
 
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}
@@ -64,22 +53,4 @@
         </div>
     </div>
 
-    {% if js_search %}
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#search-dsos').keyup(function () {
-                var searchText = $(this).val();
-                if (searchText.length > 0) {
-                    $('tbody td:icontains(' + searchText + ')').addClass('positive');
-                    $('td.positive').not(':icontains(' + searchText + ')').removeClass('positive');
-                    $('tbody td').not(':icontains(' + searchText + ')').closest('tr').addClass('hidden').hide();
-                    $('tr.hidden:icontains(' + searchText + ')').removeClass('hidden').show();
-                } else {
-                    $('td.positive').removeClass('positive');
-                    $('tr.hidden').removeClass('hidden').show();
-                }
-            });
-        });
-    </script>
-    {% endif %}
 {% endblock %}

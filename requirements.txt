@@ -28,6 +28,7 @@ itsdangerous==1.1.0
 Jinja2==2.10.1
 jsmin==2.2.2
 jsonpickle==1.2
+lat-lon-parser==1.1.2 
 Mako==1.1.0
 MarkupSafe==1.1.1
 packaging==19.1

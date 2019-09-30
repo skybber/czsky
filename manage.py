@@ -14,7 +14,8 @@ from config import Config
 from imports.import_catalogues import *
 from imports.import_constellations import *
 from imports.import_dso import *
-from imports.import_8mag import *
+from imports.import_8mag import do_import_8mag
+from imports.import_skyquality import do_import_skyquality_locations
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -146,6 +147,20 @@ def import_8mag():
     Import 8mag
     """
     do_import_8mag('data/8mag', True, 'translations.sqlite')
+
+@manager.command
+def import_new_skyquality_locations():
+    """
+    Import new skyquality locations
+    """
+    do_import_skyquality_locations('data/skyquality.sqlite', False)
+
+@manager.command
+def import_all_skyquality_locations():
+    """
+    Import all skyquality locations
+    """
+    do_import_skyquality_locations('data/skyquality.sqlite', True)
 
 @manager.command
 def add_help_users():

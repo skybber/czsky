@@ -76,6 +76,8 @@ def create_app(config):
     app.register_blueprint(main_location)
     from .main import main_observation as main_observation
     app.register_blueprint(main_observation)
+    from .main import main_skyquality as main_skyquality
+    app.register_blueprint(main_skyquality)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

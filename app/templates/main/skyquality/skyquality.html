@@ -1,0 +1,23 @@
+{% import 'macros/dashboard_macros.html' as dash %}
+
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                Back to dashboard
+            </a>
+            <h2 class="ui header">
+                    Sky Quality
+            </h2>
+            <div class="ui two column stackable grid">
+                {{ dash.dashboard_option('Locations', 'main_skyquality.skyquality_locations',
+                                    description='View locations', icon='map marker alternate icon') }}
+                {{ dash.dashboard_option('Measurements', 'main_skyquality.skyquality_measurements',
+                                    description='View all measurements', icon='thermometer icon') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

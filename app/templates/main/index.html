@@ -23,6 +23,8 @@
                                     description='View constellations', icon='lastfm icon') }}
                 {{ dash.dashboard_option('Deepsky Objects', 'main_catalogue.deepskyobjects',
                                     description='View deepsky objects', icon='star icon') }}
+                {{ dash.dashboard_option('Sky quality', 'main.skyquality',
+                                    description='View skyquality section', icon='tachometer icon') }}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option('Settings', 'main.settings',
                                         description='View settings', icon='cogs icon') }}

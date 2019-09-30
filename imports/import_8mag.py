@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, re, getopt, os, glob, pathlib
+import sys, re, getopt, os, glob, pathlib, time
 import sqlite3
 import hashlib
 
@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
 from googletrans import Translator
 
+translation_cnt = 0
 translator_stopped = False
 
 def checkdir(dir, param):
@@ -80,6 +81,13 @@ def do_translate(translator, db_connection, ptext):
 
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
+        translation_cnt += 1
+        if translation_cnt >= 10:
+            print('Sleeping for 10s after bulk translations...')
+            time.sleep(1)
+            translation_cnt = 0
+        else:
+            time.sleep(1)
         icur = db_connection.cursor()
         icur.execute('insert into translations values (?,?)', [hashv, trans_text])
         db_connection.commit()
@@ -138,7 +146,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
 
     if not user_8mag:
         print('User 8mag not found.')
-        sys.exit(2)
+        return
 
     UserConsDescription.query.filter_by(user_id=user_8mag.id).delete()
 
@@ -148,9 +156,9 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
     except Exception:
         print('Connection to db="' + translation_db_name + '" failed. Translations will not be used.')
 
-    translator = Translator()
+    translator = Translator(service_urls=[ 'translate.google.cn', ] )
 
-    files = [f for f in sorted(glob.glob(src_path + '/*.htm'))]
+    files = [f for f in sorted(glob.glob(src_path + '/*.htm'), reverse=True)]
     for f in files:
         if debug_log:
             print('Processing: ' + f)
