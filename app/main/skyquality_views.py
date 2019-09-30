@@ -44,7 +44,6 @@ def skyquality_locations():
 
 @main_skyquality.route('/kyquality-location/<int:location_id>', methods=['GET'])
 @main_skyquality.route('/kyquality-location/<int:location_id>/info', methods=['GET'])
-@login_required
 def skyquality_location_info(location_id):
     """View a skyquality location info."""
     location = Location.query.filter_by(id=location_id).first()
