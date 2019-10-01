@@ -24,18 +24,46 @@
 
             {{ f.begin_form(form, flashes) }}
 
-                <div class="field">
-                    <label for="odate">Date</label>
-                    <div class="ui calendar" id="odate">
-                      <div class="ui input left icon">
-                        <i class="calendar icon"></i>
-                        <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
-                      </div>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="odate">Date</label>
+                        <div class="ui calendar" id="odate">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                      {{ form.rating.label }}
+                      <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
+                      {{ form.rating() }}
                     </div>
                 </div>
 
-                {{ f.render_form_field(form.rating) }}
                 {{ f.render_form_field(form.notes) }}
+
+                <div class="ui segments">
+                    <div class="ui segment">
+                        <div class="ui small header">Items</div>
+                    </div>
+                    {% for item in form.items %}
+                        <div class="ui segment">
+                            {{ f.render_form_field(item.deep_sky_object_id_list) }}
+                            <div class="field">
+                                <label for="odate">Time</label>
+                                <div class="ui calendar" id="otime">
+                                  <div class="ui input left icon">
+                                    <i class="calendar icon"></i>
+                                    <input id="otime" name="{{item.date_time.name}}" placeholder="Date" type="text">
+                                  </div>
+                                </div>
+                            </div>
+                            {{ f.render_form_field(item.notes) }}
+                        </div>
+                   {% endfor %}
+                </div>
 
                 {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
                 {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
@@ -61,6 +89,23 @@
                 var year = date.getFullYear();
                 return day + '/' + month + '/' + year;
                 }
+            }
+        });
+        $('#otime').calendar({
+            type: 'time',
+            formatter: {
+                date: function (time, settings) {
+                if (!date) return '';
+                var hour = date.getHout();
+                var minute = date.getMinute();
+                return hout + ':' + minute;
+                }
+            }
+        });
+        $('.ui.rating').rating({
+            maxRating: 5,
+            onRate: function (rating) {
+                $('#rating').val(rating);
             }
         });
     </script>

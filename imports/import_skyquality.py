@@ -126,6 +126,7 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
                 except ValueError:
                     print('Unknown long-lat format=' + skyQualityLocation.coords)
 
+        is_for_observation = not any(x in skyQualityLocation.accessibility for x in ['nevhodné', 'nepřístupné'])
 
         loc = Location(
             name = skyQualityLocation.name,
@@ -138,6 +139,7 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
             country_code = 'CZ',
             user_id = None,
             is_public = True,
+            is_for_observation = is_for_observation,
             create_by = user_skyquality.id,
             update_by = user_skyquality.id,
             create_date = datetime.now(),

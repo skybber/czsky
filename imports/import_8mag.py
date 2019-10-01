@@ -63,6 +63,7 @@ def main():
 
 def do_translate(translator, db_connection, ptext):
     global translator_stopped
+    global translation_cnt
 
     if not db_connection or not translator:
         return ptext

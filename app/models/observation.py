@@ -25,5 +25,5 @@ class ObservationItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'))
     deep_sky_object_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'))
-    date = db.Column(db.DateTime, nullable=False)
+    date_time = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.Text)

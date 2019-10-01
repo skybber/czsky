@@ -84,7 +84,7 @@ def observation_edit(observation_id):
     form = ObservationEditForm()
     if form.validate_on_submit():
         observation.date = form.date.data,
-        observation.rating = form.ranking.data
+        observation.rating = form.rating.data
         observation.notes = form.notes.data
         observation.update_by = current_user.id,
         observation.update_date = datetime.now()

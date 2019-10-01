@@ -6,10 +6,14 @@ from wtforms.fields import (
     BooleanField,
     DateField,
     FloatField,
+    FieldList,
+    FormField,
+    HiddenField,
     IntegerField,
     StringField,
     SubmitField,
     TextAreaField,
+    TimeField,
 )
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
@@ -18,17 +22,23 @@ from wtforms.validators import (
     EqualTo,
     InputRequired,
     Length,
-    NumberRange
+    NumberRange,
+    required
 )
 
 class SearchForm(FlaskForm):
     q = StringField('Search', validators=[DataRequired()])
 
+class ObservationItemNewForm(FlaskForm):
+    deep_sky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])
+    date_time = TimeField('Time', format = '%H:%M', default = datetime.now())
+    notes = TextAreaField('Notes', render_kw={'rows':3})
+
 class ObservationNewForm(FlaskForm):
-    date = DateField('Date', id='odate', format = '%d/%m/%Y')
-    date.data = datetime.now()
-    notes = TextAreaField('Notes')
-    rating = IntegerField('Ranking', validators=[NumberRange(min=0, max=10)])
+    items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
+    date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now())
+    notes = TextAreaField('Notes', render_kw={'rows':5})
+    rating = HiddenField('Rating', default=1)
     submit = SubmitField('Add')
 
 class ObservationEditForm(FlaskForm):

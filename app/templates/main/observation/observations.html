@@ -38,7 +38,7 @@
                         <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
                             <td>{{ o.date }}</td>
                             <td>{{ o.location.name if o.location else '' }}</td>
-                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(4) }}" data-max-rating="4"></div></td>
+                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
                             <td>{{ o.notes[:100] }}</td>
                         </tr>
                     {% endfor %}
