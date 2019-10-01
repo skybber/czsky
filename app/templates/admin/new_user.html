@@ -28,6 +28,8 @@
 
                 {{ f.render_form_field(form.role) }}
 
+                {{ f.render_form_field(form.user_name) }}
+
                 <div class="two fields">
                     {{ f.render_form_field(form.first_name) }}
                     {{ f.render_form_field(form.last_name) }}
@@ -54,8 +56,8 @@
                 {% endfor %}
 
             {{ f.end_form() }}
-            {% if form.password %} 
-              {{ check.password_check('password', 0) }} 
+            {% if form.password %}
+              {{ check.password_check('password', 0) }}
             {% endif %}
         </div>
     </div>

@@ -41,6 +41,7 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
+                            <th>User name</th>
                             <th>First name</th>
                             <th class="sorted ascending">Last name</th>
                             <th>Email address</th>
@@ -50,7 +51,7 @@
                     <tbody>
                     {% for u in users | sort(attribute='last_name') %}
                         <tr onclick="window.location.href = '{{ url_for('admin.user_info', user_id=u.id) }}';">
-
+                            <td>{{ u.user_name }}</td>
                             <td>{{ u.first_name }}</td>
                             <td>{{ u.last_name }}</td>
                             <td>{{ u.email }}</td>
