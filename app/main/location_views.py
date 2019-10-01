@@ -30,7 +30,7 @@ def locations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    locations = Location.query.filter_by(user_id=current_user.id)
+    locations = Location.query.filter_by(user_id=current_user.id, is_for_observation=True)
     search = False
 
     locations_for_render = locations.limit(per_page).offset(offset)

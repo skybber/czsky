@@ -93,7 +93,6 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
         db_connection.commit()
         Location.query.filter_by(create_by=user_skyquality.id).delete()
 
-
     sqlqry = "SELECT max(location_id) FROM locations;"
     c = cur.execute(sqlqry)
     c = c.fetchone();
@@ -140,6 +139,7 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
             user_id = None,
             is_public = True,
             is_for_observation = is_for_observation,
+            origin_id = 'skyq_' + str(skyquality_location_id),
             create_by = user_skyquality.id,
             update_by = user_skyquality.id,
             create_date = datetime.now(),

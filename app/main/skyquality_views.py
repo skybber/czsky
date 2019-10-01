@@ -30,7 +30,7 @@ def skyquality_locations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    locations = Location.query
+    locations = Location.query.filter(Location.is_for_observation == True)
     search = False
     if search_form.q.data:
         locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
