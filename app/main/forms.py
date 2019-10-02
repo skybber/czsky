@@ -32,12 +32,12 @@ class SearchForm(FlaskForm):
 class ObservationItemNewForm(FlaskForm):
     deep_sky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])
     date_time = TimeField('Time', format = '%H:%M', default = datetime.now())
-    notes = TextAreaField('Notes', render_kw={'rows':3})
+    notes = TextAreaField('Notes', render_kw={'rows':2})
 
 class ObservationNewForm(FlaskForm):
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now())
-    notes = TextAreaField('Notes', render_kw={'rows':5})
+    notes = TextAreaField('Notes', render_kw={'rows':3})
     rating = HiddenField('Rating', default=1)
     submit = SubmitField('Add')
 
