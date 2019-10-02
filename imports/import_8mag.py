@@ -159,7 +159,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
 
     translator = Translator(service_urls=[ 'translate.google.cn', ] )
 
-    files = [f for f in sorted(glob.glob(src_path + '/*.htm'), reverse=True)]
+    files = [f for f in sorted(glob.glob(src_path + '/*.htm'))]
     for f in files:
         if debug_log:
             print('Processing: ' + f)
