@@ -19,6 +19,7 @@ from .forms import (
 
 from .. import db
 from .views import ITEMS_PER_PAGE
+from app.commons.coordinates import mapy_cz_url, google_url
 
 main_skyquality = Blueprint('main_skyquality', __name__)
 
@@ -42,8 +43,8 @@ def skyquality_locations():
     return render_template('main/skyquality/skyquality_locations.html', locations=locations_for_render, pagination=pagination, search_form=search_form)
 
 
-@main_skyquality.route('/kyquality-location/<int:location_id>', methods=['GET'])
-@main_skyquality.route('/kyquality-location/<int:location_id>/info', methods=['GET'])
+@main_skyquality.route('/skyquality-location/<int:location_id>', methods=['GET'])
+@main_skyquality.route('/skyquality-location/<int:location_id>/info', methods=['GET'])
 def skyquality_location_info(location_id):
     """View a skyquality location info."""
     location = Location.query.filter_by(id=location_id).first()
@@ -51,7 +52,9 @@ def skyquality_location_info(location_id):
         abort(404)
     if not location.is_public and (not current_user or location.user_id != current_user.id):
         abort(404)
-    return render_template('main/skyquality/skyquality_location_info.html', location=location, type='info')
+    url_mapy_cz = mapy_cz_url(location.longitude, location.latitude)
+    url_google = google_url(location.longitude, location.latitude)
+    return render_template('main/skyquality/skyquality_location_info.html', location=location, type='info', mapy_cz_url=url_mapy_cz, google_url=url_google)
 
 @main_skyquality.route('/skyquality-measurements', methods=['GET', 'POST'])
 def skyquality_measurements():

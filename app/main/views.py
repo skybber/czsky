@@ -21,7 +21,6 @@ ITEMS_PER_PAGE = 10
 def index():
     return render_template('main/index.html', is_anonymous=current_user.is_anonymous)
 
-
 @main.route('/about')
 def about():
     editable_html_obj = EditableHTML.get_editable_html('about')

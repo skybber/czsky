@@ -1,3 +1,3 @@
 from .pagination import *
-from .position import *
+from app.commons.coordinates import *
 from .dso_utils import *

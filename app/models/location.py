@@ -1,6 +1,9 @@
 from datetime import datetime
 
 from .. import db
+from LatLon23 import LatLon
+
+from app.commons.coordinates import latlon_to_string
 
 class Location(db.Model):
     __tablename__ = 'locations'
@@ -24,6 +27,10 @@ class Location(db.Model):
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))
+
+    def full_coordinates(self):
+        pos = LatLon(self.longitude, self.latitude)
+        return str(latlon_to_string(pos)) + '(' + str(self.longitude) + ',' + str(self.latitude) + ')'
 
 user_to_location_links = db.Table('user_to_location_links',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),

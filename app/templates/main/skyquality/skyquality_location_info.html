@@ -20,11 +20,17 @@
 {% macro location_info(location) %}
     <table class="ui compact definition table">
         <tr><td>Name</td><td>{{ location.name }}</td></tr>
-        <tr><td>Longitude</td><td>{{ location.longitude }}</td></tr>
-        <tr><td>Latitude</td><td>{{ location.latitude }}</td></tr>
+        <tr>
+            <td>Coordinates</td>
+            <td>
+                {{ location.full_coordinates()}}
+                <a href="{{ mapy_cz_url }}" target="_blank">mapy.cz</a>
+                <a href="{{ google_url }}" target="_blank">google</a>
+             </td>
+        </tr>
         <tr><td>Bortle</td><td>{{ location.bortle }}</td></tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
-        <tr><td>Description</td><td>{{ location.descr }}</td></tr>
+        <tr><td>Description</td><td>{{ location.description }}</td></tr>
     </table>
 {% endmacro %}
 
@@ -43,10 +49,10 @@
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
-            <div class="four wide column">
+            <div class="two wide column">
                 {{ navigation(endpoints) }}
             </div>
-            <div class="eight wide column">
+            <div class="fourteen wide tablet fourteen wide computer wide column">
                 {% if type == 'info' %}
                     {{ location_info(location) }}
                 {% elif type == 'observations' %}

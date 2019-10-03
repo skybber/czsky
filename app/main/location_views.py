@@ -12,6 +12,7 @@ from app import db
 
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.coordinates import *
 
 from .forms import (
     LocationNewForm,
@@ -48,7 +49,9 @@ def location_info(location_id):
         abort(404)
     if not location.is_public and location.user_id != current_user.id:
         abort(404)
-    return render_template('main/location/location_info.html', location=location, type='info')
+    url1 = mapy_cz_url(location.longitude, location.latitude)
+    url2 = google_url(location.longitude, location.latitude)
+    return render_template('main/location/location_info.html', location=location, type='info', mapy_cz_url=url1, google_url=url2)
 
 @main_location.route('/new-location', methods=['GET', 'POST'])
 @login_required
