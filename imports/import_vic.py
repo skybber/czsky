@@ -6,6 +6,12 @@ from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject,DsoCatalogueLink
 
+def vic2int(s):
+    s.lstrip('0')
+    if len(s) == 0:
+        return 0
+    return int(s)
+
 def import_vic(open_ngc_data_file):
     """Import data from VIC catalog."""
     from sqlalchemy.exc import IntegrityError
@@ -21,41 +27,45 @@ def import_vic(open_ngc_data_file):
         catal_dict[ca.code] = ca
 
     with open(open_ngc_data_file) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+        reader = csv.DictReader(csvfile, delimiter=';')
         print('Importing VIC catalog ...')
         catal_id = catal_dict['VIC'].id
+        row_id = 0
         for row in reader:
+            row_id += 1
             try:
                 sys.stdout.write('.')
                 sys.stdout.flush()
-                constellation = row['Const']
 
-                vic_id = row['Vic#'].strip()
-                if len(vic_id) < 2:
-                    vic_id = '0' + vic_id
-                name = 'VIC' + vic_id
+#                 constellation = row['Const']
+                constellation = None
+
+                name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
+
+                print (name)
+
                 c = DeepSkyObject(
                     name = name,
                     type = 'AST',
-                    ra = row['RA'].strip(),
-                    dec = row['Dec'].strip(),
+                    ra = row['RA'].strip().replace(',', ':'),
+                    dec = row['Dec'].strip().replace(',', ':'),
                     constellation_id = constell_dict[constellation] if constellation else None,
-                    major_axis =  None,
-                    minor_axis =  None,
-                    positon_angle =  None,
+                    major_axis = vic2int(row['length']) / 10,
+                    minor_axis =  vic2int(row['width']) / 10,
+                    positon_angle =  vic2int(row['orient']) / 10,
                     b_mag = None,
-                    v_mag = None,
+                    v_mag = vic2int(row['mag']) / 10,
                     j_mag =  None,
                     h_mag =  None,
                     k_mag =  None,
-                    surface_bright =  None,
+                    surface_bright = vic2int(row['brightness']) / 10,
                     hubble_type =  None,
                     c_star_u_mag = None,
                     c_star_b_mag = None,
                     c_star_v_mag = None,
                     identifiers = None,
-                    common_name = row['en_name'].strip(),
-                    descr = row['Note'].strip(),
+                    common_name = row['name'].strip(),
+                    descr = None,
                     )
                 db.session.add(c)
                 db.session.flush()

@@ -5,22 +5,22 @@ def normalize_dso_name(name):
     upper_name = name.upper().replace(' ','')
     if upper_name.startswith('NGC'):
         appendix = upper_name[3:]
-        if len(appendix) < 4:
+        if len(appendix) > 0 and len(appendix) < 4:
             return 'NGC' + ('0' * (4 - len(appendix))) + appendix
         return upper_name
     if upper_name.startswith('IC'):
         appendix = upper_name[2:]
-        if len(appendix) < 4:
+        if len(appendix) > 0 and len(appendix) < 4:
             return 'IC' + ('0' * (4 - len(appendix))) + appendix
         return upper_name
     if upper_name.startswith('M'):
         appendix = upper_name[1:]
-        if len(appendix) < 3:
+        if len(appendix) > 0 and len(appendix) < 3:
             return 'M' + ('0' * (3 - len(appendix))) + appendix
         return upper_name
     if upper_name.startswith('VIC'):
         appendix = upper_name[3:]
-        if len(appendix) < 2:
+        if len(appendix) > 0 and len(appendix) < 2:
             return 'VIC' + ('0' * (2 - len(appendix))) + appendix
         return upper_name
     return name
