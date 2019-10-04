@@ -12,6 +12,7 @@ def import_catalogues(data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             c = Catalogue(
+                id = row['id'],
                 code = row['code'],
                 name = row['name'],
                 descr = row['description'],

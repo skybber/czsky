@@ -13,7 +13,7 @@ from config import Config
 
 from imports.import_catalogues import *
 from imports.import_constellations import *
-from imports.import_dso import *
+from imports.import_open_ngc import *
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 
@@ -139,7 +139,7 @@ def initialize_catalogues():
     """
     import_catalogues('data/astro_catalogues.csv')
     import_constellations('data/88-constellations.csv')
-    import_deepsky_objects('data/OpenNGC.csv')
+    import_open_ngc('data/OpenNGC.csv')
 
 @manager.command
 def import_8mag():

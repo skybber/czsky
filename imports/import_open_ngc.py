@@ -6,8 +6,8 @@ from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject,DsoCatalogueLink
 
-def import_deepsky_objects(open_ngc_data_file):
-    """Initialize form OpenNGC data."""
+def import_open_ngc(open_ngc_data_file):
+    """Import data from OpenNGC catalog."""
     from sqlalchemy.exc import IntegrityError
 
     constell_dict = {}
@@ -69,10 +69,15 @@ def import_deepsky_objects(open_ngc_data_file):
                         )
                     db.session.add(l)
                 if row['M']:
+                    messier_name = 'M' + row['M']
+                    c.id = c.id + 1
+                    c.name = messier_name
+                    db.session.add(c)
+                    db.session.flush()
                     l = DsoCatalogueLink(
                         catalogue_id = catal_dict['M'].id,
                         dso_id = c.id,
-                        name = 'M' + row['M']
+                        name = messier_name
                         )
                     db.session.add(l)
                 db.session.commit()

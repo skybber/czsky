@@ -11,4 +11,8 @@ def normalize_dso_name(name):
         appendix = upper_name[2:]
         if len(appendix) < 4:
             return 'IC' + ('0' * (4 - len(appendix))) + appendix
+    if upper_name.startswith('M'):
+        appendix = upper_name[1:]
+        if len(appendix) < 3:
+            return 'M' + ('0' * (3 - len(appendix))) + appendix
     return name
