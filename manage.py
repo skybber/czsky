@@ -138,9 +138,9 @@ def initialize_catalogues():
     """
     Load catalogues
     """
-#     import_catalogues('data/astro_catalogues.csv')
-#     import_constellations('data/88-constellations.csv')
-#     import_open_ngc('data/OpenNGC.csv')
+    import_catalogues('data/astro_catalogues.csv')
+    import_constellations('data/88-constellations.csv')
+    import_open_ngc('data/OpenNGC.csv')
     import_vic('data/vic.csv')
 
 @manager.command
