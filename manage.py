@@ -11,9 +11,10 @@ from app import create_app, db
 from app.models import Role, User
 from config import Config
 
-from imports.import_catalogues import *
-from imports.import_constellations import *
-from imports.import_open_ngc import *
+from imports.import_catalogues import import_catalogues
+from imports.import_constellations import import_constellations
+from imports.import_open_ngc import import_open_ngc
+from imports.import_vic import import_vic
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 
@@ -137,9 +138,10 @@ def initialize_catalogues():
     """
     Load catalogues
     """
-    import_catalogues('data/astro_catalogues.csv')
-    import_constellations('data/88-constellations.csv')
-    import_open_ngc('data/OpenNGC.csv')
+#     import_catalogues('data/astro_catalogues.csv')
+#     import_constellations('data/88-constellations.csv')
+#     import_open_ngc('data/OpenNGC.csv')
+    import_vic('data/vic.csv')
 
 @manager.command
 def import_8mag():

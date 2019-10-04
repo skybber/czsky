@@ -22,6 +22,7 @@ def import_open_ngc(open_ngc_data_file):
 
     with open(open_ngc_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
+        print('Importing OpenNGC catalog ...')
         for row in reader:
             try:
                 sys.stdout.write('.')
