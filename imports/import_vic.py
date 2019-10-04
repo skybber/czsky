@@ -30,11 +30,15 @@ def import_vic(open_ngc_data_file):
                 sys.stdout.flush()
                 constellation = row['Const']
 
+                vic_id = row['Vic#'].strip()
+                if len(vic_id) < 2:
+                    vic_id = '0' + vic_id
+                name = 'VIC' + vic_id
                 c = DeepSkyObject(
-                    name = 'VIC' + row['Vic#'].strip(),
+                    name = name,
                     type = 'AST',
-                    ra = row['RA'],
-                    dec = row['Dec'],
+                    ra = row['RA'].strip(),
+                    dec = row['Dec'].strip(),
                     constellation_id = constell_dict[constellation] if constellation else None,
                     major_axis =  None,
                     minor_axis =  None,
@@ -50,8 +54,8 @@ def import_vic(open_ngc_data_file):
                     c_star_b_mag = None,
                     c_star_v_mag = None,
                     identifiers = None,
-                    common_name = row['en_name'],
-                    descr = row['Note'],
+                    common_name = row['en_name'].strip(),
+                    descr = row['Note'].strip(),
                     )
                 db.session.add(c)
                 db.session.flush()
@@ -59,7 +63,7 @@ def import_vic(open_ngc_data_file):
                     l = DsoCatalogueLink(
                         catalogue_id = catal_dict['VIC'].id,
                         dso_id = c.id,
-                        name = row['en_name']
+                        name = name
                         )
                     db.session.add(l)
                 db.session.flush()
