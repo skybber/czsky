@@ -164,7 +164,7 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
                                             sqm_avg = row_sqloc[7],
                                             bortle_scale = row_sqloc[8],
                                             )
-            location = Location.query.filter_by(id=sq_location.location_id)
+            location = Location.query.filter_by(id=sq_location.location_id).first()
             if not location:
                 loc = convert_sqlocation2location(sq_location, user_skyquality)
                 save_location(loc)

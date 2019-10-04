@@ -42,8 +42,6 @@ def import_vic(open_ngc_data_file):
 
                 name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
 
-                print (name)
-
                 c = DeepSkyObject(
                     name = name,
                     type = 'AST',
