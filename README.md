@@ -133,12 +133,6 @@ $ python manage.py setup_dev
 
 Note that this will create an admin user with email and password specified by the `ADMIN_EMAIL` and `ADMIN_PASSWORD` config variables. If not specified, they are both `flask-base-admin@example.com` and `password` respectively.
 
-##### [Optional] Add fake data to the database
-
-```
-$ python manage.py add_fake_data
-```
-
 ## Running the app
 
 ```
@@ -147,11 +141,6 @@ $ honcho start -e config.env -f Local
 ```
 
 For Windows users having issues with binding to a redis port locally, refer to [this issue](https://github.com/hack4impact/flask-base/issues/132).
-
-## Formatting code
-
-Before you submit changes to flask-base, you may want to autoformat your code with `python manage.py format`.
-
 
 ## License
 [MIT License](LICENSE.md)
