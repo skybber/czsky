@@ -43,10 +43,22 @@ def constellation_info(constellation_id):
     if user_8mag:
         ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id, lang_code='sk').first()
         user_descr = ud.text if ud else None
-        dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id, lang_code='sk') \
+        dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id, lang_code='cs') \
                 .join(DeepSkyObject) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
+
+        existing = set()
+        for dsod in dso_descriptions:
+            existing.add(dsod.dso_id)
+        sk_dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id, lang_code='sk') \
+                .join(DeepSkyObject) \
+                .filter_by(constellation_id=constellation.id) \
+                .all()
+        for dsod in sk_dso_descriptions:
+            if not dsod.dso_id in existing:
+                dso_descriptions.append(dsod)
+
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info', user_descr=user_descr, dso_descriptions=dso_descriptions)
 
 
@@ -109,7 +121,7 @@ def deepskyobject_descr(dso_id):
     user_8mag = User.query.filter_by(email='8mag').first()
     dso_description = None
     if user_8mag:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id, lang_code='sk') \
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .join(DeepSkyObject) \
                         .filter_by(id=dso.id) \
                         .first()
