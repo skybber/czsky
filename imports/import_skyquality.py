@@ -153,6 +153,7 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
             print('Commit failed:', e)
             db.session.rollback()
     else:
+        added_locations = 0
         for row_sqloc in cur.execute("SELECT location_id,name,coords,create_by,elevation,descr,accessibility,sqm_avg,bortle_scale FROM locations").fetchall():
             sq_location = SkyQualityLocation(location_id = row_sqloc[0],
                                             name = row_sqloc[1],
@@ -168,6 +169,8 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
             if not location:
                 loc = convert_sqlocation2location(sq_location, user_skyquality)
                 save_location(loc)
+                added_locations += 1
+        print(str() + ' previously scrapped locations are put to DB.')
 
     max_loc = cur.execute("SELECT max(location_id) FROM locations").fetchone()
     skyquality_location_id = max_loc[0] + 1 if max_loc[0] else 1

@@ -3,7 +3,7 @@
 
 {% set endpoints = [
     ('main_catalogue.deepskyobject_info', 'Info'),
-    ('main_catalogue.deepskyobject_info', 'Img'),
+    ('main_catalogue.deepskyobject_descr', 'Descr'),
 ] %}
 
 {% macro navigation(items) %}
@@ -43,6 +43,12 @@
     </table>
 {% endmacro %}
 
+{% macro deepskyobject_descr(dso, user_descr) %}
+    {% filter commonmark %}
+{{ user_descr.text }}
+    {% endfilter %}
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
@@ -66,7 +72,12 @@
                 {{ navigation(endpoints) }}
             </div>
             <div class="fourteen wide tablet fourteen wide computer column">
-                {{ deepskyobject_info(dso) }}
+                {% if type == 'info' %}
+                    {{ deepskyobject_info(dso) }}
+                {% endif %}
+                {% if type == 'descr' %}
+                    {{ deepskyobject_descr(dso, user_descr) }}
+                {% endif %}
             </div>
         </div>
     </div>

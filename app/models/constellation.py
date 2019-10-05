@@ -10,7 +10,7 @@ class Constellation(db.Model):
     deep_sky_objects = db.relationship('DeepSkyObject', backref='constellation', lazy=True)
 
 class UserConsDescription(db.Model):
-    __tablename__ = 'user_cons_description'
+    __tablename__ = 'user_cons_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

@@ -19,9 +19,20 @@
 {% endmacro %}
 
 {% macro constellation_user_info(constellation, user_descr) %}
-{% filter commonmark %}
+    {% filter commonmark %}
 {{ user_descr }}
- {% endfilter %}
+    {% endfilter %}
+    {% if dso_descriptions %}
+        {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
+            <h2 class="ui header">
+                {{ user_dso_descr.deepSkyObject.name }}
+                <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+            </h2>
+            {% filter commonmark %}
+{{ user_dso_descr.text }}
+            {% endfilter %}
+        {% endfor %}
+    {% endif %}
 {% endmacro %}
 
 {% macro constellation_info(constellation) %}
@@ -36,16 +47,16 @@
 {% macro constellation_stars(constellation) %}
 {% endmacro %}
 
-{% macro constellation_dso(constellation) %}
+{% macro constellation_dsos(constellation) %}
     <div style="overflow-x: scroll;">
             <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                             <tr>
-                                    <th class="sorted ascending">Name</th>
-                                    <th>Type</th>
-                                    <th>RA</th>
-                                    <th>DEC</th>
-                                    <th>h_mag</th>
+                                <th class="sorted ascending">Name</th>
+                                <th>Type</th>
+                                <th>RA</th>
+                                <th>DEC</th>
+                                <th>h_mag</th>
                             </tr>
                     </thead>
                     <tbody>
@@ -90,9 +101,13 @@
                     {{ constellation_stars(constellation) }}
                 {% endif %}
                 {% if type == 'dso' %}
-                    {{ constellation_dso(constellation) }}
+                    {{ constellation_dsos(constellation) }}
                 {% endif %}
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
 {% endblock %}

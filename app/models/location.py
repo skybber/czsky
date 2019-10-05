@@ -28,6 +28,10 @@ class Location(db.Model):
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))
 
+    def coordinates(self):
+        pos = LatLon(self.longitude, self.latitude)
+        return str(latlon_to_string(pos))
+
     def full_coordinates(self):
         pos = LatLon(self.longitude, self.latitude)
         return str(latlon_to_string(pos)) + '(' + str(self.longitude) + ',' + str(self.latitude) + ')'

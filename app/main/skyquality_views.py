@@ -54,7 +54,9 @@ def skyquality_location_info(location_id):
         abort(404)
     url_mapy_cz = mapy_cz_url(location.longitude, location.latitude)
     url_google = google_url(location.longitude, location.latitude)
-    return render_template('main/skyquality/skyquality_location_info.html', location=location, type='info', mapy_cz_url=url_mapy_cz, google_url=url_google)
+    url_os_map = google_url(location.longitude, location.latitude)
+    return render_template('main/skyquality/skyquality_location_info.html', location=location, type='info',
+                           mapy_cz_url=url_mapy_cz, google_url=url_google, os_map_url=url_os_map)
 
 @main_skyquality.route('/skyquality-measurements', methods=['GET', 'POST'])
 def skyquality_measurements():

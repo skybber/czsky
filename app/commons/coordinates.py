@@ -50,3 +50,6 @@ def mapy_cz_url(lon, lat):
 
 def google_url(lon, lat):
     return 'https://www.google.com/maps/place/' + str(lon) + ',' + str(lat)
+
+def open_street_map_url(lon, lat):
+    return 'https://www.openstreetmap.org/?mlat=' + str(lat) + '&mlon=' + str(lon) + '&zoom=12'

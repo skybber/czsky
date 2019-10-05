@@ -35,10 +35,16 @@ class DsoCatalogueLink(db.Model):
     name = db.Column(db.String(64))
 
 class UserDsoDescription(db.Model):
-    __tablename__ = 'user_dso_description'
+    __tablename__ = 'user_dso_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), nullable=False)
+    deepSkyObject = db.relationship("DeepSkyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
     lang_code = db.Column(db.String(2))
     text = db.Column(db.Text)
+    cons_order = db.Column(db.Integer) # description order in constellation
+
+    def rating_to_int(self, m):
+        return int(round(self.rating * m / 10))
+

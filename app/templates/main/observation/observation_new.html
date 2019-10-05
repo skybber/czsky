@@ -53,8 +53,8 @@
                             <div class="two fields">
                                 {{ f.render_form_field(item.deep_sky_object_id_list, extra_classes="fourteen wide field") }}
                                 <div class="field">
-                                    <label for="odate">Time</label>
-                                    <div class="ui calendar" id="otime">
+                                    <label for="otime-{{loop.index0}}-tm">Time</label>
+                                    <div class="ui calendar" id="otime-{{loop.index0}}-tm">
                                       <div class="ui input left icon">
                                         <i class="calendar icon"></i>
                                         <input id="items-{{loop.index0}}-date_time" name="{{item.date_time.name}}" placeholder="Date" type="text">
@@ -127,7 +127,7 @@
                     });
                     row.show();
                     oldrow.after(row);
-                    $('#items-' + elem_num + '-date_time').calendar({
+                    row.find('#otime-' + elem_num + '-tm').calendar({
                         type: 'time',
                         formatter: {
                             date: function (time, settings) {

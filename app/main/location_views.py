@@ -49,9 +49,11 @@ def location_info(location_id):
         abort(404)
     if not location.is_public and location.user_id != current_user.id:
         abort(404)
-    url1 = mapy_cz_url(location.longitude, location.latitude)
-    url2 = google_url(location.longitude, location.latitude)
-    return render_template('main/location/location_info.html', location=location, type='info', mapy_cz_url=url1, google_url=url2)
+    url_cz_mapy = mapy_cz_url(location.longitude, location.latitude)
+    url_googlee = google_url(location.longitude, location.latitude)
+    url_os_map = google_url(location.longitude, location.latitude)
+    return render_template('main/location/location_info.html', location=location, type='info',
+                           mapy_cz_url=url_cz_mapy, google_url=url_googlee, os_map_url=url_os_map)
 
 @main_location.route('/new-location', methods=['GET', 'POST'])
 @login_required

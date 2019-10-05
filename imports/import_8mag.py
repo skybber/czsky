@@ -12,10 +12,14 @@ from json.decoder import JSONDecodeError
 from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
+from app.models.deepskyobject import DeepSkyObject, UserDsoDescription
+from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
 
 translation_cnt = 0
 translator_stopped = False
+
+rating_map = { 'exponaty' : 10 , 'zaujimave_objekty' : 8, 'challange_objekty': 6, 'priemerne_objekty' : 4, 'asterismy' : 10}
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -119,27 +123,72 @@ def extract_div_elem(translator, db_connection, div_elem):
             md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
     return md_text
 
-def extract_cons_objects(translator, soup, db_connection):
-    md_text = ''
+def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code, cons):
     # exponaty , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy'
     elems = soup.find_all( [ 'a', 'h4', 'div' ])
     part = None
+    rating = None
+    found_objects = []
+    cons_order = 0
     for elem in elems:
         if elem.name == 'a':
             if elem.has_attr('id') and elem['id'] in ['exponaty' , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy']:
                 part = elem['id']
-                md_text += '### ' + do_translate(translator, db_connection, elem.text.strip()) + '\n\n'
+                rating = rating_map[part]
+                dso_text = ''
+                dso_name = ''
+                cons_order += 1
                 continue
             else:
                 continue
         elif not part:
             continue
         if elem.name == 'h4':
-            md_text += '#### ' + do_translate(translator, db_connection, elem.text.strip()) + '\n\n'
+            dso_text = ''
+            dso_name = ''
+            if part == 'asterismy':
+                dso_name = 'ASTER_' + elem.text.strip()
+                pass
+            else:
+                dso_name = elem.text.strip()
+                if '(' in dso_name:
+                    dso_name = dso_name[:dso_name.index('(')]
+                dso_name = normalize_dso_name(dso_name.strip())
+                others = []
+                if dso_name.startswith('NGC') and ('-' in dso_name or '/' in dso_name):
+                    if '-' in dso_name:
+                        dso_items = dso_name.split('-')
+                    else:
+                        dso_items = dso_name.split('/')
+                    dso_name = dso_items[0]
+                    if dso_name.endswith('A'):
+                        dso_name = dso_name[:-1]
+                    for other in dso_items[1:]:
+                        others.append(dso_name[:-len(other)] + other)
+                found_objects.append({'names' : [dso_name] + others, 'rating': rating})
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
-            md_text += extract_div_elem(translator, db_connection, elem) + '\n\n'
+            if dso_name:
+                dso_text += extract_div_elem(translator, db_connection, elem) + '\n\n'
+                found_objects[-1]['text'] = dso_text
 
-    return md_text
+    for m in found_objects:
+        if m['names'][0].startswith('ASTER_'):
+            pass
+        else:
+            for dso_name in m['names']:
+                dso = DeepSkyObject.query.filter_by(name=dso_name).first()
+                if dso:
+                    udd = UserDsoDescription(
+                        dso_id = dso.id,
+                        user_id = user_8mag.id,
+                        rating = m['rating'],
+                        lang_code = lang_code,
+                        cons_order = cons_order,
+                        text = m['text']
+                    )
+                    db.session.add(udd)
+                else:
+                    print('Deepsky object not found. dso name=' + m['names'][0])
 
 def do_import_8mag(src_path, debug_log, translation_db_name):
 
@@ -182,37 +231,37 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
                     continue
                 # md_text = '## ' + cons_name + '\n\n'
 
-                translator_was_stopped = False
                 if not translator_stopped:
                     md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'))
                     md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'))
-                    md_text += extract_cons_objects(translator, soup, db_connection)
 
-                    ucd = UserConsDescription(
-                        constellation_id = cons.id,
-                        user_id = user_8mag.id,
-                        text = md_text,
-                        lang_code = 'cs'
-                        )
-                    db.session.add(ucd)
-                    translator_was_stopped = translator_stopped
+                    if not translator_stopped:
+                        ucd = UserConsDescription(
+                            constellation_id = cons.id,
+                            user_id = user_8mag.id,
+                            text = md_text,
+                            lang_code = 'cs'
+                            )
+                        db.session.add(ucd)
 
-                if not translator_was_stopped:
-                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'))
-                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'))
-                    md_text += extract_cons_objects(translator, soup, db_connection)
+                        save_dso_descriptions(translator, soup, db_connection, user_8mag, 'cs', cons)
 
-                    ucd = UserConsDescription(
-                        constellation_id = cons.id,
-                        user_id = user_8mag.id,
-                        text = md_text,
-                        lang_code = 'sk'
-                        )
-                    db.session.add(ucd)
+                md_text = extract_div_elem(None, db_connection, soup.select_one('div.level1'))
+                md_text += extract_div_elem(None, db_connection, soup.select_one('div.level2'))
+
+                ucd = UserConsDescription(
+                    constellation_id = cons.id,
+                    user_id = user_8mag.id,
+                    text = md_text,
+                    lang_code = 'sk'
+                    )
+                db.session.add(ucd)
+                save_dso_descriptions(None, soup, db_connection, user_8mag, 'sk', cons)
                 try:
                     db.session.commit()
                 except IntegrityError:
                     db.session.rollback()
+                    print('Error')
 
     if db_connection:
         db_connection.close()
