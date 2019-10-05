@@ -2,16 +2,16 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_catalogue.deepskyobject_info', 'Info'),
-    ('main_catalogue.deepskyobject_descr', 'Descr'),
+    ('main_catalogue.deepskyobject_info', 'Info', 'info'),
+    ('main_catalogue.deepskyobject_descr', 'Descr', 'book')
 ] %}
 
 {% macro navigation(items) %}
-    <div class="ui vertical fluid secondary menu">
-        {% for route, name in items %}
+    <div class="ui fluid vertical icon secondary menu">
+        {% for route, name, icon in items %}
             {% set href = url_for(route, dso_id=dso.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
-                {{ name }}
+                <i class="{{ icon }} icon"></i>
             </a>
         {% endfor %}
     </div>

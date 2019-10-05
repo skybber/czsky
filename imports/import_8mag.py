@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, re, getopt, os, glob, pathlib, time
+import sys, re, getopt, os, glob, pathlib, time, csv
 import sqlite3
 import hashlib
 
@@ -20,6 +20,8 @@ translation_cnt = 0
 translator_stopped = False
 
 rating_map = { 'exponaty' : 10 , 'zaujimave_objekty' : 8, 'challange_objekty': 6, 'priemerne_objekty' : 4, 'asterismy' : 10}
+
+vic_catalogue = {}
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -148,7 +150,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
             dso_name = ''
             if part == 'asterismy':
                 dso_name = 'ASTER_' + elem.text.strip()
-                pass
+                found_objects.append({'names' : [dso_name]})
             else:
                 dso_name = elem.text.strip()
                 if '(' in dso_name:
@@ -173,7 +175,40 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
 
     for m in found_objects:
         if m['names'][0].startswith('ASTER_'):
-            pass
+            vic_cs_name = m['names'][0][len('ASTER_'):].strip()
+            vic_catalogue_row = vic_catalogue.get(vic_cs_name, None)
+            if vic_catalogue_row:
+                vic_id = vic_catalogue_row['Vic#'].strip()
+                if len(vic_id) < 2:
+                    vic_id = '0' + vic_id
+                dso_name = 'VIC' + vic_id
+                dso = DeepSkyObject.query.filter_by(name=dso_name).first()
+                if dso:
+                    # update constellation ID since it is missing in vic catalogue
+                    dso.constellation_id = cons.id
+                    db.session.add(dso)
+
+                    text = m['text'] + '\n\n'
+                    text += '##### 10x50 : ' + (vic_catalogue_row.get('10x50', False) or '') + '\n'
+                    text += '##### 15x70 :' + (vic_catalogue_row.get('15x70', False) or '') + '\n'
+                    text += '##### 25x100 : ' + (vic_catalogue_row.get('25x100', False) or '') + '\n'
+
+                    rating = vic_catalogue_row['10x50'].find('☆')
+                    if rating < 0:
+                        rating = 5;
+                    udd = UserDsoDescription(
+                        dso_id = dso.id,
+                        user_id = user_8mag.id,
+                        rating = rating,
+                        lang_code = lang_code,
+                        cons_order = cons_order,
+                        text = text
+                    )
+                    db.session.add(udd)
+                else:
+                    print('Deepsky object not found. dso name=' + dso_name)
+            else:
+                print('VIC object not found. cs name=' + vic_cs_name)
         else:
             for dso_name in m['names']:
                 dso = DeepSkyObject.query.filter_by(name=dso_name).first()
@@ -190,7 +225,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                 else:
                     print('Deepsky object not found. dso name=' + m['names'][0])
 
-def do_import_8mag(src_path, debug_log, translation_db_name):
+def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
     user_8mag = User.query.filter_by(email='8mag').first()
 
@@ -205,6 +240,11 @@ def do_import_8mag(src_path, debug_log, translation_db_name):
         db_connection = sqlite3.connect(translation_db_name)
     except Exception:
         print('Connection to db="' + translation_db_name + '" failed. Translations will not be used.')
+
+    with open(vic_8mag_file) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+        for row in reader:
+            vic_catalogue[row['name_cs'].strip()] = row
 
     translator = Translator(service_urls=[ 'translate.google.cn', ] )
 

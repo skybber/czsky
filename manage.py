@@ -148,7 +148,7 @@ def import_8mag():
     """
     Import 8mag
     """
-    do_import_8mag('data/8mag', True, 'translations.sqlite')
+    do_import_8mag('data/8mag', True, 'translations.sqlite', 'data/vic_8mag.csv')
 
 @manager.command
 def import_new_skyquality_locations():
