@@ -39,3 +39,9 @@ table.selectable tr:hover {
     padding: .1em .25em;
     font-size: 150%;
 }
+
+img[alt$="<"] {
+  float: left;
+   margin-right: 20px;
+   margin-bottom: 20px;
+}

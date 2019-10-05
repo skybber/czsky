@@ -120,7 +120,7 @@ def extract_div_elem(translator, db_connection, div_elem):
             if src.startswith('./'):
                 src = src[2:]
             src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
-            md_text += '![](/static/webassets-external/users/8mag/cons/' + src + ')\n\n'
+            md_text += '![<](/static/webassets-external/users/8mag/cons/' + src + ')\n'
     return md_text
 
 def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code, cons):

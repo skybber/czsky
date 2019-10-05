@@ -19,20 +19,26 @@
 {% endmacro %}
 
 {% macro constellation_user_info(constellation, user_descr) %}
-    {% filter commonmark %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+        <div class="ui blue segment" style="display: inline-block">
+        {% filter commonmark %}
 {{ user_descr }}
-    {% endfilter %}
-    {% if dso_descriptions %}
-        {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
-            <h2 class="ui header">
-                {{ user_dso_descr.deepSkyObject.name }}
-                <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-            </h2>
-            {% filter commonmark %}
+        {% endfilter %}
+        </div>
+        {% if dso_descriptions %}
+            {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
+                <div class="ui segment" style="display: inline-block">
+                    <h2 class="ui header">
+                        {{ user_dso_descr.deepSkyObject.name }}
+                        <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                    </h2>
+                    {% filter commonmark %}
 {{ user_dso_descr.text }}
-            {% endfilter %}
-        {% endfor %}
-    {% endif %}
+                    {% endfilter %}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 {% endmacro %}
 
 {% macro constellation_info(constellation) %}
