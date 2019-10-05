@@ -27,6 +27,15 @@ class DeepSkyObject(db.Model):
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
 
+    def denormalized_name(self):
+        zero_index = self.name.find('0')
+        if zero_index < 0 or self.name[zero_index-1].isdigit():
+            return self.name
+        last_zero_index = zero_index
+        while self.name[last_zero_index+1] == '0':
+            last_zero_index += 1
+        return self.name[:zero_index] + self.name[last_zero_index+1:]
+
 
 class DsoCatalogueLink(db.Model):
     __tablename__ = 'dso_catalogue_links'
@@ -42,6 +51,7 @@ class UserDsoDescription(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
     lang_code = db.Column(db.String(2))
+    common_name = db.Column(db.String(256))
     text = db.Column(db.Text)
     cons_order = db.Column(db.Integer) # description order in constellation
 

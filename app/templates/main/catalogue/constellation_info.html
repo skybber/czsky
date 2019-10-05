@@ -29,7 +29,7 @@
             {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
                 <div class="ui segment" style="display: inline-block">
                     <h2 class="ui header">
-                        {{ user_dso_descr.deepSkyObject.name }}
+                        {{ user_dso_descr.deepSkyObject.denormalized_name() }}
                         <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                     </h2>
                     {% filter commonmark %}
@@ -68,7 +68,7 @@
                     <tbody>
                     {% for d in constellation.deep_sky_objects | sort(attribute='name') %}
                             <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id, from_constellation_id=constellation.id) }}';">
-                                    <td>{{ d.name }}</td>
+                                    <td>{{ d.denormalized_name() }}</td>
                                     <td>{{ d.type }}</td>
                                     <td>{{ d.ra }}</td>
                                     <td>{{ d.dec }}</td>
@@ -88,7 +88,7 @@
                 Back to Constellations
             </a>
             <h2 class="ui header">
-                {{ constellation.iau_code }} / {{ constellation.name }}
+                {{ constellation.iau_code }} / {{ constellation.name.title() }}
             </h2>
         </div>
         <div class="stretched divided very relaxed row">

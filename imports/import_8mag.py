@@ -189,9 +189,9 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                     db.session.add(dso)
 
                     text = m['text'] + '\n\n'
-                    text += '##### 10x50 : ' + (vic_catalogue_row.get('10x50', False) or '') + '\n'
-                    text += '##### 15x70 :' + (vic_catalogue_row.get('15x70', False) or '') + '\n'
-                    text += '##### 25x100 : ' + (vic_catalogue_row.get('25x100', False) or '') + '\n'
+                    text += '##### 10x50 : ' + vic_catalogue_row.get('10x50', '') + '\n'
+                    text += '##### 15x70 :' + vic_catalogue_row.get('15x70', '') + '\n'
+                    text += '##### 25x100 : ' + vic_catalogue_row.get('25x100', '') + '\n'
 
                     rating = vic_catalogue_row['10x50'].find('☆')
                     if rating < 0:
@@ -202,7 +202,8 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         rating = rating,
                         lang_code = lang_code,
                         cons_order = cons_order,
-                        text = text
+                        text = text,
+                        common_name = vic_catalogue_row.get('name_cs', '')
                     )
                     db.session.add(udd)
                 else:

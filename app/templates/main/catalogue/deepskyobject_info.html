@@ -19,7 +19,7 @@
 
 {% macro deepskyobject_info(dso) %}
     <table class="ui compact definition table">
-        <tr><td>Name</td><td>{{ dso.name }}</td></tr>
+        <tr><td>Name</td><td>{{ dso.denormalized_name() }}</td></tr>
         <tr><td>Type</td><td>{{ dso.type }}</td></tr>
         <tr><td>Common name</td><td>{{ dso.common_name }}</td></tr>
         <tr><td>descr</td><td>{{ dso.descr }}</td></tr>
@@ -68,7 +68,7 @@
                 </a>
             {% endif %}
             <h2 class="ui header">
-                {{ dso.name }}
+                {{ dso.denormalized_name() }} {% if dso.common_name %} ({{ dso.common_name }}) {% endif %}
                 {% if user_descr %}
                     <div class="ui rating center" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                 {% endif %}
