@@ -25,23 +25,19 @@ table.selectable tr:hover {
 }
 
 .pagination-page-info {
-    padding: .6em;
-    padding-left: 0;
-    width: 40em;
-    margin: .5em;
-    margin-left: 0;
-    font-size: 12px;
+  float: right;
+  margin: .5em;
+  text-align: right;
 }
+
 .pagination-page-info b {
-    color: black;
-    background: #6aa6ed;
-    padding-left: 2px;
-    padding: .1em .25em;
-    font-size: 150%;
+  color: black;
+  padding-left: 2px;
+  padding: .1em .25em;
 }
 
 img[alt$="<"] {
   float: left;
-   margin-right: 20px;
-   margin-bottom: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
 }

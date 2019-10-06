@@ -14,10 +14,12 @@
             <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search">
                 <div class="ui menu">
                     <div class="ui item">
-                        {{search_form.catalogue(class='ui dropdown button')}}
-                    </div>
-                    <div class="ui item">
-                        {{search_form.dso_type(class='ui dropdown button')}}
+                        <div class="inline fields">
+                            <label>Catalogue</label>
+                            {{search_form.catalogue(class='ui dropdown button',onchange='this.form.submit()')}}
+                            <label>Type</label>
+                            {{search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()')}}
+                        </div>
                     </div>
                     <div class="ui right search item">
                         <div class="ui action input">
@@ -33,7 +35,6 @@
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}
             <div style="overflow-x: scroll;">
-                {{ pagination.info }}
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
@@ -56,9 +57,8 @@
                     {% endfor %}
                     </tbody>
                 </table>
-                {{ pagination.links }}
+                {{ pagination.links }} {{ pagination.info }}
             </div>
         </div>
     </div>
-
 {% endblock %}
