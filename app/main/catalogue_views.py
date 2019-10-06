@@ -51,7 +51,7 @@ def constellation_info(constellation_id):
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id)\
                 .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                 .order_by(UserDsoDescription.lang_code) \
-                .join(DeepSkyObject) \
+                .join(UserDsoDescription.deepSkyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 

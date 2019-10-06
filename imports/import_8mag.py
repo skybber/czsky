@@ -91,7 +91,7 @@ def do_translate(translator, db_connection, ptext):
         translation_cnt += 1
         if translation_cnt >= 10:
             print('Sleeping for 10s after bulk translations...')
-            time.sleep(1)
+            time.sleep(10)
             translation_cnt = 0
         else:
             time.sleep(1)
@@ -139,6 +139,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                 rating = rating_map[part]
                 dso_text = ''
                 dso_name = ''
+                dso_common_name = ''
                 cons_order += 1
                 continue
             else:
@@ -148,13 +149,17 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
         if elem.name == 'h4':
             dso_text = ''
             dso_name = ''
+            dso_common_name = ''
             if part == 'asterismy':
                 dso_name = 'ASTER_' + elem.text.strip()
                 found_objects.append({'names' : [dso_name]})
             else:
                 dso_name = elem.text.strip()
+
                 if '(' in dso_name:
                     dso_name = dso_name[:dso_name.index('(')]
+                    if ')' in dso_name:
+                        dso_common_name = dso_name[dso_name.index('(') + 1 : dso_name.index(')')].strip()
                 dso_name = normalize_dso_name(dso_name.strip())
                 others = []
                 if dso_name.startswith('NGC') and ('-' in dso_name or '/' in dso_name):
@@ -220,7 +225,8 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         rating = m['rating'],
                         lang_code = lang_code,
                         cons_order = cons_order,
-                        text = m['text']
+                        text = m['text'],
+                        common_name = dso_common_name
                     )
                     db.session.add(udd)
                 else:

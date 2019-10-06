@@ -64,7 +64,7 @@ def import_open_ngc(open_ngc_data_file):
                     catal_id = catal_dict['NGC'].id
                 if catal_id is not None:
                     l = DsoCatalogueLink(
-                        catalogue_id = catal_dict['IC'].id,
+                        catalogue_id = catal_id,
                         dso_id = c.id,
                         name = row['Name']
                         )
