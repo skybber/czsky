@@ -11,8 +11,9 @@ from flask_login import current_user, login_required
 from app import db
 
 from app.models import User, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
-from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name
+from app.commons.paginated_search_utils import process_paginated_session_search
 
 from .forms import (
     SearchForm,
@@ -87,19 +88,18 @@ def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchForm()
 
-    page = request.args.get(get_page_parameter(), type=int, default=1)
+    (page, search_expr) = process_paginated_session_search(sess_page_name='dso_search_page', sess_arg_form_pairs=[('dso_search', search_form.q)])
+
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     deepskyobjects = DeepSkyObject.query
-    search = False
-    if search_form.q.data:
-        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
-        search = True
+    if search_expr:
+        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
 
-    pagination = Pagination(page=page, total=deepskyobjects.count(), search=search, record_name='deepskyobjects', css_framework='semantic')
+    pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, pagination=pagination, search_form=search_form)
 
 

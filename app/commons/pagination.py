@@ -324,6 +324,12 @@ class Pagination(object):
         if self.css_framework == 'semantic':
             self.link = SEMANTIC_LINK
 
+        not_passed_args = kwargs.get('not_passed_args', None)
+        if not_passed_args:
+            self.not_passed_args = set(not_passed_args.split(','))
+        else:
+            self.not_passed_args = set()
+
         self.current_page_fmt = CURRENT_PAGES[self.css_framework]
         self.link_css_fmt = CSS_LINKS[self.css_framework]
         self.gap_marker_fmt = GAP_MARKERS[self.css_framework]
@@ -332,13 +338,15 @@ class Pagination(object):
         self.prev_page_fmt = PREV_PAGES[self.css_framework]
         self.next_page_fmt = NEXT_PAGES[self.css_framework]
         self.css_end_fmt = CSS_LINKS_END[self.css_framework]
+
+
         self.init_values()
 
     def page_href(self, page):
         if self.href:
             url = self.href.format(page or 1)
         else:
-            self.args[self.page_parameter] = page
+            self.args[self.page_parameter] = page or 1
             if self.anchor:
                 url = url_for(self.endpoint, _anchor=self.anchor, **self.args)
             else:
@@ -358,10 +366,11 @@ class Pagination(object):
         args.update(request.view_args.copy())
         self.args = {}
         for k, v in args.lists():
-            if len(v) == 1:
-                self.args[k] = v[0]
-            else:
-                self.args[k] = v
+            if not k in self.not_passed_args:
+                if len(v) == 1:
+                    self.args[k] = v[0]
+                else:
+                    self.args[k] = v
 
         self.endpoint = request.endpoint
 
