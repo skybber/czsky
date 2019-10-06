@@ -34,6 +34,7 @@ class SearchDsoForm(FlaskForm):
     q = StringField('Search')
     catalogue = SelectField('Catalogue', choices=[
          ('All', 'All'),
+         ('M', 'Messier'),
          ('NGC', 'Ngc'),
          ('IC', 'IC'),
          ('ABELL','Abell'),
