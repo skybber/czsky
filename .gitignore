@@ -1,5 +1,6 @@
 .webassets-cache/
 webassets-external/
+private_data/
 .DS_Store
 *.pyc
 *.pyo
@@ -11,7 +12,7 @@ dist
 *.egg
 *.egg-info
 *.sqlite
-*.csv
 .idea
 dump.rdb
 .vscode/
+
