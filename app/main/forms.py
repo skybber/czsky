@@ -10,6 +10,7 @@ from wtforms.fields import (
     FormField,
     HiddenField,
     IntegerField,
+    SelectField,
     StringField,
     SubmitField,
     TextAreaField,
@@ -27,7 +28,25 @@ from wtforms.validators import (
 )
 
 class SearchForm(FlaskForm):
-    q = StringField('Search', validators=[DataRequired()])
+    q = StringField('Search')
+
+class SearchDsoForm(FlaskForm):
+    q = StringField('Search')
+    catalogue = SelectField('Catalogue', choices=[
+         ('All', 'All'),
+         ('NGC', 'Ngc'),
+         ('IC', 'IC'),
+         ('ABELL','Abell'),
+         ('VIC','Vic'),
+    ])
+    dso_type = SelectField('Object type', choices=[
+         ('All', 'All'),
+         ('G', 'Galaxy'),
+         ('GCl', 'Globular Cluster'),
+         ('OCl', 'Open Cluster'),
+         ('Neb', 'Nebula'),
+         ('PN', 'Planatary Nebula'),
+    ])
 
 class ObservationItemNewForm(FlaskForm):
     deep_sky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])

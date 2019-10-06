@@ -10,13 +10,13 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
+from app.models import User, Catalogue, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.paginated_search_utils import process_paginated_session_search
 
 from .forms import (
-    SearchForm,
+    SearchDsoForm,
 )
 
 from .views import ITEMS_PER_PAGE
@@ -86,9 +86,13 @@ def constellation_deepskyobjects(constellation_id):
 @main_catalogue.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""
-    search_form = SearchForm()
+    search_form = SearchDsoForm()
 
-    (page, search_expr) = process_paginated_session_search(sess_page_name='dso_search_page', sess_arg_form_pairs=[('dso_search', search_form.q)])
+    page, search_expr, dso_type, catalogue = process_paginated_session_search(sess_page_name='dso_search_page',  sess_arg_form_pairs=[
+        ('dso_search', search_form.q),
+        ('dso_type', search_form.dso_type),
+        ('dso_catal', search_form.catalogue),
+    ])
 
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
@@ -96,6 +100,16 @@ def deepskyobjects():
     deepskyobjects = DeepSkyObject.query
     if search_expr:
         deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
+
+    if dso_type and dso_type != 'All':
+        deepskyobjects = deepskyobjects.filter(DeepSkyObject.type==dso_type)
+
+    if catalogue and catalogue != 'All':
+        print('Catalogue:' + catalogue, flush=True)
+        cat_id = Catalogue.get_catalogue_id(catalogue)
+        if cat_id:
+            print('Catalogue ID:' + str(cat_id), flush=True)
+            deepskyobjects = deepskyobjects.join(DeepSkyObject.catalogue_links, aliased=True).filter_by(catalogue_id=cat_id)
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
 
@@ -129,4 +143,3 @@ def deepskyobject_descr(dso_id):
                         .filter_by(id=dso.id) \
                         .first()
     return render_template('main/catalogue/deepskyobject_info.html', type='descr', dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id)
-

@@ -13,10 +13,18 @@
 
             <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search">
                 <div class="ui menu">
+                    <div class="ui item">
+                        {{search_form.catalogue(class='ui dropdown button')}}
+                    </div>
+                    <div class="ui item">
+                        {{search_form.dso_type(class='ui dropdown button')}}
+                    </div>
                     <div class="ui right search item">
-                        <div class="ui transparent icon input">
+                        <div class="ui action input">
                             {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
-                            <i class="search icon"></i>
+                            <button class="ui icon button">
+                                <i class="search icon"></i>
+                            </button>
                         </div>
                     </div>
                 </div>

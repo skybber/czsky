@@ -26,6 +26,7 @@ class DeepSkyObject(db.Model):
     identifiers = db.Column(db.Text)
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
+    catalogue_links = db.relationship('DsoCatalogueLink', backref='deep_sky_objects', lazy=True)
 
     def denormalized_name(self):
         zero_index = self.name.find('0')
