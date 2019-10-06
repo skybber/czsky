@@ -64,7 +64,7 @@ def import_abell(abell_data_file):
                     )
                 db.session.add(c)
                 db.session.flush()
-                catal_id = catal_dict['Abell'].id
+                catal_id = catal_dict['ABELL'].id
                 l = DsoCatalogueLink(
                     catalogue_id = catal_id,
                     dso_id = c.id,
