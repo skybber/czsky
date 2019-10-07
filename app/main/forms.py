@@ -33,7 +33,7 @@ class SearchForm(FlaskForm):
 class SearchDsoForm(FlaskForm):
     q = StringField('Search')
     catalogue = SelectField('Catalogue', choices=[
-         ('All', 'All'),
+         ('All', 'All catalogues'),
          ('M', 'Messier'),
          ('NGC', 'Ngc'),
          ('IC', 'IC'),
@@ -41,7 +41,7 @@ class SearchDsoForm(FlaskForm):
          ('VIC','Vic'),
     ])
     dso_type = SelectField('Object type', choices=[
-         ('All', 'All'),
+         ('All', 'All types'),
          ('G', 'Galaxy'),
          ('GCl', 'Globular Cluster'),
          ('OCl', 'Open Cluster'),

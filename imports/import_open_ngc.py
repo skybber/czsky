@@ -71,15 +71,33 @@ def import_open_ngc(open_ngc_data_file):
                             )
                         db.session.add(l)
                     if row['M']:
-                        dso.mess_id = row['M']
-                        messiers.append(dso)
+                        mes_dso = DeepSkyObject(
+                            name = 'M' + row['M'],
+                            type = dso.type,
+                            ra = dso.ra,
+                            dec = dso.dec,
+                            constellation_id = dso.constellation_id,
+                            major_axis = dso.major_axis,
+                            minor_axis = dso.minor_axis,
+                            positon_angle = dso.positon_angle,
+                            b_mag = dso.b_mag,
+                            v_mag = dso.v_mag,
+                            j_mag = dso.j_mag,
+                            h_mag = dso.h_mag,
+                            k_mag = dso.k_mag,
+                            surface_bright = dso.surface_bright,
+                            hubble_type =  dso.hubble_type,
+                            c_star_u_mag = dso.c_star_u_mag,
+                            c_star_b_mag = dso.c_star_b_mag,
+                            c_star_v_mag = dso.c_star_v_mag,
+                            identifiers = dso.identifiers,
+                            common_name = dso.common_name,
+                            descr = dso.descr
+                            )
+                        messiers.append(mes_dso)
             db.session.commit()
-            messiers.sort(key=lambda x: x.mess_id)
+            messiers.sort(key=lambda x: x.name)
             for mes_dso in messiers:
-                db.session.expunge(mes_dso)
-                make_transient(mes_dso)
-                mes_dso.id = None
-                mes_dso.name = 'M' + mes_dso.mess_id
                 db.session.add(mes_dso)
                 db.session.flush()
                 l = DsoCatalogueLink(

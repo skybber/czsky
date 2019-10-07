@@ -3,7 +3,7 @@
 
 {% set endpoints = [
     ('main_catalogue.deepskyobject_info', 'Info', 'info'),
-    ('main_catalogue.deepskyobject_descr', 'Descr', 'book')
+    ('main_catalogue.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
 {% macro navigation(items) %}
@@ -17,7 +17,21 @@
     </div>
 {% endmacro %}
 
-{% macro deepskyobject_info(dso) %}
+{% macro deepskyobject_info(dso, user_descr) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+        <div class="ui blue segment" style="display: inline-block">
+            {% if user_descr %}
+                <h3>{{ user_descr.common_name }}</h3>
+                {% filter commonmark %}
+{{ user_descr.text }}
+                {% endfilter %}
+            {% else %}
+            {% endif %}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro deepskyobject_catalogue_data(dso) %}
     <table class="ui compact definition table">
         <tr><td>Name</td><td>{{ dso.denormalized_name() }}</td></tr>
         <tr><td>Type</td><td>{{ dso.type }}</td></tr>
@@ -43,16 +57,6 @@
     </table>
 {% endmacro %}
 
-{% macro deepskyobject_descr(dso, user_descr) %}
-    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block">
-    {% filter commonmark %}
-{{ user_descr.text }}
-    {% endfilter %}
-            </div>
-    </div>
-{% endmacro %}
-
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
@@ -65,6 +69,18 @@
                 <a class="ui basic compact button" href="{{ url_for('main_catalogue.deepskyobjects', back=1)}}">
                     <i class="caret left icon"></i>
                     Back to deepsky objects
+                </a>
+            {% endif %}
+            {% if next_dso %}
+                <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=next_dso.id)}}">
+                    {{ next_dso.name }}
+                    <i class="caret right icon"></i>
+                </a>
+            {% endif %}
+            {% if prev_dso %}
+                <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=prev_dso.id)}}">
+                    <i class="caret left icon"></i>
+                    {{ prev_dso.name }}
                 </a>
             {% endif %}
             <h2 class="ui header">
@@ -80,10 +96,10 @@
             </div>
             <div class="fourteen wide tablet fourteen wide computer column">
                 {% if type == 'info' %}
-                    {{ deepskyobject_info(dso) }}
+                    {{ deepskyobject_info(dso, user_descr) }}
                 {% endif %}
-                {% if type == 'descr' %}
-                    {{ deepskyobject_descr(dso, user_descr) }}
+                {% if type == 'catalogue_data' %}
+                    {{ deepskyobject_catalogue_data(dso) }}
                 {% endif %}
             </div>
         </div>

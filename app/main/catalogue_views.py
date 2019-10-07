@@ -12,7 +12,7 @@ from app import db
 
 from app.models import User, Catalogue, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
 from app.commons.pagination import Pagination
-from app.commons.dso_utils import normalize_dso_name
+from app.commons.dso_utils import normalize_dso_name,get_prev_next_dso
 from app.commons.paginated_search_utils import process_paginated_session_search
 
 from .forms import (
@@ -123,16 +123,6 @@ def deepskyobject_info(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
-    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, from_constellation_id=from_constellation_id)
-
-@main_catalogue.route('/deepskyobject/<int:dso_id>')
-@main_catalogue.route('/deepskyobject/<int:dso_id>/descr')
-def deepskyobject_descr(dso_id):
-    """View a deepsky object info."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
-    if dso is None:
-        abort(404)
-    from_constellation_id = request.args.get('from_constellation_id')
     user_8mag = User.query.filter_by(email='8mag').first()
     dso_description = None
     if user_8mag:
@@ -140,4 +130,18 @@ def deepskyobject_descr(dso_id):
                         .join(DeepSkyObject) \
                         .filter_by(id=dso.id) \
                         .first()
-    return render_template('main/catalogue/deepskyobject_info.html', type='descr', dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id)
+    prev_dso, next_dso = get_prev_next_dso(dso)
+    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr,
+                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+
+@main_catalogue.route('/deepskyobject/<int:dso_id>')
+@main_catalogue.route('/deepskyobject/<int:dso_id>/catalogue_data')
+def deepskyobject_catalogue_data(dso_id):
+    """View a deepsky object info."""
+    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    if dso is None:
+        abort(404)
+    from_constellation_id = request.args.get('from_constellation_id')
+    prev_dso, next_dso = get_prev_next_dso(dso)
+    return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
+                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)

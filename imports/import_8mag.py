@@ -167,11 +167,15 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                 found_objects.append({'names' : [dso_name]})
             else:
                 dso_name = elem.text.strip()
-
                 if '(' in dso_name:
-                    dso_name = dso_name[:dso_name.index('(')]
                     if ')' in dso_name:
                         dso_common_name = dso_name[dso_name.index('(') + 1 : dso_name.index(')')].strip()
+                        if '–' in dso_common_name:
+                            dso_common_name = dso_common_name[dso_common_name.index('–') + 1:].strip()
+                        else:
+                            if dso_common_name.startswith('NGC'):
+                                dso_common_name = ''
+                    dso_name = dso_name[:dso_name.index('(')]
                 dso_name = normalize_dso_name(dso_name.strip())
                 others = []
                 if dso_name.startswith('NGC') and ('-' in dso_name or '/' in dso_name):
@@ -184,7 +188,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         dso_name = dso_name[:-1]
                     for other in dso_items[1:]:
                         others.append(dso_name[:-len(other)] + other)
-                found_objects.append({'names' : [dso_name] + others, 'rating': rating})
+                found_objects.append({'names' : [dso_name] + others, 'rating': rating, 'dso_common_name': dso_common_name })
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
             if dso_name:
                 dso_text += extract_div_elem(translator, db_connection, elem) + '\n\n'
@@ -238,7 +242,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         lang_code = lang_code,
                         cons_order = cons_order,
                         text = m['text'],
-                        common_name = dso_common_name
+                        common_name = m['dso_common_name']
                     )
                     db.session.add(udd)
                 else:
