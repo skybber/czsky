@@ -66,6 +66,16 @@ def main():
     do_import_8mag(src_path, dst_path, debug_log)
 
 
+def fix_bold(text):
+    index1 = text.find('** ')
+    while index1 >= 0:
+        index2 = text.find(' **', index1)
+        if index2 < 0:
+            break
+        text = text[:index1] + '**' + text[index1 + 3:index2] + '**' + text[index2+3:]
+        index1 = text.find('** ', index2 + (3-2))
+    return text
+
 
 def do_translate(translator, db_connection, ptext):
     global translator_stopped
@@ -81,6 +91,7 @@ def do_translate(translator, db_connection, ptext):
     c = c.fetchone();
     trans_text = c[0] if c else None
     if trans_text:
+        trans_text = fix_bold(trans_text)
         return trans_text
 
     if translator_stopped:
@@ -88,6 +99,7 @@ def do_translate(translator, db_connection, ptext):
 
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
+        trans_text = fix_bold(trans_text)
         translation_cnt += 1
         if translation_cnt >= 10:
             print('Sleeping for 10s after bulk translations...')
