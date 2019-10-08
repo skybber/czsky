@@ -34,9 +34,11 @@
                         {{ user_dso_descr.deepSkyObject.denormalized_name() }}
                         <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                     </h2>
-                    {% filter commonmark %}
+                    <div class="markdown">
+                        {% filter commonmark %}
 {{ user_dso_descr.text }}
-                    {% endfilter %}
+                        {% endfilter %}
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
