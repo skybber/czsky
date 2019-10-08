@@ -21,9 +21,11 @@
 {% macro constellation_user_info(constellation, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
-        {% filter commonmark %}
+            <div class="markdown">
+                {% filter commonmark %}
 {{ user_descr }}
-        {% endfilter %}
+                {% endfilter %}
+            </div>
         </div>
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
@@ -116,4 +118,10 @@
         $('.ui.rating')
         .rating();
     </script>
+    <style>
+.markdown img {
+  max-width: 100%;
+  height: auto;
+}
+    </style>
 {% endblock %}
