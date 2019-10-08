@@ -107,7 +107,7 @@ def deepskyobjects():
     if catalogue and catalogue != 'All':
         cat_id = Catalogue.get_catalogue_id(catalogue)
         if cat_id:
-            deepskyobjects = deepskyobjects.join(DeepSkyObject.catalogue_links, aliased=True).filter_by(catalogue_id=cat_id)
+            deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
 

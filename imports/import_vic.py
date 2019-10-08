@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject,DsoCatalogueLink
+from app.models.deepskyobject import DeepSkyObject
 
 def vic2int(s):
     s.lstrip('0')
@@ -29,7 +29,7 @@ def import_vic(open_ngc_data_file):
     with open(open_ngc_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         print('Importing VIC catalog ...')
-        catal_id = catal_dict['VIC'].id
+        catalogue_id = Catalogue.get_catalogue_id('VIC')
         row_id = 0
         for row in reader:
             row_id += 1
@@ -48,6 +48,7 @@ def import_vic(open_ngc_data_file):
                     ra = row['RA'].strip().replace(',', ':'),
                     dec = row['Dec'].strip().replace(',', ':'),
                     constellation_id = constell_dict[constellation] if constellation else None,
+                    catalogue_id = catalogue_id,
                     major_axis = vic2int(row['length']) / 10,
                     minor_axis =  vic2int(row['width']) / 10,
                     positon_angle =  vic2int(row['orient']) / 10,
@@ -66,15 +67,6 @@ def import_vic(open_ngc_data_file):
                     descr = None,
                     )
                 db.session.add(c)
-                db.session.flush()
-                if catal_id:
-                    l = DsoCatalogueLink(
-                        catalogue_id = catal_dict['VIC'].id,
-                        dso_id = c.id,
-                        name = name
-                        )
-                    db.session.add(l)
-                db.session.flush()
                 db.session.commit()
             except KeyError as err:
                 print('\nKey error: {}'.format(err))

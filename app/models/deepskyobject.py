@@ -5,11 +5,13 @@ from .. import db
 class DeepSkyObject(db.Model):
     __tablename__ = 'deep_sky_objects'
     id = db.Column(db.Integer, primary_key=True)
+    master_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'))
     name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
     ra = db.Column(db.String(32))
     dec = db.Column(db.String(32))
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
+    catalogue_id = db.Column(db.Integer, db.ForeignKey('catalogues.id'))
     major_axis = db.Column(db.Float)
     minor_axis = db.Column(db.Float)
     positon_angle = db.Column(db.Float)
@@ -26,7 +28,6 @@ class DeepSkyObject(db.Model):
     identifiers = db.Column(db.Text)
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
-    catalogue_links = db.relationship('DsoCatalogueLink', backref='deep_sky_objects', lazy=True)
 
     def denormalized_name(self):
         zero_index = self.name.find('0')
@@ -36,13 +37,6 @@ class DeepSkyObject(db.Model):
         while self.name[last_zero_index+1] == '0':
             last_zero_index += 1
         return self.name[:zero_index] + self.name[last_zero_index+1:]
-
-
-class DsoCatalogueLink(db.Model):
-    __tablename__ = 'dso_catalogue_links'
-    catalogue_id = db.Column(db.Integer, db.ForeignKey('catalogues.id'), primary_key=True, nullable=False)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), primary_key=True, nullable=False)
-    name = db.Column(db.String(64))
 
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'

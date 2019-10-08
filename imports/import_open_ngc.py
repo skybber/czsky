@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import make_transient
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject,DsoCatalogueLink
+from app.models.deepskyobject import DeepSkyObject
 
 def import_open_ngc(open_ngc_data_file):
     """Import data from OpenNGC catalog."""
@@ -23,22 +23,29 @@ def import_open_ngc(open_ngc_data_file):
     with open(open_ngc_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         print('Importing OpenNGC catalog ...')
-        messiers = []
+        ngc_ic_list = []
+        messier_list = []
         try:
             for row in reader:
-                    sys.stdout.write('.')
-                    sys.stdout.flush()
                     constellation = row['Const']
 
                     if constellation in ['Se1', 'Se2']:
                         constellation = 'Ser'
 
+                    catalogue_id = None
+                    if row['Name'].startswith('IC'):
+                        catalogue_id = Catalogue.get_catalogue_id('IC')
+                    elif row['Name'].startswith('NGC'):
+                        catalogue_id = Catalogue.get_catalogue_id('NGC')
+
                     dso = DeepSkyObject(
+                        master_id = None,
                         name = row['Name'],
                         type = row['Type'],
                         ra = row['RA'],
                         dec = row['Dec'],
                         constellation_id = constell_dict[constellation] if constellation else None,
+                        catalogue_id = catalogue_id,
                         major_axis = float(row['MajAx']) if row['MajAx'] else None,
                         minor_axis = float(row['MinAx']) if row['MinAx'] else None,
                         positon_angle = float(row['PosAng']) if row['PosAng'] else None,
@@ -56,20 +63,7 @@ def import_open_ngc(open_ngc_data_file):
                         common_name = row['Common names'],
                         descr = row['NED notes'],
                         )
-                    db.session.add(dso)
-                    db.session.flush()
-                    catal_id = None
-                    if row['Name'].startswith('IC'):
-                        catal_id = catal_dict['IC'].id
-                    elif row['Name'].startswith('NGC'):
-                        catal_id = catal_dict['NGC'].id
-                    if catal_id is not None:
-                        l = DsoCatalogueLink(
-                            catalogue_id = catal_id,
-                            dso_id = dso.id,
-                            name = row['Name']
-                            )
-                        db.session.add(l)
+                    ngc_ic_list.append(dso)
                     if row['M']:
                         mes_dso = DeepSkyObject(
                             name = 'M' + row['M'],
@@ -77,6 +71,7 @@ def import_open_ngc(open_ngc_data_file):
                             ra = dso.ra,
                             dec = dso.dec,
                             constellation_id = dso.constellation_id,
+                            catalogue_id = Catalogue.get_catalogue_id('M'),
                             major_axis = dso.major_axis,
                             minor_axis = dso.minor_axis,
                             positon_angle = dso.positon_angle,
@@ -94,18 +89,21 @@ def import_open_ngc(open_ngc_data_file):
                             common_name = dso.common_name,
                             descr = dso.descr
                             )
-                        messiers.append(mes_dso)
-            db.session.commit()
-            messiers.sort(key=lambda x: x.name)
-            for mes_dso in messiers:
+                        dso.master_dso = mes_dso
+                        mes_dso.slave_dso = dso
+                        messier_list.append(mes_dso)
+
+            messier_list.sort(key=lambda x: x.name)
+            for mes_dso in messier_list:
+                sys.stdout.write('.')
+                sys.stdout.flush()
                 db.session.add(mes_dso)
                 db.session.flush()
-                l = DsoCatalogueLink(
-                    catalogue_id = catal_dict['M'].id,
-                    dso_id = mes_dso.id,
-                    name = mes_dso.name
-                    )
-                db.session.add(l)
+                mes_dso.slave_dso.master_id = mes_dso.id
+            for dso in ngc_ic_list:
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                db.session.add(dso)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))

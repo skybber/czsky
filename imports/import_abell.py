@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject,DsoCatalogueLink
+from app.models.deepskyobject import DeepSkyObject
 
 def import_abell(abell_data_file):
     """Import data from Abell catalog."""
@@ -15,14 +15,10 @@ def import_abell(abell_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
-    catal_dict = {}
-
-    for ca in Catalogue.query.all():
-        catal_dict[ca.code] = ca
-
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         print('Importing Abell catalog of planetary nebula...')
+        catalogue_id = Catalogue.get_catalogue_id('ABELL')
         for row in reader:
             try:
                 sys.stdout.write('.')
@@ -46,6 +42,7 @@ def import_abell(abell_data_file):
                     ra = row['RA'].replace(' ', ':'),
                     dec = row['Dec'].replace(' ', ':'),
                     constellation_id = constell_dict[constellation] if constellation else None,
+                    catalogue_id = catalogue_id,
                     major_axis = float(row['MajAx']) if row['MajAx'] else None,
                     minor_axis = float(row['MinAx']) if row['MinAx'] else None,
                     positon_angle = None,
@@ -63,14 +60,6 @@ def import_abell(abell_data_file):
                     descr = None,
                     )
                 db.session.add(c)
-                db.session.flush()
-                catal_id = catal_dict['ABELL'].id
-                l = DsoCatalogueLink(
-                    catalogue_id = catal_id,
-                    dso_id = c.id,
-                    name = c.name
-                    )
-                db.session.add(l)
                 db.session.commit()
             except KeyError as err:
                 print('\nKey error: {}'.format(err))
