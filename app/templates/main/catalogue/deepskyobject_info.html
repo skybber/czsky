@@ -22,9 +22,11 @@
         <div class="ui blue segment" style="display: inline-block">
             {% if user_descr %}
                 <h3>{{ user_descr.common_name }}</h3>
-                {% filter commonmark %}
+                <div class=".markdown">
+                    {% filter commonmark %}
 {{ user_descr.text }}
-                {% endfilter %}
+                    {% endfilter %}
+                </div>
             {% else %}
             {% endif %}
         </div>
@@ -73,14 +75,14 @@
             {% endif %}
             {% if next_dso %}
                 <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=next_dso.id)}}">
-                    {{ next_dso.name }}
+                    {{ next_dso.denormalized_name() }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
                 <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=prev_dso.id)}}">
                     <i class="caret left icon"></i>
-                    {{ prev_dso.name }}
+                    {{ prev_dso.denormalized_name() }}
                 </a>
             {% endif %}
             <h2 class="ui header">
@@ -108,4 +110,10 @@
         $('.ui.rating')
         .rating();
     </script>
+    <style>
+.markdown img {
+  max-width: 100%;
+  height: auto;
+}
+    </style>
 {% endblock %}
