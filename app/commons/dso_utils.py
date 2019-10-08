@@ -8,7 +8,7 @@ catalogs_specifications = (
     ('IC', 4),
     ('M', 3),
     ('ABELL', 2),
-    ('SH2-', 2),
+    ('SH2-', 3),
     ('VIC', 2),
 )
 
