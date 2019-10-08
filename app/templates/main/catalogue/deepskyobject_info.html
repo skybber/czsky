@@ -22,7 +22,7 @@
         <div class="ui blue segment" style="display: inline-block">
             {% if user_descr %}
                 <h3>{{ user_descr.common_name }}</h3>
-                <div class=".markdown">
+                <div class="markdown">
                     {% filter commonmark %}
 {{ user_descr.text }}
                     {% endfilter %}
