@@ -38,6 +38,7 @@ class SearchDsoForm(FlaskForm):
          ('NGC', 'Ngc'),
          ('IC', 'IC'),
          ('ABELL','Abell'),
+         ('SH2','Sharpless'),
          ('VIC','Vic'),
     ])
     dso_type = SelectField('Object type', choices=[

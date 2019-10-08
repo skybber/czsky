@@ -15,14 +15,9 @@ def import_open_ngc(open_ngc_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
-    catal_dict = {}
-
-    for ca in Catalogue.query.all():
-        catal_dict[ca.code] = ca
-
     with open(open_ngc_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        print('Importing OpenNGC catalog ...')
+        print('Importing OpenNGC catalogue ...')
         ngc_ic_list = []
         messier_list = []
         try:

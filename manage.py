@@ -15,6 +15,7 @@ from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_open_ngc import import_open_ngc
 from imports.import_abell import import_abell
+from imports.import_sh2 import import_sh2
 from imports.import_vic import import_vic
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
@@ -143,6 +144,7 @@ def initialize_catalogues():
     import_constellations('data/88-constellations.csv')
     import_open_ngc('data/OpenNGC.csv')
     import_abell('data/Abell.csv')
+    import_sh2('data/SH2-2000.csv')
     import_vic('data/vic.csv')
 
 @manager.command

@@ -17,7 +17,7 @@ def import_abell(abell_data_file):
 
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        print('Importing Abell catalog of planetary nebula...')
+        print('Importing Abell catalogue of planetary nebula...')
         catalogue_id = Catalogue.get_catalogue_id('ABELL')
         for row in reader:
             try:

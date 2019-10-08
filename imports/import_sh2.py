@@ -12,19 +12,19 @@ def vic2int(s):
         return 0
     return int(s)
 
-def import_vic(vic_data_file):
-    """Import data from VIC catalog."""
+def import_sh2(sh2_data_file):
+    """Import data from Sh2 catalog."""
     from sqlalchemy.exc import IntegrityError
 
     constell_dict = {}
 
     for co in Constellation.query.all():
-        constell_dict[co.iau_code] = co.id
+        constell_dict[co.name.upper()] = co.id
 
-    with open(vic_data_file) as csvfile:
+    with open(sh2_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        print('Importing VIC catalogue ...')
-        catalogue_id = Catalogue.get_catalogue_id('VIC')
+        print('Importing Sh2 catalogue ...')
+        catalogue_id = Catalogue.get_catalogue_id('SH2')
         row_id = 0
         for row in reader:
             row_id += 1
@@ -32,33 +32,28 @@ def import_vic(vic_data_file):
                 sys.stdout.write('.')
                 sys.stdout.flush()
 
-#                 constellation = row['Const']
-                constellation = None
-
-                name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
-
                 c = DeepSkyObject(
-                    name = name,
-                    type = 'AST',
-                    ra = row['RA'].strip().replace(',', ':'),
-                    dec = row['Dec'].strip().replace(',', ':'),
-                    constellation_id = constell_dict[constellation] if constellation else None,
+                    name = row['NAME'],
+                    type = 'Neb',
+                    ra = row['RA'],
+                    dec = row['DEC'],
+                    constellation_id = constell_dict.get(row['Constellation'].upper(), None),
                     catalogue_id = catalogue_id,
-                    major_axis = vic2int(row['length']) / 10,
-                    minor_axis =  vic2int(row['width']) / 10,
-                    positon_angle =  vic2int(row['orient']) / 10,
+                    major_axis = float(row['SIZE']),
+                    minor_axis =  float(row['SIZE']),
+                    positon_angle =  None,
                     b_mag = None,
-                    v_mag = vic2int(row['mag']) / 10,
+                    v_mag = None,
                     j_mag =  None,
                     h_mag =  None,
                     k_mag =  None,
-                    surface_bright = vic2int(row['brightness']) / 10,
+                    surface_bright = None,
                     hubble_type =  None,
                     c_star_u_mag = None,
                     c_star_b_mag = None,
                     c_star_v_mag = None,
                     identifiers = None,
-                    common_name = row['name'].strip(),
+                    common_name = None,
                     descr = None,
                     )
                 db.session.add(c)

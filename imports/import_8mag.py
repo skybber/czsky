@@ -176,6 +176,8 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                             if dso_common_name.startswith('NGC'):
                                 dso_common_name = ''
                     dso_name = dso_name[:dso_name.index('(')]
+                if dso_name.startswith('Sharpless 2-'):
+                    dso_name = 'SH2-' + dso_name[len('Sharpless 2-'):]
                 dso_name = normalize_dso_name(dso_name.strip())
                 others = []
                 if dso_name.startswith('NGC') and ('-' in dso_name or '/' in dso_name):
