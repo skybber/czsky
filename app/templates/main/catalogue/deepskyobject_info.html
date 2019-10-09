@@ -7,11 +7,11 @@
 ] %}
 
 {% macro navigation(items) %}
-    <div class="ui fluid vertical icon secondary menu">
+    <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
             {% set href = url_for(route, dso_id=dso.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
-                <i class="{{ icon }} icon"></i>
+                {{ name }}
             </a>
         {% endfor %}
     </div>
@@ -61,7 +61,7 @@
 
 {% block content %}
     <div class="ui stackable centered grid container">
-        <div class="twelve wide column">
+        <div class="fourteen wide tablet fourteen wide computer column">
             {% if from_constellation_id %}
                 <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellation_info', constellation_id=from_constellation_id) }}">
                     <i class="caret left icon"></i>
@@ -91,21 +91,17 @@
                     <div class="ui rating center" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                 {% endif %}
             </h2>
+
+            {{ navigation(endpoints) }}
+
+            {% if type == 'info' %}
+                {{ deepskyobject_info(dso, user_descr) }}
+            {% endif %}
+            {% if type == 'catalogue_data' %}
+                {{ deepskyobject_catalogue_data(dso) }}
+            {% endif %}
         </div>
-        <div class="stretched divided very relaxed row">
-            <div class="two wide column">
-                {{ navigation(endpoints) }}
-            </div>
-            <div class="fourteen wide tablet fourteen wide computer column">
-                {% if type == 'info' %}
-                    {{ deepskyobject_info(dso, user_descr) }}
-                {% endif %}
-                {% if type == 'catalogue_data' %}
-                    {{ deepskyobject_catalogue_data(dso) }}
-                {% endif %}
-            </div>
-        </div>
-    </div>
+  </div>
     <script type="text/javascript">
         $('.ui.rating')
         .rating();

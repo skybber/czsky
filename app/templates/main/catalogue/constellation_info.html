@@ -8,11 +8,11 @@
 ] %}
 
 {% macro navigation(items) %}
-    <div class="ui fluid vertical icon secondary menu">
+    <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
             {% set href = url_for(route, constellation_id=constellation.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
-                <i class="{{ icon }} icon"></i>
+                {{ pupup_text }}
             </a>
         {% endfor %}
     </div>
@@ -86,7 +86,7 @@
 
 {% block content %}
     <div class="ui stackable centered grid container">
-        <div class="twelve wide centered column column">
+        <div class="fourteen wide tablet fourteen wide computer column">
             <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellations') }}">
                 <i class="caret left icon"></i>
                 Back to Constellations
@@ -94,27 +94,23 @@
             <h2 class="ui header">
                 {{ constellation.iau_code }} / {{ constellation.name.title() }}
             </h2>
-        </div>
-        <div class="stretched divided very relaxed row">
-            <div class="two wide column">
-                {{ navigation(endpoints) }}
-            </div>
-            <div class="fourteen wide tablet fourteen wide computer wide column">
-                {% if type == 'info' %}
-                    {% if user_descr %}
-                        {{ constellation_user_info(constellation, user_descr) }}
-                    {% else %}
-                        {{ constellation_info(constellation) }}
-                    {% endif %}
+
+            {{ navigation(endpoints) }}
+
+            {% if type == 'info' %}
+                {% if user_descr %}
+                    {{ constellation_user_info(constellation, user_descr) }}
+                {% else %}
+                    {{ constellation_info(constellation) }}
                 {% endif %}
-                {% if type == 'stars' %}
-                    {{ constellation_stars(constellation) }}
-                {% endif %}
-                {% if type == 'dso' %}
-                    {{ constellation_dsos(constellation) }}
-                {% endif %}
-            </div>
-        </div>
+            {% endif %}
+            {% if type == 'stars' %}
+                {{ constellation_stars(constellation) }}
+            {% endif %}
+            {% if type == 'dso' %}
+                {{ constellation_dsos(constellation) }}
+            {% endif %}
+      </div>
     </div>
     <script type="text/javascript">
         $('.ui.rating')
