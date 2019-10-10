@@ -18,7 +18,7 @@ def import_abell(abell_data_file):
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         print('Importing Abell catalogue of planetary nebula...')
-        catalogue_id = Catalogue.get_catalogue_id('ABELL')
+        catalogue_id = Catalogue.get_catalogue_id('Abell')
         for row in reader:
             try:
                 sys.stdout.write('.')
@@ -37,7 +37,7 @@ def import_abell(abell_data_file):
                     cstar_mag = None
 
                 c = DeepSkyObject(
-                    name = 'ABELL' + row['Abell'],
+                    name = 'Abell' + row['Abell'],
                     type = 'PN', # TODO: row['Type'] is PN subtype ?
                     ra = row['RA'].replace(' ', ':'),
                     dec = row['Dec'].replace(' ', ':'),

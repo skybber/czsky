@@ -4,19 +4,20 @@ from app.models import DeepSkyObject
 
 # catalogue identifier + max number of digits
 catalogs_specifications = (
-    ('NGC', 4),
-    ('IC', 4),
-    ('M', 3),
-    ('ABELL', 2),
-    ('SH2-', 3),
-    ('VIC', 2),
+    ('NGC', 'NGC', 4),
+    ('IC', 'IC', 4),
+    ('M', 'M', 3),
+    ('ABELL', 'Abell', 2),
+    ('SH2-', 'SH-2', 3),
+    ('VIC', 'VIC', 2),
 )
 
-browsing_catalogues = ('M', 'ABELL', 'VIC')
+browsing_catalogues = ('M', 'Abell', 'VIC')
 
 def normalize_dso_name(name):
     if name is None:
         return name
+
     upper_name = name.upper().replace(' ','')
 
     for cat_spec in catalogs_specifications:
@@ -24,8 +25,8 @@ def normalize_dso_name(name):
         if upper_name.startswith(cat_identifier):
             appendix = upper_name[len(cat_identifier):]
             applen = len(appendix)
-            if applen > 0 and applen < cat_spec[1]:
-                return cat_identifier + ('0' * (cat_spec[1] - applen)) + appendix
+            if applen > 0 and applen < cat_spec[2]:
+                return cat_spec[1] + ('0' * (cat_spec[2] - applen)) + appendix
             return upper_name
     return name
 

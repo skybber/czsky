@@ -3,6 +3,7 @@
 
 {% set endpoints = [
     ('main_catalogue.deepskyobject_info', 'Info', 'info'),
+    ('main_catalogue.deepskyobject_findchart', 'Find chart', 'table'),
     ('main_catalogue.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
@@ -31,6 +32,10 @@
             {% endif %}
         </div>
     </div>
+{% endmacro %}
+
+{% macro deepskyobject_fchart(dso, fchart) %}
+    <canvas id="pdfcanvas"></canvas>
 {% endmacro %}
 
 {% macro deepskyobject_catalogue_data(dso) %}
@@ -96,9 +101,10 @@
 
             {% if type == 'info' %}
                 {{ deepskyobject_info(dso, user_descr) }}
-            {% endif %}
-            {% if type == 'catalogue_data' %}
+            {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(dso) }}
+            {% elif type == 'fchart' %}
+                {{ deepskyobject_fchart(dso, fchart) }}
             {% endif %}
         </div>
   </div>
@@ -112,4 +118,49 @@
   height: auto;
 }
     </style>
+    {% if type == 'fchart' %}
+        <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
+
+        <script type="text/javascript">
+
+            var url = '{{fchart}}';
+
+            var pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+            var loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(function(pdf) {
+            console.log('PDF loaded');
+            
+            var pageNumber = 1;
+            pdf.getPage(pageNumber).then(function(page) {
+                console.log('Page loaded');
+                
+                var scale = 1.5;
+                var viewport = page.getViewport({scale: scale});
+
+                // Prepare canvas using PDF page dimensions
+                var canvas = document.getElementById('pdfcanvas');
+                var context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Render PDF page into canvas context
+                var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+                };
+                var renderTask = page.render(renderContext);
+                renderTask.promise.then(function () {
+                console.log('Page rendered');
+                });
+            });
+            }, function (reason) {
+            // PDF loading error
+                console.error(reason);
+            });
+        </script>
+
+    {% endif %}
 {% endblock %}

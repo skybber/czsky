@@ -1,3 +1,4 @@
+import re
 from .constellation import Constellation
 from .catalogue import Catalogue
 from .. import db
@@ -30,13 +31,19 @@ class DeepSkyObject(db.Model):
     descr = db.Column(db.Text)
 
     def denormalized_name(self):
-        zero_index = self.name.find('0')
+        zero_index = self.name.find('0')	
+        norm = None
         if zero_index < 0 or self.name[zero_index-1].isdigit():
-            return self.name
-        last_zero_index = zero_index
-        while self.name[last_zero_index+1] == '0':
-            last_zero_index += 1
-        return self.name[:zero_index] + self.name[last_zero_index+1:]
+            norm = self.name
+        else:
+            last_zero_index = zero_index
+            while self.name[last_zero_index+1] == '0':
+                last_zero_index += 1
+            norm = self.name[:zero_index] + self.name[last_zero_index+1:]
+        if norm.startswith('SH-1'):
+            return norm
+        m = re.search("\d", norm)
+        return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
 
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'

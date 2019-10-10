@@ -1,3 +1,6 @@
+import os
+import subprocess
+
 from datetime import datetime
 
 from flask import (
@@ -134,7 +137,6 @@ def deepskyobject_info(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr,
                            from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
 
-@main_catalogue.route('/deepskyobject/<int:dso_id>')
 @main_catalogue.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
     """View a deepsky object info."""
@@ -145,3 +147,23 @@ def deepskyobject_catalogue_data(dso_id):
     prev_dso, next_dso = get_prev_next_dso(dso)
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+
+@main_catalogue.route('/deepskyobject/<int:dso_id>/findchart')
+def deepskyobject_findchart(dso_id):
+    """View a deepsky object findchart."""
+    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    if dso is None:
+        abort(404)
+    from_constellation_id = request.args.get('from_constellation_id')
+    prev_dso, next_dso = get_prev_next_dso(dso)
+    preview_url_dir = '/static/webassets-external/preview/'
+    preview_dir = 'app' + preview_url_dir
+    dso_dname = dso.denormalized_name().replace(' ','')
+    pdf_file =  preview_dir + dso_dname + '.pdf'
+    if not os.path.exists(pdf_file):
+        p = subprocess.Popen(['fchart', '-O', 'pdf', '-o', preview_dir, dso_dname])
+        p.wait()
+    fchart = preview_url_dir + dso_dname + '.pdf'
+    return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart, 
+                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+
