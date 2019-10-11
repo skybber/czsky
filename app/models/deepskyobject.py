@@ -2,6 +2,7 @@ import re
 from .constellation import Constellation
 from .catalogue import Catalogue
 from .. import db
+from skyfield.units import Angle
 
 class DeepSkyObject(db.Model):
     __tablename__ = 'deep_sky_objects'
@@ -9,8 +10,8 @@ class DeepSkyObject(db.Model):
     master_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'))
     name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
-    ra = db.Column(db.String(32))
-    dec = db.Column(db.String(32))
+    ra = db.Column(db.Float)
+    dec = db.Column(db.Float)
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
     catalogue_id = db.Column(db.Integer, db.ForeignKey('catalogues.id'))
     major_axis = db.Column(db.Float)
@@ -31,7 +32,7 @@ class DeepSkyObject(db.Model):
     descr = db.Column(db.Text)
 
     def denormalized_name(self):
-        zero_index = self.name.find('0')	
+        zero_index = self.name.find('0')
         norm = None
         if zero_index < 0 or self.name[zero_index-1].isdigit():
             norm = self.name
@@ -44,6 +45,18 @@ class DeepSkyObject(db.Model):
             return norm
         m = re.search("\d", norm)
         return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
+
+    def ra_str(self):
+        if self.ra:
+            return '%02d:%02d:%04.1f' % Angle(radians=self.ra).hms(warn=False)
+        return 'nan'
+
+    def dec_str(self):
+        if self.ra:
+            sgn, d, m, s = Angle(radians=self.dec).signed_dms(warn=False)
+            sign = '-' if sgn < 0.0 else '+'
+            return '%s%02d:%02d:%04.1f' % (sign, d, m, s)
+        return 'nan'
 
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'

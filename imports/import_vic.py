@@ -5,6 +5,8 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject
+from skyfield.units import Angle
+
 from .import_utils import progress
 
 def vic2int(s):
@@ -22,7 +24,7 @@ def import_vic(vic_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
-    row_count = sum(1 for line in open(vic_data_file))
+    row_count = sum(1 for line in open(vic_data_file)) - 1
 
     with open(vic_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
@@ -40,8 +42,8 @@ def import_vic(vic_data_file):
                 c = DeepSkyObject(
                     name = name,
                     type = 'AST',
-                    ra = row['RA'].strip().replace(',', ':'),
-                    dec = row['Dec'].strip().replace(',', ':'),
+                    ra = Angle(hours=tuple(map(float, row['RA'].split(',')))).radians if len(row['RA']) > 0 else None,
+                    dec = Angle(degrees=tuple(map(float, row['Dec'].split(',')))).radians if len(row['Dec']) > 0 else None,
                     constellation_id = constell_dict[constellation] if constellation else None,
                     catalogue_id = catalogue_id,
                     major_axis = vic2int(row['length']) / 10,

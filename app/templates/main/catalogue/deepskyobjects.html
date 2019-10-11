@@ -46,8 +46,8 @@
                         <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id) }}';">
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>
-                            <td>{{ d.ra }}</td>
-                            <td>{{ d.dec }}</td>
+                            <td>{{ d.ra_str() }}</td>
+                            <td>{{ d.dec_str() }}</td>
                             <td>{{ d.v_mag }}</td>
                         </tr>
                     {% endfor %}

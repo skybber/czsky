@@ -5,6 +5,8 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject
+from skyfield.units import Angle
+
 from .import_utils import progress
 
 def import_abell(abell_data_file):
@@ -16,7 +18,7 @@ def import_abell(abell_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
-    row_count = sum(1 for line in open(abell_data_file))
+    row_count = sum(1 for line in open(abell_data_file)) - 1
 
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
@@ -42,8 +44,8 @@ def import_abell(abell_data_file):
                 c = DeepSkyObject(
                     name = 'Abell' + row['Abell'],
                     type = 'PN', # TODO: row['Type'] is PN subtype ?
-                    ra = row['RA'].replace(' ', ':'),
-                    dec = row['Dec'].replace(' ', ':'),
+                    ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,
+                    dec = Angle(degrees=tuple(map(float, row['Dec'].split(' ')))).radians if len(row['Dec']) > 0 else None,
                     constellation_id = constell_dict[constellation] if constellation else None,
                     catalogue_id = catalogue_id,
                     major_axis = float(row['MajAx']) if row['MajAx'] else None,

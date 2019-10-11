@@ -5,6 +5,8 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject
+from skyfield.units import Angle
+
 from .import_utils import progress
 
 def vic2int(s):
@@ -22,7 +24,7 @@ def import_sh2(sh2_data_file):
     for co in Constellation.query.all():
         constell_dict[co.name.upper()] = co.id
 
-    row_count = sum(1 for line in open(sh2_data_file))
+    row_count = sum(1 for line in open(sh2_data_file)) - 1
 
     with open(sh2_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
@@ -35,8 +37,8 @@ def import_sh2(sh2_data_file):
                 c = DeepSkyObject(
                     name = row['NAME'],
                     type = 'Neb',
-                    ra = row['RA'],
-                    dec = row['DEC'],
+                    ra = Angle(hours=float(row['RA'])).radians if len(row['RA']) > 0 else None,
+                    dec = Angle(degrees=float(row['RA'])).radians if len(row['RA']) > 0 else None,
                     constellation_id = constell_dict.get(row['Constellation'].upper(), None),
                     catalogue_id = catalogue_id,
                     major_axis = float(row['SIZE']),
