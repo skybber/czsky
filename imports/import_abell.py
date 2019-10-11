@@ -5,6 +5,7 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject
+from .import_utils import progress
 
 def import_abell(abell_data_file):
     """Import data from Abell catalog."""
@@ -15,14 +16,16 @@ def import_abell(abell_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
+    row_count = sum(1 for line in open(abell_data_file))
+
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        print('Importing Abell catalogue of planetary nebula...')
         catalogue_id = Catalogue.get_catalogue_id('Abell')
+        row_id = 0
         for row in reader:
             try:
-                sys.stdout.write('.')
-                sys.stdout.flush()
+                progress(row_id, row_count, 'Importing Abell catalogue of planetary nebula')
+                row_id += 1
                 constellation = row['Const']
 
                 if not row['Other'] or row['Other'] in ['platefault', 'galaxy', 'CTB1']:

@@ -5,6 +5,7 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepSkyObject
+from .import_utils import progress
 
 def vic2int(s):
     s.lstrip('0')
@@ -21,17 +22,16 @@ def import_vic(vic_data_file):
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
 
+    row_count = sum(1 for line in open(vic_data_file))
+
     with open(vic_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        print('Importing VIC catalogue ...')
         catalogue_id = Catalogue.get_catalogue_id('VIC')
         row_id = 0
         for row in reader:
             row_id += 1
+            progress(row_id, row_count, 'Importing VIC catalogue')
             try:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-
 #                 constellation = row['Const']
                 constellation = None
 
