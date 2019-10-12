@@ -30,6 +30,17 @@ from wtforms.validators import (
 class SearchForm(FlaskForm):
     q = StringField('Search')
 
+class SearchConstellationForm(FlaskForm):
+    q = StringField('Search')
+    season = SelectField('Season', choices=[
+         ('All', 'All'),
+         ('winter', 'Winter'),
+         ('spring', 'Spring'),
+         ('summer', 'Summer'),
+         ('autumn','Autumn'),
+         ('southern','Southern'),
+    ])
+
 class SearchDsoForm(FlaskForm):
     q = StringField('Search')
     catalogue = SelectField('Catalogue', choices=[

@@ -49,3 +49,27 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
                     session.pop(pair[0], None)
                     ret.append(None)
     return ret
+
+def process_session_search(sess_arg_form_pairs):
+    back = request.args.get('back', None)
+    ret = []
+    if back:
+        for pair in sess_arg_form_pairs: # put data from session to form on back action
+            stored_search = session.get(pair[0], None)
+            pair[1].data = stored_search
+            ret.append(stored_search)
+    else:
+        if request.method == 'GET':
+            for pair in sess_arg_form_pairs: # clear session on initialize GET request
+                session.pop(pair[0], None)
+                ret.append(None)
+        else:
+            for pair in sess_arg_form_pairs:
+                if pair[1].data:
+                    search = pair[1].data
+                    session[pair[0]] = search
+                    ret.append(search)
+                else:
+                    session.pop(pair[0], None)
+                    ret.append(None)
+    return ret

@@ -16,9 +16,10 @@ from app import db
 from app.models import User, Catalogue, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name,get_prev_next_dso
-from app.commons.paginated_search_utils import process_paginated_session_search
+from app.commons.search_utils import process_paginated_session_search, process_session_search
 
 from .forms import (
+    SearchConstellationForm,
     SearchDsoForm,
 )
 
@@ -26,13 +27,21 @@ from .views import ITEMS_PER_PAGE
 
 main_catalogue = Blueprint('main_catalogue', __name__)
 
-@main_catalogue.route('/constellations')
+@main_catalogue.route('/constellations', methods=['GET', 'POST'])
 def constellations():
     """View all constellations."""
-    constellations = Constellation.query.all()
-    return render_template(
-        'main/catalogue/constellations.html', constellations=constellations)
+    search_form = SearchConstellationForm()
 
+    search_expr, season = process_session_search([('const_search', search_form.q), ('const_season', search_form.season)])
+
+    constellations = Constellation.query
+    if search_expr:
+        constellations = constellations.filter(Constellation.name.like('%' + search_expr + '%'))
+
+    if season and season != 'All':
+        constellations = constellations.filter(Constellation.season==season)
+
+    return render_template('main/catalogue/constellations.html', constellations=constellations, search_form=search_form)
 
 @main_catalogue.route('/constellation/<int:constellation_id>')
 @main_catalogue.route('/constellation/<int:constellation_id>/info')
@@ -91,7 +100,7 @@ def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchDsoForm()
 
-    page, search_expr, dso_type, catalogue = process_paginated_session_search(sess_page_name='dso_search_page',  sess_arg_form_pairs=[
+    page, search_expr, dso_type, catalogue = process_paginated_session_search('dso_search_page', [
         ('dso_search', search_form.q),
         ('dso_type', search_form.dso_type),
         ('dso_catal', search_form.catalogue),
@@ -164,6 +173,6 @@ def deepskyobject_findchart(dso_id):
         p = subprocess.Popen(['fchart', '-O', 'pdf', '-o', preview_dir, dso_dname])
         p.wait()
     fchart = preview_url_dir + dso_dname + '.pdf'
-    return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart, 
+    return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart,
                            from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
 

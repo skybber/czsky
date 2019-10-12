@@ -11,14 +11,19 @@
                 Constellations
             </h2>
 
-            <div class="ui menu">
+            <form action="{{ url_for('main_catalogue.constellations') }}" method="post" name="search" class="ui stackable menu">
+                <div class="ui item">
+                    {{search_form.season(class='ui dropdown button',onchange='this.form.submit()')}}
+                </div>
                 <div class="ui right search item">
-                    <div class="ui transparent icon input">
-                        <input id="search-constellations" type="text" placeholder="Search constellation…">
-                        <i class="search icon"></i>
+                    <div class="ui action input">
+                        {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
+                        <button class="ui icon button">
+                            <i class="search icon"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
+            </form>
 
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}
@@ -43,20 +48,4 @@
         </div>
     </div>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#search-constellations').keyup(function () {
-                var searchText = $(this).val();
-                if (searchText.length > 0) {
-                    $('tbody td:icontains(' + searchText + ')').addClass('positive');
-                    $('td.positive').not(':icontains(' + searchText + ')').removeClass('positive');
-                    $('tbody td').not(':icontains(' + searchText + ')').closest('tr').addClass('hidden').hide();
-                    $('tr.hidden:icontains(' + searchText + ')').removeClass('hidden').show();
-                } else {
-                    $('td.positive').removeClass('positive');
-                    $('tr.hidden').removeClass('hidden').show();
-                }
-            });
-        });
-    </script>
 {% endblock %}
