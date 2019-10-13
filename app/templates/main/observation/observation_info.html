@@ -21,7 +21,7 @@
     <table class="ui compact definition table">
         <tr><td>Date</td><td>{{ observation.date }}</td></tr>
         <tr><td>Location</td><td>{{ observation.location.name if observation.location else '' }}</td></tr>
-        <tr><td>Notes</td><td>{{ observation.notes }}</td></tr>
+        <tr><td>Notes</td><td>{{ observation.omd_content }}</td></tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
     </table>
 {% endmacro %}

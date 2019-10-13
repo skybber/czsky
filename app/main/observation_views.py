@@ -61,7 +61,7 @@ def new_observation():
             user_id = current_user.id,
             date = form.date.data,
             rating = form.rating.data,
-            notes=form.notes.data,
+            omd_content=form.omd_content.data,
             create_by = current_user.id,
             update_by = current_user.id,
             create_date = datetime.now(),
@@ -84,8 +84,8 @@ def observation_edit(observation_id):
     form = ObservationEditForm()
     if form.validate_on_submit():
         observation.date = form.date.data,
-        observation.rating = form.rating.data
-        observation.notes = form.notes.data
+        observation.rating = form.rating.data,
+        observation.omd_content = form.omd_content.data,
         observation.update_by = current_user.id,
         observation.update_date = datetime.now()
         db.session.add(observation)

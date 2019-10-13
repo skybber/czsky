@@ -39,7 +39,7 @@
                             <td>{{ o.date }}</td>
                             <td>{{ o.location.name if o.location else '' }}</td>
                             <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
-                            <td>{{ o.notes[:100] }}</td>
+                            <td>{{ o.omd_content[:100] }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -18,7 +18,7 @@ class SqlReading(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), nullable=False)
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'))
     date = db.Column(db.DateTime, nullable=False)
-    wether = db.Column(db.Text)
+    weather = db.Column(db.Text)
     notes = db.Column(db.Text)
     sql_read_values = db.relationship('SqlReadValue', backref='sql_reading', lazy=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

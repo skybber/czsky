@@ -1,0 +1,153 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                Back to dashboard
+            </a>
+            <h2 class="ui header">
+                Add New Observation
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'warning': get_flashed_messages(category_filter=['form-check-email']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.begin_form(form, flashes) }}
+
+                <div class="two fields">
+                    <div class="field">
+                        <label for="odate">Date</label>
+                        <div class="ui calendar" id="odate">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
+                          </div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                      {{ form.rating.label }}
+                      <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
+                      {{ form.rating() }}
+                    </div>
+                </div>
+
+                {{ f.render_form_field(form.notes) }}
+
+                <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+                    <div class="ui blue segment">
+                        <div class="ui tiny header">Items</div>
+                    </div>
+                    {% for item in form.items %}
+                        <div class="ui black segment" data-toggle="fieldset-entry" {% if loop.index0 == 0 %}style="display:none;"{% endif %}>
+                            <div class="two fields">
+                                {{ f.render_form_field(item.deep_sky_object_id_list, extra_classes="fourteen wide field") }}
+                                <div class="field">
+                                    <label for="otime-{{loop.index0}}-tm">Time</label>
+                                    <div class="ui calendar" id="otime-{{loop.index0}}-tm">
+                                      <div class="ui input left icon">
+                                        <i class="calendar icon"></i>
+                                        <input id="items-{{loop.index0}}-date_time" name="{{item.date_time.name}}" placeholder="Date" type="text">
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{ f.render_form_field(item.notes) }}
+                            <button id="item-{{loop.index0}}-remove" class="ui icon mini button" type="button" data-toggle="fieldset-remove-row">
+                                <i class="trash icon"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                    <div class="ui segment">
+                        <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
+                            <i class="plus icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
+                {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
+                {{ f.form_message(flashes['info'], header='Information', class='info') }}
+                {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+
+                {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                    {{ f.render_form_field(field) }}
+                {% endfor %}
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('#odate').calendar({
+            type: 'date',
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var day = date.getDate();
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
+                }
+            }
+        });
+        $('.ui.rating').rating({
+            maxRating: 5,
+            onRate: function (rating) {
+                $('#rating').val(rating);
+            }
+        });
+        $(function() {
+            $("div[data-toggle=fieldset]").each(function() {
+                var $this = $(this);
+
+                $this.find("button[data-toggle=fieldset-add-row]").click(function() {
+                    var target = $($(this).data("target"));
+                    console.log(target);
+                    var oldrow = target.find("[data-toggle=fieldset-entry]:last");
+                    var row = oldrow.clone(true, true);
+                    console.log(row.find(":input")[0]);
+                    var elem_id = row.find(":input")[0].id;
+                    var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
+                    row.attr('data-id', elem_num);
+                    row.find(":input").each(function() {
+                        console.log(this);
+                        var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
+                        $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
+                    });
+                    row.show();
+                    oldrow.after(row);
+                    row.find('#otime-' + elem_num + '-tm').calendar({
+                        type: 'time',
+                        formatter: {
+                            date: function (time, settings) {
+                            if (!date) return '';
+                            var hour = date.getHout();
+                            var minute = date.getMinute();
+                            return hout + ':' + minute;
+                            }
+                        }
+                    });
+                });
+
+                $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
+                    if($this.find("[data-toggle=fieldset-entry]").length > 1) {
+                        var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
+                        thisRow.remove();
+                    }
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
