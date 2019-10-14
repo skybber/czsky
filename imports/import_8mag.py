@@ -3,6 +3,7 @@
 import sys, re, getopt, os, glob, pathlib, time, csv
 import sqlite3
 import hashlib
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -226,7 +227,12 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         lang_code = lang_code,
                         cons_order = cons_order,
                         text = text,
-                        common_name = vic_catalogue_row.get('name_cs', '')
+                        common_name = vic_catalogue_row.get('name_cs', ''),
+                        create_by = user_8mag.id,
+                        update_by = user_8mag.id,
+                        create_date = datetime.now(),
+                        update_date = datetime.now(),
+
                     )
                     db.session.add(udd)
                 else:
@@ -244,8 +250,12 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                         lang_code = lang_code,
                         cons_order = cons_order,
                         text = m['text'],
-                        common_name = m['dso_common_name']
-                    )
+                        common_name = m['dso_common_name'],
+                        create_by = user_8mag.id,
+                        update_by = user_8mag.id,
+                        create_date = datetime.now(),
+                        update_date = datetime.now(),
+)
                     db.session.add(udd)
                 else:
                     print('Deepsky object not found. dso name=' + m['names'][0])

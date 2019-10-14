@@ -18,11 +18,19 @@
     </div>
 {% endmacro %}
 
+{# --- DSO Info --- #}
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
             {% if user_descr %}
-                <h3>{{ user_descr.common_name }}</h3>
+                <h3>
+                    {{ user_descr.common_name }}
+                    {% if editable %}
+                        <a class="ui icon right floated button" href="{{ url_for('main_catalogue.deepskyobject_edit', dso_id=dso.id, back=1) }}">
+                            <i class="caret edit icon"></i>
+                        </a>
+                    {% endif %}
+                </h3>
                 <div class="markdown">
                     {% filter commonmark %}
 {{ user_descr.text }}
@@ -34,10 +42,12 @@
     </div>
 {% endmacro %}
 
+{# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
     <canvas id="pdfcanvas"></canvas>
 {% endmacro %}
 
+{# --- Catalogue Data --- #}
 {% macro deepskyobject_catalogue_data(dso) %}
     <table class="ui compact definition table">
         <tr><td>Name</td><td>{{ dso.denormalized_name() }}</td></tr>

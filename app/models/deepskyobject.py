@@ -1,4 +1,6 @@
+from datetime import datetime
 import re
+
 from .constellation import Constellation
 from .catalogue import Catalogue
 from .. import db
@@ -69,6 +71,10 @@ class UserDsoDescription(db.Model):
     common_name = db.Column(db.String(256))
     text = db.Column(db.Text)
     cons_order = db.Column(db.Integer) # description order in constellation
+    create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    update_date = db.Column(db.DateTime, default=datetime.now())
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))

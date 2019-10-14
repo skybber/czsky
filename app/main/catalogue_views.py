@@ -13,12 +13,13 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Catalogue, Constellation, DeepSkyObject, UserConsDescription, UserDsoDescription
+from app.models import User, Catalogue, Constellation, DeepSkyObject, Permission, UserConsDescription, UserDsoDescription
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name,get_prev_next_dso
 from app.commons.search_utils import process_paginated_session_search, process_session_search
 
 from .forms import (
+    DeepskyObjectEditForm,
     SearchConstellationForm,
     SearchDsoForm,
 )
@@ -136,15 +137,16 @@ def deepskyobject_info(dso_id):
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
     user_8mag = User.query.filter_by(email='8mag').first()
-    dso_description = None
+    user_descr = None
     if user_8mag:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .join(DeepSkyObject) \
                         .filter_by(id=dso.id) \
                         .first()
     prev_dso, next_dso = get_prev_next_dso(dso)
-    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr,
-                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+    editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
+    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id,
+                           prev_dso=prev_dso, next_dso=next_dso, editable=editable)
 
 @main_catalogue.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
@@ -176,3 +178,35 @@ def deepskyobject_findchart(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart,
                            from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
 
+
+@main_catalogue.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
+@login_required
+def deepskyobject_edit(dso_id):
+    """Update deepsky object."""
+    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    if dso is None:
+        abort(404)
+    if not current_user.can(Permission.EDIT_COMMON_CONTENT):
+        abort(404)
+
+    user_8mag = User.query.filter_by(email='8mag').first()
+    user_descr = None
+    form = DeepskyObjectEditForm()
+    if user_8mag:
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
+                        .join(DeepSkyObject) \
+                        .filter_by(id=dso.id) \
+                        .first()
+        if request.method == 'GET':
+            form.common_name.data = user_descr.common_name
+            form.text.data = user_descr.text
+        elif form.validate_on_submit():
+            user_descr.common_name = form.common_name.data
+            user_descr.text = form.text.data
+            user_descr.update_by = current_user.id
+            user_descr.update_date = datetime.now()
+            db.session.add(user_descr)
+            db.session.commit()
+            flash('Observation successfully updated', 'form-success')
+
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, user_descr=user_descr)

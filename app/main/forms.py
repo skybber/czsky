@@ -100,7 +100,12 @@ class ObservationNewForm(FlaskForm):
 class ObservationEditForm(FlaskForm):
     date = DateField('Date', id='datepick')
     rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
-    omd_content = TextAreaField('OMD Content', render_kw={'rows':3})
+    omd_content = TextAreaField('OMD Content')
+    submit = SubmitField('Update')
+
+class DeepskyObjectEditForm(FlaskForm):
+    common_name = StringField('Common Name', validators=[Length(max=256)])
+    text = TextAreaField('Text')
     submit = SubmitField('Update')
 
 class LocationNewForm(FlaskForm):

@@ -6,9 +6,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from .. import db, login_manager
 
-
 class Permission:
     GENERAL = 0x01
+    EDIT_COMMON_CONTENT = 0x10
     ADMINISTER = 0xff
 
 
@@ -21,10 +21,13 @@ class Role(db.Model):
     permissions = db.Column(db.Integer)
     users = db.relationship('User', backref='role', lazy='dynamic')
 
+    _role_id_map = None
+
     @staticmethod
     def insert_roles():
         roles = {
             'User': (Permission.GENERAL, 'main', True),
+            'Editor': (Permission.EDIT_COMMON_CONTENT or Permission.GENERAL, 'main', False),
             'Administrator': (
                 Permission.ADMINISTER,
                 'admin',

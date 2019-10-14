@@ -186,5 +186,22 @@ def add_help_user(user_name, user_email):
         db.session.add(user)
         db.session.commit()
 
+@manager.command
+def add_editor_user():
+    user_email = 'editor@test.test'
+    if User.query.filter_by(email=user_email).first() is None:
+        role = Role.query.filter_by(name='Editor').first()
+        user = User(
+            user_name='editor',
+            first_name='Editor',
+            last_name='Editorovic',
+            password='heslo',
+            confirmed=True,
+            email=user_email,
+            role=role,
+            )
+        db.session.add(user)
+        db.session.commit()
+
 if __name__ == '__main__':
     manager.run()
