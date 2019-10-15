@@ -19,6 +19,7 @@ from app.commons.dso_utils import normalize_dso_name,get_prev_next_dso
 from app.commons.search_utils import process_paginated_session_search, process_session_search
 
 from .forms import (
+    ConstellationEditForm,
     DeepskyObjectEditForm,
     SearchConstellationForm,
     SearchDsoForm,
@@ -76,8 +77,40 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
 
-    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info', user_descr=user_descr, dso_descriptions=dso_descriptions)
+    editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
+    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
+                           user_descr=user_descr, dso_descriptions=dso_descriptions, editable=editable)
 
+@main_catalogue.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
+@login_required
+def constellation_edit(constellation_id):
+    """Update deepsky object."""
+    constellation = Constellation.query.filter_by(id=constellation_id).first()
+    if constellation is None:
+        abort(404)
+    if not current_user.can(Permission.EDIT_COMMON_CONTENT):
+        abort(403)
+
+    user_8mag = User.query.filter_by(email='8mag').first()
+    user_descr = None
+    form = ConstellationEditForm()
+    if user_8mag:
+        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id) \
+                        .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
+                        .first()
+        if request.method == 'GET':
+            form.common_name.data = user_descr.common_name
+            form.text.data = user_descr.text
+        elif form.validate_on_submit():
+            user_descr.common_name = form.common_name.data
+            user_descr.text = form.text.data
+            user_descr.update_by = current_user.id
+            user_descr.update_date = datetime.now()
+            db.session.add(user_descr)
+            db.session.commit()
+            flash('Constellation successfully updated', 'form-success')
+
+    return render_template('main/catalogue/constellation_edit.html', form=form, constellation=constellation, user_descr=user_descr)
 
 @main_catalogue.route('/constellation/<int:constellation_id>/stars')
 def constellation_stars(constellation_id):
@@ -139,9 +172,8 @@ def deepskyobject_info(dso_id):
     user_8mag = User.query.filter_by(email='8mag').first()
     user_descr = None
     if user_8mag:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
-                        .join(DeepSkyObject) \
-                        .filter_by(id=dso.id) \
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
+                        .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
     prev_dso, next_dso = get_prev_next_dso(dso)
     editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
@@ -187,15 +219,14 @@ def deepskyobject_edit(dso_id):
     if dso is None:
         abort(404)
     if not current_user.can(Permission.EDIT_COMMON_CONTENT):
-        abort(404)
+        abort(403)
 
     user_8mag = User.query.filter_by(email='8mag').first()
     user_descr = None
     form = DeepskyObjectEditForm()
     if user_8mag:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
-                        .join(DeepSkyObject) \
-                        .filter_by(id=dso.id) \
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
+                        .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name

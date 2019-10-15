@@ -103,6 +103,11 @@ class ObservationEditForm(FlaskForm):
     omd_content = TextAreaField('OMD Content')
     submit = SubmitField('Update')
 
+class ConstellationEditForm(FlaskForm):
+    common_name = StringField('Common Name', validators=[Length(max=256)])
+    text = TextAreaField('Text')
+    submit = SubmitField('Update')
+
 class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField('Common Name', validators=[Length(max=256)])
     text = TextAreaField('Text')

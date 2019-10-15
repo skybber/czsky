@@ -314,8 +314,13 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                         ucd = UserConsDescription(
                             constellation_id = cons.id,
                             user_id = user_8mag.id,
+                            common_name = cons_name,
                             text = md_text,
-                            lang_code = 'cs'
+                            lang_code = 'cs',
+                            create_by = user_8mag.id,
+                            update_by = user_8mag.id,
+                            create_date = datetime.now(),
+                            update_date = datetime.now(),
                             )
                         db.session.add(ucd)
 
@@ -327,8 +332,13 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
                     user_id = user_8mag.id,
+                    common_name = cons_name,
                     text = md_text,
-                    lang_code = 'sk'
+                    lang_code = 'sk',
+                    create_by = user_8mag.id,
+                    update_by = user_8mag.id,
+                    create_date = datetime.now(),
+                    update_date = datetime.now(),
                     )
                 db.session.add(ucd)
                 save_dso_descriptions(None, soup, db_connection, user_8mag, 'sk', cons)
