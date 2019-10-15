@@ -4,8 +4,9 @@
 {% block content %}
     <div class="ui text container">
         <h1>About</h1>
-        {{ page.render_inline_editor(editable_html_obj, current_user) }}
+
+Mission of this web to build the engaged community of deepsky observers and to search for new ways to inspire astronomers and make
+the hobby they love even more fun.
     </div>
 
-    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
 {% endblock %}
