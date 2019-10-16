@@ -26,7 +26,7 @@
                 <h3>
                     {{ user_descr.common_name }}
                     {% if editable %}
-                        <a class="ui icon right floated button" href="{{ url_for('main_catalogue.deepskyobject_edit', dso_id=dso.id, back=1) }}">
+                        <a class="ui icon right floated mini button" href="{{ url_for('main_catalogue.deepskyobject_edit', dso_id=dso.id, back=1) }}">
                             <i class="caret edit icon"></i>
                         </a>
                     {% endif %}

@@ -240,4 +240,6 @@ def deepskyobject_edit(dso_id):
             db.session.commit()
             flash('Observation successfully updated', 'form-success')
 
-    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, user_descr=user_descr)
+    from_constellation_id = request.args.get('from_constellation_id')
+
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id)
