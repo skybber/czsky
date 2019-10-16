@@ -195,7 +195,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
             if dso_name:
                 t = None if dso_name.startswith('ASTER_') else translator
-                dso_text += extract_div_elem(translator, db_connection, elem) + '\n\n'
+                dso_text += extract_div_elem(t, db_connection, elem) + '\n\n'
                 found_objects[-1]['text'] = dso_text
 
     for m in found_objects:
