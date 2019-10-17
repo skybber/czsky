@@ -2,7 +2,15 @@ id;code;name;description
 1;M;Messier catalogue;Catalog of Nebulae and Star Clusters (Messier object)
 2;NGC;New General Catalogue
 3;IC;Index Catalogue
-4;Abell;Abell catalogue of planetary nebula
+4;Abell;Abell catalogue of planetary nebula + galaxies
 5;HCG;Hickson Compact Groups
-6;VIC;Vic catalogue of asterisms
-7;SH2;Sharpless catalogue of HII regions
+6;SH2;Sharpless catalogue of HII regions
+7;B;Barnard catalogue
+8;Cr;Collinder's catalog of open clusters
+9;PK;Perek-Kohoutek catalogue
+10;Pal;Palomar catalogue
+11;Stock;Stock open clusters
+12;UGC;Uppsala General Catalogue
+13;Mel;Melotte Catalogue of open star clusters
+14;LDN;Lynds' Catalogue of Dark Nebulae
+15;VIC;Vic catalogue of asterisms

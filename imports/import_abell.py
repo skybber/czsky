@@ -22,7 +22,7 @@ def import_abell(abell_data_file):
 
     with open(abell_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        catalogue_id = Catalogue.get_catalogue_id('Abell')
+        catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Abell')
         row_id = 0
         for row in reader:
             try:

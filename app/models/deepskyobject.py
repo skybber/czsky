@@ -1,10 +1,11 @@
 from datetime import datetime
-import re
 
-from .constellation import Constellation
-from .catalogue import Catalogue
 from .. import db
 from skyfield.units import Angle
+from .catalogue import Catalogue
+
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
+browsing_catalogues = ('M', 'Abell', 'VIC')
 
 class DeepSkyObject(db.Model):
     __tablename__ = 'deep_sky_objects'
@@ -33,20 +34,10 @@ class DeepSkyObject(db.Model):
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
 
+    _browsing_catalogue_map = None
+
     def denormalized_name(self):
-        zero_index = self.name.find('0')
-        norm = None
-        if zero_index < 0 or self.name[zero_index-1].isdigit():
-            norm = self.name
-        else:
-            last_zero_index = zero_index
-            while self.name[last_zero_index+1] == '0':
-                last_zero_index += 1
-            norm = self.name[:zero_index] + self.name[last_zero_index+1:]
-        if norm.startswith('SH-1'):
-            return norm
-        m = re.search("\d", norm)
-        return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
+        return denormalize_dso_name(self.name)
 
     def ra_str(self):
         if self.ra:
@@ -59,6 +50,28 @@ class DeepSkyObject(db.Model):
             sign = '-' if sgn < 0.0 else '+'
             return '%s%02d:%02d:%04.1f' % (sign, d, m, s)
         return 'nan'
+
+    def get_prev_next_dso(self):
+        prev_dso = None
+        next_dso = None
+        catalogue = DeepSkyObject.get_browsing_catalogue_map().get(self.catalogue_id)
+        if catalogue:
+            dso_id = int(self.name[len(catalogue.code):])
+            if dso_id > 0:
+                prev_name = normalize_dso_name(catalogue.code + str(dso_id - 1))
+                prev_dso = DeepSkyObject.query.filter_by(name=prev_name).first()
+            next_name = normalize_dso_name(catalogue.code + str(dso_id + 1))
+            next_dso = DeepSkyObject.query.filter_by(name=next_name).first()
+        return prev_dso, next_dso
+
+    @classmethod
+    def get_browsing_catalogue_map(cls):
+        if not DeepSkyObject._browsing_catalogue_map:
+            DeepSkyObject._browsing_catalogue_map = {}
+            for ccode in browsing_catalogues:
+                catalogue = Catalogue.get_catalogue_by_code(ccode)
+                DeepSkyObject._browsing_catalogue_map[catalogue.id] = catalogue
+        return DeepSkyObject._browsing_catalogue_map
 
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'

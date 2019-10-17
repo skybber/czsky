@@ -15,7 +15,7 @@ from app import db
 
 from app.models import User, Catalogue, Constellation, DeepSkyObject, Permission, UserConsDescription, UserDsoDescription
 from app.commons.pagination import Pagination
-from app.commons.dso_utils import normalize_dso_name,get_prev_next_dso
+from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_utils import process_paginated_session_search, process_session_search
 
 from .forms import (
@@ -151,7 +151,7 @@ def deepskyobjects():
         deepskyobjects = deepskyobjects.filter(DeepSkyObject.type==dso_type)
 
     if catalogue and catalogue != 'All':
-        cat_id = Catalogue.get_catalogue_id(catalogue)
+        cat_id = Catalogue.get_catalogue_id_by_cat_code(catalogue)
         if cat_id:
             deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
 
@@ -175,7 +175,7 @@ def deepskyobject_info(dso_id):
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
-    prev_dso, next_dso = get_prev_next_dso(dso)
+    prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id,
                            prev_dso=prev_dso, next_dso=next_dso, editable=editable)
@@ -187,7 +187,7 @@ def deepskyobject_catalogue_data(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
-    prev_dso, next_dso = get_prev_next_dso(dso)
+    prev_dso, next_dso = dso.get_prev_next_dso()
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
 
@@ -198,7 +198,7 @@ def deepskyobject_findchart(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
-    prev_dso, next_dso = get_prev_next_dso(dso)
+    prev_dso, next_dso = dso.get_prev_next_dso()
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
     dso_dname = dso.denormalized_name().replace(' ','')

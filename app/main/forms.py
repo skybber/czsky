@@ -50,7 +50,15 @@ class SearchDsoForm(FlaskForm):
          ('IC', 'IC'),
          ('Abell','Abell'),
          ('SH2','Sharpless'),
-         ('VIC','Vic'),
+         ('B', 'Barnard'),
+         ('Cr', 'Collinder'),
+         ('Pal', 'Palomar'),
+         ('PK', 'Perek-Kohoutek'),
+         ('Stock', 'Stock'),
+         ('UGC', 'UGC'),
+         ('Mel', 'Melotte'),
+         ('LDN', 'LDN'),
+         ('VIC', 'Vic'),
     ])
     dso_type = SelectField('Object type', choices=[
          ('All', 'All types'),

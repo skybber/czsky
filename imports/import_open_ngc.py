@@ -31,9 +31,9 @@ def import_open_ngc(open_ngc_data_file):
 
                 catalogue_id = None
                 if row['Name'].startswith('IC'):
-                    catalogue_id = Catalogue.get_catalogue_id('IC')
+                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('IC')
                 elif row['Name'].startswith('NGC'):
-                    catalogue_id = Catalogue.get_catalogue_id('NGC')
+                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('NGC')
 
                 dso = DeepSkyObject(
                     master_id = None,
@@ -69,7 +69,7 @@ def import_open_ngc(open_ngc_data_file):
                         ra = dso.ra,
                         dec = dso.dec,
                         constellation_id = dso.constellation_id,
-                        catalogue_id = Catalogue.get_catalogue_id('M'),
+                        catalogue_id = Catalogue.get_catalogue_id_by_cat_code('M'),
                         major_axis = dso.major_axis,
                         minor_axis = dso.minor_axis,
                         positon_angle = dso.positon_angle,

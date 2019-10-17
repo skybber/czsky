@@ -28,7 +28,7 @@ def import_sh2(sh2_data_file):
 
     with open(sh2_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        catalogue_id = Catalogue.get_catalogue_id('SH2')
+        catalogue_id = Catalogue.get_catalogue_id_by_cat_code('SH2')
         row_id = 0
         for row in reader:
             progress(row_id, row_count, 'Importing Sh2 catalogue')

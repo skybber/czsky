@@ -28,7 +28,7 @@ def import_vic(vic_data_file):
 
     with open(vic_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
-        catalogue_id = Catalogue.get_catalogue_id('VIC')
+        catalogue_id = Catalogue.get_catalogue_id_by_cat_code('VIC')
         row_id = 0
         for row in reader:
             row_id += 1

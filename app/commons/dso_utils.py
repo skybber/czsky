@@ -1,18 +1,22 @@
-from app import db
+import re
 
-from app.models import DeepSkyObject
-
-# catalogue identifier + max number of digits
+# Uppercase name / DB normalized name,/ max digits of object id
 catalogs_specifications = (
-    ('NGC', 'NGC', 4),
+    ('ABELL', 'Abell', 3),
+    ('B', 'B', 3),
+    ('CR', 'Cr', 3),
     ('IC', 'IC', 4),
+    ('LDN', 'LDN', 4),
+    ('MEL', 'Mel', 3), # Must be before Messier (M) since has longer prefix
     ('M', 'M', 3),
-    ('ABELL', 'Abell', 2),
+    ('NGC', 'NGC', 4),
     ('SH2-', 'SH-2', 3),
+    ('PAL', 'Pal', 2),
+    ('PK', 'PK', -1), # PK catalog has specific normalization/denormalization
+    ('STOCK', 'Stock', 2),
+    ('UGC', 'UGC', 5),
     ('VIC', 'VIC', 2),
 )
-
-browsing_catalogues = ('M', 'Abell', 'VIC')
 
 def normalize_dso_name(name):
     if name is None:
@@ -20,26 +24,32 @@ def normalize_dso_name(name):
 
     upper_name = name.upper().replace(' ','')
 
+    if upper_name.startswith('PK'):
+        return upper_name
+
     for cat_spec in catalogs_specifications:
         cat_identifier = cat_spec[0]
         if upper_name.startswith(cat_identifier):
             appendix = upper_name[len(cat_identifier):]
             applen = len(appendix)
-            if applen > 0 and applen < cat_spec[2]:
+            if applen > 0 and applen <= cat_spec[2]:
                 return cat_spec[1] + ('0' * (cat_spec[2] - applen)) + appendix
             return upper_name
     return name
 
-def get_prev_next_dso(dso):
-    prev_dso = None
-    next_dso = None
-    for c in browsing_catalogues:
-        if dso.name.startswith(c):
-            dso_id = int(dso.name[len(c):])
-            if dso_id > 0:
-                prev_name = normalize_dso_name(c + str(dso_id - 1))
-                prev_dso = DeepSkyObject.query.filter_by(name=prev_name).first()
-            next_name = normalize_dso_name(c + str(dso_id + 1))
-            next_dso = DeepSkyObject.query.filter_by(name=next_name).first()
-            break
-    return prev_dso, next_dso
+def denormalize_dso_name(name):
+    if name.startswith('PK'):
+        return 'PK ' + name[2:]
+    zero_index = name.find('0')
+    norm = None
+    if zero_index < 0 or name[zero_index-1].isdigit():
+        norm = name
+    else:
+        last_zero_index = zero_index
+        while name[last_zero_index+1] == '0':
+            last_zero_index += 1
+        norm = name[:zero_index] + name[last_zero_index+1:]
+    if norm.startswith('SH-1'):
+        return norm
+    m = re.search("\d", norm)
+    return norm[:m.start()] + ' ' + norm[m.start():] if m else norm

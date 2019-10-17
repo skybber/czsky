@@ -179,13 +179,26 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                     dso_name = dso_name[:dso_name.index('(')]
                 if dso_name.startswith('Sharpless 2-'):
                     dso_name = 'SH2-' + dso_name[len('Sharpless 2-'):]
+                elif dso_name.startswith('Collinder'):
+                    dso_name = 'Cr' + dso_name[len('Collinder'):]
+                elif dso_name.startswith('Melotte'):
+                    dso_name = 'Mel' + dso_name[len('Melotte'):]
+                elif dso_name.startswith('Palomar'):
+                    dso_name = 'Pal' + dso_name[len('Palomar'):]
+                elif dso_name.startswith('Barnard'):
+                    dso_name = 'B' + dso_name[len('Barnard'):]
                 dso_name = normalize_dso_name(dso_name.strip())
                 others = []
-                if dso_name.startswith('NGC') and ('-' in dso_name or '/' in dso_name):
+                if dso_name.startswith('NGC') and any(x in dso_name for x in ['-', '/', '&', 'A']):
                     if '-' in dso_name:
                         dso_items = dso_name.split('-')
-                    else:
+                    elif '/' in dso_name:
                         dso_items = dso_name.split('/')
+                    elif '&' in dso_name:
+                        dso_items = dso_name.split('&')
+                    elif 'A' in dso_name:
+                        dso_items = dso_name.split('A')
+                        dso_items = dso_items[:-1]
                     dso_name = dso_items[0]
                     if dso_name.endswith('A'):
                         dso_name = dso_name[:-1]

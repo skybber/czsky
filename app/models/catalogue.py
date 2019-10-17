@@ -1,5 +1,6 @@
 from .. import db
 
+
 class Catalogue(db.Model):
     __tablename__ = 'catalogues'
     id = db.Column(db.Integer, primary_key=True)
@@ -7,14 +8,31 @@ class Catalogue(db.Model):
     name = db.Column(db.String(128))
     descr = db.Column(db.Text)
 
+    _catalog_code_map = None
     _catalog_id_map = None
 
     @classmethod
-    def get_catalogue_id(cls, code):
-        if code is None:
-            return None
+    def _load_catalogue_maps(cls):
+        Catalogue._catalog_code_map = {}
+        Catalogue._catalog_id_map = {}
+        for c in Catalogue.query.all():
+            db.session.expunge(c)
+            Catalogue._catalog_code_map[c.code] = c
+            Catalogue._catalog_id_map[c.id] = c
+
+    @classmethod
+    def get_catalogue_by_code(cls, code):
         if not Catalogue._catalog_id_map:
-            Catalogue._catalog_id_map = {}
-            for c in Catalogue.query.all():
-                Catalogue._catalog_id_map[c.code] = c.id
-        return Catalogue._catalog_id_map.get(code, None)
+            Catalogue._load_catalogue_maps()
+        return Catalogue._catalog_code_map.get(code, None)
+
+    @classmethod
+    def get_catalogue_by_id(cls, id):
+        if not Catalogue._catalog_id_map:
+            Catalogue._load_catalogue_maps()
+        return Catalogue._catalog_code_map.get(id, None)
+
+    @classmethod
+    def get_catalogue_id_by_cat_code(cls, code):
+        c = Catalogue.get_catalogue_by_code(code)
+        return c.id if c else None
