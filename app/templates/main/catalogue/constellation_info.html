@@ -35,7 +35,7 @@
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
                 <div class="ui segment" style="display: inline-block">
-                    <h2 class="ui header">
+                    <h2 id="dso{{ user_dso_descr.dso_id }}" class="ui header" >
                         {{ user_dso_descr.deepSkyObject.denormalized_name() }}
                         <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                     </h2>
