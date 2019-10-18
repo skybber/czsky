@@ -3,7 +3,7 @@
 {% block content %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
                 <i class="caret left icon"></i>
                 Back to dashboard
             </a>
@@ -11,16 +11,16 @@
                 Deepsky Objects
             </h2>
 
-            <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search" class="ui stackable menu">
+            <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search" class="ui menu">
                 <div class="ui item">
                     {{search_form.catalogue(class='ui dropdown button',onchange='this.form.submit()')}}
                 </div>
-                <div class="ui item">
+                <div class="ui item computer tablet only">
                     {{search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()')}}
                 </div>
                 <div class="ui right search item">
                     <div class="ui action input">
-                        {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
+                        {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
                         <button class="ui icon button">
                             <i class="search icon"></i>
                         </button>
