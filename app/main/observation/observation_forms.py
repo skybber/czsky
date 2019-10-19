@@ -27,7 +27,7 @@ from wtforms.validators import (
 )
 
 DEFAULT_OBSERVATION_CONTENT = '''
-# Observation name
+# Observation title
 :location: location_name
 :date: {date}
 :observers: @user1, @user2 ...
@@ -49,14 +49,14 @@ Observation item1 notes
 '''
 
 class ObservationItemNewForm(FlaskForm):
-    deep_sky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])
+    deepsky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])
     date_time = TimeField('Time', format = '%H:%M', default = datetime.now())
     notes = TextAreaField('Notes', render_kw={'rows':2})
 
 class ObservationNewForm(FlaskForm):
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now())
     rating = HiddenField('Rating', default=1)
-    omd_content = TextAreaField('OMD Content',
+    notes = TextAreaField('OMD Content',
                                 default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')),
                                 validators=[required()]
                                 )
@@ -65,5 +65,5 @@ class ObservationNewForm(FlaskForm):
 class ObservationEditForm(FlaskForm):
     date = DateField('Date', id='datepick')
     rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
-    omd_content = TextAreaField('OMD Content')
+    notes = TextAreaField('OMD Content')
     submit = SubmitField('Update')

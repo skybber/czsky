@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject
+from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
 
 from .import_utils import progress
@@ -34,7 +34,7 @@ def import_sh2(sh2_data_file):
             progress(row_id, row_count, 'Importing Sh2 catalogue')
             row_id += 1
             try:
-                c = DeepSkyObject(
+                c = DeepskyObject(
                     name = row['NAME'],
                     type = 'Neb',
                     ra = Angle(hours=float(row['RA'])).radians if len(row['RA']) > 0 else None,

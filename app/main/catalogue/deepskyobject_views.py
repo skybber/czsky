@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Catalogue, DeepSkyObject, Permission, UserDsoDescription
+from app.models import User, Catalogue, DeepskyObject, Permission, UserDsoDescription
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -41,12 +41,12 @@ def deepskyobjects():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    deepskyobjects = DeepSkyObject.query
+    deepskyobjects = DeepskyObject.query
     if search_expr:
-        deepskyobjects = deepskyobjects.filter(DeepSkyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
 
     if dso_type and dso_type != 'All':
-        deepskyobjects = deepskyobjects.filter(DeepSkyObject.type==dso_type)
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.type==dso_type)
 
     if catalogue and catalogue != 'All':
         cat_id = Catalogue.get_catalogue_id_by_cat_code(catalogue)
@@ -63,7 +63,7 @@ def deepskyobjects():
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/info')
 def deepskyobject_info(dso_id):
     """View a deepsky object info."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
@@ -81,7 +81,7 @@ def deepskyobject_info(dso_id):
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
     """View a deepsky object info."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
@@ -92,7 +92,7 @@ def deepskyobject_catalogue_data(dso_id):
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart')
 def deepskyobject_findchart(dso_id):
     """View a deepsky object findchart."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
@@ -113,7 +113,7 @@ def deepskyobject_findchart(dso_id):
 @login_required
 def deepskyobject_edit(dso_id):
     """Update deepsky object."""
-    dso = DeepSkyObject.query.filter_by(id=dso_id).first()
+    dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
     if not current_user.can(Permission.EDIT_COMMON_CONTENT):

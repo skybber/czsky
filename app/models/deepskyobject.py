@@ -7,10 +7,10 @@ from .catalogue import Catalogue
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 browsing_catalogues = ('M', 'Abell', 'VIC')
 
-class DeepSkyObject(db.Model):
-    __tablename__ = 'deep_sky_objects'
+class DeepskyObject(db.Model):
+    __tablename__ = 'deepsky_objects'
     id = db.Column(db.Integer, primary_key=True)
-    master_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'))
+    master_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
     ra = db.Column(db.Float)
@@ -66,30 +66,30 @@ class DeepSkyObject(db.Model):
     def get_prev_next_dso(self):
         prev_dso = None
         next_dso = None
-        catalogue = DeepSkyObject.get_browsing_catalogue_map().get(self.catalogue_id)
+        catalogue = DeepskyObject.get_browsing_catalogue_map().get(self.catalogue_id)
         if catalogue:
             dso_id = int(self.name[len(catalogue.code):])
             if dso_id > 0:
                 prev_name = normalize_dso_name(catalogue.code + str(dso_id - 1))
-                prev_dso = DeepSkyObject.query.filter_by(name=prev_name).first()
+                prev_dso = DeepskyObject.query.filter_by(name=prev_name).first()
             next_name = normalize_dso_name(catalogue.code + str(dso_id + 1))
-            next_dso = DeepSkyObject.query.filter_by(name=next_name).first()
+            next_dso = DeepskyObject.query.filter_by(name=next_name).first()
         return prev_dso, next_dso
 
     @classmethod
     def get_browsing_catalogue_map(cls):
-        if not DeepSkyObject._browsing_catalogue_map:
-            DeepSkyObject._browsing_catalogue_map = {}
+        if not DeepskyObject._browsing_catalogue_map:
+            DeepskyObject._browsing_catalogue_map = {}
             for ccode in browsing_catalogues:
                 catalogue = Catalogue.get_catalogue_by_code(ccode)
-                DeepSkyObject._browsing_catalogue_map[catalogue.id] = catalogue
-        return DeepSkyObject._browsing_catalogue_map
+                DeepskyObject._browsing_catalogue_map[catalogue.id] = catalogue
+        return DeepskyObject._browsing_catalogue_map
 
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'
     id = db.Column(db.Integer, primary_key=True)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deep_sky_objects.id'), nullable=False)
-    deepSkyObject = db.relationship("DeepSkyObject")
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
+    deepSkyObject = db.relationship("DeepskyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
     lang_code = db.Column(db.String(2))

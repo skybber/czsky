@@ -13,7 +13,7 @@ from json.decoder import JSONDecodeError
 from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
-from app.models.deepskyobject import DeepSkyObject, UserDsoDescription
+from app.models.deepskyobject import DeepskyObject, UserDsoDescription
 from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
 
@@ -220,7 +220,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                 if len(vic_id) < 2:
                     vic_id = '0' + vic_id
                 dso_name = 'VIC' + vic_id
-                dso = DeepSkyObject.query.filter_by(name=dso_name).first()
+                dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if dso:
                     # update constellation ID since it is missing in vic catalogue
                     dso.constellation_id = cons.id
@@ -255,7 +255,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
                 print('VIC object not found. cs name=' + vic_cs_name)
         else:
             for dso_name in m['names']:
-                dso = DeepSkyObject.query.filter_by(name=dso_name).first()
+                dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if dso:
                     udd = UserDsoDescription(
                         dso_id = dso.id,

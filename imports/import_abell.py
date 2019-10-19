@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject
+from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
 
 from .import_utils import progress
@@ -41,7 +41,7 @@ def import_abell(abell_data_file):
                 if cstar_mag == 'na':
                     cstar_mag = None
 
-                c = DeepSkyObject(
+                c = DeepskyObject(
                     name = 'Abell' + row['Abell'],
                     type = 'PN', # TODO: row['Type'] is PN subtype ?
                     ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,

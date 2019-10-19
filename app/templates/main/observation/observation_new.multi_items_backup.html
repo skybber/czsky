@@ -50,7 +50,7 @@
                     {% for item in form.items %}
                         <div class="ui black segment" data-toggle="fieldset-entry" {% if loop.index0 == 0 %}style="display:none;"{% endif %}>
                             <div class="two fields">
-                                {{ f.render_form_field(item.deep_sky_object_id_list, extra_classes="fourteen wide field") }}
+                                {{ f.render_form_field(item.deepsky_object_id_list, extra_classes="fourteen wide field") }}
                                 <div class="field">
                                     <label for="otime-{{loop.index0}}-tm">Time</label>
                                     <div class="ui calendar" id="otime-{{loop.index0}}-tm">

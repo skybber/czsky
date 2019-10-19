@@ -9,7 +9,7 @@ class Constellation(db.Model):
     season = db.Column(db.String(32))
     descr = db.Column(db.Text)
     image = db.Column(db.String(256))
-    deep_sky_objects = db.relationship('DeepSkyObject', backref='constellation', lazy=True)
+    deepsky_objects = db.relationship('DeepskyObject', backref='constellation', lazy=True)
 
 class UserConsDescription(db.Model):
     __tablename__ = 'user_cons_descriptions'

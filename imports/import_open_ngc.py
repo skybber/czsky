@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import make_transient
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject
+from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
 
 from .import_utils import progress
@@ -43,7 +43,7 @@ def import_open_ngc(open_ngc_data_file):
 
                 dso_type = dso_type_mappings.get(row['Type'],row['Type'])
 
-                dso = DeepSkyObject(
+                dso = DeepskyObject(
                     master_id = None,
                     name = row['Name'],
                     type = dso_type,
@@ -71,7 +71,7 @@ def import_open_ngc(open_ngc_data_file):
                     )
                 ngc_ic_list.append(dso)
                 if row['M']:
-                    mes_dso = DeepSkyObject(
+                    mes_dso = DeepskyObject(
                         name = 'M' + row['M'],
                         type = dso.type,
                         ra = dso.ra,

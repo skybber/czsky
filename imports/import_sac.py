@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject
+from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
 
 from app.commons.dso_utils import normalize_dso_name
@@ -79,7 +79,7 @@ def import_sac(sac_data_file):
 
                 dso_type = dso_type_mappings.get(row['TYPE'], row['TYPE'])
 
-                c = DeepSkyObject(
+                c = DeepskyObject(
                     name = object_id,
                     type = dso_type,
                     ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,

@@ -25,7 +25,7 @@
 
                 {{ f.render_form_field(form.date) }}
                 {{ f.render_form_field(form.rating) }}
-                {{ f.render_form_field(form.omd_content) }}
+                {{ f.render_form_field(form.notes) }}
 
                 {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
                 {{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
@@ -40,7 +40,7 @@
         </div>
     </div>
     <script type="text/javascript">
-        var contentMDE = new EasyMDE({element: document.getElementById('omd_content'),
+        var contentMDE = new EasyMDE({element: document.getElementById('notes'),
                 minHeight: "500px",
             });
     </script>

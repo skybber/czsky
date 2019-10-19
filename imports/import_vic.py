@@ -4,7 +4,7 @@ import sys
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepSkyObject
+from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
 
 from .import_utils import progress
@@ -39,7 +39,7 @@ def import_vic(vic_data_file):
 
                 name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
 
-                c = DeepSkyObject(
+                c = DeepskyObject(
                     name = name,
                     type = 'AST',
                     ra = Angle(hours=tuple(map(float, row['RA'].split(',')))).radians if len(row['RA']) > 0 else None,
