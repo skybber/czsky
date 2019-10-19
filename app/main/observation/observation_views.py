@@ -15,7 +15,7 @@ from .observation_forms import (
     ObservationEditForm,
 )
 
-from app.models import Observation, observation
+from app.models import Observation
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
 from app.main.views import ITEMS_PER_PAGE
