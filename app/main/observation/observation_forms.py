@@ -56,14 +56,13 @@ class ObservationItemNewForm(FlaskForm):
 class ObservationNewForm(FlaskForm):
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now())
     rating = HiddenField('Rating', default=1)
-    notes = TextAreaField('OMD Content',
-                                default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')),
-                                validators=[required()]
-                                )
+    omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')))
+    notes = TextAreaField('Notes', validators=[required()])
     submit = SubmitField('Add')
 
 class ObservationEditForm(FlaskForm):
     date = DateField('Date', id='datepick')
     rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
+    omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')))
     notes = TextAreaField('OMD Content')
     submit = SubmitField('Update')

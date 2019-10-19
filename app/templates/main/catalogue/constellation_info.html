@@ -23,7 +23,7 @@
         <div class="ui blue segment" style="display: inline-block">
             <div class="markdown">
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id, back=1) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
@@ -35,13 +35,15 @@
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
                 <div class="ui segment" style="display: inline-block">
-                    <h2 id="dso{{ user_dso_descr.dso_id }}" class="ui header" >
-                        {{ user_dso_descr.deepSkyObject.denormalized_name() }}
-                        <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-                    </h2>
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
+                        <h2 id="dso{{ user_dso_descr.dso_id }}" class="ui header" >
+                            {{ user_dso_descr.deepSkyObject.denormalized_name() }}
+                            <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                        </h2>
+                    </a>
                     <div class="markdown">
                         {% if editable %}
-                            <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id, back=1) }}">
+                            <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
                                 <i class="caret edit icon"></i>
                             </a>
                         {% endif %}
