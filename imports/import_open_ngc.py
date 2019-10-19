@@ -9,6 +9,12 @@ from skyfield.units import Angle
 
 from .import_utils import progress
 
+dso_type_mappings = {
+    'G': 'Glx',
+    'OCl' : 'OC',
+    'GCl' : 'GC',
+}
+
 def import_open_ngc(open_ngc_data_file):
     """Import data from OpenNGC catalog."""
     from sqlalchemy.exc import IntegrityError
@@ -35,10 +41,12 @@ def import_open_ngc(open_ngc_data_file):
                 elif row['Name'].startswith('NGC'):
                     catalogue_id = Catalogue.get_catalogue_id_by_cat_code('NGC')
 
+                dso_type = dso_type_mappings.get(row['Type'],row['Type'])
+
                 dso = DeepSkyObject(
                     master_id = None,
                     name = row['Name'],
-                    type = row['Type'],
+                    type = dso_type,
                     ra = Angle(hours=tuple(map(float, row['RA'].split(':')))).radians if len(row['RA']) > 0 else None,
                     dec = Angle(degrees=tuple(map(float, row['Dec'].split(':')))).radians if len(row['Dec']) > 0 else None,
                     constellation_id = constell_dict[constellation] if constellation else None,

@@ -13,15 +13,18 @@ from app import db
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
-from .forms import (
+from app.main.forms import (
     SearchForm,
 )
 
-from .. import db
-from .views import ITEMS_PER_PAGE
+from app.main.views import ITEMS_PER_PAGE
 from app.commons.coordinates import mapy_cz_url, google_url
 
 main_skyquality = Blueprint('main_skyquality', __name__)
+
+@main_skyquality.route('/skyquality', methods=['GET', 'POST'])
+def skyquality():
+    return render_template('main/skyquality/skyquality.html')
 
 @main_skyquality.route('/skyquality-locations', methods=['GET', 'POST'])
 def skyquality_locations():

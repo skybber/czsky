@@ -27,6 +27,18 @@ from wtforms.validators import (
     required
 )
 
-class SearchForm(FlaskForm):
+class SearchConstellationForm(FlaskForm):
     q = StringField('Search')
+    season = SelectField('Season', choices=[
+         ('All', 'All'),
+         ('winter', 'Winter'),
+         ('spring', 'Spring'),
+         ('summer', 'Summer'),
+         ('autumn','Autumn'),
+         ('southern','Southern'),
+    ])
 
+class ConstellationEditForm(FlaskForm):
+    common_name = StringField('Common Name', validators=[Length(max=256)])
+    text = TextAreaField('Text')
+    submit = SubmitField('Update')

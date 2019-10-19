@@ -2,9 +2,9 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_catalogue.constellation_info', 'Info', 'info'),
-    ('main_catalogue.constellation_stars', 'Stars', 'star'),
-    ('main_catalogue.constellation_deepskyobjects', 'DSO', 'star'),
+    ('main_constellation.constellation_info', 'Info', 'info'),
+    ('main_constellation.constellation_stars', 'Stars', 'star'),
+    ('main_constellation.constellation_deepskyobjects', 'DSO', 'star'),
 ] %}
 
 {% macro navigation(items) %}
@@ -23,7 +23,7 @@
         <div class="ui blue segment" style="display: inline-block">
             <div class="markdown">
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_catalogue.constellation_edit', constellation_id=constellation.id, back=1) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id, back=1) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
@@ -41,7 +41,7 @@
                     </h2>
                     <div class="markdown">
                         {% if editable %}
-                            <a class="ui icon right floated mini button" href="{{ url_for('main_catalogue.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id, back=1) }}">
+                            <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id, back=1) }}">
                                 <i class="caret edit icon"></i>
                             </a>
                         {% endif %}
@@ -81,11 +81,11 @@
                     </thead>
                     <tbody>
                     {% for d in constellation.deep_sky_objects | sort(attribute='name') %}
-                            <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id, from_constellation_id=constellation.id) }}';">
+                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.id, from_constellation_id=constellation.id) }}';">
                                     <td>{{ d.denormalized_name() }}</td>
                                     <td>{{ d.type }}</td>
-                                    <td>{{ d.ra }}</td>
-                                    <td>{{ d.dec }}</td>
+                                    <td>{{ d.ra_str_short() }}</td>
+                                    <td>{{ d.dec_str_short() }}</td>
                                     <td>{{ d.h_mag }}</td>
                             </tr>
                     {% endfor %}
@@ -97,7 +97,7 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet fourteen wide computer column">
-            <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellations', back=1) }}">
+            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellations', back=1) }}">
                 <i class="caret left icon"></i>
                 Constellations
             </a>

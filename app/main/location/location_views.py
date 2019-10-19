@@ -14,13 +14,12 @@ from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.coordinates import *
 
-from .forms import (
+from .location_forms import (
     LocationNewForm,
     LocationEditForm,
 )
 
-from .. import db
-from .views import ITEMS_PER_PAGE
+from app.main.views import ITEMS_PER_PAGE
 
 main_location = Blueprint('main_location', __name__)
 

@@ -14,11 +14,11 @@
                     {{ dash.dashboard_option('Observations', 'main_observation.observations',
                                         description='View observations', icon='eye icon') }}
                 {% endif %}
-                {{ dash.dashboard_option('Constellations', 'main_catalogue.constellations',
+                {{ dash.dashboard_option('Constellations', 'main_constellation.constellations',
                                     description='View constellations', icon='lastfm icon') }}
-                {{ dash.dashboard_option('Deepsky Objects', 'main_catalogue.deepskyobjects',
+                {{ dash.dashboard_option('Deepsky Objects', 'main_deepskyobject.deepskyobjects',
                                     description='View deepsky objects', icon='star icon') }}
-                {{ dash.dashboard_option('Sky quality', 'main.skyquality',
+                {{ dash.dashboard_option('Sky quality', 'main_skyquality.skyquality',
                                     description='View skyquality section', icon='tachometer icon') }}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option('Settings', 'main.settings',

@@ -51,6 +51,18 @@ class DeepSkyObject(db.Model):
             return '%s%02d:%02d:%04.1f' % (sign, d, m, s)
         return 'nan'
 
+    def ra_str_short(self):
+        if self.ra:
+            return '%02d:%02d:%02d' % Angle(radians=self.ra).hms(warn=False)
+        return 'nan'
+
+    def dec_str_short(self):
+        if self.ra:
+            sgn, d, m, s = Angle(radians=self.dec).signed_dms(warn=False)
+            sign = '-' if sgn < 0.0 else '+'
+            return '%s%02d:%02d:%02d' % (sign, d, m, s)
+        return 'nan'
+
     def get_prev_next_dso(self):
         prev_dso = None
         next_dso = None

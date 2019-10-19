@@ -70,13 +70,15 @@ def create_app(config):
     # Create app blueprints
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-    from .main import main_catalogue as main_catalogue
-    app.register_blueprint(main_catalogue)
-    from .main import main_location as main_location
+    from .main.catalogue import main_constellation as main_constellation
+    app.register_blueprint(main_constellation)
+    from .main.catalogue import main_deepskyobject as main_deepskyobject
+    app.register_blueprint(main_deepskyobject)
+    from .main.location import main_location as main_location
     app.register_blueprint(main_location)
-    from .main import main_observation as main_observation
+    from .main.observation import main_observation as main_observation
     app.register_blueprint(main_observation)
-    from .main import main_skyquality as main_skyquality
+    from .main.skyquality import main_skyquality as main_skyquality
     app.register_blueprint(main_skyquality)
 
     from .account import account as account_blueprint

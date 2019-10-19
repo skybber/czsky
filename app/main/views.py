@@ -1,17 +1,10 @@
-from datetime import datetime
-
 from flask import (
     Blueprint,
-    flash,
     render_template,
-    request,
 )
 from flask_login import current_user, login_required
 
-from app import db
-
 from app.models import EditableHTML
-from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
 main = Blueprint('main', __name__)
 
@@ -31,8 +24,4 @@ def about():
 @login_required
 def settings():
     return render_template('main/settings.html')
-
-@main.route('/skyquality', methods=['GET', 'POST'])
-def skyquality():
-    return render_template('main/skyquality/skyquality.html')
 

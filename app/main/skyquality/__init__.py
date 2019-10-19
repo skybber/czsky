@@ -1,0 +1,1 @@
+from app.main.skyquality.skyquality_views import main_skyquality

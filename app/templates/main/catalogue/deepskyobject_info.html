@@ -2,9 +2,9 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_catalogue.deepskyobject_info', 'Info', 'info'),
-    ('main_catalogue.deepskyobject_findchart', 'Find chart', 'table'),
-    ('main_catalogue.deepskyobject_catalogue_data', 'Catalogue data', 'table')
+    ('main_deepskyobject.deepskyobject_info', 'Info', 'info'),
+    ('main_deepskyobject.deepskyobject_findchart', 'Find chart', 'table'),
+    ('main_deepskyobject.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
 {% macro navigation(items) %}
@@ -26,7 +26,7 @@
                 <h3>
                     {{ user_descr.common_name }}
                     {% if editable %}
-                        <a class="ui icon right floated mini button" href="{{ url_for('main_catalogue.deepskyobject_edit', dso_id=dso.id, back=1) }}">
+                        <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, back=1) }}">
                             <i class="caret edit icon"></i>
                         </a>
                     {% endif %}
@@ -78,24 +78,24 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet fourteen wide computer column">
             {% if from_constellation_id %}
-                <a class="ui basic compact button" href="{{ url_for('main_catalogue.constellation_info', constellation_id=from_constellation_id) }}">
+                <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
                     <i class="caret left icon"></i>
                     Back to constellations
                 </a>
             {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_catalogue.deepskyobjects', back=1)}}">
+                <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
                     <i class="caret left icon"></i>
                     DSO list
                 </a>
             {% endif %}
             {% if next_dso %}
-                <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=next_dso.id)}}">
+                <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.id)}}">
                     {{ next_dso.denormalized_name() }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic compact right floated button" href="{{ url_for('main_catalogue.deepskyobject_info', dso_id=prev_dso.id)}}">
+                <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.id)}}">
                     <i class="caret left icon"></i>
                     {{ prev_dso.denormalized_name() }}
                 </a>

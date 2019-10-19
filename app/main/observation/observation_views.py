@@ -10,7 +10,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from .forms import (
+from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
 )
@@ -18,8 +18,7 @@ from .forms import (
 from app.models import Observation, observation
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
-from .. import db
-from .views import ITEMS_PER_PAGE
+from app.main.views import ITEMS_PER_PAGE
 
 main_observation = Blueprint('main_observation', __name__)
 

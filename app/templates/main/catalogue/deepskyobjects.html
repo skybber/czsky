@@ -7,11 +7,11 @@
                 <i class="caret left icon"></i>
                 Back to dashboard
             </a>
-            <h2 class="ui header">
+            <h2 class="ui header" style="margin-top:0.5em">
                 Deepsky Objects
             </h2>
 
-            <form action="{{ url_for('main_catalogue.deepskyobjects') }}" method="post" name="search" class="ui menu">
+            <form action="{{ url_for('main_deepskyobject.deepskyobjects') }}" method="post" name="search" class="ui menu">
                 <div class="ui item">
                     {{search_form.catalogue(class='ui dropdown button',onchange='this.form.submit()')}}
                 </div>
@@ -43,11 +43,11 @@
                     </thead>
                     <tbody>
                     {% for d in deepskyobjects | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_catalogue.deepskyobject_info', dso_id=d.id) }}';">
+                        <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.id) }}';">
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>
-                            <td>{{ d.ra_str() }}</td>
-                            <td>{{ d.dec_str() }}</td>
+                            <td>{{ d.ra_str_short() }}</td>
+                            <td>{{ d.dec_str_short() }}</td>
                             <td>{{ d.v_mag }}</td>
                         </tr>
                     {% endfor %}

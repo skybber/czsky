@@ -10,6 +10,13 @@ from skyfield.units import Angle
 from app.commons.dso_utils import normalize_dso_name
 from .import_utils import progress
 
+dso_type_mappings = {
+    'GALXY': 'Glx',
+    'OPNCL' : 'OC',
+    'PLNNB' : 'PN',
+    'GALCL' : 'GCl'
+}
+
 def get_size(d):
     d = d.replace(' ','')
     if d.startswith('<'):
@@ -70,9 +77,11 @@ def import_sac(sac_data_file):
 
                 object_id = normalize_dso_name(object_id)
 
+                dso_type = dso_type_mappings.get(row['TYPE'], row['TYPE'])
+
                 c = DeepSkyObject(
                     name = object_id,
-                    type = row['TYPE'],
+                    type = dso_type,
                     ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,
                     dec = Angle(degrees=tuple(map(float, row['DEC'].split(' ')))).radians if len(row['DEC']) > 0 else None,
                     constellation_id = constell_dict.get(row['CON'].upper(), None),

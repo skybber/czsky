@@ -11,7 +11,7 @@
                 Constellations
             </h2>
 
-            <form action="{{ url_for('main_catalogue.constellations') }}" method="post" name="search" class="ui stackable menu">
+            <form action="{{ url_for('main_constellation.constellations') }}" method="post" name="search" class="ui stackable menu">
                 <div class="ui item">
                     {{search_form.season(class='ui dropdown button',onchange='this.form.submit()')}}
                 </div>
@@ -37,7 +37,7 @@
                     </thead>
                     <tbody>
                     {% for c in constellations | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_catalogue.constellation_info', constellation_id=c.id) }}';">
+                        <tr onclick="window.location.href = '{{ url_for('main_constellation.constellation_info', constellation_id=c.id) }}';">
                             <td>{{ c.iau_code }}</td>
                             <td>{{ c.name }}</td>
                         </tr>

@@ -2,7 +2,6 @@ from flask import render_template
 
 from app.main.views import main
 
-
 @main.app_errorhandler(403)
 def forbidden(_):
     return render_template('errors/403.html'), 403
