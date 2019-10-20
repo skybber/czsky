@@ -18,7 +18,7 @@ from .observation_forms import (
 from app.models import Observation
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.main.views import ITEMS_PER_PAGE
-from .observation_parser import parse_observation
+from app.main.observation.observation_form_utils import *
 
 main_observation = Blueprint('main_observation', __name__)
 
@@ -56,23 +56,10 @@ def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
     if form.validate_on_submit():
-        observation, warn_msgs, error_msgs = parse_observation(form.notes.data)
-        if observation:
-            observation.user_id = current_user.id,
-            observation.date = form.date.data,
-            observation.rating = form.rating.data,
-            # observation.notes = form.notes.data,
-            observation.omd_content = form.notes.data,
-            observation.create_by = current_user.id,
-            observation.update_by = current_user.id,
-            observation.create_date = datetime.now(),
-            observation.update_date = datetime.now()
+        if form.advmode.data:
+            save_advanced_form_data(form)
         else:
-            for error in error_msgs:
-                flash(error, 'form-error')
-        db.session.add(observation)
-        db.session.commit()
-        flash('Observation successfully created', 'form-success')
+            save_basic_form_data(form)
     return render_template('main/observation/observation_new.html', form=form)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])

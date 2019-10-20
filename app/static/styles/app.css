@@ -36,6 +36,10 @@ table.selectable tr:hover {
   padding: .1em .25em;
 }
 
+.initially-hidden {
+	display: none;
+}
+
 img[alt$="<"] {
   float: left;
   margin-right: 20px;
@@ -53,3 +57,4 @@ img[alt$="<"] {
     display: none !important;
   }
 }
+

@@ -13,6 +13,11 @@
             </a>
             <h2 class="ui header">
                 Add New Observation
+                <div class="ui right floated buttons">
+                  <button class="ui button active mode-basic">Basic</button>
+                  <div class="or"></div>
+                  <button class="ui button mode-advanced">Advanced</button>
+                </div>
             </h2>
 
             {% set flashes = {
@@ -23,58 +28,67 @@
 
             {{ f.begin_form(form, flashes) }}
 
-                <div class="two fields">
-                    <div class="field">
-                        <label for="odate">Date</label>
-                        <div class="ui calendar" id="odate">
-                          <div class="ui input left icon">
-                            <i class="calendar icon"></i>
-                            <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
-                          </div>
+                <input id="advmode" type="hidden" value="false">
+
+                {{ f.render_form_field(form.omd_content, extra_classes='initially-hidden edit-advanced') }}
+
+                <div class="edit-basic">
+
+                    {{ f.render_form_field(form.title) }}
+
+                    <div class="two fields">
+                        <div class="field">
+                            <label for="odate">Date</label>
+                            <div class="ui calendar" id="odate">
+                              <div class="ui input left icon">
+                                <i class="calendar icon"></i>
+                                <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text">
+                              </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                          {{ form.rating.label }}
+                          <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
+                          {{ form.rating() }}
                         </div>
                     </div>
 
-                    <div class="field">
-                      {{ form.rating.label }}
-                      <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
-                      {{ form.rating() }}
-                    </div>
-                </div>
 
-                {{ f.render_form_field(form.omd_content) }}
+                    {{ f.render_form_field(form.notes) }}
 
-                {{ f.render_form_field(form.notes) }}
-
-                <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-                    <div class="ui blue segment">
-                        <div class="ui tiny header">Items</div>
-                    </div>
-                    {% for item in form.items %}
-                        <div class="ui black segment" data-toggle="fieldset-entry" {% if loop.index0 == 0 %}style="display:none;"{% endif %}>
-                            <div class="two fields">
-                                {{ f.render_form_field(item.deepsky_object_id_list, extra_classes="fourteen wide field") }}
-                                <div class="field">
-                                    <label for="otime-{{loop.index0}}-tm">Time</label>
-                                    <div class="ui calendar" id="otime-{{loop.index0}}-tm">
-                                      <div class="ui input left icon">
-                                        <i class="calendar icon"></i>
-                                        <input id="items-{{loop.index0}}-date_time" name="{{item.date_time.name}}" placeholder="Date" type="text">
-                                      </div>
+                    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+                        <div class="ui blue segment">
+                            <div class="ui tiny header">Items</div>
+                        </div>
+                        {% for item in form.items %}
+                            <div class="ui black segment" data-toggle="fieldset-entry" {% if loop.index0 == 0 %}style="display:none;"{% endif %}>
+                                <div class="two fields">
+                                    {{ f.render_form_field(item.deepsky_object_id_list, extra_classes="fourteen wide field") }}
+                                    <div class="field">
+                                        <label for="otime-{{loop.index0}}-tm">Time</label>
+                                        <div class="ui calendar" id="otime-{{loop.index0}}-tm">
+                                          <div class="ui input left icon">
+                                            <i class="calendar icon"></i>
+                                            <input id="items-{{loop.index0}}-date_time" name="{{item.date_time.name}}" placeholder="Date" type="text">
+                                          </div>
+                                        </div>
                                     </div>
                                 </div>
+                                {{ f.render_form_field(item.notes) }}
+                                <button id="item-{{loop.index0}}-remove" class="ui icon mini button" type="button" data-toggle="fieldset-remove-row">
+                                    <i class="trash icon"></i>
+                                </button>
                             </div>
-                            {{ f.render_form_field(item.notes) }}
-                            <button id="item-{{loop.index0}}-remove" class="ui icon mini button" type="button" data-toggle="fieldset-remove-row">
-                                <i class="trash icon"></i>
+                        {% endfor %}
+                        <div class="ui segment">
+                            <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
+                                <i class="plus icon"></i>
                             </button>
                         </div>
-                    {% endfor %}
-                    <div class="ui segment">
-                        <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
-                            <i class="plus icon"></i>
-                        </button>
                     </div>
                 </div>
+
                 {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
                 {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
                 {{ f.form_message(flashes['info'], header='Information', class='info') }}
@@ -101,10 +115,32 @@
                 }
             }
         });
+
+        $('.ui.rating').rating({
+            maxRating: 5,
+            onRate: function (rating) {
+                $('#rating').val(rating);
+            }
+        });
+
+        $('.ui.buttons .button').click(function() {
+            $(this).addClass('active').siblings().removeClass('active');
+            if ($(this).hasClass('mode-basic')) {
+                $('.edit-advanced').hide();
+                $('.edit-basic').show();
+                $('#advmode').attr('value', false)
+            } else {
+                $('.edit-advanced').show();
+                $('.edit-basic').hide();
+                $('#advmode').attr('value', true)
+            }
+        });
+
         var contentMDE = new EasyMDE({element: document.getElementById('omd_content'),
                 minHeight: "500px",
                 spellChecker: false,
-            });
+        });
+
         $(function() {
             $("div[data-toggle=fieldset]").each(function() {
                 var $this = $(this);

@@ -23,7 +23,8 @@ from wtforms.validators import (
     InputRequired,
     Length,
     NumberRange,
-    required
+    Optional,
+    required,
 )
 
 DEFAULT_OBSERVATION_CONTENT = '''
@@ -49,20 +50,26 @@ Observation item1 notes
 '''
 
 class ObservationItemNewForm(FlaskForm):
-    deepsky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[required()])
+    deepsky_object_id_list = StringField('Deepsky object list (separated by \';\')', validators=[Optional(), required()])
     date_time = TimeField('Time', format = '%H:%M', default = datetime.now())
     notes = TextAreaField('Notes', render_kw={'rows':2})
 
 class ObservationNewForm(FlaskForm):
+    items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
+    title = StringField('Title', validators=[Length(max=256)])
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now())
-    rating = HiddenField('Rating', default=1)
-    omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')))
-    notes = TextAreaField('Notes', validators=[required()])
+    rating = HiddenField('Rating', default=5)
+    omd_content = TextAreaField('OMD Content',
+                                default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')),
+                                validators=[Optional(),required()]
+                                )
+    notes = TextAreaField('Notes')
     submit = SubmitField('Add')
+    advmode = HiddenField('Advanced Mode', default=False)
 
 class ObservationEditForm(FlaskForm):
     date = DateField('Date', id='datepick')
-    rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
+    rating = IntegerField('Rating', default=5, validators=[Optional(), NumberRange(min=0, max=10)])
     omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%d/%m/%Y')))
     notes = TextAreaField('OMD Content')
     submit = SubmitField('Update')

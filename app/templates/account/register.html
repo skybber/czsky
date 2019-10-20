@@ -9,7 +9,7 @@
 
             {% set flashes = {
                 'error':   get_flashed_messages(category_filter=['form-error']),
-                'warning': get_flashed_messages(category_filter=['form-check-email']),
+                'warning': get_flashed_messages(category_filter=['form-warning']),
                 'info':    get_flashed_messages(category_filter=['form-info']),
                 'success': get_flashed_messages(category_filter=['form-success'])
             } %}
