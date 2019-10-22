@@ -58,6 +58,7 @@ class ObservationNewForm(FlaskForm):
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField('Title', validators=[Length(max=256)])
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.now(), validators=(Optional(),))
+    location = StringField('Location', validators=[Length(max=128)])
     rating = HiddenField('Rating', default=5)
     omd_content = TextAreaField('OMD Content',
                                 default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')),
@@ -65,7 +66,7 @@ class ObservationNewForm(FlaskForm):
                                 )
     notes = TextAreaField('Notes')
     submit = SubmitField('Add')
-    advmode = HiddenField('Advanced Mode', default=False)
+    advmode = HiddenField('Advanced Mode', default='false')
 
 class ObservationEditForm(FlaskForm):
     date = DateField('Date', id='datepick')

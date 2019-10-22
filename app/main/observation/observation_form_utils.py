@@ -15,8 +15,8 @@ def save_basic_form_data(form):
         user_id = current_user.id,
         title = form.title.data,
         date = form.date.data,
+        txt_location_name = 'TODO',
         rating = form.rating.data,
-        location = form.location.data,
         notes = form.notes.data,
         create_by = current_user.id,
         update_by = current_user.id,
@@ -24,7 +24,7 @@ def save_basic_form_data(form):
         update_date = datetime.now()
         )
 
-    for item_form in form.items:
+    for item_form in form.items[1:]:
         item = ObservationItem(
             observation_id = observation.id,
             date_time = item_form.date_time.data,

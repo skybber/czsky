@@ -57,7 +57,7 @@ def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
     if form.validate_on_submit():
-        if form.advmode.data:
+        if form.advmode.data == 'true':
             save_advanced_form_data(form)
         else:
             save_basic_form_data(form)

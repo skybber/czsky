@@ -36,7 +36,7 @@
 
                     {{ f.render_form_field(form.title) }}
 
-                    <div class="two fields">
+                    <div class="three fields">
                         <div class="field">
                             <label for="odate">Date</label>
                             <div class="ui calendar" id="odate">
@@ -48,6 +48,10 @@
                         </div>
 
                         <div class="field">
+                            {{ f.render_form_field(form.location) }}
+                        </div>
+
+                        <div class="compact field">
                           {{ form.rating.label }}
                           <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
                           {{ form.rating() }}
@@ -128,11 +132,11 @@
             if ($(this).hasClass('mode-basic')) {
                 $('.edit-advanced').hide();
                 $('.edit-basic').show();
-                $('#advmode').attr('value', false)
+                $('#advmode').attr('value', 'false')
             } else {
                 $('.edit-advanced').show();
                 $('.edit-basic').hide();
-                $('#advmode').attr('value', true)
+                $('#advmode').attr('value', 'true')
             }
         });
 
