@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="ui stackable grid container">
-        <div class="sixteen wide tablet twelve wide computer centered column">
+        <div class="fourteen wide tablet fourteen wide computer column">
             <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
                 <i class="caret left icon"></i>
                 Back to dashboard
@@ -28,18 +28,18 @@
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Title</th>
                             <th>Location</th>
                             <th>Rating</th>
-                            <th>Notes</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for o in observations | sort(attribute='date') %}
                         <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
-                            <td>{{ o.date }}</td>
+                            <td>{{ o.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ o.title[:64] }}</td>
                             <td>{{ o.location.name if o.location else '' }}</td>
                             <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
-                            <td>{{ o.notes[:100] }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

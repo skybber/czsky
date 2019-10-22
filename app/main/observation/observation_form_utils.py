@@ -45,13 +45,13 @@ def save_basic_form_data(form):
     flash('Observation successfully created', 'form-success')
 
 def save_advanced_form_data(form):
-    observation, warn_msgs, error_msgs = parse_observation(form.notes.data)
+    observation, warn_msgs, error_msgs = parse_observation(form.omd_content.data)
     if observation:
-        observation.user_id = current_user.id,
-        observation.omd_content = form.omd_content.data,
-        observation.create_by = current_user.id,
-        observation.update_by = current_user.id,
-        observation.create_date = datetime.now(),
+        observation.user_id = current_user.id
+        observation.omd_content = form.omd_content.data
+        observation.create_by = current_user.id
+        observation.update_by = current_user.id
+        observation.create_date = datetime.now()
         observation.update_date = datetime.now()
         db.session.add(observation)
         db.session.commit()

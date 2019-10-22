@@ -48,7 +48,8 @@ def observation_info(observation_id):
         abort(404)
     if observation.user_id != current_user.id:
         abort(404)
-    return render_template('main/observation/observation_info.html', observation=observation, type='info')
+    type = request.args.get('type', type=str, default='info')
+    return render_template('main/observation/observation_info.html', observation=observation, type=type)
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])
 @login_required
@@ -83,13 +84,3 @@ def observation_edit(observation_id):
         flash('Observation successfully updated', 'form-success')
     return render_template('main/observation/observation_edit.html', form=form)
 
-@main_observation.route('/observation/<int:observation_id>/sqm', methods=['GET'])
-@login_required
-def observation_sqm(observation_id):
-    """View a observation sqm."""
-    observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
-    return render_template('main/observation/observation_info.html', observation=observation, type='sqm')

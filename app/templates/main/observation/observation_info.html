@@ -2,15 +2,16 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_observation.observation_info', 'Observation'),
-    ('main_observation.observation_sqm', 'SQM (TODO)'),
+    ('main_observation.observation_info', 'Observation', 'info'),
+    ('main_observation.observation_info', 'Items', 'items'),
+    ('main_observation.observation_info', 'SQM (TODO)', 'sqm'),
 ] %}
 
 {% macro navigation(items) %}
     <div class="ui vertical fluid secondary menu">
-        {% for route, name in items %}
+        {% for route, name, type in items %}
             {% set href = url_for(route, observation_id=observation.id) %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}?type={{ type }}">
                 {{ name }}
             </a>
         {% endfor %}
@@ -19,11 +20,29 @@
 
 {% macro observation_info(observation) %}
     <table class="ui compact definition table">
-        <tr><td>Date</td><td>{{ observation.date }}</td></tr>
+        <tr><td>Date</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
         <tr><td>Location</td><td>{{ observation.location.name if observation.location else '' }}</td></tr>
-        <tr><td>Notes</td><td>{{ observation.notes }}</td></tr>
+        <tr>
+            <td>Notes</td>
+            <td>
+                {% filter commonmark %}
+{{ observation.notes }}
+                {% endfilter %}
+            </td>
+        </tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
     </table>
+{% endmacro %}
+
+{% macro observation_items(observation) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+        {% filter commonmark %}
+            {% for item in observation.observation_items | sort(attribute='date_time') %}
+## {{ item.txt_deepsky_objects }}
+{{ item.notes }}
+            {% endfor %}
+        {% endfilter %}
+    </div>
 {% endmacro %}
 
 {% macro observation_sqm(observation) %}
@@ -37,7 +56,7 @@
                 Back to observations
             </a>
             <h2 class="ui header">
-                {{ observation.date }}
+                {{ observation.title }}
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
@@ -47,6 +66,8 @@
             <div class="eight wide column">
                 {% if type == 'info' %}
                     {{ observation_info(observation) }}
+                {% elif type == 'items' %}
+                    {{ observation_items(observation) }}
                 {% elif type == 'sqm' %}
                     {{ observation_sqm(observation) }}
                 {% endif %}

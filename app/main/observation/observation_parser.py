@@ -1,10 +1,13 @@
 import re
+
 from datetime import datetime
+from dateutil import parser as date_parser
 
 from app.models import Observation, ObservationItem, DeepskyObject
 from app.commons import normalize_dso_name
 
-OBS_ITEM_HEADER = r'# (.*)'
+
+OBS_ITEM_HEADER = r'## (.*)'
 
 class ParseException(Exception):
     pass
@@ -53,7 +56,7 @@ def _read_line(ctx, expected=None, expected_descr = None, mandatory=False):
 
 def _read_until(ctx, expected):
     txt = ''
-    while not ctx.at_end():
+    while not ctx.is_end():
         if re.fullmatch(expected, ctx.get_line()):
             break
         txt += ctx.get_line() + '\n'
@@ -62,33 +65,52 @@ def _read_until(ctx, expected):
 
 def _read_line_gen(ctx, expected):
     m = _read_line(ctx, expected)
-    if m:
+    while m:
         yield m
+        m = _read_line(ctx, expected)
 
 def add_global_var(ctx, var, value):
+    if var == 'date':
+        try:
+            ctx.observation.date = date_parser.parse(value)
+        except ValueError as e:
+            ctx.add_error('Invalid format for date:' + value + ' Expected yyyy-mm-dd or yyyy/mm/dd.')
+    elif var == 'location':
+        ctx.observation.txt_location_name = value
+        # TODO: assign existing location
+    elif var == 'seeing':
+        pass
+    else:
+        m = re.fullmatch(r'(sqm\d+)', var)
+        if m:
+            pass
+
     pass
 
-def _read_header(ctx, it):
-    _read_empty_lines(ctx)
-    _read_line(ctx, expected='---', mandatory=True)
-    for m in _read_line_gen(ctx, expected=r'(\w+)\s*:\s*(.*)\s*'):
-        add_global_var(ctx, m.group(1), m.group(2))
-    _read_line(ctx, expected='---', mandatory=True)
-
-def _read_observation(ctx):
+def _read_observation_title(ctx):
     _read_empty_lines(ctx)
     m = _read_line(ctx, expected=r'# (.*)', mandatory=True)
     ctx.observation.title = m.group(1)
+
+def _read_header(ctx):
+    _read_empty_lines(ctx)
+    for m in _read_line_gen(ctx, expected=r'(\w+)\s*:\s*(.*)\s*'):
+        add_global_var(ctx, m.group(1), m.group(2))
+
+def _read_observation(ctx):
+    _read_empty_lines(ctx)
     ctx.observation.notes = _read_until(ctx, expected=OBS_ITEM_HEADER)
 
 def _parse_time(ctx, stime):
-    m = re.match(r'\s*T\((\d\d?:\d\d)\)\s*:?\s*')
+    m = re.match(r'\s*T\((\d\d?:\d\d)\)\s*:?\s*', stime)
     if not m:
         ctx.add_error('Observation time in format \'T(HH:MM)\' expected.')
         return None
+    if not ctx.observation.date:
+        return None
     return datetime.combine(ctx.observation.date, datetime.strptime(m.group(1),"%H:%M").time())
 
-def _parse_observation_item_header(txt):
+def _parse_observation_item_header(ctx, txt):
     parts = txt.split(':', 1)
     dso_names = parts[0].split(',')
     norm_names = []
@@ -96,7 +118,7 @@ def _parse_observation_item_header(txt):
         norm_names.append(normalize_dso_name(name))
     date_time = None
     if len(parts) > 1:
-        date_time = _parse_time(parts[1])
+        date_time = _parse_time(ctx, parts[1])
         pass
     else:
         date_time = None
@@ -105,9 +127,9 @@ def _parse_observation_item_header(txt):
 def _read_observation_item(ctx):
     m = _read_line(ctx, expected=OBS_ITEM_HEADER)
     if m:
-        deepsky_objects, date_time = _parse_observation_item_header(m.group(1))
+        deepsky_objects, date_time = _parse_observation_item_header(ctx, m.group(1))
         notes = _read_until(ctx, expected=OBS_ITEM_HEADER)
-        observation_item = ObservationItem(date_time=date_time, deepsky_objects=','.join(deepsky_objects), notes=notes)
+        observation_item = ObservationItem(date_time=date_time, txt_deepsky_objects=','.join(deepsky_objects), notes=notes)
         ctx.observation.observation_items.append(observation_item)
         for dso_name in deepsky_objects:
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
@@ -121,6 +143,7 @@ def _read_observation_item(ctx):
 def parse_observation(text):
     ctx = ParserContext(list(map(str.strip, text.strip().splitlines())))
     try:
+        _read_observation_title(ctx)
         _read_header(ctx)
         _read_observation(ctx)
         while _read_observation_item(ctx):
