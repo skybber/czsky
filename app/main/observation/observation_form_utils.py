@@ -9,6 +9,7 @@ from app import db
 
 from app.models import DeepskyObject, Observation, ObservationItem
 from .observation_parser import parse_observation
+from app.commons.dso_utils import normalize_dso_name
 
 def save_basic_form_data(form):
     observation = Observation(
@@ -25,15 +26,20 @@ def save_basic_form_data(form):
         )
 
     for item_form in form.items[1:]:
+        item_time = datetime.combine(observation.date, item_form.date_time.data)
         item = ObservationItem(
             observation_id = observation.id,
-            date_time = item_form.date_time.data,
-            deepsky_objects = item_form.deepsky_object_id_list.data,
-            notes = item_form.notes
+            date_time = item_time,
+            txt_deepsky_objects = item_form.deepsky_object_id_list.data,
+            notes = item_form.notes.data
             )
-        observation.observation_items.add(item)
+        observation.observation_items.append(item)
 
-        for dso_name in item.deepsky_objects.split(','):
+        dsos = item.txt_deepsky_objects
+        if ':' in dsos:
+            dsos = dsos[:dsos.index(':')]
+        for dso_name in dsos.split(','):
+            dso_name = normalize_dso_name(dso_name)
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
             if dso:
                 item.deepsky_objects.append(dso)

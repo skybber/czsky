@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask import (
+    abort,
     Blueprint,
     flash,
     render_template,
@@ -56,7 +57,7 @@ def observation_info(observation_id):
 def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         if form.advmode.data == 'true':
             save_advanced_form_data(form)
         else:
@@ -73,7 +74,7 @@ def observation_edit(observation_id):
     if observation.user_id != current_user.id:
         abort(404)
     form = ObservationEditForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
         observation.date = form.date.data,
         observation.rating = form.rating.data,
         observation.notes = form.notes.data,
