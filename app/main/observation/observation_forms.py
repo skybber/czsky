@@ -39,8 +39,8 @@ Observation item1 notes
 '''
 
 class ObservationItemNewForm(FlaskForm):
-    deepsky_object_id_list = StringField('DSO list optionally with comment. (e.g. M3,M5:nice globular!)')
-    date_time = TimeField('Time', format = '%H:%M', default = datetime.now().time(), validators=[Optional(),])
+    deepsky_object_id_list = StringField('DSO list optionally with comment. (e.g. M3,M5:nice globulars!)')
+    date_time = TimeField('Time', format = '%H:%M', default = datetime.now().time())
     notes = TextAreaField('Notes', render_kw={'rows':2})
 
     def validate_deepsky_object_id_list(form, field):
@@ -65,7 +65,7 @@ class ObservationItemNewForm(FlaskForm):
 class ObservationMixin():
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField('Title', validators=[InputRequired(), Length(max=256),])
-    date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.today, validators=(InputRequired(),))
+    date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
     location = StringField('Location', validators=[Length(max=128),InputRequired()])
     rating = HiddenField('Rating', default=0)
     notes = TextAreaField('Notes')
