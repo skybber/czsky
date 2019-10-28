@@ -10,13 +10,16 @@
             </a>
             <h2 class="ui header">
                 {{ observation.title }}
+                <a class="ui icon right floated mini button" href="{{ url_for('main_observation.observation_edit', observation_id=observation.id) }}">
+                    <i class="caret edit icon"></i>
+                </a>
             </h2>
 
             <table class="ui compact definition table">
-                <tr><td>Date</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
-                <tr><td>Location</td><td>{{ observation.location.name if observation.location else '' }}</td></tr>
+                <tr><td class="two wide">Date</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="two wide">Location</td><td>{{ observation.location.name if observation.location else '' }}</td></tr>
                 <tr>
-                    <td>Notes</td>
+                    <td class="two wide">Notes</td>
                     <td>
                         {% filter commonmark %}
 {{ observation.notes }}
@@ -25,11 +28,11 @@
                 </tr>
                 <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
             </table>
-            <table class="ui compact definition table">
+            <table class="ui compact definition2c table">
                 {% for item in observation.observation_items | sort(attribute='date_time') %}
                 <tr>
-                    <td><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
-                    <td>{{ item.date_time.strftime('%H:%M') }}</td>
+                    <td class="one wide"><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
+                    <td class="one wide">{{ item.date_time.strftime('%H:%M') }}</td>
                     <td>
                             {% filter commonmark %}
 {{ item.notes_to_html() }}

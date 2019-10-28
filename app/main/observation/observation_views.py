@@ -14,6 +14,7 @@ from app import db
 from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
+    ObservationItemNewForm,
 )
 
 from app.models import Observation
@@ -58,10 +59,10 @@ def new_observation():
     form = ObservationNewForm()
     if request.method == 'POST' and form.validate_on_submit():
         if form.advmode.data == 'true':
-            save_advanced_form_data(form)
+            create_from_advanced_form(form)
         else:
-            save_basic_form_data(form)
-    return render_template('main/observation/observation_new.html', form=form)
+            create_from_basic_form(form)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=True)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -73,14 +74,24 @@ def observation_edit(observation_id):
     if observation.user_id != current_user.id:
         abort(404)
     form = ObservationEditForm()
-    if request.method == 'POST' and form.validate_on_submit():
-        observation.date = form.date.data,
-        observation.rating = form.rating.data,
-        observation.notes = form.notes.data,
-        observation.update_by = current_user.id,
-        observation.update_date = datetime.now()
-        db.session.add(observation)
-        db.session.commit()
-        flash('Observation successfully updated', 'form-success')
-    return render_template('main/observation/observation_edit.html', form=form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            if form.advmode.data == 'true':
+                update_from_advanced_form(form, observation)
+            else:
+                update_from_basic_form(form, observation)
+    else:
+        form.title.data = observation.title
+        form.date.data = observation.date
+        form.location.data = observation.txt_location_name
+        form.rating.data = observation.rating
+        form.notes.data = observation.notes
+        form.omd_content.data = observation.omd_content
+        for oi in observation.observation_items:
+            oif = form.items.append_entry()
+            oif.deepsky_object_id_list.data = oi.txt_deepsky_objects
+            oif.date_time.data = oi.date_time
+            oif.notes.data = oi.notes
+
+    return render_template('main/observation/observation_edit.html', form=form, is_new=False)
 

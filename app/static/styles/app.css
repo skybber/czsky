@@ -77,3 +77,60 @@ img[alt$="<"] {
     font-size: 110%;
     line-height: 110%;
 }
+
+/*--------------
+   Definition
+---------------*/
+
+.ui.definition2c.table > thead:not(.full-width) > tr > th:first-child,
+.ui.definition2c.table > thead:not(.full-width) > tr > th:nth-child(2) {
+  pointer-events: none;
+  background: #FFFFFF;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: -0.1em -0.2em 0 0.1em #FFFFFF;
+          box-shadow: -0.1em -0.2em 0 0.1em #FFFFFF;
+  -moz-transform: scale(1);
+}
+
+.ui.definition2c.table > tfoot:not(.full-width) > tr > th:first-child,
+.ui.definition2c.table > tfoot:not(.full-width) > tr > th:nth-child(2) {
+  pointer-events: none;
+  background: #FFFFFF;
+  font-weight: normal;
+  color: rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: -0.1em 0.2em 0 0.1em #FFFFFF;
+          box-shadow: -0.1em 0.2em 0 0.1em #FFFFFF;
+  -moz-transform: scale(1);
+}
+
+/* Highlight Defining Column */
+.ui.definition2c.table > tr > td:first-child:not(.ignored),
+.ui.definition2c.table > tbody > tr > td:first-child:not(.ignored),
+.ui.definition2c.table > tr > td:nth-child(2):not(.ignored),
+.ui.definition2c.table > tbody > tr > td:nth-child(2):not(.ignored),
+.ui.definition2c.table tr td.definition {
+  background: rgba(0, 0, 0, 0.03);
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.95);
+  text-transform: '';
+  -webkit-box-shadow: '';
+          box-shadow: '';
+  text-align: '';
+  font-size: 1em;
+  padding-left: '';
+  padding-right: '';
+}
+
+
+/* Fix 2nd Column */
+.ui.definition2c.table > thead:not(.full-width) > tr > th:nth-child(3) {
+  border-left: 1px solid rgba(34, 36, 38, 0.15);
+}
+.ui.definition2c.table > tfoot:not(.full-width) > tr > th:nth-child(3) {
+  border-left: 1px solid rgba(34, 36, 38, 0.15);
+}
+.ui.definition2c.table > tr > td:nth-child(3),
+.ui.definition2c.table > tbody > tr > td:nth-child(3) {
+  border-left: 1px solid rgba(34, 36, 38, 0.15);
+}
