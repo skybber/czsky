@@ -28,8 +28,8 @@
             <table class="ui compact definition table">
                 {% for item in observation.observation_items | sort(attribute='date_time') %}
                 <tr>
-                    <td>{{ item.date_time.strftime('%H:%M') }}</td>
                     <td><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
+                    <td>{{ item.date_time.strftime('%H:%M') }}</td>
                     <td>
                             {% filter commonmark %}
 {{ item.notes_to_html() }}
