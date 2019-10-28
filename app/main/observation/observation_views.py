@@ -49,8 +49,7 @@ def observation_info(observation_id):
         abort(404)
     if observation.user_id != current_user.id:
         abort(404)
-    type = request.args.get('type', type=str, default='info')
-    return render_template('main/observation/observation_info.html', observation=observation, type=type)
+    return render_template('main/observation/observation_info.html', observation=observation)
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])
 @login_required

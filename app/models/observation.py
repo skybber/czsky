@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .. import db
 
-from .deepskyobject import DeepskyObject
+from app.commons.observation_utils import deepsky_objects_to_html, astro_text_to_html
 
 class Observation(db.Model):
     __tablename__ = 'observations'
@@ -40,3 +40,15 @@ class ObservationItem(db.Model):
     txt_deepsky_objects = db.Column(db.Text)
     notes = db.Column(db.Text)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_item_association_table)
+
+    def deepsky_objects_to_html(self):
+        dso_list = self.txt_deepsky_objects.split(':')[0]
+        return deepsky_objects_to_html(self.observation_id, dso_list)
+
+    def notes_to_html(self):
+        descr = self.txt_deepsky_objects.split(':')
+        if len(descr) > 1 and descr[1]:
+            text = descr[1]
+        else:
+            text = self.notes
+        return astro_text_to_html(self.observation_id, text)

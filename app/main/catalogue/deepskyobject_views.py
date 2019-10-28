@@ -68,6 +68,7 @@ def deepskyobject_info(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
+    from_observation_id = request.args.get('from_observation_id')
     user_8mag = User.query.filter_by(email='8mag').first()
     user_descr = None
     if user_8mag:
@@ -76,7 +77,8 @@ def deepskyobject_info(dso_id):
                         .first()
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
-    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id,
+    return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr,
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            prev_dso=prev_dso, next_dso=next_dso, editable=editable)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
@@ -86,9 +88,11 @@ def deepskyobject_catalogue_data(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
+    from_observation_id = request.args.get('from_observation_id')
     prev_dso, next_dso = dso.get_prev_next_dso()
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
+                           prev_dso=prev_dso, next_dso=next_dso)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart')
 def deepskyobject_findchart(dso_id):
@@ -97,6 +101,7 @@ def deepskyobject_findchart(dso_id):
     if dso is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
+    from_observation_id = request.args.get('from_observation_id')
     prev_dso, next_dso = dso.get_prev_next_dso()
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
@@ -107,7 +112,8 @@ def deepskyobject_findchart(dso_id):
         p.wait()
     fchart = preview_url_dir + dso_dname + '.pdf'
     return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart,
-                           from_constellation_id=from_constellation_id, prev_dso=prev_dso, next_dso=next_dso)
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
+                           prev_dso=prev_dso, next_dso=next_dso)
 
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
@@ -140,5 +146,8 @@ def deepskyobject_edit(dso_id):
             flash('Observation successfully updated', 'form-success')
 
     from_constellation_id = request.args.get('from_constellation_id')
+    from_observation_id = request.args.get('from_observation_id')
 
-    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, user_descr=user_descr, from_constellation_id=from_constellation_id)
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, user_descr=user_descr,
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
+                           )
