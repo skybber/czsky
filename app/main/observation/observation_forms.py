@@ -69,10 +69,7 @@ class ObservationMixin():
     location = StringField('Location', validators=[Length(max=128),InputRequired()])
     rating = HiddenField('Rating', default=0)
     notes = TextAreaField('Notes')
-    omd_content = TextAreaField('OMD Content',
-                                default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')),
-                                validators=[Optional(),required()]
-                                )
+    omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
     advmode = HiddenField('Advanced Mode', default='false')
 
 class ObservationNewForm(FlaskForm, ObservationMixin):

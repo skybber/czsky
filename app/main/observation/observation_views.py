@@ -93,5 +93,5 @@ def observation_edit(observation_id):
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
 
-    return render_template('main/observation/observation_edit.html', form=form, is_new=False)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation)
 

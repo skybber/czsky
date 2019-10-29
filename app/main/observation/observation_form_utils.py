@@ -70,13 +70,13 @@ def create_from_advanced_form(form):
 
 
 def update_from_basic_form(form, observation):
-    observation.user_id = current_user.id,
-    observation.title = form.title.data,
-    observation.date = form.date.data,
-    observation.txt_location_name = form.location.data,
-    observation.rating = form.rating.data,
-    observation.notes = form.notes.data,
-    observation.update_by = current_user.id,
+    observation.user_id = current_user.id
+    observation.title = form.title.data
+    observation.date = form.date.data
+    observation.txt_location_name = form.location.data
+    observation.rating = form.rating.data
+    observation.notes = form.notes.data
+    observation.update_by = current_user.id
     observation.update_date = datetime.now()
     observation.observation_items.clear()
 
@@ -108,13 +108,13 @@ def update_from_basic_form(form, observation):
 def update_from_advanced_form(form, observation):
     updated_observation, warn_msgs, error_msgs = parse_observation(form.omd_content.data)
     if updated_observation:
-        observation.user_id = current_user.id,
-        observation.title = updated_observation.title,
+        observation.user_id = current_user.id
+        observation.title = updated_observation.title
         observation.date = updated_observation.date,
-        observation.rating = updated_observation.rating,
-        observation.notes = updated_observation.notes,
-        observation.omd_content = updated_observation.omd_content,
-        observation.update_by = current_user.id,
+        observation.rating = updated_observation.rating
+        observation.notes = updated_observation.notes
+        observation.omd_content = updated_observation.omd_content
+        observation.update_by = current_user.id
         observation.update_date = datetime.now(),
         observation.observation_items.clear()
         observation.observation_items.extend(updated_observation.observation_items)

@@ -7,10 +7,17 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
-                <i class="caret left icon"></i>
-                Back to dashboard
-            </a>
+            {% if is_new %}
+              <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                  <i class="caret left icon"></i>
+                  Back to dashboard
+              </a>
+            {% else %}
+              <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=observation.id) }}">
+                  <i class="caret left icon"></i>
+                Back to Observation Info
+              </a>
+            {% endif %}
             <h2 class="ui header">
                 {% if is_new %}
                     Add New Observation
