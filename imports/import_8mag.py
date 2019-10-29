@@ -3,6 +3,9 @@
 import sys, re, getopt, os, glob, pathlib, time, csv
 import sqlite3
 import hashlib
+import imghdr
+from shutil import copyfile
+
 from datetime import datetime
 
 from bs4 import BeautifulSoup
@@ -23,6 +26,9 @@ translator_stopped = False
 rating_map = { 'exponaty' : 10 , 'zaujimave_objekty' : 8, 'challange_objekty': 6, 'priemerne_objekty' : 4, 'asterismy' : 10}
 
 vic_catalogue = {}
+
+dso_img_map = {}
+files_for_remove = set()
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -122,7 +128,7 @@ def do_translate(translator, db_connection, ptext):
     return trans_text
 
 
-def extract_div_elem(translator, db_connection, div_elem):
+def extract_div_elem(translator, db_connection, div_elem, img_name=None):
     md_text = ''
     for elem in div_elem.find_all(['p', 'img']):
         if elem.name == 'p':
@@ -135,7 +141,26 @@ def extract_div_elem(translator, db_connection, div_elem):
             if src.startswith('./'):
                 src = src[2:]
             src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
-            md_text += '![<](/static/webassets-external/users/8mag/cons/' + src + ')\n'
+
+            if img_name and not img_name.startswith('ASTER_'):
+                img_type = imghdr.what('app/static/webassets-external/users/8mag/cons/' + src)
+                if img_type == 'jpeg':
+                    img_type = 'jpg'
+                cons_name = src[:src.find('/')]
+                pseudo_img_name = src[src.find('/') + 1:]
+                new_img_name = img_name
+                counter = 1
+                while new_img_name in dso_img_map and dso_img_map[new_img_name] != pseudo_img_name:
+                    new_img_name = img_name + '_' + str(counter)
+                    counter += 1
+                dso_img_map[new_img_name] = pseudo_img_name
+                if os.path.isfile('app/static/webassets-external/users/8mag/cons/' + src):
+                    files_for_remove.add('app/static/webassets-external/users/8mag/cons/' + src)
+                    copyfile('app/static/webassets-external/users/8mag/cons/' + src,
+                              'app/static/webassets-external/users/8mag/cons/' + cons_name + '/' + new_img_name + '.' + img_type)
+                md_text += '![<](/static/webassets-external/users/8mag/cons/' + cons_name + '/' + new_img_name + '.' + img_type + ')\n'
+            else:
+                md_text += '![<](/static/webassets-external/users/8mag/cons/' + src + ')\n'
     return md_text
 
 def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code, cons):
@@ -208,7 +233,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
             if dso_name:
                 t = None if dso_name.startswith('ASTER_') else translator
-                dso_text += extract_div_elem(t, db_connection, elem) + '\n\n'
+                dso_text += extract_div_elem(t, db_connection, elem, img_name = dso_name) + '\n\n'
                 found_objects[-1]['text'] = dso_text
 
     for m in found_objects:
@@ -364,4 +389,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
     if db_connection:
         db_connection.close()
+
+#     for f in files_for_remove:
+#         os.remove(f)
 
