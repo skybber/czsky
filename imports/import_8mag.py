@@ -147,13 +147,12 @@ def extract_div_elem(translator, db_connection, div_elem, img_name=None):
                 if img_type == 'jpeg':
                     img_type = 'jpg'
                 cons_name = src[:src.find('/')]
-                pseudo_img_name = src[src.find('/') + 1:]
                 new_img_name = img_name
                 counter = 1
-                while new_img_name in dso_img_map and dso_img_map[new_img_name] != pseudo_img_name:
+                while new_img_name in dso_img_map and dso_img_map[new_img_name] != src:
                     new_img_name = img_name + '_' + str(counter)
                     counter += 1
-                dso_img_map[new_img_name] = pseudo_img_name
+                dso_img_map[new_img_name] =src
                 if os.path.isfile('app/static/webassets-external/users/8mag/cons/' + src):
                     files_for_remove.add('app/static/webassets-external/users/8mag/cons/' + src)
                     copyfile('app/static/webassets-external/users/8mag/cons/' + src,
@@ -346,8 +345,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                 # md_text = '## ' + cons_name + '\n\n'
 
                 if not translator_stopped:
-                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'))
-                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'))
+                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'), cons.iau_code)
+                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'), cons.iau_code)
 
                     if not translator_stopped:
                         ucd = UserConsDescription(
@@ -365,8 +364,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
                         save_dso_descriptions(translator, soup, db_connection, user_8mag, 'cs', cons)
 
-                md_text = extract_div_elem(None, db_connection, soup.select_one('div.level1'))
-                md_text += extract_div_elem(None, db_connection, soup.select_one('div.level2'))
+                md_text = extract_div_elem(None, db_connection, soup.select_one('div.level1'), cons.iau_code)
+                md_text += extract_div_elem(None, db_connection, soup.select_one('div.level2'), cons.iau_code)
 
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
@@ -390,6 +389,6 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
     if db_connection:
         db_connection.close()
 
-#     for f in files_for_remove:
-#         os.remove(f)
+    for f in files_for_remove:
+        os.remove(f)
 
