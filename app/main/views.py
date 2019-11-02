@@ -20,8 +20,3 @@ def about():
     return render_template(
         'main/about.html', editable_html_obj=editable_html_obj)
 
-@main.route('/settings', methods=['GET', 'POST'])
-@login_required
-def settings():
-    return render_template('main/settings.html')
-

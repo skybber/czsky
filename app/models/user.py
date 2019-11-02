@@ -62,6 +62,9 @@ class User(UserMixin, db.Model):
     country_code = db.Column(db.String(2))
     is_hidden = db.Column(db.Boolean, default=False)
     is_disabled = db.Column(db.Boolean, default=False)
+    git_repository = db.Column(db.String(512))
+    git_username = db.Column(db.String(128))
+    git_password = db.Column(db.String(128))
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

@@ -1,6 +1,7 @@
 .webassets-cache/
 webassets-external/
 private_data/
+user_data/
 .DS_Store
 *.pyc
 *.pyo

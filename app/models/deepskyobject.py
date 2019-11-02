@@ -103,4 +103,3 @@ class UserDsoDescription(db.Model):
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))
-

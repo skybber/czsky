@@ -80,6 +80,8 @@ def create_app(config):
     app.register_blueprint(main_observation)
     from .main.skyquality import main_skyquality as main_skyquality
     app.register_blueprint(main_skyquality)
+    from .main.settings import main_settings as main_settings
+    app.register_blueprint(main_settings)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

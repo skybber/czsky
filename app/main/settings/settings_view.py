@@ -1,0 +1,43 @@
+from flask import (
+    Blueprint,
+    flash,
+    render_template,
+    request,
+)
+from flask_login import current_user, login_required
+
+from git import Repo
+
+from app.models import Permission, User
+from .gitstore import save_user_data_to_git, load_user_data_from_git
+
+main_settings = Blueprint('main_settings', __name__)
+
+ITEMS_PER_PAGE = 10
+
+@main_settings.route('/settings', methods=['GET'])
+@login_required
+def settings():
+    return render_template('main/settings/settings.html')
+
+@main_settings.route('/data-store', methods=['GET', 'POST'])
+@login_required
+def data_store():
+    if current_user.can(Permission.EDIT_COMMON_CONTENT):
+        user = User.query.filter_by(email='8mag').first()
+    else:
+        user = current_user
+
+    git_stored = False
+    git_restored = False
+
+    if request.method == 'POST':
+        if request.form['submit'] == 'store':
+            save_user_data_to_git(user)
+            flash('User data stored to git repository.', 'form-success')
+            git_stored = True
+        elif request.form['submit'] == 'restore':
+            load_user_data_from_git(user, current_user)
+            flash('User data reloaded from git repository.', 'form-success')
+            git_restored = True
+    return render_template('main/settings/data_store.html', git_url=user.git_repository, git_restored=git_restored, git_stored=git_stored)
