@@ -15,6 +15,7 @@ class UserConsDescription(db.Model):
     __tablename__ = 'user_cons_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), nullable=False)
+    constellation = db.relationship("Constellation")
     common_name = db.Column(db.String(256))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     lang_code = db.Column(db.String(2))
