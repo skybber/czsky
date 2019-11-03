@@ -176,7 +176,9 @@ def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8
             if ptext.startswith('**'):
                 end = ptext.find('**', 2)
                 name = ptext[2:end]
-                text = ptext[end + 2:]
+                text = ptext[end + 2:].strip()
+                if text.startswith('-'):
+                    text = text[1:].strip()
                 if len(text) > 0:
                     text = do_translate(translator, db_connection, text) + '\n\n'
                 usd = UserStarDescription(

@@ -11,7 +11,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, Permission, UserConsDescription, UserDsoDescription
+from app.models import User, Constellation, Permission, UserConsDescription, UserDsoDescription, UserStarDescription
 from app.commons.search_utils import process_session_search
 
 from .constellation_forms import (
@@ -55,6 +55,11 @@ def constellation_info(constellation_id):
 
         user_descr = ud.text if ud else None
 
+        star_descriptions = UserStarDescription.query.filter_by(user_id=user_8mag.id, lang_code = 'cs')\
+                .order_by(UserStarDescription.lang_code) \
+                .filter_by(constellation_id=constellation.id) \
+                .all()
+
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id)\
                 .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                 .order_by(UserDsoDescription.lang_code) \
@@ -71,7 +76,7 @@ def constellation_info(constellation_id):
 
     editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
-                           user_descr=user_descr, dso_descriptions=dso_descriptions, editable=editable)
+                           user_descr=user_descr, star_descriptions=star_descriptions, dso_descriptions=dso_descriptions, editable=editable)
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required

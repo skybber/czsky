@@ -30,6 +30,19 @@
                 {% filter commonmark %}
 {{ user_descr }}
                 {% endfilter %}
+                {% if star_descriptions %}
+                    <div class="markdown">
+                    {% for user_star_descr in star_descriptions %}
+                        {% filter commonmark %}
+                            {% if editable %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})** - {{ user_star_descr.text }}
+                            {% else %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})** - {{ user_star_descr.text }}
+                            {% endif %}
+                        {% endfilter %}
+                    {% endfor %}
+                    </div>
+                {% endif %}
             </div>
         </div>
         {% if dso_descriptions %}

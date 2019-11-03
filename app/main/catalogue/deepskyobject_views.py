@@ -143,7 +143,7 @@ def deepskyobject_edit(dso_id):
             user_descr.update_date = datetime.now()
             db.session.add(user_descr)
             db.session.commit()
-            flash('Observation successfully updated', 'form-success')
+            flash('Deepsky object successfully updated', 'form-success')
 
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')

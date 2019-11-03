@@ -82,6 +82,8 @@ def create_app(config):
     app.register_blueprint(main_skyquality)
     from .main.settings import main_settings as main_settings
     app.register_blueprint(main_settings)
+    from .main.catalogue import main_star as main_star
+    app.register_blueprint(main_star)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')
