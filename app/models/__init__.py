@@ -10,4 +10,5 @@ from .location import *
 from .miscellaneous import *
 from .observation import *
 from .skyquality import *
+from .star import *
 from .user import *

@@ -19,6 +19,7 @@ from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
 from app.models.deepskyobject import DeepskyObject, UserDsoDescription
+from app.models.star import UserStarDescription
 from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
 
@@ -166,6 +167,30 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
             else:
                 md_text += '![<](/static/webassets-external/users/8mag/' + subdir + src + ')\n'
     return md_text
+
+def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8mag, lang_code, cons):
+    for elem in div_elem.find_all('p'):
+        elem.find()
+        ptext = elem.text.strip()
+        if len(ptext) > 0:
+            if ptext.startswith('**'):
+                end = ptext.find('**', 2)
+                name = ptext[2:end]
+                text = ptext[end + 2:]
+                if len(text) > 0:
+                    text = do_translate(translator, db_connection, text) + '\n\n'
+                usd = UserStarDescription(
+                    constellation_id = cons.id,
+                    common_name = name,
+                    user_id = user_8mag.id,
+                    lang_code = lang_code,
+                    text = text,
+                    create_by = user_8mag.id,
+                    update_by = user_8mag.id,
+                    create_date = datetime.now(),
+                    update_date = datetime.now(),
+                )
+                db.session.add(usd)
 
 def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, lang_code, cons):
     # exponaty , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy'
@@ -351,7 +376,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
                 if not translator_stopped:
                     md_text = extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code, is_cons=True)
-                    md_text += extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code, is_cons=True)
+                    if not translator_stopped:
+                        save_star_descriptions(translator, db_connection, src_path, soup.select_one('div.level2'), user_8mag, 'cs', cons)
 
                     if not translator_stopped:
                         ucd = UserConsDescription(
@@ -370,7 +396,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                         save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 'cs', cons)
 
                 md_text = extract_div_elem(None, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code, is_cons=True)
-                md_text += extract_div_elem(None, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code, is_cons=True)
+                save_star_descriptions(None, db_connection, src_path, soup.select_one('div.level2'), user_8mag, 'sk', cons)
 
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
