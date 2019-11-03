@@ -6,6 +6,7 @@ import hashlib
 import imghdr
 from shutil import copyfile
 from os.path import join
+from pathlib import Path
 
 from datetime import datetime
 
@@ -128,7 +129,7 @@ def do_translate(translator, db_connection, ptext):
     return trans_text
 
 
-def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=None):
+def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=None, is_cons=False):
     md_text = ''
     for elem in div_elem.find_all(['p', 'img']):
         if elem.name == 'p':
@@ -142,6 +143,11 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
                 src = src[2:]
             src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
 
+            subdir = 'cons/' if is_cons else 'dso/'
+            static_path = '/static/webassets-external/users/8mag/img/'
+            path = Path('app' + static_path + subdir)
+            path.mkdir(parents=True, exist_ok=True)
+
             if img_name and not img_name.startswith('ASTER_'):
                 old_img_file = join(src_path, src)
                 img_type = imghdr.what(old_img_file)
@@ -153,12 +159,12 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
                     new_img_name = img_name + '_' + str(counter)
                     counter += 1
                 dso_img_map[new_img_name] =src
-                new_img_file = '/static/webassets-external/users/8mag/img/' + new_img_name + '.' + img_type
+                new_img_file = static_path + subdir +  new_img_name + '.' + img_type
                 if os.path.isfile(old_img_file):
                     copyfile(old_img_file, 'app/' + new_img_file)
                 md_text += '![<](' + new_img_file + ')\n'
             else:
-                md_text += '![<](/static/webassets-external/users/8mag/cons/' + src + ')\n'
+                md_text += '![<](/static/webassets-external/users/8mag/' + subdir + src + ')\n'
     return md_text
 
 def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, lang_code, cons):
@@ -344,8 +350,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                 # md_text = '## ' + cons_name + '\n\n'
 
                 if not translator_stopped:
-                    md_text = extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code)
-                    md_text += extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code)
+                    md_text = extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code, is_cons=True)
+                    md_text += extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code, is_cons=True)
 
                     if not translator_stopped:
                         ucd = UserConsDescription(
@@ -363,8 +369,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
                         save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 'cs', cons)
 
-                md_text = extract_div_elem(None, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code)
-                md_text += extract_div_elem(None, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code)
+                md_text = extract_div_elem(None, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code, is_cons=True)
+                md_text += extract_div_elem(None, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code, is_cons=True)
 
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
