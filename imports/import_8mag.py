@@ -5,6 +5,7 @@ import sqlite3
 import hashlib
 import imghdr
 from shutil import copyfile
+from os.path import join
 
 from datetime import datetime
 
@@ -28,7 +29,6 @@ rating_map = { 'exponaty' : 10 , 'zaujimave_objekty' : 8, 'challange_objekty': 6
 vic_catalogue = {}
 
 dso_img_map = {}
-files_for_remove = set()
 
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
@@ -128,7 +128,7 @@ def do_translate(translator, db_connection, ptext):
     return trans_text
 
 
-def extract_div_elem(translator, db_connection, div_elem, img_name=None):
+def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=None):
     md_text = ''
     for elem in div_elem.find_all(['p', 'img']):
         if elem.name == 'p':
@@ -143,26 +143,25 @@ def extract_div_elem(translator, db_connection, div_elem, img_name=None):
             src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
 
             if img_name and not img_name.startswith('ASTER_'):
-                img_type = imghdr.what('app/static/webassets-external/users/8mag/cons/' + src)
+                old_img_file = join(src_path, src)
+                img_type = imghdr.what(old_img_file)
                 if img_type == 'jpeg':
                     img_type = 'jpg'
-                cons_name = src[:src.find('/')]
                 new_img_name = img_name
                 counter = 1
                 while new_img_name in dso_img_map and dso_img_map[new_img_name] != src:
                     new_img_name = img_name + '_' + str(counter)
                     counter += 1
                 dso_img_map[new_img_name] =src
-                if os.path.isfile('app/static/webassets-external/users/8mag/cons/' + src):
-                    files_for_remove.add('app/static/webassets-external/users/8mag/cons/' + src)
-                    copyfile('app/static/webassets-external/users/8mag/cons/' + src,
-                              'app/static/webassets-external/users/8mag/cons/' + cons_name + '/' + new_img_name + '.' + img_type)
-                md_text += '![<](/static/webassets-external/users/8mag/cons/' + cons_name + '/' + new_img_name + '.' + img_type + ')\n'
+                new_img_file = '/static/webassets-external/users/8mag/img/' + new_img_name + '.' + img_type
+                if os.path.isfile(old_img_file):
+                    copyfile(old_img_file, 'app/' + new_img_file)
+                md_text += '![<](' + new_img_file + ')\n'
             else:
                 md_text += '![<](/static/webassets-external/users/8mag/cons/' + src + ')\n'
     return md_text
 
-def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code, cons):
+def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, lang_code, cons):
     # exponaty , 'zaujimave_objekty', 'challange_objekty', 'priemerne_objekty', 'asterismy'
     elems = soup.find_all( [ 'a', 'h4', 'div' ])
     part = None
@@ -232,7 +231,7 @@ def save_dso_descriptions(translator, soup, db_connection, user_8mag, lang_code,
         elif elem.name == 'div' and elem.has_attr('class') and 'level4' in elem['class']:
             if dso_name:
                 t = None if dso_name.startswith('ASTER_') else translator
-                dso_text += extract_div_elem(t, db_connection, elem, img_name = dso_name) + '\n\n'
+                dso_text += extract_div_elem(t, db_connection, src_path, elem, img_name = dso_name) + '\n\n'
                 found_objects[-1]['text'] = dso_text
 
     for m in found_objects:
@@ -345,8 +344,8 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                 # md_text = '## ' + cons_name + '\n\n'
 
                 if not translator_stopped:
-                    md_text = extract_div_elem(translator, db_connection, soup.select_one('div.level1'), cons.iau_code)
-                    md_text += extract_div_elem(translator, db_connection, soup.select_one('div.level2'), cons.iau_code)
+                    md_text = extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code)
+                    md_text += extract_div_elem(translator, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code)
 
                     if not translator_stopped:
                         ucd = UserConsDescription(
@@ -362,10 +361,10 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                             )
                         db.session.add(ucd)
 
-                        save_dso_descriptions(translator, soup, db_connection, user_8mag, 'cs', cons)
+                        save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 'cs', cons)
 
-                md_text = extract_div_elem(None, db_connection, soup.select_one('div.level1'), cons.iau_code)
-                md_text += extract_div_elem(None, db_connection, soup.select_one('div.level2'), cons.iau_code)
+                md_text = extract_div_elem(None, db_connection, src_path, soup.select_one('div.level1'), cons.iau_code)
+                md_text += extract_div_elem(None, db_connection, src_path, soup.select_one('div.level2'), cons.iau_code)
 
                 ucd = UserConsDescription(
                     constellation_id = cons.id,
@@ -379,7 +378,7 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
                     update_date = datetime.now(),
                     )
                 db.session.add(ucd)
-                save_dso_descriptions(None, soup, db_connection, user_8mag, 'sk', cons)
+                save_dso_descriptions(None, src_path, soup, db_connection, user_8mag, 'sk', cons)
                 try:
                     db.session.commit()
                 except IntegrityError:
@@ -388,7 +387,4 @@ def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
     if db_connection:
         db_connection.close()
-
-    for f in files_for_remove:
-        os.remove(f)
 
