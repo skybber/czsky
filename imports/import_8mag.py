@@ -22,7 +22,6 @@ from app.models.deepskyobject import DeepskyObject, UserDsoDescription
 from app.models.star import UserStarDescription
 from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
-from astropy.modeling import statistic
 
 translation_cnt = 0
 translator_stopped = False
