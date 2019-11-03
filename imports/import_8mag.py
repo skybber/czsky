@@ -22,6 +22,7 @@ from app.models.deepskyobject import DeepskyObject, UserDsoDescription
 from app.models.star import UserStarDescription
 from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
+from astropy.modeling import statistic
 
 translation_cnt = 0
 translator_stopped = False
@@ -148,9 +149,9 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
             static_path = '/static/webassets-external/users/8mag/img/'
             path = Path('app' + static_path + subdir)
             path.mkdir(parents=True, exist_ok=True)
+            old_img_file = join(src_path, src)
 
             if img_name and not img_name.startswith('ASTER_'):
-                old_img_file = join(src_path, src)
                 img_type = imghdr.what(old_img_file)
                 if img_type == 'jpeg':
                     img_type = 'jpg'
@@ -160,12 +161,15 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
                     new_img_name = img_name + '_' + str(counter)
                     counter += 1
                 dso_img_map[new_img_name] =src
-                new_img_file = static_path + subdir +  new_img_name + '.' + img_type
+                new_img_file = static_path + subdir + new_img_name + '.' + img_type
                 if os.path.isfile(old_img_file):
                     copyfile(old_img_file, 'app/' + new_img_file)
                 md_text += '![<](' + new_img_file + ')\n'
             else:
-                md_text += '![<](/static/webassets-external/users/8mag/' + subdir + src + ')\n'
+                new_img_file = static_path + subdir + src[src.rfind('/'):]
+                if os.path.isfile(old_img_file):
+                    copyfile(old_img_file, 'app/' + new_img_file)
+                md_text += '![<](' + new_img_file + ')\n'
     return md_text
 
 def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8mag, lang_code, cons):
