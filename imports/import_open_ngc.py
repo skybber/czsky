@@ -15,6 +15,8 @@ dso_type_mappings = {
     'GCl' : 'GC',
 }
 
+messier_others = {}
+
 def import_open_ngc(open_ngc_data_file):
     """Import data from OpenNGC catalog."""
     from sqlalchemy.exc import IntegrityError
@@ -70,9 +72,12 @@ def import_open_ngc(open_ngc_data_file):
                     descr = row['NED notes'],
                     )
                 ngc_ic_list.append(dso)
-                if row['M']:
+                if row['M'] or dso.name=='NGC5866':
+                    mes_id = row['M']
+                    if not mes_id:
+                        mes_id = '102'
                     mes_dso = DeepskyObject(
-                        name = 'M' + row['M'],
+                        name = 'M' + mes_id,
                         type = dso.type,
                         ra = dso.ra,
                         dec = dso.dec,
@@ -96,8 +101,60 @@ def import_open_ngc(open_ngc_data_file):
                         descr = dso.descr
                         )
                     dso.master_dso = mes_dso
-                    mes_dso.slave_dso = dso
+                    messier_others[mes_dso.name] = dso
                     messier_list.append(mes_dso)
+
+            m40 = DeepskyObject(
+                name = 'M040',
+                type = '**',
+                ra = Angle(hours=tuple(map(float, '12:22:16'.split(':')))).radians,
+                dec = Angle(degrees=tuple(map(float, '58:05:4'.split(':')))).radians,
+                constellation_id = constell_dict['UMa'],
+                catalogue_id = Catalogue.get_catalogue_id_by_cat_code('M'),
+                major_axis = 1.0,
+                minor_axis = None,
+                positon_angle = dso.positon_angle,
+                b_mag = None,
+                v_mag = 9.0,
+                j_mag = None,
+                h_mag = None,
+                k_mag = None,
+                surface_bright = None,
+                hubble_type =  None,
+                c_star_u_mag = None,
+                c_star_b_mag = None,
+                c_star_v_mag = None,
+                identifiers = None,
+                common_name = None,
+                descr = None
+                )
+            messier_list.append(m40)
+
+            m45 = DeepskyObject(
+                name = 'M045',
+                type = 'OC',
+                ra = Angle(hours=tuple(map(float, '03:47:0'.split(':')))).radians,
+                dec = Angle(degrees=tuple(map(float, '24:07:0'.split(':')))).radians,
+                constellation_id = constell_dict['Tau'],
+                catalogue_id = Catalogue.get_catalogue_id_by_cat_code('M'),
+                major_axis = 95.0,
+                minor_axis = 35.0,
+                positon_angle = dso.positon_angle,
+                b_mag = None,
+                v_mag = 3.1,
+                j_mag = None,
+                h_mag = None,
+                k_mag = None,
+                surface_bright = None,
+                hubble_type =  None,
+                c_star_u_mag = None,
+                c_star_b_mag = None,
+                c_star_v_mag = None,
+                identifiers = None,
+                common_name = 'Pleiades',
+                descr = None,
+                )
+            messier_list.append(m45)
 
             messier_list.sort(key=lambda x: x.name)
             line_cnt = 1
@@ -106,7 +163,8 @@ def import_open_ngc(open_ngc_data_file):
                 line_cnt += 1
                 db.session.add(mes_dso)
                 db.session.flush()
-                mes_dso.slave_dso.master_id = mes_dso.id
+                if mes_dso.name in messier_others:
+                    messier_others[mes_dso.name].master_id = mes_dso.id
             line_cnt = 1
             print('')
             for dso in ngc_ic_list:

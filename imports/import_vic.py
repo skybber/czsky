@@ -30,11 +30,10 @@ def import_vic(vic_data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         catalogue_id = Catalogue.get_catalogue_id_by_cat_code('VIC')
         row_id = 0
-        for row in reader:
-            row_id += 1
-            progress(row_id, row_count, 'Importing VIC catalogue')
-            try:
-#                 constellation = row['Const']
+        try:
+            for row in reader:
+                row_id += 1
+                progress(row_id, row_count, 'Importing VIC catalogue')
                 constellation = None
 
                 name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
@@ -64,11 +63,11 @@ def import_vic(vic_data_file):
                     descr = None,
                     )
                 db.session.add(c)
-                db.session.commit()
-            except KeyError as err:
-                print('\nKey error: {}'.format(err))
-                db.session.rollback()
-            except IntegrityError as err:
-                print('\nIntegrity error {}'.format(err))
-                db.session.rollback()
+            db.session.commit()
+        except KeyError as err:
+            print('\nKey error: {}'.format(err))
+            db.session.rollback()
+        except IntegrityError as err:
+            print('\nIntegrity error {}'.format(err))
+            db.session.rollback()
         print('') # finish on new line

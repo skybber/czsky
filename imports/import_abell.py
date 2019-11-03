@@ -24,8 +24,8 @@ def import_abell(abell_data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Abell')
         row_id = 0
-        for row in reader:
-            try:
+        try:
+            for row in reader:
                 progress(row_id, row_count, 'Importing Abell catalogue of planetary nebula')
                 row_id += 1
                 constellation = row['Const']
@@ -65,12 +65,12 @@ def import_abell(abell_data_file):
                     descr = None,
                     )
                 db.session.add(c)
-                db.session.commit()
-            except KeyError as err:
-                print('\nKey error: {}'.format(err))
-                db.session.rollback()
-            except IntegrityError as err:
-                print('\nIntegrity error {}'.format(err))
-                db.session.rollback()
+            db.session.commit()
+        except KeyError as err:
+            print('\nKey error: {}'.format(err))
+            db.session.rollback()
+        except IntegrityError as err:
+            print('\nIntegrity error {}'.format(err))
+            db.session.rollback()
 
         print('') # finish on new line

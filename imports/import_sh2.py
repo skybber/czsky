@@ -30,10 +30,10 @@ def import_sh2(sh2_data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         catalogue_id = Catalogue.get_catalogue_id_by_cat_code('SH2')
         row_id = 0
-        for row in reader:
-            progress(row_id, row_count, 'Importing Sh2 catalogue')
-            row_id += 1
-            try:
+        try:
+            for row in reader:
+                progress(row_id, row_count, 'Importing Sh2 catalogue')
+                row_id += 1
                 c = DeepskyObject(
                     name = row['NAME'],
                     type = 'Neb',
@@ -59,11 +59,11 @@ def import_sh2(sh2_data_file):
                     descr = None,
                     )
                 db.session.add(c)
-                db.session.commit()
-            except KeyError as err:
-                print('\nKey error: {}'.format(err))
-                db.session.rollback()
-            except IntegrityError as err:
-                print('\nIntegrity error {}'.format(err))
-                db.session.rollback()
+            db.session.commit()
+        except KeyError as err:
+            print('\nKey error: {}'.format(err))
+            db.session.rollback()
+        except IntegrityError as err:
+            print('\nIntegrity error {}'.format(err))
+            db.session.rollback()
         print('') # finish on new line
