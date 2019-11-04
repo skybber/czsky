@@ -101,6 +101,7 @@ def do_translate(translator, db_connection, ptext):
     trans_text = c[0] if c else None
     if trans_text:
         trans_text = fix_bold(trans_text)
+        trans_text = trans_text.replace('triedry', 'triedru').replace('zväčení', 'zvětšení')
         return trans_text
 
     if translator_stopped:
@@ -109,6 +110,7 @@ def do_translate(translator, db_connection, ptext):
     try:
         trans_text = translator.translate(ptext, src='sk', dest='cs').text
         trans_text = fix_bold(trans_text)
+        trans_text = trans_text.replace('triedry', 'triedru').replace('zväčení', 'zvětšení')
         translation_cnt += 1
         if translation_cnt >= 10:
             print('Sleeping for 10s after bulk translations...')
