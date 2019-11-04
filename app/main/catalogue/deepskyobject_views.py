@@ -133,6 +133,18 @@ def deepskyobject_edit(dso_id):
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
+        if not user_descr:
+            user_descr = UserDsoDescription(
+                dso_id = dso_id,
+                user_id = user_8mag.id,
+                rating = 5,
+                lang_code = 'cs',
+                common_name = '',
+                text = '',
+                cons_order = 1,
+                create_by = current_user.id,
+                create_date = datetime.now(),
+                )
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
