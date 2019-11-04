@@ -182,10 +182,10 @@ def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8
                 end = ptext.find('**', 2)
                 name = ptext[2:end]
                 text = ptext[end + 2:].strip()
-                if text.startswith('-'):
+                while text.startswith('–') or text.startswith('-'):
                     text = text[1:].strip()
                 if len(text) > 0:
-                    text = do_translate(translator, db_connection, text) + '\n\n'
+                    text = do_translate(translator, db_connection, text)
                 usd = UserStarDescription(
                     constellation_id = cons.id,
                     common_name = name,
@@ -287,7 +287,7 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                     dso.constellation_id = cons.id
                     db.session.add(dso)
 
-                    text = m['text'] + '\n\n'
+                    text = m['text'] + '\n'
                     text += '##### 10x50 : ' + vic_catalogue_row.get('10x50', '') + '\n'
                     text += '##### 15x70 :' + vic_catalogue_row.get('15x70', '') + '\n'
                     text += '##### 25x100 : ' + vic_catalogue_row.get('25x100', '') + '\n'

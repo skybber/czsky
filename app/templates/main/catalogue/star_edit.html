@@ -1,0 +1,53 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if from_constellation_id %}
+                <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
+                    <i class="caret left icon"></i>
+                    Back to constellation
+                </a>
+            {% else %}
+                <a class="ui basic compact button" href="{{ url_for('main_star.star_info', star_id=user_descr.id)}}">
+                    <i class="caret left icon"></i>
+                    Back To Star
+                </a>
+            {% endif %}
+            <h2 class="ui header">
+                {{ user_descr.common_name }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
+            {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
+            {{ f.form_message(flashes['info'], header='Information', class='info') }}
+            {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                {{ f.render_form_field(form.common_name) }}
+                {{ f.render_form_field(form.text) }}
+
+                {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                    {{ f.render_form_field(field) }}
+                {% endfor %}
+
+            {{ f.end_form() }}
+        </div>
+  </div>
+    <script type="text/javascript">
+        var contentMDE = new EasyMDE({element: document.getElementById('text'),
+                minHeight: "500px",
+                spellChecker: false,
+            });
+    </script>
+    <style>
+    </style>
+{% endblock %}
