@@ -49,6 +49,7 @@ def create_from_basic_form(form):
     db.session.add(observation)
     db.session.commit()
     flash('Observation successfully created', 'form-success')
+    return observation.id
 
 def create_from_advanced_form(form):
     observation, warn_msgs, error_msgs = parse_observation(form.omd_content.data)
@@ -64,9 +65,10 @@ def create_from_advanced_form(form):
         for warn in warn_msgs:
             flash(warn, 'form-warn')
         flash('Observation successfully created', 'form-success')
-    else:
-        for error in error_msgs:
-            flash(error, 'form-error')
+        return observation.id
+    for error in error_msgs:
+        flash(error, 'form-error')
+    return None
 
 
 def update_from_basic_form(form, observation):

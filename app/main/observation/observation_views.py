@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from flask import (
     abort,
     Blueprint,
-    flash,
+    url_for,
+    redirect,
     render_template,
     request,
 )
@@ -14,13 +13,12 @@ from app import db
 from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
-    ObservationItemNewForm,
 )
 
 from app.models import Observation
-from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
-from app.main.observation.observation_form_utils import *
+from .observation_form_utils import *
 
 main_observation = Blueprint('main_observation', __name__)
 
@@ -57,11 +55,14 @@ def observation_info(observation_id):
 def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
+    new_observation_id = None
     if request.method == 'POST' and form.validate_on_submit():
         if form.advmode.data == 'true':
-            create_from_advanced_form(form)
+            new_observation_id = create_from_advanced_form(form)
         else:
-            create_from_basic_form(form)
+            new_observation_id = create_from_basic_form(form)
+    if new_observation_id:
+        return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
     return render_template('main/observation/observation_edit.html', form=form, is_new=True)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
@@ -94,4 +95,15 @@ def observation_edit(observation_id):
             oif.notes.data = oi.notes
 
     return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation)
+
+@main_observation.route('/observation/<int:observation_id>/delete')
+@login_required
+def observation_delete(observation_id):
+    """Request deletion of a observation."""
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if observation is None:
+        abort(404)
+    db.session.delete(observation)
+    flash('Observation was deleted', 'form-success')
+    return redirect(url_for('main_observation.observations'))
 
