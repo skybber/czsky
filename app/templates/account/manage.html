@@ -4,9 +4,9 @@
 
 {% set endpoints = [
     ('account.manage', 'Account information'),
+    ('account.ssh_key_info', 'SSH key'),
     ('account.change_email_request', 'Change email address'),
     ('account.change_password', 'Change password'),
-    ('account.logout', 'Log out')
 ] %}
 
 {% macro navigation(items) %}
@@ -28,6 +28,23 @@
     </table>
 {% endmacro %}
 
+{% macro user_ssh_key_info(user, form) %}
+    {% set flashes = {
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+
+    {{ f.begin_form(form, flashes) }}
+    <div class="one field">
+        {{ form.ssh_public_key(readonly=True) }}
+    </div>
+    <div class="one field">
+        <a id="bssh" class="negative ui button" href="#">Create new SSH key.</a>
+    </div>
+    {{ f.end_form() }}
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
@@ -41,7 +58,9 @@
                 {{ navigation(endpoints) }}
             </div>
             <div class="eight wide column">
-                {% if form %}
+                {% if ssh_key_info %}
+                    {{ user_ssh_key_info(user, form) }}
+                {% elif form %}
                     {{ f.render_form(form, extra_classes='fluid') }}
                 {% else %}
                     {{ user_info(user) }}
@@ -50,4 +69,35 @@
         </div>
     </div>
     {{ check.password_check('new_password', 0) }}
+
+    {% if ssh_key_info %}
+        <div class="ui tiny modal sshCreateModal">
+          <div class="header">Create SSH key</div>
+          <div class="content">
+            <p>Are you sure you want to (re)create new SSH key?</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('account.ssh_key_create') }}">
+                Yes
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script>
+        {% if ssh_key_info %}
+            $('.ui.modal.sshCreateModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bssh').click(function() {
+                $('.ui.modal.sshCreateModal')
+                   .modal('show');
+            });
+        {% endif %}
+    </script>
+    </script>
 {% endblock %}

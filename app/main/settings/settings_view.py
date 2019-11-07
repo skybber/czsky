@@ -1,5 +1,6 @@
 from flask import (
     Blueprint,
+    current_app,
     flash,
     render_template,
     request,
@@ -24,7 +25,7 @@ def settings():
 @login_required
 def data_store():
     if current_user.can(Permission.EDIT_COMMON_CONTENT):
-        user = User.query.filter_by(email='8mag').first()
+        user = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     else:
         user = current_user
 

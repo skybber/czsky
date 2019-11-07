@@ -68,6 +68,7 @@ class Config:
     RQ_DEFAULT_DB = 0
 
     USER_DATA_DIR = os.environ.get('USER_DATA_DIR')
+    EDITOR_USER_NAME = os.environ.get('EDITOR_USER_NAME')
 
     @staticmethod
     def init_app(app):

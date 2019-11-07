@@ -337,7 +337,7 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
 
 def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
-    user_8mag = User.query.filter_by(email='8mag').first()
+    user_8mag = User.query.filter_by(user_name='8mag').first()
 
     if not user_8mag:
         print('User 8mag not found.')

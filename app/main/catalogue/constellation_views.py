@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     render_template,
     request,
@@ -46,7 +47,8 @@ def constellation_info(constellation_id):
         abort(404)
     user_descr = None
     dso_descriptions = None
-    user_8mag = User.query.filter_by(email='8mag').first()
+    star_descriptions = None
+    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     if user_8mag:
         ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id)\
                 .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
@@ -88,7 +90,7 @@ def constellation_edit(constellation_id):
     if not current_user.can(Permission.EDIT_COMMON_CONTENT):
         abort(403)
 
-    user_8mag = User.query.filter_by(email='8mag').first()
+    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
     form = ConstellationEditForm()
     if user_8mag:

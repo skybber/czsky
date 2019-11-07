@@ -6,6 +6,7 @@ from datetime import datetime
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     render_template,
     request,
@@ -69,7 +70,7 @@ def deepskyobject_info(dso_id):
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
-    user_8mag = User.query.filter_by(email='8mag').first()
+    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
     if user_8mag:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
@@ -126,7 +127,7 @@ def deepskyobject_edit(dso_id):
     if not current_user.can(Permission.EDIT_COMMON_CONTENT):
         abort(403)
 
-    user_8mag = User.query.filter_by(email='8mag').first()
+    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
     form = DeepskyObjectEditForm()
     if user_8mag:
