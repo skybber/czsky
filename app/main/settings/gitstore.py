@@ -39,7 +39,6 @@ def create_new_ssh_key(user):
 
 def save_user_data_to_git(owner):
     repository_path = get_repository_path(owner)
-    ssh_private_key_path = get_ssh_private_key_path(owner)
     files = []
     for d in UserDsoDescription.query.filter_by(user_id=owner.id):
         repo_file_name = os.path.join(d.lang_code,'dso', d.deepSkyObject.name + '.md')
@@ -77,7 +76,6 @@ def _read_line(f, expected=None, mandatory=False):
 
 def load_user_data_from_git(owner, editor):
     repository_path = get_repository_path(owner)
-    ssh_private_key_path = get_ssh_private_key_path(owner)
 
     repo = git.Repo(repository_path)
     with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command()):
