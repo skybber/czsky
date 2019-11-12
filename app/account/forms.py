@@ -25,12 +25,9 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
-    first_name = StringField(
-        'First name', validators=[InputRequired(),
-                                  Length(1, 64)])
-    last_name = StringField(
-        'Last name', validators=[InputRequired(),
-                                 Length(1, 64)])
+    full_name = StringField(
+        'Full name', validators=[InputRequired(),
+                                  Length(1, 256)])
     email = EmailField(
         'Email', validators=[InputRequired(),
                              Length(1, 64),
@@ -118,6 +115,3 @@ class ChangeEmailForm(FlaskForm):
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered.')
-
-class SSHKeyForm(FlaskForm):
-    ssh_public_key = TextAreaField('Public key')

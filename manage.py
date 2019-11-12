@@ -70,8 +70,7 @@ def add_test_user():
     if User.query.filter_by(email=user_email).first() is None:
         user = User(
             user_name='test',
-            first_name='test',
-            last_name='test',
+            full_name='test',
             password='heslo',
             confirmed=True,
             email=user_email)
@@ -99,14 +98,13 @@ def setup_general():
         if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
             user = User(
                 user_name = 'admin',
-                first_name='Admin',
-                last_name='Account',
+                full_name='Admin Account',
                 password=Config.ADMIN_PASSWORD,
                 confirmed=True,
                 email=Config.ADMIN_EMAIL)
             db.session.add(user)
             db.session.commit()
-            print('Added administrator {}'.format(user.full_name()))
+            print('Added administrator {}'.format(user.full_name))
 
 
 @manager.command
@@ -179,8 +177,7 @@ def add_help_user(user_name, user_email):
     if User.query.filter_by(email=user_email).first() is None:
         user = User(
             user_name = user_name,
-            first_name='',
-            last_name='',
+            full_name='',
             password='',
             confirmed=False,
             email=user_email,
@@ -195,8 +192,7 @@ def add_editor_user():
         role = Role.query.filter_by(name='Editor').first()
         user = User(
             user_name='editor',
-            first_name='Editor',
-            last_name='Editorovic',
+            full_name='Editor Editorovic',
             password='heslo',
             confirmed=True,
             email=user_email,

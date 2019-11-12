@@ -31,10 +31,7 @@
                 {{ f.render_form_field(form.is_public) }}
                 {{ f.render_form_field(form.descr) }}
 
-                {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
-                {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
-                {{ f.form_message(flashes['info'], header='Information', class='info') }}
-                {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+                {{ f.display_standard_flashes(flashes) }}
 
                 {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                     {{ f.render_form_field(field) }}

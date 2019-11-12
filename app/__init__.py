@@ -84,6 +84,8 @@ def create_app(config):
     app.register_blueprint(main_settings)
     from .main.catalogue import main_star as main_star
     app.register_blueprint(main_star)
+    from .main.usersettings import main_usersettings as main_usersettings
+    app.register_blueprint(main_usersettings)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

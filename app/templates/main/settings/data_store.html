@@ -21,10 +21,7 @@
             <h4 class="ui top attached block header segment">Store to Git</h4>
             <div class="ui attached segment">
                 {% if git_stored %}
-                    {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
-                    {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
-                    {{ f.form_message(flashes['info'], header='Information', class='info') }}
-                    {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+                    {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 <p>This operation stores user data to git repository. Git URL={{ git_url }}</p>
                 <form action="{{ url_for('main_settings.data_store') }}" method="POST">
@@ -39,10 +36,7 @@
             <h4 class="ui top attached block header segment">Restore from Git</h4>
             <div class="ui attached segment">
                 {% if git_restored %}
-                    {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
-                    {{ f.form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
-                    {{ f.form_message(flashes['info'], header='Information', class='info') }}
-                    {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+                    {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 <p>This operation restores user data to git repository. All uncommitted data will be lost! Git URL={{ git_url }}</p>
                 <form action="{{ url_for('main_settings.data_store') }}" method="POST">

@@ -1,0 +1,167 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main_usersettings.public_profile', 'Profile'),
+    ('main_usersettings.user_account', 'Account'),
+    ('main_usersettings.git_repository', 'Git repository'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text in items %}
+            {% set href = url_for(route) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro public_profile(form, user) %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    <h4 class="ui top attached block header segment">Public profile</h4>
+    <div class="ui attached segment">
+        {{ f.begin_form(form, flashes) }}
+              {{ f.render_form_field(form.user_name, extra_classes='readonly') }}
+              {{ f.render_form_field(form.full_name) }}
+              {{ f.render_form_field(form.email) }}
+              {{ form.submit(class='positive ui button') }}
+        {{ f.end_form() }}
+    </div>
+{% endmacro %}
+
+{% macro user_account(form1, form2, user, subtype) %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+    {% if subtype == 'change_password' %}
+        {{ f.display_standard_flashes(flashes) }}
+    {% endif %}
+
+    <h4 class="ui top attached block header segment">Password</h4>
+    <div class="ui attached segment">
+        {{ f.begin_form(form1, flashes, action=url_for('main_usersettings.change_password')) }}
+                <div class="field {% if form1.current_password.errors %}error{% endif %}">
+                    {{ form1.current_password.label }}
+                    {{ form1.current_password(autocomplete="off") }}
+                    {% if form1.current_password.errors %}
+                        <div class="ui red pointing label">
+                            {{ form1.current_password.errors[0] | safe }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="field {% if form1.new_password.errors %}error{% endif %}">
+                    {{ form1.new_password.label }}
+                    {{ form1.new_password(autocomplete="off") }}
+                    {% if form1.new_password.errors %}
+                        <div class="ui red pointing label">
+                            {{ form1.new_password.errors[0] | safe }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="field {% if form1.new_password2.errors %}error{% endif %}">
+                    {{ form1.new_password2.label }}
+                    {{ form1.new_password2(autocomplete="off") }}
+                    {% if form1.new_password2.errors %}
+                        <div class="ui red pointing label">
+                            {{ form1.new_password2.errors[0] | safe }}
+                        </div>
+                    {% endif %}
+                </div>
+                {{ form1.submit(class='positive ui button') }}
+        {{ f.end_form() }}
+    </div>
+
+    {% if subtype == 'delete_account' %}
+        {{ f.display_standard_flashes(flashes) }}
+    {% endif %}
+    <h4 class="ui top attached block header segment">Delete Your Account</h4>
+    <div class="ui attached segment">
+        <div class="ui red message">
+            <p class="text left">
+                <i class="octicon octicon-alert"></i>
+                This operation will permanently delete your user account. It <b>CAN NOT</b> be undone.
+            </p>
+        </div>
+        {{ f.begin_form(form2, flashes, action=url_for('main_usersettings.delete_account')) }}
+            <div class="field {% if form2.password.errors %}error{% endif %}">
+                {{ form2.password.label }}
+                {{ form2.password(autocomplete="off") }}
+            </div>
+            {{ form2.submit(class='negative ui button') }}
+        {{ f.end_form() }}
+    </div>
+{% endmacro %}
+
+{% macro git_accounts(user, form) %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    <div class="ui attached segment">
+        {{ f.begin_form(form, flashes) }}
+            <div class="one field">
+                {{ form.ssh_public_key(readonly=True) }}
+            </div>
+            <div class="one field">
+                <a id="bssh" class="negative ui button" href="#">Create new SSH key.</a>
+            </div>
+        {{ f.end_form() }}
+    </div>
+
+    <div class="ui tiny modal sshCreateModal">
+      <div class="header">Create SSH key</div>
+      <div class="content">
+        <p>Are you sure you want to (re)create new SSH key?</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">No</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('account.ssh_key_create') }}">
+            Yes
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {{ navigation(endpoints) }}
+            {% if type == 'public_profile' %}
+                {{ public_profile(form, current_user) }}
+            {% elif type == 'user_account' %}
+                {{ user_account(form1, form2, current_user, subtype) }}
+            {% elif type == 'git_repository' %}
+                {{ git_accounts(current_user) }}
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        {% if ssh_key_info %}
+            $('.ui.modal.sshCreateModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bssh').click(function() {
+                $('.ui.modal.sshCreateModal')
+                   .modal('show');
+            });
+        {% endif %}
+    </script>
+{% endblock %}

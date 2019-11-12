@@ -35,7 +35,7 @@
 {% endmacro %}
 
 {# Set up the form, including hidden fields and error states #}
-{% macro begin_form(form, flashes, method='POST', extra_classes='', enctype=None) %}
+{% macro begin_form(form, flashes, method='POST', extra_classes='', enctype=None, action='') %}
     {# Set proper enctype #}
     {% if enctype is none and (form | selectattr('type', 'equalto', 'FileField') | list | length > 0) %}
         {% set enctype = 'multipart/form-data' %}
@@ -43,7 +43,7 @@
         {% set enctype = '' %}
     {% endif %}
 
-    <form action="" method="{{ method }}" enctype="{{ enctype }}" class="ui form {{ extra_classes }}
+    <form action="{{ action }}" method="{{ method }}" enctype="{{ enctype }}" class="ui form {{ extra_classes }}
         {% if form.errors or flashes['error'] %} error
         {% elif flashes['warning'] %} warning
         {% elif flashes['info'] %} info
@@ -148,4 +148,11 @@
         {% endif %}
         {{ field(placeholder=field.label.text) }}
     {% endif %}
+{% endmacro %}
+
+{% macro display_standard_flashes(flashes) %}
+    {{ form_message(flashes['error'], header='Something went wrong.', class='error') }}
+    {{ form_message(flashes['warning'], header='Something went wrong.', class='warning') }}
+    {{ form_message(flashes['info'], header='Information', class='info') }}
+    {{ form_message(flashes['success'], header='Success!', class='success') }}
 {% endmacro %}

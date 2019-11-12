@@ -53,8 +53,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(64), unique=True, index=True)
     confirmed = db.Column(db.Boolean, default=False)
-    first_name = db.Column(db.String(64), index=True)
-    last_name = db.Column(db.String(64), index=True)
+    full_name = db.Column(db.String(265), index=True)
     email = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
@@ -74,9 +73,6 @@ class User(UserMixin, db.Model):
                     permissions=Permission.ADMINISTER).first()
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
-
-    def full_name(self):
-        return '%s %s' % (self.first_name, self.last_name)
 
     def can(self, permissions):
         return self.role is not None and \
@@ -175,8 +171,7 @@ class User(UserMixin, db.Model):
         for i in range(count):
             u = User(
                 user_name=fake.user_name(),
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
+                full_name=fake.full_name(),
                 email=fake.email(),
                 password='password',
                 confirmed=True,
@@ -189,7 +184,7 @@ class User(UserMixin, db.Model):
                 db.session.rollback()
 
     def __repr__(self):
-        return '<User \'%s\'>' % self.full_name()
+        return '<User \'%s\'>' % self.full_name
 
 
 class AnonymousUser(AnonymousUserMixin):

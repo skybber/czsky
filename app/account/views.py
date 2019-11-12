@@ -8,6 +8,7 @@ from flask import (
     request,
     url_for,
 )
+
 from flask_login import (
     current_user,
     login_required,
@@ -25,11 +26,9 @@ from app.account.forms import (
     RegistrationForm,
     RequestResetPasswordForm,
     ResetPasswordForm,
-    SSHKeyForm,
 )
 from app.email import send_email
 from app.models import User
-from app.main.settings.gitstore import get_ssh_public_key_path,create_new_ssh_key
 
 account = Blueprint('account', __name__)
 
@@ -56,8 +55,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
+            full_name=form.full_name.data,
             email=form.email.data,
             password=form.password.data)
         db.session.add(user)
@@ -156,7 +154,6 @@ def change_password():
             flash('Original password is invalid.', 'form-error')
     return render_template('account/manage.html', form=form)
 
-
 @account.route('/manage/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email_request():
@@ -195,27 +192,6 @@ def change_email(token):
         flash('The confirmation link is invalid or has expired.', 'error')
     return redirect(url_for('main.index'))
 
-
-@account.route('/manage/ssh-key-info', methods=['GET'])
-@login_required
-def ssh_key_info():
-    """Show ssh public key."""
-    form = SSHKeyForm()
-    public_key_path = get_ssh_public_key_path(current_user)
-    form.ssh_public_key.data = 'None'
-    if os.path.isfile(public_key_path):
-        with open(public_key_path, 'r') as f:
-            form.ssh_public_key.data = f.read()
-
-    return render_template('account/manage.html', form=form, ssh_key_info=True)
-
-@account.route('/manage/ssh-key-create', methods=['GET'])
-@login_required
-def ssh_key_create():
-    create_new_ssh_key(current_user)
-    flash('New ssh key was created.', 'form-success')
-    return redirect(url_for('account.ssh_key_info'))
-
 @account.route('/confirm-account')
 @login_required
 def confirm_request():
@@ -248,8 +224,7 @@ def confirm(token):
     return redirect(url_for('main.index'))
 
 
-@account.route(
-    '/join-from-invite/<int:user_id>/<token>', methods=['GET', 'POST'])
+@account.route('/join-from-invite/<int:user_id>/<token>', methods=['GET', 'POST'])
 def join_from_invite(user_id, token):
     """
     Confirm new user's account with provided token and prompt them to set

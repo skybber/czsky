@@ -42,13 +42,12 @@ def new_user():
         user = User(
             role=form.role.data,
             user_name=form.user_name.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
+            full_name=form.full_name.data,
             email=form.email.data,
             password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('User {} successfully created'.format(user.full_name()),
+        flash('User {} successfully created'.format(user.full_name),
               'form-success')
     return render_template('admin/new_user.html', form=form)
 
@@ -63,8 +62,7 @@ def invite_user():
         user = User(
             role=form.role.data,
             user_name=form.user_name.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
+            full_name=form.full_name.data,
             email=form.email.data)
         db.session.add(user)
         db.session.commit()
@@ -82,7 +80,7 @@ def invite_user():
             user=user,
             invite_link=invite_link,
         )
-        flash('User {} successfully invited'.format(user.full_name()),
+        flash('User {} successfully invited'.format(user.full_name),
               'form-success')
     return render_template('admin/new_user.html', form=form)
 
@@ -124,7 +122,7 @@ def change_user_email(user_id):
         db.session.add(user)
         db.session.commit()
         flash('Email for user {} successfully changed to {}.'.format(
-            user.full_name(), user.email), 'form-success')
+            user.full_name, user.email), 'form-success')
     return render_template('admin/manage_user.html', user=user, form=form)
 
 
@@ -148,7 +146,7 @@ def change_account_type(user_id):
         db.session.add(user)
         db.session.commit()
         flash('Role for user {} successfully changed to {}.'.format(
-            user.full_name(), user.role.name), 'form-success')
+            user.full_name, user.role.name), 'form-success')
     return render_template('admin/manage_user.html', user=user, form=form)
 
 
@@ -175,7 +173,7 @@ def delete_user(user_id):
         user = User.query.filter_by(id=user_id).first()
         db.session.delete(user)
         db.session.commit()
-        flash('Successfully deleted user %s.' % user.full_name(), 'success')
+        flash('Successfully deleted user %s.' % user.full_name, 'success')
     return redirect(url_for('admin.registered_users'))
 
 

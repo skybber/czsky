@@ -14,7 +14,7 @@
 {% endmacro %}
 
 {% macro render_dropdown_menu_items(current_user, endpoints) %}
-    <div class="ui inverted dropdown jump item poping up">
+    <div class="ui inverted dropdown item poping up">
         <i class="user icon"></i>
         <div class="text">Account</div>
         <i class="dropdown icon"></i>
@@ -59,7 +59,7 @@
 {% macro account_items(current_user) %}
     {% if current_user.is_authenticated %}
       {% set endpoints = [
-        ('account.manage', 'Your Account', 'settings'),
+        ('main_usersettings.public_profile', 'Your Account', 'settings'),
         ('account.logout', 'Log out', 'sign out')
       ] %}
       {{ render_dropdown_menu_items(current_user, endpoints) }}
