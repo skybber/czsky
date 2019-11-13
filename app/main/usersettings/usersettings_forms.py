@@ -1,8 +1,5 @@
-from flask import url_for
 from flask_wtf import FlaskForm
-from wtforms import ValidationError
 from wtforms.fields import (
-    BooleanField,
     PasswordField,
     StringField,
     SubmitField,
@@ -11,8 +8,6 @@ from wtforms.fields import (
 )
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
-
-from app.models import User
 
 class PublicProfileForm(FlaskForm):
     user_name = TextField('Username', validators=[InputRequired(), Length(1, 64)], render_kw={'readonly': True})
@@ -30,5 +25,7 @@ class DeleteAccountForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Confirm Deletion')
 
-class SSHKeyForm(FlaskForm):
-    ssh_public_key = TextAreaField('Public key')
+class GitSSHKeyForm(FlaskForm):
+    git_repository = TextField('Git repository', validators=[Length(1, 512)])
+    ssh_public_key = TextAreaField('Public key', render_kw={'readonly': True})
+    submit = SubmitField('Update')

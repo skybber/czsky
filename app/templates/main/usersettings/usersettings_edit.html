@@ -103,7 +103,7 @@
     </div>
 {% endmacro %}
 
-{% macro git_accounts(user, form) %}
+{% macro git_repository(form, user) %}
     {% set flashes = {
         'error':   get_flashed_messages(category_filter=['form-error']),
         'info':    get_flashed_messages(category_filter=['form-info']),
@@ -114,11 +114,11 @@
 
     <div class="ui attached segment">
         {{ f.begin_form(form, flashes) }}
-            <div class="one field">
-                {{ form.ssh_public_key(readonly=True) }}
-            </div>
-            <div class="one field">
-                <a id="bssh" class="negative ui button" href="#">Create new SSH key.</a>
+            {{ f.render_form_field(form.git_repository) }}
+            {{ f.render_form_field(form.ssh_public_key) }}
+            <div class="two fields">
+                {{ form.submit(class='positive ui button') }}
+                <a id="bnewkey" class="negative ui button" href="#">Create new ssh key</a>
             </div>
         {{ f.end_form() }}
     </div>
@@ -130,7 +130,7 @@
       </div>
       <div class="actions">
         <div class="ui negative cancel button">No</div>
-        <a class="ui positive right labeled icon approve button" href="{{ url_for('account.ssh_key_create') }}">
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_ssh_key_create') }}">
             Yes
             <i class="checkmark icon"></i>
         </a>
@@ -147,18 +147,18 @@
             {% elif type == 'user_account' %}
                 {{ user_account(form1, form2, current_user, subtype) }}
             {% elif type == 'git_repository' %}
-                {{ git_accounts(current_user) }}
+                {{ git_repository(form, current_user) }}
             {% endif %}
         </div>
     </div>
     <script>
-        {% if ssh_key_info %}
+        {% if type == 'git_repository' %}
             $('.ui.modal.sshCreateModal').modal({
                 onApprove: function() {
                     return validateModal()
                 }
             });
-            $('#bssh').click(function() {
+            $('#bnewkey').click(function() {
                 $('.ui.modal.sshCreateModal')
                    .modal('show');
             });

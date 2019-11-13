@@ -62,8 +62,8 @@ class User(UserMixin, db.Model):
     is_hidden = db.Column(db.Boolean, default=False)
     is_disabled = db.Column(db.Boolean, default=False)
     git_repository = db.Column(db.String(512))
-    git_username = db.Column(db.String(128))
-    git_password = db.Column(db.String(128))
+    git_ssh_public_key = db.Column(db.Text)
+    git_ssh_private_key = db.Column(db.Text)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
