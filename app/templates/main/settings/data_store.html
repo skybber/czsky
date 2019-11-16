@@ -20,7 +20,7 @@
             </a>
             <h4 class="ui top attached block header segment">Store to Git</h4>
             <div class="ui attached segment">
-                {% if git_stored %}
+                {% if git_save %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 {% if git_enabled %}
@@ -28,18 +28,18 @@
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                <form action="{{ url_for('main_settings.data_store') }}" method="POST">
+                {{ f.begin_form(save_form, flashes, action=url_for('main_settings.git_save')) }}
+                    {{ f.render_form_field(save_form.commit_message) }}
                     <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
                         <i class="download icon"></i>
                         Store data to Git
                     </button>
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                </form>
+                {{ f.end_form() }}
             </div>
 
             <h4 class="ui top attached block header segment">Restore from Git</h4>
             <div class="ui attached segment">
-                {% if git_restored %}
+                {% if git_load %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 {% if git_enabled %}
@@ -48,7 +48,7 @@
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                <form action="{{ url_for('main_settings.data_store') }}" method="POST">
+                <form action="{{ url_for('main_settings.git_load') }}" method="POST">
                     <button class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button" value="restore" type="submit" name="submit">
                         <i class="upload icon"></i>
                         Restore data from Git

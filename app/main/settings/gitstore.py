@@ -41,7 +41,7 @@ def _finalize_git_ssh_command(owner):
     if path.exists():
         path.unlink()
 
-def save_user_data_to_git(owner):
+def save_user_data_to_git(owner, commit_message):
     repository_path = get_repository_path(owner)
     if not os.path.isdir(repository_path) or not os.path.isdir(repository_path.join('.git')):
         os.makedirs(repository_path, exist_ok=True)
@@ -78,7 +78,7 @@ def save_user_data_to_git(owner):
     try:
         with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner, True)):
             repo.index.add(files)
-            repo.index.commit("Update")
+            repo.index.commit(commit_message)
             repo.remotes.origin.push()
     finally:
         _finalize_git_ssh_command(owner)

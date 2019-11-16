@@ -1,1 +1,1 @@
-from .settings_view import main_settings
+from .settings_views import main_settings
