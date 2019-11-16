@@ -49,35 +49,4 @@
         </div>
     </div>
     {{ check.password_check('new_password', 0) }}
-
-    {% if ssh_key_info %}
-        <div class="ui tiny modal sshCreateModal">
-          <div class="header">Create SSH key</div>
-          <div class="content">
-            <p>Are you sure you want to (re)create new SSH key?</p>
-          </div>
-          <div class="actions">
-            <div class="ui negative cancel button">No</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('account.ssh_key_create') }}">
-                Yes
-                <i class="checkmark icon"></i>
-            </a>
-          </div>
-        </div>
-    {% endif %}
-
-    <script>
-        {% if ssh_key_info %}
-            $('.ui.modal.sshCreateModal').modal({
-                onApprove: function() {
-                    return validateModal()
-                }
-            });
-            $('#bssh').click(function() {
-                $('.ui.modal.sshCreateModal')
-                   .modal('show');
-            });
-        {% endif %}
-    </script>
-    </script>
 {% endblock %}

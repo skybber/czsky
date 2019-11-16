@@ -179,7 +179,7 @@ def add_help_user(user_name, user_email):
             user_name = user_name,
             full_name='',
             password='',
-            confirmed=False,
+            confirmed=True,
             email=user_email,
             is_hidden=True)
         db.session.add(user)

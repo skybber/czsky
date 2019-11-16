@@ -1,12 +1,14 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 
+{% set login_as_start_endpoint = 'admin.login_as_start' %}
 {% set deletion_endpoint = 'admin.delete_user_request' %}
 
 {% set endpoints = [
     ('admin.user_info', 'User information'),
     ('admin.change_user_email', 'Change email address'),
     ('admin.change_account_type', 'Change account type'),
+    (login_as_start_endpoint, 'Login as'),
     (deletion_endpoint, 'Delete user')
 ] %}
 
@@ -46,7 +48,21 @@
                 {{ navigation(endpoints) }}
             </div>
             <div class="eight wide column">
-                {% if request.endpoint == deletion_endpoint %}
+                {% if request.endpoint == login_as_start_endpoint %}
+                    <h3 class="ui orange block header">
+                        <i class="warning circle icon"></i>
+                        <div class="content">
+                            <div class="sub header">
+                                You are going to login as hidden user.
+                            </div>
+                        </div>
+                    </h3>
+                    <div class="ui form">
+                        <a class="ui {% if not user.is_hidden %}disabled {% endif %}orange button" href="{{ url_for('admin.login_as', user_id=user.id) }}">
+                            Login as this user
+                        </a>
+                    </div>
+                {% elif request.endpoint == deletion_endpoint %}
                     <h3 class="ui red block header">
                         <i class="warning circle icon"></i>
                         <div class="content">
@@ -68,7 +84,6 @@
                         <a class="ui disabled negative deletion button">
                             Delete this user
                         </a>
-                    </div>
                     </div>
                 {% elif form %}
                     {{ f.render_form(form) }}

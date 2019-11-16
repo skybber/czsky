@@ -7,7 +7,13 @@ from flask import (
     request,
     url_for,
 )
-from flask_login import current_user, login_required
+
+from flask_login import (
+    current_user,
+    login_user,
+    login_required
+)
+
 from flask_rq import get_queue
 
 from app import db
@@ -196,3 +202,23 @@ def update_editor_contents():
     db.session.commit()
 
     return 'OK', 200
+
+@admin.route('/user/<int:user_id>/login_as_start', methods=['GET'])
+@login_required
+@admin_required
+def login_as_start(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        abort(404)
+    return render_template('admin/manage_user.html', user=user)
+
+@admin.route('/user/<int:user_id>/login_as', methods=['GET'])
+@login_required
+@admin_required
+def login_as(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        abort(404)
+    login_user(user, False)
+    flash('You are now logged in as ' + user.user_name + '.', 'success')
+    return redirect(request.args.get('next') or url_for('main.index'))

@@ -7,7 +7,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from git import Repo
+import git
 
 from app.models import Permission, User
 from .gitstore import save_user_data_to_git, load_user_data_from_git
@@ -29,16 +29,28 @@ def data_store():
     else:
         user = current_user
 
+    git_enabled = user.git_repository and \
+                    user.git_ssh_public_key and \
+                    user.git_ssh_private_key
+
     git_stored = False
     git_restored = False
 
-    if request.method == 'POST':
+    if git_enabled and request.method == 'POST':
         if request.form['submit'] == 'store':
-            save_user_data_to_git(user)
-            flash('User data stored to git repository.', 'form-success')
-            git_stored = True
+            try:
+                save_user_data_to_git(user)
+                flash('User data stored to git repository.', 'form-success')
+                git_stored = True
+            except git.GitCommandError as e:
+                flash('User data stored to git repository.', 'form-success')
+                return
         elif request.form['submit'] == 'restore':
             load_user_data_from_git(user, current_user)
             flash('User data reloaded from git repository.', 'form-success')
             git_restored = True
-    return render_template('main/settings/data_store.html', git_url=user.git_repository, git_restored=git_restored, git_stored=git_stored)
+    return render_template('main/settings/data_store.html',
+                                git_enabled=git_enabled,
+                                git_url=user.git_repository,
+                                git_restored=git_restored,
+                                git_stored=git_stored)

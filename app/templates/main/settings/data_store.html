@@ -23,9 +23,13 @@
                 {% if git_stored %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
-                <p>This operation stores user data to git repository. Git URL={{ git_url }}</p>
+                {% if git_enabled %}
+                    <p>This operation stores user data to git repository: <b>{{ git_url }}</b></p>
+                {% else %}
+                    <p>Git repository is not set up.</p>
+                {% endif %}
                 <form action="{{ url_for('main_settings.data_store') }}" method="POST">
-                    <button class="ui labeled icon positive button" value="store" type="submit" name="submit">
+                    <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
                         <i class="download icon"></i>
                         Store data to Git
                     </button>
@@ -38,9 +42,14 @@
                 {% if git_restored %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
-                <p>This operation restores user data to git repository. All uncommitted data will be lost! Git URL={{ git_url }}</p>
+                {% if git_enabled %}
+                    <p>This operation restores user data to git repository: <b>{{ git_url }}</b>.</p>
+                    <p>All uncommitted data will be lost!</p>
+                {% else %}
+                    <p>Git repository is not set up.</p>
+                {% endif %}
                 <form action="{{ url_for('main_settings.data_store') }}" method="POST">
-                    <button class="ui labeled icon negative button" value="restore" type="submit" name="submit">
+                    <button class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button" value="restore" type="submit" name="submit">
                         <i class="upload icon"></i>
                         Restore data from Git
                     </button>
