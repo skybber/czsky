@@ -64,6 +64,9 @@ class User(UserMixin, db.Model):
     git_repository = db.Column(db.String(512))
     git_ssh_public_key = db.Column(db.Text)
     git_ssh_private_key = db.Column(db.Text)
+    git_content_repository = db.Column(db.String(512))
+    git_content_ssh_public_key = db.Column(db.Text)
+    git_content_ssh_private_key = db.Column(db.Text)
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -80,6 +83,9 @@ class User(UserMixin, db.Model):
 
     def is_admin(self):
         return self.can(Permission.ADMINISTER)
+
+    def is_editor(self):
+        return self.can(Permission.EDIT_COMMON_CONTENT)
 
     @property
     def password(self):

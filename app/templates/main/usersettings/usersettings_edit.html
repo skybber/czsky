@@ -39,11 +39,13 @@
 {% endmacro %}
 
 {% macro user_account(form1, form2, user, subtype) %}
+
     {% set flashes = {
         'error':   get_flashed_messages(category_filter=['form-error']),
         'info':    get_flashed_messages(category_filter=['form-info']),
         'success': get_flashed_messages(category_filter=['form-success'])
     } %}
+
     {% if subtype == 'change_password' %}
         {{ f.display_standard_flashes(flashes) }}
     {% endif %}
@@ -103,27 +105,31 @@
     </div>
 {% endmacro %}
 
-{% macro git_repository(form, user) %}
+{% macro git_repository(form1, form2, user, subtype) %}
+
     {% set flashes = {
         'error':   get_flashed_messages(category_filter=['form-error']),
         'info':    get_flashed_messages(category_filter=['form-info']),
         'success': get_flashed_messages(category_filter=['form-success'])
     } %}
 
-    {{ f.display_standard_flashes(flashes) }}
+    {% if subtype == 'personal_repo_key' %}
+        {{ f.display_standard_flashes(flashes) }}
+    {% endif %}
 
+    <h4 class="ui top attached block header segment">Personal Git repository</h4>
     <div class="ui attached segment">
-        {{ f.begin_form(form, flashes) }}
-            {{ f.render_form_field(form.git_repository) }}
-            {{ f.render_form_field(form.ssh_public_key) }}
+        {{ f.begin_form(form1, flashes, action=url_for('main_usersettings.git_personal_repository')) }}
+            {{ f.render_form_field(form1.git_repository) }}
+            {{ f.render_form_field(form1.ssh_public_key) }}
             <div class="two fields">
-                {{ form.submit(class='positive ui button') }}
-                <a id="bnewkey" class="negative ui button" href="#">Create new ssh key</a>
+                {{ form1.submit(class='positive ui button') }}
+                <a id="bnewkey1" class="negative ui button" href="#">Create new ssh key</a>
             </div>
         {{ f.end_form() }}
     </div>
 
-    <div class="ui tiny modal sshCreateModal">
+    <div class="ui tiny modal sshCreateModal1">
       <div class="header">Create SSH key</div>
       <div class="content">
         <p>Are you sure you want to (re)create new SSH key?</p>
@@ -136,7 +142,40 @@
         </a>
       </div>
     </div>
+
+    {% if user.is_editor() %}
+        {% if subtype == 'content_repo_key' %}
+            {{ f.display_standard_flashes(flashes) }}
+        {% endif %}
+
+        <h4 class="ui top attached block header segment">Content Git repository</h4>
+        <div class="ui attached segment">
+            {{ f.begin_form(form2, flashes, action=url_for('main_usersettings.git_content_repository')) }}
+                {{ f.render_form_field(form2.git_repository) }}
+                {{ f.render_form_field(form2.ssh_public_key) }}
+                <div class="two fields">
+                    {{ form2.submit(class='positive ui button') }}
+                    <a id="bnewkey2" class="negative ui button" href="#">Create new ssh key</a>
+                </div>
+            {{ f.end_form() }}
+        </div>
+        <div class="ui tiny modal sshCreateModal2">
+          <div class="header">Create SSH key for content repository</div>
+          <div class="content">
+            <p>Are you sure you want to (re)create new SSH key for content repository?</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_content_ssh_key_create') }}">
+                Yes
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
 {% endmacro %}
+
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -147,7 +186,7 @@
             {% elif type == 'user_account' %}
                 {{ user_account(form1, form2, current_user, subtype) }}
             {% elif type == 'git_repository' %}
-                {{ git_repository(form, current_user) }}
+                {{ git_repository(form1, form2, current_user, subtype) }}
             {% endif %}
         </div>
     </div>
@@ -158,8 +197,12 @@
                     return validateModal()
                 }
             });
-            $('#bnewkey').click(function() {
-                $('.ui.modal.sshCreateModal')
+            $('#bnewkey1').click(function() {
+                $('.ui.modal.sshCreateModal1')
+                   .modal('show');
+            });
+            $('#bnewkey2').click(function() {
+                $('.ui.modal.sshCreateModal2')
                    .modal('show');
             });
         {% endif %}

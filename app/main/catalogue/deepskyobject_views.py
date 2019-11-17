@@ -77,7 +77,7 @@ def deepskyobject_info(dso_id):
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
     prev_dso, next_dso = dso.get_prev_next_dso()
-    editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
+    editable=current_user.is_editor()
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            prev_dso=prev_dso, next_dso=next_dso, editable=editable)
@@ -124,7 +124,7 @@ def deepskyobject_edit(dso_id):
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    if not current_user.can(Permission.EDIT_COMMON_CONTENT):
+    if not current_user.is_editor():
         abort(403)
 
     user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()

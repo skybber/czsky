@@ -33,7 +33,7 @@ def star_info(star_id):
         from_constellation_id = user_descr.constellation_id
     from_observation_id = request.args.get('from_observation_id')
 
-    editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
+    editable=current_user.is_editor()
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, editable=editable)
 
@@ -44,7 +44,7 @@ def star_edit(star_id):
     user_descr = UserStarDescription.query.filter_by(id=star_id).first()
     if user_descr is None:
         abort(404)
-    if not current_user.can(Permission.EDIT_COMMON_CONTENT):
+    if not current_user.is_editor():
         abort(403)
 
     form = StarEditForm()

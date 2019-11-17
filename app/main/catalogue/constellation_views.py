@@ -76,7 +76,7 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
 
-    editable=current_user.can(Permission.EDIT_COMMON_CONTENT)
+    editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, star_descriptions=star_descriptions, dso_descriptions=dso_descriptions, editable=editable)
 
@@ -87,7 +87,7 @@ def constellation_edit(constellation_id):
     constellation = Constellation.query.filter_by(id=constellation_id).first()
     if constellation is None:
         abort(404)
-    if not current_user.can(Permission.EDIT_COMMON_CONTENT):
+    if not current_user.is_editor():
         abort(403)
 
     user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()

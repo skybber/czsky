@@ -29,3 +29,9 @@ class GitSSHKeyForm(FlaskForm):
     git_repository = TextField('Git repository', validators=[Length(1, 512)])
     ssh_public_key = TextAreaField('Public key', render_kw={'readonly': True})
     submit = SubmitField('Update')
+
+class GitContentSSHKeyForm(FlaskForm):
+    git_repository = TextField('Content git repository', validators=[Length(1, 512)])
+    ssh_public_key = TextAreaField('Public key', render_kw={'readonly': True})
+    submit = SubmitField('Update')
+

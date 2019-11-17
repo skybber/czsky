@@ -29,7 +29,7 @@ def settings():
 @login_required
 def data_store():
     save_form = GitSaveForm()
-    if current_user.can(Permission.EDIT_COMMON_CONTENT):
+    if current_user.is_editor():
         user = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     else:
         user = current_user
@@ -51,7 +51,7 @@ def data_store():
 def git_save():
     form = GitSaveForm()
     if form.validate_on_submit():
-        if current_user.can(Permission.EDIT_COMMON_CONTENT):
+        if current_user.is_editor():
             user = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
         else:
             user = current_user
@@ -66,7 +66,7 @@ def git_save():
 @main_settings.route('/git-load', methods=['POST'])
 @login_required
 def git_load():
-    if current_user.can(Permission.EDIT_COMMON_CONTENT):
+    if current_user.is_editor():
         user = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     else:
         user = current_user

@@ -21,6 +21,7 @@ from .usersettings_forms import (
     DeleteAccountForm,
     PasswordForm,
     PublicProfileForm,
+    GitContentSSHKeyForm,
     GitSSHKeyForm,
 )
 
@@ -84,21 +85,54 @@ def delete_account():
     return render_template('main/usersettings/usersettings_edit.html', type='user_account', subtype='delete_account', form1=form1, form2=form2)
 
 
-@main_usersettings.route('/user-settings/git-repository', methods=['GET', 'POST'])
+@main_usersettings.route('/user-settings/git-repository', methods=['GET'])
 @login_required
 def git_repository():
     """Show ssh public key."""
-    form = GitSSHKeyForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            current_user.git_repository = form.git_repository.data
+    form1 = GitSSHKeyForm()
+    form1.git_repository.data = current_user.git_repository
+    form1.ssh_public_key.data = current_user.git_ssh_public_key
+
+    form2 = None
+    if current_user.is_editor():
+        form2 = GitContentSSHKeyForm()
+        form2.git_repository.data = current_user.git_content_repository
+        form2.ssh_public_key.data = current_user.git_content_ssh_public_key
+    return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository')
+
+@main_usersettings.route('/user-settings/git-personal-repository', methods=['POST'])
+@login_required
+def git_personal_repository():
+    """Post personal git repository settings."""
+    form1 = GitSSHKeyForm()
+    form2 = None
+    if current_user.is_editor():
+        form2 = GitContentSSHKeyForm()
+        form2.git_repository.data = current_user.git_content_repository
+        form2.ssh_public_key.data = current_user.git_content_ssh_public_key
+    if form1.validate_on_submit():
+        current_user.git_repository = form1.git_repository.data
+        db.session.add(current_user)
+        db.session.commit()
+        flash('Repository settings has been updated.', 'form-success')
+    return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository', subtype='personal_repo_key')
+
+@main_usersettings.route('/user-settings/git-content-repository', methods=['POST'])
+@login_required
+def git_content_repository():
+    """Post personal git repository settings."""
+    form1 = GitSSHKeyForm()
+    form1.git_repository.data = current_user.git_repository
+    form1.ssh_public_key.data = current_user.git_ssh_public_key
+    form2 = None
+    if current_user.is_editor():
+        form2 = GitContentSSHKeyForm()
+        if form2.validate_on_submit():
+            current_user.git_content_repository = form2.git_repository.data
             db.session.add(current_user)
             db.session.commit()
-            flash('Repository settings has been updated.', 'form-success')
-    else:
-        form.git_repository.data = current_user.git_repository
-        form.ssh_public_key.data = current_user.git_ssh_public_key
-    return render_template('main/usersettings/usersettings_edit.html', form=form, type='git_repository')
+            flash('Content repository settings has been updated.', 'form-success')
+    return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository', subtype='content_repo_key')
 
 @main_usersettings.route('/user-settings/git-ssh-key-create', methods=['GET'])
 @login_required
@@ -109,4 +143,15 @@ def git_ssh_key_create():
     db.session.add(current_user)
     db.session.commit()
     flash('New ssh key was created.', 'form-success')
+    return redirect(url_for('main_usersettings.git_repository'))
+
+@main_usersettings.route('/user-settings/git-content-ssh-key-create', methods=['GET'])
+@login_required
+def git_content_ssh_key_create():
+    key = RSA.generate(2048)
+    current_user.git_content_ssh_private_key = key.export_key().decode("ascii")
+    current_user.git_content_ssh_public_key = key.publickey().export_key('OpenSSH').decode("ascii")
+    db.session.add(current_user)
+    db.session.commit()
+    flash('New content ssh key was created.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
