@@ -41,7 +41,7 @@ def _finalize_git_ssh_command(owner):
     if path.exists():
         path.unlink()
 
-def save_user_data_to_git(owner, commit_message):
+def save_content_data_to_git(owner, commit_message):
     repository_path = get_repository_path(owner)
     if not os.path.isdir(repository_path) or not os.path.isdir(repository_path.join('.git')):
         os.makedirs(repository_path, exist_ok=True)
@@ -88,7 +88,7 @@ def _read_line(f, expected=None, mandatory=False):
     match = re.fullmatch(expected, line)
     return match
 
-def load_user_data_from_git(owner, editor):
+def load_content_data_from_git(owner, editor):
     repository_path = get_repository_path(owner)
 
     repo = git.Repo(repository_path)
@@ -172,3 +172,9 @@ def load_user_data_from_git(owner, editor):
                 db.session.add(cons_description)
 
     db.session.commit()
+
+def save_personal_data_to_git(owner, commit_message):
+    pass
+
+def load_personal_data_from_git(owner):
+    pass

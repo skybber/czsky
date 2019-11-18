@@ -89,12 +89,16 @@
     {% endif %}
     <h4 class="ui top attached block header segment">Delete Your Account</h4>
     <div class="ui attached segment">
-        <div class="ui red message">
-            <p class="text left">
-                <i class="octicon octicon-alert"></i>
-                This operation will permanently delete your user account. It <b>CAN NOT</b> be undone.
-            </p>
-        </div>
+        <h3 class="ui red block header">
+            <i class="warning circle icon"></i>
+            <div class="content">
+                This action is permanent
+                <div class="sub header">
+                    Deleting a user account is not a reversible change. Any information associated
+                    with this account will be removed, and cannot be recovered.
+                </div>
+            </div>
+        </h3>
         {{ f.begin_form(form2, flashes, action=url_for('main_usersettings.delete_account')) }}
             <div class="field {% if form2.password.errors %}error{% endif %}">
                 {{ form2.password.label }}

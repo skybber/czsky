@@ -23,3 +23,7 @@ def permission_required(permission):
 
 def admin_required(f):
     return permission_required(Permission.ADMINISTER)(f)
+
+def editor_required(f):
+    return permission_required(Permission.EDIT_COMMON_CONTENT)(f)
+

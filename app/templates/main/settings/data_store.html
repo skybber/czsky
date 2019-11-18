@@ -4,6 +4,22 @@
 {% block scripts %}
 {% endblock %}
 
+{% set endpoints = [
+    ('main_settings.data_store_personal', 'Personal repository'),
+    ('main_settings.data_store_content', 'Content repository'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text in items %}
+            {% set href = url_for(route) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
 {% block content %}
 
     {% set flashes = {
@@ -18,40 +34,73 @@
                 <i class="caret left icon"></i>
                 Back to Settings
             </a>
-            <h4 class="ui top attached block header segment">Store to Git</h4>
+
+            {% if current_user.is_editor() %}
+                {{ navigation(endpoints) }}
+            {% endif %}
+
+            <h4 class="ui top attached block header segment">
+                {% if subtype == 'repo_personal' %}
+                    Store to Git
+                {% else %}
+                    Store content to Git content repository
+                {% endif %}
+            </h4>
             <div class="ui attached segment">
                 {% if git_save %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 {% if git_enabled %}
-                    <p>This operation stores user data to git repository: <b>{{ git_url }}</b></p>
+                    {% if subtype == 'repo_personal' %}
+                        <p>This operation stores user data to Git repository: <b>{{ git_url }}</b></p>
+                    {% else %}
+                        <p>This operation stores content data to Git repository: <b>{{ git_url }}</b></p>
+                    {% endif %}
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                {{ f.begin_form(save_form, flashes, action=url_for('main_settings.git_save')) }}
+                {{ f.begin_form(save_form, flashes, action=url_for('main_settings.git_save', subtype=subtype)) }}
                     {{ f.render_form_field(save_form.commit_message) }}
                     <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
                         <i class="download icon"></i>
-                        Store data to Git
+                        {% if subtype == 'repo_personal' %}
+                            Save data to Git
+                        {% else %}
+                            Save content data to Git
+                        {% endif %}
                     </button>
                 {{ f.end_form() }}
             </div>
 
-            <h4 class="ui top attached block header segment">Restore from Git</h4>
+            <h4 class="ui top attached block header segment">
+                {% if subtype == 'repo_personal' %}
+                    Load from Git
+                {% else %}
+                    Load content from Git content repository
+                {% endif %}
+            </h4>
             <div class="ui attached segment">
                 {% if git_load %}
                     {{ f.display_standard_flashes(flashes) }}
                 {% endif %}
                 {% if git_enabled %}
-                    <p>This operation restores user data to git repository: <b>{{ git_url }}</b>.</p>
-                    <p>All uncommitted data will be lost!</p>
+                    {% if subtype == 'repo_personal' %}
+                        <p>This operation loads user data from Git repository: <b>{{ git_url }}</b>.</p>
+                    {% else %}
+                        <p>This operation loads content data from Git repository: <b>{{ git_url }}</b>.</p>
+                        <p>All not pushed data will be lost!</p>
+                    {% endif %}
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                <form action="{{ url_for('main_settings.git_load') }}" method="POST">
+                <form action="{{ url_for('main_settings.git_load', subtype=subtype) }}" method="POST">
                     <button class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button" value="restore" type="submit" name="submit">
                         <i class="upload icon"></i>
-                        Restore data from Git
+                        {% if subtype == 'repo_personal' %}
+                            Load data from Git
+                        {% else %}
+                            Load content data from Git
+                        {% endif %}
                     </button>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
                 </form>
