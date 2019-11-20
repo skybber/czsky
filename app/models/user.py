@@ -200,6 +200,9 @@ class AnonymousUser(AnonymousUserMixin):
     def is_admin(self):
         return False
 
+    def is_editor(self):
+        return False
+
 
 login_manager.anonymous_user = AnonymousUser
 
