@@ -59,16 +59,16 @@
                     </a>
                 {% endif %}
             </h2>
-        </div>
-        {{ navigation(endpoints) }}
+            {{ navigation(endpoints) }}
 
-        {% if type == 'info' %}
-            {{ location_info(location) }}
-        {% elif type == 'skyquality' %}
-            {{ location_skyquality(location) }}
-        {% elif type == 'observations' %}
-            {{ location_observations(location) }}
-        {% endif %}
+            {% if type == 'info' %}
+                {{ location_info(location) }}
+            {% elif type == 'skyquality' %}
+                {{ location_skyquality(location) }}
+            {% elif type == 'observations' %}
+                {{ location_observations(location) }}
+            {% endif %}
+        </div>
     </div>
 
     <script type="text/javascript">
