@@ -103,6 +103,8 @@ def observation_delete(observation_id):
     observation = Observation.query.filter_by(id=observation_id).first()
     if observation is None:
         abort(404)
+    if observation.user_id != current_user.id:
+        abort(404)
     db.session.delete(observation)
     flash('Observation was deleted', 'form-success')
     return redirect(url_for('main_observation.observations'))

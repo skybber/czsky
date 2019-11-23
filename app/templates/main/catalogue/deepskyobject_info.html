@@ -23,11 +23,8 @@
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
                 <h3>
-                    {% if user_descr %}
-                        {{ user_descr.common_name }}
-                    {% endif %}
-                    {% if editable %}
-                        <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
+            {% if user_descr %} {{ user_descr.common_name }} {% endif %}
+            {% if editable %} <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
                             <i class="caret edit icon"></i>
                         </a>
                     {% endif %}

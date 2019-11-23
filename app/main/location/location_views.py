@@ -4,8 +4,10 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    redirect,
     render_template,
     request,
+    url_for,
 )
 from flask_login import current_user, login_required
 
@@ -24,6 +26,10 @@ from app.main.views import ITEMS_PER_PAGE
 
 main_location = Blueprint('main_location', __name__)
 
+def _is_editable(location):
+    return location.user_id == current_user.id or current_user.is_admin() or current_user.is_editor()
+
+
 @main_location.route('/locations', methods=['GET', 'POST'])
 @login_required
 def locations():
@@ -31,7 +37,7 @@ def locations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    locations = Location.query.filter_by(user_id=current_user.id, is_for_observation=True)
+    locations = Location.query.filter_by(user_id=current_user.id)
     search = False
 
     locations_for_render = locations.limit(per_page).offset(offset)
@@ -50,20 +56,43 @@ def location_info(location_id):
     if not location.is_public and location.user_id != current_user.id:
         abort(404)
     url_cz_mapy = mapy_cz_url(location.longitude, location.latitude)
-    url_googlee = google_url(location.longitude, location.latitude)
-    url_os_map = google_url(location.longitude, location.latitude)
+    url_google = google_url(location.longitude, location.latitude)
+    url_os_map = open_street_map_url(location.longitude, location.latitude)
     return render_template('main/location/location_info.html', location=location, type='info',
-                           mapy_cz_url=url_cz_mapy, google_url=url_googlee, os_map_url=url_os_map)
+                           url_cz_mapy=url_cz_mapy, url_google=url_google, url_os_map=url_os_map, editable=_is_editable(location))
+
+@main_location.route('/location/<int:location_id>/skyquality', methods=['GET'])
+@login_required
+def location_skyquality(location_id):
+    """View a location info."""
+    location = Location.query.filter_by(id=location_id).first()
+    if location is None:
+        abort(404)
+    if not location.is_public and location.user_id != current_user.id:
+        abort(404)
+    return render_template('main/location/location_info.html', location=location, type='skyquality', editable=_is_editable(location))
+
+@main_location.route('/location/<int:location_id>/observations', methods=['GET'])
+@login_required
+def location_observations(location_id):
+    """View a location info."""
+    location = Location.query.filter_by(id=location_id).first()
+    if location is None:
+        abort(404)
+    if not location.is_public and location.user_id != current_user.id:
+        abort(404)
+    return render_template('main/location/location_info.html', location=location, type='observations', editable=_is_editable(location))
 
 @main_location.route('/new-location', methods=['GET', 'POST'])
 @login_required
 def new_location():
     form = LocationNewForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate_on_submit():
+        (lon, lat) = parse_lonlat(form.lonlat.data)
         location = Location(
             name = form.name.data,
-            longitude = form.longitude.data,
-            latitude = form.latitude.data,
+            longitude = lon,
+            latitude = lat,
             descr = form.descr.data,
             bortle = form.bortle.data,
             rating = form.rating.data,
@@ -77,7 +106,7 @@ def new_location():
         db.session.add(location)
         db.session.commit()
         flash('Location successfully created', 'form-success')
-    return render_template('main/location/location_new.html', form=form)
+    return render_template('main/location/location_edit.html', form=form, is_new=True)
 
 @main_location.route('/location/<int:location_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -86,16 +115,42 @@ def location_edit(location_id):
     location = Location.query.filter_by(id=location_id).first()
     if location is None:
         abort(404)
-    if location.user_id != current_user.id:
+    if not _is_editable(location):
         abort(404)
     form = LocationEditForm()
-    if form.validate_on_submit():
-        location.date = form.date.data,
-        location.rating = form.rating.data
-        location.notes = form.notes.data
-        location.update_by = current_user.id
-        location.update_date = datetime.now()
-        db.session.add(location)
-        db.session.commit()
-        flash('Location successfully updated', 'form-success')
-    return render_template('main/location/location_edit.html', form=form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            (lon, lat) = parse_lonlat(form.lonlat.data)
+            location.name = form.date.name
+            location.longitute = lon
+            location.latitude = lat
+            location.descr = form.descr.data
+            location.rating = form.rating.data
+            location.is_public = form.is_public.data
+            location.update_by = current_user.id
+            location.update_date = datetime.now()
+            db.session.add(location)
+            db.session.commit()
+            flash('Location successfully updated', 'form-success')
+    else:
+        form.name.data = location.name
+        form.lonlat.data = location.coordinates()
+        form.descr.data = location.descr
+        form.bortle.data = location.bortle
+        form.rating.data = location.rating
+        form.is_public.data = location.is_public
+
+    return render_template('main/location/location_edit.html', form=form, location=location, is_new=False)
+
+@main_location.route('/location/<int:location_id>/delete')
+@login_required
+def location_delete(location_id):
+    """Request deletion of a observation."""
+    location = Location.query.filter_by(id=location_id).first()
+    if location is None:
+        abort(404)
+    if not _is_editable(location):
+        abort(404)
+    db.session.delete(location)
+    flash('Location was deleted', 'form-success')
+    return redirect(url_for('main_location.locations'))

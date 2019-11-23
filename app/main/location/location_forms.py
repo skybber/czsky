@@ -26,18 +26,19 @@ from wtforms.validators import (
     required
 )
 
-class LocationNewForm(FlaskForm):
+from app.commons.coordinates import lonlat_check
+
+class LocationMixin():
     name = StringField('Name', validators=[Length(max=128)])
-    longitude = StringField('Longitude', validators=[Length(max=128)])
-    latitude = StringField('Latitude', validators=[Length(max=128)])
+    lonlat = StringField('Longitude', validators=[Length(max=256), lonlat_check])
     descr = TextAreaField('Notes')
     bortle = FloatField('Bortle', validators=[NumberRange(min=0.0, max=9.0)])
-    is_public = BooleanField('Is public')
-    rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
-    submit = SubmitField('Add')
+    rating = IntegerField('Rating', default=5, validators=[NumberRange(min=0, max=10)])
+    is_for_observation = BooleanField('Is suitable for observation', default=True)
+    is_public = BooleanField('Is public', default=True)
 
-class LocationEditForm(FlaskForm):
-    date = DateField('Date', id='datepick')
-    notes = TextAreaField('Notes')
-    rating = IntegerField('Rating', validators=[NumberRange(min=0, max=10)])
-    submit = SubmitField('Update')
+class LocationNewForm(FlaskForm, LocationMixin):
+    submit = SubmitField('Add location')
+
+class LocationEditForm(FlaskForm, LocationMixin):
+    submit = SubmitField('Update location')

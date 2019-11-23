@@ -2,21 +2,22 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_location.location_info', 'Location'),
-    ('main_location.location_info', 'Observations(TODO)'),
-    ('main_location.location_info', 'SQM (TODO)'),
+    ('main_location.location_info', 'Location', 'location'),
+    ('main_location.location_skyquality', 'Sky quality', 'sky quality'),
+    ('main_location.location_observations', 'Obsevations', 'observations'),
 ] %}
 
 {% macro navigation(items) %}
-    <div class="ui vertical fluid secondary menu">
-        {% for route, name in items %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
             {% set href = url_for(route, location_id=location.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
-                {{ name }}
+                {{ pupup_text }}
             </a>
         {% endfor %}
     </div>
 {% endmacro %}
+
 
 {% macro location_info(location) %}
     <table class="ui compact definition table">
@@ -25,47 +26,49 @@
             <td>Coordinates</td>
             <td>
                 {{ location.full_coordinates()}}
-                {% if mapy_cz_url is not None %} <a href="{{ mapy_cz_url }}">mapy.cz</a> {% endif %}
-                {% if google_cz_url is not None %} <a href="{{ google_cz_url }}">google</a> {% endif %}
+                {% if url_cz_mapy %} <a href="{{ url_cz_mapy }}">mapy.cz</a> {% endif %}
+                {% if url_google %} <a href="{{ url_google }}">google</a> {% endif %}
+                {% if url_os_map %} <a href="{{ url_os_map }}">open street map</a> {% endif %}
              </td>
         </tr>
+        <tr><td>Description</td><td>{{ location.descr }}</td></tr>
         <tr><td>Bortle</td><td>{{ location.bortle }}</td></tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
-        <tr><td>Description</td><td>{{ location.description }}</td></tr>
+        <tr><td>Observation place</td><td>{{ location.is_for_observation }}</td></tr>
     </table>
+{% endmacro %}
+
+{% macro location_skyquality(location) %}
 {% endmacro %}
 
 {% macro location_observations(location) %}
 {% endmacro %}
 
-{% macro location_sqm(location) %}
-{% endmacro %}
-
 {% block content %}
     <div class="ui stackable centered grid container">
-        <div class="fourteen wide tablet fourteen wide computer column">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
             <a class="ui basic compact button" href="{{ url_for('main_location.locations') }}">
                 <i class="caret left icon"></i>
-                Back to locations
+                Locations
             </a>
             <h2 class="ui header">
                 {{ location.name }}
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_location.location_edit', location_id=location.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
             </h2>
         </div>
-        <div class="stretched divided very relaxed row">
-            <div class="four wide column">
-                {{ navigation(endpoints) }}
-            </div>
-            <div class="eight wide column">
-                {% if type == 'info' %}
-                    {{ location_info(location) }}
-                {% elif type == 'observations' %}
-                    {{ location_observations(location) }}
-                {% elif type == 'sqm' %}
-                    {{ location_sqm(location) }}
-                {% endif %}
-            </div>
-        </div>
+        {{ navigation(endpoints) }}
+
+        {% if type == 'info' %}
+            {{ location_info(location) }}
+        {% elif type == 'skyquality' %}
+            {{ location_skyquality(location) }}
+        {% elif type == 'observations' %}
+            {{ location_observations(location) }}
+        {% endif %}
     </div>
 
     <script type="text/javascript">

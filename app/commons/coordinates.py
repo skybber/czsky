@@ -1,4 +1,5 @@
-from LatLon23 import LatLon
+from lat_lon_parser import parse as lonlat_parse
+from wtforms.validators import ValidationError
 
 def geoc_to_string(geoc, format_str):
     '''
@@ -53,3 +54,16 @@ def google_url(lon, lat):
 
 def open_street_map_url(lon, lat):
     return 'https://www.openstreetmap.org/?mlat=' + str(lat) + '&mlon=' + str(lon) + '&zoom=12'
+
+def parse_lonlat(coords):
+    longLat = coords.split(',')
+    if longLat and len(longLat) == 2:
+        return (lonlat_parse(longLat[0]), lonlat_parse(longLat[1]))
+    else:
+        raise ValueError('Invalid coordinate format {}'.format(coords))
+
+def lonlat_check(form, field):
+    try:
+        parse_lonlat(field.data)
+    except ValueError:
+        raise ValidationError('Invalid coordinate format.')
