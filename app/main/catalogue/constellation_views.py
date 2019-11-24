@@ -48,21 +48,21 @@ def constellation_info(constellation_id):
     user_descr = None
     dso_descriptions = None
     star_descriptions = None
-    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
-    if user_8mag:
-        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id)\
+    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    if user_editor:
+        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_editor.id)\
                 .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
                 .order_by(UserConsDescription.lang_code) \
                 .first()
 
         user_descr = ud.text if ud else None
 
-        star_descriptions = UserStarDescription.query.filter_by(user_id=user_8mag.id, lang_code = 'cs')\
+        star_descriptions = UserStarDescription.query.filter_by(user_id=user_editor.id, lang_code = 'cs')\
                 .order_by(UserStarDescription.lang_code) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
-        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_8mag.id)\
+        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=user_editor.id)\
                 .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                 .order_by(UserDsoDescription.lang_code) \
                 .join(UserDsoDescription.deepSkyObject, aliased=True) \
@@ -90,11 +90,11 @@ def constellation_edit(constellation_id):
     if not current_user.is_editor():
         abort(403)
 
-    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
     form = ConstellationEditForm()
-    if user_8mag:
-        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_8mag.id) \
+    if user_editor:
+        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=user_editor.id) \
                         .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
         if request.method == 'GET':
@@ -113,11 +113,21 @@ def constellation_edit(constellation_id):
 
 @main_constellation.route('/constellation/<int:constellation_id>/stars')
 def constellation_stars(constellation_id):
-    """View a constellation info."""
+    """View a constellation stars."""
     constellation = Constellation.query.filter_by(id=constellation_id).first()
     if constellation is None:
         abort(404)
-    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='stars')
+    star_descriptions = None
+    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    editable=current_user.is_editor()
+    if user_editor:
+        star_descriptions = UserStarDescription.query.filter_by(user_id=user_editor.id, lang_code = 'cs')\
+                .order_by(UserStarDescription.lang_code) \
+                .filter_by(constellation_id=constellation.id) \
+                .all()
+
+    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='stars',
+                           star_descriptions=star_descriptions, editable=editable)
 
 
 @main_constellation.route('/constellation/<int:constellation_id>/deepskyobjects')

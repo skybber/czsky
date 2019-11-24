@@ -77,6 +77,22 @@
 {% endmacro %}
 
 {% macro constellation_stars(constellation) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+        <div class="ui blue segment" style="display: inline-block">
+            <div class="markdown">
+                {% if star_descriptions %}
+                    <div class="markdown">
+                    {% for user_star_descr in star_descriptions %}
+                        {% filter commonmark %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})** - {{ user_star_descr.text -}}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})){% endif %}
+                        {% endfilter %}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endmacro %}
 
 {% macro constellation_dsos(constellation) %}

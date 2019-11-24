@@ -70,10 +70,10 @@ def deepskyobject_info(dso_id):
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
-    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
-    if user_8mag:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
+    if user_editor:
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
     prev_dso, next_dso = dso.get_prev_next_dso()
@@ -127,17 +127,17 @@ def deepskyobject_edit(dso_id):
     if not current_user.is_editor():
         abort(403)
 
-    user_8mag = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
     user_descr = None
     form = DeepskyObjectEditForm()
-    if user_8mag:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id) \
+    if user_editor:
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
         if not user_descr:
             user_descr = UserDsoDescription(
                 dso_id = dso_id,
-                user_id = user_8mag.id,
+                user_id = user_editor.id,
                 rating = 5,
                 lang_code = 'cs',
                 common_name = '',
