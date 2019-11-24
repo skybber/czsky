@@ -15,7 +15,7 @@ from .observation_forms import (
     ObservationEditForm,
 )
 
-from app.models import Observation
+from app.models import Observation, Location
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from .observation_form_utils import *
@@ -63,7 +63,10 @@ def new_observation():
             new_observation_id = create_from_basic_form(form)
     if new_observation_id:
         return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
-    return render_template('main/observation/observation_edit.html', form=form, is_new=True)
+    location = Location()
+    location.name = ''
+    location.id = -1
+    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=location)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -84,7 +87,7 @@ def observation_edit(observation_id):
     else:
         form.title.data = observation.title
         form.date.data = observation.date
-        form.location.data = observation.txt_location_name
+        form.location_id.data = observation.location_id
         form.rating.data = observation.rating
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content
@@ -93,6 +96,13 @@ def observation_edit(observation_id):
             oif.deepsky_object_id_list.data = oi.txt_deepsky_objects
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
+
+    if (form.location_id.data and form.location_id.data!=-1):
+        location = Location.query.find_by(location_id=form.location_id.data)
+    else:
+        location = Location()
+        location.name = ''
+        location.id = -1
 
     return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation)
 

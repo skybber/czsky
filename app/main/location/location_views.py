@@ -167,6 +167,5 @@ def location_autocomplete():
     locations = Location.query.filter(Location.name.like('%' + search + '%'))
     results = []
     for loc in locations.all():
-        results.append({'name': loc.name, 'value': loc.name, 'text': loc.name})
-
+        results.append({'name': loc.name, 'value': loc.id, 'text': loc.name})
     return jsonify(success=True, results=results)

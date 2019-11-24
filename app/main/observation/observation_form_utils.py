@@ -16,7 +16,7 @@ def create_from_basic_form(form):
         user_id = current_user.id,
         title = form.title.data,
         date = form.date.data,
-        txt_location_name = form.location.data,
+        location_id = form.location_id.data,
         rating = form.rating.data,
         notes = form.notes.data,
         create_by = current_user.id,
@@ -75,7 +75,7 @@ def update_from_basic_form(form, observation):
     observation.user_id = current_user.id
     observation.title = form.title.data
     observation.date = form.date.data
-    observation.txt_location_name = form.location.data
+    observation.location_id = form.location_id.data
     observation.rating = form.rating.data
     observation.notes = form.notes.data
     observation.update_by = current_user.id

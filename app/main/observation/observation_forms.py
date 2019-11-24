@@ -66,7 +66,7 @@ class ObservationMixin():
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField('Title', validators=[InputRequired(), Length(max=256),])
     date = DateField('Date', id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
-    location = StringField('Location', validators=[Length(max=128),InputRequired()])
+    location_id = IntegerField('Location', validators=[InputRequired()])
     rating = HiddenField('Rating', default=0)
     notes = TextAreaField('Notes')
     omd_content = TextAreaField('OMD Content', default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
