@@ -17,7 +17,7 @@
 
             <table class="ui compact definition table">
                 <tr><td class="two wide">Date</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
-                <tr><td class="two wide">Location</td><td>{{ observation.location.name if observation.location else '' }}</td></tr>
+                <tr><td class="two wide">Location</td><td>{{ observation.location.name if observation.location else observation.txt_location_name }}</td></tr>
                 <tr>
                     <td class="two wide">Notes</td>
                     <td>
