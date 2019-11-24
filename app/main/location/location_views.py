@@ -17,7 +17,6 @@ from app import db
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.search_utils import process_paginated_session_search
-from app.commons.coordinates import *
 
 from .location_forms import (
     LocationNewForm,
@@ -64,11 +63,7 @@ def location_info(location_id):
         abort(404)
     if not location.is_public and location.user_id != current_user.id:
         abort(404)
-    url_cz_mapy = mapy_cz_url(location.longitude, location.latitude)
-    url_google = google_url(location.longitude, location.latitude)
-    url_os_map = open_street_map_url(location.longitude, location.latitude)
-    return render_template('main/location/location_info.html', location=location, type='info',
-                           url_cz_mapy=url_cz_mapy, url_google=url_google, url_os_map=url_os_map, editable=_is_editable(location))
+    return render_template('main/location/location_info.html', location=location, type='info', editable=_is_editable(location))
 
 @main_location.route('/location/<int:location_id>/skyquality', methods=['GET'])
 @login_required
