@@ -11,14 +11,16 @@
                 Locations
             </h2>
 
-            <div class="ui menu">
+            <form action="{{ url_for('main_location.locations') }}" method="post" name="search" class="ui menu">
                 <div class="ui right search item">
-                    <div class="ui transparent icon input">
-                        <input id="search-locations" type="text" placeholder="Search locations…">
-                        <i class="search icon"></i>
+                    <div class="ui action input">
+                        {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                        <button class="ui icon button">
+                            <i class="search icon"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
+            </form>
 
             {# Use overflow-x: scroll so that mobile views don't freak out
              # when the table is too wide #}

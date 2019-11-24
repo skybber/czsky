@@ -42,3 +42,6 @@ class LocationNewForm(FlaskForm, LocationMixin):
 
 class LocationEditForm(FlaskForm, LocationMixin):
     submit = SubmitField('Update location')
+
+class SearchLocationForm(FlaskForm):
+    q = StringField('Search')

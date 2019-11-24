@@ -16,11 +16,13 @@ from app import db
 
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.search_utils import process_paginated_session_search
 from app.commons.coordinates import *
 
 from .location_forms import (
     LocationNewForm,
     LocationEditForm,
+    SearchLocationForm,
 )
 
 from app.main.views import ITEMS_PER_PAGE
@@ -34,17 +36,23 @@ def _is_editable(location):
 @main_location.route('/locations', methods=['GET', 'POST'])
 @login_required
 def locations():
-    page = request.args.get(get_page_parameter(), type=int, default=1)
+    search_form = SearchLocationForm()
+
+    page, search_expr = process_paginated_session_search('location_search_page', [
+        ('location_search', search_form.q),
+    ])
+
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     locations = Location.query.filter(Location.is_for_observation==True,or_(Location.is_public==True, Location.user_id==current_user.id))
-    search = False
-
+    if search_expr:
+        locations = locations.filter(Location.name.like('%' + search_expr + '%'))
     locations_for_render = locations.limit(per_page).offset(offset)
 
-    pagination = Pagination(page=page, total=locations.count(), search=search, record_name='locations', css_framework='semantic')
-    return render_template('main/location/locations.html', locations=locations_for_render, pagination=pagination)
+    pagination = Pagination(page=page, total=locations.count(), search=False, record_name='locations', css_framework='semantic', not_passed_args='back')
+
+    return render_template('main/location/locations.html', locations=locations_for_render, pagination=pagination, search_form=search_form)
 
 @main_location.route('/location/<int:location_id>', methods=['GET'])
 @main_location.route('/location/<int:location_id>/info', methods=['GET'])
