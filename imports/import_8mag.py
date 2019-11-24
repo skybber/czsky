@@ -263,6 +263,8 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                     dso_name = dso_items[0]
                     if dso_name.endswith('A'):
                         dso_name = dso_name[:-1]
+                    if dso_name == 'NGC978':
+                        dso_name = 'NGC0978A'
                     for other in dso_items[1:]:
                         others.append(dso_name[:-len(other)] + other)
                 found_objects.append({'names' : [dso_name] + others, 'rating': rating, 'dso_common_name': dso_common_name })

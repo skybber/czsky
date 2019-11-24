@@ -9,6 +9,8 @@ from skyfield.units import Angle
 
 from .import_utils import progress
 
+from app.commons.dso_utils import normalize_dso_name
+
 def import_abell(abell_data_file):
     """Import data from Abell catalog."""
     from sqlalchemy.exc import IntegrityError
@@ -42,7 +44,7 @@ def import_abell(abell_data_file):
                     cstar_mag = None
 
                 c = DeepskyObject(
-                    name = 'Abell' + row['Abell'],
+                    name = normalize_dso_name('Abell' + row['Abell']),
                     type = 'PN', # TODO: row['Type'] is PN subtype ?
                     ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,
                     dec = Angle(degrees=tuple(map(float, row['Dec'].split(' ')))).radians if len(row['Dec']) > 0 else None,
