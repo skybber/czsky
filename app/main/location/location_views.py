@@ -10,6 +10,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from app import db
 
@@ -37,7 +38,7 @@ def locations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    locations = Location.query.filter_by(user_id=current_user.id)
+    locations = Location.query.filter(Location.is_for_observation==True,or_(Location.is_public==True, Location.user_id==current_user.id))
     search = False
 
     locations_for_render = locations.limit(per_page).offset(offset)
