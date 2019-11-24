@@ -63,13 +63,16 @@
                     </div>
 
                     <div class="field">
-                        {{ f.render_form_field(form.location) }}
+                        {{ form.location.label }}
+                        <select name="{{form.location.name}}" class="ui search selection dropdown dlocation">
+                            <option value="{{form.location.data}}">{{form.location.data}}</option>
+                        </select>
                     </div>
 
                     <div class="field">
-                      {{ form.rating.label }}
-                      <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
-                      {{ form.rating() }}
+                        {{ form.rating.label }}
+                        <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
+                        {{ form.rating() }}
                     </div>
                 </div>
 
@@ -105,7 +108,7 @@
                                           <div class="ui input left icon">
                                             <i class="calendar icon"></i>
                                             <input id="items-{{loop.index0}}-date_time"  name="{{item.date_time.name}}" placeholder="Time"
-                                                   type="text" value="{{item.date_time.data.strftime('%H:%M') if item.date_time.data else ''}}" class=".observ-time">
+                                                   type="text" value="{{item.date_time.data.strftime('%H:%M') if item.date_time.data else ''}}" class="observ-time">
                                           </div>
                                         </div>
                                         <button id="item-{{loop.index0}}-remove" class="ui icon red button" type="button" data-toggle="fieldset-remove-row">
@@ -167,55 +170,6 @@
             }
         }
 
-        $('#odate').calendar({
-            type: 'date',
-            formatter: {
-                date: function (date, settings) {
-                if (!date) return '';
-                var day = date.getDate();
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-                return day + '/' + month + '/' + year;
-                }
-            }
-        });
-
-        $('.observ-time').calendar({
-            type: 'time',
-            ampm: false,
-            popupOptions: {
-                 observeChanges: false
-            },
-            formatter: {
-                date: function (time, settings) {
-                if (!date) return '';
-                var hour = date.getHout();
-                var minute = date.getMinute();
-                return hout + ':' + minute;
-                }
-            }
-        });
-
-        $('.ui.rating').rating({
-            maxRating: 5,
-            onRate: function (rating) {
-                $('#rating').val(rating);
-            }
-        });
-
-        $('.ui.buttons .button').click(function() {
-            $(this).addClass('active').siblings().removeClass('active');
-            if ($(this).hasClass('mode-basic')) {
-                $('.edit-advanced').hide();
-                $('#items-fieldset').show();
-                $('#advmode').attr('value', 'false')
-            } else {
-                $('.edit-advanced').show();
-                $('#items-fieldset').hide();
-                $('#advmode').attr('value', 'true')
-            }
-        });
-
         var notesMDE = new EasyMDE({element: document.getElementById('notes'),
             minHeight: "200px",
             spellChecker: false,
@@ -227,6 +181,64 @@
         });
 
         $(function() {
+
+            $('#odate').calendar({
+                type: 'date',
+                formatter: {
+                    date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                    }
+                }
+            });
+
+            $('.observ-time').calendar({
+                type: 'time',
+                ampm: false,
+                popupOptions: {
+                     observeChanges: false
+                },
+                formatter: {
+                    date: function (time, settings) {
+                    if (!date) return '';
+                    var hour = date.getHout();
+                    var minute = date.getMinute();
+                    return hout + ':' + minute;
+                    }
+                }
+            });
+
+            $('.ui.rating').rating({
+                maxRating: 5,
+                onRate: function (rating) {
+                    $('#rating').val(rating);
+                }
+            });
+
+            $('.ui.buttons .button').click(function() {
+                $(this).addClass('active').siblings().removeClass('active');
+                if ($(this).hasClass('mode-basic')) {
+                    $('.edit-advanced').hide();
+                    $('#items-fieldset').show();
+                    $('#advmode').attr('value', 'false')
+                } else {
+                    $('.edit-advanced').show();
+                    $('#items-fieldset').hide();
+                    $('#advmode').attr('value', 'true')
+                }
+            });
+
+            $('.ui.dropdown.dlocation').dropdown({
+                allowAdditions: true,
+                minCharacters : 3,
+                apiSettings: {
+                    url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
+                }
+            });
+
             recalcLabelsVisibility();
 
             $("div[data-toggle=fieldset]").each(function() {

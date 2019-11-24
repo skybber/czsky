@@ -4,6 +4,7 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -158,3 +159,14 @@ def location_delete(location_id):
     db.session.delete(location)
     flash('Location was deleted', 'form-success')
     return redirect(url_for('main_location.locations'))
+
+@main_location.route('/location-autocomplete', methods=['GET'])
+@login_required
+def location_autocomplete():
+    search = request.args.get('q')
+    locations = Location.query.filter(Location.name.like('%' + search + '%'))
+    results = []
+    for loc in locations.all():
+        results.append({'name': loc.name, 'value': loc.name, 'text': loc.name})
+
+    return jsonify(success=True, results=results)
