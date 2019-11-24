@@ -63,10 +63,7 @@ def new_observation():
             new_observation_id = create_from_basic_form(form)
     if new_observation_id:
         return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
-    location = Location()
-    location.name = ''
-    location.id = -1
-    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=location)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=None)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -97,14 +94,10 @@ def observation_edit(observation_id):
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
 
-    if (form.location_id.data and form.location_id.data!=-1):
-        location = Location.query.find_by(location_id=form.location_id.data)
-    else:
-        location = Location()
-        location.name = ''
-        location.id = -1
+    if form.location_id.data:
+        location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation, location=location)
 
 @main_observation.route('/observation/<int:observation_id>/delete')
 @login_required

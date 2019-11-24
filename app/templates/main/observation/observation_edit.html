@@ -65,7 +65,9 @@
                     <div class="field">
                         {{ form.location_id.label }}
                         <select name="{{form.location_id.name}}" class="ui search selection dropdown dlocation">
-                            <option value="{{location.id}}">{{location.name}}</option>
+                            {% if location %}
+                            <option value="{{ location.id }}" selected="selected">{{ location.name }}</option>
+                            {% endif %}
                         </select>
                         {% if form.location_id.errors %}
                             <div class="ui red pointing label">

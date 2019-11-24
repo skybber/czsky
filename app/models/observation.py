@@ -11,6 +11,7 @@ class Observation(db.Model):
     title = db.Column(db.String(256), index=True)
     date = db.Column(db.DateTime, nullable=False, default=datetime.now(), index=True)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
+    location = db.relationship("Location")
     txt_location_name = db.Column(db.String(128))
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
