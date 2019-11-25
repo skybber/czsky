@@ -18,6 +18,7 @@ from app import db
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.search_utils import process_paginated_session_search
+from app.commons.coordinates import parse_lonlat
 
 from .location_forms import (
     LocationNewForm,
