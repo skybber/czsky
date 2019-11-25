@@ -8,14 +8,14 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
             {% if is_new %}
-              <a class="ui basic compact button" href="{{ url_for('main.index') }}">
-                  <i class="caret left icon"></i>
-                  Back to dashboard
-              </a>
+                <a class="ui basic compact button" href="{{ url_for('main_settings.settings') }}">
+                    <i class="caret left icon"></i>
+                    Settings
+                </a>
             {% else %}
               <a class="ui basic compact button" href="{{ url_for('main_location.location_info', location_id=location.id) }}">
                   <i class="caret left icon"></i>
-                Back to Location Info
+                Location Info
               </a>
             {% endif %}
 
