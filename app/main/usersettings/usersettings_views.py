@@ -155,3 +155,25 @@ def git_content_ssh_key_create():
     db.session.commit()
     flash('New content ssh key was created.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
+
+@main_usersettings.route('/user-settings/git-ssh-key-delete', methods=['GET'])
+@login_required
+def git_ssh_key_delete():
+    current_user.git_ssh_private_key = None
+    current_user.git_ssh_public_key = None
+    db.session.add(current_user)
+    db.session.commit()
+    flash('SSH key was deleted.', 'form-success')
+    return redirect(url_for('main_usersettings.git_repository'))
+
+@main_usersettings.route('/user-settings/git-content-ssh-key-delete', methods=['GET'])
+@login_required
+def git_content_ssh_key_delete():
+    current_user.git_content_ssh_private_key = None
+    current_user.git_content_ssh_public_key = None
+    db.session.add(current_user)
+    db.session.commit()
+    flash('SSH key for content was deleted.', 'form-success')
+    return redirect(url_for('main_usersettings.git_repository'))
+
+

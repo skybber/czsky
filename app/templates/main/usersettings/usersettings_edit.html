@@ -129,6 +129,10 @@
             <div class="two fields">
                 {{ form1.submit(class='positive ui button') }}
                 <a id="bnewkey1" class="negative ui button" href="#">Create new ssh key</a>
+                <a id="bdelkey1" class="negative ui button" href="#">
+                    <i class="trash icon"></i>
+                    Delete ssh key
+                </a>
             </div>
         {{ f.end_form() }}
     </div>
@@ -141,6 +145,20 @@
       <div class="actions">
         <div class="ui negative cancel button">No</div>
         <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_ssh_key_create') }}">
+            Yes
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="ui tiny modal sshDeleteModal1">
+      <div class="header">Delete SSH key</div>
+      <div class="content">
+        <p>Are you sure you want to delete sshkey?</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">No</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_ssh_key_delete') }}">
             Yes
             <i class="checkmark icon"></i>
         </a>
@@ -160,6 +178,10 @@
                 <div class="two fields">
                     {{ form2.submit(class='positive ui button') }}
                     <a id="bnewkey2" class="negative ui button" href="#">Create new ssh key</a>
+                    <a id="bdelkey2" class="negative ui button" href="#">
+                        <i class="trash icon"></i>
+                        Delete ssh key
+                    </a>
                 </div>
             {{ f.end_form() }}
         </div>
@@ -171,6 +193,20 @@
           <div class="actions">
             <div class="ui negative cancel button">No</div>
             <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_content_ssh_key_create') }}">
+                Yes
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="ui tiny modal sshDeleteModal2">
+          <div class="header">Delete SSH key for content repository</div>
+          <div class="content">
+            <p>Are you sure you want to delete sshkey for content repository?</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_usersettings.git_content_ssh_key_delete') }}">
                 Yes
                 <i class="checkmark icon"></i>
             </a>
@@ -207,6 +243,14 @@
             });
             $('#bnewkey2').click(function() {
                 $('.ui.modal.sshCreateModal2')
+                   .modal('show');
+            });
+            $('#bdelkey1').click(function() {
+                $('.ui.modal.sshDeleteModal1')
+                   .modal('show');
+            });
+            $('#bdelkey2').click(function() {
+                $('.ui.modal.sshDeleteModal2')
                    .modal('show');
             });
         {% endif %}
