@@ -55,15 +55,18 @@ def observation_info(observation_id):
 def new_observation():
     """Create new observation"""
     form = ObservationNewForm()
-    new_observation_id = None
     if request.method == 'POST' and form.validate_on_submit():
         if form.advmode.data == 'true':
             new_observation_id = create_from_advanced_form(form)
         else:
             new_observation_id = create_from_basic_form(form)
-    if new_observation_id:
-        return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
-    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=None)
+        if new_observation_id:
+            return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
+
+    location = None
+    if form.location_id.data:
+        location = Location.query.filter_by(id=form.location_id.data).first()
+    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=location)
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -94,6 +97,7 @@ def observation_edit(observation_id):
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
 
+    location = None
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
