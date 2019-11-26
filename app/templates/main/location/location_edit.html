@@ -26,6 +26,7 @@
                     Edit Location
                 {% endif %}
             </h2>
+
             {% set flashes = {
                 'error':   get_flashed_messages(category_filter=['form-error']),
                 'info':    get_flashed_messages(category_filter=['form-info']),
@@ -37,7 +38,33 @@
             {{ f.begin_form(form, flashes) }}
 
                 {{ f.render_form_field(form.name) }}
-                {{ f.render_form_field(form.lonlat) }}
+                <div class="two fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.lonlat) }}
+                    </div>
+                    <div class="field">
+                        {{ form.country_code.label }}
+                        <div class="ui dropdown labeled icon button">
+                          <input type="hidden" id="{{ form.country_code.name }}" name="{{ form.country_code.name }}" value="{{ form.country_code.data }}">
+                          <i class="world icon"></i>
+                          <span class="text">Select Country</span>
+                          <div class="menu">
+                            <div class="ui icon search input">
+                              <i class="search icon"></i>
+                              <input type="text" placeholder="Search tags...">
+                            </div>
+                            <div class="scrolling menu">
+                                {% for country in countries %}
+                                    <div class="item" data-value="{{country.code}}">
+                                      <i class="{{country.code.lower()}} flag"></i>
+                                      {{ country.name}}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="two fields">
                     <div class="field">

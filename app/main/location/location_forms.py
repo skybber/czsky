@@ -36,6 +36,7 @@ class LocationMixin():
     rating = IntegerField('Rating', default=5, validators=[NumberRange(min=0, max=10)])
     is_for_observation = BooleanField('Is suitable for observation', default=True)
     is_public = BooleanField('Is public', default=True)
+    country_code = StringField('Country', validators=[InputRequired(),])
 
 class LocationNewForm(FlaskForm, LocationMixin):
     submit = SubmitField('Add location')

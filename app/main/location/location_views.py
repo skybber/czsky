@@ -27,6 +27,7 @@ from .location_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
+from app.commons.countries import countries
 
 main_location = Blueprint('main_location', __name__)
 
@@ -99,6 +100,7 @@ def new_location():
             name = form.name.data,
             longitude = lon,
             latitude = lat,
+            country_code = form.country_code.data,
             descr = form.descr.data,
             bortle = form.bortle.data,
             rating = form.rating.data,
@@ -112,7 +114,7 @@ def new_location():
         db.session.add(location)
         db.session.commit()
         flash('Location successfully created', 'form-success')
-    return render_template('main/location/location_edit.html', form=form, is_new=True)
+    return render_template('main/location/location_edit.html', form=form, is_new=True, countries=countries)
 
 @main_location.route('/location/<int:location_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -127,10 +129,12 @@ def location_edit(location_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             (lon, lat) = parse_lonlat(form.lonlat.data)
-            location.name = form.date.name
+            location.name = form.name.data
             location.longitute = lon
             location.latitude = lat
+            location.country_code = form.country_code.data
             location.descr = form.descr.data
+            location.bortle = form.bortle.data
             location.rating = form.rating.data
             location.is_public = form.is_public.data
             location.update_by = current_user.id
@@ -141,12 +145,13 @@ def location_edit(location_id):
     else:
         form.name.data = location.name
         form.lonlat.data = location.coordinates()
+        form.country_code.data = location.country_code
         form.descr.data = location.descr
         form.bortle.data = location.bortle
         form.rating.data = location.rating
         form.is_public.data = location.is_public
 
-    return render_template('main/location/location_edit.html', form=form, location=location, is_new=False)
+    return render_template('main/location/location_edit.html', form=form, location=location, is_new=False, countries=countries)
 
 @main_location.route('/location/<int:location_id>/delete')
 @login_required
