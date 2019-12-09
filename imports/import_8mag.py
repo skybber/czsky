@@ -250,7 +250,10 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                     dso_name = 'B' + dso_name[len('Barnard'):]
                 dso_name = normalize_dso_name(dso_name.strip())
                 others = []
-                if dso_name.startswith('NGC') and any(x in dso_name for x in ['-', '/', '&', 'A']):
+                if dso_name == 'Stephanov kvintet':
+                    dso_name = 'NGC7318'
+                    others = ['NGC7320', 'NGC7319', 'NGC7317' ]
+                elif dso_name.startswith('NGC') and any(x in dso_name for x in ['-', '/', '&', 'A']):
                     if '-' in dso_name:
                         dso_items = dso_name.split('-')
                     elif '/' in dso_name:
@@ -265,6 +268,7 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                         dso_name = dso_name[:-1]
                     if dso_name == 'NGC978':
                         dso_name = 'NGC0978A'
+                    dso_name = normalize_dso_name(dso_name)
                     for other in dso_items[1:]:
                         others.append(dso_name[:-len(other)] + other)
                 found_objects.append({'names' : [dso_name] + others, 'rating': rating, 'dso_common_name': dso_common_name })
@@ -318,7 +322,7 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                 print('VIC object not found. cs name=' + vic_cs_name)
         else:
             for dso_name in m['names']:
-                dso = DeepskyObject.query.filter_by(name=dso_name).first()
+                dso = DeepskyObject.query.filter_by(name=m['names'][0]).first()
                 if dso:
                     udd = UserDsoDescription(
                         dso_id = dso.id,
@@ -332,7 +336,7 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                         update_by = user_8mag.id,
                         create_date = datetime.now(),
                         update_date = datetime.now(),
-)
+                        )
                     db.session.add(udd)
                 else:
                     print('Deepsky object not found. dso name=' + m['names'][0])

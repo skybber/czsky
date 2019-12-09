@@ -26,6 +26,7 @@ from .usersettings_forms import (
 )
 
 from .delete_account_utils import process_delete_account
+from app.commons.countries import countries
 
 main_usersettings = Blueprint('main_usersettings', __name__)
 
@@ -45,7 +46,7 @@ def public_profile():
         form.full_name.data = current_user.full_name
         form.email.data = current_user.email
 
-    return render_template('main/usersettings/usersettings_edit.html', type='public_profile', form=form)
+    return render_template('main/usersettings/usersettings_edit.html', type='public_profile', form=form, countries=countries)
 
 @main_usersettings.route('/user-settings/account', methods=['GET', 'POST'])
 @login_required

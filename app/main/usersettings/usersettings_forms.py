@@ -13,6 +13,7 @@ class PublicProfileForm(FlaskForm):
     user_name = TextField('Username', validators=[InputRequired(), Length(1, 64)], render_kw={'readonly': True})
     full_name = TextField('Full Name', validators=[InputRequired(), Length(1, 256)])
     email = EmailField('Email', validators=[InputRequired(), Length(1, 64), Email()])
+    default_country_code = StringField('Default country', validators=[InputRequired(),])
     submit = SubmitField('Update')
 
 class PasswordForm(FlaskForm):

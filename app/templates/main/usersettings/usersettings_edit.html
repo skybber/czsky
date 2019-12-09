@@ -30,10 +30,33 @@
     <h4 class="ui top attached block header segment">Public profile</h4>
     <div class="ui attached segment">
         {{ f.begin_form(form, flashes) }}
-              {{ f.render_form_field(form.user_name, extra_classes='readonly') }}
-              {{ f.render_form_field(form.full_name) }}
-              {{ f.render_form_field(form.email) }}
-              {{ form.submit(class='positive ui button') }}
+            {{ f.render_form_field(form.user_name, extra_classes='readonly') }}
+            {{ f.render_form_field(form.full_name) }}
+            {{ f.render_form_field(form.email) }}
+            <div class="field">
+                {{ form.default_country_code.label }}
+                <div class="ui dropdown labeled icon button">
+                  <input type="hidden" id="{{ form.default_country_code.name }}" name="{{ form.default_country_code.name }}" value="{{ form.default_country_code.data }}">
+                  <i class="world icon"></i>
+                  <span class="text">Select Country</span>
+                  <div class="menu">
+                    <div class="ui icon search input">
+                      <i class="search icon"></i>
+                      <input type="text" placeholder="Search tags...">
+                    </div>
+                    <div class="scrolling menu">
+                        {% for country in countries %}
+                            <div class="item" data-value="{{country.code}}">
+                              <i class="{{country.code.lower()}} flag"></i>
+                              {{ country.name}}
+                            </div>
+                        {% endfor %}
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            {{ form.submit(class='positive ui button') }}
         {{ f.end_form() }}
     </div>
 {% endmacro %}
