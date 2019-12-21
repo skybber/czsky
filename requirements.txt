@@ -35,6 +35,7 @@ MarkupSafe==1.1.1
 packaging==19.1
 pipupgrade==1.5.1
 psycopg2==2.8.3
+pycairo==1.18.2
 pycryptodome==3.9.1
 pyparsing==2.4.2
 python-dateutil==2.8.0
