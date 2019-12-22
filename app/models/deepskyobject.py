@@ -76,6 +76,11 @@ class DeepskyObject(db.Model):
             next_dso = DeepskyObject.query.filter_by(name=next_name).first()
         return prev_dso, next_dso
 
+    def get_constellation_iau_code(self):
+        if self.constellation:
+            return self.constellation.iau_code
+        return ''
+
     @classmethod
     def get_browsing_catalogue_map(cls):
         if not DeepskyObject._browsing_catalogue_map:

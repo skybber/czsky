@@ -36,6 +36,7 @@
                         <tr>
                             <th class="sorted ascending">Name</th>
                             <th>Type</th>
+                            <th>Constellation</th>
                             <th>RA</th>
                             <th>Dec</th>
                             <th>mag</th>
@@ -46,6 +47,7 @@
                         <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.id) }}';">
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>
+                            <td>{{ d.get_constellation_iau_code() }}</td>
                             <td>{{ d.ra_str_short() }}</td>
                             <td>{{ d.dec_str_short() }}</td>
                             <td>{{ d.v_mag }}</td>
