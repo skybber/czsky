@@ -43,10 +43,15 @@
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
     <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui form">
-        <label for="oradius">Radius</label>
-        <div class="ui labeled ticked slider" id="slider-radius" style="width:150px"></div>
-        <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+        <div class="inline fields">
+            <label for="oradius">Radius</label>
+            <div class="ui labeled ticked slider" id="slider-radius" style="width:150px"></div>
+            <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
+            <label for="oradius">Limit mag</label>
+            <div class="ui labeled ticked slider" id="slider-maglim" style="width:350px"></div>
+            <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+        </div>
     </form>
     <canvas id="pdfcanvas"></canvas>
 {% endmacro %}
@@ -162,6 +167,19 @@
               })
             ;
 
+            $('#slider-maglim')
+              .slider({
+                min: 10,
+                max: 14,
+                step: 1,
+                start:{{ form.maglim.data }},
+                fireOnInit: false,
+                onChange: function(value) {
+                    $('#maglim').val(value);
+                    $("#fmchart" ).submit();
+                }
+              })
+            ;
             var url = '{{fchart}}';
 
             var pdfjsLib = window['pdfjs-dist/build/pdf'];

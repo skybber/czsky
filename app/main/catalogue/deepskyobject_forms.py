@@ -61,4 +61,5 @@ class DeepskyObjectEditForm(FlaskForm):
 
 class DeepskyObjectFindChartForm(FlaskForm):
     radius = IntegerField('Field radius', default=2)
+    maglim = IntegerField('Limit mag', default=14)
     submit = SubmitField('Update')

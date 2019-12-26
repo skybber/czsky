@@ -110,10 +110,11 @@ def deepskyobject_findchart(dso_id):
     preview_dir = 'app' + preview_url_dir
     dso_dname = dso.denormalized_name().replace(' ','')
     radius = _decode_radius(form.radius.data)
-    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '.pdf'
+    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + '.pdf'
     full_file_name = preview_dir +os.sep + dso_file_name
     if not os.path.exists(full_file_name):
-        p = subprocess.Popen(['fchart', '-f', str(radius), '-O', full_file_name, '-r', '-n', '-c', '', '-d', '13.0', dso_dname])
+        p = subprocess.Popen(['fchart', '-f', str(radius), '-O', full_file_name, '-r', '-n', '-c', '', '-d', '13.0',
+                              '-s', str(form.maglim.data), dso_dname])
         p.wait()
     fchart = preview_url_dir + dso_file_name
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart=fchart,
