@@ -37,8 +37,8 @@
                             <th class="sorted ascending">Name</th>
                             <th>Type</th>
                             <th>Constellation</th>
-                            <th>RA</th>
-                            <th>Dec</th>
+                            <th class="mobile hidden">RA</th>
+                            <th class="mobile hidden">Dec</th>
                             <th>mag</th>
                         </tr>
                     </thead>
@@ -48,8 +48,8 @@
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>
                             <td>{{ d.get_constellation_iau_code() }}</td>
-                            <td>{{ d.ra_str_short() }}</td>
-                            <td>{{ d.dec_str_short() }}</td>
+                            <td class="mobile hidden">{{ d.ra_str_short() }}</td>
+                            <td class="mobile hidden">{{ d.dec_str_short() }}</td>
                             <td>{{ d.v_mag }}</td>
                         </tr>
                     {% endfor %}
