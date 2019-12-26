@@ -10,6 +10,7 @@ from flask import (
     flash,
     render_template,
     request,
+    session,
 )
 from flask_login import current_user, login_required
 
@@ -112,8 +113,10 @@ def deepskyobject_findchart(dso_id):
     radius = _decode_radius(form.radius.data)
     dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + '.pdf'
     full_file_name = preview_dir +os.sep + dso_file_name
+    invert_opt = '-i' if session.get('themdark', False) else ''
+
     if not os.path.exists(full_file_name):
-        p = subprocess.Popen(['fchart', '-f', str(radius), '-O', full_file_name, '-r', '-n', '-c', '', '-d', '13.0',
+        p = subprocess.Popen(['fchart', '-f', str(radius), '-O', full_file_name, '-r', '-n', invert_opt, '-c', '', '-d', '13.0',
                               '-s', str(form.maglim.data), dso_dname])
         p.wait()
     fchart = preview_url_dir + dso_file_name
