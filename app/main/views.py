@@ -1,6 +1,7 @@
 from flask import (
     Blueprint,
     render_template,
+    session,
 )
 from flask_login import current_user, login_required
 
@@ -20,3 +21,7 @@ def about():
     return render_template(
         'main/about.html', editable_html_obj=editable_html_obj)
 
+@main.route('/swtheme')
+def switch_theme():
+    session['themdark'] = not session.get('themdark', False)
+    return render_template('main/index.html', is_anonymous=current_user.is_anonymous)

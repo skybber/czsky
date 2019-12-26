@@ -9,7 +9,7 @@ from flask_rq import RQ
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 
-from app.assets import app_css, app_js, vendor_css, vendor_js
+from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css
 from config import config as Config
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -58,6 +58,8 @@ def create_app(config):
     assets_env.url_expire = True
 
     assets_env.register('app_css', app_css)
+    assets_env.register('default_theme_css', default_theme_css)
+    assets_env.register('dark_theme_css', dark_theme_css)
     assets_env.register('app_js', app_js)
     assets_env.register('vendor_css', vendor_css)
     assets_env.register('vendor_js', vendor_js)
