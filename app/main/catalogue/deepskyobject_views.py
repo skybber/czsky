@@ -21,6 +21,7 @@ from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
 
 from .deepskyobject_forms import (
+    DeepskyObjectFindChartForm,
     DeepskyObjectEditForm,
     SearchDsoForm,
 )
@@ -95,27 +96,33 @@ def deepskyobject_catalogue_data(dso_id):
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            prev_dso=prev_dso, next_dso=next_dso)
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart')
+@main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart', methods=['GET', 'POST'])
 def deepskyobject_findchart(dso_id):
     """View a deepsky object findchart."""
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
+    form  = DeepskyObjectFindChartForm()
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
     prev_dso, next_dso = dso.get_prev_next_dso()
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
     dso_dname = dso.denormalized_name().replace(' ','')
-    pdf_file =  preview_dir + dso_dname + '.pdf'
-    if not os.path.exists(pdf_file):
-        p = subprocess.Popen(['fchart', '-f', '5', '-o', preview_dir, dso_dname, '-r', '-n', '-c', ''])
+    radius = _decode_radius(form.radius.data)
+    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '.pdf'
+    full_file_name = preview_dir +os.sep + dso_file_name
+    if not os.path.exists(full_file_name):
+        p = subprocess.Popen(['fchart', '-f', str(radius), '-O', full_file_name, '-r', '-n', '-c', '', '-d', '13.0', dso_dname])
         p.wait()
-    fchart = preview_url_dir + dso_dname + '.pdf'
-    return render_template('main/catalogue/deepskyobject_info.html', type='fchart', dso=dso, fchart=fchart,
+    fchart = preview_url_dir + dso_file_name
+    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart=fchart,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            prev_dso=prev_dso, next_dso=next_dso)
 
+def _decode_radius(radius):
+    radiuses = [2, 5, 10]
+    return radiuses[radius-1]
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required

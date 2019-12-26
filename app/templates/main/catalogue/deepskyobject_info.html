@@ -42,6 +42,12 @@
 
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
+    <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui form">
+        <label for="oradius">Radius</label>
+        <div class="ui labeled ticked slider" id="slider-radius" style="width:150px"></div>
+        <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+    </form>
     <canvas id="pdfcanvas"></canvas>
 {% endmacro %}
 
@@ -138,6 +144,23 @@
         <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
 
         <script type="text/javascript">
+            var labels = ["2", "5", "10"];
+            $('#slider-radius')
+              .slider({
+                min: 1,
+                max: 3,
+                step: 1,
+                start:{{ form.radius.data }},
+                fireOnInit: false,
+                interpretLabel: function(value) {
+                  return labels[value];
+                },
+                onChange: function(value) {
+                    $('#radius').val(value);
+                    $("#fmchart" ).submit();
+                }
+              })
+            ;
 
             var url = '{{fchart}}';
 
@@ -176,6 +199,7 @@
             // PDF loading error
                 console.error(reason);
             });
+
         </script>
 
     {% endif %}

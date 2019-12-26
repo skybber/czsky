@@ -58,3 +58,7 @@ class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField('Common Name', validators=[Length(max=256)])
     text = TextAreaField('Text')
     submit = SubmitField('Update')
+
+class DeepskyObjectFindChartForm(FlaskForm):
+    radius = IntegerField('Field radius', default=2)
+    submit = SubmitField('Update')
