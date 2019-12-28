@@ -111,9 +111,10 @@ def deepskyobject_findchart(dso_id):
     preview_dir = 'app' + preview_url_dir
     dso_dname = dso.denormalized_name().replace(' ','')
     radius = _decode_radius(form.radius.data)
-    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + '.pdf'
-    full_file_name = preview_dir +os.sep + dso_file_name
     invert_opt = '-inv' if session.get('themdark', False) else ''
+    invert_fragm = '_i' if session.get('themdark', False) else ''
+    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_fragm + '.pdf'
+    full_file_name = preview_dir +os.sep + dso_file_name
 
     if not os.path.exists(full_file_name):
         p = subprocess.Popen(['fchart3', '-size', str(radius), '-f', full_file_name, '-capt', '', '-limdso', '13.0',
