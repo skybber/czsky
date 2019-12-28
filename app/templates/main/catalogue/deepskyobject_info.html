@@ -57,7 +57,11 @@
             </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
+{% if show_pdf %}
     <canvas id="pdfcanvas"></canvas>
+{% else %}
+    <img src="{{fchart_url}}"></img>
+{% endif %}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
@@ -184,7 +188,8 @@
                 }
               })
             ;
-            var url = '{{fchart}}';
+{% if show_pdf %}
+            var url = '{{fchart_url}}';
 
             var pdfjsLib = window['pdfjs-dist/build/pdf'];
 
@@ -221,6 +226,7 @@
             // PDF loading error
                 console.error(reason);
             });
+{% endif %}
 
         </script>
 

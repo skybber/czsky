@@ -113,15 +113,16 @@ def deepskyobject_findchart(dso_id):
     radius = _decode_radius(form.radius.data)
     invert_opt = '-inv' if session.get('themdark', False) else ''
     invert_fragm = '_i' if session.get('themdark', False) else ''
-    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_fragm + '.pdf'
-    full_file_name = preview_dir +os.sep + dso_file_name
+    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_fragm + '.png'
+    full_file_name = preview_dir + os.sep + dso_file_name
 
     if not os.path.exists(full_file_name):
-        p = subprocess.Popen(['fchart3', '-size', str(radius), '-f', full_file_name, '-capt', '', '-limdso', '13.0',
+        a4_width = '210'
+        p = subprocess.Popen(['fchart3', '-size', str(radius), '-width', a4_width, '-f', full_file_name, '-capt', '', '-limdso', '13.0',
                               '-limstar', str(form.maglim.data), invert_opt, dso_dname])
         p.wait()
-    fchart = preview_url_dir + dso_file_name
-    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart=fchart,
+    fchart_url = preview_url_dir + dso_file_name
+    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            prev_dso=prev_dso, next_dso=next_dso)
 
