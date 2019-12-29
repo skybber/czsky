@@ -4,10 +4,10 @@
 
 {% assets 'vendor_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% assets 'app_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
-{% if session.get('themdark') %}
-{% assets 'dark_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
-{% else %}
+{% if session.get('themlight') %}
 {% assets 'default_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
+{% else %}
+{% assets 'dark_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% endif %}
 
 {% assets 'vendor_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}

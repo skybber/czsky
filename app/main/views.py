@@ -1,6 +1,8 @@
 from flask import (
     Blueprint,
+    redirect,
     render_template,
+    request,
     session,
 )
 from flask_login import current_user, login_required
@@ -23,5 +25,5 @@ def about():
 
 @main.route('/swtheme')
 def switch_theme():
-    session['themdark'] = not session.get('themdark', False)
-    return render_template('main/index.html', is_anonymous=current_user.is_anonymous)
+    session['themlight'] = not session.get('themlight', False)
+    return redirect(request.referrer)

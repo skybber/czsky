@@ -111,8 +111,8 @@ def deepskyobject_findchart(dso_id):
     preview_dir = 'app' + preview_url_dir
     dso_dname = dso.denormalized_name().replace(' ','')
     radius = _decode_radius(form.radius.data)
-    invert_opt = '-inv' if session.get('themdark', False) else ''
-    invert_fragm = '_i' if session.get('themdark', False) else ''
+    invert_opt = '-inv' if not session.get('themlight', False) else ''
+    invert_fragm = '_i' if not session.get('themlight', False) else ''
     dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_fragm + '.png'
     full_file_name = preview_dir + os.sep + dso_file_name
 
