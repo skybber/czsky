@@ -43,18 +43,32 @@
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
     <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui menu">
-            <div class="ui item">
-                <div class="ui labeled ticked small slider" id="slider-radius" style="width:150px">
-                    <div class="bottom floating ui label">Radius</div>
-                </div>
-                <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-                </div>
-            <div class="ui item">
-                <div class="ui labeled ticked small slider" id="slider-maglim" style="width:250px">
-                    <div class="bottom floating ui label">Limit mag</div>
-                </div>
-                <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
+        <div class="ui labeled item">
+            <div class="ui labeled ticked small slider" id="slider-radius" style="width:150px">
             </div>
+            <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
+            <div class="top left floating ui label">Radius</div>
+        </div>
+        <div class="ui labeled item">
+            <div class="ui labeled ticked small slider" id="slider-maglim" style="width:250px">
+            </div>
+            <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
+            <div class="top left floating ui label">Limit mag</div>
+        </div>
+        <div class="ui labeled item">
+            <div class="ui toggle checkbox">
+                {{ form.mirror_x(onchange='this.form.submit()') }}
+                <label></label>
+            </div>
+            <div class="top left floating ui label">Mirror X</div>
+        </div>
+        <div class="ui labeled item">
+            <div class="ui toggle checkbox">
+                {{ form.mirror_y(onchange='this.form.submit()') }}
+                <label></label>
+            </div>
+            <div class="top left floating ui label">Mirror Y</div>
+        </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
 {% if show_pdf %}

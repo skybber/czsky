@@ -109,17 +109,35 @@ def deepskyobject_findchart(dso_id):
     prev_dso, next_dso = dso.get_prev_next_dso()
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
+
     dso_dname = dso.denormalized_name().replace(' ','')
     radius = _decode_radius(form.radius.data)
-    invert_opt = '-inv' if not session.get('themlight', False) else ''
-    invert_fragm = '_i' if not session.get('themlight', False) else ''
-    dso_file_name = dso_dname +'_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_fragm + '.png'
+
+    invert_part = '_i' if not session.get('themlight', False) else ''
+    mirror_x_part = '_mx' if form.mirror_x.data else ''
+    mirror_y_part = '_my' if form.mirror_y.data else ''
+    dso_file_name = dso_dname + '_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.png'
+
     full_file_name = preview_dir + os.sep + dso_file_name
 
     if not os.path.exists(full_file_name):
         a4_width = '210'
-        p = subprocess.Popen(['fchart3', '-size', str(radius), '-width', a4_width, '-f', full_file_name, '-capt', '', '-limdso', '13.0',
-                              '-limstar', str(form.maglim.data), invert_opt, dso_dname])
+
+        prog_params = ['fchart3',
+                       '-size', str(radius),
+                       '-width', a4_width,
+                       '-f', full_file_name,
+                       '-capt', '',
+                       '-limdso', '13.0',
+                       '-limstar', str(form.maglim.data)]
+        if not session.get('themlight', False):
+            prog_params.append('-inv')
+        if form.mirror_x.data:
+            prog_params.append('-mx')
+        if form.mirror_y.data:
+            prog_params.append('-my')
+        prog_params.append(dso_dname)
+        p = subprocess.Popen(prog_params)
         p.wait()
     fchart_url = preview_url_dir + dso_file_name
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
