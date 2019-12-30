@@ -113,7 +113,9 @@ def deepskyobject_findchart(dso_id):
     dso_dname = dso.denormalized_name().replace(' ','')
     radius = _decode_radius(form.radius.data)
 
-    invert_part = '_i' if not session.get('themlight', False) else ''
+    night_mode = not session.get('themlight', False)
+
+    invert_part = '_i' if night_mode else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
     mirror_y_part = '_my' if form.mirror_y.data else ''
     dso_file_name = dso_dname + '_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.svg'
@@ -135,8 +137,8 @@ def deepskyobject_findchart(dso_id):
                        '-ldso', '0.1',
                        '-llegend', '0.3',
                        ]
-        if not session.get('themlight', False):
-            prog_params.append('-inv')
+        if night_mode:
+            prog_params.append('-nm')
         if form.mirror_x.data:
             prog_params.append('-mx')
         if form.mirror_y.data:
