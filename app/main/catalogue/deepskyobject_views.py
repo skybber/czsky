@@ -129,7 +129,12 @@ def deepskyobject_findchart(dso_id):
                        '-f', full_file_name,
                        '-capt', '',
                        '-limdso', '13.0',
-                       '-limstar', str(form.maglim.data)]
+                       '-limstar', str(form.maglim.data),
+                       '-lstar', '0.06',
+                       '-locl', '0.15',
+                       '-ldso', '0.1',
+                       '-llegend', '0.3',
+                       ]
         if not session.get('themlight', False):
             prog_params.append('-inv')
         if form.mirror_x.data:
