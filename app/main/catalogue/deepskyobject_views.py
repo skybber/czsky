@@ -116,7 +116,7 @@ def deepskyobject_findchart(dso_id):
     invert_part = '_i' if not session.get('themlight', False) else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
     mirror_y_part = '_my' if form.mirror_y.data else ''
-    dso_file_name = dso_dname + '_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.png'
+    dso_file_name = dso_dname + '_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.svg'
 
     full_file_name = preview_dir + os.sep + dso_file_name
 
