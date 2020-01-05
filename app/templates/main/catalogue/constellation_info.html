@@ -21,15 +21,17 @@
 {% macro constellation_user_info(constellation, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
-            <div class="markdown">
+            <div>
                 {% if editable %}
                     <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
+                <div class="markdown">
                 {% filter commonmark %}
 {{ user_descr }}
                 {% endfilter %}
+                </div>
                 {% if star_descriptions %}
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
@@ -79,7 +81,7 @@
 {% macro constellation_stars(constellation) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
-            <div class="markdown">
+            <div>
                 {% if star_descriptions %}
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
@@ -156,6 +158,10 @@
 .markdown img {
   max-width: 100%;
   height: auto;
+}
+
+.markdown p {
+  text-align: justify;
 }
     </style>
 {% endblock %}
