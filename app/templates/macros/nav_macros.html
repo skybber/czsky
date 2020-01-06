@@ -45,7 +45,7 @@
     {% set endpoints = [
       ('main.index', config.APP_NAME, 'home'),
       ('main.about', 'About', 'info'),
-      ('main.switch_theme', 'Day/Night mode', 'eye')
+      ('main.switch_theme', (session['themlight'] and 'Night mode' or 'Day mode'), 'eye')
     ]%}
     {% set user = [] %}
     {% if current_user.is_authenticated %}
