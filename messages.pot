@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-07 19:07+0100\n"
+"POT-Creation-Date: 2020-01-07 20:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,237 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
+
+#: app/main/catalogue/constellation_forms.py:32
+#: app/main/location/location_forms.py:49
+msgid "Search"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:33
+msgid "Season"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:34
+msgid "All"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:35
+msgid "winter"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:35
+msgid "Winter"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:36
+msgid "spring"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:36
+msgid "Spring"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:37
+msgid "summer"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:37
+msgid "Summer"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:38
+msgid "autumn"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:38
+msgid "Autumn"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:39
+msgid "southern"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:39
+msgid "Southern"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:43
+#: app/main/catalogue/deepskyobject_forms.py:59
+#: app/main/catalogue/star_forms.py:32
+msgid "Common Name"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:44
+#: app/main/catalogue/deepskyobject_forms.py:60
+#: app/main/catalogue/star_forms.py:33
+msgid "Text"
+msgstr ""
+
+#: app/main/catalogue/constellation_forms.py:45
+#: app/main/catalogue/deepskyobject_forms.py:61
+#: app/main/catalogue/deepskyobject_forms.py:68
+#: app/main/catalogue/star_forms.py:34
+#: app/main/usersettings/usersettings_forms.py:19
+#: app/main/usersettings/usersettings_forms.py:34
+#: app/main/usersettings/usersettings_forms.py:39
+msgid "Update"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:64
+msgid "Field radius"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:65
+msgid "Limit mag"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:66
+msgid "Mirror X"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:67
+msgid "Mirror Y"
+msgstr ""
+
+#: app/main/location/location_forms.py:33
+#: app/templates/main/catalogue/constellation_info.html:75
+#: app/templates/main/catalogue/constellations.html:35
+#: app/templates/main/catalogue/deepskyobject_info.html:84
+msgid "Name"
+msgstr ""
+
+#: app/main/location/location_forms.py:34
+msgid "Longitude"
+msgstr ""
+
+#: app/main/location/location_forms.py:35
+#: app/main/observation/observation_forms.py:45
+#: app/main/observation/observation_forms.py:72
+msgid "Notes"
+msgstr ""
+
+#: app/main/location/location_forms.py:36
+msgid "Bortle"
+msgstr ""
+
+#: app/main/location/location_forms.py:37
+#: app/main/observation/observation_forms.py:71
+msgid "Rating"
+msgstr ""
+
+#: app/main/location/location_forms.py:38
+msgid "Is suitable for observation"
+msgstr ""
+
+#: app/main/location/location_forms.py:39
+msgid "Is public"
+msgstr ""
+
+#: app/main/location/location_forms.py:40
+msgid "Country"
+msgstr ""
+
+#: app/main/location/location_forms.py:43
+msgid "Add location"
+msgstr ""
+
+#: app/main/location/location_forms.py:46
+msgid "Update location"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:43
+msgid "DSO list optionally with comment. (e.g. M3,M5:nice globulars!)"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:44
+msgid "Time"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:53
+#: app/main/observation/observation_forms.py:63
+msgid "Value expected."
+msgstr ""
+
+#: app/main/observation/observation_forms.py:68
+msgid "Title"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:69
+msgid "Date"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:70
+msgid "Location"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:73
+msgid "OMD Content"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:74
+msgid "Advanced Mode"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:77
+msgid "Add Observation"
+msgstr ""
+
+#: app/main/observation/observation_forms.py:80
+msgid "Update Observation"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:15
+msgid "Username"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:16
+msgid "Full Name"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:17
+msgid "Email"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:18
+msgid "Default country"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:22
+msgid "Current Password"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:23
+msgid "New Password"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:24
+msgid "Re-Type New Password"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:25
+msgid "Update Password"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:28
+msgid "Password"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:29
+msgid "Confirm Deletion"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:32
+msgid "Git repository"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:33
+#: app/main/usersettings/usersettings_forms.py:38
+msgid "Public key"
+msgstr ""
+
+#: app/main/usersettings/usersettings_forms.py:37
+msgid "Content git repository"
+msgstr ""
 
 #: app/templates/main/index.html:12
 msgid "Add observation"
@@ -94,12 +325,6 @@ msgstr ""
 msgid "IAU code"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:75
-#: app/templates/main/catalogue/constellations.html:35
-#: app/templates/main/catalogue/deepskyobject_info.html:84
-msgid "Name"
-msgstr ""
-
 #: app/templates/main/catalogue/constellation_info.html:76
 msgid "Image"
 msgstr ""
@@ -116,6 +341,7 @@ msgstr ""
 
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/deepskyobjects.html:8
+#: app/templates/main/observation/observation_edit.html:13
 msgid "Dashboard"
 msgstr ""
 
@@ -138,5 +364,25 @@ msgstr ""
 
 #: app/templates/main/catalogue/star_edit.html:15
 msgid "Back To Star"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:18
+msgid "Observation Info"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:23
+msgid "Add New Observation"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:25
+msgid "Edit Observation"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:28
+msgid "Basic"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:30
+msgid "Advanced"
 msgstr ""
 

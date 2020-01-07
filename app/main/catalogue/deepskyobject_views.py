@@ -123,7 +123,7 @@ def deepskyobject_findchart(dso_id):
     full_file_name = preview_dir + os.sep + dso_file_name
 
     if not os.path.exists(full_file_name):
-        a4_width = '210'
+        a4_width = '180'
 
         prog_params = ['fchart3',
                        '-size', str(radius),

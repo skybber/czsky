@@ -25,6 +25,7 @@ from wtforms.validators import (
     NumberRange,
     required
 )
+from flask_babel import lazy_gettext
 
 class SearchDsoForm(FlaskForm):
     q = StringField('Search')
@@ -55,13 +56,13 @@ class SearchDsoForm(FlaskForm):
     ])
 
 class DeepskyObjectEditForm(FlaskForm):
-    common_name = StringField('Common Name', validators=[Length(max=256)])
-    text = TextAreaField('Text')
-    submit = SubmitField('Update')
+    common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
+    text = TextAreaField(lazy_gettext('Text'))
+    submit = SubmitField(lazy_gettext('Update'))
 
 class DeepskyObjectFindChartForm(FlaskForm):
-    radius = IntegerField('Field radius', default=2)
-    maglim = IntegerField('Limit mag', default=12)
-    mirror_x = BooleanField('Mirror X', default=False)
-    mirror_y = BooleanField('Mirror Y', default=False)
-    submit = SubmitField('Update')
+    radius = IntegerField(lazy_gettext('Field radius'), default=2)
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
+    mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
+    mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
+    submit = SubmitField(lazy_gettext('Update'))

@@ -10,24 +10,24 @@
             {% if is_new %}
               <a class="ui basic compact button" href="{{ url_for('main.index') }}">
                   <i class="caret left icon"></i>
-                  Dashboard
+                  {{ _('Dashboard') }}
               </a>
             {% else %}
               <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=observation.id) }}">
                   <i class="caret left icon"></i>
-                Observation Info
+                {{ _('Observation Info') }}
               </a>
             {% endif %}
             <h2 class="ui header">
                 {% if is_new %}
-                    Add New Observation
+                    {{ _('Add New Observation') }}
                 {% else %}
-                    Edit Observation
+                    {{ _('Edit Observation') }}
                 {% endif %}
                 <div class="ui right floated buttons">
-                  <button class="ui button active mode-basic">Basic</button>
+                  <button class="ui button active mode-basic">{{ _('Basic') }}</button>
                   <div class="or"></div>
-                  <button class="ui button mode-advanced">Advanced</button>
+                  <button class="ui button mode-advanced">{{ _('Advanced') }}</button>
                 </div>
             </h2>
 
@@ -47,7 +47,7 @@
 
                 <div class="three fields">
                     <div class="field">
-                        <label for="odate">Date</label>
+                        <label for="odate">{{ form.date.label }}</label>
                         <div class="ui calendar" id="odate">
                           <div class="ui input left icon">
                             <i class="calendar icon"></i>

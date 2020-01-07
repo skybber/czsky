@@ -26,19 +26,20 @@ from wtforms.validators import (
     NumberRange,
     required
 )
+from flask_babel import lazy_gettext
 
 class SearchConstellationForm(FlaskForm):
-    q = StringField('Search')
-    season = SelectField('Season', choices=[
-         ('All', 'All'),
-         ('winter', 'Winter'),
-         ('spring', 'Spring'),
-         ('summer', 'Summer'),
-         ('autumn','Autumn'),
-         ('southern','Southern'),
+    q = StringField(lazy_gettext('Search'))
+    season = SelectField(lazy_gettext('Season'), choices=[
+         ('All', lazy_gettext('All')),
+         ('winter', lazy_gettext('Winter')),
+         ('spring', lazy_gettext('Spring')),
+         ('summer', lazy_gettext('Summer')),
+         ('autumn',lazy_gettext('Autumn')),
+         ('southern',lazy_gettext('Southern')),
     ])
 
 class ConstellationEditForm(FlaskForm):
-    common_name = StringField('Common Name', validators=[Length(max=256)])
-    text = TextAreaField('Text')
-    submit = SubmitField('Update')
+    common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
+    text = TextAreaField(lazy_gettext('Text'))
+    submit = SubmitField(lazy_gettext('Update'))

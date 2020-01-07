@@ -25,9 +25,10 @@ from wtforms.validators import (
     NumberRange,
     required
 )
+from flask_babel import lazy_gettext
 
 
 class StarEditForm(FlaskForm):
-    common_name = StringField('Common Name', validators=[Length(max=256)])
-    text = TextAreaField('Text')
-    submit = SubmitField('Update')
+    common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
+    text = TextAreaField(lazy_gettext('Text'))
+    submit = SubmitField(lazy_gettext('Update'))

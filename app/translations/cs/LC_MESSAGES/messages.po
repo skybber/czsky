@@ -1,4 +1,4 @@
-# Czech translations for PROJECT.
+﻿# Czech translations for PROJECT.
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-07 19:07+0100\n"
+"POT-Creation-Date: 2020-01-07 20:10+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -17,6 +17,237 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
+
+#: app/main/catalogue/constellation_forms.py:32
+#: app/main/location/location_forms.py:49
+msgid "Search"
+msgstr "Hledat"
+
+#: app/main/catalogue/constellation_forms.py:33
+msgid "Season"
+msgstr "Roční období"
+
+#: app/main/catalogue/constellation_forms.py:34
+msgid "All"
+msgstr "Všechna"
+
+#: app/main/catalogue/constellation_forms.py:35
+msgid "winter"
+msgstr "zima"
+
+#: app/main/catalogue/constellation_forms.py:35
+msgid "Winter"
+msgstr "zima"
+
+#: app/main/catalogue/constellation_forms.py:36
+msgid "spring"
+msgstr "jaro"
+
+#: app/main/catalogue/constellation_forms.py:36
+msgid "Spring"
+msgstr "jaro"
+
+#: app/main/catalogue/constellation_forms.py:37
+msgid "summer"
+msgstr "léto"
+
+#: app/main/catalogue/constellation_forms.py:37
+msgid "Summer"
+msgstr "léto"
+
+#: app/main/catalogue/constellation_forms.py:38
+msgid "autumn"
+msgstr "podzim"
+
+#: app/main/catalogue/constellation_forms.py:38
+msgid "Autumn"
+msgstr "podzim"
+
+#: app/main/catalogue/constellation_forms.py:39
+msgid "southern"
+msgstr "jižní souhvězdí"
+
+#: app/main/catalogue/constellation_forms.py:39
+msgid "Southern"
+msgstr "jižní souhvězdí"
+
+#: app/main/catalogue/constellation_forms.py:43
+#: app/main/catalogue/deepskyobject_forms.py:59
+#: app/main/catalogue/star_forms.py:32
+msgid "Common Name"
+msgstr "Obecné jméno"
+
+#: app/main/catalogue/constellation_forms.py:44
+#: app/main/catalogue/deepskyobject_forms.py:60
+#: app/main/catalogue/star_forms.py:33
+msgid "Text"
+msgstr "Text"
+
+#: app/main/catalogue/constellation_forms.py:45
+#: app/main/catalogue/deepskyobject_forms.py:61
+#: app/main/catalogue/deepskyobject_forms.py:68
+#: app/main/catalogue/star_forms.py:34
+#: app/main/usersettings/usersettings_forms.py:19
+#: app/main/usersettings/usersettings_forms.py:34
+#: app/main/usersettings/usersettings_forms.py:39
+msgid "Update"
+msgstr "Uložit"
+
+#: app/main/catalogue/deepskyobject_forms.py:64
+msgid "Field radius"
+msgstr "Zorné pole"
+
+#: app/main/catalogue/deepskyobject_forms.py:65
+msgid "Limit mag"
+msgstr "Limit mag"
+
+#: app/main/catalogue/deepskyobject_forms.py:66
+msgid "Mirror X"
+msgstr "Otočit-X"
+
+#: app/main/catalogue/deepskyobject_forms.py:67
+msgid "Mirror Y"
+msgstr "Otočit-Y"
+
+#: app/main/location/location_forms.py:33
+#: app/templates/main/catalogue/constellation_info.html:75
+#: app/templates/main/catalogue/constellations.html:35
+#: app/templates/main/catalogue/deepskyobject_info.html:84
+msgid "Name"
+msgstr "Jméno"
+
+#: app/main/location/location_forms.py:34
+msgid "Longitude"
+msgstr "Poloha"
+
+#: app/main/location/location_forms.py:35
+#: app/main/observation/observation_forms.py:45
+#: app/main/observation/observation_forms.py:72
+msgid "Notes"
+msgstr "Poznámky"
+
+#: app/main/location/location_forms.py:36
+msgid "Bortle"
+msgstr "Bortle"
+
+#: app/main/location/location_forms.py:37
+#: app/main/observation/observation_forms.py:71
+msgid "Rating"
+msgstr "Hodnocení"
+
+#: app/main/location/location_forms.py:38
+msgid "Is suitable for observation"
+msgstr "Je vhodná k pozorování"
+
+#: app/main/location/location_forms.py:39
+msgid "Is public"
+msgstr "Je veřejná"
+
+#: app/main/location/location_forms.py:40
+msgid "Country"
+msgstr "Země"
+
+#: app/main/location/location_forms.py:43
+msgid "Add location"
+msgstr "Přidat lokalitu"
+
+#: app/main/location/location_forms.py:46
+msgid "Update location"
+msgstr "Uložit lokalitu"
+
+#: app/main/observation/observation_forms.py:43
+msgid "DSO list optionally with comment. (e.g. M3,M5:nice globulars!)"
+msgstr "DSO seznam s volitelným komentářem. (př. M3,M4: pěkně kulaté!)"
+
+#: app/main/observation/observation_forms.py:44
+msgid "Time"
+msgstr "Čas"
+
+#: app/main/observation/observation_forms.py:53
+#: app/main/observation/observation_forms.py:63
+msgid "Value expected."
+msgstr "Hodnota je vyžadována."
+
+#: app/main/observation/observation_forms.py:68
+msgid "Title"
+msgstr "Nadpis"
+
+#: app/main/observation/observation_forms.py:69
+msgid "Date"
+msgstr "Datum"
+
+#: app/main/observation/observation_forms.py:70
+msgid "Location"
+msgstr "Lokalita"
+
+#: app/main/observation/observation_forms.py:73
+msgid "OMD Content"
+msgstr "OMD obsah"
+
+#: app/main/observation/observation_forms.py:74
+msgid "Advanced Mode"
+msgstr "Pokročilý mód"
+
+#: app/main/observation/observation_forms.py:77
+msgid "Add Observation"
+msgstr "Přidat pozorování"
+
+#: app/main/observation/observation_forms.py:80
+msgid "Update Observation"
+msgstr "Uložit pozorování"
+
+#: app/main/usersettings/usersettings_forms.py:15
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+#: app/main/usersettings/usersettings_forms.py:16
+msgid "Full Name"
+msgstr "Plné jméno"
+
+#: app/main/usersettings/usersettings_forms.py:17
+msgid "Email"
+msgstr "Email"
+
+#: app/main/usersettings/usersettings_forms.py:18
+msgid "Default country"
+msgstr "Výchozí země"
+
+#: app/main/usersettings/usersettings_forms.py:22
+msgid "Current Password"
+msgstr "Aktuální heslo"
+
+#: app/main/usersettings/usersettings_forms.py:23
+msgid "New Password"
+msgstr "Nové heslo"
+
+#: app/main/usersettings/usersettings_forms.py:24
+msgid "Re-Type New Password"
+msgstr "Zopakovat nové heslo"
+
+#: app/main/usersettings/usersettings_forms.py:25
+msgid "Update Password"
+msgstr "Uložit heslo"
+
+#: app/main/usersettings/usersettings_forms.py:28
+msgid "Password"
+msgstr "heslo"
+
+#: app/main/usersettings/usersettings_forms.py:29
+msgid "Confirm Deletion"
+msgstr "Potvrdit odstranění"
+
+#: app/main/usersettings/usersettings_forms.py:32
+msgid "Git repository"
+msgstr "Git repozitář"
+
+#: app/main/usersettings/usersettings_forms.py:33
+#: app/main/usersettings/usersettings_forms.py:38
+msgid "Public key"
+msgstr "Veřejný klíč"
+
+#: app/main/usersettings/usersettings_forms.py:37
+msgid "Content git repository"
+msgstr "Git repozitář pro společný obsah"
 
 #: app/templates/main/index.html:12
 msgid "Add observation"
@@ -95,12 +326,6 @@ msgstr "DSO"
 msgid "IAU code"
 msgstr "IAU kód"
 
-#: app/templates/main/catalogue/constellation_info.html:75
-#: app/templates/main/catalogue/constellations.html:35
-#: app/templates/main/catalogue/deepskyobject_info.html:84
-msgid "Name"
-msgstr "Jméno"
-
 #: app/templates/main/catalogue/constellation_info.html:76
 msgid "Image"
 msgstr "Obrázek"
@@ -117,6 +342,7 @@ msgstr "Typ"
 
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/deepskyobjects.html:8
+#: app/templates/main/observation/observation_edit.html:13
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -139,4 +365,24 @@ msgstr "DSO seznam"
 
 #: app/templates/main/catalogue/star_edit.html:15
 msgid "Back To Star"
-msgstr "Zpět na hvězdy"
+msgstr "Zpět ke hvězdám"
+
+#: app/templates/main/observation/observation_edit.html:18
+msgid "Observation Info"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:23
+msgid "Add New Observation"
+msgstr "Přidat nové pozorování"
+
+#: app/templates/main/observation/observation_edit.html:25
+msgid "Edit Observation"
+msgstr "Editovat pozorování"
+
+#: app/templates/main/observation/observation_edit.html:28
+msgid "Basic"
+msgstr "Základní"
+
+#: app/templates/main/observation/observation_edit.html:30
+msgid "Advanced"
+msgstr "Pokročilý"
