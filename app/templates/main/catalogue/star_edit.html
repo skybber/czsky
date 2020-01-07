@@ -7,12 +7,12 @@
             {% if from_constellation_id %}
                 <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
                     <i class="caret left icon"></i>
-                    Constellation
+                    {{ _('Constellation') }}
                 </a>
             {% else %}
                 <a class="ui basic compact button" href="{{ url_for('main_star.star_info', star_id=user_descr.id)}}">
                     <i class="caret left icon"></i>
-                    Back To Star
+                    {{ _('Back To Star') }}
                 </a>
             {% endif %}
             <h2 class="ui header">

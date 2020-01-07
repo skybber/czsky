@@ -1,0 +1,142 @@
+# Translations template for PROJECT.
+# Copyright (C) 2020 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2020-01-07 19:07+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: app/templates/main/index.html:12
+msgid "Add observation"
+msgstr ""
+
+#: app/templates/main/index.html:13
+msgid "Add new observation"
+msgstr ""
+
+#: app/templates/main/index.html:14
+msgid "Observations"
+msgstr ""
+
+#: app/templates/main/index.html:15
+msgid "View observations"
+msgstr ""
+
+#: app/templates/main/catalogue/constellations.html:11
+#: app/templates/main/index.html:17
+msgid "Constellations"
+msgstr ""
+
+#: app/templates/main/index.html:18
+msgid "View constellations"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobjects.html:11
+#: app/templates/main/index.html:19
+msgid "Deepsky Objects"
+msgstr ""
+
+#: app/templates/main/index.html:20
+msgid "View deepsky objects"
+msgstr ""
+
+#: app/templates/main/index.html:21
+msgid "Sky quality"
+msgstr ""
+
+#: app/templates/main/index.html:22
+msgid "View skyquality section"
+msgstr ""
+
+#: app/templates/main/index.html:24
+msgid "Settings"
+msgstr ""
+
+#: app/templates/main/index.html:25
+msgid "View settings"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_edit.html:9
+#: app/templates/main/catalogue/deepskyobject_edit.html:10
+#: app/templates/main/catalogue/deepskyobject_info.html:87
+#: app/templates/main/catalogue/deepskyobject_info.html:117
+#: app/templates/main/catalogue/deepskyobjects.html:39
+#: app/templates/main/catalogue/star_edit.html:10
+#: app/templates/main/catalogue/star_info.html:46
+msgid "Constellation"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:5
+msgid "Info"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:6
+msgid "Stars"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:7
+msgid "DSO"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:74
+#: app/templates/main/catalogue/constellations.html:34
+msgid "IAU code"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:75
+#: app/templates/main/catalogue/constellations.html:35
+#: app/templates/main/catalogue/deepskyobject_info.html:84
+msgid "Name"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:76
+msgid "Image"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:77
+msgid "Description"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:106
+#: app/templates/main/catalogue/deepskyobject_info.html:85
+#: app/templates/main/catalogue/deepskyobjects.html:38
+msgid "Type"
+msgstr ""
+
+#: app/templates/main/catalogue/constellations.html:8
+#: app/templates/main/catalogue/deepskyobjects.html:8
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:86
+msgid "Common name"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:88
+msgid "descr"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:122
+#: app/templates/main/catalogue/star_info.html:41
+msgid "Observation"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:127
+msgid "DSO list"
+msgstr ""
+
+#: app/templates/main/catalogue/star_edit.html:15
+msgid "Back To Star"
+msgstr ""
+

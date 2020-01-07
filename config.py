@@ -70,6 +70,8 @@ class Config:
     USER_DATA_DIR = os.environ.get('USER_DATA_DIR')
     EDITOR_USER_NAME = os.environ.get('EDITOR_USER_NAME')
 
+    LANGUAGES = ['en', 'cs']
+
     @staticmethod
     def init_app(app):
         pass

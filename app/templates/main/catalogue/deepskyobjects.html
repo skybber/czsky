@@ -5,10 +5,10 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
                 <i class="caret left icon"></i>
-                Dashboard
+                {{ _('Dashboard') }}
             </a>
             <h2 class="ui header" style="margin-top:0.5em">
-                Deepsky Objects
+                {{ _('Deepsky Objects') }}
             </h2>
 
             <form action="{{ url_for('main_deepskyobject.deepskyobjects') }}" method="post" name="search" class="ui menu">
@@ -35,8 +35,8 @@
                     <thead>
                         <tr>
                             <th class="sorted ascending">Name</th>
-                            <th>Type</th>
-                            <th>Constellation</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Constellation') }}</th>
                             <th class="mobile hidden">RA</th>
                             <th class="mobile hidden">Dec</th>
                             <th>mag</th>

@@ -8,6 +8,8 @@ from flask_mail import Mail
 from flask_rq import RQ
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from flask_babel import Babel
+from flask import request
 
 from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css
 from config import config as Config
@@ -18,6 +20,7 @@ mail = Mail()
 db = SQLAlchemy()
 csrf = CSRFProtect()
 compress = Compress()
+babel = Babel()
 
 # Set up Flask-Login
 login_manager = LoginManager()
@@ -44,6 +47,7 @@ def create_app(config):
     login_manager.init_app(app)
     csrf.init_app(app)
     compress.init_app(app)
+    babel.init_app(app)
     RQ(app)
 
     # Register Jinja template functions
@@ -99,3 +103,7 @@ def create_app(config):
     cm = Commonmark(app)
 
     return app
+
+@babel.localeselector
+def get_locale():
+    return 'cs'

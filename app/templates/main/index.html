@@ -9,20 +9,20 @@
             </h2>
             <div class="ui two column stackable grid">
                 {% if not is_anonymous %}
-                    {{ dash.dashboard_option('Add observation', 'main_observation.new_observation',
-                                        description='Add new observation', icon='pencil icon') }}
-                    {{ dash.dashboard_option('Observations', 'main_observation.observations',
-                                        description='View observations', icon='eye icon') }}
+                    {{ dash.dashboard_option(_('Add observation'), 'main_observation.new_observation',
+                                        description=_('Add new observation'), icon='pencil icon') }}
+                    {{ dash.dashboard_option(_('Observations'), 'main_observation.observations',
+                                        description=_('View observations'), icon='eye icon') }}
                 {% endif %}
-                {{ dash.dashboard_option('Constellations', 'main_constellation.constellations',
-                                    description='View constellations', icon='lastfm icon') }}
-                {{ dash.dashboard_option('Deepsky Objects', 'main_deepskyobject.deepskyobjects',
-                                    description='View deepsky objects', icon='star icon') }}
-                {{ dash.dashboard_option('Sky quality', 'main_skyquality.skyquality',
-                                    description='View skyquality section', icon='tachometer icon') }}
+                {{ dash.dashboard_option(_('Constellations'), 'main_constellation.constellations',
+                                    description=_('View constellations'), icon='lastfm icon') }}
+                {{ dash.dashboard_option(_('Deepsky Objects'), 'main_deepskyobject.deepskyobjects',
+                                    description=_('View deepsky objects'), icon='star icon') }}
+                {{ dash.dashboard_option(_('Sky quality'), 'main_skyquality.skyquality',
+                                    description=_('View skyquality section'), icon='tachometer icon') }}
                 {% if not is_anonymous %}
-                    {{ dash.dashboard_option('Settings', 'main_settings.settings',
-                                        description='View settings', icon='cogs icon') }}
+                    {{ dash.dashboard_option(_('Settings'), 'main_settings.settings',
+                                        description=_('View settings'), icon='cogs icon') }}
                 {% endif %}
             </div>
         </div>

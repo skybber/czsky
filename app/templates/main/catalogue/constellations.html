@@ -5,10 +5,10 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
                 <i class="caret left icon"></i>
-                Dashboard
+                {{ _('Dashboard') }}
             </a>
             <h2 class="ui header">
-                Constellations
+                {{ _('Constellations') }}
             </h2>
 
             <form action="{{ url_for('main_constellation.constellations') }}" method="post" name="search" class="ui stackable menu">
@@ -31,8 +31,8 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">IAU code</th>
-                            <th>Name</th>
+                            <th class="sorted ascending">{{ _('IAU code') }}</th>
+                            <th>{{ _('Name') }}</th>
                         </tr>
                     </thead>
                     <tbody>

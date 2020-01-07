@@ -2,9 +2,9 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_constellation.constellation_info', 'Info', 'info'),
-    ('main_constellation.constellation_stars', 'Stars', 'star'),
-    ('main_constellation.constellation_deepskyobjects', 'DSO', 'star'),
+    ('main_constellation.constellation_info', _('Info'), 'info'),
+    ('main_constellation.constellation_stars', _('Stars'), 'star'),
+    ('main_constellation.constellation_deepskyobjects', _('DSO'), 'dso'),
 ] %}
 
 {% macro navigation(items) %}
@@ -71,10 +71,10 @@
 
 {% macro constellation_info(constellation) %}
     <table class="ui compact definition table">
-        <tr><td>IAU code</td><td>{{ constellation.iau_code }}</td></tr>
-        <tr><td>Name</td><td>{{ constellation.name }}</td></tr>
-        <tr><td>Image</td><td><img src="{{ constellation.image }}"/></td></tr>
-        <tr><td>Description</td><td>{{ constellation.descr }}</td></tr>
+        <tr><td>{{ _('IAU code') }}</td><td>{{ constellation.iau_code }}</td></tr>
+        <tr><td>{{ _('Name') }}</td><td>{{ constellation.name }}</td></tr>
+        <tr><td>{{ _('Image') }}</td><td><img src="{{ constellation.image }}"/></td></tr>
+        <tr><td>{{ _('Description') }}</td><td>{{ constellation.descr }}</td></tr>
     </table>
 {% endmacro %}
 
@@ -103,7 +103,7 @@
                     <thead>
                             <tr>
                                 <th class="sorted ascending">Name</th>
-                                <th>Type</th>
+                                <th>{{ _('Type') }}</th>
                                 <th>RA</th>
                                 <th>DEC</th>
                                 <th>h_mag</th>
