@@ -6,10 +6,10 @@
         <div class="fourteen wide tablet fourteen wide computer column">
             <a class="ui basic compact button" href="{{ url_for('main_settings.settings') }}">
                 <i class="caret left icon"></i>
-                Settings
+                {{ _('Settings') }}
             </a>
             <h2 class="ui header">
-                Locations
+                {{ _('Locations') }}
             </h2>
 
             {% set flashes = {
@@ -36,11 +36,11 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Coordinates</th>
-                            <th>Links</th>
-                            <th>Bortle</th>
-                            <th>Rating</th>
+                            <th>{{ _('Name') }}</th>
+                            <th>{{ _('Coordinates') }}</th>
+                            <th>{{ _('Links') }}</th>
+                            <th>{{ _('Bortle') }}</th>
+                            <th>{{ _('Rating') }}</th>
                         </tr>
                     </thead>
                     <tbody>

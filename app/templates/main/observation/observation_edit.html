@@ -89,7 +89,7 @@
 
                 <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
                     <div class="ui blue segment">
-                        <div class="ui tiny header">Items</div>
+                        <div class="ui tiny header">{{ _('Items') }}</div>
                     </div>
                     {% for item in form.items %}
                         <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">

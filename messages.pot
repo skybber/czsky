@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-07 20:10+0100\n"
+"POT-Creation-Date: 2020-01-09 18:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,15 +31,7 @@ msgid "All"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:35
-msgid "winter"
-msgstr ""
-
-#: app/main/catalogue/constellation_forms.py:35
 msgid "Winter"
-msgstr ""
-
-#: app/main/catalogue/constellation_forms.py:36
-msgid "spring"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:36
@@ -47,23 +39,11 @@ msgid "Spring"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:37
-msgid "summer"
-msgstr ""
-
-#: app/main/catalogue/constellation_forms.py:37
 msgid "Summer"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:38
-msgid "autumn"
-msgstr ""
-
-#: app/main/catalogue/constellation_forms.py:38
 msgid "Autumn"
-msgstr ""
-
-#: app/main/catalogue/constellation_forms.py:39
-msgid "southern"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:39
@@ -112,6 +92,7 @@ msgstr ""
 #: app/templates/main/catalogue/constellation_info.html:75
 #: app/templates/main/catalogue/constellations.html:35
 #: app/templates/main/catalogue/deepskyobject_info.html:84
+#: app/templates/main/location/locations.html:39
 msgid "Name"
 msgstr ""
 
@@ -122,15 +103,19 @@ msgstr ""
 #: app/main/location/location_forms.py:35
 #: app/main/observation/observation_forms.py:45
 #: app/main/observation/observation_forms.py:72
+#: app/templates/main/observation/observation_info.html:22
 msgid "Notes"
 msgstr ""
 
 #: app/main/location/location_forms.py:36
+#: app/templates/main/location/locations.html:42
 msgid "Bortle"
 msgstr ""
 
 #: app/main/location/location_forms.py:37
 #: app/main/observation/observation_forms.py:71
+#: app/templates/main/location/locations.html:43
+#: app/templates/main/observation/observations.html:42
 msgid "Rating"
 msgstr ""
 
@@ -168,14 +153,19 @@ msgid "Value expected."
 msgstr ""
 
 #: app/main/observation/observation_forms.py:68
+#: app/templates/main/observation/observations.html:40
 msgid "Title"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:69
+#: app/templates/main/observation/observation_info.html:19
+#: app/templates/main/observation/observations.html:39
 msgid "Date"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:70
+#: app/templates/main/observation/observation_info.html:20
+#: app/templates/main/observation/observations.html:41
 msgid "Location"
 msgstr ""
 
@@ -248,38 +238,40 @@ msgstr ""
 msgid "Content git repository"
 msgstr ""
 
-#: app/templates/main/index.html:12
-msgid "Add observation"
-msgstr ""
-
-#: app/templates/main/index.html:13
-msgid "Add new observation"
-msgstr ""
-
-#: app/templates/main/index.html:14
-msgid "Observations"
-msgstr ""
-
-#: app/templates/main/index.html:15
-msgid "View observations"
-msgstr ""
-
 #: app/templates/main/catalogue/constellations.html:11
-#: app/templates/main/index.html:17
+#: app/templates/main/index.html:11
 msgid "Constellations"
 msgstr ""
 
-#: app/templates/main/index.html:18
+#: app/templates/main/index.html:12
 msgid "View constellations"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:11
-#: app/templates/main/index.html:19
+#: app/templates/main/index.html:13
 msgid "Deepsky Objects"
 msgstr ""
 
-#: app/templates/main/index.html:20
+#: app/templates/main/index.html:14
 msgid "View deepsky objects"
+msgstr ""
+
+#: app/templates/main/index.html:16
+msgid "Add observation"
+msgstr ""
+
+#: app/templates/main/index.html:17
+msgid "Add new observation"
+msgstr ""
+
+#: app/templates/main/index.html:18
+#: app/templates/main/observation/observation_info.html:9
+#: app/templates/main/observation/observations.html:12
+msgid "Observations"
+msgstr ""
+
+#: app/templates/main/index.html:19
+msgid "View observations"
 msgstr ""
 
 #: app/templates/main/index.html:21
@@ -291,6 +283,8 @@ msgid "View skyquality section"
 msgstr ""
 
 #: app/templates/main/index.html:24
+#: app/templates/main/location/location_edit.html:13
+#: app/templates/main/location/locations.html:9
 msgid "Settings"
 msgstr ""
 
@@ -366,6 +360,49 @@ msgstr ""
 msgid "Back To Star"
 msgstr ""
 
+#: app/templates/main/location/location_edit.html:18
+msgid "Location Info"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:24
+msgid "Add New Location"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:26
+msgid "Edit Location"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:94
+#: app/templates/main/location/location_edit.html:104
+msgid "Delete Location"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:106
+msgid "Are you sure you want to delete location?"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:109
+msgid "No"
+msgstr ""
+
+#: app/templates/main/location/location_edit.html:111
+msgid "Yes"
+msgstr ""
+
+#: app/templates/main/location/location_info.html:26
+#: app/templates/main/location/locations.html:40
+msgid "Coordinates"
+msgstr ""
+
+#: app/templates/main/location/location_info.html:52
+#: app/templates/main/location/locations.html:12
+msgid "Locations"
+msgstr ""
+
+#: app/templates/main/location/locations.html:41
+msgid "Links"
+msgstr ""
+
 #: app/templates/main/observation/observation_edit.html:18
 msgid "Observation Info"
 msgstr ""
@@ -384,5 +421,13 @@ msgstr ""
 
 #: app/templates/main/observation/observation_edit.html:30
 msgid "Advanced"
+msgstr ""
+
+#: app/templates/main/observation/observation_edit.html:92
+msgid "Items"
+msgstr ""
+
+#: app/templates/main/observation/observations.html:26
+msgid "Search deepsky objects…"
 msgstr ""
 

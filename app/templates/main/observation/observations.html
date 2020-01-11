@@ -9,7 +9,7 @@
                 Dashboard
             </a>
             <h2 class="ui header">
-                Observations
+                {{ _('Observations') }}
             </h2>
 
             {% set flashes = {
@@ -23,7 +23,7 @@
             <div class="ui menu">
                 <div class="ui right search item">
                     <div class="ui transparent icon input">
-                        <input id="search-dsos" type="text" placeholder="Search deepsky objects…">
+                        <input id="search-dsos" type="text" placeholder="{{ _('Search deepsky objects…') }}">
                         <i class="search icon"></i>
                     </div>
                 </div>
@@ -36,10 +36,10 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Title</th>
-                            <th>Location</th>
-                            <th>Rating</th>
+                            <th>{{ _('Date') }}</th>
+                            <th>{{ _('Title') }}</th>
+                            <th>{{ _('Location') }}</th>
+                            <th>{{ _('Rating') }}</th>
                         </tr>
                     </thead>
                     <tbody>

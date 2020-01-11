@@ -6,7 +6,7 @@
         <div class="fourteen wide tablet fourteen wide computer column">
             <a class="ui basic computer tablet only compact button" href="{{ url_for('main_observation.observations') }}">
                 <i class="caret left icon"></i>
-                Observations
+                {{ _('Observations') }}
             </a>
             <h2 class="ui header">
                 {{ observation.title }}
@@ -16,10 +16,10 @@
             </h2>
 
             <table class="ui compact definition table">
-                <tr><td class="two wide">Date</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
-                <tr><td class="two wide">Location</td><td>{{ observation.location.name if observation.location else observation.txt_location_name }}</td></tr>
+                <tr><td class="two wide">{{ _('Date') }}</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="two wide">{{ _('Location') }}</td><td>{{ observation.location.name if observation.location else observation.txt_location_name }}</td></tr>
                 <tr>
-                    <td class="two wide">Notes</td>
+                    <td class="two wide">{{ _('Notes') }}</td>
                     <td>
                         {% filter commonmark %}
 {{ observation.notes }}

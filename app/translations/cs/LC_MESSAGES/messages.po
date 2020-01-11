@@ -1,4 +1,3 @@
-﻿# Czech translations for PROJECT.
 # Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
@@ -7,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-01-07 20:10+0100\n"
+"POT-Creation-Date: 2020-01-09 18:43+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -32,40 +31,20 @@ msgid "All"
 msgstr "Všechna"
 
 #: app/main/catalogue/constellation_forms.py:35
-msgid "winter"
-msgstr "zima"
-
-#: app/main/catalogue/constellation_forms.py:35
 msgid "Winter"
 msgstr "zima"
-
-#: app/main/catalogue/constellation_forms.py:36
-msgid "spring"
-msgstr "jaro"
 
 #: app/main/catalogue/constellation_forms.py:36
 msgid "Spring"
 msgstr "jaro"
 
 #: app/main/catalogue/constellation_forms.py:37
-msgid "summer"
-msgstr "léto"
-
-#: app/main/catalogue/constellation_forms.py:37
 msgid "Summer"
 msgstr "léto"
 
 #: app/main/catalogue/constellation_forms.py:38
-msgid "autumn"
-msgstr "podzim"
-
-#: app/main/catalogue/constellation_forms.py:38
 msgid "Autumn"
 msgstr "podzim"
-
-#: app/main/catalogue/constellation_forms.py:39
-msgid "southern"
-msgstr "jižní souhvězdí"
 
 #: app/main/catalogue/constellation_forms.py:39
 msgid "Southern"
@@ -113,6 +92,7 @@ msgstr "Otočit-Y"
 #: app/templates/main/catalogue/constellation_info.html:75
 #: app/templates/main/catalogue/constellations.html:35
 #: app/templates/main/catalogue/deepskyobject_info.html:84
+#: app/templates/main/location/locations.html:39
 msgid "Name"
 msgstr "Jméno"
 
@@ -123,15 +103,19 @@ msgstr "Poloha"
 #: app/main/location/location_forms.py:35
 #: app/main/observation/observation_forms.py:45
 #: app/main/observation/observation_forms.py:72
+#: app/templates/main/observation/observation_info.html:22
 msgid "Notes"
 msgstr "Poznámky"
 
 #: app/main/location/location_forms.py:36
+#: app/templates/main/location/locations.html:42
 msgid "Bortle"
 msgstr "Bortle"
 
 #: app/main/location/location_forms.py:37
 #: app/main/observation/observation_forms.py:71
+#: app/templates/main/location/locations.html:43
+#: app/templates/main/observation/observations.html:42
 msgid "Rating"
 msgstr "Hodnocení"
 
@@ -169,14 +153,19 @@ msgid "Value expected."
 msgstr "Hodnota je vyžadována."
 
 #: app/main/observation/observation_forms.py:68
+#: app/templates/main/observation/observations.html:40
 msgid "Title"
 msgstr "Nadpis"
 
 #: app/main/observation/observation_forms.py:69
+#: app/templates/main/observation/observation_info.html:19
+#: app/templates/main/observation/observations.html:39
 msgid "Date"
 msgstr "Datum"
 
 #: app/main/observation/observation_forms.py:70
+#: app/templates/main/observation/observation_info.html:20
+#: app/templates/main/observation/observations.html:41
 msgid "Location"
 msgstr "Lokalita"
 
@@ -249,39 +238,41 @@ msgstr "Veřejný klíč"
 msgid "Content git repository"
 msgstr "Git repozitář pro společný obsah"
 
-#: app/templates/main/index.html:12
-msgid "Add observation"
-msgstr "Přidat pozorování"
-
-#: app/templates/main/index.html:13
-msgid "Add new observation"
-msgstr "Přidat nové pozorování"
-
-#: app/templates/main/index.html:14
-msgid "Observations"
-msgstr "Pozorování"
-
-#: app/templates/main/index.html:15
-msgid "View observations"
-msgstr "Zobrazit pozorování"
-
 #: app/templates/main/catalogue/constellations.html:11
-#: app/templates/main/index.html:17
+#: app/templates/main/index.html:11
 msgid "Constellations"
 msgstr "Souhvězdí"
 
-#: app/templates/main/index.html:18
+#: app/templates/main/index.html:12
 msgid "View constellations"
 msgstr "Zobrazit souhvězdí"
 
 #: app/templates/main/catalogue/deepskyobjects.html:11
-#: app/templates/main/index.html:19
+#: app/templates/main/index.html:13
 msgid "Deepsky Objects"
 msgstr "Deepsky objekty"
 
-#: app/templates/main/index.html:20
+#: app/templates/main/index.html:14
 msgid "View deepsky objects"
 msgstr "Zobrazit deepsky objekty"
+
+#: app/templates/main/index.html:16
+msgid "Add observation"
+msgstr "Přidat pozorování"
+
+#: app/templates/main/index.html:17
+msgid "Add new observation"
+msgstr "Přidat nové pozorování"
+
+#: app/templates/main/index.html:18
+#: app/templates/main/observation/observation_info.html:9
+#: app/templates/main/observation/observations.html:12
+msgid "Observations"
+msgstr "Pozorování"
+
+#: app/templates/main/index.html:19
+msgid "View observations"
+msgstr "Zobrazit pozorování"
 
 #: app/templates/main/index.html:21
 msgid "Sky quality"
@@ -292,6 +283,8 @@ msgid "View skyquality section"
 msgstr "Zobrazit sky quality"
 
 #: app/templates/main/index.html:24
+#: app/templates/main/location/location_edit.html:13
+#: app/templates/main/location/locations.html:9
 msgid "Settings"
 msgstr "Nastavení"
 
@@ -367,9 +360,52 @@ msgstr "DSO seznam"
 msgid "Back To Star"
 msgstr "Zpět ke hvězdám"
 
+#: app/templates/main/location/location_edit.html:18
+msgid "Location Info"
+msgstr "Informace o lokalitě"
+
+#: app/templates/main/location/location_edit.html:24
+msgid "Add New Location"
+msgstr "Přidat lokalitu"
+
+#: app/templates/main/location/location_edit.html:26
+msgid "Edit Location"
+msgstr "Editovat lokalitu"
+
+#: app/templates/main/location/location_edit.html:94
+#: app/templates/main/location/location_edit.html:104
+msgid "Delete Location"
+msgstr "Ostranit lokalitu"
+
+#: app/templates/main/location/location_edit.html:106
+msgid "Are you sure you want to delete location?"
+msgstr "Skutečně chcete odstranit tuto lokalitu"
+
+#: app/templates/main/location/location_edit.html:109
+msgid "No"
+msgstr "Ne"
+
+#: app/templates/main/location/location_edit.html:111
+msgid "Yes"
+msgstr "Ano"
+
+#: app/templates/main/location/location_info.html:26
+#: app/templates/main/location/locations.html:40
+msgid "Coordinates"
+msgstr "Souřadnice"
+
+#: app/templates/main/location/location_info.html:52
+#: app/templates/main/location/locations.html:12
+msgid "Locations"
+msgstr "Lokality"
+
+#: app/templates/main/location/locations.html:41
+msgid "Links"
+msgstr "Linky"
+
 #: app/templates/main/observation/observation_edit.html:18
 msgid "Observation Info"
-msgstr ""
+msgstr "Informace o pozorování"
 
 #: app/templates/main/observation/observation_edit.html:23
 msgid "Add New Observation"
@@ -386,3 +422,12 @@ msgstr "Základní"
 #: app/templates/main/observation/observation_edit.html:30
 msgid "Advanced"
 msgstr "Pokročilý"
+
+#: app/templates/main/observation/observation_edit.html:92
+msgid "Items"
+msgstr "Položky"
+
+#: app/templates/main/observation/observations.html:26
+msgid "Search deepsky objects…"
+msgstr "Hledat deepsky objekty..."
+
