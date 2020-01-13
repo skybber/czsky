@@ -136,6 +136,7 @@ def deepskyobject_findchart(dso_id):
                        '-locl', '0.15',
                        '-ldso', '0.1',
                        '-llegend', '0.3',
+                       '-usno-nomad', './data/USNO-NOMAD-1e8.dat'
                        ]
         if night_mode:
             prog_params.append('-nm')
