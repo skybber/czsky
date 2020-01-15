@@ -120,10 +120,10 @@ def deepskyobject_findchart(dso_id):
     mag_scales = [(12, 15), (10, 13), (8, 11), (6, 9)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
-    prev_radius = session.get('prevradius', None)
-    if not (prev_radius is None) and prev_radius != form.radius.data:
-        session['prevradius'] = form.radius.data
-        form.maglim.data = cur_mag_scale[0] + 2
+    if cur_mag_scale[0] > form.maglim.data:
+        form.maglim.data = cur_mag_scale[0]
+    elif cur_mag_scale[1] < form.maglim.data:
+        form.maglim.data = cur_mag_scale[1]
 
     invert_part = '_i' if night_mode else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
@@ -131,11 +131,6 @@ def deepskyobject_findchart(dso_id):
     dso_file_name = dso_dname + '_' + 'r' + str(fld_size) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.png'
 
     full_file_name = preview_dir + os.sep + dso_file_name
-
-    if cur_mag_scale[0] > form.maglim.data:
-        form.maglim.data = cur_mag_scale[0]
-    elif cur_mag_scale[1] < form.maglim.data:
-        form.maglim.data = cur_mag_scale[1]
 
     if not os.path.exists(full_file_name):
         # a4_width = '180'
