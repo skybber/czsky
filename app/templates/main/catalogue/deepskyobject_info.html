@@ -44,30 +44,30 @@
 {% macro deepskyobject_fchart(dso, fchart) %}
     <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui menu">
         <div class="ui labeled item">
-            <div class="ui labeled ticked small slider" id="slider-radius" style="width:150px">
+            <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
             </div>
             <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-            <div class="top left floating ui label">Radius</div>
+            <div class="top left floating ui label">{{ _('Field Size') }}</div>
         </div>
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-maglim" style="width:250px">
             </div>
             <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
-            <div class="top left floating ui label">Limit mag</div>
+            <div class="top left floating ui label">{{ _('Limit mag') }}</div>
         </div>
         <div class="ui labeled item">
             <div class="ui toggle checkbox">
                 {{ form.mirror_x(onchange='this.form.submit()') }}
                 <label></label>
             </div>
-            <div class="top left floating ui label">Mirror X</div>
+            <div class="top left floating ui label">{{ _('Mirror X') }}</div>
         </div>
         <div class="ui labeled item">
             <div class="ui toggle checkbox">
                 {{ form.mirror_y(onchange='this.form.submit()') }}
                 <label></label>
             </div>
-            <div class="top left floating ui label">Mirror Y</div>
+            <div class="top left floating ui label">{{ _('Mirror Y') }}</div>
         </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
@@ -174,8 +174,8 @@
         <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
 
         <script type="text/javascript">
-            var labels = ["2", "5", "10"];
-            $('#slider-radius')
+            var labels = ["1", "5", "15"];
+            $('#slider-field-size')
               .slider({
                 min: 1,
                 max: 3,
@@ -194,8 +194,8 @@
 
             $('#slider-maglim')
               .slider({
-                min: 11,
-                max: 15,
+                min: {{ mag_min }},
+                max: {{ mag_max }},
                 step: 1,
                 start:{{ form.maglim.data }},
                 fireOnInit: false,

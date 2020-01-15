@@ -111,23 +111,32 @@ def deepskyobject_findchart(dso_id):
     preview_dir = 'app' + preview_url_dir
 
     dso_dname = dso.denormalized_name().replace(' ','')
-    radius = _decode_radius(form.radius.data)
+
+    field_sizes = (1, 5, 15)
+    fld_size = field_sizes[form.radius.data-1]
 
     night_mode = not session.get('themlight', False)
 
     invert_part = '_i' if night_mode else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
     mirror_y_part = '_my' if form.mirror_y.data else ''
-    dso_file_name = dso_dname + '_' + 'r' + str(radius) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.svg'
+    dso_file_name = dso_dname + '_' + 'r' + str(fld_size) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.png'
 
     full_file_name = preview_dir + os.sep + dso_file_name
 
+    mag_scales = [(12, 15), (9, 12), (6, 9)]
+    cur_mag_scale = mag_scales[form.radius.data - 1]
+    if cur_mag_scale[0] > form.maglim.data:
+        form.maglim.data = cur_mag_scale[0]
+    elif cur_mag_scale[1] < form.maglim.data:
+        form.maglim.data = cur_mag_scale[1]
+
     if not os.path.exists(full_file_name):
-        a4_width = '180'
+        # a4_width = '180'
 
         prog_params = ['fchart3',
-                       '-size', str(radius),
-                       '-width', a4_width,
+                       '-size', str(fld_size),
+                       '-width', '220',
                        '-f', full_file_name,
                        '-capt', '',
                        '-limdso', '13.0',
@@ -150,11 +159,7 @@ def deepskyobject_findchart(dso_id):
     fchart_url = preview_url_dir + dso_file_name
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso)
-
-def _decode_radius(radius):
-    radiuses = [2, 5, 10]
-    return radiuses[radius-1]
+                           prev_dso=prev_dso, next_dso=next_dso, mag_min=cur_mag_scale[0], mag_max=cur_mag_scale[1])
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required
