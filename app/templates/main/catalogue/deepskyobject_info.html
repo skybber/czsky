@@ -50,10 +50,26 @@
             <div class="top left floating ui label">{{ _('Field Size') }}</div>
         </div>
         <div class="ui labeled item">
-            <div class="ui labeled ticked small slider" id="slider-maglim" style="width:250px">
+            <div class="ui buttons">
+                <button id="decmag" class="ui icon {{ disable_dec_mag }} button">
+                    <i class="left chevron icon"></i>
+                </button>
+                <div class="ui icon dropdown button">
+                    <span class="text">{{ form.maglim.data }}</span>
+                    <div class="menu">
+                        {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
+                            <div class="item">
+                                {{ mag_item }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button id="incmag" class="ui right icon {{ disable_inc_mag }} button">
+                    <i class="right chevron icon"></i>
+                </button>
             </div>
-            <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
             <div class="top left floating ui label">{{ _('Limit mag') }}</div>
+            <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
         </div>
         <div class="ui labeled item">
             <div class="ui toggle checkbox">
@@ -191,20 +207,18 @@
                 }
               })
             ;
+            $( "#decmag" ).click(function() {
+                prev = +$('#maglim').val();
+                $('#maglim').val(prev - 1);
+                $("#fmchart" ).submit();
+            });
 
-            $('#slider-maglim')
-              .slider({
-                min: {{ mag_min }},
-                max: {{ mag_max }},
-                step: 1,
-                start:{{ form.maglim.data }},
-                fireOnInit: false,
-                onChange: function(value) {
-                    $('#maglim').val(value);
-                    $("#fmchart" ).submit();
-                }
-              })
-            ;
+            $( "#incmag" ).click(function() {
+                prev = +$('#maglim').val();
+                $('#maglim').val(prev + 1);
+                $("#fmchart" ).submit();
+            });
+
 {% if show_pdf %}
             var url = '{{fchart_url}}';
 

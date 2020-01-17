@@ -115,15 +115,25 @@ def deepskyobject_findchart(dso_id):
     field_sizes = (1, 2, 5, 15)
     fld_size = field_sizes[form.radius.data-1]
 
+    prev_fld_size = session.get('prev_fld')
+    session['prev_fld'] = fld_size
+
     night_mode = not session.get('themlight', False)
 
     mag_scales = [(12, 15), (10, 13), (8, 11), (6, 9)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
+    if prev_fld_size != fld_size:
+        pref_maglim = session.get('pref_maglim' + str(fld_size))
+        if not pref_maglim is None:
+            form.maglim.data = pref_maglim
+
     if cur_mag_scale[0] > form.maglim.data:
         form.maglim.data = cur_mag_scale[0]
     elif cur_mag_scale[1] < form.maglim.data:
         form.maglim.data = cur_mag_scale[1]
+
+    session['pref_maglim'  + str(fld_size)] = form.maglim.data
 
     invert_part = '_i' if night_mode else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
@@ -158,9 +168,14 @@ def deepskyobject_findchart(dso_id):
         p = subprocess.Popen(prog_params)
         p.wait()
     fchart_url = preview_url_dir + dso_file_name
+
+    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
+    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
+
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, mag_min=cur_mag_scale[0], mag_max=cur_mag_scale[1])
+                           prev_dso=prev_dso, next_dso=next_dso, mag_scale=cur_mag_scale,
+                           disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required
