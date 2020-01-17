@@ -112,7 +112,7 @@ def deepskyobject_findchart(dso_id):
 
     dso_dname = dso.denormalized_name().replace(' ','')
 
-    field_sizes = (1, 2, 5, 15)
+    field_sizes = (1, 3, 8, 20)
     fld_size = field_sizes[form.radius.data-1]
 
     prev_fld_size = session.get('prev_fld')
