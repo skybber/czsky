@@ -43,12 +43,14 @@
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
     <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui menu">
+        <!-- Field radius -->
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
             </div>
             <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
             <div class="top left floating ui label">{{ _('Field Size') }}</div>
         </div>
+        <!-- Star mag limit -->
         <div class="ui labeled item">
             <div class="ui buttons">
                 <button id="decmag" class="ui icon {{ disable_dec_mag }} button">
@@ -71,20 +73,45 @@
             <div class="top left floating ui label">{{ _('Limit mag') }}</div>
             <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
         </div>
+        <!-- dso mag limit -->
         <div class="ui labeled item">
-            <div class="ui toggle checkbox">
-                {{ form.mirror_x(onchange='this.form.submit()') }}
-                <label></label>
+            <div class="ui buttons">
+                <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button">
+                    <i class="left chevron icon"></i>
+                </button>
+                <div class="ui icon dropdown button">
+                    <span class="text">{{ form.dso_maglim.data }}</span>
+                    <div class="menu">
+                        {% for mag_item in range(dso_mag_scale[0], dso_mag_scale[1] + 1) %}
+                            <div class="item">
+                                {{ mag_item }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button id="incdsomag" class="ui right icon {{ disable_dso_inc_mag }} button">
+                    <i class="right chevron icon"></i>
+                </button>
             </div>
-            <div class="top left floating ui label">{{ _('Mirror X') }}</div>
+            <div class="top left floating ui label">{{ _('DSO limit mag') }}</div>
+            <input type="hidden" id="{{ form.dso_maglim.name }}" name="{{ form.dso_maglim.name }}" value="{{ form.dso_maglim.data }}">
         </div>
-        <div class="ui labeled item">
-            <div class="ui toggle checkbox">
-                {{ form.mirror_y(onchange='this.form.submit()') }}
-                <label></label>
+        {% if show_mirroring %}
+            <div class="ui labeled item">
+                <div class="ui toggle checkbox">
+                    {{ form.mirror_x(onchange='this.form.submit()') }}
+                    <label></label>
+                </div>
+                <div class="top left floating ui label">{{ _('Mirror X') }}</div>
             </div>
-            <div class="top left floating ui label">{{ _('Mirror Y') }}</div>
-        </div>
+            <div class="ui labeled item">
+                <div class="ui toggle checkbox">
+                    {{ form.mirror_y(onchange='this.form.submit()') }}
+                    <label></label>
+                </div>
+                <div class="top left floating ui label">{{ _('Mirror Y') }}</div>
+            </div>
+        {% endif %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
 {% if show_pdf %}
@@ -216,6 +243,18 @@
             $( "#incmag" ).click(function() {
                 prev = +$('#maglim').val();
                 $('#maglim').val(prev + 1);
+                $("#fmchart" ).submit();
+            });
+
+            $( "#decdsomag" ).click(function() {
+                prev = +$('#dso_maglim').val();
+                $('#dso_maglim').val(prev - 1);
+                $("#fmchart" ).submit();
+            });
+
+            $( "#incdsomag" ).click(function() {
+                prev = +$('#dso_maglim').val();
+                $('#dso_maglim').val(prev + 1);
                 $("#fmchart" ).submit();
             });
 

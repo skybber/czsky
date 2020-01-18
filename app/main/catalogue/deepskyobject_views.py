@@ -123,22 +123,31 @@ def deepskyobject_findchart(dso_id):
     mag_scales = [(12, 15), (10, 13), (8, 11), (6, 9)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
+    dso_mag_scales = [(12, 15), (10, 13), (8, 11), (6, 9)]
+    cur_dso_mag_scale = dso_mag_scales[form.radius.data - 1]
+
     if prev_fld_size != fld_size:
         pref_maglim = session.get('pref_maglim' + str(fld_size))
         if not pref_maglim is None:
             form.maglim.data = pref_maglim
+        pref_dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
+        if not pref_dso_maglim is None:
+            form.dso_maglim.data = pref_dso_maglim
 
-    if cur_mag_scale[0] > form.maglim.data:
-        form.maglim.data = cur_mag_scale[0]
-    elif cur_mag_scale[1] < form.maglim.data:
-        form.maglim.data = cur_mag_scale[1]
-
+    form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
+
+    form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
+    session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
 
     invert_part = '_i' if night_mode else ''
     mirror_x_part = '_mx' if form.mirror_x.data else ''
     mirror_y_part = '_my' if form.mirror_y.data else ''
-    dso_file_name = dso_dname + '_' + 'r' + str(fld_size) + '_m' + str(form.maglim.data) + invert_part + mirror_x_part + mirror_y_part + '.png'
+    dso_file_name = dso_dname + '_' \
+                + 'r' + str(fld_size) \
+                + '_m' + str(form.maglim.data) \
+                + '_dm' + str(form.dso_maglim.data) \
+                + invert_part + mirror_x_part + mirror_y_part + '.png'
 
     full_file_name = preview_dir + os.sep + dso_file_name
 
@@ -150,7 +159,7 @@ def deepskyobject_findchart(dso_id):
                        '-width', '220',
                        '-f', full_file_name,
                        '-capt', '',
-                       '-limdso', '13.0',
+                       '-limdso', str(form.dso_maglim.data),
                        '-limstar', str(form.maglim.data),
                        '-lstar', '0.06',
                        '-locl', '0.15',
@@ -172,10 +181,23 @@ def deepskyobject_findchart(dso_id):
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
     disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
 
+    disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_mag_scale[0] else ''
+    disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_mag_scale[1] else ''
+
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, mag_scale=cur_mag_scale,
-                           disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag)
+                           prev_dso=prev_dso, next_dso=next_dso,
+                           mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
+                           dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
+                           show_mirroring=(form.radius.data<=2),
+                           )
+
+def _check_in_mag_interval(mag, mag_interval):
+    if mag_interval[0] > mag:
+        return mag_interval[0]
+    if mag_interval[1] < mag:
+        return mag_interval[1]
+    return mag
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required

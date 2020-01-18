@@ -63,6 +63,7 @@ class DeepskyObjectEditForm(FlaskForm):
 class DeepskyObjectFindChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=10)
+    dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
     mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
     submit = SubmitField(lazy_gettext('Update'))
