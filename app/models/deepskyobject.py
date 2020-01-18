@@ -69,12 +69,19 @@ class DeepskyObject(db.Model):
         catalogue = DeepskyObject.get_browsing_catalogue_map().get(self.catalogue_id)
         if catalogue:
             dso_id = int(self.name[len(catalogue.code):])
-            if dso_id > 0:
-                prev_name = normalize_dso_name(catalogue.code + str(dso_id - 1))
-                prev_dso = DeepskyObject.query.filter_by(name=prev_name).first()
-            next_name = normalize_dso_name(catalogue.code + str(dso_id + 1))
-            next_dso = DeepskyObject.query.filter_by(name=next_name).first()
+            prev_dso = self._get_by_catcode_and_id(catalogue.code, dso_id-1)
+            if not prev_dso:
+                prev_dso = self._get_by_catcode_and_id(catalogue.code, dso_id-2)
+            next_dso = self._get_by_catcode_and_id(catalogue.code, dso_id+1)
+            if not next_dso:
+                next_dso = self._get_by_catcode_and_id(catalogue.code, dso_id+2)
         return prev_dso, next_dso
+
+    def _get_by_catcode_and_id(self, cat_code, dso_id):
+        if dso_id <= 0:
+            return None
+        dso_name = normalize_dso_name(cat_code + str(dso_id))
+        return DeepskyObject.query.filter_by(name=dso_name).first()
 
     def get_constellation_iau_code(self):
         if self.constellation:
