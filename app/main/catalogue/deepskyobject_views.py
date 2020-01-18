@@ -8,9 +8,11 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    redirect,
     render_template,
     request,
     session,
+    url_for,
 )
 from flask_login import current_user, login_required
 
@@ -67,9 +69,18 @@ def deepskyobjects():
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/info')
 def deepskyobject_info(dso_id):
     """View a deepsky object info."""
+
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
+
+    sel_tab = request.args.get('sel_tab', None)
+    if sel_tab:
+        if sel_tab == 'fchart':
+             return redirect(url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id))
+        if sel_tab == 'catalogue_data':
+             return redirect(url_for('main_deepskyobject.deepskyobject_catalogue_data', dso_id=dso.id))
+
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
     user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
@@ -166,6 +177,7 @@ def deepskyobject_findchart(dso_id):
                        '-ldso', '0.1',
                        '-llegend', '0.3',
                        '-usno-nomad', os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat'),
+                       '-fmessier',
                        ]
         if night_mode:
             prog_params.append('-nm')
