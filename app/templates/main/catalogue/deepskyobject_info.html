@@ -48,7 +48,7 @@
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
             </div>
             <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-            <div class="top left floating ui label">{{ _('Field Size') }}</div>
+            <div class="top right aligned floating ui label">{{ _('Field Size') }}</div>
         </div>
         <!-- Star mag limit -->
         <div class="ui labeled item">
@@ -57,12 +57,12 @@
                     <i class="left chevron icon"></i>
                 </button>
                 <div class="ui icon dropdown button">
+                    <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}"
+                            onchange="this.form.submit()">
                     <span class="text">{{ form.maglim.data }}</span>
                     <div class="menu">
                         {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
-                            <div class="item">
-                                {{ mag_item }}
-                            </div>
+                            <div class="item">{{ mag_item }}</div>
                         {% endfor %}
                     </div>
                 </div>
@@ -70,8 +70,7 @@
                     <i class="right chevron icon"></i>
                 </button>
             </div>
-            <div class="top left floating ui label">{{ _('Limit mag') }}</div>
-            <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}">
+            <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
         </div>
         <!-- dso mag limit -->
         <div class="ui labeled item">
@@ -80,6 +79,8 @@
                     <i class="left chevron icon"></i>
                 </button>
                 <div class="ui icon dropdown button">
+                    <input type="hidden" id="{{ form.dso_maglim.name }}" name="{{ form.dso_maglim.name }}" value="{{ form.dso_maglim.data }}"
+                            onchange="this.form.submit()">
                     <span class="text">{{ form.dso_maglim.data }}</span>
                     <div class="menu">
                         {% for mag_item in range(dso_mag_scale[0], dso_mag_scale[1] + 1) %}
@@ -93,8 +94,7 @@
                     <i class="right chevron icon"></i>
                 </button>
             </div>
-            <div class="top left floating ui label">{{ _('DSO limit mag') }}</div>
-            <input type="hidden" id="{{ form.dso_maglim.name }}" name="{{ form.dso_maglim.name }}" value="{{ form.dso_maglim.data }}">
+            <div class="top right aligned floating ui label">{{ _('DSO limit mag') }}</div>
         </div>
         {% if show_mirroring %}
             <div class="ui labeled item">
@@ -102,14 +102,14 @@
                     {{ form.mirror_x(onchange='this.form.submit()') }}
                     <label></label>
                 </div>
-                <div class="top left floating ui label">{{ _('Mirror X') }}</div>
+                <div class="top right aligned floating ui label">{{ _('Mirror X') }}</div>
             </div>
             <div class="ui labeled item">
                 <div class="ui toggle checkbox">
                     {{ form.mirror_y(onchange='this.form.submit()') }}
                     <label></label>
                 </div>
-                <div class="top left floating ui label">{{ _('Mirror Y') }}</div>
+                <div class="top right aligned floating ui label">{{ _('Mirror Y') }}</div>
             </div>
         {% endif %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
@@ -172,7 +172,7 @@
                         {{ _('DSO list') }}
                     </a>
                 {% endif %}
-                <i class="right chevron icon divider"></i>
+                <div class="divider"> / </div>
                 <div class="active section">
                     {{ dso.denormalized_name() }}
                     {% if user_descr %}
@@ -237,30 +237,32 @@
                     $('#radius').val(value);
                     $("#fmchart" ).submit();
                 }
-              })
-            ;
-            $( "#decmag" ).click(function() {
+              });
+
+            $('.ui.dropdown').dropdown();
+
+            $( '#decmag' ).click(function() {
                 prev = +$('#maglim').val();
                 $('#maglim').val(prev - 1);
-                $("#fmchart" ).submit();
+                $('#fmchart' ).submit();
             });
 
-            $( "#incmag" ).click(function() {
+            $( '#incmag' ).click(function() {
                 prev = +$('#maglim').val();
                 $('#maglim').val(prev + 1);
-                $("#fmchart" ).submit();
+                $('#fmchart' ).submit();
             });
 
-            $( "#decdsomag" ).click(function() {
+            $( '#decdsomag' ).click(function() {
                 prev = +$('#dso_maglim').val();
                 $('#dso_maglim').val(prev - 1);
-                $("#fmchart" ).submit();
+                $('#fmchart' ).submit();
             });
 
-            $( "#incdsomag" ).click(function() {
+            $( '#incdsomag' ).click(function() {
                 prev = +$('#dso_maglim').val();
                 $('#dso_maglim').val(prev + 1);
-                $("#fmchart" ).submit();
+                $('#fmchart' ).submit();
             });
 
 {% if show_pdf %}
