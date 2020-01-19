@@ -25,7 +25,7 @@ def get_ssh_private_key_path(user):
     return os.path.join(get_ssh_key_dir_path(user), 'id_git')
 
 def _get_git_ssh_command(user_name, ssh_private_key, from_repo):
-    path = Path(current_app.config.get('USER_DATA_DIR'), user_name, PRIVATE_KEY_PATH)
+    path = Path(os.getcwd(), current_app.config.get('USER_DATA_DIR'), user_name, PRIVATE_KEY_PATH)
     if not path.exists():
         path.parent.mkdir(mode=0o711,parents=True, exist_ok=True)
     private_key = ssh_private_key
@@ -33,7 +33,7 @@ def _get_git_ssh_command(user_name, ssh_private_key, from_repo):
         private_key += '\n'
     with open(path, "w") as f:
         f.write(private_key)
-    os.chmod(path, 0o600)
+    os.chmod(path, 0o400)
     return 'ssh -i ' + (('../' + PRIVATE_KEY_PATH) if from_repo else str(path))
 
 def _finalize_git_ssh_command(owner):
@@ -46,16 +46,21 @@ def save_public_content_data_to_git(owner, commit_message):
     if not editor_user:
         raise EnvironmentError('User Editor not found.')
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
-    gitrepopath = os.path.join(repository_path, '.git')
-    if not os.path.isdir(repository_path) or not os.path.isdir(gitrepopath):
-        if not os.path.isdir(repository_path.join('.git')):
-            print("HUH")
-        if not os.path.isdir(repository_path):
-            shutil.rmtree(repository_path)
+    git_repopath = os.path.join(repository_path, '.git')
+    if not os.path.isdir(repository_path) or not os.path.isdir(git_repopath):
+        if os.path.isdir(repository_path):
+            shutil.rmtree(repository_path) # remove repository_path in case there is no .git file
         os.makedirs(repository_path, exist_ok=True)
         try:
             git.Repo.clone_from(owner.git_content_repository, repository_path,
                                 env={'GIT_SSH_COMMAND': _get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, False)})
+        finally:
+            _finalize_git_ssh_command(owner)
+    else:
+        repo = git.Repo(repository_path)
+        try:
+            with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, True)):
+                repo.remotes.origin.pull()
         finally:
             _finalize_git_ssh_command(owner)
 
