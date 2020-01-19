@@ -22,19 +22,20 @@
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
-                <h3>
+            <h3>
             {% if user_descr %} {{ user_descr.common_name }} {% endif %}
-            {% if editable %} <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
-                            <i class="caret edit icon"></i>
-                        </a>
-                    {% endif %}
-                </h3>
+            {% if editable %}
+                <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
+                    <i class="caret edit icon"></i>
+                </a>
+            {% endif %}
+            </h3>
             {% if user_descr %}
-                <div class="markdown">
+            <div class="markdown">
                     {% filter commonmark %}
 {{ user_descr.text }}
                     {% endfilter %}
-                </div>
+            </div>
             {% endif %}
         </div>
     </div>

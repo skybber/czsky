@@ -189,6 +189,10 @@ class User(UserMixin, db.Model):
             except IntegrityError:
                 db.session.rollback()
 
+    @staticmethod
+    def get_editor_user():
+        return User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+
     def __repr__(self):
         return '<User \'%s\'>' % self.full_name
 

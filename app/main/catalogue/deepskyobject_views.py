@@ -83,10 +83,10 @@ def deepskyobject_info(dso_id):
 
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
-    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    editor_user = User.get_editor_user()
     user_descr = None
-    if user_editor:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor.id) \
+    if editor_user:
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
     prev_dso, next_dso = dso.get_prev_next_dso()
@@ -160,7 +160,7 @@ def deepskyobject_findchart(dso_id):
                 + '_dm' + str(form.dso_maglim.data) \
                 + invert_part + mirror_x_part + mirror_y_part + '.png'
 
-    full_file_name = preview_dir + os.sep + dso_file_name
+    full_file_name = os.path.join(preview_dir, dso_file_name)
 
     if not os.path.exists(full_file_name):
         # a4_width = '180'
@@ -215,23 +215,22 @@ def _check_in_mag_interval(mag, mag_interval):
 @login_required
 def deepskyobject_edit(dso_id):
     """Update deepsky object."""
+    if not current_user.is_editor():
+        abort(403)
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    if not current_user.is_editor():
-        abort(403)
-
-    user_editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+    editor_user = User.get_editor_user()
     user_descr = None
     form = DeepskyObjectEditForm()
-    if user_editor:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor.id) \
+    if editor_user:
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
         if not user_descr:
             user_descr = UserDsoDescription(
                 dso_id = dso_id,
-                user_id = user_editor.id,
+                user_id = editor_user.id,
                 rating = 5,
                 lang_code = 'cs',
                 common_name = '',

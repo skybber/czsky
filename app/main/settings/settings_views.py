@@ -13,7 +13,7 @@ import git
 
 from app.models import Permission, User
 from app.decorators import editor_required
-from .gitstore import save_content_data_to_git, load_content_data_from_git, save_personal_data_to_git, load_personal_data_from_git
+from .gitstore import save_public_content_data_to_git, load_public_content_data_from_git, save_personal_data_to_git, load_personal_data_from_git
 from .settings_forms import GitSaveForm
 from posix import wait
 
@@ -66,11 +66,11 @@ def git_save():
                     flash('Storing data to Git repository failed.', 'form-error')
             else:
                 try:
-                    save_content_data_to_git(current_user, form.commit_message.data)
+                    save_public_content_data_to_git(current_user, form.commit_message.data)
                     flash('Content data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
-                    flash('Storing content data to Git repository failed.', 'form-success')
-    return redirect(url_for('main_settings.data_store', git_save='1'))
+                    flash('Storing content data to Git repository failed.', 'form-error')
+    return redirect(url_for('main_settings.data_store_content', git_save='1'))
 
 @main_settings.route('/git-load', methods=['POST'])
 @login_required
@@ -84,9 +84,8 @@ def git_load():
             except git.GitCommandError as e:
                 flash('Loading data from Git repository failed.', 'form-success')
         else:
-            editor_user = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
             try:
-                load_content_data_from_git(current_user, editor_user)
+                load_public_content_data_from_git(current_user)
                 flash('Content data loaded from Git repository.', 'form-success')
             except git.GitCommandError as e:
                 flash('Loading content data from Git repository failed.', 'form-success')

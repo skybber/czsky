@@ -41,12 +41,11 @@ def star_info(star_id):
 @login_required
 def star_edit(star_id):
     """Update user star description object."""
+    if not current_user.is_editor():
+        abort(403)
     user_descr = UserStarDescription.query.filter_by(id=star_id).first()
     if user_descr is None:
         abort(404)
-    if not current_user.is_editor():
-        abort(403)
-
     form = StarEditForm()
     if request.method == 'GET':
         form.common_name.data = user_descr.common_name
