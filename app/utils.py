@@ -1,8 +1,9 @@
+from flask import current_app
 from flask import url_for
 from wtforms.fields import Field
 from wtforms.widgets import HiddenInput
 from wtforms.compat import text_type
-
+import commonmark
 
 def register_template_utils(app):
     """Register Jinja 2 helpers (called from __init__.py)."""
@@ -15,6 +16,13 @@ def register_template_utils(app):
     def is_hidden_field(field):
         from wtforms.fields import HiddenField
         return isinstance(field, HiddenField)
+
+
+    @app.template_filter()
+    def parametrized_commonmark(s):
+        img_dir = current_app.config.get('IMG_DIR')
+        parsed_text = s.replace('$IMG_DIR', img_dir)
+        return commonmark.commonmark(parsed_text)
 
     app.add_template_global(index_for_role)
 

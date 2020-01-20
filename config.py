@@ -69,6 +69,7 @@ class Config:
 
     USER_DATA_DIR = os.environ.get('USER_DATA_DIR')
     EDITOR_USER_NAME = os.environ.get('EDITOR_USER_NAME')
+    IMG_DIR = os.environ.get('IMG_DIR')
 
     LANGUAGES = ['en', 'cs']
 

@@ -32,7 +32,7 @@
             </h3>
             {% if user_descr %}
             <div class="markdown">
-                    {% filter commonmark %}
+                    {% filter parametrized_commonmark %}
 {{ user_descr.text }}
                     {% endfilter %}
             </div>

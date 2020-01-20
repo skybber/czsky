@@ -32,6 +32,8 @@ vic_catalogue = {}
 
 dso_img_map = {}
 
+STATIC_PATH = '/static/webassets-external/users/8mag/img/'
+
 def checkdir(dir, param):
     if not os.path.exists(dir) or not os.path.isdir(dir):
         print('error: -' + param + ': existing directory expected.')
@@ -147,8 +149,7 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
             src = src.replace('(', '_').replace(')', '_').replace(' ', '_')
 
             subdir = 'cons/' if is_cons else 'dso/'
-            static_path = '/static/webassets-external/users/8mag/img/'
-            path = Path('app' + static_path + subdir)
+            path = Path('app' + STATIC_PATH + subdir)
             path.mkdir(parents=True, exist_ok=True)
             old_img_file = join(src_path, src)
 
@@ -162,16 +163,19 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
                     new_img_name = img_name + '_' + str(counter)
                     counter += 1
                 dso_img_map[new_img_name] =src
-                new_img_file = static_path + subdir + new_img_name + '.' + img_type
+                new_img_file = STATIC_PATH + subdir + new_img_name + '.' + img_type
                 if os.path.isfile(old_img_file):
                     copyfile(old_img_file, 'app/' + new_img_file)
-                md_text += '![<](' + new_img_file + ')\n'
+                md_text += '![<](' + normalize_img_path(new_img_file) + ')\n'
             else:
-                new_img_file = static_path + subdir + src[src.rfind('/'):]
+                new_img_file = STATIC_PATH + subdir + src[src.rfind('/'):]
                 if os.path.isfile(old_img_file):
                     copyfile(old_img_file, 'app/' + new_img_file)
-                md_text += '![<](' + new_img_file + ')\n'
+                md_text += '![<](' + normalize_img_path(new_img_file) + ')\n'
     return md_text
+
+def normalize_img_path(file):
+    return file.replace(STATIC_PATH, '$IMG_DIR/')
 
 def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8mag, lang_code, cons):
     for elem in div_elem.find_all('p'):

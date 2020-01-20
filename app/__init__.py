@@ -1,6 +1,10 @@
 import os
 
-from flask import Flask
+from flask import (
+    Flask,
+    request,
+    current_app,
+)
 from flask_assets import Environment
 from flask_compress import Compress
 from flask_login import LoginManager
@@ -9,7 +13,6 @@ from flask_rq import RQ
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_babel import Babel
-from flask import request
 
 from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css
 from config import config as Config
@@ -107,3 +110,4 @@ def create_app(config):
 @babel.localeselector
 def get_locale():
     return 'cs'
+
