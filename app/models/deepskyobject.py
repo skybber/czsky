@@ -5,7 +5,7 @@ from skyfield.units import Angle
 from .catalogue import Catalogue
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-browsing_catalogues = ('M', 'Abell', 'VIC')
+browsing_catalogues = ('M', 'Abell', 'SH2', 'VIC')
 
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
@@ -68,19 +68,19 @@ class DeepskyObject(db.Model):
         next_dso = None
         catalogue = DeepskyObject.get_browsing_catalogue_map().get(self.catalogue_id)
         if catalogue:
-            dso_id = int(self.name[len(catalogue.code):])
-            prev_dso = self._get_by_catcode_and_id(catalogue.code, dso_id-1)
+            dso_id = int(self.name[catalogue.prefix_len():])
+            prev_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id-1)
             if not prev_dso:
-                prev_dso = self._get_by_catcode_and_id(catalogue.code, dso_id-2)
-            next_dso = self._get_by_catcode_and_id(catalogue.code, dso_id+1)
+                prev_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id-2)
+            next_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id+1)
             if not next_dso:
-                next_dso = self._get_by_catcode_and_id(catalogue.code, dso_id+2)
+                next_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id+2)
         return prev_dso, next_dso
 
-    def _get_by_catcode_and_id(self, cat_code, dso_id):
+    def _get_by_catcode_and_id(self, cat_prefix, dso_id):
         if dso_id <= 0:
             return None
-        dso_name = normalize_dso_name(cat_code + str(dso_id))
+        dso_name = normalize_dso_name(cat_prefix + str(dso_id))
         return DeepskyObject.query.filter_by(name=dso_name).first()
 
     def get_constellation_iau_code(self):

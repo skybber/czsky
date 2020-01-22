@@ -36,33 +36,36 @@ def _get_git_ssh_command(user_name, ssh_private_key, from_repo):
     os.chmod(path, 0o400)
     return 'ssh -i ' + (('../' + PRIVATE_KEY_PATH) if from_repo else str(path))
 
-def _finalize_git_ssh_command(owner):
-    path = Path(current_app.config.get('USER_DATA_DIR'), owner.user_name, 'ssh/id_git')
+def _finalize_git_ssh_command(user_name):
+    path = Path(current_app.config.get('USER_DATA_DIR'), user_name, 'ssh/id_git')
     if path.exists():
         path.unlink()
 
-def save_public_content_data_to_git(owner, commit_message):
-    editor_user = User.get_editor_user()
-    if not editor_user:
-        raise EnvironmentError('User Editor not found.')
-    repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
+def _actualize_repository(user_name, git_repository, git_ssh_private_key, repository_path):
     git_repopath = os.path.join(repository_path, '.git')
     if not os.path.isdir(repository_path) or not os.path.isdir(git_repopath):
         if os.path.isdir(repository_path):
             shutil.rmtree(repository_path) # remove repository_path in case there is no .git file
         os.makedirs(repository_path, exist_ok=True)
         try:
-            git.Repo.clone_from(owner.git_content_repository, repository_path,
-                                env={'GIT_SSH_COMMAND': _get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, False)})
+            git.Repo.clone_from(git_repository, repository_path,
+                                env={'GIT_SSH_COMMAND': _get_git_ssh_command(user_name, git_ssh_private_key, False)})
         finally:
-            _finalize_git_ssh_command(owner)
+            _finalize_git_ssh_command(user_name)
     else:
         repo = git.Repo(repository_path)
         try:
-            with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, True)):
+            with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(user_name, git_ssh_private_key, True)):
                 repo.remotes.origin.pull()
         finally:
-            _finalize_git_ssh_command(owner)
+            _finalize_git_ssh_command(user_name)
+
+def save_public_content_data_to_git(owner, commit_message):
+    editor_user = User.get_editor_user()
+    if not editor_user:
+        raise EnvironmentError('User Editor not found.')
+    repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
+    _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
     files = []
     for d in UserDsoDescription.query.filter_by(user_id=editor_user.id):
@@ -105,13 +108,7 @@ def _read_line(f, expected=None, mandatory=False):
 def load_public_content_data_from_git(owner):
     editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
-
-    repo = git.Repo(repository_path)
-    try:
-        with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, False)):
-            repo.remotes.origin.pull()
-    finally:
-        _finalize_git_ssh_command(owner)
+    _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
     for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in  ['.git', 'images']]:
         dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')

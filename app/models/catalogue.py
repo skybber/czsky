@@ -20,6 +20,17 @@ class Catalogue(db.Model):
             Catalogue._catalog_code_map[c.code] = c
             Catalogue._catalog_id_map[c.id] = c
 
+    def prefix_len(self):
+        if self.code == 'SH2':
+            return len(self.code) + 1 # prefix is 'Sh2-'
+        return len(self.code)
+
+    def get_prefix(self):
+        if self.code == 'SH2':
+            return self.code + '-'
+        return self.code
+
+
     @classmethod
     def get_catalogue_by_code(cls, code):
         if not Catalogue._catalog_id_map:
