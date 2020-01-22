@@ -9,6 +9,8 @@ from skyfield.units import Angle
 
 from .import_utils import progress
 
+from app.commons.dso_utils import normalize_dso_name
+
 def vic2int(s):
     s.lstrip('0')
     if len(s) == 0:
@@ -35,7 +37,7 @@ def import_sh2(sh2_data_file):
                 progress(row_id, row_count, 'Importing Sh2 catalogue')
                 row_id += 1
                 c = DeepskyObject(
-                    name = row['NAME'],
+                    name = normalize_dso_name(row['NAME']),
                     type = 'Neb',
                     ra = Angle(hours=float(row['RA'])).radians if len(row['RA']) > 0 else None,
                     dec = Angle(degrees=float(row['RA'])).radians if len(row['RA']) > 0 else None,

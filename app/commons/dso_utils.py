@@ -10,7 +10,7 @@ catalogs_specifications = (
     ('MEL', 'Mel', 3), # Must be before Messier (M) since has longer prefix
     ('M', 'M', 3),
     ('NGC', 'NGC', 4),
-    ('SH2-', 'SH-2', 3),
+    ('SH2-', 'Sh2-', 3),
     ('PAL', 'Pal', 2),
     ('PK', 'PK', -1), # PK catalog has specific normalization/denormalization
     ('STOCK', 'Stock', 2),
@@ -49,7 +49,7 @@ def denormalize_dso_name(name):
         while name[last_zero_index+1] == '0':
             last_zero_index += 1
         norm = name[:zero_index] + name[last_zero_index+1:]
-    if norm.startswith('SH-1'):
+    if norm.startswith('Sh2-'):
         return norm
     m = re.search("\d", norm)
     return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
