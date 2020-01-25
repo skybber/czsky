@@ -89,7 +89,7 @@ def git_load():
                 flash('Content data loaded from Git repository.', 'form-success')
             except git.GitCommandError as e:
                 flash('Loading content data from Git repository failed.', 'form-success')
-    return redirect(url_for('main_settings.data_store', git_load='1'))
+    return redirect(url_for('main_settings.data_store_content', git_load='1'))
 
 def _is_git_enabled(subtype):
     if subtype == 'repo_content':

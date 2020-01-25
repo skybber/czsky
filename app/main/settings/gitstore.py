@@ -132,11 +132,9 @@ def load_public_content_data_from_git(owner):
 
     for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in  ['.git', 'images']]:
         dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
-        files = [f for f in os.listdir(dso_dir) if os.path.isfile(os.path.join(dso_dir, f))]
-        for dso_name_md in files:
-            with open(os.path.join(dso_dir, dso_name_md), 'r') as f:
-                if not dso_name_md.endswith('.md'):
-                    continue
+        for dso_file in Path(dso_dir).rglob('*.md'):
+            dso_name_md = dso_file.name
+            with dso_file.open('r') as f:
                 dso_name = dso_name_md[:-3]
                 _read_line(f, '---\n')
                 mname = _read_line(f, r'name:\s*()\n')
