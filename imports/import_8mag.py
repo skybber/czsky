@@ -365,17 +365,17 @@ def _parse_dso_and_apertures(text):
     apertures = {}
     prev_aperture_class = None
     prev_text_start = None
-    for m in re.finditer(r'(\d+/\d+)\s*mm', text):
+    for m in re.finditer(r'(\d+\s*/\s*\d+)\s*mm', text):
         if prev_text_start is None:
             dso_text = text[:m.start()]
-            prev_aperture_class = m.group(1)
+            prev_aperture_class = m.group(1).replace(' ', '')
             prev_text_start = m.end()
         else:
-            apertures[prev_aperture_class] = text[prev_text_start:m.start()].strip()
-            prev_aperture_class = m.group(1)
+            apertures[prev_aperture_class] = text[prev_text_start:m.start()].strip().lstrip('-').lstrip()
+            prev_aperture_class = m.group(1).replace(' ', '')
             prev_text_start = m.end()
     if not prev_aperture_class is None:
-            apertures[prev_aperture_class] = text[prev_text_start:].strip()
+            apertures[prev_aperture_class] = text[prev_text_start:].strip().lstrip('-').lstrip()
     else:
         dso_text = text
     return dso_text, apertures
