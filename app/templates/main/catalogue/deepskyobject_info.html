@@ -35,6 +35,11 @@
                     {% filter parametrized_commonmark %}
 {{ user_descr.text }}
                     {% endfilter %}
+                    {% for ap_class, app_descr in apert_descriptions %}
+                        {% filter parametrized_commonmark %}
+**{{ ap_class }}mm** {{ app_descr }}
+                        {% endfilter %}
+                    {% endfor %}
             </div>
             {% endif %}
         </div>

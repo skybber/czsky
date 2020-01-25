@@ -115,3 +115,20 @@ class UserDsoDescription(db.Model):
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))
+
+class UserDsoApertureDescription(db.Model):
+    __tablename__ = 'user_dso_aperture_descriptions'
+    id = db.Column(db.Integer, primary_key=True)
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
+    deepSkyObject = db.relationship("DeepskyObject")
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    lang_code = db.Column(db.String(2))
+    aperture_class = db.Column(db.String(32))
+    text = db.Column(db.Text)
+    create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    update_date = db.Column(db.DateTime, default=datetime.now())
+
+    def rating_to_int(self, m):
+        return int(round(self.rating * m / 10))

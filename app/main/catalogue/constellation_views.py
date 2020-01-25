@@ -12,7 +12,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, Permission, UserConsDescription, UserDsoDescription, UserStarDescription
+from app.models import User, Constellation, Permission, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription
 from app.commons.search_utils import process_session_search
 
 from .constellation_forms import (
@@ -76,9 +76,25 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
 
+        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
+                .filter(UserDsoApertureDescription.lang_code.in_(('cs', 'sk'))) \
+                .order_by(UserDsoApertureDescription.lang_code) \
+                .join(UserDsoApertureDescription.deepSkyObject, aliased=True) \
+                .filter_by(constellation_id=constellation.id) \
+                .all()
+
+        aperture_descr_map = {}
+        for apdescr in dso_apert_descriptions:
+            if not apdescr.dso_id in aperture_descr_map:
+                aperture_descr_map[apdescr.dso_id] = []
+            dsoapd = aperture_descr_map[apdescr.dso_id]
+            if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
+                dsoapd.append((apdescr.aperture_class, apdescr.text),)
+
     editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
-                           user_descr=user_descr, star_descriptions=star_descriptions, dso_descriptions=dso_descriptions, editable=editable)
+                           user_descr=user_descr, star_descriptions=star_descriptions, dso_descriptions=dso_descriptions,
+                           aperture_descr_map=aperture_descr_map, editable=editable)
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required

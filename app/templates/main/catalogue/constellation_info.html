@@ -62,6 +62,14 @@
                         {% filter parametrized_commonmark %}
 {{ user_dso_descr.text }}
                         {% endfilter %}
+                        {% if user_dso_descr.dso_id in aperture_descr_map %}
+                            {% for ap_class, app_descr in aperture_descr_map[user_dso_descr.dso_id] %}
+                                {% filter parametrized_commonmark %}
+**{{ ap_class }}mm** {{ app_descr }}
+                                {% endfilter %}
+                            {% endfor %}
+                        {% endif %}
+
                     </div>
                 </div>
             {% endfor %}

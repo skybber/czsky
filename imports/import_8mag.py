@@ -18,7 +18,7 @@ from json.decoder import JSONDecodeError
 from app import db
 from app.models.user import User
 from app.models.constellation import Constellation, UserConsDescription
-from app.models.deepskyobject import DeepskyObject, UserDsoDescription
+from app.models.deepskyobject import DeepskyObject, UserDsoDescription, UserDsoApertureDescription
 from app.models.star import UserStarDescription
 from app.commons.dso_utils import normalize_dso_name
 from googletrans import Translator
@@ -328,13 +328,14 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
             for dso_name in m['names']:
                 dso = DeepskyObject.query.filter_by(name=m['names'][0]).first()
                 if dso:
+                    dso_text, apertures_texts = _parse_dso_and_apertures(m['text'])
                     udd = UserDsoDescription(
                         dso_id = dso.id,
                         user_id = user_8mag.id,
                         rating = m['rating'],
                         lang_code = lang_code,
                         cons_order = cons_order,
-                        text = m['text'],
+                        text = dso_text,
                         common_name = m['dso_common_name'],
                         create_by = user_8mag.id,
                         update_by = user_8mag.id,
@@ -342,8 +343,44 @@ def save_dso_descriptions(translator, src_path, soup, db_connection, user_8mag, 
                         update_date = datetime.now(),
                         )
                     db.session.add(udd)
+
+                    for aperture_class, ap_text in apertures_texts.items():
+                        apert_descr = UserDsoApertureDescription(
+                            dso_id = dso.id,
+                            user_id = user_8mag.id,
+                            lang_code = lang_code,
+                            aperture_class = aperture_class,
+                            text = ap_text,
+                            create_by = user_8mag.id,
+                            update_by = user_8mag.id,
+                            create_date = datetime.now(),
+                            update_date = datetime.now(),
+                            )
+                        db.session.add(apert_descr)
                 else:
                     print('Deepsky object not found. dso name=' + m['names'][0])
+
+def _parse_dso_and_apertures(text):
+    dso_text = None
+    apertures = {}
+    prev_aperture_class = None
+    prev_text_start = None
+    for m in re.finditer(r'(\d+/\d+)\s*mm', text):
+        if prev_text_start is None:
+            dso_text = text[:m.start()]
+            prev_aperture_class = m.group(1)
+            prev_text_start = m.end()
+        else:
+            apertures[prev_aperture_class] = text[prev_text_start:m.start()].strip()
+            prev_aperture_class = m.group(1)
+            prev_text_start = m.end()
+    if not prev_aperture_class is None:
+            apertures[prev_aperture_class] = text[prev_text_start:].strip()
+    else:
+        dso_text = text
+    return dso_text, apertures
+
+
 
 def do_import_8mag(src_path, debug_log, translation_db_name, vic_8mag_file):
 
