@@ -1,5 +1,6 @@
 import os, re
 import shutil
+import glob
 
 from pathlib import Path
 
@@ -12,6 +13,8 @@ from Crypto.PublicKey import RSA
 from app import db
 
 from app.models import Constellation, DeepskyObject, User, UserConsDescription, UserDsoDescription
+
+from app.commons.dso_utils import destructuralize_dso_name
 
 PRIVATE_KEY_PATH = 'ssh/id_git'
 
@@ -60,6 +63,10 @@ def _actualize_repository(user_name, git_repository, git_ssh_private_key, reposi
         finally:
             _finalize_git_ssh_command(user_name)
 
+def _id_to_range(dso_id, range):
+    nth_range = int(dso_id / range)
+    return str(nth_range * range) + '-' + str((nth_range+1) * range)
+
 def save_public_content_data_to_git(owner, commit_message):
     editor_user = User.get_editor_user()
     if not editor_user:
@@ -67,9 +74,24 @@ def save_public_content_data_to_git(owner, commit_message):
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
-    files = []
+    for f in os.listdir(repository_path):
+        if f != '.git':
+            if os.path.isdir(f):
+                os.remove(os.path.join(repository_path, f))
+            else:
+                shutil.rmtree(os.path.join(repository_path, f))
+
     for d in UserDsoDescription.query.filter_by(user_id=editor_user.id):
-        repo_file_name = os.path.join(d.lang_code,'dso', d.deepSkyObject.name + '.md')
+        cat_name, dso_id = destructuralize_dso_name(d.deepSkyObject.name)
+        if cat_name.startswith('PK'):
+            dso_dir = 'PK'
+        else:
+            if cat_name.startswith('NGC') or cat_name.startswith('IC'):
+                dso_dir = os.path.join('NGC', _id_to_range(dso_id, 100))
+            else:
+                dso_dir = cat_name
+
+        repo_file_name = os.path.join(d.lang_code,'dso', dso_dir, d.deepSkyObject.name + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
@@ -78,7 +100,6 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('rating: ' + str(d.rating) + '\n')
             f.write('---\n')
             f.write(d.text)
-        files.append(repo_file_name)
 
     for c in UserConsDescription.query.filter_by(user_id=editor_user.id):
         repo_file_name = os.path.join(c.lang_code, 'constellation', c.constellation.name + '.md')
@@ -89,16 +110,15 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('name: ' + str(c.common_name) + '\n')
             f.write('---\n')
             f.write(c.text)
-        files.append(repo_file_name)
 
     repo = git.Repo(repository_path)
     try:
         with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, True)):
-            repo.index.add(files)
+            repo.git.add(all=True)
             repo.index.commit(commit_message)
             repo.remotes.origin.push()
     finally:
-        _finalize_git_ssh_command(owner)
+        _finalize_git_ssh_command(owner.user_name)
 
 def _read_line(f, expected=None, mandatory=False):
     line = f.readline()

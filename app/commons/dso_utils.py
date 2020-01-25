@@ -53,3 +53,12 @@ def denormalize_dso_name(name):
         return norm
     m = re.search("\d", norm)
     return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
+
+def destructuralize_dso_name(name):
+    if name.startswith('PK'):
+        return (name, None)
+    if name.startswith('Sh2-'):
+        return ('Sh2', name[3:])
+    m = re.search("\d+", name)
+    return (name[:m.start()], int(name[m.start():m.end()]))
+
