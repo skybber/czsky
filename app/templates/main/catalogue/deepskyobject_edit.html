@@ -31,6 +31,14 @@
                 {{ f.render_form_field(form.common_name) }}
                 {{ f.render_form_field(form.text) }}
 
+                {% for item in form.aperture_descr_items %}
+                  <div class="two fields">
+                    <label>{{ item.text.label }}</label>
+                    {{ item.text() }}
+                    {{ item.aperture_class() }}
+                  </div>
+                {% endfor %}
+
                 {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                     {{ f.render_form_field(field) }}
                 {% endfor %}

@@ -55,10 +55,15 @@ class SearchDsoForm(FlaskForm):
          ('PN', 'Planatary Nebula'),
     ])
 
+class DsoApertureDescriptionForm(FlaskForm):
+    aperture_class = HiddenField()
+    text = TextAreaField(render_kw={'rows':3})
+
 class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
     submit = SubmitField(lazy_gettext('Update'))
+    aperture_descr_items = FieldList(FormField(DsoApertureDescriptionForm))
 
 class DeepskyObjectFindChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])

@@ -5,7 +5,12 @@ from skyfield.units import Angle
 from .catalogue import Catalogue
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-browsing_catalogues = ('M', 'Abell', 'SH2', 'VIC')
+
+BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC')
+
+ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550', '110/660')
+
+SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550' )
 
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
@@ -92,7 +97,7 @@ class DeepskyObject(db.Model):
     def get_browsing_catalogue_map(cls):
         if not DeepskyObject._browsing_catalogue_map:
             DeepskyObject._browsing_catalogue_map = {}
-            for ccode in browsing_catalogues:
+            for ccode in BROWSING_CATALOGS:
                 catalogue = Catalogue.get_catalogue_by_code(ccode)
                 DeepskyObject._browsing_catalogue_map[catalogue.id] = catalogue
         return DeepskyObject._browsing_catalogue_map
