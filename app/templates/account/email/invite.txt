@@ -1,4 +1,4 @@
-Dear {{ user.full_name() }},
+Dear {{ user.full_name }},
 
 You are invited to join {{ config.APP_NAME }}!
 
