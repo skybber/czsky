@@ -85,7 +85,7 @@ def save_public_content_data_to_git(owner, commit_message):
 
     for f in os.listdir(repository_path):
         if f != '.git':
-            if os.path.isdir(f):
+            if not os.path.isdir(f):
                 os.remove(os.path.join(repository_path, f))
             else:
                 shutil.rmtree(os.path.join(repository_path, f))
@@ -228,6 +228,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                     dso_id = dso.id,
                     user_id = editor_user.id,
                     lang_code = lang_code_dir,
+                    aperture_class = aperture_class,
                     create_by = editor_user.id,
                     create_date = datetime.now(),
                 )
