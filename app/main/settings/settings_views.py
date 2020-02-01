@@ -63,13 +63,13 @@ def git_save():
                     save_personal_data_to_git(current_user, form.commit_message.data)
                     flash('User data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
-                    flash('Storing data to Git repository failed.', 'form-error')
+                    flash('Storing data to Git repository failed.' + str(e), 'form-error')
             else:
                 try:
                     save_public_content_data_to_git(current_user, form.commit_message.data)
                     flash('Content data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
-                    flash('Storing content data to Git repository failed.', 'form-error')
+                    flash('Storing content data to Git repository failed.' + str(e), 'form-error')
     return redirect(url_for('main_settings.data_store_content', git_save='1'))
 
 @main_settings.route('/git-load', methods=['POST'])
@@ -82,13 +82,13 @@ def git_load():
                 load_personal_data_from_git(current_user)
                 flash('User data loaded from Git repository.', 'form-success')
             except git.GitCommandError as e:
-                flash('Loading data from Git repository failed.', 'form-success')
+                flash('Loading data from Git repository failed.' + str(e), 'form-success')
         else:
             try:
                 load_public_content_data_from_git(current_user)
                 flash('Content data loaded from Git repository.', 'form-success')
             except git.GitCommandError as e:
-                flash('Loading content data from Git repository failed.', 'form-success')
+                flash('Loading content data from Git repository failed.' + str(e), 'form-success')
     return redirect(url_for('main_settings.data_store_content', git_load='1'))
 
 def _is_git_enabled(subtype):
