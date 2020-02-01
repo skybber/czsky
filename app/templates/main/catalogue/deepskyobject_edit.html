@@ -32,9 +32,16 @@
                 {{ f.render_form_field(form.text) }}
 
                 {% for item in form.aperture_descr_items %}
-                  <div class="two fields">
+                  <div class="three fields">
                     <label>{{ item.text.label }}</label>
                     {{ item.text() }}
+                    <div class="ui labeled item">
+                        <div class="ui toggle checkbox">
+                            {{ item.is_public() }}
+                            <label></label>
+                        </div>
+                        <div class="top right aligned floating ui label">{{ _('Is public') }}</div>
+                    </div>
                     {{ item.aperture_class() }}
                   </div>
                 {% endfor %}

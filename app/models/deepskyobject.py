@@ -131,6 +131,7 @@ class UserDsoApertureDescription(db.Model):
     lang_code = db.Column(db.String(2))
     aperture_class = db.Column(db.String(32))
     text = db.Column(db.Text)
+    is_public = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

@@ -58,6 +58,7 @@ class SearchDsoForm(FlaskForm):
 class DsoApertureDescriptionForm(FlaskForm):
     aperture_class = HiddenField()
     text = TextAreaField(render_kw={'rows':3})
+    is_public = BooleanField('Public')
 
 class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])

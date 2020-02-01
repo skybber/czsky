@@ -12,7 +12,7 @@ from Crypto.PublicKey import RSA
 
 from app import db
 
-from app.models import Constellation, DeepskyObject, User, UserConsDescription, UserDsoDescription
+from app.models import Constellation, DeepskyObject, User, UserConsDescription, UserDsoDescription, UserDsoApertureDescription
 
 from app.commons.dso_utils import destructuralize_dso_name
 
@@ -67,6 +67,15 @@ def _id_to_range(dso_id, range):
     nth_range = int(dso_id / range)
     return str(nth_range * range) + '-' + str((nth_range+1) * range)
 
+
+def _get_dso_dir(cat_name, dso_id):
+        if cat_name.startswith('PK'):
+            return 'PK'
+        if cat_name.startswith('NGC') or cat_name.startswith('IC'):
+            return os.path.join('NGC', _id_to_range(dso_id, 100))
+        return cat_name
+
+
 def save_public_content_data_to_git(owner, commit_message):
     editor_user = User.get_editor_user()
     if not editor_user:
@@ -81,35 +90,43 @@ def save_public_content_data_to_git(owner, commit_message):
             else:
                 shutil.rmtree(os.path.join(repository_path, f))
 
-    for d in UserDsoDescription.query.filter_by(user_id=editor_user.id):
-        cat_name, dso_id = destructuralize_dso_name(d.deepSkyObject.name)
-        if cat_name.startswith('PK'):
-            dso_dir = 'PK'
-        else:
-            if cat_name.startswith('NGC') or cat_name.startswith('IC'):
-                dso_dir = os.path.join('NGC', _id_to_range(dso_id, 100))
-            else:
-                dso_dir = cat_name
+    for udd in UserDsoDescription.query.filter_by(user_id=editor_user.id):
+        cat_name, dso_id = destructuralize_dso_name(udd.deepSkyObject.name)
+        dso_dir = _get_dso_dir(cat_name, dso_id)
 
-        repo_file_name = os.path.join(d.lang_code,'dso', dso_dir, d.deepSkyObject.name + '.md')
+        repo_file_name = os.path.join(udd.lang_code,'dso', dso_dir, udd.deepSkyObject.name + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write('---\n')
-            f.write('name: ' + str(d.common_name) + '\n')
-            f.write('rating: ' + str(d.rating) + '\n')
+            f.write('name: ' + udd.common_name + '\n')
+            f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
             f.write('---\n')
-            f.write(d.text)
+            f.write(udd.text)
 
-    for c in UserConsDescription.query.filter_by(user_id=editor_user.id):
-        repo_file_name = os.path.join(c.lang_code, 'constellation', c.constellation.name + '.md')
+    for uad in UserDsoApertureDescription.query.filter_by(user_id=editor_user.id):
+        cat_name, dso_id = destructuralize_dso_name(uad.deepSkyObject.name)
+        dso_dir = _get_dso_dir(cat_name, dso_id)
+
+        repo_file_name = os.path.join(uad.lang_code,'dso', dso_dir, uad.deepSkyObject.name + '_' + uad.aperture_class.replace('/', 'u') + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write('---\n')
-            f.write('name: ' + str(c.common_name) + '\n')
+            f.write('aperture: ' + uad.aperture_class + '\n')
+            f.write('rating: ' + (str(uad.rating) if uad.rating else '') + '\n')
             f.write('---\n')
-            f.write(c.text)
+            f.write(uad.text)
+
+    for ucd in UserConsDescription.query.filter_by(user_id=editor_user.id):
+        repo_file_name = os.path.join(ucd.lang_code, 'constellation', ucd.constellation.name + '.md')
+        filename = os.path.join(repository_path, repo_file_name)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w") as f:
+            f.write('---\n')
+            f.write('name: ' + str(ucd.common_name) + '\n')
+            f.write('---\n')
+            f.write(ucd.text)
 
     repo = git.Repo(repository_path)
     try:
@@ -131,77 +148,132 @@ def load_public_content_data_from_git(owner):
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
     for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in  ['.git', 'images']]:
-        dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
-        for dso_file in Path(dso_dir).rglob('*.md'):
-            dso_name_md = dso_file.name
-            with dso_file.open('r') as f:
-                dso_name = dso_name_md[:-3]
-                _read_line(f, '---\n')
-                mname = _read_line(f, r'name:\s*()\n')
-                mrating = _read_line(f, r'rating:\s*()\n')
-                common_name = mname.group(1) if mname else ''
-                rating = mrating.group(1) if mrating else '5'
-                _read_line(f, '---\n')
-                text = f.read()
-                dso_description = UserDsoDescription.query.filter_by(user_id=owner.id)\
-                        .filter_by(lang_code=lang_code_dir) \
-                        .join(UserDsoDescription.deepSkyObject, aliased=True) \
-                        .filter_by(name=dso_name) \
-                        .first()
-                if not dso_description:
-                    dso = DeepskyObject.query.filter_by(name=dso_name).first()
-                    if not dso:
-                        continue
-                    dso_description = UserDsoDescription(
-                        dso_id = dso.id,
-                        user_id = editor_user.id,
-                        lang_code = lang_code_dir,
-                        cons_order = 1,
-                        create_by = editor_user.id,
-                        create_date = datetime.now(),
-                    )
-                dso_description.common_name = common_name
-                dso_description.rating = int(rating)
-                dso_description.text = text
-                dso_description.update_by = editor_user.id
-                dso_description.update_date = datetime.now()
-                db.session.add(dso_description)
-
-        constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
-        files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
-        for constellation_name_md in files:
-            with open(os.path.join(constellation_dir, constellation_name_md), 'r') as f:
-                if not constellation_name_md.endswith('.md'):
-                    continue
-                constellation_name = constellation_name_md[:-3]
-                _read_line(f, '---\n')
-                mname = _read_line(f, r'name:\s*()\n')
-                common_name = mname.group(1) if mname else ''
-                _read_line(f, '---\n')
-                text = f.read()
-                cons_description = UserConsDescription.query.filter_by(user_id=owner.id)\
-                        .filter_by(lang_code=lang_code_dir) \
-                        .join(UserConsDescription.constellation, aliased=True) \
-                        .filter_by(name=constellation_name) \
-                        .first()
-                if not cons_description:
-                    constellation = Constellation.query.filter_by(name=constellation_name).first()
-                    if not constellation:
-                        continue
-                    cons_description = UserConsDescription(
-                        constellation_id = constellation.id,
-                        user_id = editor_user.id,
-                        lang_code = lang_code_dir,
-                        create_by = editor_user.id,
-                        create_date = datetime.now(),
-                    )
-                cons_description.common_name = common_name
-                cons_description.text = text
-                cons_description.update_by = editor_user.id
-                cons_description.update_date = datetime.now()
-                db.session.add(cons_description)
+        _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir)
+        _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir)
+        _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir)
 
     db.session.commit()
+
+def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir):
+    dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
+    for dso_file in Path(dso_dir).rglob('*.md'):
+        dso_name_md = dso_file.name
+        if re.match(r'.*?_(\d+u\d+).md$', dso_name_md):
+            continue
+        with dso_file.open('r') as f:
+            dso_name = dso_name_md[:-3]
+            _read_line(f, '---\n')
+            mname = _read_line(f, r'name:\s*(.*)\n')
+            mrating = _read_line(f, r'rating:\s*(.*)\n')
+            common_name = mname.group(1) if mname else ''
+            rating = mrating.group(1) if mrating else '5'
+            _read_line(f, '---\n')
+            text = f.read()
+            udd = UserDsoDescription.query.filter_by(user_id=owner.id)\
+                    .filter_by(lang_code=lang_code_dir) \
+                    .join(UserDsoDescription.deepSkyObject, aliased=True) \
+                    .filter_by(name=dso_name) \
+                    .first()
+            if not udd:
+                dso = DeepskyObject.query.filter_by(name=dso_name).first()
+                if not dso:
+                    continue
+                udd = UserDsoDescription(
+                    dso_id = dso.id,
+                    user_id = editor_user.id,
+                    lang_code = lang_code_dir,
+                    cons_order = 1,
+                    create_by = editor_user.id,
+                    create_date = datetime.now(),
+                )
+            udd.common_name = common_name
+            try:
+                udd.rating = int(rating)
+            except ValueError:
+                udd.rating = None
+            udd.text = text
+            udd.update_by = editor_user.id
+            udd.update_date = datetime.now()
+            db.session.add(udd)
+
+def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir):
+    dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
+    for dso_file in Path(dso_dir).rglob('*.md'):
+        dso_name_md = dso_file.name
+        m = re.match(r'(.*?)_(\d+u\d+).md$', dso_name_md)
+        if not m:
+            continue
+        with dso_file.open('r') as f:
+            dso_name = m.group(1)
+            _read_line(f, '---\n')
+            aperture_class = m.group(2).replace('u','/')
+            maperture = _read_line(f, r'aperture:\s*(.*)\n')
+            mrating = _read_line(f, r'rating:\s*(.*)\n')
+            doc_aperture = maperture.group(1) if maperture else ''
+            rating = mrating.group(1) if mrating else '5'
+            _read_line(f, '---\n')
+            text = f.read()
+            uad = UserDsoApertureDescription.query.filter_by(user_id=owner.id)\
+                    .filter_by(lang_code=lang_code_dir) \
+                    .filter_by(aperture_class=aperture_class) \
+                    .join(UserDsoApertureDescription.deepSkyObject, aliased=True) \
+                    .filter_by(name=dso_name) \
+                    .first()
+
+            if not uad:
+                dso = DeepskyObject.query.filter_by(name=dso_name).first()
+                if not dso:
+                    continue
+                uad = UserDsoApertureDescription(
+                    dso_id = dso.id,
+                    user_id = editor_user.id,
+                    lang_code = lang_code_dir,
+                    create_by = editor_user.id,
+                    create_date = datetime.now(),
+                )
+            try:
+                uad.rating = int(rating)
+            except ValueError:
+                uad.rating = None
+            uad.text = text
+            uad.update_by = editor_user.id
+            uad.update_date = datetime.now()
+            db.session.add(uad)
+
+def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir):
+    constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
+    files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
+    for constellation_name_md in files:
+        with open(os.path.join(constellation_dir, constellation_name_md), 'r') as f:
+            if not constellation_name_md.endswith('.md'):
+                continue
+            constellation_name = constellation_name_md[:-3]
+            _read_line(f, '---\n')
+            mname = _read_line(f, r'name:\s*()\n')
+            common_name = mname.group(1) if mname else ''
+            _read_line(f, '---\n')
+            text = f.read()
+            ucd = UserConsDescription.query.filter_by(user_id=owner.id)\
+                    .filter_by(lang_code=lang_code_dir) \
+                    .join(UserConsDescription.constellation, aliased=True) \
+                    .filter_by(name=constellation_name) \
+                    .first()
+            if not ucd:
+                constellation = Constellation.query.filter_by(name=constellation_name).first()
+                if not constellation:
+                    continue
+                ucd = UserConsDescription(
+                    constellation_id = constellation.id,
+                    user_id = editor_user.id,
+                    lang_code = lang_code_dir,
+                    create_by = editor_user.id,
+                    create_date = datetime.now(),
+                )
+            ucd.common_name = common_name
+            ucd.text = text
+            ucd.update_by = editor_user.id
+            ucd.update_date = datetime.now()
+            db.session.add(ucd)
 
 def save_personal_data_to_git(owner, commit_message):
     pass

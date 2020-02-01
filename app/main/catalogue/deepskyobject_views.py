@@ -284,6 +284,7 @@ def deepskyobject_edit(dso_id):
                 adi = form.aperture_descr_items.append_entry()
                 adi.aperture_class.data = ad.aperture_class
                 adi.text.data = ad.text
+                adi.is_public.data = ad.is_public
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
             user_descr.common_name = form.common_name.data
@@ -295,6 +296,7 @@ def deepskyobject_edit(dso_id):
                 for ad in user_apert_descriptions:
                     if ad.aperture_class == adi.aperture_class.data:
                         ad.text = adi.text.data
+                        ad.is_public = adi.is_public.data
                         ad.update_by = current_user.id
                         ad.update_date = datetime.now()
                         db.session.add(ad)
