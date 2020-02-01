@@ -85,10 +85,11 @@ def save_public_content_data_to_git(owner, commit_message):
 
     for f in os.listdir(repository_path):
         if f != '.git':
-            if not os.path.isdir(f):
-                os.remove(os.path.join(repository_path, f))
+            fpath = os.path.join(repository_path, f)
+            if not os.path.isdir(fpath):
+                shutil.rmtree(fpath)
             else:
-                shutil.rmtree(os.path.join(repository_path, f))
+                os.remove(fpath)
 
     for udd in UserDsoDescription.query.filter_by(user_id=editor_user.id):
         cat_name, dso_id = destructuralize_dso_name(udd.deepSkyObject.name)
