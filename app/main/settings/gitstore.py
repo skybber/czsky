@@ -111,10 +111,10 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('name: ' + udd.common_name + '\n')
             f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
-            f.write('create by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
-            f.write('create date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
-            f.write('update by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
-            f.write('create date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
+            f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
+            f.write('updated_by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
             f.write('---\n')
             f.write(udd.text)
 
@@ -132,10 +132,10 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('aperture: ' + uad.aperture_class + '\n')
             f.write('rating: ' + (str(uad.rating) if uad.rating else '') + '\n')
-            f.write('create by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
-            f.write('create date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
-            f.write('update by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
-            f.write('create date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
+            f.write('created_by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
+            f.write('updated_by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
             f.write('---\n')
             f.write(uad.text)
 
@@ -146,6 +146,10 @@ def save_public_content_data_to_git(owner, commit_message):
         with open(filename, "w") as f:
             f.write('---\n')
             f.write('name: ' + str(ucd.common_name) + '\n')
+            f.write('created_by: ' + _get_user_name(ucd.create_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(ucd.create_date) if ucd.create_date else '') + '\n')
+            f.write('updated_ by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
             f.write('---\n')
             f.write(ucd.text)
 
@@ -168,14 +172,16 @@ def load_public_content_data_from_git(owner):
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
+    user_cache = {}
+
     for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in  ['.git', 'images']]:
-        _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir)
-        _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir)
-        _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir)
+        _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
+        _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
+        _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
 
     db.session.commit()
 
-def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir):
+def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
         dso_name_md = dso_file.name
@@ -186,9 +192,19 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir):
             _read_line(f, '---\n')
             mname = _read_line(f, r'name:\s*(.*)\n')
             mrating = _read_line(f, r'rating:\s*(.*)\n')
+            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
+            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
+            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
+            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
+            _read_line(f, '---\n')
             common_name = mname.group(1) if mname else ''
             rating = mrating.group(1) if mrating else '5'
-            _read_line(f, '---\n')
+            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
+            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
+            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
+            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            created_by = created_by or editor_user
+            updated_by = updated_by or owner
             text = f.read()
             udd = UserDsoDescription.query.filter_by(user_id=owner.id)\
                     .filter_by(lang_code=lang_code_dir) \
@@ -204,8 +220,8 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir):
                     user_id = editor_user.id,
                     lang_code = lang_code_dir,
                     cons_order = 1,
-                    create_by = editor_user.id,
-                    create_date = datetime.now(),
+                    create_by = created_by.id,
+                    create_date = created_date,
                 )
             udd.common_name = common_name
             try:
@@ -213,11 +229,11 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir):
             except ValueError:
                 udd.rating = None
             udd.text = text
-            udd.update_by = editor_user.id
-            udd.update_date = datetime.now()
+            udd.update_by = updated_by.id
+            udd.update_date = updated_date
             db.session.add(udd)
 
-def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir):
+def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
         dso_name_md = dso_file.name
@@ -230,9 +246,19 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             aperture_class = m.group(2).replace('u','/')
             maperture = _read_line(f, r'aperture:\s*(.*)\n')
             mrating = _read_line(f, r'rating:\s*(.*)\n')
+            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
+            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
+            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
+            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
+            _read_line(f, '---\n')
             doc_aperture = maperture.group(1) if maperture else ''
             rating = mrating.group(1) if mrating else '5'
-            _read_line(f, '---\n')
+            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
+            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
+            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
+            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            created_by = created_by or editor_user
+            updated_by = updated_by or owner
             text = f.read()
             uad = UserDsoApertureDescription.query.filter_by(user_id=owner.id)\
                     .filter_by(lang_code=lang_code_dir) \
@@ -250,19 +276,20 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                     user_id = editor_user.id,
                     lang_code = lang_code_dir,
                     aperture_class = aperture_class,
-                    create_by = editor_user.id,
-                    create_date = datetime.now(),
+                    create_by = created_by.id,
+                    create_date = created_date,
                 )
             try:
                 uad.rating = int(rating)
             except ValueError:
                 uad.rating = None
             uad.text = text
-            uad.update_by = editor_user.id
-            uad.update_date = datetime.now()
+            uad.update_by = updated_by.id
+            uad.update_date = updated_date
             db.session.add(uad)
 
-def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir):
+
+def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
     files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
     for constellation_name_md in files:
@@ -272,8 +299,18 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             constellation_name = constellation_name_md[:-3]
             _read_line(f, '---\n')
             mname = _read_line(f, r'name:\s*()\n')
-            common_name = mname.group(1) if mname else ''
+            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
+            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
+            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
+            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
             _read_line(f, '---\n')
+            common_name = mname.group(1) if mname else ''
+            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
+            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
+            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
+            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            created_by = created_by or editor_user
+            updated_by = updated_by or owner
             text = f.read()
             ucd = UserConsDescription.query.filter_by(user_id=owner.id)\
                     .filter_by(lang_code=lang_code_dir) \
@@ -288,14 +325,34 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
                     constellation_id = constellation.id,
                     user_id = editor_user.id,
                     lang_code = lang_code_dir,
-                    create_by = editor_user.id,
-                    create_date = datetime.now(),
+                    create_by = created_by.id,
+                    create_date = created_date,
                 )
             ucd.common_name = common_name
             ucd.text = text
-            ucd.update_by = editor_user.id
-            ucd.update_date = datetime.now()
+            ucd.update_by = updated_by.id
+            ucd.update_date = updated_date
             db.session.add(ucd)
+
+def _get_user_from_username(user_cache, user_name, default_user):
+    if not user_name:
+        return None
+    user = user_cache.get(user_name, None)
+    if user is None:
+        user = User.query.filter_by(user_name=user_name).first()
+        if not user:
+            user = default_user
+        user_cache[user_name] = user
+    return user
+
+
+def _get_get_date_from_str(strdate):
+    if strdate:
+        try:
+            return datetime.fromisoformat(strdate)
+        except ValueError:
+            pass
+    return datetime.now()
 
 def save_personal_data_to_git(owner, commit_message):
     pass
