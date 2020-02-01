@@ -75,11 +75,20 @@ def _get_dso_dir(cat_name, dso_id):
             return os.path.join('NGC', _id_to_range(dso_id, 100))
         return cat_name
 
+def _get_user_name(user_id, user_name_cache):
+    if user_id is None:
+        return ''
+    user_name = user_name_cache.get(user_id, None)
+    if not user_name:
+        user_name = User.query.filter_by(id=user_id).first().user_name
+        user_name_cache[user_id] = user_name
+    return user_name
 
 def save_public_content_data_to_git(owner, commit_message):
     editor_user = User.get_editor_user()
     if not editor_user:
         raise EnvironmentError('User Editor not found.')
+    user_name_cache = {}
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
@@ -102,10 +111,17 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('name: ' + udd.common_name + '\n')
             f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
+            f.write('create by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
+            f.write('create date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
+            f.write('update by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
+            f.write('create date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
             f.write('---\n')
             f.write(udd.text)
 
     for uad in UserDsoApertureDescription.query.filter_by(user_id=editor_user.id):
+        if not uad.text:
+            continue
+
         cat_name, dso_id = destructuralize_dso_name(uad.deepSkyObject.name)
         dso_dir = _get_dso_dir(cat_name, dso_id)
 
@@ -116,6 +132,10 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('aperture: ' + uad.aperture_class + '\n')
             f.write('rating: ' + (str(uad.rating) if uad.rating else '') + '\n')
+            f.write('create by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
+            f.write('create date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
+            f.write('update by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
+            f.write('create date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
             f.write('---\n')
             f.write(uad.text)
 
