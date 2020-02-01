@@ -50,7 +50,9 @@ def new_user():
             user_name=form.user_name.data,
             full_name=form.full_name.data,
             email=form.email.data,
-            password=form.password.data)
+            password=form.password.data,
+            confirmed=True
+            )
         db.session.add(user)
         db.session.commit()
         flash('User {} successfully created'.format(user.full_name),

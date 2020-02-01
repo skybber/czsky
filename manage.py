@@ -65,19 +65,6 @@ def add_fake_data(number_users):
 
 
 @manager.command
-def add_test_user():
-    user_email = 'test@test.test'
-    if User.query.filter_by(email=user_email).first() is None:
-        user = User(
-            user_name='test',
-            full_name='test',
-            password='heslo',
-            confirmed=True,
-            email=user_email)
-        db.session.add(user)
-        db.session.commit()
-
-@manager.command
 def setup_dev():
     """Runs the set-up needed for local development."""
     setup_general()
@@ -167,6 +154,19 @@ def import_all_skyquality_locations():
     Import all skyquality locations
     """
     do_import_skyquality_locations('data/skyquality.sqlite', True)
+
+@manager.command
+def add_test_user():
+    user_email = 'test@test.test'
+    if User.query.filter_by(email=user_email).first() is None:
+        user = User(
+            user_name='test',
+            full_name='test',
+            password='heslo',
+            confirmed=True,
+            email=user_email)
+        db.session.add(user)
+        db.session.commit()
 
 @manager.command
 def add_help_users():
