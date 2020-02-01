@@ -188,14 +188,14 @@
             </div>
             {% if next_dso %}
                 <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.id, sel_tab=type)}}">
-                    {{ next_dso.denormalized_name() }}
+                    {{ next_dso.catalog_number() }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
                 <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.id, sel_tab=type)}}">
                     <i class="caret left icon"></i>
-                    {{ prev_dso.denormalized_name() }}
+                    {{ prev_dso.catalog_number() }}
                 </a>
             {% endif %}
             </div>

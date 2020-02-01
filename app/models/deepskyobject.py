@@ -4,7 +4,7 @@ from .. import db
 from skyfield.units import Angle
 from .catalogue import Catalogue
 
-from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, destructuralize_dso_name
 
 BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC')
 
@@ -43,6 +43,9 @@ class DeepskyObject(db.Model):
 
     def denormalized_name(self):
         return denormalize_dso_name(self.name)
+
+    def catalog_number(self):
+        return destructuralize_dso_name(self.name)[1]
 
     def ra_str(self):
         if self.ra:

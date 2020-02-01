@@ -61,4 +61,3 @@ def destructuralize_dso_name(name):
         return ('Sh2', name[3:])
     m = re.search("\d+", name)
     return (name[:m.start()], int(name[m.start():m.end()]))
-
