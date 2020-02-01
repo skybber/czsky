@@ -86,7 +86,7 @@ def save_public_content_data_to_git(owner, commit_message):
     for f in os.listdir(repository_path):
         if f != '.git':
             fpath = os.path.join(repository_path, f)
-            if not os.path.isdir(fpath):
+            if os.path.isdir(fpath):
                 shutil.rmtree(fpath)
             else:
                 os.remove(fpath)
