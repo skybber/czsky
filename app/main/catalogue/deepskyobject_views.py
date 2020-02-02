@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 from datetime import datetime
 
@@ -19,7 +18,7 @@ from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, Permission, UserDsoDescription, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -31,6 +30,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
+from .chart_generator import create_chart
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
@@ -170,31 +170,9 @@ def deepskyobject_findchart(dso_id):
     full_file_name = os.path.join(preview_dir, dso_file_name)
 
     if not os.path.exists(full_file_name):
-        # a4_width = '180'
+        create_chart(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
+                                night_mode, form.mirror_x.data, form.mirror_y.data)
 
-        prog_params = ['fchart3',
-                       '-size', str(fld_size),
-                       '-width', '220',
-                       '-f', full_file_name,
-                       '-capt', '',
-                       '-limdso', str(form.dso_maglim.data),
-                       '-limstar', str(form.maglim.data),
-                       '-lstar', '0.06',
-                       '-locl', '0.15',
-                       '-ldso', '0.1',
-                       '-llegend', '0.3',
-                       '-usno-nomad', os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat'),
-                       '-fmessier',
-                       ]
-        if night_mode:
-            prog_params.append('-nm')
-        if form.mirror_x.data:
-            prog_params.append('-mx')
-        if form.mirror_y.data:
-            prog_params.append('-my')
-        prog_params.append(dso_dname)
-        p = subprocess.Popen(prog_params)
-        p.wait()
     fchart_url = preview_url_dir + dso_file_name
 
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
