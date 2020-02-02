@@ -87,11 +87,8 @@ def deepskyobject_info(dso_id):
     editor_user = User.get_editor_user()
     user_descr = None
     if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
-                        .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
-                        .first()
-        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
-                        .filter(UserDsoApertureDescription.lang_code.in_(('cs', 'sk'))) \
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
+        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
                         .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         apert_descriptions = []
@@ -234,9 +231,7 @@ def deepskyobject_edit(dso_id):
     user_descr = None
     form = DeepskyObjectEditForm()
     if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
-                        .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
-                        .first()
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
 
         authors = {}
 
@@ -253,8 +248,7 @@ def deepskyobject_edit(dso_id):
                 create_date = datetime.now(),
                 )
 
-        all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id) \
-                    .filter(UserDsoApertureDescription.lang_code.in_(('cs', 'sk'))) \
+        all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
                     .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
 
         # avoid duplicities - TODO: use only one language

@@ -50,20 +50,18 @@ def constellation_info(constellation_id):
     star_descriptions = None
     editor_user = User.get_editor_user()
     if editor_user:
-        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id)\
-                .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
+        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserConsDescription.lang_code) \
                 .first()
 
         user_descr = ud.text if ud else None
 
-        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = 'cs')\
+        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserStarDescription.lang_code) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
-        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
-                .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
+        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserDsoDescription.lang_code) \
                 .join(UserDsoDescription.deepSkyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
@@ -76,8 +74,7 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
 
-        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
-                .filter(UserDsoApertureDescription.lang_code.in_(('cs', 'sk'))) \
+        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserDsoApertureDescription.lang_code) \
                 .join(UserDsoApertureDescription.deepSkyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
@@ -110,9 +107,7 @@ def constellation_edit(constellation_id):
     user_descr = None
     form = ConstellationEditForm()
     if editor_user:
-        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id) \
-                        .filter(UserConsDescription.lang_code.in_(('cs', 'sk'))) \
-                        .first()
+        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs').first()
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
