@@ -5,7 +5,6 @@ from datetime import datetime
 from flask import (
     abort,
     Blueprint,
-    current_app,
     flash,
     redirect,
     render_template,
@@ -30,7 +29,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from .chart_generator import create_chart
+from .chart_generator import create_chart_in_pipeline, create_chart_by_extprocess
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
@@ -170,7 +169,7 @@ def deepskyobject_findchart(dso_id):
     full_file_name = os.path.join(preview_dir, dso_file_name)
 
     if not os.path.exists(full_file_name):
-        create_chart(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
+        create_chart_in_pipeline(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
                                 night_mode, form.mirror_x.data, form.mirror_y.data)
 
     fchart_url = preview_url_dir + dso_file_name

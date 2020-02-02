@@ -3,7 +3,6 @@ from datetime import datetime
 from flask import (
     abort,
     Blueprint,
-    current_app,
     flash,
     render_template,
     request,
@@ -12,7 +11,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, Permission, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription
+from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription
 from app.commons.search_utils import process_session_search
 
 from .constellation_forms import (
