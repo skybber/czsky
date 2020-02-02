@@ -238,6 +238,8 @@ def deepskyobject_edit(dso_id):
                         .filter(UserDsoDescription.lang_code.in_(('cs', 'sk'))) \
                         .first()
 
+        authors = {}
+
         if not user_descr:
             user_descr = UserDsoDescription(
                 dso_id = dso_id,
@@ -255,11 +257,13 @@ def deepskyobject_edit(dso_id):
                     .filter(UserDsoApertureDescription.lang_code.in_(('cs', 'sk'))) \
                     .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
 
+        # avoid duplicities - TODO: use only one language
         user_apert_descriptions = []
         for apdescr in all_user_apert_descrs:
             if not apdescr.aperture_class in [cl.aperture_class for cl in user_apert_descriptions]:
                 user_apert_descriptions.append(apdescr)
 
+        # create missing UserDsoApertureDescription
         for aperture_class in SHOWN_APERTURE_DESCRIPTIONS:
             for ad in user_apert_descriptions:
                 if ad.aperture_class == aperture_class:
@@ -277,6 +281,7 @@ def deepskyobject_edit(dso_id):
                 )
                 user_apert_descriptions.append(ad)
 
+
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
@@ -287,29 +292,41 @@ def deepskyobject_edit(dso_id):
                 adi.is_public.data = ad.is_public
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
-            user_descr.common_name = form.common_name.data
-            user_descr.text = form.text.data
-            user_descr.update_by = current_user.id
-            user_descr.update_date = datetime.now()
-            db.session.add(user_descr)
+            if user_descr.text != form.text.data:
+                user_descr.common_name = form.common_name.data
+                user_descr.text = form.text.data
+                user_descr.update_by = current_user.id
+                user_descr.update_date = datetime.now()
+                db.session.add(user_descr)
             for adi in form.aperture_descr_items:
                 for ad in user_apert_descriptions:
                     if ad.aperture_class == adi.aperture_class.data:
-                        ad.text = adi.text.data
-                        ad.is_public = adi.is_public.data
-                        ad.update_by = current_user.id
-                        ad.update_date = datetime.now()
-                        db.session.add(ad)
+                        if ad.text != adi.text.data:
+                            ad.text = adi.text.data
+                            ad.is_public = adi.is_public.data
+                            ad.update_by = current_user.id
+                            ad.update_date = datetime.now()
+                            db.session.add(ad)
             db.session.commit()
 
             flash('Deepsky object successfully updated', 'form-success')
+
+    authors['dso'] = _create_author_entry(user_descr.update_by, user_descr.update_date)
+    for ad in user_apert_descriptions:
+        authors[ad.aperture_class] = _create_author_entry(ad.update_by, ad.update_date)
 
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, from_constellation_id=from_constellation_id,
-                           from_observation_id=from_observation_id,
+                           from_observation_id=from_observation_id, authors=authors,
                            )
+
+def _create_author_entry(update_by, update_date):
+    if update_by is None:
+        return ('', '')
+    user_name = User.query.filter_by(id=update_by).first().user_name
+    return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
 
 def _filter_apert_descriptions(all_user_apert_descrs):
     apert_descriptions = []
