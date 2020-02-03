@@ -34,7 +34,7 @@
 
                 {% for item in form.aperture_descr_items %}
                 <div class="three fields">
-                    <label>{{ item.text.label }}</label>
+                    <label>{{ item.aperture_class.data }}</label>
                     {{ item.text() }}
                     <div class="ui labeled item">
                         <div class="top right aligned ui label">{{ _('Is public') }}</div>

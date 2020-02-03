@@ -226,18 +226,14 @@ def deepskyobject_edit(dso_id):
                 )
 
         all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
-                    .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
+                    .order_by(UserDsoApertureDescription.aperture_class)
 
-        # avoid duplicities - TODO: use only one language
         user_apert_descriptions = []
-        for apdescr in all_user_apert_descrs:
-            if not apdescr.aperture_class in [cl.aperture_class for cl in user_apert_descriptions]:
-                user_apert_descriptions.append(apdescr)
-
         # create missing UserDsoApertureDescription
         for aperture_class in SHOWN_APERTURE_DESCRIPTIONS:
-            for ad in user_apert_descriptions:
+            for ad in all_user_apert_descrs:
                 if ad.aperture_class == aperture_class:
+                    user_apert_descriptions.append(ad)
                     break
             else:
                 ad = UserDsoApertureDescription(
@@ -251,7 +247,6 @@ def deepskyobject_edit(dso_id):
                     create_date = datetime.now(),
                 )
                 user_apert_descriptions.append(ad)
-
 
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
