@@ -119,7 +119,16 @@ def constellation_edit(constellation_id):
             db.session.commit()
             flash('Constellation successfully updated', 'form-success')
 
-    return render_template('main/catalogue/constellation_edit.html', form=form, constellation=constellation, user_descr=user_descr)
+    author = _create_author_entry(user_descr.update_by, user_descr.update_date)
+
+    return render_template('main/catalogue/constellation_edit.html', form=form, constellation=constellation,
+                           user_descr=user_descr, author=author)
+
+def _create_author_entry(update_by, update_date):
+    if update_by is None:
+        return ('', '')
+    user_name = User.query.filter_by(id=update_by).first().user_name
+    return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
 
 @main_constellation.route('/constellation/<int:constellation_id>/stars')
 def constellation_stars(constellation_id):

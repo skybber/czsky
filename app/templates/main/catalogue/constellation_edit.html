@@ -23,6 +23,7 @@
 
                 {{ f.render_form_field(form.common_name) }}
                 {{ f.render_form_field(form.text) }}
+                <p align="right"><span class="ui small text">Updated by: {{ author[0] }}, Update date: {{ author[1] }}</span></p>
 
                 {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                     {{ f.render_form_field(field) }}
