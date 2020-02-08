@@ -71,7 +71,7 @@ class ObservationMixin():
     rating = HiddenField(lazy_gettext('Rating'), default=0)
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'), default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
-    advmode = HiddenField(lazy_gettext('Advanced Mode'), default='false')
+    advmode = HiddenField('Advanced Mode', default='false')
 
 class ObservationNewForm(FlaskForm, ObservationMixin):
     submit = SubmitField(lazy_gettext('Add Observation'))

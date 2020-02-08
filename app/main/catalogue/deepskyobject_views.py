@@ -207,6 +207,7 @@ def deepskyobject_edit(dso_id):
     editor_user = User.get_editor_user()
     user_descr = None
     form = DeepskyObjectEditForm()
+    goback = False
     if editor_user:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
 
@@ -279,15 +280,22 @@ def deepskyobject_edit(dso_id):
 
             flash('Deepsky object successfully updated', 'form-success')
 
+            if form.goback.data == 'true':
+                goback = True
+
     authors['dso'] = _create_author_entry(user_descr.update_by, user_descr.update_date)
     for ad in user_apert_descriptions:
         authors[ad.aperture_class] = _create_author_entry(ad.update_by, ad.update_date)
 
     from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
 
-    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, from_constellation_id=from_constellation_id,
-                           from_observation_id=from_observation_id, authors=authors,
+    if goback:
+        if from_constellation_id is not None:
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=from_constellation_id, _anchor='dso' + str(dso.id)))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id))
+
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso,
+                           from_constellation_id=from_constellation_id, authors=authors,
                            )
 
 def _create_author_entry(update_by, update_date):
