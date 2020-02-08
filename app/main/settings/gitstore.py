@@ -101,10 +101,10 @@ def save_public_content_data_to_git(owner, commit_message):
                 os.remove(fpath)
 
     for udd in UserDsoDescription.query.filter_by(user_id=editor_user.id):
-        cat_name, dso_id = destructuralize_dso_name(udd.deepSkyObject.name)
+        cat_name, dso_id = destructuralize_dso_name(udd.deepskyObject.name)
         dso_dir = _get_dso_dir(cat_name, dso_id)
 
-        repo_file_name = os.path.join(udd.lang_code,'dso', dso_dir, udd.deepSkyObject.name + '.md')
+        repo_file_name = os.path.join(udd.lang_code,'dso', dso_dir, udd.deepskyObject.name + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
@@ -122,10 +122,10 @@ def save_public_content_data_to_git(owner, commit_message):
         if not uad.text:
             continue
 
-        cat_name, dso_id = destructuralize_dso_name(uad.deepSkyObject.name)
+        cat_name, dso_id = destructuralize_dso_name(uad.deepskyObject.name)
         dso_dir = _get_dso_dir(cat_name, dso_id)
 
-        repo_file_name = os.path.join(uad.lang_code,'dso', dso_dir, uad.deepSkyObject.name + '_' + uad.aperture_class.replace('/', 'u') + '.md')
+        repo_file_name = os.path.join(uad.lang_code,'dso', dso_dir, uad.deepskyObject.name + '_' + uad.aperture_class.replace('/', 'u') + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
@@ -208,7 +208,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             text = f.read()
             udd = UserDsoDescription.query.filter_by(user_id=owner.id)\
                     .filter_by(lang_code=lang_code_dir) \
-                    .join(UserDsoDescription.deepSkyObject, aliased=True) \
+                    .join(UserDsoDescription.deepskyObject, aliased=True) \
                     .filter_by(name=dso_name) \
                     .first()
             if not udd:
@@ -263,7 +263,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             uad = UserDsoApertureDescription.query.filter_by(user_id=owner.id)\
                     .filter_by(lang_code=lang_code_dir) \
                     .filter_by(aperture_class=aperture_class) \
-                    .join(UserDsoApertureDescription.deepSkyObject, aliased=True) \
+                    .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                     .filter_by(name=dso_name) \
                     .first()
 

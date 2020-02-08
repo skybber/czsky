@@ -62,7 +62,7 @@ def constellation_info(constellation_id):
 
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserDsoDescription.lang_code) \
-                .join(UserDsoDescription.deepSkyObject, aliased=True) \
+                .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
@@ -75,7 +75,7 @@ def constellation_info(constellation_id):
 
         dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .order_by(UserDsoApertureDescription.lang_code) \
-                .join(UserDsoApertureDescription.deepSkyObject, aliased=True) \
+                .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
