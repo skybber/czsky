@@ -354,11 +354,11 @@ msgstr "Pozorování"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:127
 msgid "DSO list"
-msgstr "DSO seznam"
+msgstr "DSO"
 
 #: app/templates/main/catalogue/star_edit.html:15
 msgid "Back To Star"
-msgstr "Zpět ke hvězdám"
+msgstr "Zpět na hvězdy"
 
 #: app/templates/main/location/location_edit.html:18
 msgid "Location Info"

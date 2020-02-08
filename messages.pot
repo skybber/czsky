@@ -354,7 +354,7 @@ msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:127
 msgid "DSO list"
-msgstr ""
+msgstr "DSO"
 
 #: app/templates/main/catalogue/star_edit.html:15
 msgid "Back To Star"
