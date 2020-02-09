@@ -21,7 +21,7 @@
                 <tr>
                     <td class="two wide">{{ _('Notes') }}</td>
                     <td>
-                        {% filter parametrized_commonmark %}
+                        {% filter parametrized_commonmark('') %}
 {{ observation.notes }}
                         {% endfilter %}
                     </td>
@@ -34,7 +34,7 @@
                     <td class="two wide"><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
                     <td class="one wide">{{ item.date_time.strftime('%H:%M') }}</td>
                     <td>
-                        {% filter parametrized_commonmark %}
+                        {% filter parametrized_commonmark('') %}
 {{ item.notes_to_html() }}
                         {% endfilter %}
                     </td>

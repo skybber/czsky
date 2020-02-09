@@ -32,15 +32,15 @@
             </h3>
             {% if user_descr %}
             <div class="markdown">
-                    {% filter parametrized_commonmark %}
+                    {% filter parametrized_commonmark(dso.name) %}
 {{ user_descr.text }}
                     {% endfilter %}
                     {% for ap_class, app_descr in apert_descriptions %}
-                        {% filter parametrized_commonmark %}
+                        {% filter parametrized_commonmark(dso.name) %}
 **{{ ap_class }}mm** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
-                    {% filter parametrized_commonmark %}
+                    {% filter parametrized_commonmark(dso.name) %}
 {{ user_descr.references or '' }}
                     {% endfilter %}
             </div>
