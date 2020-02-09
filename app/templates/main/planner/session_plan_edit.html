@@ -1,0 +1,134 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if is_new %}
+                <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
+                    <i class="caret left icon"></i>
+                    {{ _('Planner') }}
+                </a>
+            {% else %}
+              <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=session_plan.id) }}">
+                  <i class="caret left icon"></i>
+                {{ _('Session plans') }}
+              </a>
+            {% endif %}
+
+            <h2 class="ui header">
+                {% if is_new %}
+                    {{ _('Add New Session Plan') }}
+                {% else %}
+                    {{ _('Edit Session Plan') }}
+                {% endif %}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                {{ f.render_form_field(form.title) }}
+
+                <div class="two fields">
+                    <div class="field">
+                        <label for="odate">{{ form.for_date.label }}</label>
+                        <div class="ui calendar" id="odate">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate" name="{{form.for_date.name}}" placeholder="Date" type="text"
+                                    value="{{form.for_date.data.strftime('%d/%m/%Y') if form.for_date.data else ''}}">
+                          </div>
+                        </div>
+                        {% if form.for_date.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.for_date.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="field">
+                        {{ form.location_id.label }}
+                        <select name="{{form.location_id.name}}" class="ui search selection dropdown dlocation">
+                            {% if location %}
+                            <option value="{{ location.id }}" selected="selected">{{ location.name }}</option>
+                            {% endif %}
+                        </select>
+                        {% if form.location_id.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.location_id.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {{ f.render_form_field(form.notes) }}
+
+                <div class="two fields">
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                    {% if not is_new %}
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Location') }}</a>
+                    {% endif %}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    {% if not is_new %}
+        <div class="ui tiny modal deleteModal">
+          <div class="header">{{ _('Delete Session Plan') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete Session Plan?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_planner.session_plan_delete', session_plan_id=session_plan.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        var descrMDE = new EasyMDE({element: document.getElementById('notes'),
+            minHeight: "80px",
+            spellChecker: false,
+            status : false,
+	    });
+
+        $(function() {
+            $('.ui.dropdown.dlocation').dropdown({
+                allowAdditions: true,
+                minCharacters : 3,
+                apiSettings: {
+                    url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
+                }
+            });
+        });
+
+        {% if not is_new %}
+            $('.ui.modal.deleteModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdelete').click(function() {
+                $('.ui.modal.deleteModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
+{% endblock %}

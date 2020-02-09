@@ -1,0 +1,38 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet fourteen wide computer column">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_planner.session_plans') }}">
+                <i class="caret left icon"></i>
+                {{ _('Session plans') }}
+            </a>
+            <h2 class="ui header">
+                {{ session_plan.title }}
+                <a class="ui icon right floated mini button" href="{{ url_for('main_planner.session_plan_edit', session_plan_id=session_plan.id) }}">
+                    <i class="caret edit icon"></i>
+                </a>
+            </h2>
+
+            <table class="ui compact definition table">
+                <tr><td class="two wide">{{ _('Date') }}</td><td>{{ session_plan.for_date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="two wide">{{ _('Location') }}</td><td>{{ session_plan.location.name if session_plan.location else session_plan.txt_location_name }}</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Notes') }}</td>
+                    <td>
+                        {% filter parametrized_commonmark('') %}
+{{ session_plan.notes }}
+                        {% endfilter %}
+                    </td>
+                </tr>
+            </table>
+    </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

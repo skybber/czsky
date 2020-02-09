@@ -9,6 +9,8 @@ from .deepskyobject import *
 from .location import *
 from .miscellaneous import *
 from .observation import *
+from .planner import *
 from .skyquality import *
+from .skylist import *
 from .star import *
 from .user import *

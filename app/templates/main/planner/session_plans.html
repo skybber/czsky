@@ -1,0 +1,50 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                {{ _('Observer') }}
+            </a>
+            <h2 class="ui header">
+                {{ _('Session Plans') }}
+            </h2>
+
+            <form action="{{ url_for('main_planner.session_plans') }}" method="post" name="search" class="ui stackable menu">
+                <div class="ui right search item">
+                    <div class="ui action input">
+                        {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
+                        <button class="ui icon button">
+                            <i class="search icon"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {# Use overflow-x: scroll so that mobile views don't freak out
+             # when the table is too wide #}
+            <div style="overflow-x: scroll;">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">{{ _('Tile') }}</th>
+                            <th>{{ _('Location') }}</th>
+                            <th>{{ _('Date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in session_plans | sort(attribute='title') %}
+                        <tr onclick="window.location.href = '{{ url_for('main_planner.session_plan_info', session_plan_id=p.id) }}';">
+                            <td>{{ p.title }}</td>
+                            <td>{{ p.location.title }}</td>
+                            <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

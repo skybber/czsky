@@ -9,7 +9,7 @@ ignoring_areas = re.compile(r'\[.*?\]\(.*?\)')
 
 expanding_dsos = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
 
-def expand_dso_links_in_md_text(md_text, ignore_name):
+def auto_links_in_md_text(md_text, ignore_name):
     if not md_text:
         return md_text
     result = ''

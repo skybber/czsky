@@ -4,7 +4,7 @@ from wtforms.fields import Field
 from wtforms.widgets import HiddenInput
 from wtforms.compat import text_type
 import commonmark
-from app.commons.dso_md_utils import expand_dso_links_in_md_text
+from app.commons.dso_md_utils import auto_links_in_md_text
 
 def register_template_utils(app):
     """Register Jinja 2 helpers (called from __init__.py)."""
@@ -23,7 +23,7 @@ def register_template_utils(app):
     def parametrized_commonmark(s, ignore_name):
         img_dir = current_app.config.get('IMG_DIR')
         parsed_text = s.replace('$IMG_DIR', img_dir)
-        parsed_text = expand_dso_links_in_md_text(parsed_text, ignore_name)
+        parsed_text = auto_links_in_md_text(parsed_text, ignore_name)
         return commonmark.commonmark(parsed_text)
 
     app.add_template_global(index_for_role)
