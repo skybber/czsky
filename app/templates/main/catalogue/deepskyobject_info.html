@@ -137,6 +137,9 @@
             <i class="caret edit icon"></i>
         </a>
     {% endif %}
+    {% if dso_image %}
+        <img class="ui left floated image" src="{{ dso_image }}"/>
+    {% endif %}
     <table class="ui compact definition table">
         <tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }}</td></tr>

@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -98,9 +99,15 @@ def deepskyobject_info(dso_id):
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
     descr_available = user_descr or len(apert_descriptions)>0
+    dso_image = None
+    if not descr_available:
+        full_dso_file_name = 'app' + os.path.join(current_app.config.get('IMG_DIR'), 'dso', dso.name + '.jpg')
+        if os.path.exists(full_dso_file_name):
+            dso_image = current_app.config.get('IMG_DIR') + 'dso/' + dso.name + '.jpg'
+
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available)
+                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image=dso_image)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
