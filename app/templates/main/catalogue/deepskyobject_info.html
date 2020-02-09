@@ -131,7 +131,12 @@
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
-{% macro deepskyobject_catalogue_data(dso) %}
+{% macro deepskyobject_catalogue_data(dso, first_page) %}
+    {% if first_page and editable %}
+        <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
+            <i class="caret edit icon"></i>
+        </a>
+    {% endif %}
     <table class="ui compact definition table">
         <tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }}</td></tr>
@@ -206,11 +211,15 @@
             {{ navigation(endpoints) }}
 
             {% if type == 'info' %}
-                {{ deepskyobject_info(dso, user_descr) }}
-            {% elif type == 'catalogue_data' %}
-                {{ deepskyobject_catalogue_data(dso) }}
+                {% if descr_available %}
+                    {{ deepskyobject_info(dso, user_descr) }}
+                {% else %}
+                    {{ deepskyobject_catalogue_data(dso, True) }}
+                {% endif %}
             {% elif type == 'fchart' %}
                 {{ deepskyobject_fchart(dso, fchart) }}
+            {% elif type == 'catalogue_data'  and not descr_available %}
+                {{ deepskyobject_catalogue_data(dso, False) }}
             {% endif %}
         </div>
   </div>

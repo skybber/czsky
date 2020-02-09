@@ -85,21 +85,22 @@ def deepskyobject_info(dso_id):
     from_observation_id = request.args.get('from_observation_id')
     editor_user = User.get_editor_user()
     user_descr = None
+    apert_descriptions = []
     if editor_user:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
         user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
                         .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
-        apert_descriptions = []
         for apdescr in user_apert_descrs:
             if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions]:
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
 
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
+    descr_available = user_descr or len(apert_descriptions)>0
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, editable=editable)
+                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
