@@ -89,12 +89,14 @@ def create_app(config):
     app.register_blueprint(main_observation)
     from .main.skyquality import main_skyquality as main_skyquality
     app.register_blueprint(main_skyquality)
-    from .main.settings import main_settings as main_settings
-    app.register_blueprint(main_settings)
+    from .main.userdata import main_userdata as main_userdata
+    app.register_blueprint(main_userdata)
     from .main.catalogue import main_star as main_star
     app.register_blueprint(main_star)
     from .main.usersettings import main_usersettings as main_usersettings
     app.register_blueprint(main_usersettings)
+    from .main.planner import main_planner as main_planner
+    app.register_blueprint(main_planner)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

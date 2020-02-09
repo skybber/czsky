@@ -13,16 +13,18 @@
                 {{ dash.dashboard_option(_('Deepsky Objects'), 'main_deepskyobject.deepskyobjects',
                                     description=_('View deepsky objects'), icon='star icon') }}
                 {% if not is_anonymous %}
-                    {{ dash.dashboard_option(_('Add observation'), 'main_observation.new_observation',
-                                        description=_('Add new observation'), icon='pencil icon') }}
-                    {{ dash.dashboard_option(_('Observations'), 'main_observation.observations',
-                                        description=_('View observations'), icon='eye icon') }}
+                    {{ dash.dashboard_option(_('Observer'), 'main_observation.observation_menu',
+                                        description=_('View observer menu'), icon='eye icon') }}
+                {% endif %}
+                {% if not is_anonymous %}
+                    {{ dash.dashboard_option(_('Planner'), 'main_planner.planner_menu',
+                                        description=_('View planner menu'), icon='eye icon') }}
                 {% endif %}
                 {{ dash.dashboard_option(_('Sky quality'), 'main_skyquality.skyquality',
                                     description=_('View skyquality section'), icon='tachometer icon') }}
                 {% if not is_anonymous %}
-                    {{ dash.dashboard_option(_('Settings'), 'main_settings.settings',
-                                        description=_('View settings'), icon='cogs icon') }}
+                    {{ dash.dashboard_option(_('User Data'), 'main_userdata.userdata_menu',
+                                        description=_('View user data'), icon='cogs icon') }}
                 {% endif %}
             </div>
         </div>

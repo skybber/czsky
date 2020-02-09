@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% set endpoints = [
-    ('main_settings.data_store_personal', 'Personal repository'),
-    ('main_settings.data_store_content', 'Content repository'),
+    ('main_userdata.data_store_personal', 'Personal repository'),
+    ('main_userdata.data_store_content', 'Content repository'),
 ] %}
 
 {% macro navigation(items) %}
@@ -30,9 +30,9 @@
 
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main_settings.settings') }}">
+            <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
                 <i class="caret left icon"></i>
-                Settings
+                User Data
             </a>
 
             {% if current_user.is_editor() %}
@@ -59,7 +59,7 @@
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                {{ f.begin_form(save_form, flashes, action=url_for('main_settings.git_save', subtype=subtype)) }}
+                {{ f.begin_form(save_form, flashes, action=url_for('main_userdata.git_save', subtype=subtype)) }}
                     {{ f.render_form_field(save_form.commit_message) }}
                     <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
                         <i class="download icon"></i>
@@ -93,7 +93,7 @@
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                <form action="{{ url_for('main_settings.git_load', subtype=subtype) }}" method="POST">
+                <form action="{{ url_for('main_userdata.git_load', subtype=subtype) }}" method="POST">
                     <button class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button" value="restore" type="submit" name="submit">
                         <i class="upload icon"></i>
                         {% if subtype == 'repo_personal' %}

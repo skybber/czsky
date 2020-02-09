@@ -109,12 +109,13 @@ class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
-    deepskyObject = db.relationship("DeepskyObject")
+    deepSkyObject = db.relationship("DeepskyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
     lang_code = db.Column(db.String(2))
     common_name = db.Column(db.String(256))
     text = db.Column(db.Text)
+    references = db.Column(db.Text)
     cons_order = db.Column(db.Integer) # description order in constellation
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -128,7 +129,7 @@ class UserDsoApertureDescription(db.Model):
     __tablename__ = 'user_dso_aperture_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
-    deepskyObject = db.relationship("DeepskyObject")
+    deepSkyObject = db.relationship("DeepskyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
     lang_code = db.Column(db.String(2))

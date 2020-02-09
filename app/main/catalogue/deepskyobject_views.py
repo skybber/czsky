@@ -221,6 +221,7 @@ def deepskyobject_edit(dso_id):
                 lang_code = 'cs',
                 common_name = '',
                 text = '',
+                references = '',
                 cons_order = 1,
                 create_by = current_user.id,
                 create_date = datetime.now(),
@@ -252,6 +253,7 @@ def deepskyobject_edit(dso_id):
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
+            form.references.data = user_descr.references
             for ad in user_apert_descriptions:
                 adi = form.aperture_descr_items.append_entry()
                 adi.aperture_class.data = ad.aperture_class
@@ -260,8 +262,9 @@ def deepskyobject_edit(dso_id):
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
             was_text_changed = user_descr.text != form.text.data
-            if was_text_changed or user_descr.common_name != form.common_name.data:
+            if was_text_changed or user_descr.common_name != form.common_name.data or user_descr.references != form.references.data :
                 user_descr.common_name = form.common_name.data
+                user_descr.references = form.references.data
                 user_descr.text = form.text.data
                 if was_text_changed:
                     user_descr.update_by = current_user.id

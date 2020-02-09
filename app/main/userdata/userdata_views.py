@@ -14,24 +14,24 @@ import git
 from app.models import Permission, User
 from app.decorators import editor_required
 from .gitstore import save_public_content_data_to_git, load_public_content_data_from_git, save_personal_data_to_git, load_personal_data_from_git
-from .settings_forms import GitSaveForm
+from .userdata_forms import GitSaveForm
 from posix import wait
 
-main_settings = Blueprint('main_settings', __name__)
+main_userdata = Blueprint('main_userdata', __name__)
 
 ITEMS_PER_PAGE = 10
 
-@main_settings.route('/settings', methods=['GET'])
+@main_userdata.route('/userdata-menu', methods=['GET'])
 @login_required
-def settings():
-    return render_template('main/settings/settings.html')
+def userdata_menu():
+    return render_template('main/userdata/userdata_menu.html')
 
-@main_settings.route('/data-store-personal', methods=['GET'])
+@main_userdata.route('/data-store-personal', methods=['GET'])
 @login_required
 def data_store_personal():
     return _render_data_store(current_user.git_repository, 'repo_personal')
 
-@main_settings.route('/data-store-content', methods=['GET'])
+@main_userdata.route('/data-store-content', methods=['GET'])
 @login_required
 @editor_required
 def data_store_content():
@@ -43,7 +43,7 @@ def _render_data_store(git_repository, subtype):
     git_save = request.args.get('git_save', None)
     git_load = request.args.get('git_load', None)
 
-    return render_template('main/settings/data_store.html',
+    return render_template('main/userdata/data_store.html',
                                 save_form=save_form,
                                 git_enabled=git_enabled,
                                 git_url=git_repository,
@@ -51,7 +51,7 @@ def _render_data_store(git_repository, subtype):
                                 git_load=git_load,
                                 subtype=subtype,)
 
-@main_settings.route('/git-save', methods=['POST'])
+@main_userdata.route('/git-save', methods=['POST'])
 @login_required
 def git_save():
     form = GitSaveForm()
@@ -70,9 +70,9 @@ def git_save():
                     flash('Content data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
                     flash('Storing content data to Git repository failed.' + str(e), 'form-error')
-    return redirect(url_for('main_settings.data_store_content', git_save='1'))
+    return redirect(url_for('main_userdata.data_store_content', git_save='1'))
 
-@main_settings.route('/git-load', methods=['POST'])
+@main_userdata.route('/git-load', methods=['POST'])
 @login_required
 def git_load():
     subtype = request.args.get('subtype', None)
@@ -89,7 +89,7 @@ def git_load():
                 flash('Content data loaded from Git repository.', 'form-success')
             except git.GitCommandError as e:
                 flash('Loading content data from Git repository failed.' + str(e), 'form-success')
-    return redirect(url_for('main_settings.data_store_content', git_load='1'))
+    return redirect(url_for('main_userdata.data_store_content', git_load='1'))
 
 def _is_git_enabled(subtype):
     if subtype == 'repo_content':

@@ -69,7 +69,9 @@
                                 {% endfilter %}
                             {% endfor %}
                         {% endif %}
-
+                        {% filter parametrized_commonmark %}
+{{ user_dso_descr.references or '' }}
+                        {% endfilter %}
                     </div>
                 </div>
             {% endfor %}

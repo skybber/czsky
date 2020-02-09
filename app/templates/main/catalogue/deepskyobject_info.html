@@ -40,6 +40,9 @@
 **{{ ap_class }}mm** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
+                    {% filter parametrized_commonmark %}
+{{ user_descr.references or '' }}
+                    {% endfilter %}
             </div>
             {% endif %}
         </div>
