@@ -29,7 +29,7 @@ def _expand_in_subtext(sub_text, ignore_name, cache):
         result += sub_text[prev_end:m.start()]
         prev_end = m.end()
         dso_name = normalize_dso_name(m.group(2))
-        replacement = m.group(2)
+        replacement = m.group(0)
         if dso_name != ignore_name:
             if dso_name not in cache:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
