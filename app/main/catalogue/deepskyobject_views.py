@@ -160,11 +160,13 @@ def deepskyobject_findchart(dso_id):
 
     if prev_fld_size != fld_size:
         pref_maglim = session.get('pref_maglim' + str(fld_size))
-        if not pref_maglim is None:
-            form.maglim.data = pref_maglim
+        if pref_maglim is None:
+            pref_maglim = (cur_mag_scale[0] + cur_mag_scale[1] + 1) // 2
+        form.maglim.data = pref_maglim
         pref_dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
-        if not pref_dso_maglim is None:
-            form.dso_maglim.data = pref_dso_maglim
+        if pref_dso_maglim is None:
+            pref_dso_maglim = (cur_dso_mag_scale[0] + cur_dso_mag_scale[1] + 1) // 2
+        form.dso_maglim.data = pref_dso_maglim
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
