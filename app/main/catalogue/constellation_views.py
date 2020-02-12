@@ -27,17 +27,25 @@ main_constellation = Blueprint('main_constellation', __name__)
 def constellations():
     """View all constellations."""
     search_form = SearchConstellationForm()
-
     search_expr, season = process_session_search([('const_search', search_form.q), ('const_season', search_form.season)])
-
+    editor_user = User.get_editor_user()
     constellations = Constellation.query
     if search_expr:
         constellations = constellations.filter(Constellation.name.like('%' + search_expr + '%'))
 
+    if editor_user:
+        db_common_names = UserConsDescription.query \
+                    .with_entities(UserConsDescription.constellation_id, UserConsDescription.common_name) \
+                    .filter_by(user_id=editor_user.id, lang_code='cs')
+    else:
+        db_common_names = []
+
     if season and season != 'All':
         constellations = constellations.filter(Constellation.season==season)
 
-    return render_template('main/catalogue/constellations.html', constellations=constellations, search_form=search_form)
+    cons_names = { i[0] : i[1] for i in db_common_names }
+
+    return render_template('main/catalogue/constellations.html', constellations=constellations, search_form=search_form, cons_names=cons_names)
 
 @main_constellation.route('/constellation/<int:constellation_id>')
 @main_constellation.route('/constellation/<int:constellation_id>/info')
@@ -52,18 +60,15 @@ def constellation_info(constellation_id):
     editor_user = User.get_editor_user()
     if editor_user:
         ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
-                .order_by(UserConsDescription.lang_code) \
                 .first()
 
         user_descr = ud.text if ud else None
 
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
-                .order_by(UserStarDescription.lang_code) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
-                .order_by(UserDsoDescription.lang_code) \
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
@@ -76,7 +81,6 @@ def constellation_info(constellation_id):
                 dso_descriptions.append(dsod)
 
         dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
-                .order_by(UserDsoApertureDescription.lang_code) \
                 .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
@@ -149,7 +153,6 @@ def constellation_stars(constellation_id):
     editor_user = User.get_editor_user()
     if editor_user:
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = 'cs')\
-                .order_by(UserStarDescription.lang_code) \
                 .filter_by(constellation_id=constellation.id) \
                 .all()
 
