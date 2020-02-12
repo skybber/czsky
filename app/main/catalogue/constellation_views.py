@@ -4,8 +4,10 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    redirect,
     render_template,
     request,
+    url_for,
 )
 from flask_login import current_user, login_required
 
@@ -105,6 +107,7 @@ def constellation_edit(constellation_id):
     editor_user = User.get_editor_user()
     user_descr = None
     form = ConstellationEditForm()
+    goback = False
     if editor_user:
         user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs').first()
         if request.method == 'GET':
@@ -118,6 +121,11 @@ def constellation_edit(constellation_id):
             db.session.add(user_descr)
             db.session.commit()
             flash('Constellation successfully updated', 'form-success')
+            if form.goback.data == 'true':
+                goback = True
+
+    if goback:
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.id))
 
     author = _create_author_entry(user_descr.update_by, user_descr.update_date)
 

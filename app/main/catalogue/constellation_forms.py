@@ -42,4 +42,5 @@ class SearchConstellationForm(FlaskForm):
 class ConstellationEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
-    submit = SubmitField(lazy_gettext('Update'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Update'))
