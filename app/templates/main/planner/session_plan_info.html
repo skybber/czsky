@@ -21,7 +21,7 @@
                 <tr>
                     <td class="two wide">{{ _('Notes') }}</td>
                     <td>
-                        {% filter parametrized_commonmark('') %}
+                        {% filter extended_commonmark('') %}
 {{ session_plan.notes }}
                         {% endfilter %}
                     </td>

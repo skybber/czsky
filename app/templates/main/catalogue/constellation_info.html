@@ -28,14 +28,14 @@
                     </a>
                 {% endif %}
                 <div class="markdown">
-                {% filter parametrized_commonmark('') %}
+                {% filter extended_commonmark('') %}
 {{ user_descr }}
                 {% endfilter %}
                 </div>
                 {% if star_descriptions %}
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
-                        {% filter parametrized_commonmark('') %}
+                        {% filter extended_commonmark('') %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})** - {{ user_star_descr.text -}}
 {% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})){% endif %}
                         {% endfilter %}
@@ -59,17 +59,17 @@
                                 <i class="caret edit icon"></i>
                             </a>
                         {% endif %}
-                        {% filter parametrized_commonmark(user_dso_descr.deepskyObject.name) %}
+                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name) %}
 {{ user_dso_descr.text }}
                         {% endfilter %}
                         {% if user_dso_descr.dso_id in aperture_descr_map %}
                             {% for ap_class, app_descr in aperture_descr_map[user_dso_descr.dso_id] %}
-                                {% filter parametrized_commonmark(user_dso_descr.deepskyObject.name) %}
+                                {% filter extended_commonmark(user_dso_descr.deepskyObject.name) %}
 **{{ ap_class }}mm** - {{ app_descr }}
                                 {% endfilter %}
                             {% endfor %}
                         {% endif %}
-                        {% filter parametrized_commonmark(user_dso_descr.deepskyObject.name) %}
+                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name) %}
 {{ user_dso_descr.references or '' }}
                         {% endfilter %}
                     </div>
@@ -95,7 +95,7 @@
                 {% if star_descriptions %}
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
-                        {% filter parametrized_commonmark('') %}
+                        {% filter extended_commonmark('') %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})** - {{ user_star_descr.text -}}
 {% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.id) }})){% endif %}
                         {% endfilter %}

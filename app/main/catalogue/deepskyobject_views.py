@@ -103,7 +103,7 @@ def deepskyobject_info(dso_id):
     if not descr_available:
         dso_image = _get_dso_image(dso.name, '')
         if not dso_image:
-            dso_image = _get_dso_image(dso.name, 'default')
+            dso_image = _get_dso_image(dso.name, 'ngcic')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
