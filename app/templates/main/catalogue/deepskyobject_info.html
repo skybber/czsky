@@ -37,7 +37,7 @@
                 <div class="ui label" style="float:right;">
                     <i class="info icon"></i> {{ dso.v_mag }}mag
                 </div>
-                <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}#dso{{dso.id}}">
+                <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
                     <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
                 </a>
             </h3>
@@ -143,10 +143,24 @@
 
 {# --- Catalogue Data --- #}
 {% macro deepskyobject_catalogue_data(dso, first_page) %}
-    {% if first_page and editable %}
-        <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
-            <i class="caret edit icon"></i>
-        </a>
+    {% if first_page %}
+        <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
+            <div class="ui blue segment" style="display: inline-block; width:100%">
+              <h3>&nbsp;
+                  {% if editable %}
+                      <a class="ui icon right floated mini button" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
+                          <i class="caret edit icon"></i>
+                      </a>
+                  {% endif %}
+                  {% if dso.v_mag %}
+                      <div class="ui label" style="float:right;">
+                          <i class="info icon"></i> {{ dso.v_mag }}mag
+                      </div>
+                  {% endif %}
+                  <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
+                      <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
+                  </a>
+              </h3>
     {% endif %}
     {% if dso_image %}
         <img class="ui left floated image" src="{{ dso_image }}"/>
@@ -179,6 +193,10 @@
 {% endif %}
         <tr><td>identifiers</td><td>{{ dso.identifiers }}</td></tr>
     </table>
+    {% if first_page %}
+            </div>
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% block content %}
