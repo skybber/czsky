@@ -29,6 +29,14 @@
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
+                {% if user_descr %}
+                <div class="ui label" style="float:right;">
+                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                </div>
+                {% endif %}
+                <div class="ui label" style="float:right;">
+                    <i class="info icon"></i> {{ dso.v_mag }}mag
+                </div>
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}#dso{{dso.id}}">
                     <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
                 </a>
@@ -202,9 +210,6 @@
                 <div class="divider"> / </div>
                 <div class="active section">
                     {{ dso.denormalized_name() }}
-                    {% if user_descr %}
-                        <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-                    {% endif %}
                 </div>
             </div>
             {% if next_dso %}
