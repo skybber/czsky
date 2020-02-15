@@ -47,3 +47,6 @@ class SessionPlanNewForm(FlaskForm, SessionPlanMixin):
 
 class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     submit = SubmitField(lazy_gettext('Update Session Plan'))
+
+class AddToWishListForm(FlaskForm):
+    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])

@@ -22,8 +22,6 @@ class WishList(db.Model):
     __tablename__ = 'wish_lists'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String(256), nullable=False)
-    notes = db.Column(db.Text)
     sky_list_id = db.Column(db.Integer, db.ForeignKey('sky_lists.id'), nullable=False)
     sky_list = db.relationship("SkyList")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

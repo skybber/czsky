@@ -84,6 +84,7 @@ def deepskyobject_info(dso_id):
 
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
+    from_wishlist = request.args.get('from_wishlist')
     editor_user = User.get_editor_user()
     user_descr = None
     apert_descriptions = []
@@ -106,7 +107,7 @@ def deepskyobject_info(dso_id):
             dso_image = _get_dso_image(dso.name, 'ngcic')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, from_wishlist = from_wishlist,
                            prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image=dso_image)
 
 def _get_dso_image(dso_name, dir):

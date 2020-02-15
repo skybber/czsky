@@ -14,6 +14,12 @@ class SkyList(db.Model):
     update_date = db.Column(db.DateTime, default=datetime.now())
     sky_list_items = db.relationship('SkyListItem', backref='sky_list', lazy=True)
 
+    def find_dso_in_skylist(self, dso_name):
+        for item in self.sky_list_items:
+            if item.deepskyObject and item.deepskyObject.name == dso_name:
+                return item
+        return None
+
 class SkyListItem(db.Model):
     __tablename__ = 'sky_list_items'
     id = db.Column(db.Integer, primary_key=True)

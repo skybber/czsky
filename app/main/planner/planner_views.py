@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Location, SessionPlan, SkyList, User
+from app.models import DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from app.commons.search_utils import process_session_search
@@ -22,7 +22,10 @@ from .planner_forms import (
     SearchSessionPlanForm,
     SessionPlanNewForm,
     SessionPlanEditForm,
+    AddToWishListForm,
 )
+
+from app.commons.dso_utils import normalize_dso_name
 
 main_planner = Blueprint('main_planner', __name__)
 
@@ -130,12 +133,89 @@ def session_plan_edit(session_plan_id):
 
     return render_template('main/planner/session_plan_edit.html', form=form, is_new=False, session_plan=session_plan, location=location)
 
+def _create_get_wish_list(user_id):
+    wish_list = WishList.query.filter_by(user_id=user_id).first()
+    if not wish_list:
+        sky_list = SkyList(
+            user_id = current_user.id,
+            name = 'WishList[user.id={}]'.format(current_user.id),
+            notes = '',
+            create_by = current_user.id,
+            update_by = current_user.id,
+            create_date = datetime.now(),
+            update_date = datetime.now(),
+            )
+        db.session.add(sky_list)
+        db.session.commit()
+
+        wish_list = WishList(
+            user_id = current_user.id,
+            sky_list_id = sky_list.id,
+            create_by = current_user.id,
+            update_by = current_user.id,
+            create_date = datetime.now(),
+            update_date = datetime.now(),
+            )
+        db.session.add(wish_list)
+        db.session.commit()
+    return wish_list
+
 @main_planner.route('/wish-list', methods=['GET'])
 @login_required
 def wish_list():
     """View wish list."""
-    # session_plans = SessionPlans.query.filter_by(user_id=current_user.id)
-    return render_template('main/planner/wish_list.html', session_plans=session_plans)
+    add_form = AddToWishListForm()
+    wish_list = _create_get_wish_list(current_user.id)
+    return render_template('main/planner/wish_list.html', wish_list=wish_list, add_form=add_form)
+
+@main_planner.route('/wish-list-item-add', methods=['POST'])
+@login_required
+def wish_list_item_add():
+    """Add item to wish list."""
+    form = AddToWishListForm()
+    dso_name = normalize_dso_name(form.dso_name.data)
+    if request.method == 'POST' and form.validate_on_submit():
+        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+        if deepsky_object:
+            wish_list = _create_get_wish_list(current_user.id)
+            if not wish_list.sky_list.find_dso_in_skylist(dso_name):
+                max = db.session.query(db.func.max(SkyListItem.order)).filter_by(sky_list_id=wish_list.sky_list_id).scalar()
+                if not max:
+                    max = 0
+                new_item = SkyListItem(
+                    sky_list_id = wish_list.sky_list_id,
+                    dso_id = deepsky_object.id,
+                    order = max + 1,
+                    notes = '',
+                    create_by = current_user.id,
+                    update_by = current_user.id,
+                    create_date = datetime.now(),
+                    update_date = datetime.now(),
+                    )
+                db.session.add(new_item)
+                db.session.commit()
+                flash('Object was added to wishlist.', 'form-success')
+            else:
+                flash('Object is already on wishlist.', 'form-info')
+        else:
+            flash('Deepsky object not found.', 'form-error')
+
+    return redirect(url_for('main_planner.wish_list'))
+
+@main_planner.route('/wish-list-item/<int:item_id>/delete')
+@login_required
+def wish_list_item_remove(item_id):
+    list_item = SkyListItem.query.filter_by(id=item_id).first()
+    if list_item is None:
+        abort(404)
+    wish_list = WishList.query.filter_by(sky_list_id=list_item.sky_list.id).first()
+    if wish_list is None:
+        abort(404)
+    if wish_list.user_id != current_user.id:
+        abort(404)
+    db.session.delete(list_item)
+    flash('Wishlist item was deleted', 'form-success')
+    return redirect(url_for('main_planner.wish_list'))
 
 @main_planner.route('/session-plan/<int:session_plan_id>/delete')
 @login_required
