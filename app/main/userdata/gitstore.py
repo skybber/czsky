@@ -149,7 +149,7 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('name: ' + str(ucd.common_name) + '\n')
             f.write('created_by: ' + _get_user_name(ucd.create_by, user_name_cache) + '\n')
             f.write('created_date: ' + (str(ucd.create_date) if ucd.create_date else '') + '\n')
-            f.write('updated_ by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
+            f.write('updated_by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
             f.write('updated_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
             f.write('---\n')
             f.write(ucd.text)
