@@ -183,7 +183,7 @@ def _read_multi_line(f, expected):
     if not match:
         f.seek(last_pos)
         return None
-    t = line[match.end() + 1:]
+    t = line[match.end():]
     result = ''
     while t.endswith('\\\n'):
         result += t[-2] + '\n'
