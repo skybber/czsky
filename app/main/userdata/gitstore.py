@@ -168,30 +168,6 @@ def _convert_to_multiline(t):
         return ''
     return t.strip().replace('\r\n', '\n').replace('\n', '\\\n')
 
-def _read_line(f, expected, mandatory=False):
-    last_pos = f.tell()
-    line = f.readline()
-    match = re.fullmatch(expected, line)
-    if not match:
-        f.seek(last_pos)
-    return match
-
-def _read_multi_line(f, expected):
-    last_pos = f.tell()
-    line = f.readline()
-    match = re.match(expected, line)
-    if not match:
-        f.seek(last_pos)
-        return None
-    t = line[match.end():]
-    result = ''
-    while t.endswith('\\\n'):
-        result += t[-2] + '\n'
-        line = f.readline()
-    else:
-        result += t
-    return result
-
 def load_public_content_data_from_git(owner):
     editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
@@ -214,22 +190,13 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             continue
         with dso_file.open('r') as f:
             dso_name = dso_name_md[:-3]
-            _read_line(f, '---\n')
-            mname = _read_line(f, r'name:\s*(.*)\n')
-            mrating = _read_line(f, r'rating:\s*(.*)\n')
-            references = _read_multi_line(f, r'references:\s*')
-            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
-            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
-            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
-            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
-            _read_line(f, '---\n')
-            common_name = mname.group(1) if mname else ''
-            rating = mrating.group(1) if mrating else '5'
-            references = references if references else ''
-            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
-            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
-            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
-            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            header_map = _read_header(f)
+            rating = header_map.get('rating', '5')
+            references = header_map.get('references', '')
+            created_by = _get_user_from_username(user_cache, header_map.get('created_by', ''), owner)
+            created_date = _get_get_date_from_str(header_map.get('created_date', ''))
+            updated_by = _get_user_from_username(user_cache, header_map.get('updated_by', ''), owner)
+            updated_date = _get_get_date_from_str(header_map.get('updated_date', ''))
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
@@ -250,7 +217,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
                     create_by = created_by.id,
                     create_date = created_date,
                 )
-            udd.common_name = common_name
+            udd.common_name = header_map.get('name', '')
             try:
                 udd.rating = int(rating)
             except ValueError:
@@ -270,21 +237,14 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             continue
         with dso_file.open('r') as f:
             dso_name = m.group(1)
-            _read_line(f, '---\n')
             aperture_class = m.group(2).replace('u','/')
-            maperture = _read_line(f, r'aperture:\s*(.*)\n')
-            mrating = _read_line(f, r'rating:\s*(.*)\n')
-            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
-            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
-            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
-            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
-            _read_line(f, '---\n')
-            doc_aperture = maperture.group(1) if maperture else ''
-            rating = mrating.group(1) if mrating else '5'
-            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
-            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
-            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
-            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            header_map = _read_header(f)
+            doc_aperture = header_map.get('aperture','')
+            rating = header_map.get('rating', '5')
+            created_by = _get_user_from_username(user_cache, header_map.get('created_by', ''), owner)
+            created_date = _get_get_date_from_str(header_map.get('created_date', ''))
+            updated_by = _get_user_from_username(user_cache, header_map.get('updated_by', ''), owner)
+            updated_date = _get_get_date_from_str(header_map.get('updated_date', ''))
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
@@ -325,18 +285,11 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             if not constellation_name_md.endswith('.md'):
                 continue
             constellation_name = constellation_name_md[:-3]
-            _read_line(f, '---\n')
-            mname = _read_line(f, r'name:\s*(.*)\n')
-            mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
-            mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
-            mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
-            mupdated_date = _read_line(f, r'updated_date:\s*(.*)\n')
-            _read_line(f, '---\n')
-            common_name = mname.group(1) if mname else ''
-            created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
-            created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
-            updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
-            updated_date = _get_get_date_from_str(mupdated_date.group(1) if mupdated_date else '')
+            header_map = _read_header(f)
+            created_by = _get_user_from_username(user_cache, header_map.get('created_by', ''), owner)
+            created_date = _get_get_date_from_str(header_map.get('created_date', ''))
+            updated_by = _get_user_from_username(user_cache, header_map.get('updated_by', ''), owner)
+            updated_date = _get_get_date_from_str(header_map.get('updated_date', ''))
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
@@ -356,11 +309,46 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
                     create_by = created_by.id,
                     create_date = created_date,
                 )
-            ucd.common_name = common_name
+            ucd.common_name = header_map.get('name', '')
             ucd.text = text
             ucd.update_by = updated_by.id
             ucd.update_date = updated_date
             db.session.add(ucd)
+
+
+def _read_header(f):
+    block_mark = '---\n'
+    result = {}
+    while True:
+        line = f.readline()
+        if len(line) == 0:
+            return result
+        if line == block_mark:
+            break
+    while True:
+        line = f.readline()
+        if len(line) == 0:
+            return result
+        if line == block_mark:
+            return result
+        line = line.replace('\r\n', '\n')
+        m = re.fullmatch(r'(.*?):\s*(.*)\\?\n', line)
+        if m:
+            if m.group(2).endswith('\\'):
+                value = m.group(2)[:-1]
+                while True:
+                    line = f.readline()
+                    if len(line) == 0:
+                        return result
+                    line = line.replace('\r\n', '\n').replace('\n', '')
+                    value += '\n' + line
+                    if not line.endswith('\\'):
+                        break
+            else:
+                value = m.group(2)
+            result[m.group(1)] = value
+        else:
+            print('ERROR: Unknown header line format. Line:{}'.format(line), flush=True)
 
 def _get_user_from_username(user_cache, user_name, default_user):
     if not user_name:
