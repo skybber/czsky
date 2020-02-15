@@ -111,10 +111,11 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('name: ' + udd.common_name + '\n')
             f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
+#            f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
             f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
             f.write('created_date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
             f.write('updated_by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
+            f.write('updated_date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
             f.write('---\n')
             f.write(udd.text)
 
@@ -135,7 +136,7 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('created_by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
             f.write('created_date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
             f.write('updated_by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
+            f.write('updated_date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
             f.write('---\n')
             f.write(uad.text)
 
@@ -149,7 +150,7 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('created_by: ' + _get_user_name(ucd.create_by, user_name_cache) + '\n')
             f.write('created_date: ' + (str(ucd.create_date) if ucd.create_date else '') + '\n')
             f.write('updated_ by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
+            f.write('updated_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
             f.write('---\n')
             f.write(ucd.text)
 
@@ -162,10 +163,34 @@ def save_public_content_data_to_git(owner, commit_message):
     finally:
         _finalize_git_ssh_command(owner.user_name)
 
-def _read_line(f, expected=None, mandatory=False):
+def _convert_to_multiline(t):
+    if not t:
+        return ''
+    return t.strip().replace('\n', '\\\n')
+
+def _read_line(f, expected, mandatory=False):
+    last_pos = f.tell()
     line = f.readline()
     match = re.fullmatch(expected, line)
+    if not match:
+        f.seek(last_pos)
     return match
+
+def _read_multi_line(f, expected):
+    last_pos = f.tell()
+    line = f.readline()
+    match = re.match(expected, line)
+    if not match:
+        f.seek(last_pos)
+        return None
+    t = line[match.end() + 1:]
+    result = ''
+    while t.endswith('\\\n'):
+        result += t[-2] + '\n'
+        line = f.readline()
+    else:
+        result += t
+    return result
 
 def load_public_content_data_from_git(owner):
     editor_user = User.get_editor_user()
@@ -192,6 +217,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             _read_line(f, '---\n')
             mname = _read_line(f, r'name:\s*(.*)\n')
             mrating = _read_line(f, r'rating:\s*(.*)\n')
+            references = _read_multi_line(f, r'references:\s*')
             mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
             mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
             mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
@@ -199,6 +225,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             _read_line(f, '---\n')
             common_name = mname.group(1) if mname else ''
             rating = mrating.group(1) if mrating else '5'
+            references = references if references else ''
             created_by = _get_user_from_username(user_cache, mcreated_by.group(1) if mcreated_by else '', owner)
             created_date = _get_get_date_from_str(mcreated_date.group(1) if mcreated_date else '')
             updated_by = _get_user_from_username(user_cache, mupdated_by.group(1) if mupdated_by else '', owner)
@@ -206,7 +233,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
-            udd = UserDsoDescription.query.filter_by(user_id=owner.id)\
+            udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
                     .filter_by(lang_code=lang_code_dir) \
                     .join(UserDsoDescription.deepskyObject, aliased=True) \
                     .filter_by(name=dso_name) \
@@ -229,6 +256,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             except ValueError:
                 udd.rating = None
             udd.text = text
+            udd.references = references
             udd.update_by = updated_by.id
             udd.update_date = updated_date
             db.session.add(udd)
@@ -260,7 +288,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
-            uad = UserDsoApertureDescription.query.filter_by(user_id=owner.id)\
+            uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
                     .filter_by(lang_code=lang_code_dir) \
                     .filter_by(aperture_class=aperture_class) \
                     .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
@@ -312,7 +340,7 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             created_by = created_by or editor_user
             updated_by = updated_by or owner
             text = f.read()
-            ucd = UserConsDescription.query.filter_by(user_id=owner.id)\
+            ucd = UserConsDescription.query.filter_by(user_id=editor_user.id)\
                     .filter_by(lang_code=lang_code_dir) \
                     .join(UserConsDescription.constellation, aliased=True) \
                     .filter_by(name=constellation_name) \
