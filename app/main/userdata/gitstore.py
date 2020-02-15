@@ -326,7 +326,7 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
                 continue
             constellation_name = constellation_name_md[:-3]
             _read_line(f, '---\n')
-            mname = _read_line(f, r'name:\s*()\n')
+            mname = _read_line(f, r'name:\s*(.*)\n')
             mcreated_by = _read_line(f, r'created_by:\s*(.*)\n')
             mcreated_date = _read_line(f, r'created_date:\s*(.*)\n')
             mupdated_by = _read_line(f, r'updated_by:\s*(.*)\n')
