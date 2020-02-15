@@ -111,7 +111,7 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write('name: ' + udd.common_name + '\n')
             f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
-#            f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
+            f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
             f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
             f.write('created_date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
             f.write('updated_by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
@@ -166,7 +166,7 @@ def save_public_content_data_to_git(owner, commit_message):
 def _convert_to_multiline(t):
     if not t:
         return ''
-    return t.strip().replace('\n', '\\\n')
+    return t.strip().replace('\r\n', '\n').replace('\n', '\\\n')
 
 def _read_line(f, expected, mandatory=False):
     last_pos = f.tell()
