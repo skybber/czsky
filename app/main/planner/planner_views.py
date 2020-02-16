@@ -94,7 +94,7 @@ def new_session_plan():
 
         db.session.add(new_session_plan)
         db.session.commit()
-        new_sky_list.name = 'SessionPlan[user.id={}]'.format(new_session_plan.id),
+        new_sky_list.name = 'SessionPlan[user.id={}]'.format(new_session_plan.id)
         db.session.add(new_sky_list)
         db.session.commit()
 
