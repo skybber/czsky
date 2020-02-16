@@ -3,10 +3,17 @@
 
 {% block content %}
     <div class="ui text container">
-        <h1>About</h1>
+        <h1 class="ui header">About</h1>
 
 Mission of this web to build the engaged community of deepsky observers and to search for new ways to inspire astronomers and make
 the hobby they love even more fun.
+
+        <h1 class="ui header">News</h1>
+{% filter commonmark() %}
+* 15.2.2020 - souhvězdí + magnituda + rating v detailu DSO, git export/import fixes, wishlist
+* 14.2.2020 - revize textů, obrázky po Messier M53
+{% endfilter %}
     </div>
+
 
 {% endblock %}
