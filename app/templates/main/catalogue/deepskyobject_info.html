@@ -47,7 +47,7 @@
                 </div>
                 {% endif %}
                 <div class="ui label" style="float:right;">
-                    <i class="info icon"></i> {{ dso.v_mag }}mag
+                    <i class="info icon"></i> {{ dso.mag if dso.mag else dso.v_mag }}mag
                 </div>
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
                     <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
@@ -190,6 +190,7 @@
         <tr><td>major_axis</td><td>{{ dso.major_axis }}</td></tr>
         <tr><td>minor_axis</td><td>{{ dso.minor_axis }}</td></tr>
         <tr><td>positon_angle</td><td>{{ dso.positon_angle }}</td></tr>
+        {% if dso.mag %}<tr><td>mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
         {% if dso.b_mag %}<tr><td>b_mag</td><td>{{ dso.b_mag }}</td></tr>{% endif %}
         {% if dso.v_mag %}<tr><td>v_mag</td><td>{{ dso.v_mag }}</td></tr>{% endif %}
         {% if dso.j_mag %}<tr><td>j_mag</td><td>{{ dso.j_mag }}</td></tr>{% endif %}

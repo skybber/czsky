@@ -20,6 +20,7 @@ from imports.import_sac import import_sac
 from imports.import_vic import import_vic
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
+from imports.fix_m_ngcic_mag import fix_ngcic_mag_from_sac
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -200,6 +201,13 @@ def add_editor_user():
             )
         db.session.add(user)
         db.session.commit()
+
+@manager.command
+def fix_ngcic_mag():
+    """
+    Fix ngcic magnitude
+    """
+    fix_ngcic_mag_from_sac('data/sac.csv')
 
 if __name__ == '__main__':
     manager.run()

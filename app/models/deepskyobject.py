@@ -25,6 +25,7 @@ class DeepskyObject(db.Model):
     major_axis = db.Column(db.Float)
     minor_axis = db.Column(db.Float)
     positon_angle = db.Column(db.Float)
+    mag = db.Column(db.Float)
     b_mag = db.Column(db.Float)
     v_mag = db.Column(db.Float)
     j_mag = db.Column(db.Float)
