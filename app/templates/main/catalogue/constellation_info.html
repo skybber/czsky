@@ -45,7 +45,7 @@
             </div>
         </div>
         {% if dso_descriptions %}
-            {% for user_dso_descr in dso_descriptions | sort(attribute='cons_order') %}
+            {% for user_dso_descr in dso_descriptions %}
                 <div class="ui segment" style="display: inline-block;width:100%">
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
                         <h2 id="dso{{ user_dso_descr.dso_id }}" class="ui header" >

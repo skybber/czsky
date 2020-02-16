@@ -116,7 +116,7 @@ class UserDsoDescription(db.Model):
     common_name = db.Column(db.String(256))
     text = db.Column(db.Text)
     references = db.Column(db.Text)
-    cons_order = db.Column(db.Integer) # description order in constellation
+    cons_order = db.Column(db.Integer) # TODO: remove
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

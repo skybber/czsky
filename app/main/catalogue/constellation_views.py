@@ -71,6 +71,7 @@ def constellation_info(constellation_id):
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
+                .order_by(UserDsoDescription.rating.desc()) \
                 .all()
 
         existing = set()
