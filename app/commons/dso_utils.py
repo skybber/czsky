@@ -30,10 +30,15 @@ def normalize_dso_name(name):
     for cat_spec in catalogs_specifications:
         cat_identifier = cat_spec[0]
         if upper_name.startswith(cat_identifier):
-            appendix = upper_name[len(cat_identifier):]
-            applen = len(appendix)
-            if applen > 0 and applen <= cat_spec[2]:
-                return cat_spec[1] + ('0' * (cat_spec[2] - applen)) + appendix
+            for i in reversed(range(len(upper_name))):
+                if upper_name[i].isdigit():
+                    break
+            if i > 0:
+                nondigit_appendix = upper_name[i+1:] if i < len(upper_name)-1 else ''
+                appendix = upper_name[len(cat_identifier):i+1]
+                applen = len(appendix)
+                if applen > 0 and applen <= cat_spec[2]:
+                    return cat_spec[1] + ('0' * (cat_spec[2] - applen)) + appendix + nondigit_appendix
             return upper_name
     return name
 
