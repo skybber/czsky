@@ -39,10 +39,11 @@ def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchDsoForm()
 
-    page, search_expr, dso_type, catalogue = process_paginated_session_search('dso_search_page', [
+    page, search_expr, dso_type, catalogue, maglim = process_paginated_session_search('dso_search_page', [
         ('dso_search', search_form.q),
         ('dso_type', search_form.dso_type),
         ('dso_catal', search_form.catalogue),
+        ('dso_maglim', search_form.maglim),
     ])
 
     per_page = ITEMS_PER_PAGE
@@ -52,6 +53,8 @@ def deepskyobjects():
     if search_expr:
         deepskyobjects = deepskyobjects.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
 
+    mag_scale = (8, 16)
+
     if dso_type and dso_type != 'All':
         deepskyobjects = deepskyobjects.filter(DeepskyObject.type==dso_type)
 
@@ -60,10 +63,14 @@ def deepskyobjects():
         if cat_id:
             deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
 
+    if maglim is not None and maglim < mag_scale[1]:
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.v_mag<maglim)
+
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
-    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, pagination=pagination, search_form=search_form)
+    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
+                           pagination=pagination, search_form=search_form)
 
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>')

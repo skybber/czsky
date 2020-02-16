@@ -54,6 +54,7 @@ class SearchDsoForm(FlaskForm):
          ('Neb', 'Nebula'),
          ('PN', 'Planatary Nebula'),
     ])
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
 
 class DsoApertureDescriptionForm(FlaskForm):
     aperture_class = HiddenField()
