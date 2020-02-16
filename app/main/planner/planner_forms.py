@@ -26,17 +26,15 @@ from wtforms.validators import (
     NumberRange,
     required
 )
+from wtforms.widgets import (
+    HiddenInput,
+)
 from flask_babel import lazy_gettext
 
 class SearchSessionPlanForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
 
-class SessionPlanItemNewForm(FlaskForm):
-    deepsky_object_id = StringField(lazy_gettext('DSO id'))
-    note = StringField(lazy_gettext('DSO id'))
-
 class SessionPlanMixin():
-    items = FieldList(FormField(SessionPlanItemNewForm), min_entries = 1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
     for_date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
     location_id = IntegerField(lazy_gettext('Location'), validators=[InputRequired()])
@@ -47,6 +45,10 @@ class SessionPlanNewForm(FlaskForm, SessionPlanMixin):
 
 class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     submit = SubmitField(lazy_gettext('Update Session Plan'))
+
+class AddToSessionPlanForm(FlaskForm):
+    session_plan_id = IntegerField(widget=HiddenInput())
+    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
 
 class AddToWishListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])

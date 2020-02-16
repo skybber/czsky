@@ -27,7 +27,58 @@
                     </td>
                 </tr>
             </table>
-    </div>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'warning': get_flashed_messages(category_filter=['form-warning']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(add_form, flashes, action=url_for('main_planner.session_plan_item_add'), extra_classes='ui menu') }}
+                {{ add_form.session_plan_id() }}
+                <div class="ui right item">
+                    <div class="ui action input">
+                        {{ add_form.dso_name(size=15) }}
+                    </div>
+                    <button class="ui icon mini button">
+                        <i class="plus icon"></i>
+                    </button>
+                </div>
+            {{ f.end_form(add_form) }}
+
+            <div style="overflow-x: scroll;">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">Name</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Constellation') }}</th>
+                            <th>mag</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% macro to_dso_url(dso_id) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_id, from_session_plan=True, session_plan_id=session_plan.id) }}{% endmacro %}
+
+                    {% for item in session_plan.sky_list.sky_list_items %}
+                        <tr>
+                            <td onclick="window.location.href='{{ to_dso_url(item.deepskyObject.id) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item.deepskyObject.id) }}';">{{ item.deepskyObject.type }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item.deepskyObject.id) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item.deepskyObject.id) }}';">{{ item.deepskyObject.v_mag }}</td>
+                            <td class="collapsing specialClass">
+                                <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_remove', item_id=item.id) }}">
+                                    <i class="trash alternate icon"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script type="text/javascript">
