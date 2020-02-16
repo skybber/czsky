@@ -70,6 +70,8 @@ def create_chart_in_pipeline(dso_name, full_file_name, fld_size, star_maglim, ds
         engine.set_field(dso.ra, dso.dec, fld_size*pi/180.0/2.0)
         if dso.master_object:
             dso = dso.master_object
+        used_catalogs.deepskycatalog.add_dso(dso)
+        used_catalogs.deepskycatalog.add_showing_dso(dso)
 
         engine.set_active_constellation(dso.constellation)
         engine.make_map(used_catalogs)
