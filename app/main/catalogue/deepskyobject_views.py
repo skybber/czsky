@@ -63,7 +63,7 @@ def deepskyobjects():
         if cat_id:
             deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
 
-    if maglim is not None and maglim < mag_scale[1]:
+    if not search_expr and maglim is not None and maglim < mag_scale[1]:
         deepskyobjects = deepskyobjects.filter(DeepskyObject.v_mag<maglim)
 
     deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
