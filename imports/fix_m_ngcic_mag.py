@@ -5,7 +5,6 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepskyObject
-from skyfield.units import Angle
 
 from app.commons.dso_utils import normalize_dso_name
 from .import_utils import progress

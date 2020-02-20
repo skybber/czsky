@@ -13,6 +13,7 @@ from config import Config
 
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
+from imports.import_bsc5 import import_bright_stars_bsc5
 from imports.import_open_ngc import import_open_ngc
 from imports.import_abell import import_abell
 from imports.import_sh2 import import_sh2
@@ -129,6 +130,7 @@ def initialize_catalogues():
     """
     import_catalogues('data/astro_catalogues.csv')
     import_constellations('data/88-constellations.csv')
+    import_bright_stars_bsc5('data/bsc5.dat')
     import_open_ngc('data/OpenNGC.csv')
     import_abell('data/Abell.csv')
     import_sh2('data/SH2-2000.csv')
@@ -202,6 +204,12 @@ def add_editor_user():
         db.session.add(user)
         db.session.commit()
 
+# TODO: remove (it is part of import)
+@manager.command
+def  import_bsc5():
+    import_bright_stars_bsc5('data/bsc5.dat')
+
+# TODO: remove
 @manager.command
 def fix_ngcic_mag():
     """
