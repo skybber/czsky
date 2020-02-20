@@ -49,9 +49,11 @@
                 <div class="ui label" style="float:right;">
                     <i class="info icon"></i> {{ dso.mag if dso.mag else dso.v_mag }}mag
                 </div>
+                {% if dso.constellation is not none %}
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
                     <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
                 </a>
+                {% endif %}
             </h3>
             {% if user_descr %}
             <div class="markdown">
@@ -169,9 +171,11 @@
                           <i class="info icon"></i> {{ dso.v_mag }}mag
                       </div>
                   {% endif %}
+                  {% if dso.constellation is not none %}
                   <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
                       <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
                   </a>
+                  {% endif %}
               </h3>
     {% endif %}
     {% if dso_image %}
