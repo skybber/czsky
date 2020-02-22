@@ -12,7 +12,16 @@ from Crypto.PublicKey import RSA
 
 from app import db
 
-from app.models import Constellation, DeepskyObject, User, UserConsDescription, UserDsoDescription, UserDsoApertureDescription
+from app.models import (
+    Constellation,
+    DeepskyObject,
+    Star,
+    User,
+    UserConsDescription,
+    UserDsoDescription,
+    UserDsoApertureDescription,
+    UserStarDescription
+)
 
 from app.commons.dso_utils import destructuralize_dso_name
 
@@ -154,6 +163,26 @@ def save_public_content_data_to_git(owner, commit_message):
             f.write('---\n')
             f.write(ucd.text)
 
+    for usd in UserStarDescription.query.filter_by(user_id=editor_user.id):
+        if usd.star:
+            star_file_name = 'hr' + str(usd.star.hr)
+        else:
+            star_file_name = usd.common_name.replace(' ', '_').replace('/', '-slash-')
+        repo_file_name = os.path.join(usd.lang_code, 'star', star_file_name + '.md')
+        filename = os.path.join(repository_path, repo_file_name)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w") as f:
+            f.write('---\n')
+            f.write('name: ' + str(usd.common_name) + '\n')
+            if usd.constellation:
+                f.write('constellation: ' + usd.constellation.iau_code + '\n')
+            f.write('created_by: ' + _get_user_name(usd.create_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(usd.create_date) if usd.create_date else '') + '\n')
+            f.write('updated_by: ' + _get_user_name(usd.update_by, user_name_cache) + '\n')
+            f.write('updated_date: ' + (str(usd.update_date) if usd.create_date else '') + '\n')
+            f.write('---\n')
+            f.write(usd.text)
+
     repo = git.Repo(repository_path)
     try:
         with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(owner.user_name, owner.git_content_ssh_private_key, True)):
@@ -179,6 +208,7 @@ def load_public_content_data_from_git(owner):
         _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
         _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
         _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
+        _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
 
     db.session.commit()
 
@@ -314,6 +344,65 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             ucd.update_by = updated_by.id
             ucd.update_date = updated_date
             db.session.add(ucd)
+
+def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
+    star_dir = os.path.join(repository_path, lang_code_dir, 'star')
+    files = [f for f in os.listdir(star_dir) if os.path.isfile(os.path.join(star_dir, f))]
+    for star_name_md in files:
+        with open(os.path.join(star_dir, star_name_md), 'r') as f:
+            if not star_name_md.endswith('.md'):
+                continue
+            star_name = star_name_md[:-3]
+            header_map = _read_header(f)
+            constell_iau_code = header_map.get('constellation', None)
+            created_by = _get_user_from_username(user_cache, header_map.get('created_by', ''), owner)
+            created_date = _get_get_date_from_str(header_map.get('created_date', ''))
+            updated_by = _get_user_from_username(user_cache, header_map.get('updated_by', ''), owner)
+            updated_date = _get_get_date_from_str(header_map.get('updated_date', ''))
+            created_by = created_by or editor_user
+            updated_by = updated_by or owner
+            text = f.read()
+            usd = None
+            hr_id = None
+            if star_name.startswith('hr'):
+                str_hr = star_name[2:]
+                if str_hr.isdigit():
+                    hr_id = int(str_hr)
+                    usd = UserStarDescription.query.filter_by(user_id=editor_user.id)\
+                            .filter_by(lang_code=lang_code_dir) \
+                            .join(UserStarDescription.star, aliased=True) \
+                            .filter_by(hr=hr_id) \
+                            .first()
+            else:
+                common_name = star_name.replace('_', ' ').replace('-slash-', '/')
+                usd = UserStarDescription.query.filter_by(user_id=editor_user.id)\
+                        .filter_by(lang_code=lang_code_dir) \
+                        .filter_by(common_name=common_name) \
+                        .first()
+
+            if not usd:
+                constellation_id = None
+                if constell_iau_code:
+                    constellation = Constellation.query.filter_by(iau_code=constell_iau_code).first()
+                    if constellation:
+                        constellation_id = constellation.id
+
+                usd = UserStarDescription(
+                    constellation_id = constellation_id,
+                    user_id = editor_user.id,
+                    lang_code = lang_code_dir,
+                    create_by = created_by.id,
+                    create_date = created_date,
+                )
+            if hr_id is not None:
+                star = Star.query.filter_by(hr=hr_id).first()
+                if star:
+                    usd.star_id = star.id
+            usd.common_name = header_map.get('name', '')
+            usd.text = text
+            usd.update_by = updated_by.id
+            usd.update_date = updated_date
+            db.session.add(usd)
 
 
 def _read_header(f):
