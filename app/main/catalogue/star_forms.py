@@ -32,3 +32,8 @@ class StarEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
     submit = SubmitField(lazy_gettext('Update'))
+
+class StarFindChartForm(FlaskForm):
+    radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=10)
+    submit = SubmitField(lazy_gettext('Update'))
