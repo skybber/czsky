@@ -3,6 +3,7 @@
 
 {% set endpoints = [
     ('main_star.star_info', 'Info', 'info'),
+    ('main_star.star_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
 {% macro navigation(items) %}
@@ -32,6 +33,22 @@
     </div>
 {% endmacro %}
 
+{# --- Catalogue Data --- #}
+{% macro star_catalogue_data(star) %}
+    {% if star is not none %}
+    <table class="ui compact definition table">
+        <tr><td>{{ _('Name') }}</td><td>{{ star.bayer_flamsteed }}</td></tr>
+        <tr><td>{{ _('Constellation') }}</td><td>{{ star.constellation.name }}</td></tr>
+        <tr><td>mag</td><td>{{ star.mag }}</td></tr>
+        <tr><td>RA</td><td>{{ star.ra_str() }}</td></tr>
+        <tr><td>Dec</td><td>{{ star.dec_str() }}</td></tr>
+        <tr><td>HD</td><td>{{ star.hd }}</td></tr>
+        <tr><td>SAO</td><td>{{ star.sao }}</td></tr>
+        <tr><td>{{ _('Spectral type') }}</td><td>{{ star.sp_type }}</td></tr>
+    </table>
+    {% endif %}
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
@@ -50,7 +67,11 @@
                 {{ user_descr.common_name }}
             </h2>
             {{ navigation(endpoints) }}
-            {{ star_user_info(user_descr) }}
+            {% if type == 'info' %}
+                {{ star_user_info(user_descr) }}
+            {% else %}
+                {{ star_catalogue_data(user_descr.star) }}
+            {% endif %}
       </div>
     </div>
     <script type="text/javascript">

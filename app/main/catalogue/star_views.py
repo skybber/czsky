@@ -11,7 +11,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Permission, UserStarDescription
+from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search
 
@@ -25,17 +25,31 @@ from .star_forms import (
 @main_star.route('/star/<int:star_id>/info')
 def star_info(star_id):
     """View a star info."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id).first()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
     if user_descr is None:
         abort(404)
     from_constellation_id = request.args.get('from_constellation_id')
     if not from_constellation_id:
         from_constellation_id = user_descr.constellation_id
     from_observation_id = request.args.get('from_observation_id')
-
     editable=current_user.is_editor()
+
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, editable=editable)
+
+@main_star.route('/star/<int:star_id>')
+@main_star.route('/star/<int:star_id>/catalogue_data')
+def star_catalogue_data(star_id):
+    """View a deepsky object info."""
+    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
+    if user_descr is None:
+        abort(404)
+    from_constellation_id = request.args.get('from_constellation_id')
+    if not from_constellation_id:
+        from_constellation_id = user_descr.constellation_id
+    from_observation_id = request.args.get('from_observation_id')
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id)
 
 @main_star.route('/star/<int:star_id>/edit', methods=['GET', 'POST'])
 @login_required

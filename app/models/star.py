@@ -7,10 +7,12 @@ from skyfield.units import Angle
 class Star(db.Model):
     __tablename__ = 'stars'
     id = db.Column(db.Integer, primary_key=True)
-    hr = db.Column(db.Integer, unique=True, index=True)                    # Harvard Revised Number = Bright Star Number
+    hr = db.Column(db.Integer, unique=True, index=True)                     # Harvard Revised Number = Bright Star Number
     bayer_flamsteed = db.Column(db.String(10), index=True)                  # Name, generally Bayer and/or Flamsteed name
+    constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
+    constellation = db.relationship("Constellation")
     hd = db.Column(db.Integer, unique=True, index=True)                     # Henry Draper Catalog Number
-    sao = db.Column(db.Integer, index=True)                    # SAO Catalog Number
+    sao = db.Column(db.Integer, index=True)                                 # SAO Catalog Number
     fk5 = db.Column(db.Integer, unique=True, index=True)
     multiple = db.Column(db.String(1))                                      # Double or multiple-star code
     ads = db.Column(db.String(5))                                           # Aitken's Double Star Catalog (ADS) designation
