@@ -60,7 +60,7 @@
                                 <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                             </div>
                             <div class="ui label" style="float:right;">
-                                <i class="info icon"></i> {{ user_dso_descr.deepskyObject.v_mag }}mag
+                                <i class="info icon"></i> {{ user_dso_descr.deepskyObject.mag if user_dso_descr.deepskyObject.mag else user_dso_descr.deepskyObject.v_mag }}mag
                             </div>
 
 

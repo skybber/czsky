@@ -2,6 +2,7 @@
 webassets-external/
 private_data/
 user_data/
+backup/
 .DS_Store
 *.pyc
 *.pyo
@@ -15,5 +16,4 @@ dist
 *.sqlite
 .idea
 dump.rdb
-.vscode/
-
+USNO-NOMAD-1e8.dat
