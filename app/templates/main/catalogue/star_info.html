@@ -38,7 +38,7 @@
     {% if star is not none %}
     <table class="ui compact definition table">
         <tr><td>{{ _('Name') }}</td><td>{{ star.bayer_flamsteed }}</td></tr>
-        <tr><td>{{ _('Constellation') }}</td><td>{{ star.constellation.name }}</td></tr>
+        <tr><td>{{ _('Constellation') }}</td><td>{{ star.constellation.name.capitalize() if star.constellation else '' }}</td></tr>
         <tr><td>mag</td><td>{{ star.mag }}</td></tr>
         <tr><td>RA</td><td>{{ star.ra_str() }}</td></tr>
         <tr><td>Dec</td><td>{{ star.dec_str() }}</td></tr>

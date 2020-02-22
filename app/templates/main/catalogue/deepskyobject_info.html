@@ -171,7 +171,7 @@
                           <i class="info icon"></i> {{ dso.v_mag }}mag
                       </div>
                   {% endif %}
-                  {% if dso.constellation is not none %}
+                  {% if dso.constellation %}
                   <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.id) }}">
                       <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
                   </a>
@@ -187,7 +187,7 @@
         <tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }}</td></tr>
         <tr><td>{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>
-        <tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name }}</td></tr>
+        <tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>
         <tr><td>{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>
         <tr><td>RA</td><td>{{ dso.ra_str() }}</td></tr>
         <tr><td>Dec</td><td>{{ dso.dec_str() }}</td></tr>
