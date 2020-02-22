@@ -19,7 +19,7 @@ def _parse_bsc5_line(line):
     str_fk5 = line[37:41].strip()
     fk5 = int(str_fk5) if str_fk5 != '' else None
 
-    str_mag = line[102:107].strip()
+    str_mag = line[102:107].rstrip()
     mag = float(str_mag[0]+'1') * float(str_mag[1:]) if str_mag != '' else None
 
     str_dmag = line[180:184].strip()
@@ -81,7 +81,6 @@ def import_bright_stars_bsc5(filename):
             line_cnt += 1
             db.session.add(star)
         print('')
-        print('Committing...')
         db.session.commit()
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))

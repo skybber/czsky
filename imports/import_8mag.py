@@ -34,48 +34,6 @@ dso_img_map = {}
 
 STATIC_PATH = '/static/webassets-external/users/8mag/img/'
 
-def checkdir(dir, param):
-    if not os.path.exists(dir) or not os.path.isdir(dir):
-        print('error: -' + param + ': existing directory expected.')
-        usage()
-        return False;
-    return True
-
-def usage():
-    print('Usage : import_8mag.py.py --src_path path_to_8mag_files --debug')
-
-def main():
-    src_path = None
-    dst_path = None
-    debug_log = False
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], '', ['src_path=','dst_path=', 'debug'])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for o, a in opts:
-        if o == '--src_path':
-            src_path = a
-        if o == '--dst_path':
-            dst_path = a
-        elif o == '--debug':
-            debug_log = True
-
-    if src_path is None or dst_path is None:
-        usage()
-        sys.exit(2)
-
-    if not dst_path.endswith('/'):
-        dst_path += '/'
-
-    if not checkdir(src_path, 'src_path'):
-        sys.exit(2)
-
-    if not checkdir(dst_path, 'dst_path'):
-        sys.exit(2)
-
-    do_import_8mag(src_path, dst_path, debug_log)
-
 
 def fix_bold(text):
     index1 = text.find('** ')

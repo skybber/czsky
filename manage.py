@@ -22,10 +22,18 @@ from imports.import_vic import import_vic
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.fix_m_ngcic_mag import fix_ngcic_mag_from_sac
+from imports.link_star_descriptions import link_star_descriptions
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
-migrate = Migrate(app, db)
+
+migrate = Migrate()
+with app.app_context():
+    if db.engine.url.drivername == 'sqlite':
+        migrate.init_app(app, db, render_as_batch=True)
+    else:
+        migrate.init_app(app, db)
+
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
@@ -143,6 +151,7 @@ def import_8mag():
     Import 8mag
     """
     do_import_8mag('private_data/8mag', True, 'translations.sqlite', 'data/vic_8mag.csv')
+    link_star_descrs()
 
 @manager.command
 def import_new_skyquality_locations():
@@ -216,6 +225,14 @@ def fix_ngcic_mag():
     Fix ngcic magnitude
     """
     fix_ngcic_mag_from_sac('data/sac.csv')
+
+# TODO: remove
+@manager.command
+def link_star_descrs():
+    """
+    Link star descriptions
+    """
+    link_star_descriptions()
 
 if __name__ == '__main__':
     manager.run()

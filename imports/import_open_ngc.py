@@ -172,7 +172,6 @@ def import_open_ngc(open_ngc_data_file):
                 line_cnt += 1
                 db.session.add(dso)
             print('')
-            print('Committing...')
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))
