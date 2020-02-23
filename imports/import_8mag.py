@@ -133,7 +133,7 @@ def extract_div_elem(translator, db_connection, src_path, div_elem, img_name=Non
     return md_text
 
 def normalize_img_path(file):
-    return file.replace(STATIC_PATH, '$IMG_DIR/')
+    return file.replace(STATIC_PATH, '$DEFAULT_IMG_DIR/')
 
 def save_star_descriptions(translator, db_connection, src_path, div_elem, user_8mag, lang_code, cons):
     for elem in div_elem.find_all('p'):

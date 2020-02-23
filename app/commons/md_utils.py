@@ -3,12 +3,14 @@ import os
 
 from flask import current_app
 from flask import url_for
+from flask import Markup
 import commonmark
 
 from app.models import DeepskyObject
 from .dso_utils import normalize_dso_name
+from .img_dir_resolver import resolve_img_path_dir
 
-EXPAND_IMG_DIR_FUNC = re.compile(r'\(\$IMG_DIR(.*?)\)')
+EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
 IGNORING_AREAS = re.compile(r'\[.*?\]\(.*?\)')
 EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
 
@@ -18,28 +20,27 @@ def parse_extended_commonmark(md_text, ignore_name):
     return commonmark.commonmark(parsed_text)
 
 def _expand_img_dir(md_text):
-    img_dir = current_app.config.get('IMG_DIR')
     result = ''
     prev_end = 0
     for m in re.finditer(EXPAND_IMG_DIR_FUNC, md_text):
         result += md_text[prev_end:m.start()]
-        t = m.group(1)
-        replaced = False
-        if t.startswith('/dso') and not os.path.exists('app' + os.path.join(img_dir, t[1:])):
-            start = t.rfind('/')
-            if start >= 0:
-                image = t[start+1:]
-                alternernative_image = 'app' + os.path.join(img_dir, 'dso', 'ngcic', image)
-                if os.path.exists(alternernative_image):
-                    result += '(' + img_dir + 'dso/ngcic/' + image + ')'
-                    replaced = True
-        if not replaced:
-            result += m.group(0)
+        t = m.group(3)
+        if t.startswith('/dso'):
+            img_dir = resolve_img_path_dir(t[1:])
+            if img_dir[1]:
+                result += Markup('<figure class="align-left">')
+                result += Markup('<img src="{}"/>'.format(m.group(2).replace('$IMG_DIR', img_dir[0])))
+                result += Markup('<figcaption>{}</figcaption>'.format(img_dir[1]))
+                result += Markup('</figure>')
+            else:
+                result += Markup(m.group(0).replace('$IMG_DIR', img_dir[0]))
+        else:
+            result += Markup(m.group(0))
         prev_end = m.end()
     result += md_text[prev_end:]
-    result = result.replace('$IMG_DIR', img_dir)
+    # expand rest of non dso images from default img path
+    result = Markup(result.replace('$IMG_DIR', current_app.config.get('DEFAULT_IMG_DIR')))
     return result
-
 
 def _auto_links_in_md_text(md_text, ignore_name):
     if not md_text:

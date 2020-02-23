@@ -68,7 +68,7 @@
                     </a>
                     <div class="markdown">
                         {% filter extended_commonmark(user_dso_descr.deepskyObject.name) %}
-{{ user_dso_descr.text }}
+{{ user_dso_descr.text | safe }}
                         {% endfilter %}
                         {% if user_dso_descr.dso_id in aperture_descr_map %}
                             {% for ap_class, app_descr in aperture_descr_map[user_dso_descr.dso_id] %}

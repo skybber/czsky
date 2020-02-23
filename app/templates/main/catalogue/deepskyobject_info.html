@@ -59,7 +59,7 @@
             <div class="markdown">
                 {% if user_descr.text or apert_descriptions %}
                     {% filter extended_commonmark(dso.name) %}
-{{ user_descr.text }}
+{{ user_descr.text  | safe}}
                     {% endfilter %}
                     {% for ap_class, app_descr in apert_descriptions %}
                         {% filter extended_commonmark(dso.name) %}
