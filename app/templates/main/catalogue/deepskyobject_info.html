@@ -57,6 +57,7 @@
             </h3>
             {% if user_descr %}
             <div class="markdown">
+                {% if user_descr.text or apert_descriptions %}
                     {% filter extended_commonmark(dso.name) %}
 {{ user_descr.text }}
                     {% endfilter %}
@@ -65,9 +66,12 @@
 **{{ ap_class }}mm** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
-                    {% filter extended_commonmark(dso.name) %}
+                {% else %}
+                    {{ deepskyobject_data_table(dso) }}
+                {% endif %}
+                {% filter extended_commonmark(dso.name) %}
 {{ user_descr.references or '' }}
-                    {% endfilter %}
+                 {% endfilter %}
             </div>
             {% endif %}
         </div>
@@ -178,8 +182,16 @@
                   {% endif %}
               </h3>
     {% endif %}
+    {{ deepskyobject_data_table(dso) }}
+    {% if first_page %}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro deepskyobject_data_table(dso) %}
     {% if dso_image %}
-        <img class="ui left floated image" src="{{ dso_image }}"/>
+    <img class="ui left floated image" src="{{ dso_image }}"/>
     <table>
     {% else %}
     <table class="ui compact definition table">
@@ -203,17 +215,13 @@
         <tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>
         <tr><td>minor_axis</td><td>{{ dso.minor_axis }}</td></tr>
         <tr><td>hubble_type</td><td>{{ dso.hubble_type }}</td></tr>
-{% if dso.type == 'PN' %}
-        <tr><td>c_star_u_mag</td><td>{{ dso.c_star_u_mag }}</td></tr>
-        <tr><td>c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>
-        <tr><td>c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>
-{% endif %}
+        {% if dso.type == 'PN' %}
+            <tr><td>c_star_u_mag</td><td>{{ dso.c_star_u_mag }}</td></tr>
+            <tr><td>c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>
+            <tr><td>c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>
+        {% endif %}
         <tr><td>identifiers</td><td>{{ dso.identifiers }}</td></tr>
     </table>
-    {% if first_page %}
-            </div>
-        </div>
-    {% endif %}
 {% endmacro %}
 
 {% block content %}
