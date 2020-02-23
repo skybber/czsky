@@ -67,7 +67,7 @@
                         {% endfilter %}
                     {% endfor %}
                 {% else %}
-                    {{ deepskyobject_data_table(dso) }}
+                    {{ deepskyobject_data_table(dso, False) }}
                 {% endif %}
                 {% filter extended_commonmark(dso.name) %}
 {{ user_descr.references or '' }}
@@ -182,24 +182,24 @@
                   {% endif %}
               </h3>
     {% endif %}
-    {{ deepskyobject_data_table(dso) }}
+    {{ deepskyobject_data_table(dso, True) }}
     {% if first_page %}
             </div>
         </div>
     {% endif %}
 {% endmacro %}
 
-{% macro deepskyobject_data_table(dso) %}
+{% macro deepskyobject_data_table(dso, full_table) %}
     {% if dso_image %}
     <img class="ui left floated image" src="{{ dso_image }}"/>
     <table>
     {% else %}
     <table class="ui compact definition table">
     {% endif %}
-        <tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>
+        {% if full_table %}<tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>{% endif %}
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }}</td></tr>
         {% if dso.common_name %}<tr><td>{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>{% endif %}
-        <tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>
+        {% if full_table %}<tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>{% endif %}
         {% if dso.descr %}<tr><td>{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>{% endif %}
         <tr><td>RA</td><td>{{ dso.ra_str() }}</td></tr>
         <tr><td>Dec</td><td>{{ dso.dec_str() }}</td></tr>
