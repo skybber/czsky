@@ -12,6 +12,7 @@ def _load_img_ext_config():
             img_paths = []
             for i in range(int(str_img_ext_count)):
                 img_paths.append((os.environ.get('IMG_PATHS_' + str(i+1) + '_DIR'), os.environ.get('IMG_PATHS_' + str(i+1) + '_REF')))
+        img_paths = img_paths[::-1]
     return img_paths
 
 def resolve_img_path_dir(img_file_name):
