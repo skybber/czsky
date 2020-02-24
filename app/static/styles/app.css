@@ -46,10 +46,16 @@ img[alt$="<"] {
   margin-bottom: 20px;
 }
 
-.align-left {
+.md-fig-left {
   float: left;
-  margin-right: 20px;
-  margin-bottom: 20px;
+  margin-left: 0px !important;
+  margin-top: 0px !important;
+  margin-right: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.md-fig-left figcaption {
+    text-align: center;
 }
 
 /* Mobile */

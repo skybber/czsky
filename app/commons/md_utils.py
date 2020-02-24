@@ -28,7 +28,7 @@ def _expand_img_dir(md_text):
         if t.startswith('/dso'):
             img_dir = resolve_img_path_dir(t[1:])
             if img_dir[1]:
-                result += Markup('<figure class="align-left">')
+                result += Markup('<figure class="md-fig-left">')
                 result += Markup('<img src="{}"/>'.format(m.group(2).replace('$IMG_DIR', img_dir[0])))
                 result += Markup('<figcaption>{}</figcaption>'.format(img_dir[1]))
                 result += Markup('</figure>')
