@@ -11,13 +11,15 @@ from .dso_utils import normalize_dso_name
 from .img_dir_resolver import resolve_img_path_dir
 
 EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
-IGNORING_AREAS = re.compile(r'\[.*?\]\(.*?\)')
+MD_LINK_PATTERN = re.compile(r'\[(.*?)\]\((.*?)\)')
+MD_LINK_PATTERN_NO_GRP = re.compile(r'\[.*?\]\(.*?\)')
 EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
 
 def parse_extended_commonmark(md_text, ignore_name):
     parsed_text = _expand_img_dir(md_text)
     parsed_text = _auto_links_in_md_text(parsed_text, ignore_name)
     return commonmark.commonmark(parsed_text)
+
 
 def _expand_img_dir(md_text):
     result = ''
@@ -30,7 +32,7 @@ def _expand_img_dir(md_text):
             if img_dir[1]:
                 result += Markup('<figure class="md-fig-left">')
                 result += Markup('<img src="{}"/>'.format(m.group(2).replace('$IMG_DIR', img_dir[0])))
-                result += Markup('<figcaption>{}</figcaption>'.format(img_dir[1]))
+                result += Markup('<figcaption>{}</figcaption>'.format(_parse_inline_link(img_dir[1])))
                 result += Markup('</figure>')
             else:
                 result += Markup(m.group(0).replace('$IMG_DIR', img_dir[0]))
@@ -42,13 +44,17 @@ def _expand_img_dir(md_text):
     result = Markup(result.replace('$IMG_DIR', current_app.config.get('DEFAULT_IMG_DIR')))
     return result
 
+def _parse_inline_link(text):
+    m = re.search(MD_LINK_PATTERN, text)
+    return (text[:m.start()] + '<a href="' + m.group(2) +'">' + m.group(1) + '</a>' + text[m.end():]) if m else text
+
 def _auto_links_in_md_text(md_text, ignore_name):
     if not md_text:
         return md_text
     result = ''
     prev_end = 0
     cache = {}
-    for m in re.finditer(IGNORING_AREAS, md_text):
+    for m in re.finditer(MD_LINK_PATTERN_NO_GRP, md_text):
         result += _expand_in_subtext(md_text[prev_end: m.start()], ignore_name, cache)
         result += md_text[m.start():m.end()]
         prev_end = m.end()
