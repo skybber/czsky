@@ -33,7 +33,7 @@ def _expand_img_dir(md_text):
                 result += Markup('<figure class="md-fig-left">')
                 result += Markup('<img src="{}"/>'.format(m.group(2).replace('$IMG_DIR', img_dir[0])))
                 result += Markup('<figcaption>{}</figcaption>'.format(_parse_inline_link(img_dir[1])))
-                result += Markup('</figure>')
+                result += Markup('</figure>\n\n')
             else:
                 result += Markup(m.group(0).replace('$IMG_DIR', img_dir[0]))
         else:
