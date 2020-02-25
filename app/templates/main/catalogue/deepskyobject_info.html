@@ -33,7 +33,7 @@
 {# --- DSO Info --- #}
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block">
+        <div class="ui blue segment" style="display: inline-block;width:100%"">
             <h3>
                 {% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}
                 {% if editable %}
@@ -55,9 +55,8 @@
                 </a>
                 {% endif %}
             </h3>
-            {% if user_descr %}
             <div class="markdown">
-                {% if user_descr.text or apert_descriptions %}
+                {% if user_descr %}
                     {% filter extended_commonmark(dso.name) %}
 {{ user_descr.text  | safe}}
                     {% endfilter %}
@@ -66,14 +65,13 @@
 **{{ ap_class }}mm** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
+                    {% filter extended_commonmark(dso.name) %}
+{{ user_descr.references or '' }}
+                    {% endfilter %}
                 {% else %}
                     {{ deepskyobject_data_table(dso, False) }}
                 {% endif %}
-                {% filter extended_commonmark(dso.name) %}
-{{ user_descr.references or '' }}
-                 {% endfilter %}
             </div>
-            {% endif %}
         </div>
     </div>
 {% endmacro %}
@@ -284,14 +282,14 @@
             {{ navigation(endpoints) }}
 
             {% if type == 'info' %}
-                {% if descr_available %}
+                {% if dso_image_info %}
                     {{ deepskyobject_info(dso, user_descr) }}
                 {% else %}
                     {{ deepskyobject_catalogue_data(dso, True) }}
                 {% endif %}
             {% elif type == 'fchart' %}
                 {{ deepskyobject_fchart(dso, fchart) }}
-            {% elif type == 'catalogue_data'  and not descr_available %}
+            {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(dso, False) }}
             {% endif %}
         </div>
