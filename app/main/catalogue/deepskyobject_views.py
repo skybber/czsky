@@ -110,12 +110,13 @@ def deepskyobject_info(dso_id):
 
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
+    descr_available = user_descr or len(apert_descriptions)>0
     dso_image_info = _get_dso_image_info(dso.name, '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, from_wishlist = from_wishlist,
                            from_session_plan=from_session_plan, session_plan_id=session_plan_id,
-                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, dso_image_info=dso_image_info)
+                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
 
 def _get_dso_image_info(dso_name, dir):
     dso_file_name = dso_name + '.jpg'

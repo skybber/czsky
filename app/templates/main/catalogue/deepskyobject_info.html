@@ -283,7 +283,7 @@
             {{ navigation(endpoints) }}
 
             {% if type == 'info' %}
-                {% if dso_image_info %}
+                {% if dso_image_info or descr_available %}
                     {{ deepskyobject_info(dso, user_descr) }}
                 {% else %}
                     {{ deepskyobject_catalogue_data(dso, True) }}
