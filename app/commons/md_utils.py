@@ -8,10 +8,9 @@ import commonmark
 
 from app.models import DeepskyObject
 from .dso_utils import normalize_dso_name
-from .img_dir_resolver import resolve_img_path_dir
+from .img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
-MD_LINK_PATTERN = re.compile(r'\[(.*?)\]\((.*?)\)')
 MD_LINK_PATTERN_NO_GRP = re.compile(r'\[.*?\]\(.*?\)')
 EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
 
@@ -32,7 +31,7 @@ def _expand_img_dir(md_text):
             if img_dir[1]:
                 result += Markup('<figure class="md-fig-left">')
                 result += Markup('<img src="{}"/>'.format(m.group(2).replace('$IMG_DIR', img_dir[0])))
-                result += Markup('<figcaption>{}</figcaption>'.format(_parse_inline_link(img_dir[1])))
+                result += Markup('<figcaption>{}</figcaption>'.format(parse_inline_link(img_dir[1])))
                 result += Markup('</figure>\n\n')
             else:
                 result += Markup(m.group(0).replace('$IMG_DIR', img_dir[0]))
@@ -43,10 +42,6 @@ def _expand_img_dir(md_text):
     # expand rest of non dso images from default img path
     result = Markup(result.replace('$IMG_DIR', current_app.config.get('DEFAULT_IMG_DIR')))
     return result
-
-def _parse_inline_link(text):
-    m = re.search(MD_LINK_PATTERN, text)
-    return (text[:m.start()] + '<a href="' + m.group(2) +'">' + m.group(1) + '</a>' + text[m.end():]) if m else text
 
 def _auto_links_in_md_text(md_text, ignore_name):
     if not md_text:

@@ -1,6 +1,9 @@
 import os
+import re
 
 img_paths = None
+
+MD_LINK_PATTERN = re.compile(r'\[(.*?)\]\((.*?)\)')
 
 def _load_img_ext_config():
     global img_paths
@@ -23,3 +26,7 @@ def resolve_img_path_dir(img_file_name):
         if os.path.exists(path):
             return dirdef
     return '', ''
+
+def parse_inline_link(link_text):
+    m = re.search(MD_LINK_PATTERN, link_text)
+    return (link_text[:m.start()] + '<a href="' + m.group(2) +'">' + m.group(1) + '</a>' + link_text[m.end():]) if m else link_text

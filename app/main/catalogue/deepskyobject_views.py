@@ -31,7 +31,7 @@ from .deepskyobject_forms import (
 
 from app.main.views import ITEMS_PER_PAGE
 from .chart_generator import create_chart_in_pipeline, create_chart_by_extprocess
-from app.commons.img_dir_resolver import resolve_img_path_dir
+from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -111,18 +111,18 @@ def deepskyobject_info(dso_id):
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
     descr_available = user_descr or len(apert_descriptions)>0
-    dso_image = _get_dso_image(dso.name, '')
+    dso_image_info = _get_dso_image_info(dso.name, '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, from_wishlist = from_wishlist,
                            from_session_plan=from_session_plan, session_plan_id=session_plan_id,
-                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image=dso_image)
+                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
 
-def _get_dso_image(dso_name, dir):
+def _get_dso_image_info(dso_name, dir):
     dso_file_name = dso_name + '.jpg'
-    img_dir_pair = resolve_img_path_dir(os.path.join('dso', dso_file_name))
-    if img_dir_pair[0]:
-        return img_dir_pair[0] + 'dso/' + dso_file_name
+    img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
+    if img_dir_def[0]:
+        return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')

@@ -190,11 +190,18 @@
 {% endmacro %}
 
 {% macro deepskyobject_data_table(dso, full_table) %}
-    {% if dso_image %}
-    <img class="ui left floated image" src="{{ dso_image }}"/>
-    <table>
+    {% if dso_image_info %}
+        {% if dso_image_info[1] %}
+            <figure class="md-fig-left">
+                <img src="{{ dso_image_info[0] }}"/>
+                <figcaption>{{ dso_image_info[1] | safe }}</figcaption>
+            </figure>
+        {% else %}
+            <img class="ui left floated image" src="{{ dso_image_info[0] }}"/>
+        {% endif %}
+        <table>
     {% else %}
-    <table class="ui compact definition table">
+        <table class="ui compact definition table">
     {% endif %}
         {% if full_table %}<tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>{% endif %}
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }}</td></tr>
