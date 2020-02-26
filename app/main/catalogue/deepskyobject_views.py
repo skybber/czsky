@@ -36,6 +36,8 @@ from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
+ALADIN_ANG_SIZES = (5/60, 10/60, 30/60, 1, 2, 5, 10)
+
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""
@@ -136,9 +138,17 @@ def deepskyobject_aladin(dso_id):
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
     prev_dso, next_dso = dso.get_prev_next_dso()
+    exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
+    for i in range(len(ALADIN_ANG_SIZES)):
+        if exact_ang_size < ALADIN_ANG_SIZES[i]:
+            field_angular_size = ALADIN_ANG_SIZES[i]
+            break
+    else:
+        field_angular_size = 10.0
+
     return render_template('main/catalogue/deepskyobject_info.html', type='aladin', dso=dso,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso)
+                           prev_dso=prev_dso, next_dso=next_dso, field_angular_size=field_angular_size)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
