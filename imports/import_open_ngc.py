@@ -57,8 +57,8 @@ def import_open_ngc(open_ngc_data_file):
                 dso.dec = Angle(degrees=tuple(map(float, row['Dec'].split(':')))).radians if len(row['Dec']) > 0 else None
                 dso.constellation_id = constell_dict[constellation] if constellation else None
                 dso.catalogue_id = catalogue_id
-                dso.major_axis = float(row['MajAx']) if row['MajAx'] else None
-                dso.minor_axis = float(row['MinAx']) if row['MinAx'] else None
+                dso.major_axis = float(row['MajAx'])*60.0 if row['MajAx'] else None
+                dso.minor_axis = float(row['MinAx'])*60.0 if row['MinAx'] else None
                 dso.positon_angle = float(row['PosAng']) if row['PosAng'] else None
                 dso.b_mag = float(row['B-Mag']) if row['B-Mag'] else None
                 dso.v_mag = float(row['V-Mag']) if row['V-Mag'] else None
