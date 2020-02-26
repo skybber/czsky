@@ -36,30 +36,37 @@ def import_sh2(sh2_data_file):
             for row in reader:
                 progress(row_id, row_count, 'Importing Sh2 catalogue')
                 row_id += 1
-                c = DeepskyObject(
-                    name = normalize_dso_name(row['NAME']),
-                    type = 'Neb',
-                    ra = Angle(hours=float(row['RA'])).radians if len(row['RA']) > 0 else None,
-                    dec = Angle(degrees=float(row['RA'])).radians if len(row['RA']) > 0 else None,
-                    constellation_id = constell_dict.get(row['Constellation'].upper(), None),
-                    catalogue_id = catalogue_id,
-                    major_axis = float(row['SIZE']),
-                    minor_axis =  float(row['SIZE']),
-                    positon_angle =  None,
-                    b_mag = None,
-                    v_mag = None,
-                    j_mag =  None,
-                    h_mag =  None,
-                    k_mag =  None,
-                    surface_bright = None,
-                    hubble_type =  None,
-                    c_star_u_mag = None,
-                    c_star_b_mag = None,
-                    c_star_v_mag = None,
-                    identifiers = None,
-                    common_name = None,
-                    descr = None,
-                    )
+
+                dso_name = normalize_dso_name(row['NAME'])
+
+                c = DeepskyObject.query.filter_by(name = dso_name).first()
+
+                if c is None:
+                    c = DeepskyObject()
+
+                c.name = dso_name
+                c.type = 'Neb'
+                c.ra = Angle(hours=float(row['RA'])).radians if len(row['RA']) > 0 else None
+                c.dec = Angle(degrees=float(row['RA'])).radians if len(row['RA']) > 0 else None
+                c.constellation_id = constell_dict.get(row['Constellation'].upper(), None)
+                c.catalogue_id = catalogue_id
+                c.major_axis = float(row['SIZE']) * 60.0
+                c.minor_axis =  float(row['SIZE']) * 60.0
+                c.positon_angle =  None
+                c.b_mag = None
+                c.v_mag = None
+                c.j_mag =  None
+                c.h_mag =  None
+                c.k_mag =  None
+                c.surface_bright = None
+                c.hubble_type =  None
+                c.c_star_u_mag = None
+                c.c_star_b_mag = None
+                c.c_star_v_mag = None
+                c.identifiers = None
+                c.common_name = None
+                c.descr = None
+
                 db.session.add(c)
             db.session.commit()
         except KeyError as err:

@@ -147,6 +147,14 @@ def initialize_catalogues():
     import_vic('data/vic.csv')
 
 @manager.command
+def reimport_dsos():
+    import_open_ngc('data/OpenNGC.csv')
+    import_abell('data/Abell.csv')
+    import_sh2('data/SH2-2000.csv')
+    import_sac('data/sac.csv')
+    import_vic('data/vic.csv')
+
+@manager.command
 def import_8mag():
     """
     Import 8mag

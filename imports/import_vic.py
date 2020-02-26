@@ -36,32 +36,37 @@ def import_vic(vic_data_file):
                 progress(row_id, row_count, 'Importing VIC catalogue')
                 constellation = None
 
-                name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
+                dso_name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
 
-                c = DeepskyObject(
-                    name = name,
-                    type = 'AST',
-                    ra = Angle(hours=tuple(map(float, row['RA'].split(',')))).radians if len(row['RA']) > 0 else None,
-                    dec = Angle(degrees=tuple(map(float, row['Dec'].split(',')))).radians if len(row['Dec']) > 0 else None,
-                    constellation_id = constell_dict[constellation] if constellation else None,
-                    catalogue_id = catalogue_id,
-                    major_axis = vic2int(row['length']) / 10,
-                    minor_axis =  vic2int(row['width']) / 10,
-                    positon_angle =  vic2int(row['orient']) / 10,
-                    b_mag = None,
-                    v_mag = vic2int(row['mag']) / 10,
-                    j_mag =  None,
-                    h_mag =  None,
-                    k_mag =  None,
-                    surface_bright = vic2int(row['brightness']) / 10,
-                    hubble_type =  None,
-                    c_star_u_mag = None,
-                    c_star_b_mag = None,
-                    c_star_v_mag = None,
-                    identifiers = None,
-                    common_name = row['name'].strip(),
-                    descr = None,
-                    )
+                c = DeepskyObject.query.filter_by(name = dso_name).first()
+
+                if c is None:
+                    c = DeepskyObject()
+
+                c.name = dso_name
+                c.type = 'AST'
+                c.ra = Angle(hours=tuple(map(float, row['RA'].split(',')))).radians if len(row['RA']) > 0 else None
+                c.dec = Angle(degrees=tuple(map(float, row['Dec'].split(',')))).radians if len(row['Dec']) > 0 else None
+                c.constellation_id = constell_dict[constellation] if constellation else None
+                c.catalogue_id = catalogue_id
+                c.major_axis = vic2int(row['length']) / 10 * 60.0
+                c.minor_axis =  vic2int(row['width']) / 10 * 60.0
+                c.positon_angle =  vic2int(row['orient']) / 10
+                c.mag = vic2int(row['mag']) / 10
+                c.b_mag = None
+                c.v_mag = None
+                c.j_mag =  None
+                c.h_mag =  None
+                c.k_mag =  None
+                c.surface_bright = vic2int(row['brightness']) / 10
+                c.hubble_type =  None
+                c.c_star_u_mag = None
+                c.c_star_b_mag = None
+                c.c_star_v_mag = None
+                c.identifiers = None
+                c.common_name = row['name'].strip()
+                c.descr = None
+
                 db.session.add(c)
             db.session.commit()
         except KeyError as err:

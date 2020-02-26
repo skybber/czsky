@@ -91,9 +91,12 @@ def import_sac(sac_data_file):
                 dso_type = dso_type_mappings.get(row['TYPE'], row['TYPE'])
                 constellation_id = constell_dict.get(row['CON'].upper(), None)
 
-                existing_dso = DeepskyObject.query.filter_by(name=object_name).first()
+                if object_name.startswith(('NGC', 'IC')):
+                    existing_dso = DeepskyObject.query.filter_by(name=object_name).first()
+                else:
+                    existing_dso = None
 
-                # Fix OpenNGC missing visual mag
+                # OpenNGC import is first, fix missing visual mag
                 if existing_dso:
                     existing_dso.mag = mag
                     if existing_dso.type is None:
@@ -124,62 +127,68 @@ def import_sac(sac_data_file):
                         if create_synonymas and object_name.startswith('NGC') and other_name.startswith('UGC'):
                             if existing_dso:
                                 catalogue_id = Catalogue.get_catalogue_id_by_cat_code('UGC')
-                                c = DeepskyObject(
-                                    name = other_name,
-                                    type = existing_dso.type if existing_dso.type else dso_type,
-                                    master_id = existing_dso.id,
-                                    ra = existing_dso.ra,
-                                    dec = existing_dso.dec,
-                                    constellation_id = existing_dso.constellation_id if existing_dso.constellation_id else constellation_id,
-                                    catalogue_id = catalogue_id,
-                                    major_axis = existing_dso.major_axis,
-                                    minor_axis =  existing_dso.minor_axis,
-                                    positon_angle =  existing_dso.positon_angle,
-                                    mag = mag,
-                                    b_mag = existing_dso.b_mag,
-                                    v_mag = existing_dso.v_mag,
-                                    j_mag =  existing_dso.j_mag,
-                                    h_mag =  existing_dso.h_mag,
-                                    k_mag =  existing_dso.k_mag,
-                                    surface_bright = existing_dso.surface_bright,
-                                    hubble_type =  existing_dso.hubble_type,
-                                    c_star_u_mag = existing_dso.c_star_u_mag,
-                                    c_star_b_mag = existing_dso.c_star_b_mag,
-                                    c_star_v_mag = existing_dso.c_star_v_mag,
-                                    identifiers = existing_dso.identifiers,
-                                    common_name = existing_dso.common_name,
-                                    descr = row['NOTES'],
-                                    )
+                                c = DeepskyObject.query.filter_by(name=other_name).first()
+                                if c is None:
+                                    c = DeepskyObject()
+
+                                c.name = other_name
+                                c.type = existing_dso.type if existing_dso.type else dso_type
+                                c.master_id = existing_dso.id
+                                c.ra = existing_dso.ra
+                                c.dec = existing_dso.dec
+                                c.constellation_id = existing_dso.constellation_id if existing_dso.constellation_id else constellation_id
+                                c.catalogue_id = catalogue_id
+                                c.major_axis = existing_dso.major_axis
+                                c.minor_axis =  existing_dso.minor_axis
+                                c.positon_angle =  existing_dso.positon_angle
+                                c.mag = mag
+                                c.b_mag = existing_dso.b_mag
+                                c.v_mag = existing_dso.v_mag
+                                c.j_mag =  existing_dso.j_mag
+                                c.h_mag =  existing_dso.h_mag
+                                c.k_mag =  existing_dso.k_mag
+                                c.surface_bright = existing_dso.surface_bright
+                                c.hubble_type =  existing_dso.hubble_type
+                                c.c_star_u_mag = existing_dso.c_star_u_mag
+                                c.c_star_b_mag = existing_dso.c_star_b_mag
+                                c.c_star_v_mag = existing_dso.c_star_v_mag
+                                c.identifiers = existing_dso.identifiers
+                                c.common_name = existing_dso.common_name
+                                c.descr = row['NOTES']
+
                                 db.session.add(c)
                                 db.session.flush()
 
                 if not existing_dso:
-                    c = DeepskyObject(
-                        name = object_name,
-                        type = dso_type,
-                        master_id = other_ids[0] if len(other_ids) > 0 else None,
-                        ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,
-                        dec = Angle(degrees=tuple(map(float, row['DEC'].split(' ')))).radians if len(row['DEC']) > 0 else None,
-                        constellation_id = constellation_id,
-                        catalogue_id = catalogue_id,
-                        major_axis = get_size(row['SIZE_MAX']),
-                        minor_axis =  get_size(row['SIZE_MIN']),
-                        positon_angle =  None,
-                        mag = mag,
-                        b_mag = None,
-                        v_mag = None,
-                        j_mag =  None,
-                        h_mag =  None,
-                        k_mag =  None,
-                        surface_bright = None,
-                        hubble_type =  None,
-                        c_star_u_mag = None,
-                        c_star_b_mag = None,
-                        c_star_v_mag = None,
-                        identifiers = None,
-                        common_name = None,
-                        descr = row['NOTES'],
-                        )
+                    c = DeepskyObject.query.filter_by(name=object_name).first()
+                    if c is None:
+                        c = DeepskyObject()
+
+                    c.name = object_name
+                    c.type = dso_type
+                    c.master_id = other_ids[0] if len(other_ids) > 0 else None
+                    c.ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None
+                    c.dec = Angle(degrees=tuple(map(float, row['DEC'].split(' ')))).radians if len(row['DEC']) > 0 else None
+                    c.constellation_id = constellation_id
+                    c.catalogue_id = catalogue_id
+                    c.major_axis = get_size(row['SIZE_MAX'])
+                    c.minor_axis =  get_size(row['SIZE_MIN'])
+                    c.positon_angle =  None
+                    c.mag = mag
+                    c.b_mag = None
+                    c.v_mag = None
+                    c.j_mag =  None
+                    c.h_mag =  None
+                    c.k_mag =  None
+                    c.surface_bright = None
+                    c.hubble_type =  None
+                    c.c_star_u_mag = None
+                    c.c_star_b_mag = None
+                    c.c_star_v_mag = None
+                    c.identifiers = None
+                    c.common_name = None
+                    c.descr = row['NOTES']
+
                     db.session.add(c)
                     db.session.flush()
             db.session.commit()

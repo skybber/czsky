@@ -43,29 +43,35 @@ def import_abell(abell_data_file):
                 if cstar_mag == 'na':
                     cstar_mag = None
 
-                c = DeepskyObject(
-                    name = normalize_dso_name('Abell' + row['Abell']),
-                    type = 'PN', # TODO: row['Type'] is PN subtype ?
-                    ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None,
-                    dec = Angle(degrees=tuple(map(float, row['Dec'].split(' ')))).radians if len(row['Dec']) > 0 else None,
-                    constellation_id = constell_dict[constellation] if constellation else None,
-                    catalogue_id = catalogue_id,
-                    major_axis = float(row['MajAx']) if row['MajAx'] else None,
-                    minor_axis = float(row['MinAx']) if row['MinAx'] else None,
-                    positon_angle = None,
-                    b_mag = None,
-                    v_mag = mag,
-                    j_mag = None,
-                    h_mag = None,
-                    k_mag = None,
-                    surface_bright = None,
-                    hubble_type =  None,
-                    c_star_u_mag = None,
-                    c_star_v_mag = float(cstar_mag) if cstar_mag else None,
-                    identifiers = row['Other'],
-                    common_name = None,
-                    descr = None,
-                    )
+                dso_name = normalize_dso_name('Abell' + row['Abell'])
+
+                c = DeepskyObject.query.filter_by(name = dso_name).first()
+
+                if c is None:
+                    c = DeepskyObject()
+
+                c.name = dso_name
+                c.type = 'PN' # TODO: row['Type'] is PN subtype ?
+                c.ra = Angle(hours=tuple(map(float, row['RA'].split(' ')))).radians if len(row['RA']) > 0 else None
+                c.dec = Angle(degrees=tuple(map(float, row['Dec'].split(' ')))).radians if len(row['Dec']) > 0 else None
+                c.constellation_id = constell_dict[constellation] if constellation else None
+                c.catalogue_id = catalogue_id
+                c.major_axis = float(row['MajAx']) if row['MajAx'] else None
+                c.minor_axis = float(row['MinAx']) if row['MinAx'] else None
+                c.positon_angle = None
+                c.b_mag = None
+                c.v_mag = mag
+                c.j_mag = None
+                c.h_mag = None
+                c.k_mag = None
+                c.surface_bright = None
+                c.hubble_type =  None
+                c.c_star_u_mag = None
+                c.c_star_v_mag = float(cstar_mag) if cstar_mag else None
+                c.identifiers = row['Other']
+                c.common_name = None
+                c.descr = None
+
                 db.session.add(c)
             db.session.commit()
         except KeyError as err:
