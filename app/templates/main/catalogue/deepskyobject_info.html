@@ -226,7 +226,7 @@
                     {% if dso.major_axis >= 100.0 %}
                         {{ (dso.major_axis / 100.0) | round(2, 'floor') }}'
                     {% else %}
-                        {{ dso.major_axis }}''
+                        {{ dso.major_axis | round(2, 'floor')}}''
                     {% endif %}
                 </td>
             </tr>
@@ -238,7 +238,7 @@
                     {% if dso.minor_axis >= 100.0 %}
                         {{ (dso.minor_axis / 100.0) | round(2, 'floor') }}'
                     {% else %}
-                        {{ dso.minor_axis }}''
+                        {{ dso.minor_axis | round(2, 'floor')}}''
                     {% endif %}
                 </td>
             </tr>
