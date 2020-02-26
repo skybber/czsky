@@ -4,6 +4,7 @@
 {% set endpoints = [
     ('main_deepskyobject.deepskyobject_info', 'Info', 'info'),
     ('main_deepskyobject.deepskyobject_findchart', 'Find chart', 'table'),
+    ('main_deepskyobject.deepskyobject_aladin', 'Aladin', 'table'),
     ('main_deepskyobject.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
@@ -157,6 +158,16 @@
 {% endif %}
 {% endmacro %}
 
+{# --- Aladin lite --- #}
+{% macro deepskyobject_aladin(dso) %}
+    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+    <!-- insert this snippet where you want Aladin Lite viewer to appear and after the loading of jQuery -->
+    <div id="aladin-lite-div" style="width:100%;height:600px;"></div>
+    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:1, target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"});
+    </script>
+{% endmacro %}
 {# --- Catalogue Data --- #}
 {% macro deepskyobject_catalogue_data(dso, first_page) %}
     {% if first_page %}
@@ -208,8 +219,8 @@
         {% if dso.descr %}<tr><td>{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>{% endif %}
         <tr><td>RA</td><td>{{ dso.ra_str() }}</td></tr>
         <tr><td>Dec</td><td>{{ dso.dec_str() }}</td></tr>
-        {% if dso.major_axis %}<tr><td>major_axis</td><td>{{ dso.major_axis }}</td></tr>{% endif %}
-        {% if dso.minor_axis %}<tr><td>minor_axis</td><td>{{ dso.minor_axis }}</td></tr>{% endif %}
+        {% if dso.major_axis %}<tr><td>major_axis</td><td>{{ dso.major_axis }}'</td></tr>{% endif %}
+        {% if dso.minor_axis %}<tr><td>minor_axis</td><td>{{ dso.minor_axis }}'</td></tr>{% endif %}
         {% if dso.positon_angle %}<tr><td>positon_angle</td><td>{{ dso.positon_angle }}</td></tr>{% endif %}
         {% if dso.mag %}<tr><td>mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
         {% if dso.b_mag %}<tr><td>b_mag</td><td>{{ dso.b_mag }}</td></tr>{% endif %}
@@ -290,6 +301,8 @@
                 {% endif %}
             {% elif type == 'fchart' %}
                 {{ deepskyobject_fchart(dso, fchart) }}
+            {% elif type == 'aladin' %}
+                {{ deepskyobject_aladin(dso) }}
             {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(dso, False) }}
             {% endif %}

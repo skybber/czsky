@@ -88,6 +88,8 @@ def deepskyobject_info(dso_id):
     if sel_tab:
         if sel_tab == 'fchart':
              return redirect(url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id))
+        if sel_tab == 'aladin':
+             return redirect(url_for('main_deepskyobject.deepskyobject_aladin', dso_id=dso.id))
         if sel_tab == 'catalogue_data':
              return redirect(url_for('main_deepskyobject.deepskyobject_catalogue_data', dso_id=dso.id))
 
@@ -124,6 +126,19 @@ def _get_dso_image_info(dso_name, dir):
     if img_dir_def[0]:
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
+
+@main_deepskyobject.route('/deepskyobject/<int:dso_id>/aladin')
+def deepskyobject_aladin(dso_id):
+    """View a deepsky object in aladin."""
+    dso = DeepskyObject.query.filter_by(id=dso_id).first()
+    if dso is None:
+        abort(404)
+    from_constellation_id = request.args.get('from_constellation_id')
+    from_observation_id = request.args.get('from_observation_id')
+    prev_dso, next_dso = dso.get_prev_next_dso()
+    return render_template('main/catalogue/deepskyobject_info.html', type='aladin', dso=dso,
+                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
+                           prev_dso=prev_dso, next_dso=next_dso)
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
