@@ -91,8 +91,8 @@ def import_open_ngc(open_ngc_data_file):
                     mes_dso.dec = dso.dec
                     mes_dso.constellation_id = dso.constellation_id
                     mes_dso.catalogue_id = Catalogue.get_catalogue_id_by_cat_code('M')
-                    mes_dso.major_axis = dso.major_axis * 60.0 if dso.major_axis else None
-                    mes_dso.minor_axis = dso.minor_axis * 60.0 if dso.minor_axis else None
+                    mes_dso.major_axis = dso.major_axis if dso.major_axis else None
+                    mes_dso.minor_axis = dso.minor_axis if dso.minor_axis else None
                     mes_dso.positon_angle = dso.positon_angle
                     mes_dso.b_mag = dso.b_mag
                     mes_dso.v_mag = dso.v_mag
