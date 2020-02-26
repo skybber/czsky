@@ -109,12 +109,12 @@ def deepskyobject_info(dso_id):
                         .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         for apdescr in user_apert_descrs:
-            if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions]:
+            if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
 
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
-    descr_available = user_descr or len(apert_descriptions)>0
+    descr_available = user_descr and user_descr.text or len(apert_descriptions)>0
     dso_image_info = _get_dso_image_info(dso.name, '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
