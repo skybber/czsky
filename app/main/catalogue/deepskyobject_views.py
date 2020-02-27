@@ -114,7 +114,7 @@ def deepskyobject_info(dso_id):
 
     prev_dso, next_dso = dso.get_prev_next_dso()
     editable=current_user.is_editor()
-    descr_available = user_descr and user_descr.text or len(apert_descriptions)>0
+    descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = _get_dso_image_info(dso.name, '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
