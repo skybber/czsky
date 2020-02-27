@@ -5,6 +5,7 @@ catalogs_specifications = (
     ('ABELL', 'Abell', 3),
     ('B', 'B', 3),
     ('CR', 'Cr', 3),
+    ('HCG', 'HCG', 3),
     ('IC', 'IC', 4),
     ('LDN', 'LDN', 4),
     ('MEL', 'Mel', 3), # Must be before Messier (M) since has longer prefix

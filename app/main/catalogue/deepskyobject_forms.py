@@ -36,6 +36,7 @@ class SearchDsoForm(FlaskForm):
          ('IC', 'IC'),
          ('Abell','Abell'),
          ('SH2','Sharpless'),
+         ('HCG', 'Hickson'),
          ('B', 'Barnard'),
          ('Cr', 'Collinder'),
          ('Pal', 'Palomar'),

@@ -24,6 +24,7 @@ from imports.import_skyquality import do_import_skyquality_locations
 from imports.fix_m_ngcic_mag import fix_ngcic_mag_from_sac
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
+from imports.import_hickson import import_hickson
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -145,6 +146,7 @@ def initialize_catalogues():
     import_sh2('data/SH2-2000.csv')
     import_sac('data/sac.csv')
     import_vic('data/vic.csv')
+    import_hickson('data/HCG.DAT')
 
 @manager.command
 def reimport_dsos():
@@ -153,6 +155,7 @@ def reimport_dsos():
     import_sh2('data/SH2-2000.csv')
     import_sac('data/sac.csv')
     import_vic('data/vic.csv')
+    import_hickson('data/HCG.DAT')
 
 @manager.command
 def import_8mag():
@@ -245,6 +248,13 @@ def tmp_normalize_glahn_img():
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
+
+@manager.command
+def tmp_import_hickson():
+    """
+    import hickson
+    """
+    import_hickson('data/HCG.DAT')
 
 if __name__ == '__main__':
     manager.run()
