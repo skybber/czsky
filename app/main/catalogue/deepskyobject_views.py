@@ -76,6 +76,18 @@ def deepskyobjects():
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
                            pagination=pagination, search_form=search_form)
 
+@main_deepskyobject.route('/deepskyobject/search')
+@login_required
+def deepskyobject_search():
+    query = request.args.get('q', None)
+    if query is None:
+        abort(404)
+    normalized_name = normalize_dso_name(query)
+    dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+    if not dso:
+        abort(404)
+    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id))
+
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/info')
@@ -364,3 +376,4 @@ def _filter_apert_descriptions(all_user_apert_descrs):
         if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions]:
             apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
     return apert_descriptions
+
