@@ -48,15 +48,15 @@
             {% for user_dso_descr in dso_descriptions %}
                 <div class="ui segment" style="display: inline-block;width:100%">
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
-                        <h2 id="dso{{ user_dso_descr.dso_id }}" class="ui header" >
+                        <h3 id="dso{{ user_dso_descr.dso_id }}" style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
                             {% if editable %}
-                                <a class="ui icon mini button" style="float:right;margin-left:10px;"
+                                <a class="ui icon mini button" style="float:right;padding-left:12px;"
                                           href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
                                     <i class="caret edit icon"></i>
                                 </a>
                             {% endif %}
-                            <div class="mobile hidden" style="float:right;">
+                            <div class="mobile hidden" style="float:right;padding-left:2px;">
                                 <div class="ui label">
                                     <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                                 </div>
@@ -64,9 +64,7 @@
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i> {{ user_dso_descr.deepskyObject.mag if user_dso_descr.deepskyObject.mag else user_dso_descr.deepskyObject.v_mag }}mag
                             </div>
-
-
-                        </h2>
+                        </h3>
                     </a>
                     <div class="markdown">
                         {% filter extended_commonmark(user_dso_descr.deepskyObject.name) %}

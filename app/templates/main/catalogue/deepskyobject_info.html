@@ -34,7 +34,7 @@
 {# --- DSO Info --- #}
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block;width:100%"">
+        <div class="ui blue segment" style="display: inline-block;width:100%">
             <h3>
                 {% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}
                 {% if editable %}
