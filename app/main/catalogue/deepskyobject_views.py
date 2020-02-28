@@ -77,7 +77,6 @@ def deepskyobjects():
                            pagination=pagination, search_form=search_form)
 
 @main_deepskyobject.route('/deepskyobject/search')
-@login_required
 def deepskyobject_search():
     query = request.args.get('q', None)
     if query is None:
