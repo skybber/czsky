@@ -56,8 +56,10 @@
                                     <i class="caret edit icon"></i>
                                 </a>
                             {% endif %}
-                            <div class="ui label" style="float:right;">
-                                <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                            <div class="mobile hidden" style="float:right;">
+                                <div class="ui label">
+                                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                                </div>
                             </div>
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i> {{ user_dso_descr.deepskyObject.mag if user_dso_descr.deepskyObject.mag else user_dso_descr.deepskyObject.v_mag }}mag
@@ -145,13 +147,18 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellations', back=1) }}">
-                <i class="caret left icon"></i>
-                Constellations
-            </a>
-            <h2 class="ui header">
-                {{ constellation.iau_code }} / {{ constellation.name.title() }}
-            </h2>
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_constellation.constellations', back=1) }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ constellation.iau_code }} / {{ constellation.name.title() }}
+                    </div>
+                </div>
+            </div>
 
             {{ navigation(endpoints) }}
 
@@ -166,7 +173,7 @@
             {% elif type == 'dso' %}
                 {{ constellation_dsos(constellation) }}
             {% endif %}
-      </div>
+        </div>
     </div>
     <script type="text/javascript">
         $('.ui.rating')

@@ -43,8 +43,10 @@
                     </a>
                 {% endif %}
                 {% if user_descr %}
-                <div class="ui label" style="float:right;">
-                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                <div class="mobile hidden" style="float:right;">
+                    <div class="ui label">
+                        <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                    </div>
                 </div>
                 {% endif %}
                 <div class="ui label" style="float:right;">
@@ -270,27 +272,27 @@
                 {% if from_constellation_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        {{ _('Constellation') }}
+                        <i class="lastfm icon"></i>
                     </a>
                 {% elif from_observation_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=from_observation_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        {{ _('Observation') }}
+                        <i class="eye icon"></i>
                     </a>
                 {% elif from_wishlist %}
                     <a class="ui basic compact button" href="{{ url_for('main_planner.wish_list') }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        {{ _('Wishlist') }}
+                        <i class="heart icon"></i>
                     </a>
                 {% elif from_session_plan and session_plan_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=session_plan_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        {{ _('Session Plan') }}
+                        <i class="tasks icon"></i>
                     </a>
                 {% else %}
                     <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
                         <i class="caret left icon"></i>
-                        {{ _('DSO list') }}
+                        <i class="list icon"></i>
                     </a>
                 {% endif %}
                 <div class="divider"> / </div>
@@ -328,7 +330,7 @@
                 {{ deepskyobject_catalogue_data(dso, False) }}
             {% endif %}
         </div>
-  </div>
+    </div>
     <script type="text/javascript">
         $('.ui.rating')
         .rating();

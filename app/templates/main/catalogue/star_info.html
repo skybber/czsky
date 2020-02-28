@@ -96,20 +96,26 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            {% if from_observation_id %}
-                <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=from_observation_id) }}">
-                    <i class="caret left icon"></i>
-                    {{ _('Observation') }}
-                </a>
-            {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
-                    <i class="caret left icon"></i>
-                    {{ _('Constellation') }}
-                </a>
-            {% endif %}
-            <h2 class="ui header">
-                {{ user_descr.common_name }}
-            </h2>
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if from_observation_id %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=from_observation_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon"></i>
+                        </a>
+                    {% else %}
+                        <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="lastfm icon"></i>
+                        </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ user_descr.common_name }}
+                    </div>
+                </div>
+            </div>
+
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
                 {{ star_user_info(user_descr) }}
@@ -118,7 +124,7 @@
             {% else %}
                 {{ star_catalogue_data(user_descr.star) }}
             {% endif %}
-      </div>
+        </div>
     </div>
     <script type="text/javascript">
         $('.ui.rating')
