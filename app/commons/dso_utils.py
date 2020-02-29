@@ -23,7 +23,7 @@ def normalize_dso_name(name):
     if name is None:
         return name
 
-    upper_name = name.upper().replace(' ','')
+    upper_name = name.upper().replace('_','').replace(' ','')
 
     if upper_name.startswith('PK'):
         return upper_name
