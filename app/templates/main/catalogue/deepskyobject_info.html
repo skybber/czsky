@@ -4,7 +4,7 @@
 {% set endpoints = [
     ('main_deepskyobject.deepskyobject_info', 'Info', 'info'),
     ('main_deepskyobject.deepskyobject_findchart', 'Find chart', 'table'),
-    ('main_deepskyobject.deepskyobject_aladin', 'Aladin', 'table'),
+    ('main_deepskyobject.deepskyobject_surveys', 'Surveys', 'table'),
     ('main_deepskyobject.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
@@ -81,7 +81,7 @@
 
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
-    <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui menu">
+    <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui secondary menu">
         <!-- Field radius -->
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
@@ -160,16 +160,37 @@
 {% endif %}
 {% endmacro %}
 
-{# --- Aladin lite --- #}
-{% macro deepskyobject_aladin(dso) %}
-    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
-    <!-- insert this snippet where you want Aladin Lite viewer to appear and after the loading of jQuery -->
-    <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
-    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
-    <script type="text/javascript">
-        var aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:{{ field_angular_size }}, target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"});
-    </script>
+{# --- Surveys --- #}
+{% macro deepskyobject_surveys(dso) %}
+    <form action="{{ url_for('main_deepskyobject.deepskyobject_surveys', dso_id=dso.id) }}" method="post" class="ui secondary menu">
+        <div class="ui item computer tablet only">
+            {{form.survey_type(class='ui dropdown button',onchange='this.form.submit()')}}
+            <div class="top right aligned floating ui label">{{ _('Survey') }}</div>
+        </div>
+        <!-- Field radius -->
+        <div class="ui item">
+            <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
+            </div>
+            <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+    </form>
+    {% if survey_type == 'aladin'%}
+        <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+        <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
+        <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+        <script type="text/javascript">
+            var aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:{{ field_size }}, target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"});
+        </script>
+    {% elif survey_type == 'dss' %}
+        <a href="http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r={{ dso.ra_str().replace(':','+') }}&d={{ (180.0*dso.dec/3.14) }}&e=J2000&h={{ field_size }}&w={{ field_size }}&f=gif&c=none&fov=NONE&v3=">
+            <img style="width:500px;height:500px;"
+                 src="http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r={{ dso.ra_str().replace(':','+') }}&d={{ (180.0*dso.dec/3.14) }}&e=J2000&h={{ field_size }}&w={{ field_size }}&f=gif&c=none&fov=NONE&v3="
+                 alt="{{ dso.name }}">
+        </a>
+    {% endif %}
 {% endmacro %}
+
 {# --- Catalogue Data --- #}
 {% macro deepskyobject_catalogue_data(dso, first_page) %}
     {% if first_page %}
@@ -324,8 +345,8 @@
                 {% endif %}
             {% elif type == 'fchart' %}
                 {{ deepskyobject_fchart(dso, fchart) }}
-            {% elif type == 'aladin' %}
-                {{ deepskyobject_aladin(dso) }}
+            {% elif type == 'surveys' %}
+                {{ deepskyobject_surveys(dso) }}
             {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(dso, False) }}
             {% endif %}
@@ -343,6 +364,9 @@
 .markdown p {
   text-align: justify;
 }
+{% if type == 'surveys' %}
+.item:hover { z-index: 999999 !important; }
+{% endif %}
     </style>
     {% if type == 'fchart' %}
         <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
@@ -432,6 +456,28 @@
 {% endif %}
 
         </script>
-
     {% endif %}
+
+    {% if type == 'surveys' %}
+        <script type="text/javascript">
+            var labels = ["1", "3", "8", "20"];
+            $('#slider-field-size')
+              .slider({
+                min: 1,
+                max: 4,
+                step: 1,
+                start:{{ form.radius.data }},
+                fireOnInit: false,
+                interpretLabel: function(value) {
+                  return labels[value];
+                },
+                onChange: function(value) {
+                    $('#radius').val(value);
+                    $("#fmchart" ).submit();
+                }
+              });
+        </script>
+    {% endif %}
+
+
 {% endblock %}

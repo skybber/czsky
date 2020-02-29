@@ -26,6 +26,7 @@ from app.commons.search_utils import process_paginated_session_search
 from .deepskyobject_forms import (
     DeepskyObjectFindChartForm,
     DeepskyObjectEditForm,
+    DeepskyObjectSurveysForm,
     SearchDsoForm,
 )
 
@@ -36,7 +37,8 @@ from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
-ALADIN_ANG_SIZES = (5/60, 10/60, 30/60, 1, 2, 5, 10)
+ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
+DSS_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2)
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
@@ -101,8 +103,8 @@ def deepskyobject_info(dso_id):
     if sel_tab:
         if sel_tab == 'fchart':
              return redirect(url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id))
-        if sel_tab == 'aladin':
-             return redirect(url_for('main_deepskyobject.deepskyobject_aladin', dso_id=dso.id))
+        if sel_tab == 'surveys':
+             return redirect(url_for('main_deepskyobject.deepskyobject_surveys', dso_id=dso.id))
         if sel_tab == 'catalogue_data':
              return redirect(url_for('main_deepskyobject.deepskyobject_catalogue_data', dso_id=dso.id))
 
@@ -140,26 +142,43 @@ def _get_dso_image_info(dso_name, dir):
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/aladin')
-def deepskyobject_aladin(dso_id):
-    """View a deepsky object in aladin."""
+@main_deepskyobject.route('/deepskyobject/<int:dso_id>/surveys', methods=['GET', 'POST'])
+def deepskyobject_surveys(dso_id):
+    """Digital surveys view a deepsky object."""
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
+    form = DeepskyObjectSurveysForm()
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
     prev_dso, next_dso = dso.get_prev_next_dso()
-    exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
-    for i in range(len(ALADIN_ANG_SIZES)):
-        if exact_ang_size < ALADIN_ANG_SIZES[i]:
-            field_angular_size = ALADIN_ANG_SIZES[i]
-            break
-    else:
-        field_angular_size = 10.0
 
-    return render_template('main/catalogue/deepskyobject_info.html', type='aladin', dso=dso,
+    exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
+
+    survey_type=form.survey_type.data
+
+    if not survey_type:
+        survey_type = 'aladin'
+        form.survey_type.data = survey_type
+
+    if form.survey_type.data == 'aladin':
+        field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
+    elif form.survey_type.data == 'dss':
+        field_size = int(_get_survey_field_size(DSS_ANG_SIZES, exact_ang_size, 1) * 60.0)
+    else:
+        field_size = 1.0
+
+    return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, field_angular_size=field_angular_size)
+                           prev_dso=prev_dso, next_dso=next_dso, field_size=field_size,
+                           form=form, survey_type=survey_type)
+
+def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
+    for i in range(len(ang_sizes)):
+        if exact_ang_size < ang_sizes[i]:
+            return ang_sizes[i]
+    return default_size
+
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):

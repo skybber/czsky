@@ -77,3 +77,10 @@ class DeepskyObjectFindChartForm(FlaskForm):
     mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
     mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
     submit = SubmitField(lazy_gettext('Update'))
+
+class DeepskyObjectSurveysForm(FlaskForm):
+    radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])
+    survey_type = SelectField('Survey', choices=[
+         ('aladin', 'Aladin'),
+         ('dss', 'DSS'),
+    ], default='aladin')
