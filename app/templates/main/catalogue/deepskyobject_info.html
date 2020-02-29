@@ -183,11 +183,9 @@
             var aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:{{ field_size }}, target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"});
         </script>
     {% elif survey_type == 'dss' %}
-        <a href="http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r={{ dso.ra_str().replace(':','+') }}&d={{ (180.0*dso.dec/3.14) }}&e=J2000&h={{ field_size }}&w={{ field_size }}&f=gif&c=none&fov=NONE&v3=">
-            <img style="width:500px;height:500px;"
-                 src="http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r={{ dso.ra_str().replace(':','+') }}&d={{ (180.0*dso.dec/3.14) }}&e=J2000&h={{ field_size }}&w={{ field_size }}&f=gif&c=none&fov=NONE&v3="
-                 alt="{{ dso.name }}">
-        </a>
+        <img style="width:500px;height:500px;"
+             src="http://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r={{ dso.ra_str().replace(':','+') }}&d={{ dso.dec_str().replace(':','+') }}&e=J2000&h={{ field_size }}&w={{ field_size }}&f=gif&c=none&fov=NONE&v3="
+             alt="{{ dso.name }}">
     {% endif %}
 {% endmacro %}
 
