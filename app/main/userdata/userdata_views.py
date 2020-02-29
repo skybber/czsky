@@ -72,7 +72,7 @@ def git_save():
                     flash('Storing content data to Git repository failed.' + str(e), 'form-error')
     return redirect(url_for('main_userdata.data_store_content', git_save='1'))
 
-@main_userdata.route('/git-load', methods=['POST'])
+@main_userdata.route('/git-load', methods=['GET'])
 @login_required
 def git_load():
     subtype = request.args.get('subtype', None)

@@ -93,19 +93,44 @@
                 {% else %}
                     <p>Git repository is not set up.</p>
                 {% endif %}
-                <form action="{{ url_for('main_userdata.git_load', subtype=subtype) }}" method="POST">
-                    <button class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button" value="restore" type="submit" name="submit">
-                        <i class="upload icon"></i>
-                        {% if subtype == 'repo_personal' %}
-                            Load data from Git
-                        {% else %}
-                            Load content data from Git
-                        {% endif %}
-                    </button>
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                </form>
+                <button id="bloaddata" class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button">
+                    <i class="upload icon"></i>
+                    {% if subtype == 'repo_personal' %}
+                        Load data from Git
+                    {% else %}
+                        Load content data from Git
+                    {% endif %}
+                </button>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
             </div>
         </div>
         </div>
     </div>
+
+    <div class="ui tiny modal loadModal">
+      <div class="header">{{ _('Load data from GIT') }}</div>
+      <div class="content">
+        <p>{{ _('All current data will be overridden by incoming data from GIT repository.') }}</p>
+        <p>{{ _('Are you sure you want to load data from GIT?') }}</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_userdata.git_load', subtype=subtype) }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.modal.loadModal').modal({
+            onApprove: function() {
+                return validateModal()
+            }
+        });
+        $('#bloaddata').click(function() {
+            $('.ui.modal.loadModal')
+                .modal('show');
+        });
+    </script>
 {% endblock %}
