@@ -111,8 +111,8 @@ def deepskyobject_info(dso_id):
     from_constellation_id = request.args.get('from_constellation_id')
     from_observation_id = request.args.get('from_observation_id')
     from_wishlist = request.args.get('from_wishlist')
-    from_session_plan = request.args.get('from_session_plan')
-    session_plan_id = request.args.get('session_plan_id')
+    from_session_plan_id = request.args.get('from_session_plan_id')
+    from_dso_list_id = request.args.get('from_dso_list_id')
     editor_user = User.get_editor_user()
     user_descr = None
     apert_descriptions = []
@@ -132,7 +132,7 @@ def deepskyobject_info(dso_id):
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, from_wishlist = from_wishlist,
-                           from_session_plan=from_session_plan, session_plan_id=session_plan_id,
+                           from_session_plan_id=from_session_plan_id, from_dso_list_id=from_dso_list_id,
                            prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
 
 def _get_dso_image_info(dso_name, dir):

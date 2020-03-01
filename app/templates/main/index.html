@@ -12,6 +12,10 @@
                                     description=_('View constellations'), icon='lastfm icon') }}
                 {{ dash.dashboard_option(_('Deepsky Objects'), 'main_deepskyobject.deepskyobjects',
                                     description=_('View deepsky objects'), icon='star icon') }}
+                {{ dash.dashboard_option(_('Deepsky Lists'), 'main_dso_list.dso_lists_menu',
+                                    description=_('View deepsky lists'), icon='star icon') }}
+                {{ dash.dashboard_option(_('Sky quality'), 'main_skyquality.skyquality',
+                                    description=_('View skyquality section'), icon='tachometer icon') }}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option(_('Observer'), 'main_observation.observation_menu',
                                         description=_('View observer menu'), icon='eye icon') }}
@@ -20,8 +24,6 @@
                     {{ dash.dashboard_option(_('Planner'), 'main_planner.planner_menu',
                                         description=_('View planner menu'), icon='tasks icon') }}
                 {% endif %}
-                {{ dash.dashboard_option(_('Sky quality'), 'main_skyquality.skyquality',
-                                    description=_('View skyquality section'), icon='tachometer icon') }}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option(_('User Data'), 'main_userdata.userdata_menu',
                                         description=_('View user data'), icon='cogs icon') }}

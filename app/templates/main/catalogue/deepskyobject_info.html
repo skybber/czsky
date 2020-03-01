@@ -303,8 +303,13 @@
                         <i class="caret left icon"></i>
                         <i class="heart icon"></i>
                     </a>
-                {% elif from_session_plan and session_plan_id %}
-                    <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=session_plan_id) }}#dso{{dso.id}}">
+                {% elif from_session_plan_id %}
+                    <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=from_session_plan_id) }}#dso{{dso.id}}">
+                        <i class="caret left icon"></i>
+                        <i class="tasks icon"></i>
+                    </a>
+                {% elif from_dso_list_id %}
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id) }}">
                         <i class="caret left icon"></i>
                         <i class="tasks icon"></i>
                     </a>

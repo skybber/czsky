@@ -25,6 +25,7 @@ from imports.fix_m_ngcic_mag import fix_ngcic_mag_from_sac
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_hickson import import_hickson
+from imports.import_dso_lists import import_caldwell, import_herschel400
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -156,6 +157,8 @@ def reimport_dsos():
     import_sac('data/sac.csv')
     import_vic('data/vic.csv')
     import_hickson('data/HCG.DAT')
+    import_caldwell('data/dsolist/CaldwellObjects.csv')
+    import_herschel400('data/dsolist/Herschel400.csv')
 
 @manager.command
 def import_8mag():
@@ -250,11 +253,10 @@ def tmp_normalize_glahn_img():
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
 
 @manager.command
-def tmp_import_hickson():
-    """
-    import hickson
-    """
-    import_hickson('data/HCG.DAT')
+def tmp_import_dso_list():
+    import_caldwell('data/dsolist/CaldwellObjects.csv')
+    import_herschel400('data/dsolist/Herschel400.csv')
+
 
 if __name__ == '__main__':
     manager.run()

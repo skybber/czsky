@@ -1,5 +1,4 @@
 import csv, sys
-from sqlalchemy.orm.session import make_transient
 
 from app import db
 from app.models.constellation import Constellation

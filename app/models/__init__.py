@@ -6,6 +6,7 @@ module (as opposed to just their python files)
 from .catalogue import *
 from .constellation import *
 from .deepskyobject import *
+from .dsolist import *
 from .location import *
 from .miscellaneous import *
 from .observation import *

@@ -92,6 +92,8 @@ def create_app(config):
     app.register_blueprint(main_constellation)
     from .main.catalogue import main_deepskyobject as main_deepskyobject
     app.register_blueprint(main_deepskyobject)
+    from .main.catalogue import main_dso_list as main_dso_list
+    app.register_blueprint(main_dso_list)
     from .main.location import main_location as main_location
     app.register_blueprint(main_location)
     from .main.observation import main_observation as main_observation

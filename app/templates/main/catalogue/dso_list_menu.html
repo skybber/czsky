@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+               {{ _('Dashboard') }}
+            </a>
+            <h2 class="ui header">
+                {{ _('Deepsky Object Lists') }}
+            </h2>
+
+            <div style="overflow-x: scroll;">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">{{ _('Name') }}</th>
+                            <th class="sorted ascending">{{ _('Description') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for l in dso_lists %}
+                        <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.id) }}';">
+                            <td>{{ l.name }}</td>
+                            <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
