@@ -2,10 +2,10 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_deepskyobject.deepskyobject_info', 'Info', 'info'),
-    ('main_deepskyobject.deepskyobject_findchart', 'Find chart', 'table'),
-    ('main_deepskyobject.deepskyobject_surveys', 'Surveys', 'table'),
-    ('main_deepskyobject.deepskyobject_catalogue_data', 'Catalogue data', 'table')
+    ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
+    ('main_deepskyobject.deepskyobject_findchart', _('Find chart'), 'table'),
+    ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
+    ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalogue data'), 'table')
 ] %}
 
 {% set from_constellation_id = request.args.get('from_constellation_id') %}
@@ -17,7 +17,14 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
-            {% set href = url_for(route, dso_id=dso.id, from_constellation_id=from_constellation_id) %}
+            {% set href = url_for(route, dso_id=dso.id,
+                                         from_constellation_id=from_constellation_id,
+                                         from_observation_id=from_observation_id,
+                                         from_wishlist=from_wishlist,
+                                         from_session_plan_id=from_session_plan_id,
+                                         from_dso_list_id=from_dso_list_id
+                                         )
+            %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ name }}
             </a>

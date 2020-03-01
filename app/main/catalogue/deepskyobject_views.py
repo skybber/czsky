@@ -102,11 +102,11 @@ def deepskyobject_info(dso_id):
     sel_tab = request.args.get('sel_tab', None)
     if sel_tab:
         if sel_tab == 'fchart':
-             return redirect(url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id))
+            return _do_redirect('main_deepskyobject.deepskyobject_findchart', dso)
         if sel_tab == 'surveys':
-             return redirect(url_for('main_deepskyobject.deepskyobject_surveys', dso_id=dso.id))
+            return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if sel_tab == 'catalogue_data':
-             return redirect(url_for('main_deepskyobject.deepskyobject_catalogue_data', dso_id=dso.id))
+            return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
     editor_user = User.get_editor_user()
     user_descr = None
@@ -381,6 +381,18 @@ def _filter_apert_descriptions(all_user_apert_descrs):
         if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions]:
             apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
     return apert_descriptions
+
+def _do_redirect(url, dso):
+    from_observation_id = request.args.get('from_observation_id')
+    from_wishlist = request.args.get('from_wishlist')
+    from_session_plan_id = request.args.get('from_session_plan_id')
+    from_dso_list_id = request.args.get('from_dso_list_id')
+    return redirect(url_for(url, dso_id=dso.id,
+                            from_observation_id=from_observation_id,
+                            from_wishlist=from_wishlist,
+                            from_session_plan_id=from_session_plan_id,
+                            from_dso_list_id=from_dso_list_id
+                            ))
 
 def _get_prev_next_dso(dso):
     from_observation_id = request.args.get('from_observation_id')
