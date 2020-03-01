@@ -60,7 +60,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(dso_id) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_id, from_session_plan_id=session_plan.id) }}{% endmacro %}
+                    {% macro to_dso_url(dso_id) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_id, from_session_plan=True, session_plan_id=session_plan.id) }}{% endmacro %}
 
                     {% for item in session_plan.sky_list.sky_list_items %}
                         <tr>

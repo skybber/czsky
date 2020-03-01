@@ -18,7 +18,7 @@ from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -108,11 +108,6 @@ def deepskyobject_info(dso_id):
         if sel_tab == 'catalogue_data':
              return redirect(url_for('main_deepskyobject.deepskyobject_catalogue_data', dso_id=dso.id))
 
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
-    from_wishlist = request.args.get('from_wishlist')
-    from_session_plan_id = request.args.get('from_session_plan_id')
-    from_dso_list_id = request.args.get('from_dso_list_id')
     editor_user = User.get_editor_user()
     user_descr = None
     apert_descriptions = []
@@ -125,15 +120,15 @@ def deepskyobject_info(dso_id):
             if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
 
-    prev_dso, next_dso = dso.get_prev_next_dso()
+    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = _get_dso_image_info(dso.name, '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, from_wishlist = from_wishlist,
-                           from_session_plan_id=from_session_plan_id, from_dso_list_id=from_dso_list_id,
-                           prev_dso=prev_dso, next_dso=next_dso, editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
+                           editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
+
 
 def _get_dso_image_info(dso_name, dir):
     dso_file_name = dso_name + '.jpg'
@@ -149,10 +144,7 @@ def deepskyobject_surveys(dso_id):
     if dso is None:
         abort(404)
     form = DeepskyObjectSurveysForm()
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
-    prev_dso, next_dso = dso.get_prev_next_dso()
-
+    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
     survey_type=form.survey_type.data
@@ -169,9 +161,9 @@ def deepskyobject_surveys(dso_id):
         field_size = 1.0
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso, field_size=field_size,
-                           form=form, survey_type=survey_type)
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
+                           field_size=field_size, survey_type=survey_type,
+                           form=form)
 
 def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
     for i in range(len(ang_sizes)):
@@ -186,12 +178,10 @@ def deepskyobject_catalogue_data(dso_id):
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
-    prev_dso, next_dso = dso.get_prev_next_dso()
+    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso)
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
+                           )
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart', methods=['GET', 'POST'])
 def deepskyobject_findchart(dso_id):
@@ -200,9 +190,7 @@ def deepskyobject_findchart(dso_id):
     if dso is None:
         abort(404)
     form  = DeepskyObjectFindChartForm()
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
-    prev_dso, next_dso = dso.get_prev_next_dso()
+    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
 
@@ -262,8 +250,7 @@ def deepskyobject_findchart(dso_id):
     disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
 
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           prev_dso=prev_dso, next_dso=next_dso,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                            show_mirroring=(form.radius.data<=2),
@@ -395,3 +382,29 @@ def _filter_apert_descriptions(all_user_apert_descrs):
             apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
     return apert_descriptions
 
+def _get_prev_next_dso(dso):
+    from_observation_id = request.args.get('from_observation_id')
+    from_wishlist = request.args.get('from_wishlist')
+    from_session_plan_id = request.args.get('from_session_plan_id')
+    from_dso_list_id = request.args.get('from_dso_list_id')
+
+    if not from_observation_id is None:
+        pass # TODO
+    elif not from_wishlist is None:
+        pass # TODO
+    elif not from_session_plan_id is None:
+        pass # TODO
+    elif not from_dso_list_id is None:
+        dso_list = DsoList.query.filter_by(id=from_dso_list_id).first()
+        if dso_list:
+            prev_item, next_item = dso_list.get_prev_next_item(dso.id)
+            return (prev_item.deepskyObject if prev_item else None,
+                    prev_item.item_id if prev_item else None,
+                    next_item.deepskyObject if next_item else None,
+                    next_item.item_id if next_item else None,
+                    )
+    prev_dso, next_dso = dso.get_prev_next_dso()
+    return (prev_dso,
+            prev_dso.catalog_number() if prev_dso else None,
+            next_dso,
+            next_dso.catalog_number() if next_dso else None)

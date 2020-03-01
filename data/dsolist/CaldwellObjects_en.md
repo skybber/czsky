@@ -15,6 +15,6 @@ Unlike objects in the Messier catalogue, which are listed roughly in the order o
 northerly and C109 being the most southerly, although two objects (NGC 4244 and the Hyades) are listed out of sequence. Other errors in the original list have since been corrected:
 it incorrectly identified the S Norma Cluster (NGC 6087) as NGC 6067 and incorrectly labelled the Lambda Centauri Cluster (IC 2944) as the Gamma Centauri Cluster
 
-![]https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/CaldwellStarChart.svg/1000px-CaldwellStarChart.svg.png
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/CaldwellStarChart.svg/1000px-CaldwellStarChart.svg.png)
 
 [1] Source [Wikipedia](https://en.wikipedia.org/wiki/Caldwell_catalogue)

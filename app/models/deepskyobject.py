@@ -124,7 +124,7 @@ class UserDsoDescription(db.Model):
     update_date = db.Column(db.DateTime, default=datetime.now())
 
     def rating_to_int(self, m):
-        return int(round(self.rating * m / 10))
+        return int(round(self.rating * m / 10)) if self.rating else m//2
 
 class UserDsoApertureDescription(db.Model):
     __tablename__ = 'user_dso_aperture_descriptions'

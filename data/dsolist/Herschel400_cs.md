@@ -6,3 +6,5 @@ v St. Augustinu, Florida, Spojené státy c. 1980. Autoři se rozhodli vytvořit
 James Mullaney z Pittsburghu, Pensylvánie, USA. V tomto dopise pan Mullaney navrhl, že původní katalog Williama Herschela
 2 500 objektů by bylo vynikajícím základem pro výběr deepsky objektů pro amatérské astronomy hledající výzvu po dokončení
 katalog Messier.
+
+[1] Source [Wikipedia](https://en.wikipedia.org/wiki/Herschel_400_Catalogue)

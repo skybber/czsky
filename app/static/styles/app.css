@@ -146,3 +146,10 @@ img[alt$="<"] {
 .ui.definition2c.table > tbody > tr > td:nth-child(3) {
   border-left: 1px solid rgba(34, 36, 38, 0.15);
 }
+.markdown img {
+  max-width: 100%;
+  height: auto;
+}
+.markdown p {
+  text-align: justify;
+}

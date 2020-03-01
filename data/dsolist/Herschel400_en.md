@@ -6,3 +6,6 @@ in St. Augustine, Florida, United States c. 1980. They decided to generate the l
 by James Mullaney of Pittsburgh, Pennsylvania, USA. In this letter Mr. Mullaney suggested that William Herschel's original catalogue
 of 2,500 objects would be an excellent basis for deep sky object selection for amateur astronomers looking for a challenge after completing
 the Messier Catalogue.
+
+
+[1] Source [Wikipedia](https://en.wikipedia.org/wiki/Herschel_400_Catalogue)

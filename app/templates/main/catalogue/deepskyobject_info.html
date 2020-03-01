@@ -8,6 +8,12 @@
     ('main_deepskyobject.deepskyobject_catalogue_data', 'Catalogue data', 'table')
 ] %}
 
+{% set from_constellation_id = request.args.get('from_constellation_id') %}
+{% set from_observation_id = request.args.get('from_observation_id') %}
+{% set from_wishlist = request.args.get('from_wishlist') %}
+{% set from_session_plan_id = request.args.get('from_session_plan_id') %}
+{% set from_dso_list_id = request.args.get('from_dso_list_id') %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
@@ -309,7 +315,7 @@
                         <i class="tasks icon"></i>
                     </a>
                 {% elif from_dso_list_id %}
-                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id) }}">
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
                         <i class="tasks icon"></i>
                     </a>
@@ -324,16 +330,27 @@
                     {{ dso.denormalized_name() }}
                 </div>
             </div>
+           {% macro to_dso_url(dso_id) %}
+               {{ url_for('main_deepskyobject.deepskyobject_info',
+                           dso_id=dso_id,
+                           sel_tab=type,
+                           from_observation_id=from_observation_id,
+                           from_wishlist=from_wishlist,
+                           from_session_plan_id=from_session_plan_id,
+                           from_dso_list_id=from_dso_list_id)
+               }}
+           {% endmacro %}
+
             {% if next_dso %}
-                <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.id, sel_tab=type)}}">
-                    {{ next_dso.catalog_number() }}
+                <a class="ui basic compact right floated button" href="{{ to_dso_url(next_dso.id) }}">
+                    {{ next_dso_id }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.id, sel_tab=type)}}">
+                <a class="ui basic compact right floated button" href="{{ to_dso_url(prev_dso.id) }}">
                     <i class="caret left icon"></i>
-                    {{ prev_dso.catalog_number() }}
+                    {{ prev_dso_id }}
                 </a>
             {% endif %}
             </div>
@@ -360,13 +377,6 @@
         .rating();
     </script>
     <style>
-.markdown img {
-  max-width: 100%;
-  height: auto;
-}
-.markdown p {
-  text-align: justify;
-}
 {% if type == 'surveys' %}
 .item:hover { z-index: 999999 !important; }
 {% endif %}

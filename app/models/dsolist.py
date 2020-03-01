@@ -20,6 +20,15 @@ class DsoList(db.Model):
                 return descr
         return None
 
+    def get_prev_next_item(self, dso_id):
+        sorted_list = sorted(self.dso_list_items, key=lambda x: x.item_id)
+        for i, item in enumerate(sorted_list):
+            if item.dso_id == dso_id:
+                prev_item = sorted_list[i-1] if i > 0 else None
+                next_item = sorted_list[i+1] if i < len(sorted_list) - 1 else None
+                return prev_item, next_item
+        return None, None
+
 class DsoListDescription(db.Model):
     __tablename__ = 'dso_list_descriptions'
     id = db.Column(db.Integer, primary_key=True)

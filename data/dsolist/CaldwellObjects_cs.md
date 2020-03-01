@@ -15,6 +15,6 @@ Na rozdíl od objektů v Messierově katalogu, které jsou uvedeny zhruba v poř
 severně a C109 jsou nejjižnější, ačkoli dva objekty (NGC 4244 a Hyades) jsou uvedeny mimo sled. Od té doby byly opraveny další chyby v původním seznamu:
 nesprávně identifikoval S Norma Cluster (NGC 6087) jako NGC 6067 a nesprávně označil Lambda Centauri Cluster (IC 2944) jako Gamma Centauri Cluster
 
-![] https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/CaldwellStarChart.svg/1000px-CaldwellStarChart.svg.png
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/CaldwellStarChart.svg/1000px-CaldwellStarChart.svg.png)
 
-[1] Zdroj [Wikipedia] (https://en.wikipedia.org/wiki/Caldwell_catalogue)
+[1] Zdroj [Wikipedia](https://en.wikipedia.org/wiki/Caldwell_catalogue)
