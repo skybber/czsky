@@ -9,7 +9,7 @@ def deepsky_objects_to_html(observation_id, dsos):
         dso = DeepskyObject.query.filter_by(name=dso_name).first()
         if dso:
             formatted_dsos.append('<a href="' +
-                                  url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id, from_observation_id=observation_id) +
+                                  url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, from_observation_id=observation_id) +
                                   '">' + dso.denormalized_name() + '</a>')
         else:
             formatted_dsos.append(dso)

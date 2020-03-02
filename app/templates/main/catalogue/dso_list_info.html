@@ -37,15 +37,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(dso_id) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_id, from_dso_list=True, from_dso_list_id=dso_list.id) }}{% endmacro %}
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_dso_list=True, from_dso_list_id=dso_list.id) }}{% endmacro %}
 
                     {% for item in dso_list.dso_list_items %}
                         <tr>
-                            <td onclick="window.location.href='{{ to_dso_url(item.dso_id) }}';"><p id="dso{{ item.dso_id }}">{{ item.item_id }}</p></td>
-                            <td onclick="window.location.href='{{ to_dso_url(item.dso_id) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item.dso_id) }}';">{{ item.deepskyObject.type }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item.dso_id) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item.dso_id) }}';">{{ item.deepskyObject.v_mag }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.item_id }}</p></td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.v_mag }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

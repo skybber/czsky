@@ -10,7 +10,7 @@
                     {{ _('Constellation') }}
                 </a>
             {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id)}}">
+                <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name)}}">
                     <i class="caret left icon"></i>
                     DSO info
                 </a>

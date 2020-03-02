@@ -15,7 +15,7 @@
 {% set from_dso_list_id = request.args.get('from_dso_list_id') %}
 
 {% macro dso_info_href(route, dso) %}{{
-    url_for(route, dso_id=dso.id,
+    url_for(route, dso_id=dso.name,
             from_constellation_id=from_constellation_id,
             from_observation_id=from_observation_id,
             from_wishlist=from_wishlist,
@@ -339,9 +339,9 @@
                     {{ dso.denormalized_name() }}
                 </div>
             </div>
-           {% macro to_dso_url(dso_id) %}
+           {% macro to_dso_url(to_dso) %}
                {{ url_for('main_deepskyobject.deepskyobject_info',
-                           dso_id=dso_id,
+                           dso_id=to_dso.name,
                            sel_tab=type,
                            from_observation_id=from_observation_id,
                            from_wishlist=from_wishlist,
@@ -351,13 +351,13 @@
            {% endmacro %}
 
             {% if next_dso %}
-                <a class="ui basic compact right floated button" href="{{ to_dso_url(next_dso.id) }}">
+                <a class="ui basic compact right floated button" href="{{ to_dso_url(next_dso) }}">
                     {{ next_dso_id }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic compact right floated button" href="{{ to_dso_url(prev_dso.id) }}">
+                <a class="ui basic compact right floated button" href="{{ to_dso_url(prev_dso) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_id }}
                 </a>

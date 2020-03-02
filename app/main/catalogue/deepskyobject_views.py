@@ -87,15 +87,22 @@ def deepskyobject_search():
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if not dso:
         abort(404)
-    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id))
+    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))
 
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>')
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/info')
+def _find_dso(dso_id):
+    try:
+        int_id = int(dso_id)
+        return DeepskyObject.query.filter_by(id=int_id).first()
+    except ValueError:
+        pass
+    return DeepskyObject.query.filter_by(name=dso_id).first()
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>')
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
 def deepskyobject_info(dso_id):
     """View a deepsky object info."""
-
-    dso = DeepskyObject.query.filter_by(id=dso_id).first()
+    dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
 
@@ -137,10 +144,10 @@ def _get_dso_image_info(dso_name, dir):
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/surveys', methods=['GET', 'POST'])
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/surveys', methods=['GET', 'POST'])
 def deepskyobject_surveys(dso_id):
     """Digital surveys view a deepsky object."""
-    dso = DeepskyObject.query.filter_by(id=dso_id).first()
+    dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
     form = DeepskyObjectSurveysForm()
@@ -172,10 +179,10 @@ def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
     return default_size
 
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/catalogue_data')
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/catalogue_data')
 def deepskyobject_catalogue_data(dso_id):
     """View a deepsky object info."""
-    dso = DeepskyObject.query.filter_by(id=dso_id).first()
+    dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
     prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
@@ -183,10 +190,10 @@ def deepskyobject_catalogue_data(dso_id):
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
                            )
 
-@main_deepskyobject.route('/deepskyobject/<int:dso_id>/findchart', methods=['GET', 'POST'])
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/findchart', methods=['GET', 'POST'])
 def deepskyobject_findchart(dso_id):
     """View a deepsky object findchart."""
-    dso = DeepskyObject.query.filter_by(id=dso_id).first()
+    dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
     form  = DeepskyObjectFindChartForm()
@@ -363,7 +370,7 @@ def deepskyobject_edit(dso_id):
     if goback:
         if from_constellation_id is not None:
             return redirect(url_for('main_constellation.constellation_info', constellation_id=from_constellation_id, _anchor='dso' + str(dso.id)))
-        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso,
                            from_constellation_id=from_constellation_id, authors=authors,

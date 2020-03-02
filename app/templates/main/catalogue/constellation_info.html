@@ -47,7 +47,7 @@
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions %}
                 <div class="ui segment" style="display: inline-block;width:100%">
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.id) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, from_constellation_id=constellation.id) }}">
                         <h3 id="dso{{ user_dso_descr.dso_id }}" style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
                             {% if editable %}
@@ -129,7 +129,7 @@
                     </thead>
                     <tbody>
                     {% for d in constellation.deepsky_objects | sort(attribute='name') %}
-                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.id, from_constellation_id=constellation.id) }}';">
+                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, from_constellation_id=constellation.id) }}';">
                                     <td>{{ d.denormalized_name() }}</td>
                                     <td>{{ d.type }}</td>
                                     <td>{{ d.ra_str_short() }}</td>

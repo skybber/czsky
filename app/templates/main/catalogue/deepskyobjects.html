@@ -61,7 +61,7 @@
                     </thead>
                     <tbody>
                     {% for d in deepskyobjects | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.id) }}';">
+                        <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name) }}';">
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>
                             <td>{{ d.get_constellation_iau_code() }}</td>

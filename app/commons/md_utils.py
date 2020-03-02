@@ -68,7 +68,7 @@ def _expand_in_subtext(sub_text, ignore_name, cache):
             if dso_name not in cache:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if dso:
-                    replacement = m.group(1) + '[' + m.group(2) + ' ](' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.id) + ')'
+                    replacement = m.group(1) + '[' + m.group(2) + ' ](' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name) + ')'
                 cache[dso_name] = replacement
             else:
                 replacement = cache[dso_name]
