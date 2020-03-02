@@ -14,18 +14,20 @@
 {% set from_session_plan_id = request.args.get('from_session_plan_id') %}
 {% set from_dso_list_id = request.args.get('from_dso_list_id') %}
 
+{% macro dso_info_href(route, dso) %}{{
+    url_for(route, dso_id=dso.id,
+            from_constellation_id=from_constellation_id,
+            from_observation_id=from_observation_id,
+            from_wishlist=from_wishlist,
+            from_session_plan_id=from_session_plan_id,
+            from_dso_list_id=from_dso_list_id
+            )}}
+{% endmacro %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
-            {% set href = url_for(route, dso_id=dso.id,
-                                         from_constellation_id=from_constellation_id,
-                                         from_observation_id=from_observation_id,
-                                         from_wishlist=from_wishlist,
-                                         from_session_plan_id=from_session_plan_id,
-                                         from_dso_list_id=from_dso_list_id
-                                         )
-            %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ dso_info_href(route, dso) }}">
                 {{ name }}
             </a>
         {% endfor %}
@@ -94,7 +96,7 @@
 
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
-    <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_findchart', dso_id=dso.id) }}" method="post" class="ui secondary menu">
+    <form id="fmchart" action="{{ dso_info_href('main_deepskyobject.deepskyobject_findchart', dso) }}" method="post" class="ui secondary menu">
         <!-- Field radius -->
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
