@@ -4,7 +4,7 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=constellation.id) }}">
+            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code) }}">
                 <i class="caret left icon"></i>
                 {{ _('Constellation') }}
             </a>

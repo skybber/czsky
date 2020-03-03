@@ -47,11 +47,19 @@ def constellations():
 
     return render_template('main/catalogue/constellations.html', constellations=constellations, search_form=search_form, cons_names=cons_names)
 
-@main_constellation.route('/constellation/<int:constellation_id>')
-@main_constellation.route('/constellation/<int:constellation_id>/info')
+def _find_constellation(constellation_id):
+    try:
+        int_id = int(constellation_id)
+        return Constellation.query.filter_by(id=int_id).first()
+    except ValueError:
+        pass
+    return Constellation.query.filter_by(iau_code=constellation_id).first()
+
+@main_constellation.route('/constellation/<string:constellation_id>')
+@main_constellation.route('/constellation/<string:constellation_id>/info')
 def constellation_info(constellation_id):
     """View a constellation info."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
+    constellation = _find_constellation(constellation_id)
     if constellation is None:
         abort(404)
     user_descr = None
@@ -102,7 +110,7 @@ def constellation_info(constellation_id):
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required
 def constellation_edit(constellation_id):
-    """Update deepsky object."""
+    """Update constellation."""
     if not current_user.is_editor():
         abort(403)
     constellation = Constellation.query.filter_by(id=constellation_id).first()
@@ -130,7 +138,7 @@ def constellation_edit(constellation_id):
                 goback = True
 
     if goback:
-        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.id))
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
     author = _create_author_entry(user_descr.update_by, user_descr.update_date)
 
@@ -143,10 +151,10 @@ def _create_author_entry(update_by, update_date):
     user_name = User.query.filter_by(id=update_by).first().user_name
     return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
 
-@main_constellation.route('/constellation/<int:constellation_id>/stars')
+@main_constellation.route('/constellation/<string:constellation_id>/stars')
 def constellation_stars(constellation_id):
     """View a constellation stars."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
+    constellation = _find_constellation(constellation_id)
     if constellation is None:
         abort(404)
     star_descriptions = None
@@ -161,10 +169,10 @@ def constellation_stars(constellation_id):
                            star_descriptions=star_descriptions, editable=editable)
 
 
-@main_constellation.route('/constellation/<int:constellation_id>/deepskyobjects')
+@main_constellation.route('/constellation/<string:constellation_id>/deepskyobjects')
 def constellation_deepskyobjects(constellation_id):
     """View a constellation deep sky objects."""
-    constellation = Constellation.query.filter_by(id=constellation_id).first()
+    constellation = _find_constellation(constellation_id)
     if constellation is None:
         abort(404)
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso')

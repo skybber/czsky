@@ -4,10 +4,13 @@ from flask import (
     render_template,
     request,
     session,
+    url_for,
 )
 from flask_login import current_user, login_required
 
-from app.models import EditableHTML
+from app.commons.dso_utils import normalize_dso_name
+from app.models import Constellation, DeepskyObject, EditableHTML
+
 
 main = Blueprint('main', __name__)
 
@@ -27,3 +30,17 @@ def about():
 def switch_theme():
     session['themlight'] = not session.get('themlight', False)
     return redirect(request.referrer)
+
+@main.route('/search')
+def global_search():
+    query = request.args.get('q', None)
+    if query is None:
+        abort(404)
+    constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
+    if constellation:
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
+
+    normalized_name = normalize_dso_name(query)
+    dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+    if dso:
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))

@@ -37,7 +37,7 @@
                     </thead>
                     <tbody>
                     {% for c in constellations | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_constellation.constellation_info', constellation_id=c.id) }}';">
+                        <tr onclick="window.location.href = '{{ url_for('main_constellation.constellation_info', constellation_id=c.iau_code) }}';">
                             <td>{{ c.iau_code }}</td>
                             <td>{{ cons_names.get(c.id, c.name.capitalize()) }} ({{ c.name.capitalize() }})</td>
                         </tr>
