@@ -83,7 +83,9 @@ class DevelopmentConfig(Config):
     ASSETS_DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL',
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite'))
-
+    SQLALCHEMY_BINDS = {
+        'sqm_sql': 'sqlite:///' + os.path.join(basedir, 'data-sqm-dev.sqlite')
+    }
     @classmethod
     def init_app(cls, app):
         print('THIS APP IS IN DEBUG MODE. \
@@ -94,6 +96,9 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL',
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite'))
+    SQLALCHEMY_BINDS = {
+        'sqm_sql': 'sqlite:///' + os.path.join(basedir, 'data-sqm-test.sqlite')
+    }
     WTF_CSRF_ENABLED = False
 
     @classmethod
@@ -105,6 +110,9 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL',
         'sqlite:///' + os.path.join(basedir, 'data.sqlite'))
+    SQLALCHEMY_BINDS = {
+        'sqm_sql': 'sqlite:///' + os.path.join(basedir, 'data-sqm.sqlite')
+    }
     SSL_DISABLE = (os.environ.get('SSL_DISABLE', 'True') == 'True')
 
     @classmethod

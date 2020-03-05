@@ -20,7 +20,7 @@ class Observation(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
-    sql_readings = db.relationship('SqlReading', backref='observation', lazy=True)
+    sqm_records = db.relationship('SqmFullRecord', backref='observation', lazy=True)
     observation_items = db.relationship('ObservationItem', backref='observation', lazy=True)
 
     def rating_to_int(self, m):
