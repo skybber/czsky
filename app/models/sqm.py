@@ -16,6 +16,7 @@ SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500
 class SqmDevice(db.Model):
     __tablename__ = 'sqm_devices'
     id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), index=True)
     type = db.Column(db.String(1))
     sub_type = db.Column(db.String(16))
     name = db.Column(db.String(32))
