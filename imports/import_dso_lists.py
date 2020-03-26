@@ -74,14 +74,17 @@ def import_herschel400(herschel400_data_file):
                 object_name = dso_name
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
 
-                item = DsoListItem(
-                    dso_list_id=dso_list.id,
-                    dso_id = dso.id,
-                    item_id = row_id,
-                    create_by=editor_user.id,
-                    create_date=datetime.now(),
-                )
-                db.session.add(item)
+                if dso is None:
+                    print('Not found: {}'.format(object_name))
+                else:
+                    item = DsoListItem(
+                        dso_list_id=dso_list.id,
+                        dso_id = dso.id,
+                        item_id = row_id,
+                        create_by=editor_user.id,
+                        create_date=datetime.now(),
+                    )
+                    db.session.add(item)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))
