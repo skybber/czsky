@@ -454,7 +454,7 @@ def _get_user_from_username(user_cache, user_name, default_user):
 def _get_get_date_from_str(strdate):
     if strdate:
         try:
-            return datetime.fromisoformat(strdate)
+            return datetime.strptime(strdate, "%Y-%m-%dT%H:%M:%S.%fZ")
         except ValueError:
             pass
     return datetime.now()
