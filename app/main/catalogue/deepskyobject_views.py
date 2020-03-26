@@ -72,7 +72,7 @@ def deepskyobjects():
     if not search_expr and maglim is not None and maglim < mag_scale[1]:
         deepskyobjects = deepskyobjects.filter(DeepskyObject.mag<maglim)
 
-    deepskyobjects_for_render = deepskyobjects.limit(per_page).offset(offset)
+    deepskyobjects_for_render = deepskyobjects.order_by(DeepskyObject.id).limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
@@ -130,7 +130,7 @@ def deepskyobject_info(dso_id):
     prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(dso)
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
-    dso_image_info = _get_dso_image_info(dso.name, '')
+    dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,

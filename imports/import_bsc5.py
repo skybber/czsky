@@ -77,7 +77,7 @@ def import_bright_stars_bsc5(filename):
     try:
         line_cnt = 1
         for star in stars:
-            progress(line_cnt, len(stars), 'Importing Bsc5 catalogue ...')
+            progress(line_cnt, len(stars), 'Importing Bsc5 catalogue')
             line_cnt += 1
             db.session.add(star)
         print('')

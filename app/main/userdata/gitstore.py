@@ -23,7 +23,7 @@ from app.models import (
     UserStarDescription
 )
 
-from app.commons.dso_utils import destructuralize_dso_name
+from app.commons.dso_utils import denormalize_dso_name, destructuralize_dso_name
 
 PRIVATE_KEY_PATH = 'ssh/id_git'
 
@@ -219,7 +219,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
         if re.match(r'.*?_(\d+u\d+).md$', dso_name_md):
             continue
         with dso_file.open('r') as f:
-            dso_name = dso_name_md[:-3]
+            dso_name = denormalize_dso_name(dso_name_md[:-3]).replace(' ', '')
             header_map = _read_header(f)
             rating = header_map.get('rating', '5')
             references = header_map.get('references', '')
@@ -266,7 +266,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
         if not m:
             continue
         with dso_file.open('r') as f:
-            dso_name = m.group(1)
+            dso_name = denormalize_dso_name(m.group(1)).replace(' ', '')
             aperture_class = m.group(2).replace('u','/')
             header_map = _read_header(f)
             doc_aperture = header_map.get('aperture','')

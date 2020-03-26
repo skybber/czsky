@@ -36,7 +36,7 @@ def import_vic(vic_data_file):
                 progress(row_id, row_count, 'Importing VIC catalogue')
                 constellation = None
 
-                dso_name = 'VIC' + (str(row_id) if row_id >= 10 else ('0' + str(row_id)))
+                dso_name = 'VIC' + str(row_id)
 
                 c = DeepskyObject.query.filter_by(name = dso_name).first()
 

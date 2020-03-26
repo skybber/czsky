@@ -31,7 +31,7 @@ def import_hickson(hcg_data_file):
             mag = float(line[18:22])
             other = line[23:45].strip()
 
-            dso_name = normalize_dso_name('HCG' + str(hcg_id))
+            dso_name = 'HCG' + str(hcg_id)
 
             c = DeepskyObject.query.filter_by(name = dso_name).first()
 

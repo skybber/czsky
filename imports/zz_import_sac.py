@@ -11,10 +11,14 @@ from app.commons.dso_utils import normalize_dso_name
 from .import_utils import progress
 
 dso_type_mappings = {
-    'GALXY': 'Glx',
+    'ASTER' : 'AST',
+    'BRTNB' : 'BN',
+    'DRKNB' : 'DN',
+    'GALCL' : 'GALCL',
+    'GALXY': 'GX',
+    'GLOCL' : 'GC',
     'OPNCL' : 'OC',
     'PLNNB' : 'PN',
-    'GALCL' : 'GCl'
 }
 
 def get_size(d):
@@ -40,7 +44,7 @@ def import_sac(sac_data_file):
     constell_dict = {}
 
     for co in Constellation.query.all():
-        constell_dict[co.name.upper()] = co.id
+        constell_dict[co.iau_code.upper()] = co.id
 
     row_count = sum(1 for line in open(sac_data_file)) - 1
 
@@ -87,7 +91,7 @@ def import_sac(sac_data_file):
 
                 mag = float(str_mag) if str_mag else None
 
-                object_name = normalize_dso_name(object_name)
+                # object_name = normalize_dso_name(object_name)
                 dso_type = dso_type_mappings.get(row['TYPE'], row['TYPE'])
                 constellation_id = constell_dict.get(row['CON'].upper(), None)
 
@@ -111,7 +115,7 @@ def import_sac(sac_data_file):
                 other_ids = []
                 if other_names:
                     for other_name in other_names:
-                        other_name = normalize_dso_name(other_name)
+                        # other_name = normalize_dso_name(other_name)
                         if other_name.startswith('M'):
                             # Fix messier mag, SAC has exact value
                             other_dso = DeepskyObject.query.filter_by(name=other_name).first()

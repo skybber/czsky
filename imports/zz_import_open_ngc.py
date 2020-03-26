@@ -5,11 +5,12 @@ from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
+from app.commons.dso_utils import denormalize_dso_name
 
 from .import_utils import progress
 
 dso_type_mappings = {
-    'G': 'Glx',
+    'G': 'GX',
     'OCl' : 'OC',
     'GCl' : 'GC',
 }
@@ -50,7 +51,7 @@ def import_open_ngc(open_ngc_data_file):
                     dso = DeepskyObject()
 
                 dso.master_id = None
-                dso.name = row['Name']
+                dso.name = denormalize_dso_name(row['Name'])
                 dso.type = dso_type
                 dso.ra = Angle(hours=tuple(map(float, row['RA'].split(':')))).radians if len(row['RA']) > 0 else None
                 dso.dec = Angle(degrees=tuple(map(float, row['Dec'].split(':')))).radians if len(row['Dec']) > 0 else None
@@ -111,11 +112,11 @@ def import_open_ngc(open_ngc_data_file):
                     messier_others[mes_dso.name] = dso
                     messier_list.append(mes_dso)
 
-            m40 = DeepskyObject.query.filter_by(name = 'M040').first()
+            m40 = DeepskyObject.query.filter_by(name = 'M40').first()
             if m40 is None:
                 m40 = DeepskyObject()
 
-            m40.name = 'M040'
+            m40.name = 'M40'
             m40.type = '**'
             m40.ra = Angle(hours=tuple(map(float, '12:22:16'.split(':')))).radians
             m40.dec = Angle(degrees=tuple(map(float, '58:05:4'.split(':')))).radians
@@ -140,11 +141,11 @@ def import_open_ngc(open_ngc_data_file):
 
             messier_list.append(m40)
 
-            m45 = DeepskyObject.query.filter_by(name = 'M045').first()
+            m45 = DeepskyObject.query.filter_by(name = 'M45').first()
             if m45 is None:
                 m45 = DeepskyObject()
 
-            m45.name = 'M045'
+            m45.name = 'M45'
             m45.type = 'OC'
             m45.ra = Angle(hours=tuple(map(float, '03:47:0'.split(':')))).radians
             m45.dec = Angle(degrees=tuple(map(float, '24:07:0'.split(':')))).radians

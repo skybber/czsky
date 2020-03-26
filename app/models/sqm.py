@@ -5,8 +5,6 @@ from .. import db
 from skyfield.units import Angle
 from .catalogue import Catalogue
 
-from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, destructuralize_dso_name
-
 BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC', 'NGC', 'HCG')
 
 ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550', '110/660')

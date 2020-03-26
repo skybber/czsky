@@ -60,7 +60,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for d in deepskyobjects | sort(attribute='name') %}
+                    {% for d in deepskyobjects %}
                         <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name) }}';">
                             <td>{{ d.denormalized_name() }}</td>
                             <td>{{ d.type }}</td>

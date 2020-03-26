@@ -4,9 +4,9 @@ from .. import db
 from skyfield.units import Angle
 from .catalogue import Catalogue
 
-from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, destructuralize_dso_name
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, normalize_dso_name_for_img, destructuralize_dso_name
 
-BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC', 'NGC', 'HCG')
+BROWSING_CATALOGS = ('M', 'Abell', 'Sh2', 'VIC', 'NGC', 'HCG')
 
 ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550', '110/660')
 
@@ -18,6 +18,7 @@ class DeepskyObject(db.Model):
     master_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
+    subtype = db.Column(db.String(16))
     ra = db.Column(db.Float, index=True)
     dec = db.Column(db.Float, index=True)
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
@@ -26,17 +27,17 @@ class DeepskyObject(db.Model):
     minor_axis = db.Column(db.Float)
     positon_angle = db.Column(db.Float)
     mag = db.Column(db.Float)
-    b_mag = db.Column(db.Float)
-    v_mag = db.Column(db.Float)
-    j_mag = db.Column(db.Float)
-    h_mag = db.Column(db.Float)
-    k_mag = db.Column(db.Float)
+    # b_mag = db.Column(db.Float)
+    # v_mag = db.Column(db.Float)
+    # j_mag = db.Column(db.Float)
+    # h_mag = db.Column(db.Float)
+    # k_mag = db.Column(db.Float)
     surface_bright = db.Column(db.Float)
-    hubble_type = db.Column(db.String(16))
-    c_star_u_mag = db.Column(db.Float)
+    # hubble_type = db.Column(db.String(16))
+    # c_star_u_mag = db.Column(db.Float)
     c_star_b_mag = db.Column(db.Float)
     c_star_v_mag = db.Column(db.Float)
-    identifiers = db.Column(db.Text)
+    # identifiers = db.Column(db.Text)
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
 
@@ -44,6 +45,9 @@ class DeepskyObject(db.Model):
 
     def denormalized_name(self):
         return denormalize_dso_name(self.name)
+
+    def normalized_name_for_img(self):
+        return normalize_dso_name_for_img(self.name)
 
     def catalog_number(self):
         return destructuralize_dso_name(self.name)[1]
@@ -103,6 +107,8 @@ class DeepskyObject(db.Model):
             DeepskyObject._browsing_catalogue_map = {}
             for ccode in BROWSING_CATALOGS:
                 catalogue = Catalogue.get_catalogue_by_code(ccode)
+                if not catalogue:
+                    print(ccode, flush=True)
                 DeepskyObject._browsing_catalogue_map[catalogue.id] = catalogue
         return DeepskyObject._browsing_catalogue_map
 

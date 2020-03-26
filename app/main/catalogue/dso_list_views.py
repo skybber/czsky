@@ -15,8 +15,6 @@ from app import db
 
 from app.models import DsoList, DsoListDescription, User
 
-from app.commons.dso_utils import normalize_dso_name
-
 main_dso_list = Blueprint('main_dso_list', __name__)
 
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])

@@ -71,7 +71,7 @@ def import_herschel400(herschel400_data_file):
                 progress(row_id, row_count, 'Importing Herschel400 list')
 
                 dso_name = 'NGC' + row['NGC_ID']
-                object_name = normalize_dso_name(dso_name)
+                object_name = dso_name
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
 
                 item = DsoListItem(
@@ -128,7 +128,7 @@ def import_caldwell(caldwell_data_file):
                 dso_name = row['DSO_ID']
                 if dso_name == 'none':
                     continue
-                object_name = normalize_dso_name(dso_name)
+                object_name = dso_name
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
 
                 if not dso:

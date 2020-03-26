@@ -37,7 +37,7 @@ def import_sh2(sh2_data_file):
                 progress(row_id, row_count, 'Importing Sh2 catalogue')
                 row_id += 1
 
-                dso_name = normalize_dso_name(row['NAME'])
+                # dso_name = normalize_dso_name(row['NAME'])
 
                 c = DeepskyObject.query.filter_by(name = dso_name).first()
 

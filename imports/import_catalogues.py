@@ -12,6 +12,7 @@ def import_catalogues(data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             Catalogue.query.delete()
+            db.session.commit()
             for row in reader:
                 c = Catalogue(
                     id = row['id'],
@@ -22,4 +23,5 @@ def import_catalogues(data_file):
                 db.session.add(c)
             db.session.commit()
         except IntegrityError:
+            print('\nIntegrity error {}'.format(err))
             db.session.rollback()

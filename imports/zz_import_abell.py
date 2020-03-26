@@ -43,7 +43,7 @@ def import_abell(abell_data_file):
                 if cstar_mag == 'na':
                     cstar_mag = None
 
-                dso_name = normalize_dso_name('Abell' + row['Abell'])
+                dso_name = 'Abell' + row['Abell']
 
                 c = DeepskyObject.query.filter_by(name = dso_name).first()
 
