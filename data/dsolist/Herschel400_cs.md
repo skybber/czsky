@@ -1,6 +1,6 @@
-Podmnožina NGC, po dokončení messierovksých objektů.
+Výběr jasných objektů z katalogu NGC, které nejsou v Messerově katalogu.
 
-Katalog Herschel 400 je podmnožinou původního katalogu mlhovin a klastrů hvězd Williama Herschela. Byl vytvořen autory: Brenda F. Guzman (Branchett),
+Katalog Herschel 400 je výběr z původního katalogu mlhovin a klastrů hvězd Williama Herschela. Byl vytvořen autory: Brenda F. Guzman (Branchett),
 Lydel Guzman, Paul Jones, James Morrison, Peggy Taylor a Sara Saey z Astronomického klubu Ancient City Astronomy Club
 v St. Augustinu, Florida, Spojené státy c. 1980. Autoři se rozhodli vytvořit seznam po přečtení dopisu zveřejněného v Sky & Telescope
 James Mullaney z Pittsburghu, Pensylvánie, USA. V tomto dopise pan Mullaney navrhl, že původní katalog Williama Herschela

@@ -1,4 +1,4 @@
-Subset of NGC after finishing of Messier list
+Selection of bright objects from NGC catalog, that are not in Messier catalog.
 
 The Herschel 400 catalogue is a subset of William Herschel's original Catalogue of Nebulae and Clusters of Stars, selected
 by Brenda F. Guzman (Branchett), Lydel Guzman, Paul Jones, James Morrison, Peggy Taylor and Sara Saey of the Ancient City Astronomy Club
