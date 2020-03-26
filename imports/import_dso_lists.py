@@ -76,15 +76,15 @@ def import_herschel400(herschel400_data_file):
 
                 if dso is None:
                     print('Not found: {}'.format(object_name))
-                else:
-                    item = DsoListItem(
-                        dso_list_id=dso_list.id,
-                        dso_id = dso.id,
-                        item_id = row_id,
-                        create_by=editor_user.id,
-                        create_date=datetime.now(),
-                    )
-                    db.session.add(item)
+                    continue
+                item = DsoListItem(
+                    dso_list_id=dso_list.id,
+                    dso_id = dso.id,
+                    item_id = row_id,
+                    create_by=editor_user.id,
+                    create_date=datetime.now(),
+                )
+                db.session.add(item)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))
@@ -131,10 +131,11 @@ def import_caldwell(caldwell_data_file):
                 dso_name = row['DSO_ID']
                 if dso_name == 'none':
                     continue
-                object_name = dso_name
+                object_name = dso_name.replace(' ', '')
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
 
                 if not dso:
+                    print('Not found: {}'.format(object_name))
                     continue
 
                 item = DsoListItem(
