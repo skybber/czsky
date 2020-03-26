@@ -14,16 +14,11 @@ from config import Config
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5 import import_bright_stars_bsc5
-# from imports.import_open_ngc import import_open_ngc
-# from imports.import_abell import import_abell
-# from imports.import_sh2 import import_sh2
-# from imports.import_sac import import_sac
 from imports.import_vic import import_vic
 from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
-# from imports.import_hickson import import_hickson
 from imports.import_dso_lists import import_caldwell, import_herschel400
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_hnsky_constell_from_sac
@@ -143,30 +138,20 @@ def initialize_catalogues():
     import_catalogues('data/astro_catalogues.csv')
     import_constellations('data/88-constellations.csv')
     import_bright_stars_bsc5('data/bsc5.dat')
-    # import_open_ngc('data/OpenNGC.csv')
-    # import_abell('data/Abell.csv')
-    # import_sh2('data/SH2-2000.csv')
-    # import_sac('data/sac.csv')
     import_hnsky('data/deep_sky.hnd')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     # fix_hnsky_constell_from_sac('data/sac.csv')
     import_vic('data/vic.csv')
-    # import_hickson('data/HCG.DAT')
-    #import_caldwell('data/dsolist/CaldwellObjects.csv')
-    #import_herschel400('data/dsolist/Herschel400.csv')
+    import_caldwell('data/dsolist/CaldwellObjects.csv')
+    import_herschel400('data/dsolist/Herschel400.csv')
 
 @manager.command
 def reimport_dsos():
-    # import_open_ngc('data/OpenNGC.csv')
-    # import_abell('data/Abell.csv')
-    # import_sh2('data/SH2-2000.csv')
-    # import_sac('data/sac.csv')
     import_hnsky('data/deep_sky.hnd')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
-    # import_hickson('data/HCG.DAT')
     import_vic('data/vic.csv')
-    # import_caldwell('data/dsolist/CaldwellObjects.csv')
-    # import_herschel400('data/dsolist/Herschel400.csv')
+    import_caldwell('data/dsolist/CaldwellObjects.csv')
+    import_herschel400('data/dsolist/Herschel400.csv')
 
 @manager.command
 def import_8mag():
