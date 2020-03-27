@@ -119,14 +119,22 @@ def import_hnsky(hnsky_dso_file):
                 for name in name1.split(';'):
                     name = name.strip()
 
+                    if (name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC')):
+                        if name.endswith('A'):
+                            name = name[:-1]
+                        elif name.endswith('-1') or name.endswith('_1'):
+                            name = name[:-2]
+
                     if name in dso_set:
                         continue
+
                     dso_set.add(name)
 
                     cat = get_catalog_from_dsoname(name)
 
                     if cat:
                         dso = existing_dsos.get(name, None)
+
                         if dso is None:
                             dso = DeepskyObject()
 

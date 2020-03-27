@@ -20,3 +20,4 @@ confirm() {
 ./manage.py setup_prod
 ./manage.py initialize_catalogues
 ./manage.py add_help_users
+./manage.py import_dso_list

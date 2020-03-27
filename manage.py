@@ -142,6 +142,9 @@ def initialize_catalogues():
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     # fix_hnsky_constell_from_sac('data/sac.csv')
     import_vic('data/vic.csv')
+
+@manager.command
+def import_dso_list():
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
 
@@ -236,11 +239,6 @@ def tmp_normalize_glahn_img():
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
-
-@manager.command
-def tmp_import_dso_list():
-    import_caldwell('data/dsolist/CaldwellObjects.csv')
-    import_herschel400('data/dsolist/Herschel400.csv')
 
 @manager.command
 def tmp_reimport_catalogues():

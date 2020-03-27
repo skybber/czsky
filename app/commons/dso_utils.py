@@ -115,3 +115,12 @@ def destructuralize_dso_name(name):
         return ('Sh2', name[3:])
     m = re.search("\d+", name)
     return (name[:m.start()], int(name[m.start():m.end()]))
+
+def main_component_dso_name(dso_name):
+    if (dso_name.startswith('NGC') or dso_name.startswith('IC') or dso_name.startswith('UGC')):
+        if dso_name.endswith('A'):
+            dso_name = dso_name[:-1]
+        elif dso_name.endswith('-1') or dso_name.endswith('_1'):
+            dso_name = dso_name[:-2]
+    return dso_name
+

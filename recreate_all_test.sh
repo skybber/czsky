@@ -5,7 +5,7 @@ confirm() {
     echo "This operation recreate DB and initializes catalogues from OpenNGC data. It could be long."
     read -r -p "${1:-Are you sure to recreate all data in DB? [y/N]} " response
     case "$response" in
-        [yY][eE][sS]|[yY]) 
+        [yY][eE][sS]|[yY])
             true
             ;;
         *)
@@ -22,3 +22,4 @@ confirm() {
 ./manage.py add_editor_user
 ./manage.py initialize_catalogues
 ./manage.py add_help_users
+./manage.py import_dso_list
