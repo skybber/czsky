@@ -28,6 +28,7 @@ def split_catalog_name(dso_name):
     '''
     Split dso name to pair <catalog code, ID of dso in catalog>
     '''
+    dso_name = dso_name.replace(' ', '')
     i = 0
     name_len = len(dso_name)
     while i < name_len:
