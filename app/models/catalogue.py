@@ -17,7 +17,7 @@ class Catalogue(db.Model):
         Catalogue._catalog_id_map = {}
         for c in Catalogue.query.all():
             db.session.expunge(c)
-            Catalogue._catalog_code_map[c.code] = c
+            Catalogue._catalog_code_map[c.code.upper()] = c
             Catalogue._catalog_id_map[c.id] = c
 
     def prefix_len(self):
@@ -30,18 +30,24 @@ class Catalogue(db.Model):
             return self.code + '-'
         return self.code
 
-
     @classmethod
     def get_catalogue_by_code(cls, code):
         if not Catalogue._catalog_id_map:
             Catalogue._load_catalogue_maps()
-        return Catalogue._catalog_code_map.get(code, None)
+        return Catalogue._catalog_code_map.get(code.upper(), None)
+
+    @classmethod
+    def get_catalogue_code(cls, any_code):
+        if not Catalogue._catalog_id_map:
+            Catalogue._load_catalogue_maps()
+        cat = Catalogue._catalog_code_map.get(any_code.upper(), None)
+        return cat.code if cat else any_code
 
     @classmethod
     def get_catalogue_by_id(cls, id):
         if not Catalogue._catalog_id_map:
             Catalogue._load_catalogue_maps()
-        return Catalogue._catalog_code_map.get(id, None)
+        return Catalogue._catalog_id_map.get(id, None)
 
     @classmethod
     def get_catalogue_id_by_cat_code(cls, code):

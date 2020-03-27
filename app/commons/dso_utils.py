@@ -64,9 +64,9 @@ def get_catalog_from_dsoname(dso_name):
 
 def normalize_dso_name(dso_name):
     if not dso_name is None:
-        catalog_code, dso_id = split_catalog_name(dso_name)
-        if catalog_code:
-            return catalog_code.upper() + dso_id
+        cat_code, dso_id = split_catalog_name(dso_name)
+        if cat_code:
+            return Catalogue.get_catalogue_code(cat_code) + dso_id
     return dso_name
 
 def normalize_dso_name_for_img(dso_name):

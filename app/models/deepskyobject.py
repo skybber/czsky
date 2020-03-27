@@ -108,8 +108,6 @@ class DeepskyObject(db.Model):
             DeepskyObject._browsing_catalogue_map = {}
             for ccode in BROWSING_CATALOGS:
                 catalogue = Catalogue.get_catalogue_by_code(ccode)
-                if not catalogue:
-                    print(ccode, flush=True)
                 DeepskyObject._browsing_catalogue_map[catalogue.id] = catalogue
         return DeepskyObject._browsing_catalogue_map
 
