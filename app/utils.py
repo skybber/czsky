@@ -18,8 +18,8 @@ def register_template_utils(app):
 
 
     @app.template_filter()
-    def extended_commonmark(s, ignore_name):
-        return parse_extended_commonmark(s, ignore_name)
+    def extended_commonmark(s, ignore_name, ext_url_params=''):
+        return parse_extended_commonmark(s, ignore_name, ext_url_params)
 
     app.add_template_global(index_for_role)
 
