@@ -92,6 +92,7 @@ def constellation_info(constellation_id):
         dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
+                .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
                 .all()
 
         aperture_descr_map = {}
