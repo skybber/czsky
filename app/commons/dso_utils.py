@@ -113,7 +113,7 @@ def destructuralize_dso_name(name):
     if name.startswith('PK'):
         return (name, None)
     if name.startswith('Sh2-'):
-        return ('Sh2', name[3:])
+        return ('Sh2', name[4:])
     m = re.search("\d+", name)
     return (name[:m.start()], int(name[m.start():m.end()]))
 
@@ -124,4 +124,3 @@ def main_component_dso_name(dso_name):
         elif dso_name.endswith('-1') or dso_name.endswith('_1'):
             dso_name = dso_name[:-2]
     return dso_name
-
