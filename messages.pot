@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-11 18:52+0100\n"
+"POT-Creation-Date: 2020-03-28 13:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 #: app/main/catalogue/constellation_forms.py:32
-#: app/main/location/location_forms.py:49 app/main/planner/planner_forms.py:32
+#: app/main/location/location_forms.py:49 app/main/planner/planner_forms.py:35
 msgid "Search"
 msgstr ""
 
@@ -51,60 +51,70 @@ msgid "Southern"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:43
-#: app/main/catalogue/deepskyobject_forms.py:64
+#: app/main/catalogue/deepskyobject_forms.py:66
 #: app/main/catalogue/star_forms.py:32
 msgid "Common Name"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:44
-#: app/main/catalogue/deepskyobject_forms.py:65
+#: app/main/catalogue/deepskyobject_forms.py:67
 #: app/main/catalogue/star_forms.py:33
 msgid "Text"
 msgstr ""
 
-#: app/main/catalogue/constellation_forms.py:45
-#: app/main/catalogue/deepskyobject_forms.py:69
-#: app/main/catalogue/deepskyobject_forms.py:77
-#: app/main/catalogue/star_forms.py:34
+#: app/main/catalogue/constellation_forms.py:46
+#: app/main/catalogue/deepskyobject_forms.py:71
+#: app/main/catalogue/deepskyobject_forms.py:79
+#: app/main/catalogue/star_forms.py:34 app/main/catalogue/star_forms.py:39
 #: app/main/usersettings/usersettings_forms.py:19
 #: app/main/usersettings/usersettings_forms.py:34
 #: app/main/usersettings/usersettings_forms.py:39
 msgid "Update"
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:66
-msgid "References"
-msgstr ""
-
-#: app/main/catalogue/deepskyobject_forms.py:72
-msgid "Field radius"
-msgstr ""
-
-#: app/main/catalogue/deepskyobject_forms.py:73
-#: app/templates/main/catalogue/deepskyobject_info.html:82
+#: app/main/catalogue/deepskyobject_forms.py:58
+#: app/main/catalogue/deepskyobject_forms.py:75
+#: app/main/catalogue/star_forms.py:38
+#: app/templates/main/catalogue/deepskyobject_info.html:127
+#: app/templates/main/catalogue/deepskyobjects.html:35
+#: app/templates/main/catalogue/star_info.html:73
 msgid "Limit mag"
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:74
-#: app/templates/main/catalogue/deepskyobject_info.html:106
-msgid "DSO limit mag"
+#: app/main/catalogue/deepskyobject_forms.py:68
+msgid "References"
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:75
-#: app/templates/main/catalogue/deepskyobject_info.html:114
-msgid "Mirror X"
+#: app/main/catalogue/deepskyobject_forms.py:74
+#: app/main/catalogue/deepskyobject_forms.py:82
+#: app/main/catalogue/star_forms.py:37
+msgid "Field radius"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:76
-#: app/templates/main/catalogue/deepskyobject_info.html:121
+#: app/templates/main/catalogue/deepskyobject_info.html:151
+msgid "DSO limit mag"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:77
+#: app/templates/main/catalogue/deepskyobject_info.html:159
+msgid "Mirror X"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:78
+#: app/templates/main/catalogue/deepskyobject_info.html:166
 msgid "Mirror Y"
 msgstr ""
 
 #: app/main/location/location_forms.py:33
-#: app/templates/main/catalogue/constellation_info.html:85
+#: app/templates/main/catalogue/constellation_info.html:93
 #: app/templates/main/catalogue/constellations.html:35
-#: app/templates/main/catalogue/deepskyobject_info.html:146
+#: app/templates/main/catalogue/deepskyobject_info.html:251
+#: app/templates/main/catalogue/dso_list_info.html:33
+#: app/templates/main/catalogue/dso_list_menu.html:18
+#: app/templates/main/catalogue/star_info.html:84
 #: app/templates/main/location/locations.html:39
+#: app/templates/main/planner/session_plans.html:18
 msgid "Name"
 msgstr ""
 
@@ -115,7 +125,7 @@ msgstr ""
 #: app/main/location/location_forms.py:35
 #: app/main/observation/observation_forms.py:45
 #: app/main/observation/observation_forms.py:72
-#: app/main/planner/planner_forms.py:43
+#: app/main/planner/planner_forms.py:41
 #: app/templates/main/observation/observation_info.html:22
 #: app/templates/main/planner/session_plan_info.html:22
 msgid "Notes"
@@ -169,27 +179,25 @@ msgid "Value expected."
 msgstr ""
 
 #: app/main/observation/observation_forms.py:68
-#: app/main/planner/planner_forms.py:40
+#: app/main/planner/planner_forms.py:38
 #: app/templates/main/observation/observations.html:40
-#: app/templates/main/planner/session_plans.html:31
 msgid "Title"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:69
-#: app/main/planner/planner_forms.py:41
+#: app/main/planner/planner_forms.py:39
 #: app/templates/main/observation/observation_info.html:19
 #: app/templates/main/observation/observations.html:39
 #: app/templates/main/planner/session_plan_info.html:19
-#: app/templates/main/planner/session_plans.html:33
+#: app/templates/main/planner/session_plans.html:20
 msgid "Date"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:70
-#: app/main/planner/planner_forms.py:42
+#: app/main/planner/planner_forms.py:40
 #: app/templates/main/observation/observation_info.html:20
 #: app/templates/main/observation/observations.html:41
 #: app/templates/main/planner/session_plan_info.html:20
-#: app/templates/main/planner/session_plans.html:32
 msgid "Location"
 msgstr ""
 
@@ -205,16 +213,16 @@ msgstr ""
 msgid "Update Observation"
 msgstr ""
 
-#: app/main/planner/planner_forms.py:35 app/main/planner/planner_forms.py:36
-msgid "DSO id"
-msgstr ""
-
-#: app/main/planner/planner_forms.py:46
+#: app/main/planner/planner_forms.py:44
 msgid "Add Session Plan"
 msgstr ""
 
-#: app/main/planner/planner_forms.py:49
+#: app/main/planner/planner_forms.py:47
 msgid "Update Session Plan"
+msgstr ""
+
+#: app/main/planner/planner_forms.py:51 app/main/planner/planner_forms.py:54
+msgid "DSO name"
 msgstr ""
 
 #: app/main/usersettings/usersettings_forms.py:15
@@ -289,56 +297,74 @@ msgstr ""
 msgid "View deepsky objects"
 msgstr ""
 
+#: app/templates/main/catalogue/dso_list_info.html:9
+#: app/templates/main/index.html:15
+msgid "Deepsky Lists"
+msgstr ""
+
 #: app/templates/main/index.html:16
-#: app/templates/main/observation/observation_edit.html:13
-#: app/templates/main/observation/observation_menu.html:13
-#: app/templates/main/observation/observations.html:9
-#: app/templates/main/planner/session_plans.html:8
-msgid "Observer"
+msgid "View deepsky lists"
 msgstr ""
 
 #: app/templates/main/index.html:17
-msgid "View observer menu"
-msgstr ""
-
-#: app/templates/main/index.html:20
-#: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan_edit.html:13
-msgid "Planner"
-msgstr ""
-
-#: app/templates/main/index.html:21
-msgid "View planner menu"
-msgstr ""
-
-#: app/templates/main/index.html:23
 msgid "Sky quality"
 msgstr ""
 
-#: app/templates/main/index.html:24
+#: app/templates/main/index.html:18
 msgid "View skyquality section"
 msgstr ""
 
-#: app/templates/main/index.html:26
+#: app/templates/main/index.html:20
+#: app/templates/main/observation/observation_edit.html:13
+#: app/templates/main/observation/observation_menu.html:13
+#: app/templates/main/observation/observations.html:9
+msgid "Observer"
+msgstr ""
+
+#: app/templates/main/index.html:21
+msgid "View observer menu"
+msgstr ""
+
+#: app/templates/main/index.html:24
+#: app/templates/main/planner/planner_menu.html:13
+#: app/templates/main/planner/session_plan_edit.html:13
+#: app/templates/main/planner/session_plans.html:8
+#: app/templates/main/planner/wish_list.html:9
+msgid "Planner"
+msgstr ""
+
+#: app/templates/main/index.html:25
+msgid "View planner menu"
+msgstr ""
+
+#: app/templates/main/index.html:28
 #: app/templates/main/userdata/userdata_menu.html:13
 msgid "User Data"
 msgstr ""
 
-#: app/templates/main/index.html:27
+#: app/templates/main/index.html:29
 msgid "View user data"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:10
-#: app/templates/main/catalogue/deepskyobject_info.html:149
-#: app/templates/main/catalogue/deepskyobject_info.html:181
-#: app/templates/main/catalogue/deepskyobjects.html:39
+#: app/templates/main/catalogue/deepskyobject_info.html:254
+#: app/templates/main/catalogue/deepskyobjects.html:56
+#: app/templates/main/catalogue/dso_list_info.html:35
 #: app/templates/main/catalogue/star_edit.html:10
-#: app/templates/main/catalogue/star_info.html:46
+#: app/templates/main/catalogue/star_info.html:85
+#: app/templates/main/planner/session_plan_info.html:57
+#: app/templates/main/planner/wish_list.html:40
 msgid "Constellation"
 msgstr ""
 
+#: app/templates/main/catalogue/constellation_edit.html:30
+#: app/templates/main/catalogue/deepskyobject_edit.html:61
+msgid "Update and back"
+msgstr ""
+
 #: app/templates/main/catalogue/constellation_info.html:5
+#: app/templates/main/catalogue/deepskyobject_info.html:5
 msgid "Info"
 msgstr ""
 
@@ -350,60 +376,90 @@ msgstr ""
 msgid "DSO"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:84
+#: app/templates/main/catalogue/constellation_info.html:92
 #: app/templates/main/catalogue/constellations.html:34
 msgid "IAU code"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:86
+#: app/templates/main/catalogue/constellation_info.html:94
 msgid "Image"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:87
+#: app/templates/main/catalogue/constellation_info.html:95
+#: app/templates/main/catalogue/dso_list_info.html:18
+#: app/templates/main/catalogue/dso_list_menu.html:19
 msgid "Description"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:116
-#: app/templates/main/catalogue/deepskyobject_info.html:147
-#: app/templates/main/catalogue/deepskyobjects.html:38
+#: app/templates/main/catalogue/constellation_info.html:124
+#: app/templates/main/catalogue/deepskyobject_info.html:252
+#: app/templates/main/catalogue/deepskyobjects.html:55
+#: app/templates/main/catalogue/dso_list_info.html:34
+#: app/templates/main/planner/session_plan_info.html:56
+#: app/templates/main/planner/wish_list.html:39
 msgid "Type"
 msgstr ""
 
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/deepskyobjects.html:8
+#: app/templates/main/catalogue/dso_list_menu.html:8
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_edit.html:61
-msgid "Update and back"
+#: app/templates/main/catalogue/deepskyobject_info.html:6
+msgid "Find chart"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:60
+#: app/templates/main/catalogue/deepskyobject_info.html:7
+msgid "Surveys"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:8
+msgid "Catalogue data"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:105
+#: app/templates/main/catalogue/star_info.html:51
 msgid "Field Size"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:148
+#: app/templates/main/catalogue/deepskyobject_info.html:183
+msgid "Survey"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:253
 msgid "Common name"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:150
+#: app/templates/main/catalogue/deepskyobject_info.html:255
 msgid "descr"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:186
-#: app/templates/main/catalogue/star_info.html:41
-msgid "Observation"
+#: app/templates/main/catalogue/deepskyobjects.html:17
+msgid "Catalog"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:191
-msgid "DSO list"
+#: app/templates/main/catalogue/deepskyobjects.html:21
+msgid "Object Type"
+msgstr ""
+
+#: app/templates/main/catalogue/dso_list_info.html:32
+msgid "Number"
+msgstr ""
+
+#: app/templates/main/catalogue/dso_list_menu.html:11
+msgid "Deepsky Object Lists"
 msgstr ""
 
 #: app/templates/main/catalogue/star_edit.html:15
 msgid "Back To Star"
+msgstr ""
+
+#: app/templates/main/catalogue/star_info.html:91
+msgid "Spectral type"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:13
@@ -425,7 +481,6 @@ msgstr ""
 
 #: app/templates/main/location/location_edit.html:94
 #: app/templates/main/location/location_edit.html:104
-#: app/templates/main/planner/session_plan_edit.html:81
 msgid "Delete Location"
 msgstr ""
 
@@ -435,11 +490,13 @@ msgstr ""
 
 #: app/templates/main/location/location_edit.html:109
 #: app/templates/main/planner/session_plan_edit.html:96
+#: app/templates/main/userdata/data_store.html:117
 msgid "No"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:111
 #: app/templates/main/planner/session_plan_edit.html:98
+#: app/templates/main/userdata/data_store.html:119
 msgid "Yes"
 msgstr ""
 
@@ -543,12 +600,36 @@ msgstr ""
 msgid "Edit Session Plan"
 msgstr ""
 
+#: app/templates/main/planner/session_plan_edit.html:81
+msgid "Delete Plan"
+msgstr ""
+
 #: app/templates/main/planner/session_plan_edit.html:91
 msgid "Delete Session Plan"
 msgstr ""
 
 #: app/templates/main/planner/session_plan_edit.html:93
-msgid "Are you sure you want to delete Session Plan?"
+msgid "Are you sure you want to delete session plan?"
+msgstr ""
+
+#: app/templates/main/planner/session_plans.html:19
+msgid "constellation"
+msgstr ""
+
+#: app/templates/main/planner/wish_list.html:12
+msgid "Wish List"
+msgstr ""
+
+#: app/templates/main/userdata/data_store.html:111
+msgid "Load data from GIT"
+msgstr ""
+
+#: app/templates/main/userdata/data_store.html:113
+msgid "All current data will be overridden by incoming data from GIT repository."
+msgstr ""
+
+#: app/templates/main/userdata/data_store.html:114
+msgid "Are you sure you want to load data from GIT?"
 msgstr ""
 
 #: app/templates/main/userdata/userdata_menu.html:17
