@@ -34,6 +34,8 @@ class Catalogue(db.Model):
     def get_catalogue_by_code(cls, code):
         if not Catalogue._catalog_id_map:
             Catalogue._load_catalogue_maps()
+        if not code:
+            return None
         return Catalogue._catalog_code_map.get(code.upper(), None)
 
     @classmethod
