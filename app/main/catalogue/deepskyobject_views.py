@@ -93,10 +93,14 @@ def deepskyobject_search():
 def _find_dso(dso_id):
     try:
         int_id = int(dso_id)
-        return DeepskyObject.query.filter_by(id=int_id).first()
+        dso = DeepskyObject.query.filter_by(id=int_id).first()
     except ValueError:
-        pass
-    return DeepskyObject.query.filter_by(name=dso_id).first()
+        dso = DeepskyObject.query.filter_by(name=dso_id).first()
+    if dso:
+        if dso.master_id:
+            dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+    return dso
+
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
