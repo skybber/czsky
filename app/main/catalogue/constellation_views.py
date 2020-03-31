@@ -63,14 +63,16 @@ def constellation_info(constellation_id):
     if constellation is None:
         abort(404)
     user_descr = None
+    common_name = None
     dso_descriptions = None
     star_descriptions = None
     editor_user = User.get_editor_user()
     if editor_user:
-        ud = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
+        ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
                 .first()
 
-        user_descr = ud.text if ud else None
+        user_descr = ucd.text if ucd else None
+        common_name = ucd.common_name if ucd else None
 
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .filter_by(constellation_id=constellation.id) \
@@ -105,8 +107,8 @@ def constellation_info(constellation_id):
 
     editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
-                           user_descr=user_descr, star_descriptions=star_descriptions, dso_descriptions=dso_descriptions,
-                           aperture_descr_map=aperture_descr_map, editable=editable)
+                           user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
+                           dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable)
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required

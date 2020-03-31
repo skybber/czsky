@@ -28,7 +28,7 @@
                     </a>
                 {% endif %}
                 <div class="markdown">
-                {% filter extended_commonmark('') %}
+                {% filter extended_commonmark('', '?from_constellation_id=' + constellation.iau_code) %}
 {{ user_descr }}
                 {% endfilter %}
                 </div>
@@ -153,7 +153,7 @@
                     </a>
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ constellation.iau_code }} / {{ constellation.name.title() }}
+                        {{ common_name if common_name else constellation.iau_code }} / {{ constellation.name.title() }}
                     </div>
                 </div>
             </div>
