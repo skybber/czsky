@@ -2,9 +2,9 @@ import re
 
 from app.models.catalogue import Catalogue
 
-CATALOG_SPECS0 = { 'Sh2' }
+CATALOG_SPECS0 = { 'sh2' }
 # catalog_specs1 = {'Cannon', 'Haro', 'He', 'Hoffleit', 'Hu', 'K', 'Merrill', 'PK', 'Peimbert', 'Perek', 'Vy'}
-CATALOGS_SPEC2 = ['vdB-Ha' ]
+CATALOGS_SPEC2 = ['vdb-ha' ]
 
 CATALOGS_SPECIFICATIONS = (
     ('Abell', 3),
@@ -46,13 +46,15 @@ def split_catalog_name(dso_name):
             if dso_name[i+1] == '-' or dso_name[i+1] == '_':
                 if i ==1 and dso_name[0] == 'M': # special handling for minkowski
                     return 'Mi', dso_name[1:]
+                lower_dso_name = dso_name.lower()
                 for prefix in CATALOG_SPECS0:
-                    if dso_name.startswith(prefix):
+                    if lower_dso_name.startswith(prefix):
                         return dso_name[:len(prefix)],dso_name[len(prefix):]
                 return dso_name[:i],dso_name[i:]
     if not dso_name[i].isdigit():
+        lower_dso_name = dso_name.lower()
         for prefix in CATALOGS_SPEC2:
-            if dso_name.startswith(prefix):
+            if lower_dso_name.startswith(prefix):
                 return dso_name[:len(prefix)],dso_name[len(prefix):]
         # print('Unknown {}'.format(dso_name))
         return None, dso_name
