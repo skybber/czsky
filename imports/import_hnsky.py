@@ -136,7 +136,7 @@ def import_hnsky(hnsky_dso_file):
             names = items[3].split('/')
 
             master_dso = None
-
+            prev_dso = None
             for name1 in names:
                 for name in name1.split(';'):
                     name = name.strip()
@@ -174,9 +174,15 @@ def import_hnsky(hnsky_dso_file):
                         dso.surface_bright = brightness
                         dso.common_name = None
 
-                        if master_dso:
+                        if cat.code == 'Abell' and prev_dso and prev_dso.name.startswith('PK') and prev_dso == master_dso:
+                            master_dso_map[prev_dso.name] = dso
+                            master_dso = dso
+                        elif master_dso:
                             master_dso_map[name] = master_dso
-                        master_dso = dso
+                        else:
+                            master_dso = dso
+
+                        prev_dso = dso
                         if cat.id < 1000:
                             pref_cats[cat.id-1].append(dso)
                             pref_dso_count += 1

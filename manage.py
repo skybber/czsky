@@ -139,9 +139,9 @@ def initialize_catalogues():
     import_constellations('data/88-constellations.csv')
     import_bright_stars_bsc5('data/bsc5.dat')
     import_hnsky('data/deep_sky.hnd')
-    fix_cstar_from_open_ngc('data/OpenNGC.csv')
-    # fix_hnsky_constell_from_sac('data/sac.csv')
     import_vic('data/vic.csv')
+    fix_cstar_from_open_ngc('data/OpenNGC.csv')
+    fix_hnsky_constell_from_sac('data/sac.csv')
 
 @manager.command
 def import_dso_list():
