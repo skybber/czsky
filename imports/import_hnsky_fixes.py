@@ -119,7 +119,7 @@ def fix_hnsky_constell_from_sac(sac_data_file):
                     dso.constellation_id = constellation_id
                     db.session.add(dso)
 
-                other_name = row['OBJECT'].strip().replace(' ', '')
+                other_name = row['OTHER'].strip().replace(' ', '')
                 if not other_name:
                     continue
 
