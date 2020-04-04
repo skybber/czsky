@@ -5,7 +5,7 @@ from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepskyObject
-from app.commons.dso_utils import denormalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 
 from .import_utils import progress
 
@@ -104,46 +104,34 @@ def fix_hnsky_constell_from_sac(sac_data_file):
             for row in reader:
                 progress(row_id, row_count, 'Fixing Hnsky from SAC catalogue')
                 row_id += 1
-                catalogue_id = None
-                dso_name = row['OBJECT'].strip()
-                if dso_name.startswith('Abell '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Abell')
-                elif dso_name.startswith('Cr '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Cr')
-                elif dso_name.startswith('Pal '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Pal')
-                elif dso_name.startswith('PK '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('PK')
-                elif dso_name.startswith('Stock '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Stock')
-                elif dso_name.startswith('UGC '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('UGC')
-                elif dso_name.startswith('Mel '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('Mel')
-                elif dso_name.startswith('LDN '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('LDN')
-                elif dso_name.startswith('B') and (dso_name[1]==' ' or dso_name[1].isdigit()):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('B')
-                elif dso_name.startswith('NGC '):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('NGC')
-                elif dso_name.startswith('IC'):
-                    catalogue_id = Catalogue.get_catalogue_id_by_cat_code('IC')
 
-                if not catalogue_id:
+                dso_name = row['OBJECT'].strip().replace(' ', '')
+                dso_name = normalize_dso_name(dso_name)
+
+                dso = existing_dsos.get(dso_name, None)
+
+                if not dso:
                     continue
 
                 constellation_id = constell_dict.get(row['CON'].upper(), None)
 
-                dso = None
-                if dso_name.startswith(('NGC', 'IC')):
-                    dso = existing_dsos.get(dso_name, None)
-                if not dso:
-                    continue
-
-                if dso.constellation_id is None:
-                    print('Fixing : ' + dso.name)
+                if not dso.constellation_id:
                     dso.constellation_id = constellation_id
                     db.session.add(dso)
+
+                other_name = row['OBJECT'].strip().replace(' ', '')
+                if not other_name:
+                    continue
+
+                other_name = normalize_dso_name(other_name)
+                other_dso = existing_dsos.get(other_name, None)
+
+                if not other_dso:
+                    continue
+
+                if not other_dso.constellation_id:
+                    other_dso.constellation_id = constellation_id
+                    db.session.add(other_dso)
 
             db.session.commit()
         except KeyError as err:

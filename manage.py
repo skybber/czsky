@@ -224,6 +224,10 @@ def add_editor_user():
         db.session.add(user)
         db.session.commit()
 
+@manager.command
+def tmp_fix_hnsky_constell_from_sac():
+    fix_hnsky_constell_from_sac('data/sac.csv')
+
 # TODO: remove
 @manager.command
 def tmp_link_star_descrs():
