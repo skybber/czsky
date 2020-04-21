@@ -220,6 +220,7 @@ def _get_glahn_dsos():
                 normalized_name = normalize_dso_name(denormalize_dso_name(dso_name))
                 dso = DeepskyObject.query.filter_by(name=normalized_name).first()
                 if dso:
+                    db.session.expunge(dso)
                     if not dso.constellation_id in glahn_dsos:
                         glahn_dsos[dso.constellation_id] = {}
                     glahn_dsos[dso.constellation_id][dso.id] = dso
