@@ -31,7 +31,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from .chart_generator import create_chart_in_pipeline, create_chart_by_extprocess
+from .chart_generator import create_chart_in_pipeline
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 

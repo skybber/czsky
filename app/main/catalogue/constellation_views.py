@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import glob, os
+
 from flask import (
     abort,
     Blueprint,
@@ -13,8 +15,11 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription
+from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject
 from app.commons.search_utils import process_session_search
+
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
+from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 from .constellation_forms import (
     ConstellationEditForm,
@@ -22,6 +27,8 @@ from .constellation_forms import (
 )
 
 main_constellation = Blueprint('main_constellation', __name__)
+
+_glahn_dsos = None
 
 @main_constellation.route('/constellations', methods=['GET', 'POST'])
 def constellations():
@@ -66,6 +73,7 @@ def constellation_info(constellation_id):
     common_name = None
     dso_descriptions = None
     star_descriptions = None
+    glahn_dsos = None
     editor_user = User.get_editor_user()
     if editor_user:
         ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
@@ -105,10 +113,21 @@ def constellation_info(constellation_id):
             if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
                 dsoapd.append((apdescr.aperture_class, apdescr.text),)
 
+        all_glahn_dsos = _get_glahn_dsos()
+        glahn_dsos = []
+        if constellation.id in all_glahn_dsos:
+            constell_glahn_dsos = all_glahn_dsos[constellation.id]
+            for dso_id in constell_glahn_dsos:
+                if not dso_id in existing:
+                    dso = constell_glahn_dsos[dso_id]
+                    dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
+                    glahn_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
+
     editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
-                           dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable)
+                           dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable,
+                           glahn_dsos=glahn_dsos)
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -179,3 +198,31 @@ def constellation_deepskyobjects(constellation_id):
     if constellation is None:
         abort(404)
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso')
+
+
+def _get_dso_image_info(dso_name, dir):
+    dso_file_name = dso_name + '.jpg'
+    img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
+    if img_dir_def[0]:
+        return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
+    return None
+
+def _get_glahn_dsos():
+    global _glahn_dsos
+    if not _glahn_dsos:
+        glahn_dsos = {}
+        files = [f for f in sorted(glob.glob('app/static/webassets-external/users/glahn/img/dso/*.jpg'))]
+
+        for f in files:
+            base_name = os.path.basename(f)
+            if base_name.endswith('.jpg'):
+                dso_name = base_name[:-len('.jpg')]
+                normalized_name = normalize_dso_name(denormalize_dso_name(dso_name))
+                dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+                if dso:
+                    if not dso.constellation_id in glahn_dsos:
+                        glahn_dsos[dso.constellation_id] = {}
+                    glahn_dsos[dso.constellation_id][dso.id] = dso
+
+        _glahn_dsos = glahn_dsos
+    return _glahn_dsos
