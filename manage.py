@@ -19,7 +19,7 @@ from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
-from imports.import_dso_lists import import_caldwell, import_herschel400
+from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_hnsky_constell_from_sac
 
@@ -147,6 +147,7 @@ def initialize_catalogues():
 def import_dso_list():
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
+    import_superthin_gx('data/dsolist/SuperthinGX.csv')
 
 @manager.command
 def reimport_dsos():
@@ -155,6 +156,7 @@ def reimport_dsos():
     import_vic('data/vic.csv')
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
+    import_superthin_gx('data/dsolist/SuperthinGX.csv')
 
 @manager.command
 def import_8mag():
@@ -224,10 +226,6 @@ def add_editor_user():
         db.session.add(user)
         db.session.commit()
 
-@manager.command
-def tmp_fix_hnsky_constell_from_sac():
-    fix_hnsky_constell_from_sac('data/sac.csv')
-
 # TODO: remove
 @manager.command
 def tmp_link_star_descrs():
@@ -243,6 +241,12 @@ def tmp_normalize_glahn_img():
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
+
+# TODO: remove
+@manager.command
+def tmp_import_superthin_gx():
+    import_superthin_gx('data/dsolist/SuperthinGX.csv')
+
 
 @manager.command
 def tmp_reimport_catalogues():
