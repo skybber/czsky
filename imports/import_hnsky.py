@@ -175,8 +175,8 @@ def import_hnsky(hnsky_dso_file):
                         dso.surface_bright = brightness
                         dso.common_name = None
 
-                        if cat.code == 'Abell' and prev_dso and \
-                           (prev_dso.name.startswith('PK') or prev_dso.name.startswith('Sh2')):
+                        if cat.code == 'Abell' and prev_dso and (prev_dso.name.startswith('PK') or prev_dso.name.startswith('Sh2')) or \
+                           cat.code == 'UGC' and prev_dso and prev_dso.name.startswith('PGC'):
                             for pdso in prev_dsos:
                                 master_dso_map[pdso.name] = dso
                             master_dso = dso
