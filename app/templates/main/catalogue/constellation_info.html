@@ -38,8 +38,8 @@
             <tr>
                 <td>major_axis</td>
                 <td>
-                    {% if dso.major_axis >= 100.0 %}
-                        {{ (dso.major_axis / 100.0) | round(2, 'floor') }}'
+                    {% if dso.major_axis >= 60.0 %}
+                        {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.major_axis | round(2, 'floor')}}''
                     {% endif %}
@@ -50,8 +50,8 @@
             <tr>
                 <td>minor_axis</td>
                 <td>
-                    {% if dso.minor_axis >= 100.0 %}
-                        {{ (dso.minor_axis / 100.0) | round(2, 'floor') }}'
+                    {% if dso.minor_axis >= 60.0 %}
+                        {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.minor_axis | round(2, 'floor')}}''
                     {% endif %}
@@ -113,6 +113,22 @@
                                     <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                                 </div>
                             </div>
+                            {% if user_dso_descr.deepskyObject.major_axis %}
+                                <div class="ui label" style="float:right;">
+                                    Ø {% if user_dso_descr.deepskyObject.major_axis >= 60.0 %}
+                                        {{ (user_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ user_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% if user_dso_descr.deepskyObject.minor_axis %}
+                                    / {% if user_dso_descr.deepskyObject.minor_axis >= 60.0 %}
+                                        {{ (user_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ user_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i> {{ user_dso_descr.deepskyObject.mag if user_dso_descr.deepskyObject.mag else user_dso_descr.deepskyObject.v_mag }}mag
                             </div>

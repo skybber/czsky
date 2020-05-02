@@ -64,6 +64,22 @@
                     </div>
                 </div>
                 {% endif %}
+                {% if dso.major_axis %}
+                    <div class="ui label" style="float:right;">
+                        Ø {% if dso.major_axis >= 60.0 %}
+                            {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
+                          {% else %}
+                            {{ dso.major_axis | round(2, 'floor')}}''
+                          {% endif %}
+                        {% if dso.minor_axis %}
+                        / {% if dso.minor_axis >= 60.0 %}
+                            {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
+                          {% else %}
+                            {{ dso.minor_axis | round(2, 'floor')}}''
+                          {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
                 <div class="ui label" style="float:right;">
                     <i class="info icon"></i> {{ dso.mag if dso.mag else dso.v_mag }}mag
                 </div>
@@ -171,6 +187,12 @@
 {% if show_pdf %}
     <canvas id="pdfcanvas"></canvas>
 {% else %}
+{#
+    <div style="width:800px;height:800px;overflow:hidden;">
+        <button id="bOK">OK</button>​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+        <img id="ichart" src="{{fchart_url}}"></img>
+    </div>
+ #}
     <img src="{{fchart_url}}"></img>
 {% endif %}
 {% endmacro %}
@@ -259,8 +281,8 @@
             <tr>
                 <td>major_axis</td>
                 <td>
-                    {% if dso.major_axis >= 100.0 %}
-                        {{ (dso.major_axis / 100.0) | round(2, 'floor') }}'
+                    {% if dso.major_axis >= 60.0 %}
+                        {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.major_axis | round(2, 'floor')}}''
                     {% endif %}
@@ -271,8 +293,8 @@
             <tr>
                 <td>minor_axis</td>
                 <td>
-                    {% if dso.minor_axis >= 100.0 %}
-                        {{ (dso.minor_axis / 100.0) | round(2, 'floor') }}'
+                    {% if dso.minor_axis >= 60.0 %}
+                        {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.minor_axis | round(2, 'floor')}}''
                     {% endif %}
@@ -281,11 +303,6 @@
         {% endif %}
         {% if dso.positon_angle %}<tr><td>positon_angle</td><td>{{ dso.positon_angle }}</td></tr>{% endif %}
         {% if dso.mag %}<tr><td>mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
-        {# {% if dso.b_mag %}<tr><td>b_mag</td><td>{{ dso.b_mag }}</td></tr>{% endif %} #}
-        {# {% if dso.v_mag %}<tr><td>v_mag</td><td>{{ dso.v_mag }}</td></tr>{% endif %} #}
-        {# {% if dso.j_mag %}<tr><td>j_mag</td><td>{{ dso.j_mag }}</td></tr>{% endif %} #}
-        {# {% if dso.h_mag %}<tr><td>h_mag</td><td>{{ dso.h_mag }}</td></tr>{% endif %} #}
-        {# {% if dso.k_mag %}<tr><td>k_mag</td><td>{{ dso.k_mag }}</td></tr>{% endif %} #}
         {% if dso.surface_bright %}<tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
         {# {% if dso.hubble_type %}<tr><td>hubble_type</td><td>{{ dso.hubble_type }}</td></tr>{% endif %} #}
         {% if dso.type == 'PN' %}
@@ -410,6 +427,21 @@
                     $("#fmchart" ).submit();
                 }
               });
+            /*
+            var containerEl = $('#ichart').parent();
+            $('#ichart').draggable({
+                containment: [containerEl.offset().left-1000, containerEl.offset().top-1000,
+                              containerEl.offset().left+400, containerEl.offset().top+400],
+                scroll: false,
+                drag: function() {
+                    var offset = $(this).offset();
+                    var xPos = offset.left;
+                    var yPos = offset.top;
+                    console.log('Pos:'+xPos+' '+yPos)
+                },
+                cancel: "button"
+            });
+            */
 
             $('.ui.dropdown').dropdown();
 
