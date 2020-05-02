@@ -38,7 +38,7 @@
             <tr>
                 <td>major_axis</td>
                 <td>
-                    {% if dso.major_axis >= 60.0 %}
+                    {% if dso.major_axis >= 100.0 %}
                         {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.major_axis | round(2, 'floor')}}''
@@ -50,7 +50,7 @@
             <tr>
                 <td>minor_axis</td>
                 <td>
-                    {% if dso.minor_axis >= 60.0 %}
+                    {% if dso.minor_axis >= 100.0 %}
                         {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
                         {{ dso.minor_axis | round(2, 'floor')}}''
@@ -115,13 +115,13 @@
                             </div>
                             {% if user_dso_descr.deepskyObject.major_axis %}
                                 <div class="ui label" style="float:right;">
-                                    Ø {% if user_dso_descr.deepskyObject.major_axis >= 60.0 %}
+                                    Ø {% if user_dso_descr.deepskyObject.major_axis >= 100.0 %}
                                         {{ (user_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
                                       {% else %}
                                         {{ user_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
                                       {% endif %}
                                     {% if user_dso_descr.deepskyObject.minor_axis %}
-                                    / {% if user_dso_descr.deepskyObject.minor_axis >= 60.0 %}
+                                    / {% if user_dso_descr.deepskyObject.minor_axis >= 100.0 %}
                                         {{ (user_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
                                       {% else %}
                                         {{ user_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
