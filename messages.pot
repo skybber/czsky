@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-03-28 13:08+0100\n"
+"POT-Creation-Date: 2020-05-02 11:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,7 @@ msgstr ""
 #: app/main/catalogue/deepskyobject_forms.py:58
 #: app/main/catalogue/deepskyobject_forms.py:75
 #: app/main/catalogue/star_forms.py:38
-#: app/templates/main/catalogue/deepskyobject_info.html:127
+#: app/templates/main/catalogue/deepskyobject_info.html:143
 #: app/templates/main/catalogue/deepskyobjects.html:35
 #: app/templates/main/catalogue/star_info.html:73
 msgid "Limit mag"
@@ -92,24 +92,24 @@ msgid "Field radius"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:76
-#: app/templates/main/catalogue/deepskyobject_info.html:151
+#: app/templates/main/catalogue/deepskyobject_info.html:167
 msgid "DSO limit mag"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:77
-#: app/templates/main/catalogue/deepskyobject_info.html:159
+#: app/templates/main/catalogue/deepskyobject_info.html:175
 msgid "Mirror X"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:78
-#: app/templates/main/catalogue/deepskyobject_info.html:166
+#: app/templates/main/catalogue/deepskyobject_info.html:182
 msgid "Mirror Y"
 msgstr ""
 
 #: app/main/location/location_forms.py:33
-#: app/templates/main/catalogue/constellation_info.html:93
+#: app/templates/main/catalogue/constellation_info.html:189
 #: app/templates/main/catalogue/constellations.html:35
-#: app/templates/main/catalogue/deepskyobject_info.html:251
+#: app/templates/main/catalogue/deepskyobject_info.html:273
 #: app/templates/main/catalogue/dso_list_info.html:33
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:84
@@ -348,7 +348,7 @@ msgstr ""
 
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:10
-#: app/templates/main/catalogue/deepskyobject_info.html:254
+#: app/templates/main/catalogue/deepskyobject_info.html:276
 #: app/templates/main/catalogue/deepskyobjects.html:56
 #: app/templates/main/catalogue/dso_list_info.html:35
 #: app/templates/main/catalogue/star_edit.html:10
@@ -376,28 +376,39 @@ msgstr ""
 msgid "DSO"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:92
-#: app/templates/main/catalogue/constellations.html:34
-msgid "IAU code"
-msgstr ""
-
-#: app/templates/main/catalogue/constellation_info.html:94
-msgid "Image"
-msgstr ""
-
-#: app/templates/main/catalogue/constellation_info.html:95
-#: app/templates/main/catalogue/dso_list_info.html:18
-#: app/templates/main/catalogue/dso_list_menu.html:19
-msgid "Description"
-msgstr ""
-
-#: app/templates/main/catalogue/constellation_info.html:124
-#: app/templates/main/catalogue/deepskyobject_info.html:252
+#: app/templates/main/catalogue/constellation_info.html:32
+#: app/templates/main/catalogue/constellation_info.html:220
+#: app/templates/main/catalogue/deepskyobject_info.html:274
 #: app/templates/main/catalogue/deepskyobjects.html:55
 #: app/templates/main/catalogue/dso_list_info.html:34
 #: app/templates/main/planner/session_plan_info.html:56
 #: app/templates/main/planner/wish_list.html:39
 msgid "Type"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:33
+#: app/templates/main/catalogue/deepskyobject_info.html:275
+msgid "Common name"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:34
+#: app/templates/main/catalogue/deepskyobject_info.html:277
+msgid "descr"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:188
+#: app/templates/main/catalogue/constellations.html:34
+msgid "IAU code"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:190
+msgid "Image"
+msgstr ""
+
+#: app/templates/main/catalogue/constellation_info.html:191
+#: app/templates/main/catalogue/dso_list_info.html:18
+#: app/templates/main/catalogue/dso_list_menu.html:19
+msgid "Description"
 msgstr ""
 
 #: app/templates/main/catalogue/constellations.html:8
@@ -410,7 +421,7 @@ msgid "Dashboard"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:6
-msgid "Find chart"
+msgid "Chart"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:7
@@ -421,21 +432,13 @@ msgstr ""
 msgid "Catalogue data"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:105
+#: app/templates/main/catalogue/deepskyobject_info.html:121
 #: app/templates/main/catalogue/star_info.html:51
 msgid "Field Size"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:183
+#: app/templates/main/catalogue/deepskyobject_info.html:205
 msgid "Survey"
-msgstr ""
-
-#: app/templates/main/catalogue/deepskyobject_info.html:253
-msgid "Common name"
-msgstr ""
-
-#: app/templates/main/catalogue/deepskyobject_info.html:255
-msgid "descr"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:17
