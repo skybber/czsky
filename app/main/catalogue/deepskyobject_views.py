@@ -20,7 +20,7 @@ from app import db
 
 from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
-from app.commons.dso_utils import normalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
 
 from .deepskyobject_forms import (
@@ -83,7 +83,7 @@ def deepskyobject_search():
     query = request.args.get('q', None)
     if query is None:
         abort(404)
-    normalized_name = normalize_dso_name(query)
+    normalized_name = normalize_dso_name(denormalize_dso_name(query))
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if not dso:
         abort(404)
