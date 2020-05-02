@@ -7,9 +7,9 @@ from .catalogue import Catalogue
 
 BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC', 'NGC', 'HCG')
 
-ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/-', '110/660')
+ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/800', '110/660')
 
-SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/-' )
+SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/800' )
 
 class SqmDevice(db.Model):
     __tablename__ = 'sqm_devices'

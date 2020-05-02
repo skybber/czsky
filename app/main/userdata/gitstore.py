@@ -216,8 +216,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
         dso_name_md = dso_file.name
-        if re.match(r'.*?_(\d+u((\d+)|(\-))).md$', dso_name_md):
-            print('Ignoring ' + dso_name_md)
+        if re.match(r'.*?_(\d+u\d+).md$', dso_name_md):
             continue
         with dso_file.open('r') as f:
             dso_name = denormalize_dso_name(dso_name_md[:-3]).replace(' ', '')
@@ -263,7 +262,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
         dso_name_md = dso_file.name
-        m = re.match(r'(.*?)_(\d+u((\d+)|(\-))).md$', dso_name_md)
+        m = re.match(r'(.*?)_(\d+u\d+).md$', dso_name_md)
         if not m:
             continue
         with dso_file.open('r') as f:
