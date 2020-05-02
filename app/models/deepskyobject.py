@@ -8,9 +8,9 @@ from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, norm
 
 BROWSING_CATALOGS = ('M', 'Abell', 'Sh2', 'VIC', 'NGC', 'HCG')
 
-ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550', '110/660')
+ALL_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/-', '110/660')
 
-SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/450', '500/550' )
+SHOWN_APERTURE_DESCRIPTIONS = ( '100/150', '200/250', '300/350', '400/500', '600/-' )
 
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
