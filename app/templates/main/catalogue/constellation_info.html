@@ -169,6 +169,22 @@
                                     <div class="ui rating center mobile hidden" data-icon="star" data-rating="1" data-max-rating="5"></div>
                                 </div>
                             </div>
+                            {% if glahn_dso.dso.major_axis %}
+                                <div class="ui label" style="float:right;">
+                                    Ø {% if glahn_dso.dso.major_axis >= 100.0 %}
+                                        {{ (glahn_dso.dso.major_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ glahn_dso.dso.major_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% if glahn_dso.dso.minor_axis %}
+                                    / {% if glahn_dso.dso.minor_axis >= 100.0 %}
+                                        {{ (glahn_dso.dso.minor_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ glahn_dso.dso.minor_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i> {{ glahn_dso.dso.mag if glahn_dso.dso.mag else glahn_dso.dso.v_mag }}mag
                             </div>
