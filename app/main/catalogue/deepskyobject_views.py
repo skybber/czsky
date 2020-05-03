@@ -281,7 +281,7 @@ def deepskyobject_edit(dso_id):
             user_descr = UserDsoDescription(
                 dso_id = dso_id,
                 user_id = editor_user.id,
-                rating = 5,
+                rating = form.rating.data,
                 lang_code = 'cs',
                 common_name = '',
                 text = '',
@@ -305,7 +305,7 @@ def deepskyobject_edit(dso_id):
                 ad = UserDsoApertureDescription(
                     dso_id = dso_id,
                     user_id = editor_user.id,
-                    rating = 5,
+                    rating = 1,
                     lang_code = 'cs',
                     aperture_class = aperture_class,
                     text = '',
@@ -318,6 +318,7 @@ def deepskyobject_edit(dso_id):
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
             form.references.data = user_descr.references
+            form.rating.data = user_descr.rating
             for ad in user_apert_descriptions:
                 adi = form.aperture_descr_items.append_entry()
                 adi.aperture_class.data = ad.aperture_class
@@ -326,10 +327,12 @@ def deepskyobject_edit(dso_id):
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
             was_text_changed = user_descr.text != form.text.data
-            if was_text_changed or user_descr.common_name != form.common_name.data or user_descr.references != form.references.data :
+            if was_text_changed or user_descr.common_name != form.common_name.data or \
+               user_descr.references != form.references.data or user_descr.rating != form.rating.data:
                 user_descr.common_name = form.common_name.data
                 user_descr.references = form.references.data
                 user_descr.text = form.text.data
+                user_descr.rating = form.rating.data
                 if was_text_changed:
                     user_descr.update_by = current_user.id
                     user_descr.update_date = datetime.now()

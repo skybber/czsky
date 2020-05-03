@@ -28,7 +28,22 @@
 
             {{ f.begin_form(form, flashes) }}
                 <input id="goback" type="hidden" value="false">
-                {{ f.render_form_field(form.common_name) }}
+
+                <div class="two fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.common_name) }}
+                    </div>
+                    <div class="field">
+                        {{ form.rating.label }}
+                        <div>
+                            <div class="ui label">
+                                <div class="ui rating center" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="10"></div>
+                            </div>
+                            <label id="lrating">{{ form.rating.data }}</label>
+                        </div>
+                        {{ form.rating() }}
+                    </div>
+                </div>
                 {{ f.render_form_field(form.text) }}
                 <p align="right"><span class="ui small text">Updated by: {{ authors['dso'][0] }}, Update date: {{ authors['dso'][1] }}</span></p>
 
@@ -77,6 +92,13 @@
                 spellChecker: false,
                 status : false,
             });
+        $('.ui.rating')
+        .rating({
+            onRate: function (rating) {
+                $("#lrating").text(rating);
+                $("#rating").val(rating);
+            }
+        });
     </script>
     <style>
     </style>

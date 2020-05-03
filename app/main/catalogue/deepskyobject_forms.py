@@ -66,6 +66,7 @@ class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
     references = TextAreaField(lazy_gettext('References'), render_kw={'rows':2})
+    rating = HiddenField(lazy_gettext('Rating'), default=1)
     aperture_descr_items = FieldList(FormField(DsoApertureDescriptionForm))
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update'))
