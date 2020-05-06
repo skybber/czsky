@@ -155,21 +155,20 @@ def import_caldwell(caldwell_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def import_superthin_gx(superthingx_data_file):
+def _do_import_simple_csv(csv_data_file, dso_list_name):
+    row_count = sum(1 for line in open(csv_data_file)) - 1
 
-    row_count = sum(1 for line in open(superthingx_data_file)) - 1
-
-    with open(superthingx_data_file) as csvfile:
+    with open(csv_data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             editor_user = User.get_editor_user()
-            existing_dso_list = DsoList.query.filter_by(name='Superthin Galaxies').first()
+            existing_dso_list = DsoList.query.filter_by(name=dso_list_name).first()
             if existing_dso_list:
                 db.session.delete(existing_dso_list)
                 db.session.flush()
 
             dso_list = DsoList(
-                name='Superthin Galaxies',
+                name=dso_list_name,
                 create_by=editor_user.id,
                 update_by=editor_user.id,
                 create_date=datetime.now(),
@@ -179,8 +178,8 @@ def import_superthin_gx(superthingx_data_file):
             db.session.add(dso_list)
             db.session.flush()
 
-            base_name = os.path.basename(superthingx_data_file)
-            descr_list = _load_descriptions(os.path.dirname(superthingx_data_file), base_name[:-len('.csv')], dso_list, editor_user)
+            base_name = os.path.basename(csv_data_file)
+            descr_list = _load_descriptions(os.path.dirname(csv_data_file), base_name[:-len('.csv')], dso_list, editor_user)
 
             for descr in descr_list:
                 db.session.add(descr)
@@ -188,7 +187,7 @@ def import_superthin_gx(superthingx_data_file):
             row_id = 0
             for row in reader:
                 row_id += 1
-                progress(row_id, row_count, 'Importing Superthin Galaxy list')
+                progress(row_id, row_count, 'Importing ' + dso_list_name + ' list')
                 dso_name = row['DSO_NAME']
                 if dso_name == 'none':
                     continue
@@ -215,3 +214,9 @@ def import_superthin_gx(superthingx_data_file):
             print('\nIntegrity error {}'.format(err))
             db.session.rollback()
         print('') # finish on new line
+
+def import_superthin_gx(superthingx_data_file):
+    _do_import_simple_csv(superthingx_data_file, 'Superthin Galaxies')
+
+def import_holmberg(holmberg_data_file):
+    _do_import_simple_csv(holmberg_data_file, 'Galaxies from Holmberg catalog')

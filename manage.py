@@ -19,7 +19,7 @@ from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
-from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx
+from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_hnsky_constell_from_sac
 
@@ -148,6 +148,7 @@ def import_dso_list():
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
     import_superthin_gx('data/dsolist/SuperthinGX.csv')
+    import_holmberg('data/dsolist/Holmberg.csv')
 
 @manager.command
 def reimport_dsos():
@@ -157,6 +158,7 @@ def reimport_dsos():
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
     import_superthin_gx('data/dsolist/SuperthinGX.csv')
+    import_holmberg('data/dsolist/Holmberg.csv')
 
 @manager.command
 def import_8mag():
@@ -242,15 +244,14 @@ def tmp_normalize_glahn_img():
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
 
-# TODO: remove
-@manager.command
-def tmp_import_superthin_gx():
-    import_superthin_gx('data/dsolist/SuperthinGX.csv')
-
-
 @manager.command
 def tmp_reimport_catalogues():
     import_catalogues('data/astro_catalogues.csv')
+
+
+@manager.command
+def tmp_import_holmerg():
+    import_holmberg('data/dsolist/Holmberg.csv')
 
 if __name__ == '__main__':
     manager.run()
