@@ -19,7 +19,7 @@ from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
-from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg
+from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_hnsky_constell_from_sac
 
@@ -252,6 +252,10 @@ def tmp_reimport_catalogues():
 @manager.command
 def tmp_import_holmerg():
     import_holmberg('data/dsolist/Holmberg.csv')
+
+@manager.command
+def tmp_import_abell_pn():
+    import_abell_pn('data/dsolist/AbellPN.csv')
 
 if __name__ == '__main__':
     manager.run()

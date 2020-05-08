@@ -220,3 +220,6 @@ def import_superthin_gx(superthingx_data_file):
 
 def import_holmberg(holmberg_data_file):
     _do_import_simple_csv(holmberg_data_file, 'Galaxies from Holmberg catalog')
+
+def import_abell_pn(abell_pn_data_file):
+    _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae')
