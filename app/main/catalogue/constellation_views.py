@@ -25,6 +25,7 @@ from .constellation_forms import (
     ConstellationEditForm,
     SearchConstellationForm,
 )
+from imports import link_star_descriptions
 
 main_constellation = Blueprint('main_constellation', __name__)
 
@@ -64,6 +65,8 @@ def _find_constellation(constellation_id):
 
 @main_constellation.route('/constellation/<string:constellation_id>')
 @main_constellation.route('/constellation/<string:constellation_id>/info')
+
+
 def constellation_info(constellation_id):
     """View a constellation info."""
     constellation = _find_constellation(constellation_id)
@@ -85,6 +88,7 @@ def constellation_info(constellation_id):
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .filter_by(constellation_id=constellation.id) \
                 .all()
+        star_descriptions = _sort_star_descr(star_descriptions)
 
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
@@ -186,6 +190,7 @@ def constellation_stars(constellation_id):
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = 'cs')\
                 .filter_by(constellation_id=constellation.id) \
                 .all()
+        star_descriptions = _sort_star_descr(star_descriptions)
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='stars',
                            star_descriptions=star_descriptions, editable=editable)
@@ -227,3 +232,8 @@ def _get_glahn_dsos():
 
         _glahn_dsos = glahn_dsos
     return _glahn_dsos
+
+def _sort_star_descr(star_descriptions):
+    return sorted(star_descriptions, key=lambda a: a.star.mag if a.star and a.star.mag else 100.0)
+
+
