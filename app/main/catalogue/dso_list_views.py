@@ -13,7 +13,8 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import DsoList, DsoListDescription, User
+from app.models import DsoList, DsoListDescription, User, UserDsoDescription
+from posix import wait
 
 main_dso_list = Blueprint('main_dso_list', __name__)
 
@@ -29,6 +30,18 @@ def dso_list_info(dso_list_id):
     dso_list = DsoList.query.filter_by(id=dso_list_id).first()
     if dso_list is None:
         abort(404)
+    editor_user = User.get_editor_user()
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code='cs').first()
-    return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, dso_list_descr=dso_list_descr)
+
+    user_descrs = None
+    if dso_list.show_descr_name:
+        user_descrs = {}
+        for dso_list_item in dso_list.dso_list_items:
+            udd = UserDsoDescription.query.filter_by(dso_id=dso_list_item.dso_id, user_id=editor_user.id, lang_code='cs').first()
+            if udd and udd.common_name:
+                user_descrs[dso_list_item.dso_id] = udd.common_name
+            else:
+                dso_list_item.deepskyObject.name
+
+    return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, dso_list_descr=dso_list_descr, user_descrs=user_descrs)
 
