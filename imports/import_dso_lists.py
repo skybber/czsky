@@ -223,3 +223,7 @@ def import_holmberg(holmberg_data_file):
 
 def import_abell_pn(abell_pn_data_file):
     _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae')
+
+def import_vic_list(vic_data_file):
+    _do_import_simple_csv(vic_data_file, 'VIC list of asterism')
+
