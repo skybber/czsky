@@ -155,7 +155,7 @@ def import_caldwell(caldwell_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def _do_import_simple_csv(csv_data_file, dso_list_name):
+def _do_import_simple_csv(csv_data_file, dso_list_name, show_descr_name=False):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -169,6 +169,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name):
 
             dso_list = DsoList(
                 name=dso_list_name,
+                show_descr_name=show_descr_name,
                 create_by=editor_user.id,
                 update_by=editor_user.id,
                 create_date=datetime.now(),
@@ -225,5 +226,4 @@ def import_abell_pn(abell_pn_data_file):
     _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae')
 
 def import_vic_list(vic_data_file):
-    _do_import_simple_csv(vic_data_file, 'VIC list of asterism')
-
+    _do_import_simple_csv(vic_data_file, 'VIC list of asterism', show_descr_name=True)

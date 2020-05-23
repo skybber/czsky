@@ -41,7 +41,7 @@ def dso_list_info(dso_list_id):
             if udd and udd.common_name:
                 user_descrs[dso_list_item.dso_id] = udd.common_name
             else:
-                dso_list_item.deepskyObject.name
+                user_descrs[dso_list_item.dso_id] = dso_list_item.deepskyObject.name
 
     return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, dso_list_descr=dso_list_descr, user_descrs=user_descrs)
 
