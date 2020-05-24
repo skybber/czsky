@@ -1,11 +1,13 @@
 import csv
 import sys
+import math
 
 from app import db
 from app.models.constellation import Constellation
 from app.models.catalogue import Catalogue
 from app.models.deepskyobject import DeepskyObject
 from skyfield.units import Angle
+from skyfield.api import position_from_radec, load_constellation_map
 
 from .import_utils import progress
 
@@ -18,6 +20,8 @@ def vic2int(s):
 def import_vic(vic_data_file):
     """Import data from VIC catalog."""
     from sqlalchemy.exc import IntegrityError
+
+    constellation_at = load_constellation_map()
 
     constell_dict = {}
 
@@ -34,7 +38,6 @@ def import_vic(vic_data_file):
             for row in reader:
                 row_id += 1
                 progress(row_id, row_count, 'Importing VIC catalogue')
-                constellation = None
 
                 dso_name = 'VIC' + str(row_id)
 
@@ -43,10 +46,15 @@ def import_vic(vic_data_file):
                 if c is None:
                     c = DeepskyObject()
 
+                ra_ang = Angle(hours=tuple(map(float, row['RA'].split(',')))) if len(row['RA']) > 0 else None
+                dec_ang = Angle(degrees=tuple(map(float, row['Dec'].split(',')))) if len(row['Dec']) > 0 else None
+
+                constellation = constellation_at(position_from_radec(ra_ang.radians / math.pi * 12.0, ra_ang.radians / math.pi * 90.0))
+
                 c.name = dso_name
                 c.type = 'AST'
-                c.ra = Angle(hours=tuple(map(float, row['RA'].split(',')))).radians if len(row['RA']) > 0 else None
-                c.dec = Angle(degrees=tuple(map(float, row['Dec'].split(',')))).radians if len(row['Dec']) > 0 else None
+                c.ra = ra_ang.radians if ra_ang else None
+                c.dec = dec_ang.radians if dec_ang else None
                 c.constellation_id = constell_dict[constellation] if constellation else None
                 c.catalogue_id = catalogue_id
                 c.major_axis = vic2int(row['length']) / 10 * 60.0

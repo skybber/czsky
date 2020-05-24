@@ -262,6 +262,10 @@ def tmp_import_abell_pn():
     import_abell_pn('data/dsolist/AbellPN.csv')
 
 @manager.command
+def tmp_import_vic():
+    import_vic('data/vic.csv')
+
+@manager.command
 def tmp_import_vic_list():
     import_vic_list('data/dsolist/Vic.csv')
 
