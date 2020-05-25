@@ -2,10 +2,13 @@ import numpy as np
 
 from math import log
 from app import db
+
 from app.models.deepskyobject import DeepskyObject, Catalogue
+from app.models.constellation import Constellation
 
 from .import_utils import progress
 from app.commons.dso_utils import get_catalog_from_dsoname
+from skyfield.api import position_from_radec, load_constellation_map
 
 dso_type_map = {
     'GX': 'GX',
@@ -51,6 +54,12 @@ def import_hnsky(hnsky_dso_file):
 
     from sqlalchemy.exc import IntegrityError
 
+    constellation_at = load_constellation_map()
+
+    constell_dict = {}
+    for co in Constellation.query.all():
+        constell_dict[co.iau_code.upper()] = co.id
+
     hnd_file = open(hnsky_dso_file, 'r', encoding='ISO-8859-1')
     lines   = hnd_file.readlines()[2:]
     hnd_file.close()
@@ -78,6 +87,10 @@ def import_hnsky(hnsky_dso_file):
 
             ra = 2.0 * np.pi * float(items[0])/864000.0
             dec = np.pi * float(items[1])/(324000.0 * 2.0)
+
+            const_code = constellation_at(position_from_radec(ra / np.pi * 12.0, dec / np.pi * 180.0))
+            constellation_id = constell_dict[const_code.upper()] if const_code else None
+
             str_mag = items[2].strip()
             mag = float(str_mag)/10.0 if str_mag else 100.0
 
@@ -166,7 +179,7 @@ def import_hnsky(hnsky_dso_file):
                         dso.subtype = obj_subtype
                         dso.ra = ra
                         dso.dec = dec
-                        dso.constellation_id = None
+                        dso.constellation_id = constellation_id
                         dso.catalogue_id = cat.id
                         dso.major_axis = rlong
                         dso.minor_axis = rshort
@@ -229,3 +242,4 @@ def import_hnsky(hnsky_dso_file):
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
     print('') # finish on new line
+

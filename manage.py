@@ -21,7 +21,7 @@ from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn,import_vic_list
 from imports.import_hnsky import import_hnsky
-from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_hnsky_constell_from_sac
+from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_dso_constellation
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -141,7 +141,6 @@ def initialize_catalogues():
     import_hnsky('data/deep_sky.hnd')
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
-    fix_hnsky_constell_from_sac('data/sac.csv')
 
 @manager.command
 def import_dso_list():
@@ -249,25 +248,8 @@ def tmp_normalize_glahn_img():
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
 
 @manager.command
-def tmp_reimport_catalogues():
-    import_catalogues('data/astro_catalogues.csv')
-
-
-@manager.command
-def tmp_import_holmerg():
-    import_holmberg('data/dsolist/Holmberg.csv')
-
-@manager.command
-def tmp_import_abell_pn():
-    import_abell_pn('data/dsolist/AbellPN.csv')
-
-@manager.command
-def tmp_import_vic():
-    import_vic('data/vic.csv')
-
-@manager.command
-def tmp_import_vic_list():
-    import_vic_list('data/dsolist/Vic.csv')
+def tmp_fix_dso_constellation():
+    fix_dso_constellation()
 
 if __name__ == '__main__':
     manager.run()

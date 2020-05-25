@@ -1,6 +1,6 @@
 import csv
 import sys
-import math
+import numpy as np
 
 from app import db
 from app.models.constellation import Constellation
@@ -49,7 +49,7 @@ def import_vic(vic_data_file):
                 ra_ang = Angle(hours=tuple(map(float, row['RA'].split(',')))) if len(row['RA']) > 0 else None
                 dec_ang = Angle(degrees=tuple(map(float, row['Dec'].split(',')))) if len(row['Dec']) > 0 else None
 
-                constellation = constellation_at(position_from_radec(ra_ang.radians / math.pi * 12.0, dec_ang.radians / math.pi * 180.0))
+                constellation = constellation_at(position_from_radec(ra_ang.radians / np.pi * 12.0, dec_ang.radians / np.pi * 180.0))
 
                 c.name = dso_name
                 c.type = 'AST'
