@@ -30,6 +30,13 @@
                 <input id="goback" type="hidden" value="false">
 
                 <div class="two fields">
+                    {% if not is_new %}
+                        <button class="ui button bupdateback">{{ _('Update and back')}}</button>
+                    {% endif %}
+                    {{ f.render_form_field(form.submit_button) }}
+                </div>
+
+                <div class="two fields">
                     <div class="field">
                         {{ f.render_form_field(form.common_name) }}
                     </div>
@@ -73,7 +80,7 @@
 
                 <div class="two fields">
                     {% if not is_new %}
-                        <button id="bupdateback" class="ui button">{{ _('Update and back')}}</button>
+                        <button class="ui button bupdateback">{{ _('Update and back')}}</button>
                     {% endif %}
                     {{ f.render_form_field(form.submit_button) }}
                 </div>
@@ -82,7 +89,7 @@
         </div>
   </div>
     <script type="text/javascript">
-        $('#bupdateback' ).click(function() {
+        $('.bupdateback' ).click(function() {
             $('#goback').val('true');
             $(this).closest('form').submit();
             return false;
