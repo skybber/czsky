@@ -15,7 +15,7 @@
                 <div class="ui item">
                     {{search_form.season(class='ui dropdown button',onchange='this.form.submit()')}}
                 </div>
-                <div class="ui right search item">
+                <div class="ui right search item mobile only">
                     <div class="ui action input">
                         {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
                         <button class="ui icon button">

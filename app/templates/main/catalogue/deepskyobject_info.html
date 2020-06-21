@@ -50,8 +50,12 @@
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
-            <h3>
+            <h3 class="mobile only">
                 {% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}
+            </h3>
+            <h3>
+                <span class="mobile hidden">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</span>
+                <span class="mobile only">&nbsp;</span>
                 {% if editable %}
                     <a class="ui icon mini button" style="float:right;margin-left:10px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
                         <i class="caret edit icon"></i>
