@@ -50,9 +50,11 @@
 {% macro deepskyobject_info(dso, user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
-            <h3 class="mobile only">
-                {% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}
-            </h3>
+            {% if user_descr and user_descr.common_name %}
+                <h3 class="mobile only">
+                    {{ user_descr.common_name }}
+                </h3>
+            {% endif %}
             <h3>
                 <span class="mobile hidden">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</span>
                 <span class="mobile only">&nbsp;</span>
