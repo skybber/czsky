@@ -54,6 +54,19 @@
     {{ render_menu_items( endpoints +  user ) }}
 {% endmacro %}
 
+{% macro header_tablet(current_user) %}
+    {% set endpoints = [
+      ('main.index', config.APP_NAME, 'home'),
+      ('main.about', 'About', 'info'),
+      ('main.switch_theme', (session['themlight'] and 'Night mode' or 'Day mode'), 'eye')
+    ]%}
+    {% set user = [] %}
+    {% if current_user.is_authenticated %}
+      {% set user = ([(current_user.role.index + '.index', current_user.role.name + ' Dashboard', 'user')]) %}
+    {% endif %}
+    {{ render_menu_items( endpoints +  user ) }}
+{% endmacro %}
+
 {% macro header_items_mobile(current_user) %}
     {% set endpoints = [
       ('main.index', config.APP_NAME, 'home'),
@@ -83,14 +96,16 @@
     <div class="mobile only row">
         <div class="ui fixed inverted black main menu">
             {{ header_items_mobile(current_user) }}
-            <div class="ui right item">
-                <div class="ui small icon input">
-                    <input id="gsearch" type="text" placeholder="Search...">
-                    <i class="search icon"></i>
+            <div class="right menu">                
+                <div class="ui item">
+                    <div class="ui small icon input">
+                        <input class="globsearch" type="text" placeholder="Search...">
+                        <i class="search icon"></i>
+                    </div>
                 </div>
-            </div>
-            <div class="right menu">
-                <a class="icon item" id="open-nav"><i class="sidebar icon"></i></a>
+                <div class="right menu">
+                    <a class="icon item" id="open-nav"><i class="sidebar icon"></i></a>
+                </div>
             </div>
         </div>
 
@@ -99,15 +114,6 @@
           {{ account_items(current_user) }}
         </div>
     </div>
-    <script type="text/javascript">
-        $('#gsearch').keypress(function(event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            if(keycode == '13'){
-                window.location.href = "{{ url_for('main.global_search') }}?q=" + $(this).val();
-            }
-            event.stopPropagation();
-        });
-    </script>
 {% endmacro %}
 
 {% macro desktop_nav(current_user) %}
@@ -115,27 +121,20 @@
         <div class="ui fixed inverted black main menu">
             <div class="ui container">
                 {{ header_items(current_user) }}
-                <div class="ui right item">
-                    <div class="ui small icon input">
-                        <input id="gsearch" type="text" placeholder="Search...">
-                        <i class="search icon"></i>
+                <div class="right menu">                
+                    <div class="ui item">
+                        <div class="ui small icon input">
+                            <input class="globsearch" type="text" placeholder="Search...">
+                            <i class="search icon"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="right menu">
-                    {{ account_items(current_user) }}
+                    <div class="right menu">
+                        {{ account_items(current_user) }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script type="text/javascript">
-        $('#gsearch').keypress(function(event) {
-            var keycode = (event.keyCode ? event.keyCode : event.which);
-            if(keycode == '13'){
-                window.location.href = "{{ url_for('main.global_search') }}?q=" + $(this).val();
-            }
-            event.stopPropagation();
-        });
-    </script>
 {% endmacro %}
 
 {% macro render_nav(current_user) %}
@@ -143,4 +142,13 @@
         {{ mobile_nav(current_user) }}
         {{ desktop_nav(current_user) }}
     </nav>
+    <script type="text/javascript">
+        $('.globsearch').keypress(function(event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode == '13'){
+                window.location.href = "{{ url_for('main.global_search') }}?q=" + $(this).val();
+            }
+            event.stopPropagation();
+        });
+    </script>
 {% endmacro %}

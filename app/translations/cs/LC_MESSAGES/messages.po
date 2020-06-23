@@ -429,8 +429,8 @@ msgid "Surveys"
 msgstr "Přehlídka"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:8
-msgid "Catalogue data"
-msgstr "Katalogové údaje"
+msgid "Catalogue"
+msgstr "Katalog"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:121
 #: app/templates/main/catalogue/star_info.html:51
