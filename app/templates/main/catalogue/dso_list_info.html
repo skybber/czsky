@@ -25,6 +25,13 @@
             </div>
             </div>
 
+            <form action="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id) }}" method="post" name="search" class="ui stackable menu">
+                <div class="ui item">
+                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+            </form>
+            
             <div style="overflow-x: scroll;">
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -39,7 +46,7 @@
                     <tbody>
                     {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_dso_list=True, from_dso_list_id=dso_list.id) }}{% endmacro %}
 
-                    {% for item in dso_list.dso_list_items %}
+                    {% for item in dso_list_items %}
                         <tr>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.item_id }}</p></td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>

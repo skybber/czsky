@@ -332,7 +332,7 @@
                         <i class="tasks icon"></i>
                     </a>
                 {% elif from_dso_list_id %}
-                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id) }}#dso{{dso.id}}">
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id, back=1) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
                         <i class="tasks icon"></i>
                     </a>
