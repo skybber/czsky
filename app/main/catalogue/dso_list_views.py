@@ -54,7 +54,7 @@ def dso_list_info(dso_list_id):
     for dso_list_item in dso_list.dso_list_items:
         if constell_ids is None or dso_list_item.deepskyObject.constellation_id in constell_ids:
             dso_list_items.append(dso_list_item)
-            if user_descrs:
+            if not user_descrs is None:
                 udd =   UserDsoDescription.query.filter_by(dso_id=dso_list_item.dso_id, user_id=editor_user.id, lang_code='cs').first()
                 if udd and udd.common_name:
                     user_descrs[dso_list_item.dso_id] = udd.common_name
