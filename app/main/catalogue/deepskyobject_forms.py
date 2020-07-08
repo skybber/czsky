@@ -49,10 +49,10 @@ class SearchDsoForm(FlaskForm):
     ])
     dso_type = SelectField('Object type', choices=[
          ('All', 'All types'),
-         ('Glx', 'Galaxy'),
+         ('GX', 'Galaxy'),
          ('GC', 'Globular Cluster'),
          ('OC', 'Open Cluster'),
-         ('Neb', 'Nebula'),
+         ('BN', 'Nebula'),
          ('PN', 'Planatary Nebula'),
     ])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
