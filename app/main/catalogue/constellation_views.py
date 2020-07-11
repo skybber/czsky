@@ -92,7 +92,7 @@ def constellation_info(constellation_id):
 
         all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
-                .filter_by(constellation_id=constellation.id) \
+                .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
                 .order_by(UserDsoDescription.rating.desc()) \
                 .all()
 
@@ -186,14 +186,29 @@ def constellation_stars(constellation_id):
     star_descriptions = None
     editable=current_user.is_editor()
     editor_user = User.get_editor_user()
+    
+    aster_descriptions = None
     if editor_user:
         star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = 'cs')\
                 .filter_by(constellation_id=constellation.id) \
                 .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
+        all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
+                .join(UserDsoDescription.deepskyObject, aliased=True) \
+                .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type=='AST') \
+                .order_by(UserDsoDescription.rating.desc()) \
+                .all()
+
+        existing = set()
+        aster_descriptions = []
+        for dsod in all_aster_descriptions:
+            if not dsod.dso_id in existing:
+                existing.add(dsod.dso_id)
+                aster_descriptions.append(dsod)
+
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='stars',
-                           star_descriptions=star_descriptions, editable=editable)
+                           star_descriptions=star_descriptions, aster_descriptions=aster_descriptions, editable=editable)
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/deepskyobjects')
