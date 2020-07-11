@@ -85,6 +85,7 @@
                 {% endfilter %}
                 </div>
                 {% if star_descriptions %}
+                    <br/>
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
                         {% filter extended_commonmark('') %}
@@ -98,9 +99,9 @@
         </div>
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions %}
-                <div class="ui segment" style="display: inline-block;width:100%">
+                <div id="dso{{ user_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
-                        <h3 id="dso{{ user_dso_descr.dso_id }}" style="margin-bottom:0.8em;">
+                        <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
                             {% if editable %}
                                 <a class="ui icon mini button" style="float:right;padding-left:12px;"
