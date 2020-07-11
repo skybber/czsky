@@ -223,54 +223,54 @@
                     {% endfor %}
                     </div>
                 {% endif %}
-                {% if aster_descriptions %}
-                    {% for aster_dso_descr in aster_descriptions %}
-                        <div id="dso{{ aster_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
-                            <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=aster_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
-                                <h3 style="margin-bottom:0.8em;">
-                                    {{ aster_dso_descr.deepskyObject.denormalized_name() }}
-                                    {% if editable %}
-                                        <a class="ui icon mini button" style="float:right;padding-left:12px;"
-                                                  href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=aster_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
-                                            <i class="caret edit icon"></i>
-                                        </a>
-                                    {% endif %}
-                                    <div class="mobile hidden" style="float:right;padding-left:2px;">
-                                        <div class="ui label">
-                                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ aster_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-                                        </div>
-                                    </div>
-                                    {% if aster_dso_descr.deepskyObject.major_axis %}
-                                        <div class="ui label" style="float:right;">
-                                            Ø {% if aster_dso_descr.deepskyObject.major_axis >= 100.0 %}
-                                                {{ (aster_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
-                                              {% else %}
-                                                {{ aster_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
-                                              {% endif %}
-                                            {% if aster_dso_descr.deepskyObject.minor_axis %}
-                                            / {% if aster_dso_descr.deepskyObject.minor_axis >= 100.0 %}
-                                                {{ (aster_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
-                                              {% else %}
-                                                {{ aster_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
-                                              {% endif %}
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                    <div class="ui label" style="float:right;">
-                                        <i class="info icon"></i> {{ aster_dso_descr.deepskyObject.mag if aster_dso_descr.deepskyObject.mag else aster_dso_descr.deepskyObject.v_mag }}mag
-                                    </div>
-                                </h3>
-                            </a>
-                            <div class="markdown">
-                                {% filter extended_commonmark(aster_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
-{{ aster_dso_descr.text | safe }}
-                                {% endfilter %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endif %}
             </div>
         </div>
+        {% if aster_descriptions %}
+            {% for aster_dso_descr in aster_descriptions %}
+                <div id="dso{{ aster_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=aster_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
+                        <h3 style="margin-bottom:0.8em;">
+                            {{ aster_dso_descr.deepskyObject.denormalized_name() }}
+                            {% if editable %}
+                                <a class="ui icon mini button" style="float:right;padding-left:12px;"
+                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=aster_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
+                                    <i class="caret edit icon"></i>
+                                </a>
+                            {% endif %}
+                            <div class="mobile hidden" style="float:right;padding-left:2px;">
+                                <div class="ui label">
+                                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ aster_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                                </div>
+                            </div>
+                            {% if aster_dso_descr.deepskyObject.major_axis %}
+                                <div class="ui label" style="float:right;">
+                                    Ø {% if aster_dso_descr.deepskyObject.major_axis >= 100.0 %}
+                                        {{ (aster_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ aster_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% if aster_dso_descr.deepskyObject.minor_axis %}
+                                    / {% if aster_dso_descr.deepskyObject.minor_axis >= 100.0 %}
+                                        {{ (aster_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ aster_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
+                                      {% endif %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <div class="ui label" style="float:right;">
+                                <i class="info icon"></i> {{ aster_dso_descr.deepskyObject.mag if aster_dso_descr.deepskyObject.mag else aster_dso_descr.deepskyObject.v_mag }}mag
+                            </div>
+                        </h3>
+                    </a>
+                    <div class="markdown">
+                        {% filter extended_commonmark(aster_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
+{{ aster_dso_descr.text | safe }}
+                        {% endfilter %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endmacro %}
 
