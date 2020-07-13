@@ -11,7 +11,7 @@ from .dso_utils import normalize_dso_name
 from .img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
-MD_LINK_PATTERN_NO_GRP = re.compile(r'\[.*?\]\(.*?\)')
+NO_EXPAND = re.compile(r'(\[.*?\]\(.*?\))|(src=".*)')
 EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
 
 def parse_extended_commonmark(md_text, ignore_name, ext_url_params):
@@ -49,7 +49,7 @@ def _auto_links_in_md_text(md_text, ignore_name, ext_url_params):
     result = ''
     prev_end = 0
     cache = {}
-    for m in re.finditer(MD_LINK_PATTERN_NO_GRP, md_text):
+    for m in re.finditer(NO_EXPAND, md_text):
         result += _expand_in_subtext(md_text[prev_end: m.start()], ignore_name, cache, ext_url_params)
         result += md_text[m.start():m.end()]
         prev_end = m.end()
