@@ -227,3 +227,6 @@ def import_abell_pn(abell_pn_data_file):
 
 def import_vic_list(vic_data_file):
     _do_import_simple_csv(vic_data_file, 'VIC list of asterism', show_descr_name=True)
+
+def import_rosse(rosse_data_file):
+    _do_import_simple_csv(rosse_data_file, 'Rosse Spirals')

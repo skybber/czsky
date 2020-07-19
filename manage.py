@@ -19,7 +19,7 @@ from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
-from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn,import_vic_list
+from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn, import_vic_list, import_rosse
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_dso_constellation
 
@@ -150,6 +150,7 @@ def import_dso_list():
     import_holmberg('data/dsolist/Holmberg.csv')
     import_abell_pn('data/dsolist/AbellPN.csv')
     import_vic_list('data/dsolist/Vic.csv')
+    import_rosse('data/dsolist/RosseSpirals.csv')
 
 @manager.command
 def reimport_dsos():
@@ -162,6 +163,7 @@ def reimport_dsos():
     import_holmberg('data/dsolist/Holmberg.csv')
     import_abell_pn('data/dsolist/AbellPN.csv')
     import_vic_list('data/dsolist/Vic.csv')
+    import_rosse('data/dsolist/RosseSpirals.csv')
 
 @manager.command
 def import_8mag():
@@ -246,6 +248,10 @@ def tmp_normalize_glahn_img():
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
+    
+@manager.command
+def tmp_import_rosse():
+    import_rosse('data/dsolist/RosseSpirals.csv')
 
 @manager.command
 def tmp_fix_dso_constellation():
