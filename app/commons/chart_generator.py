@@ -139,6 +139,9 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
     # engine.set_active_constellation(dso.constellation)
-    engine.make_map(used_catalogs, extra_positions=[])
+    extra_positions = []
+    extra_positions.append([ra,dec,'',None])
+    
+    engine.make_map(used_catalogs, extra_positions=extra_positions)
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
