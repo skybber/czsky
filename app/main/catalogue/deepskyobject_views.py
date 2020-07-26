@@ -30,7 +30,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from .chart_generator import create_chart_in_pipeline
+from app.commons.chart_generator import create_dso_chart_in_pipeline
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 
@@ -234,7 +234,7 @@ def deepskyobject_findchart(dso_id):
     full_file_name = os.path.join(preview_dir, dso_file_name)
 
     if not os.path.exists(full_file_name):
-        create_chart_in_pipeline(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
+        create_dso_chart_in_pipeline(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
                                 night_mode, form.mirror_x.data, form.mirror_y.data)
 
     fchart_url = preview_url_dir + dso_file_name

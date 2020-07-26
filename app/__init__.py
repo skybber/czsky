@@ -110,6 +110,10 @@ def create_app(config):
     app.register_blueprint(main_usersettings)
     from .main.planner import main_planner as main_planner
     app.register_blueprint(main_planner)
+    from .main.solarsystem import main_solarsystem as main_solarsystem
+    app.register_blueprint(main_solarsystem)
+    from .main.solarsystem import main_comet as main_comet 
+    app.register_blueprint(main_comet)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

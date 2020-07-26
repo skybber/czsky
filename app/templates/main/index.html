@@ -14,6 +14,8 @@
                                     description=_('View deepsky objects'), icon='star icon') }}
                 {{ dash.dashboard_option(_('Deepsky Lists'), 'main_dso_list.dso_lists_menu',
                                     description=_('View deepsky lists'), icon='star icon') }}
+                {{ dash.dashboard_option(_('Solar System'), 'main_solarsystem.solarsystem_menu',
+                                    description=_('View solar system'), icon='sun icon') }}
                 {{ dash.dashboard_option(_('Sky quality'), 'main_skyquality.skyquality',
                                     description=_('View skyquality section'), icon='tachometer icon') }}
                 {% if not is_anonymous %}
