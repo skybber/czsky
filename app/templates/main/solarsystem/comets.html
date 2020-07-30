@@ -29,12 +29,14 @@
                     <thead>
                         <tr>
                             <th>{{ _('Name') }}</th>
+                            <th>{{ _('Brightness') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for index, row in comets.iterrows() %}
                         <tr onclick="window.location.href = '{{ url_for('main_comet.comet_info', comet_id=row['comet_id']) }}';">
                             <td>{{ row['designation'] }}</td>
+                            <td>{{ row['mag'] | round(1) }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -1,7 +1,9 @@
 import os
 import numpy as np
+import math
+import threading
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import (
     abort,
@@ -39,13 +41,72 @@ main_comet = Blueprint('main_comet', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
 
-def _get_all_comets():
-    with load.open(mpc.COMET_URL, reload=False) as f:
-        all_comets = mpc.load_comets_dataframe_slow(f)
-        all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])    
-        all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','')
-        return all_comets
+all_comets_expiration = datetime.now() + timedelta(days=1)
+all_comets = None
+creation_running = False
 
+
+def _load_comet_brightness(all_comets, fname):
+    with open(fname, 'r') as f:
+        lines = f.readlines()
+    for line in lines:
+        comet_id, str_mag = line.split(' ')
+        try:
+            all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag) 
+        except Exception:
+            pass
+          
+
+def _create_comet_brighness_file(all_comets, fname):
+    global creation_running
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    sun, earth = eph['sun'], eph['earth']
+    mags = []
+    t = ts.now()
+    with open(fname, 'w') as f:
+        for index, row in all_comets.iterrows(): 
+            m = 22.0 
+            try:
+                comet = sun + mpc.comet_orbit(row, ts, GM_SUN)
+                dist_earth = earth.at(t).observe(comet).distance().au
+                dist_sun = sun.at(t).observe(comet).distance().au
+                if (dist_earth<10.0):
+                    m = row['magnitude_H'] + 5.0*np.log10(dist_earth) + 2.5*row['magnitude_G']*np.log10(dist_sun)
+                    print('Comet: {} de={} ds={} m={} g={}'.format(row['designation'], dist_earth, dist_sun, m, row['magnitude_G']), flush=True)
+            except Exception:
+                pass
+            f.write(row['comet_id'] + ' ' + str(m) + '\n')
+            mags.append(m)
+
+    all_comets['mag'] = mags
+    creation_running = False
+
+def _get_all_comets():
+    global all_comets
+    global all_comets_expiration
+    global creation_running
+    now = datetime.now()
+    if all_comets is None or now > all_comets_expiration:
+        all_comets_expiration = now + timedelta(days=1)
+        with load.open(mpc.COMET_URL, reload=False) as f:
+            all_comets = mpc.load_comets_dataframe_slow(f)
+            all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])    
+            all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','').replace(' ', '')
+
+        fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
+        
+        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) > all_comets_expiration) and not creation_running:
+            print('################### Starting thread', flush=True)
+            all_comets.loc[:,'mag'] = 22.0
+            creation_running = True
+            thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
+            thread.start()
+        else:
+            print('################### Not Starting thread', flush=True)
+            _load_comet_brightness(all_comets, fname)
+            
+    return all_comets
 
 @main_comet.route('/comets', methods=['GET', 'POST'])
 def comets():
@@ -59,6 +120,8 @@ def comets():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
     comets = _get_all_comets()
+    
+    comets = comets[comets['mag'] < 17.0]
 
     if search_expr:
         search_expr = search_expr.replace('"','')
