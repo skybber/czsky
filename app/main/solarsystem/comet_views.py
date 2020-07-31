@@ -50,6 +50,7 @@ def _load_comet_brightness(all_comets, fname):
     with open(fname, 'r') as f:
         lines = f.readlines()
     for line in lines:
+        print(line, flush=True)
         comet_id, str_mag = line.split(' ')
         try:
             all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag) 
@@ -92,18 +93,17 @@ def _get_all_comets():
         with load.open(mpc.COMET_URL, reload=False) as f:
             all_comets = mpc.load_comets_dataframe_slow(f)
             all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])    
-            all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','').replace(' ', '')
+            all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','')
+            all_comets['comet_id'] = all_comets['comet_id'].str.replace(' ', '')
 
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
         
         if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) > all_comets_expiration) and not creation_running:
-            print('################### Starting thread', flush=True)
             all_comets.loc[:,'mag'] = 22.0
             creation_running = True
             thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
             thread.start()
         else:
-            print('################### Not Starting thread', flush=True)
             _load_comet_brightness(all_comets, fname)
             
     return all_comets
@@ -192,8 +192,11 @@ def comet_info(comet_id):
     c = sun + mpc.comet_orbit(comet, ts, GM_SUN)
 
     t = ts.now()
-    ra, dec, distance = earth.at(t).observe(c).radec()    
+    ra, dec, distance = earth.at(t).observe(c).radec()
 
+    if os.path.isfile(full_file_name) and datetime.fromtimestamp(os.path.getctime(full_file_name)) + timedelta(hours=1) > datetime.now():
+        os.remove(full_file_name)
+        
     if not os.path.exists(full_file_name):
         create_common_chart_in_pipeline(ra.radians, dec.radians, comet['designation'], full_file_name, fld_size, form.maglim.data, 10, 
                                         night_mode, form.mirror_x.data, form.mirror_y.data)
