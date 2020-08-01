@@ -194,7 +194,7 @@ def comet_info(comet_id):
     t = ts.now()
     ra, dec, distance = earth.at(t).observe(c).radec()
 
-    if os.path.isfile(full_file_name) and datetime.fromtimestamp(os.path.getctime(full_file_name)) + timedelta(hours=1) > datetime.now():
+    if os.path.isfile(full_file_name) and datetime.fromtimestamp(os.path.getctime(full_file_name)) + timedelta(hours=1) < datetime.now():
         os.remove(full_file_name)
         
     if not os.path.exists(full_file_name):
