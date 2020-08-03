@@ -44,7 +44,7 @@ def split_catalog_name(dso_name):
     if dso_name[i].isdigit():
         if i < name_len - 1:
             if dso_name[i+1] == '-' or dso_name[i+1] == '_':
-                if i ==1 and dso_name[0] == 'M': # special handling for minkowski
+                if i ==1 and dso_name[0] in ['M', 'm']: # special handling for minkowski
                     return 'Mi', dso_name[1:]
                 lower_dso_name = dso_name.lower()
                 for prefix in CATALOG_SPECS0:
@@ -68,7 +68,10 @@ def normalize_dso_name(dso_name):
     if not dso_name is None:
         cat_code, dso_id = split_catalog_name(dso_name)
         if cat_code:
-            return Catalogue.get_catalogue_code(cat_code) + dso_id
+            norm_cat_code = Catalogue.get_catalogue_code(cat_code)
+            if norm_cat_code == 'Mi':
+                norm_cat_code = 'M'
+            return Catalogue.get_catalogue_code(norm_cat_code) + dso_id
     return dso_name
 
 def normalize_dso_name_for_img(dso_name):
