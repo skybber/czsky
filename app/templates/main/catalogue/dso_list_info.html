@@ -52,7 +52,7 @@
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.v_mag }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag if item.deepskyObject.mag else item.deepskyObject.v_mag }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
