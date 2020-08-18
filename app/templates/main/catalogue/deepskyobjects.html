@@ -67,7 +67,7 @@
                             <td>{{ d.get_constellation_iau_code() }}</td>
                             <td class="mobile hidden">{{ d.ra_str_short() }}</td>
                             <td class="mobile hidden">{{ d.dec_str_short() }}</td>
-                            <td>{{ d.v_mag }}</td>
+                            <td>{{ d.mag if d.mag else d.v_mag }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
