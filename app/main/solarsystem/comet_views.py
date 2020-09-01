@@ -98,7 +98,7 @@ def _get_all_comets():
 
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
         
-        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) > all_comets_expiration) and not creation_running:
+        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) < all_comets_expiration) and not creation_running:
             all_comets.loc[:,'mag'] = 22.0
             creation_running = True
             thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
