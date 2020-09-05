@@ -124,8 +124,9 @@ def constellation_info(constellation_id):
             for dso_id in constell_glahn_dsos:
                 if not dso_id in existing:
                     dso = constell_glahn_dsos[dso_id]
-                    dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
-                    glahn_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
+                    if not dso.master_id in existing:
+                        dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
+                        glahn_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
 
     editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
