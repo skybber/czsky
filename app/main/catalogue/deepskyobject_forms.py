@@ -53,7 +53,7 @@ class SearchDsoForm(FlaskForm):
          ('GC', 'Globular Cluster'),
          ('OC', 'Open Cluster'),
          ('BN', 'Nebula'),
-         ('PN', 'Planatary Nebula'),
+         ('PN', 'Planetary Nebula'),
     ])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
 
