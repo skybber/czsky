@@ -10,6 +10,7 @@ from .import_utils import progress
 from app.commons.dso_utils import get_catalog_from_dsoname
 from skyfield.api import position_from_radec, load_constellation_map
 
+# for types look at http://simbad.u-strasbg.fr/simbad/sim-display?data=otypes
 dso_type_map = {
     'GX': 'GX',
     'BN': 'BN',
@@ -25,7 +26,13 @@ dso_type_map = {
     'CL+NB': 'OC',
     'NB': 'BN',
     'PartOf': 'PartOf',
-    'DN&HII': 'DN'
+    'DN&HII': 'DN',
+    'pA*':'pA*',    # Post-AGB Star (proto-PN)
+    'C*':'C*',    # Carbon Star
+    'CV*': 'CV*', # Cataclysmic Variable Star
+    'RNe': 'RNe', # Reflection Nebula 
+    'NL*': 'NL*',  # Nova-like Star
+    'HII': 'HII' 
 }
 
 
@@ -83,6 +90,8 @@ def import_hnsky(hnsky_dso_file):
 
     try:
         for line in lines:
+            if len(line) == 0:
+                continue
             items = line.split(',')
 
             ra = 2.0 * np.pi * float(items[0])/864000.0
@@ -97,7 +106,11 @@ def import_hnsky(hnsky_dso_file):
             brightness = None
             if len(items) > 5:
                 str_brightness = items[5].strip()
-                brightness = float(str_brightness)/10.0 if str_brightness else 100.0
+                try:
+                    brightness = float(str_brightness)/10.0 if str_brightness else 100.0
+                except (ValueError, TypeError):
+                    pass
+                
 
             obj_types = items[4].split('/')
 
@@ -113,6 +126,10 @@ def import_hnsky(hnsky_dso_file):
             indx2 = items[4].find(']')
             obj_subtype = items[4][indx1+1:indx2] if indx1<indx2 else None
 
+            # remove uncertainity flag
+            if obj_type.endswith('?') and len(obj_type) > 1:
+                obj_type = obj_type[:-1]
+                
             obj_type = dso_type_map.get(obj_type, None)
 
             if obj_type == None:
@@ -154,7 +171,16 @@ def import_hnsky(hnsky_dso_file):
             for name1 in names:
                 for name in name1.split(';'):
                     name = name.strip()
+                    
+                    if name.startswith('PN_'):
+                        name = name[3:]
+                        
+                    if name.startswith('A66_'):
+                        name = 'Abell' + name[4:]
 
+                    if name.startswith('PK_'):
+                        name = 'PK' + denormalize_pk_name(name[3:])
+                        
                     if (name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC')):
                         if name.endswith('A'):
                             name = name[:-1]
@@ -243,3 +269,26 @@ def import_hnsky(hnsky_dso_file):
         db.session.rollback()
     print('') # finish on new line
 
+
+def denormalize_pk_name(name):
+    denorm = ''
+    compress = True
+    outp = False
+    for i in range(0, len(name)):
+        c = name[i]
+        if compress and c == '0':
+            continue 
+        if not c.isdigit():
+            if not outp:
+                denorm += '0'
+            compress = True
+            outp = False
+        else:
+            outp = True
+            compress = False
+        denorm += c
+    return denorm
+            
+        
+        
+        

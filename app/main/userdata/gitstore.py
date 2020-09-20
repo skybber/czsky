@@ -238,6 +238,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             if not udd:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
+                    print('WARNING: dso={} not found!'.format(dso_name), flush=True)
                     continue
                 udd = UserDsoDescription(
                     dso_id = dso.id,
@@ -288,6 +289,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             if not uad:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
+                    print('WARNING: dso={} not found!'.format(dso_name), flush=True)
                     continue
                 uad = UserDsoApertureDescription(
                     dso_id = dso.id,
