@@ -1,3 +1,6 @@
+import threading
+from posix import wait
+
 from flask import (
     Blueprint,
     current_app,
@@ -15,7 +18,6 @@ from app.models import Permission, User
 from app.decorators import editor_required
 from .gitstore import save_public_content_data_to_git, load_public_content_data_from_git, save_personal_data_to_git, load_personal_data_from_git
 from .userdata_forms import GitSaveForm
-from posix import wait
 
 main_userdata = Blueprint('main_userdata', __name__)
 
@@ -85,11 +87,16 @@ def git_load():
                 flash('Loading data from Git repository failed.' + str(e), 'form-success')
         else:
             try:
-                load_public_content_data_from_git(current_user)
-                flash('Content data loaded from Git repository.', 'form-success')
+                thread = threading.Thread(target=_do_load_public_content_data_from_git, args=(current_app._get_current_object(), current_user.user_name, ))
+                thread.start()
+                flash('Content data is loading from Git repository...', 'form-success')
             except git.GitCommandError as e:
                 flash('Loading content data from Git repository failed.' + str(e), 'form-success')
     return redirect(url_for('main_userdata.data_store_content', git_load='1'))
+
+def _do_load_public_content_data_from_git(app, user_name):
+    with app.app_context():
+        load_public_content_data_from_git(user_name)
 
 def _is_git_enabled(subtype):
     if subtype == 'repo_content':

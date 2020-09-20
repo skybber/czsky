@@ -3,7 +3,6 @@ import shutil
 import glob
 
 from pathlib import Path
-
 from datetime import datetime
 
 from flask import current_app
@@ -197,7 +196,8 @@ def _convert_to_multiline(t):
         return ''
     return t.strip().replace('\r\n', '\n').replace('\n', '\\\n')
 
-def load_public_content_data_from_git(owner):
+def load_public_content_data_from_git(user_name):
+    owner = User.query.filter_by(user_name=user_name).first()
     editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
@@ -211,6 +211,7 @@ def load_public_content_data_from_git(owner):
         _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
 
     db.session.commit()
+    current_app.logger.info('Public content data loading succeeded.')
 
 def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
@@ -218,6 +219,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
         dso_name_md = dso_file.name
         if re.match(r'.*?_(\d+u\d+).md$', dso_name_md):
             continue
+        current_app.logger.info('Reading DSO description {}'.format(dso_name_md))
         with dso_file.open('r') as f:
             dso_name = denormalize_dso_name(dso_name_md[:-3]).replace(' ', '')
             header_map = _read_header(f)
@@ -238,7 +240,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             if not udd:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
-                    print('WARNING: dso={} not found!'.format(dso_name), flush=True)
+                    current_app.logger.warn('dso={} not found!'.format(dso_name), flush=True)
                     continue
                 udd = UserDsoDescription(
                     dso_id = dso.id,
@@ -266,6 +268,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
         m = re.match(r'(.*?)_(\d+u\d+).md$', dso_name_md)
         if not m:
             continue
+        current_app.logger.info('Reading DSO apert description {}'.format(dso_name_md))
         with dso_file.open('r') as f:
             dso_name = denormalize_dso_name(m.group(1)).replace(' ', '')
             aperture_class = m.group(2).replace('u','/')
@@ -289,7 +292,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             if not uad:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
-                    print('WARNING: dso={} not found!'.format(dso_name), flush=True)
+                    current_app.logger.warn('dso={} not found!'.format(dso_name))
                     continue
                 uad = UserDsoApertureDescription(
                     dso_id = dso.id,
@@ -313,6 +316,7 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
     constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
     files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
     for constellation_name_md in files:
+        current_app.logger.info('Reading constell. description {}'.format(constellation_name_md))
         with open(os.path.join(constellation_dir, constellation_name_md), 'r') as f:
             if not constellation_name_md.endswith('.md'):
                 continue
@@ -351,6 +355,7 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
     star_dir = os.path.join(repository_path, lang_code_dir, 'star')
     files = [f for f in os.listdir(star_dir) if os.path.isfile(os.path.join(star_dir, f))]
     for star_name_md in files:
+        current_app.logger.info('Reading star description {}'.format(star_name_md))
         with open(os.path.join(star_dir, star_name_md), 'r') as f:
             if not star_name_md.endswith('.md'):
                 continue
@@ -439,7 +444,7 @@ def _read_header(f):
                 value = m.group(2)
             result[m.group(1)] = value
         else:
-            print('ERROR: Unknown header line format. Line:{}'.format(line), flush=True)
+            current_app.logger.error('Unknown header line format. Line:{}'.format(line))
 
 def _get_user_from_username(user_cache, user_name, default_user):
     if not user_name:
