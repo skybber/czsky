@@ -35,6 +35,24 @@ dso_type_map = {
     'HII': 'HII' 
 }
 
+cat_priorities = {
+    'M' : 1, 
+    'NGC' : 2, 
+    'IC' : 3, 
+    'Sh2' : 4,
+# PN catalogs    
+    'Abell' : 5, 
+    'Mi' : 6, 
+    'K' : 7, 
+    'Hen' :7, 
+    'Sa' : 7, 
+    'Vy' : 7,
+    'PK' :  10000,
+    'PNG' : 10001,
+# GX catalogs    
+    'UGC' : 5,
+    'PGC' : 6,
+}
 
 def _save_pref_cat_dsos(cat_codes, pref_dso_count, line_cnt, dso_list, i, master_dso_map, master_dsos):
     ccl = len(cat_codes[i])
@@ -166,8 +184,8 @@ def import_hnsky(hnsky_dso_file):
             names = items[3].split('/')
 
             master_dso = None
-            prev_dso = None
-            prev_dsos = []
+            child_dsos = []
+            master_cat_prio = None
             for name1 in names:
                 for name in name1.split(';'):
                     name = name.strip()
@@ -214,18 +232,18 @@ def import_hnsky(hnsky_dso_file):
                         dso.surface_bright = brightness
                         dso.common_name = None
 
-                        if cat.code == 'Abell' and prev_dso and (prev_dso.name.startswith('PK') or prev_dso.name.startswith('Sh2')) or \
-                           cat.code == 'UGC' and prev_dso and prev_dso.name.startswith('PGC'):
-                            for pdso in prev_dsos:
-                                master_dso_map[pdso.name] = dso
+                        cat_prio =  cat_priorities.get(cat.code, 1000)
+
+                        if (not master_cat_prio is None) and cat_prio < master_cat_prio:
+                            child_dsos.append(master_dso)
                             master_dso = dso
+                            master_cat_prio = cat_prio
                         elif master_dso:
-                            master_dso_map[name] = master_dso
+                            child_dsos.append(dso)
                         else:
                             master_dso = dso
+                            master_cat_prio = cat_prio
 
-                        prev_dso = dso
-                        prev_dsos.append(dso)
                         if cat.id < 1000:
                             pref_cats[cat.id-1].append(dso)
                             pref_dso_count += 1
@@ -234,7 +252,15 @@ def import_hnsky(hnsky_dso_file):
                     else:
                         print('Not found {}'.format(name))
 
+            if child_dsos:
+                for child_dso in child_dsos:
+                    master_dso_map[child_dso.name] = master_dso
+
         line_cnt = 1
+        
+        # Catalogues with higher priority are imported before lower ones
+        
+        # Import master DSO from preferred catalogs 
         for i in range(1000):
             dso_list = pref_cats[i]
             if not dso_list:
@@ -243,6 +269,7 @@ def import_hnsky(hnsky_dso_file):
                 continue
             line_cnt = _save_pref_cat_dsos(cat_codes, pref_dso_count, line_cnt, dso_list, i, master_dso_map, True)
 
+        # Import child DSO from preferred catalogs 
         for i in range(1000):
             dso_list = pref_cats[i]
             if not dso_list:
@@ -288,7 +315,3 @@ def denormalize_pk_name(name):
             compress = False
         denorm += c
     return denorm
-            
-        
-        
-        

@@ -219,7 +219,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
         dso_name_md = dso_file.name
         if re.match(r'.*?_(\d+u\d+).md$', dso_name_md):
             continue
-        current_app.logger.info('Reading DSO description {}'.format(dso_name_md))
+        # current_app.logger.info('Reading DSO description {}'.format(dso_name_md))
         with dso_file.open('r') as f:
             dso_name = denormalize_dso_name(dso_name_md[:-3]).replace(' ', '')
             header_map = _read_header(f)
@@ -237,11 +237,48 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
                     .join(UserDsoDescription.deepskyObject, aliased=True) \
                     .filter_by(name=dso_name) \
                     .first()
+            child_udd = None
+            if udd and udd.deepskyObject.master_id:
+                master_dso = DeepskyObject.query.filter_by(id=udd.deepskyObject.master_id).first()
+                master_udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
+                        .filter_by(lang_code=lang_code_dir) \
+                        .join(UserDsoDescription.deepskyObject, aliased=True) \
+                        .filter_by(name=master_dso.name) \
+                        .first()
+                if not master_udd:
+                    master_udd = UserDsoDescription(
+                        dso_id = master_dso.id,
+                        user_id = editor_user.id,
+                        lang_code = lang_code_dir,
+                        cons_order = 1,
+                        create_by = created_by.id,
+                        create_date = created_date,
+                    )
+
+                    child_udd = udd
+                    udd = master_udd
+                    current_app.logger.info('Assigning description from child dso to master dso. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                else:
+                    current_app.logger.warn('Skipping child->master dso description assignment. Master dso description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                
             if not udd:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
                     current_app.logger.warn('dso={} not found!'.format(dso_name), flush=True)
                     continue
+                if dso.master_id:
+                    master_dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+                    master_udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
+                            .filter_by(lang_code=lang_code_dir) \
+                            .join(UserDsoDescription.deepskyObject, aliased=True) \
+                            .filter_by(name=master_dso.name) \
+                            .first()
+                    if not master_udd:
+                        current_app.logger.info('Assigning description from child dso to master dso. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                        dso = master_dso
+                    else:
+                        current_app.logger.warn('Skipping child->master dso description assignment. Master dso description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                        
                 udd = UserDsoDescription(
                     dso_id = dso.id,
                     user_id = editor_user.id,
@@ -260,6 +297,8 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             udd.update_by = updated_by.id
             udd.update_date = updated_date
             db.session.add(udd)
+            if child_udd:
+                db.session.remove(child_udd)
 
 def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
@@ -268,7 +307,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
         m = re.match(r'(.*?)_(\d+u\d+).md$', dso_name_md)
         if not m:
             continue
-        current_app.logger.info('Reading DSO apert description {}'.format(dso_name_md))
+        # current_app.logger.info('Reading DSO apert description {}'.format(dso_name_md))
         with dso_file.open('r') as f:
             dso_name = denormalize_dso_name(m.group(1)).replace(' ', '')
             aperture_class = m.group(2).replace('u','/')
@@ -288,12 +327,49 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                     .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                     .filter_by(name=dso_name) \
                     .first()
-
+            child_uad = None
+            if uad and uad.deepskyObject.master_id:
+                master_dso = DeepskyObject.query.filter_by(id=uad.deepskyObject.master_id).first()
+                master_uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
+                        .filter_by(lang_code=lang_code_dir) \
+                        .filter_by(aperture_class=aperture_class) \
+                        .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+                        .filter_by(name=master_dso.name) \
+                        .first()
+                if not master_uad:
+                    master_uad = UserDsoApertureDescription(
+                        dso_id = master_dso.id,
+                        user_id = editor_user.id,
+                        lang_code = lang_code_dir,
+                        aperture_class = aperture_class,
+                        create_by = created_by.id,
+                        create_date = created_date,
+                    )
+                    child_uad = uad
+                    uad = master_uad
+                    current_app.logger.info('Assigning aperture description from child dso to master dso. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                else:
+                    current_app.logger.warn('Skipping child->master aperture description assignment. Master aperture description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                        
             if not uad:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
                     current_app.logger.warn('dso={} not found!'.format(dso_name))
                     continue
+                if dso.master_id:
+                    master_dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+                    master_uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
+                            .filter_by(lang_code=lang_code_dir) \
+                            .filter_by(aperture_class=aperture_class) \
+                            .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+                            .filter_by(name=master_dso.name) \
+                            .first()
+                    if not master_uad:
+                        current_app.logger.info('Assigning aperture description from child dso to master dso. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                        dso = master_dso
+                    else:
+                        current_app.logger.warn('Skipping child->master aperture description assignment. Master aperture description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
+                    
                 uad = UserDsoApertureDescription(
                     dso_id = dso.id,
                     user_id = editor_user.id,
@@ -310,13 +386,15 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             uad.update_by = updated_by.id
             uad.update_date = updated_date
             db.session.add(uad)
+            if child_uad:
+                db.session.remove(child_uad)
 
 
 def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
     files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
     for constellation_name_md in files:
-        current_app.logger.info('Reading constell. description {}'.format(constellation_name_md))
+        # current_app.logger.info('Reading constell. description {}'.format(constellation_name_md))
         with open(os.path.join(constellation_dir, constellation_name_md), 'r') as f:
             if not constellation_name_md.endswith('.md'):
                 continue
@@ -355,7 +433,7 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
     star_dir = os.path.join(repository_path, lang_code_dir, 'star')
     files = [f for f in os.listdir(star_dir) if os.path.isfile(os.path.join(star_dir, f))]
     for star_name_md in files:
-        current_app.logger.info('Reading star description {}'.format(star_name_md))
+        # current_app.logger.info('Reading star description {}'.format(star_name_md))
         with open(os.path.join(star_dir, star_name_md), 'r') as f:
             if not star_name_md.endswith('.md'):
                 continue

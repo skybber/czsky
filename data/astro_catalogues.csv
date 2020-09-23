@@ -55,6 +55,9 @@ id;code;name;description
 55;Mayer;open star clusters
 56;UKS;United Kingdom Schmidt (globular star clusters)
 57;Mi;Minkowski
+58;K;Lubos Kohoutek (planetary nebulae)
+59;Hen;Henize (planetary nebulae)
+60;Vy;Vyssotsky (planetary nebulae) (Alexander Vyssotsky)
 
 1000;Ap;
 1001;Apriamasvili;
@@ -105,63 +108,61 @@ id;code;name;description
 1046;J;Robert Jonckheere's catalogue of double star observations
 1047;JaSt;Jacoby+van de Steene (planetary nebulae) 
 1048;Jones;Jones (planetary nebulae)
-1049;K;Lubos Kohoutek (planetary nebulae)
-1050;KLSS;Kerber+Lercher+Saurer+Seeberger (planetary nebulae)
-1051;Kr;?
-1052;Latysev;open star clusters
-1053;LeGentil;dark nebula
-1054;Liller;globular star clusters
-1055;Lo;?? (PN)
-1056;Loden;open star clusters
-1057;Longmore;Longmore
-1058;LoTr;Longmore-Tritton (planetary nebulae)
-1059;MaC;??
-1060;MaffeiPaolo Maffei (for example: galaxies Maffei 1 and Maffei 2 in Cassiopeia);
-1061;Markarian;?
-1062;Mayall;Mayall-Cannon (planetary nebulae)
-1063;Menzel;planetary nebulae
-1064;Merrill;Merrill (planetary nebulae)
-1065;MK;??
-1066;Moffat;open star clusters
-1067;Nassau;planetary nebulae
-1068;Ns;??
-1069;OCL;??
-1070;PB;Peimbert-Batiz (planetary nebulae)
-1071;PC;Peimbert-Costero (planetary nebulae)
-1072;Peimbert;planetary nebulae
-1073;Pe;Perek (planetary nebulae)
-1074;PuWe;Purgathofer-Weinberger (planetary nebulae)
-1075;Sanduleak4;Sanduleak (planetary nebulae)
-1076;SaSt;??
-1077;SB;Sylvie Beaulieu (planetary nebulae)
-1078;Shane;Shane (planetary nebulae)
-1079;Shapley;Shapley (planetary nebulae)
-1080;Sher;Sher (open star clusters) (for example: Sher 1 at 11:01:04 / -60:14:00)
-1081;SIM;??
-1082;Simeiz;??
-1083;Sp;Shapley (planetary nebulae)n
-1084;St;??
-1085;Ste;??
-1086;Steph;??
-1087;StWr;Stock-Wroblewski (planetary nebulae)
-1088;SwSt;SwSt - Swings-Struve (planetary nebulae)
-1089;Th;??
-1090;The;??
-1091;Ton;Tonantzintla (globular star clusters)
-1092;Tonantzintla;Tonantzintla (globular star clusters)
-1093;UGCA;Uppsala Selected non-UGC Galaxies
-1094;Upgren;Upgren (open star clusters) (only one object in this catalogue? Upgren 1) (probably Arthur R. Upgren, 1933-2017)
-1095;VBRC;??
-1096;Vd;Vandervort (planetary nebulae)
-1097;Vd1;??
-1098;vdb;Van den Bergh
-1099;Velghe;??
-1100;VV1;Vorontsov-Vel'yaminov Interacting Galaxies (Boris Aleksandrovich Vorontsov-Vel'yaminov)¨
-1101;Vy;Vyssotsky (planetary nebulae) (Alexander Vyssotsky)
-1102;Waterloo;Waterloo (open star clusters)
-1103;We;Weinberger (planetary nebulae)
-1104;WeDe;Weinberger-Dengle (planetary nebulae)
-1105;WeSb;Weinberger-Sabbadin (planetary nebulae)
-1106;Winnecke;Winnecke Catalogue of Double Stars
-1107;Wray;?? (planetary nebulae)
-1108;YM;?? (planetary nebulae)
+1049;KLSS;Kerber+Lercher+Saurer+Seeberger (planetary nebulae)
+1050;Kr;?
+1051;Latysev;open star clusters
+1052;LeGentil;dark nebula
+1053;Liller;globular star clusters
+1054;Lo;?? (PN)
+1055;Loden;open star clusters
+1056;Longmore;Longmore
+1057;LoTr;Longmore-Tritton (planetary nebulae)
+1058;MaC;??
+1059;MaffeiPaolo Maffei (for example: galaxies Maffei 1 and Maffei 2 in Cassiopeia);
+1060;Markarian;?
+1061;Mayall;Mayall-Cannon (planetary nebulae)
+1062;Menzel;planetary nebulae
+1063;Merrill;Merrill (planetary nebulae)
+1064;MK;??
+1065;Moffat;open star clusters
+1066;Nassau;planetary nebulae
+1067;Ns;??
+1068;OCL;??
+1069;PB;Peimbert-Batiz (planetary nebulae)
+1070;PC;Peimbert-Costero (planetary nebulae)
+1071;Peimbert;planetary nebulae
+1072;Pe;Perek (planetary nebulae)
+1073;PuWe;Purgathofer-Weinberger (planetary nebulae)
+1074;Sanduleak4;Sanduleak (planetary nebulae)
+1075;SaSt;??
+1076;SB;Sylvie Beaulieu (planetary nebulae)
+1077;Shane;Shane (planetary nebulae)
+1078;Shapley;Shapley (planetary nebulae)
+1079;Sher;Sher (open star clusters) (for example: Sher 1 at 11:01:04 / -60:14:00)
+1080;SIM;??
+1081;Simeiz;??
+1082;Sp;Shapley (planetary nebulae)n
+1083;St;??
+1084;Ste;??
+1085;Steph;??
+1086;StWr;Stock-Wroblewski (planetary nebulae)
+1087;SwSt;SwSt - Swings-Struve (planetary nebulae)
+1088;Th;??
+1089;The;??
+1090;Ton;Tonantzintla (globular star clusters)
+1091;Tonantzintla;Tonantzintla (globular star clusters)
+1092;UGCA;Uppsala Selected non-UGC Galaxies
+1093;Upgren;Upgren (open star clusters) (only one object in this catalogue? Upgren 1) (probably Arthur R. Upgren, 1933-2017)
+1094;VBRC;??
+1095;Vd;Vandervort (planetary nebulae)
+1096;Vd1;??
+1097;vdb;Van den Bergh
+1098;Velghe;??
+1099;VV1;Vorontsov-Vel'yaminov Interacting Galaxies (Boris Aleksandrovich Vorontsov-Vel'yaminov)¨
+1100;Waterloo;Waterloo (open star clusters)
+1101;We;Weinberger (planetary nebulae)
+1102;WeDe;Weinberger-Dengle (planetary nebulae)
+1103;WeSb;Weinberger-Sabbadin (planetary nebulae)
+1104;Winnecke;Winnecke Catalogue of Double Stars
+1105;Wray;?? (planetary nebulae)
+1106;YM;?? (planetary nebulae)
