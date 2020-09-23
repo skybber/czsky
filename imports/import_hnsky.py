@@ -54,21 +54,16 @@ cat_priorities = {
     'PGC' : 6,
 }
 
-def _save_pref_cat_dsos(cat_codes, pref_dso_count, line_cnt, dso_list, i, master_dso_map, master_dsos):
-    ccl = len(cat_codes[i])
-    if cat_codes[i] in { 'Sh2' }: # skip '-' character in case of Sh2 object ID
-        ccl += 1
-    pos = int(log(len(dso_list), 10)) + 1
-    dso_list.sort(key=lambda x: (('0' * (pos - (len(x.name) - ccl))) + x.name[ccl:]) if len(x.name) - ccl <  pos else x.name[ccl:])
+def _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, save_master_dsos):
     for dso in dso_list:
-        if master_dsos:
+        if save_master_dsos:
             if dso.name in master_dso_map:
                 continue
         elif not dso.name in master_dso_map:
             continue
         else:
             dso.master_id = master_dso_map[dso.name].id
-        progress(line_cnt, pref_dso_count, 'Importing prefered catalog DSOs')
+        progress(line_cnt, dso_count, 'Importing Hnsky DSOs')
         line_cnt += 1
         db.session.add(dso)
         db.session.flush()
@@ -103,7 +98,7 @@ def import_hnsky(hnsky_dso_file):
         pref_cats[cat.id-1] = []
         cat_codes[cat.id-1] = cat.code
 
-    pref_dso_count = 0
+    dso_count = 0
     other_dsos = []
 
     try:
@@ -246,48 +241,49 @@ def import_hnsky(hnsky_dso_file):
 
                         if cat.id < 1000:
                             pref_cats[cat.id-1].append(dso)
-                            pref_dso_count += 1
                         else:
                             other_dsos.append(dso)
+                        dso_count += 1
+                            
                     else:
                         print('Not found {}'.format(name))
 
-            if child_dsos:
-                for child_dso in child_dsos:
-                    master_dso_map[child_dso.name] = master_dso
+            for child_dso in child_dsos:
+                master_dso_map[child_dso.name] = master_dso
 
+        # Sort dso in catalog list according object number in catalog
+        for i in range(1000):
+            dso_list = pref_cats[i]
+            if not dso_list or not i in cat_codes:
+                continue
+            ccl = len(cat_codes[i])
+            if cat_codes[i] in { 'Sh2' }: # skip '-' character in case of Sh2 object ID
+                ccl += 1
+            pos = int(log(len(dso_list), 10)) + 1
+            # add 0 before dso ID (in catalog)
+            dso_list.sort(key=lambda x: (('0' * (pos - (len(x.name) - ccl))) + x.name[ccl:]) if len(x.name) - ccl <  pos else x.name[ccl:])
+        
+        
         line_cnt = 1
-        
-        # Catalogues with higher priority are imported before lower ones
-        
+
         # Import master DSO from preferred catalogs 
         for i in range(1000):
             dso_list = pref_cats[i]
-            if not dso_list:
-                continue
-            if not i in cat_codes:
-                continue
-            line_cnt = _save_pref_cat_dsos(cat_codes, pref_dso_count, line_cnt, dso_list, i, master_dso_map, True)
+            if dso_list and i in cat_codes:
+                line_cnt = _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, True)
 
-        # Import child DSO from preferred catalogs 
+        # Import child DSO from preferred catalogs
+        line_cnt = _save_dso_list(dso_count, line_cnt, other_dsos, master_dso_map, True) 
+            
         for i in range(1000):
             dso_list = pref_cats[i]
-            if not dso_list:
-                continue
-            if not i in cat_codes:
-                continue
-            line_cnt = _save_pref_cat_dsos(cat_codes, pref_dso_count, line_cnt, dso_list, i, master_dso_map, False)
+            if dso_list and i in cat_codes:
+                line_cnt = _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, False)
 
-        line_cnt = 1
-        print('')
-        for dso in other_dsos:
-            progress(line_cnt, len(other_dsos), 'Importing Hnsky DSOs')
-            line_cnt += 1
-            if dso.name in master_dso_map:
-                dso.master_id = master_dso_map[dso.name].id
-            db.session.add(dso)
-            db.session.flush()
+        line_cnt = _save_dso_list(dso_count, line_cnt, other_dsos, master_dso_map, False) 
+        
         db.session.commit()
+        
     except KeyError as err:
         print('\nKey error: {}'.format(err))
         db.session.rollback()
