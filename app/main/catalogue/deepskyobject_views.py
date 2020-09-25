@@ -100,6 +100,11 @@ def _find_dso(dso_id):
     return dso, orig_dso
 
 
+def _get_other_names(master_dso):
+    child_dsos = DeepskyObject.query.filter_by(master_id=master_dso.id)
+    return ' / '.join(dso.name for dso in child_dsos)
+
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
 def deepskyobject_info(dso_id):
@@ -134,9 +139,12 @@ def deepskyobject_info(dso_id):
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
 
+    other_names = _get_other_names(dso)
+
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
-                           editable=editable, descr_available=descr_available, dso_image_info=dso_image_info)
+                           editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
+                           )
 
 
 def _get_dso_image_info(dso_name, dir):
@@ -175,8 +183,11 @@ def deepskyobject_catalogue_data(dso_id):
     if dso is None:
         abort(404)
     prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
+    
+    other_names = _get_other_names(dso)
+    
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id, other_names=other_names,
                            )
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/findchart', methods=['GET', 'POST'])

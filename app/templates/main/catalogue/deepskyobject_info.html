@@ -264,6 +264,7 @@
         {% if full_table %}<tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>{% endif %}
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}</td></tr>
         {% if dso.common_name %}<tr><td>{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>{% endif %}
+        {% if other_names %}<tr><td>{{ _('Other names') }}</td><td>{{ other_names }}</td></tr>{% endif %}
         {% if full_table %}<tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>{% endif %}
         {% if dso.descr %}<tr><td>{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>{% endif %}
         <tr><td>RA</td><td>{{ dso.ra_str() }}</td></tr>
