@@ -264,7 +264,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             if not udd:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if not dso:
-                    current_app.logger.warn('dso={} not found!'.format(dso_name), flush=True)
+                    current_app.logger.warn('dso={} not found!'.format(dso_name))
                     continue
                 if dso.master_id:
                     master_dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
