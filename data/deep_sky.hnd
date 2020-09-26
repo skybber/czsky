@@ -50,7 +50,7 @@ RA[0..864000], DEC[-324000..324000], magn*10, name(s), type(s), brightness*10, l
 551138,7500,57,M5/NGC5904,GC/[V]/!!/vB/L/eCM/eRi;st_mags_11...;superb_cluster,123,230
 56319,110369,57,M33/NGC598/Pinwheel_Galaxy,GX/[Sc]/eB/eL/R/vgbMN;Local_Group;HV17,141,687,416,23
 70550,136200,57,NGC752,OC/[III1m]/Cl/vvL/Ri/*L_&_S/C;HVII32;Best_in_RFT_or_binocs;Ir_scattered_cl_70*_mags_8...,,750
-601015,131259,58,M13/NGC6205/Hercules_Cluster,GC/[V]/!!/eB/vRi/vgeCM/*11…,121,200
+601015,131259,58,M13/NGC6205/Hercules_Cluster,GC/[V]/!!/eB/vRi/vgeCM/*11ï¿½,121,200
 296231,-20702,58,M48/NGC2548,OC/[I2m]/Cl/vL/pRi/pmC/*_9..13;50*_9-13mag;HVI22,130,300
 678650,-22572,58,M11/NGC6705/Wild_Duck_Cluster,OC/[I2r]/!!Cl/vB/L/iR/Ri/*9..;500_stars_to_14tHmag,90,110
 283300,-138708,58,NGC2477,OC/[I3r]/!Cl/B/Ri/L/lC/*12;300_*_to_12_mag;Shapley--richest_of_OPNCL,,200
@@ -29141,10 +29141,4 @@ RA[0..864000], DEC[-324000..324000], magn*10, name(s), type(s), brightness*10, l
 171201,212957,,PK_149.1+08.8/PNG149.1+08.8/Kn34,PN,,8
 207580,8466,,PK_203.1-13.4/PNG203.1-13.4/Te11,CV*,,8
 266285,2192,,PK_216.0+07.4/PNG216.0+07.4/PHRJ0723+0036,PN,,18
-229010,84913,,Howell-Crisp1,PN/F/R/neb|discovered_2006|H-alpha&OIII,,9
-
-
-
-
-
-
+229010,84913,,HoCr1,PN/F/R/neb|discovered_2006|H-alpha&OIII,,9
