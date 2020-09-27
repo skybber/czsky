@@ -230,3 +230,7 @@ def import_vic_list(vic_data_file):
 
 def import_rosse(rosse_data_file):
     _do_import_simple_csv(rosse_data_file, 'Rosse Spirals')
+
+def import_glahn_pns(glahn_pn_data_file):
+    _do_import_simple_csv(glahn_pn_data_file, 'Planetární mlhoviny severní oblohy')
+    
