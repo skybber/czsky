@@ -7,7 +7,10 @@ class DsoList(db.Model):
     __tablename__ = 'dso_lists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), index=True)
+    show_common_name = db.Column(db.Boolean, default=True)
     show_descr_name = db.Column(db.Boolean, default=False)
+    show_dso_type = db.Column(db.Boolean, default=False)
+    show_angular_size = db.Column(db.Boolean, default=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

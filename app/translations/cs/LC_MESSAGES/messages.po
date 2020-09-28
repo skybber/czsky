@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-05-02 11:14+0200\n"
+"POT-Creation-Date: 2020-09-28 09:06+0200\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -23,30 +23,38 @@ msgid "Search"
 msgstr "Hledat"
 
 #: app/main/catalogue/constellation_forms.py:33
+#: app/main/catalogue/dso_list_forms.py:32
+#: app/templates/main/catalogue/dso_list_info.html:31
 msgid "Season"
 msgstr "Roční období"
 
 #: app/main/catalogue/constellation_forms.py:34
+#: app/main/catalogue/dso_list_forms.py:33
 msgid "All"
 msgstr "Všechna"
 
 #: app/main/catalogue/constellation_forms.py:35
+#: app/main/catalogue/dso_list_forms.py:34
 msgid "Winter"
 msgstr "zima"
 
 #: app/main/catalogue/constellation_forms.py:36
+#: app/main/catalogue/dso_list_forms.py:35
 msgid "Spring"
 msgstr "jaro"
 
 #: app/main/catalogue/constellation_forms.py:37
+#: app/main/catalogue/dso_list_forms.py:36
 msgid "Summer"
 msgstr "léto"
 
 #: app/main/catalogue/constellation_forms.py:38
+#: app/main/catalogue/dso_list_forms.py:37
 msgid "Autumn"
 msgstr "podzim"
 
 #: app/main/catalogue/constellation_forms.py:39
+#: app/main/catalogue/dso_list_forms.py:38
 msgid "Southern"
 msgstr "jižní souhvězdí"
 
@@ -63,9 +71,10 @@ msgid "Text"
 msgstr "Text"
 
 #: app/main/catalogue/constellation_forms.py:46
-#: app/main/catalogue/deepskyobject_forms.py:71
-#: app/main/catalogue/deepskyobject_forms.py:79
+#: app/main/catalogue/deepskyobject_forms.py:72
+#: app/main/catalogue/deepskyobject_forms.py:80
 #: app/main/catalogue/star_forms.py:34 app/main/catalogue/star_forms.py:39
+#: app/main/solarsystem/comet_forms.py:41
 #: app/main/usersettings/usersettings_forms.py:19
 #: app/main/usersettings/usersettings_forms.py:34
 #: app/main/usersettings/usersettings_forms.py:39
@@ -73,11 +82,12 @@ msgid "Update"
 msgstr "Uložit"
 
 #: app/main/catalogue/deepskyobject_forms.py:58
-#: app/main/catalogue/deepskyobject_forms.py:75
-#: app/main/catalogue/star_forms.py:38
-#: app/templates/main/catalogue/deepskyobject_info.html:143
+#: app/main/catalogue/deepskyobject_forms.py:76
+#: app/main/catalogue/star_forms.py:38 app/main/solarsystem/comet_forms.py:35
+#: app/templates/main/catalogue/deepskyobject_info.html:153
 #: app/templates/main/catalogue/deepskyobjects.html:35
 #: app/templates/main/catalogue/star_info.html:73
+#: app/templates/main/solarsystem/comet_info.html:44
 msgid "Limit mag"
 msgstr "Limit mag"
 
@@ -85,36 +95,47 @@ msgstr "Limit mag"
 msgid "References"
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:74
-#: app/main/catalogue/deepskyobject_forms.py:82
-#: app/main/catalogue/star_forms.py:37
+#: app/main/catalogue/deepskyobject_forms.py:69
+#: app/main/location/location_forms.py:37
+#: app/main/observation/observation_forms.py:71
+#: app/templates/main/location/locations.html:43
+#: app/templates/main/observation/observations.html:42
+msgid "Rating"
+msgstr "Hodnocení"
+
+#: app/main/catalogue/deepskyobject_forms.py:75
+#: app/main/catalogue/star_forms.py:37 app/main/solarsystem/comet_forms.py:34
 msgid "Field radius"
 msgstr "Zorné pole"
 
-#: app/main/catalogue/deepskyobject_forms.py:76
-#: app/templates/main/catalogue/deepskyobject_info.html:167
+#: app/main/catalogue/deepskyobject_forms.py:77
+#: app/main/solarsystem/comet_forms.py:36
+#: app/templates/main/catalogue/deepskyobject_info.html:177
 msgid "DSO limit mag"
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:77
-#: app/templates/main/catalogue/deepskyobject_info.html:175
+#: app/main/catalogue/deepskyobject_forms.py:78
+#: app/main/solarsystem/comet_forms.py:37
+#: app/templates/main/catalogue/deepskyobject_info.html:185
 msgid "Mirror X"
 msgstr "Otočit-X"
 
-#: app/main/catalogue/deepskyobject_forms.py:78
-#: app/templates/main/catalogue/deepskyobject_info.html:182
+#: app/main/catalogue/deepskyobject_forms.py:79
+#: app/main/solarsystem/comet_forms.py:38
+#: app/templates/main/catalogue/deepskyobject_info.html:192
 msgid "Mirror Y"
 msgstr "Otočit-Y"
 
 #: app/main/location/location_forms.py:33
-#: app/templates/main/catalogue/constellation_info.html:189
+#: app/templates/main/catalogue/constellation_info.html:206
 #: app/templates/main/catalogue/constellations.html:35
-#: app/templates/main/catalogue/deepskyobject_info.html:273
-#: app/templates/main/catalogue/dso_list_info.html:33
+#: app/templates/main/catalogue/deepskyobject_info.html:264
+#: app/templates/main/catalogue/dso_list_info.html:41
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:84
 #: app/templates/main/location/locations.html:39
 #: app/templates/main/planner/session_plans.html:18
+#: app/templates/main/solarsystem/comets.html:31
 msgid "Name"
 msgstr "Jméno"
 
@@ -136,19 +157,12 @@ msgstr "Poznámky"
 msgid "Bortle"
 msgstr "Bortle"
 
-#: app/main/location/location_forms.py:37
-#: app/main/observation/observation_forms.py:71
-#: app/templates/main/location/locations.html:43
-#: app/templates/main/observation/observations.html:42
-msgid "Rating"
-msgstr "Hodnocení"
-
 #: app/main/location/location_forms.py:38
 msgid "Is suitable for observation"
 msgstr "Je vhodná k pozorování"
 
 #: app/main/location/location_forms.py:39
-#: app/templates/main/catalogue/deepskyobject_edit.html:42
+#: app/templates/main/catalogue/deepskyobject_edit.html:64
 msgid "Is public"
 msgstr "Je veřejná"
 
@@ -224,6 +238,14 @@ msgstr "Uložit plán pozorování"
 #: app/main/planner/planner_forms.py:51 app/main/planner/planner_forms.py:54
 msgid "DSO name"
 msgstr ""
+
+#: app/main/solarsystem/comet_forms.py:39
+msgid "From Date"
+msgstr "Datum od"
+
+#: app/main/solarsystem/comet_forms.py:40
+msgid "To Date"
+msgstr "Datum do"
 
 #: app/main/usersettings/usersettings_forms.py:15
 msgid "Username"
@@ -307,25 +329,34 @@ msgid "View deepsky lists"
 msgstr "Zobrazit sekci seznamy deepsky"
 
 #: app/templates/main/index.html:17
+#: app/templates/main/solarsystem/comets.html:8
+msgid "Solar System"
+msgstr "Sluneční soustava"
+
+#: app/templates/main/index.html:18
+msgid "View solar system"
+msgstr "Zobrazit sluneční soustavu"
+
+#: app/templates/main/index.html:19
 msgid "Sky quality"
 msgstr "Sky quality"
 
-#: app/templates/main/index.html:18
+#: app/templates/main/index.html:20
 msgid "View skyquality section"
 msgstr "Zobrazit sekci sky quality"
 
-#: app/templates/main/index.html:20
+#: app/templates/main/index.html:22
 #: app/templates/main/observation/observation_edit.html:13
 #: app/templates/main/observation/observation_menu.html:13
 #: app/templates/main/observation/observations.html:9
 msgid "Observer"
 msgstr "Pozorování"
 
-#: app/templates/main/index.html:21
+#: app/templates/main/index.html:23
 msgid "View observer menu"
 msgstr "Zobrazit sekci pozorování"
 
-#: app/templates/main/index.html:24
+#: app/templates/main/index.html:26
 #: app/templates/main/planner/planner_menu.html:13
 #: app/templates/main/planner/session_plan_edit.html:13
 #: app/templates/main/planner/session_plans.html:8
@@ -333,24 +364,24 @@ msgstr "Zobrazit sekci pozorování"
 msgid "Planner"
 msgstr "Plánování"
 
-#: app/templates/main/index.html:25
+#: app/templates/main/index.html:27
 msgid "View planner menu"
 msgstr "Zobrazit sekci plánováni"
 
-#: app/templates/main/index.html:28
+#: app/templates/main/index.html:30
 #: app/templates/main/userdata/userdata_menu.html:13
 msgid "User Data"
 msgstr "Data a nastavení"
 
-#: app/templates/main/index.html:29
+#: app/templates/main/index.html:31
 msgid "View user data"
 msgstr "Zobrazit sekci moje data a nastavení"
 
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:10
-#: app/templates/main/catalogue/deepskyobject_info.html:276
+#: app/templates/main/catalogue/deepskyobject_info.html:268
 #: app/templates/main/catalogue/deepskyobjects.html:56
-#: app/templates/main/catalogue/dso_list_info.html:35
+#: app/templates/main/catalogue/dso_list_info.html:48
 #: app/templates/main/catalogue/star_edit.html:10
 #: app/templates/main/catalogue/star_info.html:85
 #: app/templates/main/planner/session_plan_info.html:57
@@ -359,7 +390,8 @@ msgid "Constellation"
 msgstr "Souhvězdí"
 
 #: app/templates/main/catalogue/constellation_edit.html:30
-#: app/templates/main/catalogue/deepskyobject_edit.html:61
+#: app/templates/main/catalogue/deepskyobject_edit.html:34
+#: app/templates/main/catalogue/deepskyobject_edit.html:83
 msgid "Update and back"
 msgstr "Uložit a zpět"
 
@@ -377,35 +409,36 @@ msgid "DSO"
 msgstr "DSO"
 
 #: app/templates/main/catalogue/constellation_info.html:32
-#: app/templates/main/catalogue/constellation_info.html:220
-#: app/templates/main/catalogue/deepskyobject_info.html:274
+#: app/templates/main/catalogue/constellation_info.html:283
+#: app/templates/main/catalogue/deepskyobject_info.html:265
 #: app/templates/main/catalogue/deepskyobjects.html:55
-#: app/templates/main/catalogue/dso_list_info.html:34
+#: app/templates/main/catalogue/dso_list_info.html:46
 #: app/templates/main/planner/session_plan_info.html:56
 #: app/templates/main/planner/wish_list.html:39
 msgid "Type"
 msgstr "Typ"
 
 #: app/templates/main/catalogue/constellation_info.html:33
-#: app/templates/main/catalogue/deepskyobject_info.html:275
+#: app/templates/main/catalogue/deepskyobject_info.html:266
+#: app/templates/main/catalogue/dso_list_info.html:43
 msgid "Common name"
 msgstr "Obecné jméno"
 
 #: app/templates/main/catalogue/constellation_info.html:34
-#: app/templates/main/catalogue/deepskyobject_info.html:277
+#: app/templates/main/catalogue/deepskyobject_info.html:269
 msgid "descr"
 msgstr "popis"
 
-#: app/templates/main/catalogue/constellation_info.html:188
+#: app/templates/main/catalogue/constellation_info.html:205
 #: app/templates/main/catalogue/constellations.html:34
 msgid "IAU code"
 msgstr "IAU kód"
 
-#: app/templates/main/catalogue/constellation_info.html:190
+#: app/templates/main/catalogue/constellation_info.html:207
 msgid "Image"
 msgstr "Obrázek"
 
-#: app/templates/main/catalogue/constellation_info.html:191
+#: app/templates/main/catalogue/constellation_info.html:208
 #: app/templates/main/catalogue/dso_list_info.html:18
 #: app/templates/main/catalogue/dso_list_menu.html:19
 msgid "Description"
@@ -416,6 +449,7 @@ msgstr "Popis"
 #: app/templates/main/catalogue/dso_list_menu.html:8
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
+#: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -429,29 +463,31 @@ msgid "Surveys"
 msgstr "Přehlídka"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:8
-msgid "Catalogue"
-msgstr "Katalog"
-
-#: app/templates/main/catalogue/deepskyobject_info.html:121
-#: app/templates/main/catalogue/star_info.html:51
-msgid "Field Size"
-msgstr "Zorné pole"
-
-#: app/templates/main/catalogue/deepskyobject_info.html:205
-msgid "Survey"
-msgstr "Přehlídka"
-
 #: app/templates/main/catalogue/deepskyobjects.html:17
 msgid "Catalog"
 msgstr "Katalog"
+
+#: app/templates/main/catalogue/deepskyobject_info.html:131
+#: app/templates/main/catalogue/star_info.html:51
+#: app/templates/main/solarsystem/comet_info.html:28
+msgid "Field Size"
+msgstr "Zorné pole"
+
+#: app/templates/main/catalogue/deepskyobject_info.html:267
+msgid "Other names"
+msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:21
 msgid "Object Type"
 msgstr "Typ Objektu"
 
-#: app/templates/main/catalogue/dso_list_info.html:32
+#: app/templates/main/catalogue/dso_list_info.html:40
 msgid "Number"
 msgstr "Číslo"
+
+#: app/templates/main/catalogue/dso_list_info.html:51
+msgid "Size"
+msgstr "Velikost"
 
 #: app/templates/main/catalogue/dso_list_menu.html:11
 msgid "Deepsky Object Lists"
@@ -623,6 +659,31 @@ msgstr "souhvězdí"
 msgid "Wish List"
 msgstr "Wishlist"
 
+#: app/templates/main/solarsystem/comet_info.html:54
+msgid "From date"
+msgstr "Datum od"
+
+#: app/templates/main/solarsystem/comet_info.html:64
+msgid "To date"
+msgstr "datum do"
+
+#: app/templates/main/solarsystem/comets.html:11
+#: app/templates/main/solarsystem/solarsystem_menu.html:16
+msgid "Comets"
+msgstr "Komety"
+
+#: app/templates/main/solarsystem/comets.html:32
+msgid "Brightness"
+msgstr "Jas"
+
+#: app/templates/main/solarsystem/solarsystem_menu.html:13
+msgid "Solar system"
+msgstr "Sluneční soustava"
+
+#: app/templates/main/solarsystem/solarsystem_menu.html:17
+msgid "Show comets"
+msgstr "Zobrazit komety"
+
 #: app/templates/main/userdata/data_store.html:111
 msgid "Load data from GIT"
 msgstr "Nahrát data z GIT repozitáře"
@@ -670,4 +731,10 @@ msgstr "Synchronizace s git repozitáři"
 
 #~ msgid "Find chart"
 #~ msgstr "Vyhledávací mapka"
+
+#~ msgid "Catalogue"
+#~ msgstr "Katalog"
+
+#~ msgid "Survey"
+#~ msgstr "Přehlídka"
 
