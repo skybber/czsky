@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
 
 {% set endpoints = [
     ('main_constellation.constellation_info', _('Info'), 'info'),
@@ -187,7 +188,7 @@
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
-                                <i class="info icon"></i> {{ ug_bl_dso.dso.mag if ug_bl_dso.dso.mag and ug_bl_dso.dso.mag < 100.0 else '-' }}mag
+                                <i class="info icon"></i> {{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag
                             </div>
                         </h3>
                     </a>
