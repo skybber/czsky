@@ -37,18 +37,20 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">{{ _('Number') }}</th>
+                            <th class="sorted ascending collapsing">{{ _('Number') }}</th>
                             <th class="sorted ascending">{{ _('Name') }}</th>
                             {% if dso_list.show_common_name %}
-                                <th>{{ _('Common name') }}</th>
+                                <th class="mobile hidden">{{ _('Common name') }}</th>
                             {% endif %}
                             {% if dso_list.show_dso_type %}
                                 <th>{{ _('Type') }}</th>
                             {% endif %}
+                            <th class="mobile hidden">RA</th>
+                            <th class="mobile hidden">Dec</th>
                             <th>{{ _('Constellation') }}</th>
-                            <th>mag</th>
+                            <th class="right aligned">mag</th>
                             {% if dso_list.show_angular_size %}
-                                <th>{{ _('Size') }}</th>
+                                <th class="right aligned mobile hidden">{{ _('Size') }}</th>
                             {% endif %}
                         </tr>
                     </thead>
@@ -57,26 +59,39 @@
 
                     {% for item in dso_list_items %}
                         <tr>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.item_id }}</p></td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';" class="collapsing">
+                                <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
+                            </td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
                             {% if dso_list.show_common_name %}
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';" class="mobile hidden">
                                 {{ item.deepskyObject.common_name if item.deepskyObject.common_name else '' }}
                             </td>
                             {% endif %}
                             {% if dso_list.show_dso_type %}
-                              <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
+                              <td>{{ item.deepskyObject.type }}</td>
                             {% endif %}
+                            <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
+                            <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">
-                                {{ item.deepskyObject.mag if item.deepskyObject.mag and item.deepskyObject.mag < 50.0 else item.deepskyObject.v_mag if item.deepskyObject.v_mag and item.deepskyObject.v_mag < 50.0 else ''}}
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';" class="right aligned">
+                                {{ item.deepskyObject.mag if item.deepskyObject.mag and item.deepskyObject.mag < 100.0 else '-' }}
                             </td>
-                            {% if dso_list.show_angular_size and item.deepskyObject.major_axis %}
-                              <td onclick="window.location.href='{{ to_dso_url(item) }}';">
-                                  {% if item.deepskyObject.major_axis >= 100.0 %}
-                                    {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
-                                  {% else %}
-                                    {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                            {% if dso_list.show_angular_size %}
+                              <td onclick="window.location.href='{{ to_dso_url(item) }}';" class="right aligned mobile hidden">
+                                  {% if item.deepskyObject.major_axis %}
+                                      {% if item.deepskyObject.major_axis >= 100.0 %}
+                                        {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                                      {% else %}
+                                        {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                                      {% endif %}                              
+                                      {% if dso_list.show_minor_axis and item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
+                                      / {% if item.deepskyObject.minor_axis >= 100.0 %}
+                                          {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                                        {% else %}
+                                          {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                                        {% endif %}
+                                      {% endif %}
                                   {% endif %}                              
                               </td>
                             {% endif %}

@@ -25,7 +25,6 @@ from .constellation_forms import (
     ConstellationEditForm,
     SearchConstellationForm,
 )
-from imports import link_star_descriptions
 
 main_constellation = Blueprint('main_constellation', __name__)
 

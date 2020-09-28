@@ -61,11 +61,6 @@ def import_vic(vic_data_file):
                 c.minor_axis =  vic2int(row['width']) / 10 * 60.0
                 c.positon_angle =  vic2int(row['orient']) / 10
                 c.mag = vic2int(row['mag']) / 10
-                c.b_mag = None
-                c.v_mag = None
-                c.j_mag =  None
-                c.h_mag =  None
-                c.k_mag =  None
                 c.surface_bright = vic2int(row['brightness']) / 10
                 c.hubble_type =  None
                 c.c_star_u_mag = None

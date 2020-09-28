@@ -89,7 +89,7 @@
                     </div>
                 {% endif %}
                 <div class="ui label" style="float:right;">
-                    <i class="info icon"></i> {{ dso.mag if dso.mag else dso.v_mag }}mag
+                    <i class="info icon"></i> {{ dso.mag if dso.mag else '' }}mag
                 </div>
                 {% if dso.constellation is not none %}
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
@@ -228,9 +228,9 @@
                           <i class="caret edit icon"></i>
                       </a>
                   {% endif %}
-                  {% if dso.v_mag %}
+                  {% if dso.mag %}
                       <div class="ui label" style="float:right;">
-                          <i class="info icon"></i> {{ dso.v_mag }}mag
+                          <i class="info icon"></i> {{ dso.mag }}mag
                       </div>
                   {% endif %}
                   {% if dso.constellation %}
@@ -298,7 +298,6 @@
         {% if dso.surface_bright %}<tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
         {# {% if dso.hubble_type %}<tr><td>hubble_type</td><td>{{ dso.hubble_type }}</td></tr>{% endif %} #}
         {% if dso.type == 'PN' %}
-            {# {% if dso.c_star_u_mag %}<tr><td>c_star_u_mag</td><td>{{ dso.c_star_u_mag }}</td></tr>{% endif %} #}
             {# {% if dso.c_star_b_mag %}<tr><td>c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>{% endif %} #}
             {# {% if dso.c_star_v_mag %}<tr><td>c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>{% endif %} #}
         {% endif %}

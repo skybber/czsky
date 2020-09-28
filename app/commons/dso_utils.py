@@ -106,7 +106,8 @@ def denormalize_dso_name(name):
         norm = name
     else:
         last_zero_index = zero_index
-        while name[last_zero_index+1] == '0':
+        l = len(name)
+        while last_zero_index + 1 < l and name[last_zero_index+1] == '0':
             last_zero_index += 1
         norm = name[:zero_index] + name[last_zero_index+1:]
     if norm.startswith('Sh2-'):

@@ -15,9 +15,7 @@ from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5 import import_bright_stars_bsc5
 from imports.import_vic import import_vic
-from imports.import_8mag import do_import_8mag
 from imports.import_skyquality import do_import_skyquality_locations
-from imports.link_star_descriptions import link_star_descriptions
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn, import_vic_list, import_rosse, import_glahn_pns
 from imports.import_hnsky import import_hnsky
@@ -164,15 +162,8 @@ def reimport_dsos():
     import_holmberg('data/dsolist/Holmberg.csv')
     import_abell_pn('data/dsolist/AbellPN.csv')
     import_vic_list('data/dsolist/Vic.csv')
+    import_rosse('data/dsolist/RosseSpirals.csv')
     import_glahn_pns('data/dsolist/Glahn_PN.csv')
-
-@manager.command
-def import_8mag():
-    """
-    Import 8mag
-    """
-    do_import_8mag('private_data/8mag', True, 'translations.sqlite', 'data/vic_8mag.csv')
-    link_star_descrs()
 
 @manager.command
 def import_new_skyquality_locations():
@@ -236,27 +227,11 @@ def add_editor_user():
 
 # TODO: remove
 @manager.command
-def tmp_link_star_descrs():
-    """
-    Link star descriptions
-    """
-    link_star_descriptions()
-
-# TODO: remove
-@manager.command
 def tmp_normalize_glahn_img():
     """
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
     
-@manager.command
-def tmp_import_glahn_pns():
-    import_glahn_pns('data/dsolist/Glahn_PN.csv')
-
-@manager.command
-def tmp_fix_dso_constellation():
-    fix_dso_constellation()
-
 if __name__ == '__main__':
     manager.run()

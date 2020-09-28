@@ -8,7 +8,6 @@ from app.models.dsolist import DsoList, DsoListDescription, DsoListItem
 from app.models.user import User
 from app.models.deepskyobject import DeepskyObject
 
-from app.commons.dso_utils import normalize_dso_name
 from .import_utils import progress
 
 def _load_descriptions(dirname, base_name, dso_list, editor_user):
@@ -49,6 +48,7 @@ def import_herschel400(herschel400_data_file):
                 dso_list.show_common_name = True
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
+                dso_list.show_minor_axis = True
                 dso_list.update_by=editor_user.id
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
@@ -59,6 +59,7 @@ def import_herschel400(herschel400_data_file):
                     show_common_name = True,
                     show_dso_type = True,
                     show_angular_size = True, 
+                    show_minor_axis = True,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
                     create_date=datetime.now(),
@@ -117,6 +118,7 @@ def import_caldwell(caldwell_data_file):
                 dso_list.show_common_name = True
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
+                dso_list.show_minor_axis = True
                 dso_list.update_by=editor_user.id
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
@@ -129,6 +131,7 @@ def import_caldwell(caldwell_data_file):
                     show_common_name = True,
                     show_dso_type = True,
                     show_angular_size = True, 
+                    show_minor_axis = True,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -173,7 +176,7 @@ def import_caldwell(caldwell_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_descr_name=False):
+def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -188,6 +191,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
                 dso_list.update_by=editor_user.id
                 dso_list.show_dso_type = show_dso_type
                 dso_list.show_angular_size = show_angular_size 
+                dso_list.show_minor_axis = show_minor_axis
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
                 dso_list.dso_list_descriptions[:] = []
@@ -200,6 +204,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
                     update_by=editor_user.id,
                     show_dso_type = show_dso_type,
                     show_angular_size = show_angular_size, 
+                    show_minor_axis = show_minor_axis,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -251,7 +256,7 @@ def import_holmberg(holmberg_data_file):
     _do_import_simple_csv(holmberg_data_file, 'Galaxies from Holmberg catalog', show_common_name=False)
 
 def import_abell_pn(abell_pn_data_file):
-    _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae', show_common_name=False)
+    _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae', show_common_name=False, show_minor_axis=False)
 
 def import_vic_list(vic_data_file):
     _do_import_simple_csv(vic_data_file, 'VIC list of asterism', show_angular_size=False, show_descr_name=True)
@@ -260,5 +265,5 @@ def import_rosse(rosse_data_file):
     _do_import_simple_csv(rosse_data_file, 'Rosse Spirals', show_dso_type=True)
 
 def import_glahn_pns(glahn_pn_data_file):
-    _do_import_simple_csv(glahn_pn_data_file, 'Planetární mlhoviny severní oblohy')
+    _do_import_simple_csv(glahn_pn_data_file, 'Planetární mlhoviny severní oblohy', show_minor_axis=False)
     
