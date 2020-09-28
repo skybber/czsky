@@ -153,15 +153,15 @@
                 </div>
             {% endfor %}
         {% endif %}
-        {% if glahn_dsos %}
-            {% for glahn_dso in glahn_dsos %}
+        {% if ug_bl_dsos %}
+            {% for ug_bl_dso in ug_bl_dsos %}
                 <div class="ui segment" style="display: inline-block;width:100%">
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=glahn_dso.dso.name, from_constellation_id=constellation.iau_code) }}">
-                        <h3 id="dso{{ glahn_dso.dso.id }}" style="margin-bottom:0.8em;">
-                            {{ glahn_dso.dso.denormalized_name() }}
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=ug_bl_dso.dso.name, from_constellation_id=constellation.iau_code) }}">
+                        <h3 id="dso{{ ug_bl_dso.dso.id }}" style="margin-bottom:0.8em;">
+                            {{ ug_bl_dso.dso.denormalized_name() }}
                             {% if editable %}
                                 <a class="ui icon mini button" style="float:right;padding-left:12px;"
-                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=glahn_dso.dso.id, from_constellation_id=constellation.iau_code) }}">
+                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, from_constellation_id=constellation.iau_code) }}">
                                     <i class="caret edit icon"></i>
                                 </a>
                             {% endif %}
@@ -170,29 +170,29 @@
                                     <div class="ui rating center mobile hidden" data-icon="star" data-rating="1" data-max-rating="5"></div>
                                 </div>
                             </div>
-                            {% if glahn_dso.dso.major_axis %}
+                            {% if ug_bl_dso.dso.major_axis %}
                                 <div class="ui label" style="float:right;">
-                                    Ø {% if glahn_dso.dso.major_axis >= 100.0 %}
-                                        {{ (glahn_dso.dso.major_axis / 60.0) | round(2, 'floor') }}'
+                                    Ø {% if ug_bl_dso.dso.major_axis >= 100.0 %}
+                                        {{ (ug_bl_dso.dso.major_axis / 60.0) | round(2, 'floor') }}'
                                       {% else %}
-                                        {{ glahn_dso.dso.major_axis | round(2, 'floor')}}''
+                                        {{ ug_bl_dso.dso.major_axis | round(2, 'floor')}}''
                                       {% endif %}
-                                    {% if glahn_dso.dso.minor_axis %}
-                                    / {% if glahn_dso.dso.minor_axis >= 100.0 %}
-                                        {{ (glahn_dso.dso.minor_axis / 60.0) | round(2, 'floor') }}'
+                                    {% if ug_bl_dso.dso.minor_axis %}
+                                    / {% if ug_bl_dso.dso.minor_axis >= 100.0 %}
+                                        {{ (ug_bl_dso.dso.minor_axis / 60.0) | round(2, 'floor') }}'
                                       {% else %}
-                                        {{ glahn_dso.dso.minor_axis | round(2, 'floor')}}''
+                                        {{ ug_bl_dso.dso.minor_axis | round(2, 'floor')}}''
                                       {% endif %}
                                     {% endif %}
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
-                                <i class="info icon"></i> {{ glahn_dso.dso.mag if glahn_dso.dso.mag else glahn_dso.dso.v_mag }}mag
+                                <i class="info icon"></i> {{ ug_bl_dso.dso.mag if ug_bl_dso.dso.mag else ug_bl_dso.dso.v_mag }}mag
                             </div>
                         </h3>
                     </a>
                     <div class="markdown">
-                        {{ deepskyobject_data_table(glahn_dso['dso'], glahn_dso['img_info']) }}
+                        {{ deepskyobject_data_table(ug_bl_dso['dso'], ug_bl_dso['img_info']) }}
                     </div>
                 </div>
             {% endfor %}

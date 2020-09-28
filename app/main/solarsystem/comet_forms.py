@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
@@ -36,4 +36,6 @@ class CometFindChartForm(FlaskForm):
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
     mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
+    from_date = DateField(lazy_gettext('From Date'), id='fromdate', format = '%d/%m/%Y', default = datetime.today)
+    to_date = DateField(lazy_gettext('To Date'), id='todate', format = '%d/%m/%Y', default = datetime.today)
     submit = SubmitField(lazy_gettext('Update'))
