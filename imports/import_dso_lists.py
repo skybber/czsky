@@ -43,21 +43,27 @@ def import_herschel400(herschel400_data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             editor_user = User.get_editor_user()
-            existing_dso_list = DsoList.query.filter_by(name='Herschel400').first()
-            if existing_dso_list:
-                db.session.delete(existing_dso_list)
-                db.session.flush()
-
-            dso_list = DsoList(
-                name='Herschel400',
-                show_common_name = True,
-                show_dso_type = True,
-                show_angular_size = True, 
-                create_by=editor_user.id,
-                update_by=editor_user.id,
-                create_date=datetime.now(),
-                update_date=datetime.now()
-            )
+            dso_list = DsoList.query.filter_by(name='Herschel400').first()
+            if dso_list:
+                dso_list.name = 'Herschel400'
+                dso_list.show_common_name = True
+                dso_list.show_dso_type = True
+                dso_list.show_angular_size = True
+                dso_list.update_by=editor_user.id
+                dso_list.create_date=datetime.now()
+                dso_list.dso_list_items[:] = []
+                dso_list.dso_list_descriptions[:] = []
+            else:
+                dso_list = DsoList(
+                    name='Herschel400',
+                    show_common_name = True,
+                    show_dso_type = True,
+                    show_angular_size = True, 
+                    create_by=editor_user.id,
+                    update_by=editor_user.id,
+                    create_date=datetime.now(),
+                    update_date=datetime.now()
+                )
 
             db.session.add(dso_list)
             db.session.flush()
@@ -105,21 +111,27 @@ def import_caldwell(caldwell_data_file):
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             editor_user = User.get_editor_user()
-            existing_dso_list = DsoList.query.filter_by(name='Caldwell').first()
-            if existing_dso_list:
-                db.session.delete(existing_dso_list)
-                db.session.flush()
-
-            dso_list = DsoList(
-                name='Caldwell',
-                create_by=editor_user.id,
-                update_by=editor_user.id,
-                show_common_name = True,
-                show_dso_type = True,
-                show_angular_size = True, 
-                create_date=datetime.now(),
-                update_date=datetime.now()
-            )
+            dso_list = DsoList.query.filter_by(name='Caldwell').first()
+            if dso_list:
+                dso_list.name ='Caldwell'
+                dso_list.show_common_name = True
+                dso_list.show_dso_type = True
+                dso_list.show_angular_size = True
+                dso_list.update_by=editor_user.id
+                dso_list.create_date=datetime.now()
+                dso_list.dso_list_items[:] = []
+                dso_list.dso_list_descriptions[:] = []
+            else:
+                dso_list = DsoList(
+                    name='Caldwell',
+                    create_by=editor_user.id,
+                    update_by=editor_user.id,
+                    show_common_name = True,
+                    show_dso_type = True,
+                    show_angular_size = True, 
+                    create_date=datetime.now(),
+                    update_date=datetime.now()
+                )
 
             db.session.add(dso_list)
             db.session.flush()
@@ -168,22 +180,29 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
             editor_user = User.get_editor_user()
-            existing_dso_list = DsoList.query.filter_by(name=dso_list_name).first()
-            if existing_dso_list:
-                db.session.delete(existing_dso_list)
-                db.session.flush()
-
-            dso_list = DsoList(
-                name=dso_list_name,
-                show_common_name = show_common_name,
-                show_descr_name=show_descr_name,
-                create_by=editor_user.id,
-                update_by=editor_user.id,
-                show_dso_type = show_dso_type,
-                show_angular_size = show_angular_size, 
-                create_date=datetime.now(),
-                update_date=datetime.now()
-            )
+            dso_list = DsoList.query.filter_by(name=dso_list_name).first()
+            if dso_list:
+                dso_list.name=dso_list_name
+                dso_list.show_common_name = show_common_name
+                dso_list.show_descr_name=show_descr_name
+                dso_list.update_by=editor_user.id
+                dso_list.show_dso_type = show_dso_type
+                dso_list.show_angular_size = show_angular_size 
+                dso_list.create_date=datetime.now()
+                dso_list.dso_list_items[:] = []
+                dso_list.dso_list_descriptions[:] = []
+            else:
+                dso_list = DsoList(
+                    name=dso_list_name,
+                    show_common_name = show_common_name,
+                    show_descr_name=show_descr_name,
+                    create_by=editor_user.id,
+                    update_by=editor_user.id,
+                    show_dso_type = show_dso_type,
+                    show_angular_size = show_angular_size, 
+                    create_date=datetime.now(),
+                    update_date=datetime.now()
+                )
 
             db.session.add(dso_list)
             db.session.flush()
