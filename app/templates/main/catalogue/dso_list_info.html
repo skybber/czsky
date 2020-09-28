@@ -68,7 +68,9 @@
                               <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
                             {% endif %}
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag if item.deepskyObject.mag else item.deepskyObject.v_mag }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">
+                                {{ item.deepskyObject.mag if item.deepskyObject.mag and item.deepskyObject.mag < 50.0 else item.deepskyObject.v_mag if item.deepskyObject.v_mag and item.deepskyObject.v_mag < 50.0 else ''}}
+                            </td>
                             {% if dso_list.show_angular_size and item.deepskyObject.major_axis %}
                               <td onclick="window.location.href='{{ to_dso_url(item) }}';">
                                   {% if item.deepskyObject.major_axis >= 100.0 %}
