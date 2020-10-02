@@ -140,7 +140,7 @@
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
-                                &#9728;{{ user_dso_descr.deepskyObject.mag if user_dso_descr.deepskyObject.mag else user_dso_descr.deepskyObject.v_mag }}mag
+                                &#9728;{{ commons.convert_mag(user_dso_descr.deepskyObject.mag) }}mag
                             </div>
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
@@ -199,7 +199,7 @@
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
-                                {{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag
+                                &#9728;{{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag
                             </div>
                             <div class="ui label" style="float:right;">
                                 <i class="info icon"></i>{{ ug_bl_dso.dso.type }}
