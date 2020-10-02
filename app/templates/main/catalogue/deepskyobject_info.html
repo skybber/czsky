@@ -89,7 +89,10 @@
                     </div>
                 {% endif %}
                 <div class="ui label" style="float:right;">
-                    <i class="info icon"></i> {{ dso.mag if dso.mag else '' }}mag
+                    &#9728;{{ dso.mag if dso.mag else '' }}mag
+                </div>
+                <div class="ui label" style="float:right;">
+                    <i class="info icon"></i> {{ dso.type }}
                 </div>
                 {% if dso.constellation is not none %}
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
@@ -230,9 +233,12 @@
                   {% endif %}
                   {% if dso.mag %}
                       <div class="ui label" style="float:right;">
-                          <i class="info icon"></i> {{ dso.mag }}mag
+                          &#9728;{{ dso.mag }}mag
                       </div>
                   {% endif %}
+                  <div class="ui label" style="float:right;">
+                      <i class="info icon"></i> {{ dso.type }}
+                  </div>
                   {% if dso.constellation %}
                   <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
                       <i class="lastfm icon"></i> {{ dso.constellation.name.capitalize() }}
