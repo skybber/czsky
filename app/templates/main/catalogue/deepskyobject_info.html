@@ -92,7 +92,7 @@
                     &#9728;{{ dso.mag if dso.mag else '' }}mag
                 </div>
                 <div class="ui label" style="float:right;">
-                    <i class="info icon"></i> {{ dso.type }}
+                    <i class="info icon"></i>{{ dso.type }}
                 </div>
                 {% if dso.constellation is not none %}
                 <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
@@ -237,7 +237,7 @@
                       </div>
                   {% endif %}
                   <div class="ui label" style="float:right;">
-                      <i class="info icon"></i> {{ dso.type }}
+                      <i class="info icon"></i>{{ dso.type }}
                   </div>
                   {% if dso.constellation %}
                   <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
