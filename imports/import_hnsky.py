@@ -192,7 +192,7 @@ def import_hnsky(hnsky_dso_file):
                         name = 'Abell' + name[4:]
 
                     if name.startswith('PK_'):
-                        name = 'PK' + denormalize_pk_name(name[3:])
+                        name = 'PK' + _denormalize_pk_name(name[3:])
                         
                     if (name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC')):
                         if name.endswith('A'):
@@ -293,7 +293,7 @@ def import_hnsky(hnsky_dso_file):
     print('') # finish on new line
 
 
-def denormalize_pk_name(name):
+def _denormalize_pk_name(name):
     denorm = ''
     compress = True
     outp = False
