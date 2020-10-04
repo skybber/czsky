@@ -60,7 +60,7 @@
     
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
-            <h3 style="margin-top: 0px">
+            <h3 class="ui header">
                 <div id="dso-toolbar">
                     {% if dso.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
@@ -107,7 +107,7 @@
                 <span class="mobile hidden" style="white-space: nowrap;">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</span>
             </h3>
             {% if user_descr and user_descr.common_name %}
-                <h3 class="mobile only" style="margin-top: 0px;clear:both;">
+                <h3 class="ui header mobile only" style="clear:both;">
                     {{ user_descr.common_name }}
                 </h3>
             {% endif %}
@@ -350,32 +350,32 @@
                 {% if from_constellation_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        <i class="lastfm icon"></i>
+                        <i class="lastfm icon mobile hidden"></i>
                     </a>
                 {% elif from_observation_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=from_observation_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        <i class="eye icon"></i>
+                        <i class="eye icon mobile hidden"></i>
                     </a>
                 {% elif from_wishlist %}
                     <a class="ui basic compact button" href="{{ url_for('main_planner.wish_list') }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        <i class="heart icon"></i>
+                        <i class="heart icon mobile hidden"></i>
                     </a>
                 {% elif from_session_plan_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=from_session_plan_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        <i class="tasks icon"></i>
+                        <i class="tasks icon mobile hidden"></i>
                     </a>
                 {% elif from_dso_list_id %}
                     <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=from_dso_list_id, back=1) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
-                        <i class="tasks icon"></i>
+                        <i class="tasks icon mobile hidden"></i>
                     </a>
                 {% else %}
                     <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
                         <i class="caret left icon"></i>
-                        <i class="list icon"></i>
+                        <i class="list icon mobile hidden"></i>
                     </a>
                 {% endif %}
                 <div class="divider"> / </div>
