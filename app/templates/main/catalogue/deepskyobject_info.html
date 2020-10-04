@@ -4,7 +4,7 @@
 
 {% set endpoints = [
     ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-    ('main_deepskyobject.deepskyobject_findchart', _('Chart'), 'table'),
+    ('main_deepskyobject.deepskyobject_fchart', _('Chart'), 'table'),
     ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
     ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
 ] %}
@@ -126,7 +126,7 @@
 
 {# --- Find Chart --- #}
 {% macro deepskyobject_fchart(dso, fchart) %}
-    <form id="fmchart" action="{{ dso_info_href('main_deepskyobject.deepskyobject_findchart', dso) }}" method="post" class="ui secondary menu">
+    <form id="fmchart" action="{{ dso_info_href('main_deepskyobject.deepskyobject_fchart', dso) }}" method="post" class="ui secondary menu">
         <!-- Field radius -->
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
@@ -207,7 +207,28 @@
         <img id="ichart" src="{{fchart_url}}"></img>
     </div>
  #}
-    <img src="{{fchart_url}}"></img>
+    <canvas id="fchart-canvas"></canvas>
+    
+    <script type="text/javascript">
+        var canvas = document.getElementById('fchart-canvas');
+        var img = new Image();
+        var ctx = canvas.getContext('2d');
+        
+        window.onload = function() {
+            img.onload = function() {
+              resizeCanvas();
+            };
+            img.src = '{{ fchart_url | safe }}';
+        }
+        
+        function resizeCanvas() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        }
+        window.addEventListener('resize', resizeCanvas, false);
+        
+    </script>
 {% endif %}
 {% endmacro %}
 

@@ -4,7 +4,7 @@
 {% if user_descr.star %}
 {% set endpoints = [
     ('main_star.star_info', 'Info', 'info'),
-    ('main_star.star_findchart', 'Chart', 'info'),
+    ('main_star.star_fchart', 'Chart', 'info'),
     ('main_star.star_catalogue_data', 'Catalogue data', 'table')
 ] %}
 {% else %}
@@ -42,7 +42,7 @@
 
 {# --- Find Chart --- #}
 {% macro star_fchart(dso, fchart) %}
-    <form id="fmchart" action="{{ url_for('main_star.star_findchart', star_id=user_descr.id) }}" method="post" class="ui menu">
+    <form id="fmchart" action="{{ url_for('main_star.star_fchart', star_id=user_descr.id) }}" method="post" class="ui menu">
         <!-- Field radius -->
         <div class="ui labeled item">
             <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
@@ -74,7 +74,30 @@
         </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
-    <img src="{{fchart_url}}"></img>
+
+    <canvas id="fchart-canvas"></canvas>
+    
+    <script type="text/javascript">
+        var canvas = document.getElementById('fchart-canvas');
+        var img = new Image();
+        var ctx = canvas.getContext('2d');
+        
+        window.onload = function() {
+            img.onload = function() {
+              resizeCanvas();
+            };
+            img.src = '{{ fchart_url | safe }}';
+        }
+        
+        function resizeCanvas() {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+        }
+        window.addEventListener('resize', resizeCanvas, false);
+        
+    </script>
+    
 {% endmacro %}
 
 {# --- Catalogue Data --- #}

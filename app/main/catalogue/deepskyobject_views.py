@@ -1,6 +1,7 @@
 import os
 
 from datetime import datetime
+from io import BytesIO
 
 from flask import (
     abort,
@@ -12,6 +13,7 @@ from flask import (
     request,
     session,
     url_for,
+    send_file
 )
 from flask_login import current_user, login_required
 from sqlalchemy import func
@@ -22,6 +24,7 @@ from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoLi
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
+from app.commons.utils import to_float, to_boolean
 
 from .deepskyobject_forms import (
     DeepskyObjectFindChartForm,
@@ -30,7 +33,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import create_dso_chart_in_pipeline
+from app.commons.chart_generator import create_dso_chart
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 
@@ -116,7 +119,7 @@ def deepskyobject_info(dso_id):
     sel_tab = request.args.get('sel_tab', None)
     if sel_tab:
         if sel_tab == 'fchart':
-            return _do_redirect('main_deepskyobject.deepskyobject_findchart', dso)
+            return _do_redirect('main_deepskyobject.deepskyobject_fchart', dso)
         if sel_tab == 'surveys':
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if sel_tab == 'catalogue_data':
@@ -190,18 +193,14 @@ def deepskyobject_catalogue_data(dso_id):
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id, other_names=other_names,
                            )
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/findchart', methods=['GET', 'POST'])
-def deepskyobject_findchart(dso_id):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart', methods=['GET', 'POST'])
+def deepskyobject_fchart(dso_id):
     """View a deepsky object findchart."""
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
     form  = DeepskyObjectFindChartForm()
     prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
-    preview_url_dir = '/static/webassets-external/preview/'
-    preview_dir = 'app' + preview_url_dir
-
-    dso_dname = dso.denormalized_name().replace(' ','')
 
     field_sizes = (1, 3, 8, 20)
     fld_size = field_sizes[form.radius.data-1]
@@ -233,28 +232,19 @@ def deepskyobject_findchart(dso_id):
     form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
     session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
 
-    invert_part = '_i' if night_mode else ''
-    mirror_x_part = '_mx' if form.mirror_x.data else ''
-    mirror_y_part = '_my' if form.mirror_y.data else ''
-    dso_file_name = dso_dname + '_' \
-                + 'r' + str(fld_size) \
-                + '_m' + str(form.maglim.data) \
-                + '_dm' + str(form.dso_maglim.data) \
-                + invert_part + mirror_x_part + mirror_y_part + '.png'
-
-    full_file_name = os.path.join(preview_dir, dso_file_name)
-
-    if not os.path.exists(full_file_name):
-        create_dso_chart_in_pipeline(dso_dname, full_file_name, fld_size, form.maglim.data, form.dso_maglim.data,
-                                night_mode, form.mirror_x.data, form.mirror_y.data)
-
-    fchart_url = preview_url_dir + dso_file_name
-
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
     disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
 
     disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
     disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
+    
+    fchart_url = url_for('main_deepskyobject.deepskyobject_fchartimg', dso_id=dso_id,
+                         fsz=str(fld_size),
+                         mlim=str(form.maglim.data),
+                         dlim=str(form.dso_maglim.data),
+                         nm='1' if night_mode else '0',
+                         mx='1' if form.mirror_x.data else '0',
+                         my='1' if form.mirror_y.data else '0')
 
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
@@ -262,6 +252,23 @@ def deepskyobject_findchart(dso_id):
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                            show_mirroring=(form.radius.data<=2),
                            )
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchartimg', methods=['GET'])
+def deepskyobject_fchartimg(dso_id):
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    fld_size = to_float(request.args.get('fsz'), 20.0)
+    maglim = to_float(request.args.get('mlim'), 8.0)
+    dso_maglim = to_float(request.args.get('dlim'), 8.0)
+    night_mode = to_boolean(request.args.get('nm'), True) 
+    mirror_x = to_boolean(request.args.get('mx'), False)
+    mirror_y = to_boolean(request.args.get('my'), False)
+    
+    img_bytes = BytesIO()
+    create_dso_chart(img_bytes, dso.name, fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
+    img_bytes.seek(0)
+    return send_file(img_bytes, mimetype='image/png')
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
@@ -430,3 +437,4 @@ def _get_prev_next_dso(dso):
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
             next_dso.catalog_number() if next_dso else None)
+

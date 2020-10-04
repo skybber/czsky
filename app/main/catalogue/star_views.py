@@ -1,6 +1,8 @@
 from datetime import datetime
 import os
 
+from io import BytesIO
+
 from flask import (
     abort,
     Blueprint,
@@ -8,6 +10,8 @@ from flask import (
     render_template,
     request,
     session,
+    send_file,
+    url_for,
 )
 from flask_login import current_user, login_required
 
@@ -16,7 +20,8 @@ from app import db
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search
-from app.commons.chart_generator import create_star_chart_in_pipeline
+from app.commons.chart_generator import create_star_chart
+from app.commons.utils import to_float, to_boolean
 
 main_star = Blueprint('main_star', __name__)
 
@@ -55,8 +60,8 @@ def star_catalogue_data(star_id):
     return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id)
 
-@main_star.route('/star/<int:star_id>/findchart', methods=['GET', 'POST'])
-def star_findchart(star_id):
+@main_star.route('/star/<int:star_id>/fchart', methods=['GET', 'POST'])
+def star_fchart(star_id):
     """View a star  findchart."""
     user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
     if user_descr is None:
@@ -71,9 +76,6 @@ def star_findchart(star_id):
     if not from_constellation_id:
         from_constellation_id = user_descr.constellation_id
     from_observation_id = request.args.get('from_observation_id')
-
-    preview_url_dir = '/static/webassets-external/preview/'
-    preview_dir = 'app' + preview_url_dir
 
     field_sizes = (1, 3, 8, 20)
     fld_size = field_sizes[form.radius.data-1]
@@ -95,21 +97,39 @@ def star_findchart(star_id):
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['star_pref_maglim'  + str(fld_size)] = form.maglim.data
 
-    star_file_name = str(star.id) + '_r' + str(fld_size) + '_m' + str(form.maglim.data) + '.png'
-    full_file_name = os.path.join(preview_dir, star_file_name)
-
-    if not os.path.exists(full_file_name):
-        create_star_chart_in_pipeline(star.ra, star.dec, full_file_name, fld_size, form.maglim.data, 10, night_mode)
-
-    fchart_url = preview_url_dir + star_file_name
-
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
     disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
+
+    fchart_url = url_for('main_star.star_fchartimg', star_id=star_id,
+                         ra=str(star.ra),
+                         dec=str(star.dec),
+                         fsz=str(fld_size),
+                         mlim=str(form.maglim.data),
+                         nm='1' if night_mode else '0'
+                         )
 
     return render_template('main/catalogue/star_info.html', form=form, type='fchart', user_descr=user_descr, fchart_url=fchart_url,
                            from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            )
+
+@main_star.route('/star/<string:star_id>/fchartimg', methods=['GET'])
+def star_fchartimg(star_id):
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+    fld_size = to_float(request.args.get('fsz'), 20.0)
+    ra = to_float(request.args.get('ra'), None)
+    dec = to_float(request.args.get('dec'), None)
+    if ra is None or dec is None:
+        abort(404)
+    maglim = to_float(request.args.get('mlim'), 8.0)
+    night_mode = to_boolean(request.args.get('nm'), True) 
+    
+    img_bytes = BytesIO()
+    create_star_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode)
+    img_bytes.seek(0)
+    return send_file(img_bytes, mimetype='image/png')
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
