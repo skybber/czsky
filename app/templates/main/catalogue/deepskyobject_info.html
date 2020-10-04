@@ -60,58 +60,54 @@
     
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
-            <h3 class="ui header">
-                <div id="dso-toolbar">
-                    {% if dso.constellation is not none %}
+            <h3 class="ui left floated header mobile hidden" style="white-space: nowrap;">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</h3>
+            <div id="dso-toolbar">
+                {% if dso.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
                         <i class="lastfm icon"></i> 
                         <span class="mobile hidden tablet hidden">{{ dso.constellation.name.capitalize() }}</span>
                         <span class="mobile only tablet only">{{ dso.constellation.iau_code.capitalize() }}</span>
                     </a>
-                    {% endif %}
-                    <div class="ui label" style="float:left;">
-                        <i class="info icon"></i>{{ dso.type }}
-                    </div>
-                    <div class="ui label" style="float:left;">
-                        &#9728;{{ commons.convert_mag(dso.mag) }}mag
-                    </div>
-                    {% if dso.major_axis %}
-                        <div class="ui label" style="float:left;">
-                            Ø {% if dso.major_axis >= 100.0 %}
-                                {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
-                              {% else %}
-                                {{ dso.major_axis | round(2, 'floor')}}''
-                              {% endif %}
-                            {% if dso.minor_axis %}
-                            / {% if dso.minor_axis >= 100.0 %}
-                                {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
-                              {% else %}
-                                {{ dso.minor_axis | round(2, 'floor')}}''
-                              {% endif %}
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    {% if user_descr %}
-                    <div class="mobile hidden" style="float:left;">
-                        <div class="ui label">
-                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if editable %}
-                        <a class="ui icon mini button" style="float:left;margin-left:10px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
-                            <i class="caret edit icon"></i>
-                        </a>
-                    {% endif %}
+                {% endif %}
+                <div class="ui label" style="float:left;">
+                    <i class="info icon"></i>{{ dso.type }}
                 </div>
-                <span class="mobile hidden" style="white-space: nowrap;">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</span>
-            </h3>
+                <div class="ui label" style="float:left;">
+                    &#9728;{{ commons.convert_mag(dso.mag) }}mag
+                </div>
+                {% if dso.major_axis %}
+                    <div class="ui label" style="float:left;">
+                        Ø {% if dso.major_axis >= 100.0 %}
+                            {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
+                          {% else %}
+                            {{ dso.major_axis | round(2, 'floor')}}''
+                          {% endif %}
+                        {% if dso.minor_axis %}
+                        / {% if dso.minor_axis >= 100.0 %}
+                            {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
+                          {% else %}
+                            {{ dso.minor_axis | round(2, 'floor')}}''
+                          {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if user_descr %}
+                    <div class="ui label mobile hidden" style="float:left;">
+                        <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                    </div>
+                {% endif %}
+                {% if editable %}
+                    <a class="ui icon mini button" style="float:left;margin-left:10px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </div>
             {% if user_descr and user_descr.common_name %}
                 <h3 class="ui header mobile only" style="clear:both;">
                     {{ user_descr.common_name }}
                 </h3>
             {% endif %}
-            <div class="markdown">
+            <div class="markdown" style="clear:both;">
                 {% if descr_available %}
                     {% filter extended_commonmark(dso.name) %}
 {{ user_descr.text  | safe}}
@@ -375,7 +371,7 @@
                 {% else %}
                     <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
                         <i class="caret left icon"></i>
-                        <i class="list icon mobile hidden"></i>
+                        <i class="list icon"></i>
                     </a>
                 {% endif %}
                 <div class="divider"> / </div>
