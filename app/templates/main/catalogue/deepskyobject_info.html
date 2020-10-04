@@ -60,7 +60,6 @@
     
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
-            <h3 class="ui left floated header mobile hidden" style="white-space: nowrap;">{% if user_descr and user_descr.common_name %} {{ user_descr.common_name }} {% else %}&nbsp;{% endif %}</h3>
             <div id="dso-toolbar">
                 {% if dso.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
@@ -103,9 +102,11 @@
                 {% endif %}
             </div>
             {% if user_descr and user_descr.common_name %}
-                <h3 class="ui header mobile only" style="clear:both;">
-                    {{ user_descr.common_name }}
-                </h3>
+                <h3 class="ui left floated header mobile hidden" style="white-space: nowrap;">{{ user_descr.common_name }}</h3>
+                <h3 class="ui header mobile only" style="clear:both;">{{ user_descr.common_name }}</h3>
+            {% endif %}
+            {% if not user_descr or not user_descr.common_name %}
+                <div class="ui hidden clearing divider"></div>
             {% endif %}
             <div class="markdown" style="clear:both;">
                 {% if descr_available %}
