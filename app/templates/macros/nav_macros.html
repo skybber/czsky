@@ -146,7 +146,7 @@
         $('.globsearch').keypress(function(event) {
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if(keycode == '13'){
-                window.location.href = "{{ url_for('main.global_search') }}?q=" + $(this).val();
+                window.location.href = "{{ url_for('main.global_search') }}?q=" + encodeURIComponent($(this).val());
             }
             event.stopPropagation();
         });
