@@ -143,10 +143,12 @@ def deepskyobject_info(dso_id):
     dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
 
     other_names = _get_other_names(dso)
+    from_dso_list_id = request.args.get('from_dso_list_id')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
+                           from_dso_list_id=from_dso_list_id,
                            )
 
 
@@ -376,14 +378,18 @@ def deepskyobject_edit(dso_id):
         authors[ad.aperture_class] = _create_author_entry(ad.update_by, ad.update_date)
 
     from_constellation_id = request.args.get('from_constellation_id')
+    from_dso_list_id = request.args.get('from_dso_list_id')
 
     if goback:
         if from_constellation_id is not None:
             return redirect(url_for('main_constellation.constellation_info', constellation_id=from_constellation_id, _anchor='dso' + str(dso.id)))
+        if from_dso_list_id is not None:
+            return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, from_dso_list_id=from_dso_list_id))
         return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso,
-                           from_constellation_id=from_constellation_id, authors=authors,
+                           from_constellation_id=from_constellation_id, from_dso_list_id=from_dso_list_id, 
+                           authors=authors,
                            )
 
 def _create_author_entry(update_by, update_date):
