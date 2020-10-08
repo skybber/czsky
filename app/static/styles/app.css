@@ -37,25 +37,7 @@ table.selectable tr:hover {
 }
 
 .initially-hidden {
-	display: none;
-}
-
-img[alt$="<"] {
-  float: left;
-  margin-right: 20px;
-  margin-bottom: 20px;
-}
-
-.md-fig-left {
-  float: left;
-  margin-left: 0px !important;
-  margin-top: 0px !important;
-  margin-right: 20px !important;
-  margin-bottom: 20px !important;
-}
-
-.md-fig-left figcaption {
-    text-align: center;
+  display: none;
 }
 
 /* Mobile */
@@ -171,10 +153,48 @@ img[alt$="<"] {
 .ui.definition2c.table > tbody > tr > td:nth-child(3) {
   border-left: 1px solid rgba(34, 36, 38, 0.15);
 }
+
 .markdown img {
   max-width: 100%;
   height: auto;
 }
+
 .markdown p {
   text-align: justify;
+}
+
+/* Image with alt="<" in markdown */
+.markdown img[alt$="<"] {
+  float: left;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+
+.md-fig-left {
+  float: left;
+  margin-left: 0px !important;
+  margin-top: 0px !important;
+  margin-right: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.md-fig-left figcaption {
+    text-align: center;
+}
+
+@media(max-width:767px) {
+  /* stretch markdown image across page */
+  img[alt$="<"] {
+    float: left;
+    margin-bottom: 20px;
+  }
+
+  .md-fig-left {
+    float: left;
+    margin-left: 0px !important;
+    margin-top: 0px !important;
+    margin-right: 0px !important;
+    margin-bottom: 20px !important;
+  }
 }
