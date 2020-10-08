@@ -76,18 +76,7 @@
                 </div>
                 {% if dso.major_axis %}
                     <div class="ui label" style="float:left;">
-                        Ø {% if dso.major_axis >= 100.0 %}
-                            {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
-                          {% else %}
-                            {{ dso.major_axis | round(2, 'floor')}}''
-                          {% endif %}
-                        {% if dso.minor_axis %}
-                        / {% if dso.minor_axis >= 100.0 %}
-                            {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
-                          {% else %}
-                            {{ dso.minor_axis | round(2, 'floor')}}''
-                          {% endif %}
-                        {% endif %}
+                        Ø {{ commons.convert_dso_size(dso.major_axis, dso.minor_axis) }}
                     </div>
                 {% endif %}
                 {% if user_descr %}

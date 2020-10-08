@@ -1,1 +1,20 @@
 {% macro convert_mag(mag) %}{{ mag if mag and mag < 100.0 else '- ' }}{% endmacro %}
+
+{% macro convert_dso_size(major_axis, minor_axis) %}
+  {% if major_axis >= 600.0 %}
+      {{ (major_axis / 60.0) | int }}'
+  {% elif major_axis >= 100.0 %}
+      {{ (major_axis / 60.0) | round(1, 'floor') }}'
+  {% else %}
+      {{ major_axis | int }}''
+  {% endif %}
+  {% if minor_axis %}
+  / {% if minor_axis >= 600.0 %}
+      {{ (minor_axis / 60.0) | int }}'
+  {% elif minor_axis >= 100.0 %}
+      {{ (minor_axis / 60.0) | round(1, 'floor') }}'
+  {% else %}
+      {{ minor_axis | int }}''
+  {% endif %}
+  {% endif %}
+{% endmacro %}

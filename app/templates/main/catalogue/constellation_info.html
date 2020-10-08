@@ -125,18 +125,7 @@
                              -->
                             {% if user_dso_descr.deepskyObject.major_axis %}
                                 <div class="ui label" style="float:right;">
-                                    Ø {% if user_dso_descr.deepskyObject.major_axis >= 100.0 %}
-                                        {{ (user_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ user_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% if user_dso_descr.deepskyObject.minor_axis %}
-                                    / {% if user_dso_descr.deepskyObject.minor_axis >= 100.0 %}
-                                        {{ (user_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ user_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% endif %}
+                                    Ø {{ commons.convert_dso_size(user_dso_descr.deepskyObject.major_axis, user_dso_descr.deepskyObject.minor_axis) }}
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
@@ -184,18 +173,7 @@
                             </div>
                             {% if ug_bl_dso.dso.major_axis %}
                                 <div class="ui label" style="float:right;">
-                                    Ø {% if ug_bl_dso.dso.major_axis >= 100.0 %}
-                                        {{ (ug_bl_dso.dso.major_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ ug_bl_dso.dso.major_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% if ug_bl_dso.dso.minor_axis %}
-                                    / {% if ug_bl_dso.dso.minor_axis >= 100.0 %}
-                                        {{ (ug_bl_dso.dso.minor_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ ug_bl_dso.dso.minor_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% endif %}
+                                    Ø {{ commons.convert_dso_size(ug_bl_dso.dso.major_axis, ug_bl_dso.dso.minor_axis) }}
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
@@ -259,18 +237,7 @@
                             </div>
                             {% if aster_dso_descr.deepskyObject.major_axis %}
                                 <div class="ui label" style="float:right;">
-                                    Ø {% if aster_dso_descr.deepskyObject.major_axis >= 100.0 %}
-                                        {{ (aster_dso_descr.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ aster_dso_descr.deepskyObject.major_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% if aster_dso_descr.deepskyObject.minor_axis %}
-                                    / {% if aster_dso_descr.deepskyObject.minor_axis >= 100.0 %}
-                                        {{ (aster_dso_descr.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ aster_dso_descr.deepskyObject.minor_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% endif %}
+                                    Ø {{ commons.convert_dso_size(aster_dso_descr.deepskyObject.major_axis, aster_dso_descr.deepskyObject.minor_axis) }}
                                 </div>
                             {% endif %}
                             <div class="ui label" style="float:right;">
