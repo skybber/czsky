@@ -271,5 +271,9 @@ def import_rosse(rosse_data_file):
     _do_import_simple_csv(rosse_data_file, 'rosse-spirals', 'Rosse Spirals', show_dso_type=True)
 
 def import_glahn_pns(glahn_pn_data_file):
-    _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetární mlhoviny severní oblohy', show_minor_axis=False)
+    _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetary nebulas of northern hemisphere', show_minor_axis=False)
+    
+def import_glahn_palomar_gc(glahn_palomar_gc_data_file):
+    _do_import_simple_csv(
+        glahn_palomar_gc_data_file, 'palomar-gc', 'Palomar globular clusters', show_common_name=False, show_minor_axis=False)
     

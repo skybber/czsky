@@ -17,7 +17,8 @@ from imports.import_bsc5 import import_bright_stars_bsc5
 from imports.import_vic import import_vic
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
-from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn, import_vic_list, import_rosse, import_glahn_pns
+from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
+from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 
@@ -150,6 +151,7 @@ def import_dso_list():
     import_vic_list('data/dsolist/Vic.csv')
     import_rosse('data/dsolist/RosseSpirals.csv')
     import_glahn_pns('data/dsolist/Glahn_PN.csv')
+    import_glahn_palomar_gc('data/dsolist/PalomarGC.csv')
 
 @manager.command
 def import_new_skyquality_locations():
