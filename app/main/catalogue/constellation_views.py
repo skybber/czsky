@@ -126,7 +126,7 @@ def constellation_info(constellation_id):
                     if not dso.master_id in existing:
                         dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
                         ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
-
+        ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
     editable=current_user.is_editor()
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
