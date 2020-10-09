@@ -170,6 +170,10 @@ table.selectable tr:hover {
   margin-bottom: 20px;
 }
 
+.dso-list-markdown img[alt$="<"] {
+  width: 400px;
+}
+
 
 .md-fig-left {
   float: left;
@@ -187,6 +191,7 @@ table.selectable tr:hover {
   /* stretch markdown image across page */
   img[alt$="<"] {
     float: left;
+    height: auto;
     margin-bottom: 20px;
   }
 

@@ -136,7 +136,7 @@
                             </div>
                         </h3>
                     </a>
-                    <div class="markdown">
+                    <div class="dso-list-markdown markdown">
                         {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
 {{ user_dso_descr.text | safe }}
                         {% endfilter %}
