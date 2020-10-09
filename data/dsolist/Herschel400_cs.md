@@ -1,3 +1,7 @@
+Katalog Herschel 400
+
+Výběr jasných objektů z katalogu NGC
+
 Výběr jasných objektů z katalogu NGC, které nejsou v Messerově katalogu.
 
 Katalog Herschel 400 je výběr z původního katalogu mlhovin a klastrů hvězd Williama Herschela. Byl vytvořen autory: Brenda F. Guzman (Branchett),

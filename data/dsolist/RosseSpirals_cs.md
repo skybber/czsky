@@ -1,5 +1,7 @@
 Spirály Lorda Rosse
 
+Projekt "Spirály Lorda Rosse", jehož autorem je U.Glahn.
+
 Projekt [Spirály Lorda Rosse](http://www.deepsky-visuell.de/Projekte/Rosse.htm), jehož autorem je U.Glahn.
 
 S prvním světlem 72" (183 cm) zrcadlového dalekohledu "Leviathan" postaveného Williamem Parsonsem, 3. hraběm z Rosse - zvaným "Lord Rosse" - v únoru 1845, začala nová éra astronomie. Do té doby bylo nemožné rozlišit strukturu mnoha deepsky objektů, které byly v té době známy, a provést první pokusy o jejich klasifikaci.

@@ -1,3 +1,7 @@
+Herschel 400 Catalog
+
+Selection of bright objects from NGC catalog
+
 Selection of bright objects from NGC catalog, that are not in Messier catalog.
 
 The Herschel 400 catalogue is a subset of William Herschel's original Catalogue of Nebulae and Clusters of Stars, selected

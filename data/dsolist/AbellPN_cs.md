@@ -1,5 +1,7 @@
 Planetární mlhoviny Abell
 
+Projekt "Planetární mlhoviny Abell" od U.Glahna.
+
 Projekt [Planetární mlhoviny Abell](http://www.deepsky-visuell.de/Projekte/AbellPN.htm), založený na pozorování U.Glahna.
 
 Již v roce 1966 sestavil George Abell seznam 86 planetárních mlhovin, které našel na fotografických deskách velkého 48" Schmidtova dalekohledu na hoře Palomar.

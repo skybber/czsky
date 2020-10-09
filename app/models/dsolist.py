@@ -7,7 +7,7 @@ class DsoList(db.Model):
     __tablename__ = 'dso_lists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
-    long_name = db.Column(db.String(512), index=True)
+    long_name = db.Column(db.String(256), index=True)
     show_common_name = db.Column(db.Boolean, default=True)
     show_descr_name = db.Column(db.Boolean, default=False)
     show_dso_type = db.Column(db.Boolean, default=False)
@@ -39,6 +39,7 @@ class DsoListDescription(db.Model):
     __tablename__ = 'dso_list_descriptions'
     id = db.Column(db.Integer, primary_key=True)
     dso_list_id = db.Column(db.Integer, db.ForeignKey('dso_lists.id'), nullable=False)
+    long_name = db.Column(db.String(256), index=True)
     short_descr = db.Column(db.String(256))
     lang_code = db.Column(db.String(2), nullable=False)
     text = db.Column(db.Text)

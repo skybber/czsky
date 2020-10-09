@@ -1,3 +1,5 @@
+Vicův výběr
+
 Vicův výběr zajímavých asterismů
 
 Vicův atlas asterismů je přehled zajímavých cílů na naší hvězdné obloze, které nenajdete v běžných mapách a katalozích a které přesto stojí za pozornost. Asterismy jsou náhodné skupiny často jinak nezávislých hvězd, jež obvykle při jisté dávce fantazie spolu tvoří podivuhodné obrazce.

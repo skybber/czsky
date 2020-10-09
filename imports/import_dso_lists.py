@@ -22,9 +22,10 @@ def _load_descriptions(dirname, base_name, dso_list, editor_user):
 
         dso_list_descr = DsoListDescription(
             dso_list_id=dso_list.id,
-            short_descr=lines[0],
+            long_name=lines[0],
+            short_descr=lines[2],
             lang_code = descr_file[-(2+app_len):-app_len],
-            text='\n'.join(lines[2:]),
+            text='\n'.join(lines[4:]),
             create_by= editor_user.id,
             update_by=editor_user.id,
             create_date=datetime.now(),

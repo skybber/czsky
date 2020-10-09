@@ -1,5 +1,7 @@
 Galaxie z Holmbergova katalogu
 
+Projekt "Galaxie z Holmergova katalogu" od U.Glahna
+
 Projekt [Galaxie z Holmergova katalogu](http://www.deepsky-visuell.de/Projekte/Holmberg.htm), jehož autorem je U.Glahn.
 
 Devět galaxií v katalogu Holmberg objevil Erik Holmberg na observatoři Lund (Švédsko). Galaxie byly publikovány ve třech publikacích v letech 1950 a 1969.

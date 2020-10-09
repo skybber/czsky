@@ -1,3 +1,5 @@
+Caldwellův katalog
+
 Katalog 109 hvězdokup, mlhovin a galaxií
 
 Katalog Caldwell je astronomický katalog 109 hvězdokup, mlhovin a galaxií pro amatérská pozorování . Seznam sestavil Patrick Moore jako doplněk Messierova katalogu.

@@ -1,3 +1,5 @@
+Caldwell catalogue
+
 Catalog of 109 star clusters, nebulae, and galaxies
 
 The Caldwell catalogue is an astronomical catalogue of 109 star clusters, nebulae, and galaxies for observation by amateur astronomers. The list was compiled by Patrick Moore as a complement to the Messier catalogue.
