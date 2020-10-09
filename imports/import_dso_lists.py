@@ -45,6 +45,7 @@ def import_herschel400(herschel400_data_file):
             dso_list = DsoList.query.filter_by(name='Herschel400').first()
             if dso_list:
                 dso_list.name = 'Herschel400'
+                dso_list.long_name = 'Herschel400'
                 dso_list.show_common_name = True
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
@@ -56,6 +57,7 @@ def import_herschel400(herschel400_data_file):
             else:
                 dso_list = DsoList(
                     name='Herschel400',
+                    long_name = 'Herschel400',
                     show_common_name = True,
                     show_dso_type = True,
                     show_angular_size = True, 
@@ -115,6 +117,7 @@ def import_caldwell(caldwell_data_file):
             dso_list = DsoList.query.filter_by(name='Caldwell').first()
             if dso_list:
                 dso_list.name ='Caldwell'
+                dso_list.long_name ='Caldwell'
                 dso_list.show_common_name = True
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
@@ -126,6 +129,7 @@ def import_caldwell(caldwell_data_file):
             else:
                 dso_list = DsoList(
                     name='Caldwell',
+                    long_name='Caldwell',
                     create_by=editor_user.id,
                     update_by=editor_user.id,
                     show_common_name = True,
@@ -176,7 +180,7 @@ def import_caldwell(caldwell_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False):
+def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -186,6 +190,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
             dso_list = DsoList.query.filter_by(name=dso_list_name).first()
             if dso_list:
                 dso_list.name=dso_list_name
+                dso_list.long_name=dso_list_long_name
                 dso_list.show_common_name = show_common_name
                 dso_list.show_descr_name=show_descr_name
                 dso_list.update_by=editor_user.id
@@ -198,6 +203,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
             else:
                 dso_list = DsoList(
                     name=dso_list_name,
+                    long_name=dso_list_long_name,
                     show_common_name = show_common_name,
                     show_descr_name=show_descr_name,
                     create_by=editor_user.id,
@@ -221,7 +227,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
             row_id = 0
             for row in reader:
                 row_id += 1
-                progress(row_id, row_count, 'Importing ' + dso_list_name + ' list')
+                progress(row_id, row_count, 'Importing ' + dso_list_long_name + ' list')
                 dso_name = row['DSO_NAME']
                 if dso_name == 'none':
                     continue
@@ -250,20 +256,20 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, show_common_name = True,
         print('') # finish on new line
 
 def import_superthin_gx(superthingx_data_file):
-    _do_import_simple_csv(superthingx_data_file, 'Superthin Galaxies', show_common_name=False)
+    _do_import_simple_csv(superthingx_data_file, 'thin-glx', 'Superthin Galaxies', show_common_name=False)
 
 def import_holmberg(holmberg_data_file):
-    _do_import_simple_csv(holmberg_data_file, 'Galaxies from Holmberg catalog', show_common_name=False)
+    _do_import_simple_csv(holmberg_data_file, 'holberg-glx', 'Galaxies from Holmberg catalog', show_common_name=False)
 
 def import_abell_pn(abell_pn_data_file):
-    _do_import_simple_csv(abell_pn_data_file, 'Abell Catalog of Planetary Nebulae', show_common_name=False, show_minor_axis=False)
+    _do_import_simple_csv(abell_pn_data_file, 'abell-pn', 'Abell Catalog of Planetary Nebulae', show_common_name=False, show_minor_axis=False)
 
 def import_vic_list(vic_data_file):
-    _do_import_simple_csv(vic_data_file, 'VIC list of asterism', show_angular_size=False, show_descr_name=True)
+    _do_import_simple_csv(vic_data_file, 'vic-aster', 'VIC list of asterism', show_angular_size=False, show_descr_name=True)
 
 def import_rosse(rosse_data_file):
-    _do_import_simple_csv(rosse_data_file, 'Rosse Spirals', show_dso_type=True)
+    _do_import_simple_csv(rosse_data_file, 'rosse-spirals', 'Rosse Spirals', show_dso_type=True)
 
 def import_glahn_pns(glahn_pn_data_file):
-    _do_import_simple_csv(glahn_pn_data_file, 'Planetární mlhoviny severní oblohy', show_minor_axis=False)
+    _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetární mlhoviny severní oblohy', show_minor_axis=False)
     

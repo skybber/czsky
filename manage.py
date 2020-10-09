@@ -19,7 +19,7 @@ from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn, import_vic_list, import_rosse, import_glahn_pns
 from imports.import_hnsky import import_hnsky
-from imports.import_hnsky_fixes import fix_cstar_from_open_ngc, fix_dso_constellation
+from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -142,20 +142,6 @@ def initialize_catalogues():
 
 @manager.command
 def import_dso_list():
-    import_caldwell('data/dsolist/CaldwellObjects.csv')
-    import_herschel400('data/dsolist/Herschel400.csv')
-    import_superthin_gx('data/dsolist/SuperthinGX.csv')
-    import_holmberg('data/dsolist/Holmberg.csv')
-    import_abell_pn('data/dsolist/AbellPN.csv')
-    import_vic_list('data/dsolist/Vic.csv')
-    import_rosse('data/dsolist/RosseSpirals.csv')
-    import_glahn_pns('data/dsolist/Glahn_PN.csv')
-
-@manager.command
-def reimport_dsos():
-    import_hnsky('data/deep_sky.hnd')
-    fix_cstar_from_open_ngc('data/OpenNGC.csv')
-    import_vic('data/vic.csv')
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
     import_superthin_gx('data/dsolist/SuperthinGX.csv')

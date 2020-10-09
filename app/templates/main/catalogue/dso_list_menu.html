@@ -21,8 +21,8 @@
                     </thead>
                     <tbody>
                     {% for l in dso_lists %}
-                        <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.id) }}';">
-                            <td>{{ l.name }}</td>
+                        <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.name) }}';">
+                            <td>{{ l.long_name }}</td>
                             <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
                         </tr>
                     {% endfor %}

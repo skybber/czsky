@@ -6,7 +6,8 @@ from .. import db
 class DsoList(db.Model):
     __tablename__ = 'dso_lists'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256), index=True)
+    name = db.Column(db.String(64), index=True)
+    long_name = db.Column(db.String(512), index=True)
     show_common_name = db.Column(db.Boolean, default=True)
     show_descr_name = db.Column(db.Boolean, default=False)
     show_dso_type = db.Column(db.Boolean, default=False)
