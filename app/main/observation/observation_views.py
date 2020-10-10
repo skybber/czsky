@@ -1,6 +1,12 @@
+import os
+import csv
+
+from werkzeug.utils import secure_filename
+
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -17,7 +23,7 @@ from .observation_forms import (
     AddToObservedListForm,
 )
 
-from app.models import Observation, Location, ObservedList
+from app.models import Observation, Location, ObservedList, ObservedListItem
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from .observation_form_utils import *
@@ -161,4 +167,35 @@ def observed_list_item_remove(item_id):
         abort(404)
     db.session.delete(observed_list_item)
     flash('Observed list item was deleted', 'form-success')
+    return redirect(url_for('main_observation.observed_list'))
+
+
+@main_observation.route('/upload-observed-list', methods=['POST'])
+@login_required
+def upload_observed_list():
+    if 'file' not in request.files:
+        flash('No file part', 'form-error')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file:
+        filename = secure_filename(file.filename)
+        path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        with open(path) as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
+            observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+            for row in reader:
+                dso_name = row['DSO_NAME']
+                if dso_name == 'none':
+                    continue
+                object_name = dso_name.replace(' ', '')
+                dso = DeepskyObject.query.filter_by(name=object_name).first()
+                if dso:
+                    observed_list.append_deepsky_object(dso.id, current_user.id)
+        os.remove(path)
+        flash('Observed list updated.', 'form-success')
+                
     return redirect(url_for('main_observation.observed_list'))

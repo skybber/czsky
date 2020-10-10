@@ -1,5 +1,7 @@
 import os
 
+from werkzeug.utils import secure_filename
+
 from flask import (
     Flask,
     request,
@@ -39,6 +41,7 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'account.login'
 
+UPLOAD_FOLDER = 'uploads'
 
 def create_app(config):
     app = Flask(__name__)
@@ -49,6 +52,8 @@ def create_app(config):
 
     app.config.from_object(Config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+    app.config['UPLOAD_FOLDER'] = 'uploads/'
     # not using sqlalchemy event system, hence disabling it
 
     Config[config_name].init_app(app)

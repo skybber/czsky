@@ -20,16 +20,28 @@
             } %}
             {{ f.display_standard_flashes(flashes) }}
 
-            {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add'), extra_classes='ui menu') }}
-                <div class="ui right item">
-                    <div class="ui action input">
-                        {{ add_form.dso_name(size=15) }}
-                    </div>
-                    <button class="ui icon mini button">
-                        <i class="plus icon"></i>
-                    </button>
+            <div class="ui menu">
+                <div class="ui item">
+                    <form id="fmupload" method="post" action="{{ url_for('main_observation.upload_observed_list') }}" enctype="multipart/form-data">
+                        <label for="file" class="ui icon button">
+                            <i class="file icon"></i>
+                             {{ _('Load from CSV file') }}
+                        </label>
+                        <input type="file" id="file" name="file" class="ui file input">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                    </form>            
                 </div>
-            {{ f.end_form(add_form) }}
+                <div class="ui item">
+                    {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add'), extra_classes='ui menu') }}
+                    <div class="ui action input">
+                        <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
+                        <button class="ui icon button">
+                            <i class="plus icon"></i>
+                        </button>                    
+                    </div>
+                    {{ f.end_form(add_form) }}
+                </div>
+            </div>
 
             <div style="overflow-x: scroll;">
                 <table class="ui searchable sortable unstackable selectable celled table">
@@ -63,11 +75,45 @@
             </div>
         </div>
     </div>
+    
+    <div class="ui tiny modal loadModal">
+      <div class="header">{{ _('Load observation list') }}</div>
+      <div class="content">
+        <p>{{ _('All data from file will be added to observation list.') }}</p>
+        <p>{{ _('Are you sure you want to load observation list?') }}</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <button id="confirm_upload" class="ui positive right labeled icon approve button">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <style>
+        .ui.file.input {
+          top: -999999px;
+          position: absolute;
+        }
+    </style>
 
     <script type="text/javascript">
+        $('.ui.modal.loadModal').modal({
+            onApprove: function() {
+                return validateModal()
+            }
+        });
         $("tr td.specialClass").click(function (e) {
             e.cancelBubble();
             e.stopPropagation();
         });
+        $('#file').change(function() {
+            $('.ui.modal.loadModal')
+                .modal('show');
+        });
+        $("#confirm_upload").click(function() {
+            $("#fmupload" ).submit();
+        });        
     </script>
 {% endblock %}
