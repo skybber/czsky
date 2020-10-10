@@ -14,7 +14,7 @@
 
     <script>
     var editorIDName = "editor-{{ editable_html_obj.editor_name }}";
-    $(document).ready(function() {
+    $(function() {
         {% if current_user.is_admin() %}
             $(".end-edit").hide();
         {% endif %}
