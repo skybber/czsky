@@ -79,13 +79,19 @@
                         Ø {{ commons.convert_dso_size(dso.major_axis, dso.minor_axis) }}
                     </div>
                 {% endif %}
+                
+                {% if current_user.is_authenticated %}
+                    {{ commons.wishlist_observed_toolbar(dso.id, wishlist, observed_dsos) }}
+                {% endif %}
+                
                 {% if user_descr %}
-                    <div class="ui label">
+                    <div class="ui label" style="float:left;">
                         <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                     </div>
                 {% endif %}
+                
                 {% if editable %}
-                    <a class="ui icon mini button" style="float:left;margin-left:10px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, from_dso_list_id=from_dso_list_id) }}">
+                    <a class="ui icon mini button" style="float:left;margin-left:5px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, from_dso_list_id=from_dso_list_id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}

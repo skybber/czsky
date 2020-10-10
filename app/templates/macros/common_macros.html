@@ -18,3 +18,19 @@
   {% endif %}
   {% endif %}
 {% endmacro %}
+
+{% macro wishlist_observed_toolbar(dso_id, wishlist, observed) %}
+    <div class="ui label" style="float:left;">
+        {% if dso_id in wishlist %} 
+            <i class="heart icon"></i>
+        {% else %}
+            <i class="heart outline black icon"></i>
+        {% endif %}
+        {% if dso_id in observed_dsos %} 
+            <i class="eye outline icon"></i>
+        {% else %}
+            <i class="eye slash outline black icon"></i>
+        {% endif %}
+    </div>
+{% endmacro %}
+        

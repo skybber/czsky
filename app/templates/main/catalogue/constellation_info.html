@@ -101,42 +101,41 @@
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions %}
                 <div id="dso{{ user_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
+                    <div id="dso-toolbar" style="float:right;">
+                        <div class="ui label" style="float:left;">
+                            <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
+                        </div>
+                        <div class="ui label" style="float:left;">
+                            &#9728;{{ commons.convert_mag(user_dso_descr.deepskyObject.mag) }}mag
+                        </div>
+                        {% if user_dso_descr.deepskyObject.major_axis %}
+                            <div class="ui label" style="float:left;">
+                                Ø {{ commons.convert_dso_size(user_dso_descr.deepskyObject.major_axis, user_dso_descr.deepskyObject.minor_axis) }}
+                            </div>
+                        {% endif %}
+    
+                        {% if current_user.is_authenticated %}
+                            {{ commons.wishlist_observed_toolbar(user_dso_descr.deepskyObject.id, wishlist, observed_dsos) }}
+                        {% endif %}
+                         
+                        <div class="ui label" style="float:left;">
+                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                        </div>
+    
+                        {% if editable %}
+                            <a class="ui icon mini button" style="float:left;margin-left:5px;"
+                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
+                                <i class="caret edit icon"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
-                            {% if editable %}
-                                <a class="ui icon mini button" style="float:right;padding-left:12px;"
-                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
-                                    <i class="caret edit icon"></i>
-                                </a>
-                            {% endif %}
-                            <div class="mobile hidden" style="float:right;padding-left:2px;">
-                                <div class="ui label">
-                                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
-                                </div>
-                            </div>
-                            <!-- 
-                            <div class="ui label" style="float:right;">
-                                <i class="heart icon"></i>
-                                <i class="heart outline black icon"></i>
-                                <i class="eye outline icon"></i>
-                                <i class="eye slash outline black icon"></i>
-                            </div>
-                             -->
-                            {% if user_dso_descr.deepskyObject.major_axis %}
-                                <div class="ui label" style="float:right;">
-                                    Ø {{ commons.convert_dso_size(user_dso_descr.deepskyObject.major_axis, user_dso_descr.deepskyObject.minor_axis) }}
-                                </div>
-                            {% endif %}
-                            <div class="ui label" style="float:right;">
-                                &#9728;{{ commons.convert_mag(user_dso_descr.deepskyObject.mag) }}mag
-                            </div>
-                            <div class="ui label" style="float:right;">
-                                <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
-                            </div>
                         </h3>
                     </a>
-                    <div class="dso-list-markdown markdown">
+                    <div class="dso-list-markdown markdown" style="clear:both;">
                         {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
 {{ user_dso_descr.text | safe }}
                         {% endfilter %}
@@ -157,34 +156,39 @@
         {% if ug_bl_dsos %}
             {% for ug_bl_dso in ug_bl_dsos %}
                 <div class="ui segment" style="display: inline-block;width:100%">
+                    <div id="dso-toolbar" style="float:right;">
+                        <div class="ui label" style="float:left;">
+                            <i class="info icon"></i>{{ ug_bl_dso.dso.type }}
+                        </div>
+                        <div class="ui label" style="float:left;">
+                            &#9728;{{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag
+                        </div>
+                        {% if ug_bl_dso.dso.major_axis %}
+                            <div class="ui label" style="float:left;">
+                                Ø {{ commons.convert_dso_size(ug_bl_dso.dso.major_axis, ug_bl_dso.dso.minor_axis) }}
+                            </div>
+                        {% endif %}
+                        
+                        {% if current_user.is_authenticated %}
+                            {{ commons.wishlist_observed_toolbar(ug_bl_dso.dso.id, wishlist, observed_dsos) }}
+                        {% endif %}
+                         
+                        <div class="ui label">
+                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="1" data-max-rating="5"></div>
+                        </div>
+                        {% if editable %}
+                            <a class="ui icon mini button" style="float:right;margin-left:5px;"
+                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, from_constellation_id=constellation.iau_code) }}">
+                                <i class="caret edit icon"></i>
+                            </a>
+                        {% endif %}
+                  </div>
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=ug_bl_dso.dso.name, from_constellation_id=constellation.iau_code) }}">
                         <h3 id="dso{{ ug_bl_dso.dso.id }}" style="margin-bottom:0.8em;">
                             {{ ug_bl_dso.dso.denormalized_name() }}
-                            {% if editable %}
-                                <a class="ui icon mini button" style="float:right;padding-left:12px;"
-                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, from_constellation_id=constellation.iau_code) }}">
-                                    <i class="caret edit icon"></i>
-                                </a>
-                            {% endif %}
-                            <div class="mobile hidden" style="float:right;padding-left:2px;">
-                                <div class="ui label">
-                                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="1" data-max-rating="5"></div>
-                                </div>
-                            </div>
-                            {% if ug_bl_dso.dso.major_axis %}
-                                <div class="ui label" style="float:right;">
-                                    Ø {{ commons.convert_dso_size(ug_bl_dso.dso.major_axis, ug_bl_dso.dso.minor_axis) }}
-                                </div>
-                            {% endif %}
-                            <div class="ui label" style="float:right;">
-                                &#9728;{{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag
-                            </div>
-                            <div class="ui label" style="float:right;">
-                                <i class="info icon"></i>{{ ug_bl_dso.dso.type }}
-                            </div>
                         </h3>
                     </a>
-                    <div class="markdown">
+                    <div class="markdown" style="clear:both;">
                         {{ deepskyobject_data_table(ug_bl_dso['dso'], ug_bl_dso['img_info']) }}
                     </div>
                 </div>
@@ -225,7 +229,7 @@
                         <h3 style="margin-bottom:0.8em;">
                             {{ aster_dso_descr.deepskyObject.denormalized_name() }}
                             {% if editable %}
-                                <a class="ui icon mini button" style="float:right;padding-left:12px;"
+                                <a class="ui icon mini button" style="float:right;margin-left:5px;"
                                           href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=aster_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
                                     <i class="caret edit icon"></i>
                                 </a>
