@@ -32,7 +32,7 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
                 <i class="caret left icon"></i>
-                User Data
+                {{ _('User Data') }}
             </a>
 
             {% if current_user.is_editor() %}
@@ -41,9 +41,9 @@
 
             <h4 class="ui top attached block header segment">
                 {% if subtype == 'repo_personal' %}
-                    Store to Git
+                    {{ _('Store to Git') }}
                 {% else %}
-                    Store content to Git content repository
+                    {{ _('Store content to Git content repository') }}
                 {% endif %}
             </h4>
             <div class="ui attached segment">
@@ -52,21 +52,21 @@
                 {% endif %}
                 {% if git_enabled %}
                     {% if subtype == 'repo_personal' %}
-                        <p>This operation stores user data to Git repository: <b>{{ git_url }}</b></p>
+                        <p>{{ _('This operation stores user data to Git repository: ') }}<b>{{ git_url }}</b></p>
                     {% else %}
-                        <p>This operation stores content data to Git repository: <b>{{ git_url }}</b></p>
+                        <p>{{ _('This operation stores content data to Git repository: ') }}<b>{{ git_url }}</b></p>
                     {% endif %}
                 {% else %}
-                    <p>Git repository is not set up.</p>
+                    <p>{{ _('Git repository is not set up.') }}</p>
                 {% endif %}
                 {{ f.begin_form(save_form, flashes, action=url_for('main_userdata.git_save', subtype=subtype)) }}
                     {{ f.render_form_field(save_form.commit_message) }}
                     <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
                         <i class="download icon"></i>
                         {% if subtype == 'repo_personal' %}
-                            Save data to Git
+                            {{ _('Save data to Git') }}
                         {% else %}
-                            Save content data to Git
+                            {{ _('Save content data to Git') }}
                         {% endif %}
                     </button>
                 {{ f.end_form() }}
@@ -74,9 +74,9 @@
 
             <h4 class="ui top attached block header segment">
                 {% if subtype == 'repo_personal' %}
-                    Load from Git
+                    {{ _('Load from Git') }}
                 {% else %}
-                    Load content from Git content repository
+                    {{ _('Load content from Git content repository') }}
                 {% endif %}
             </h4>
             <div class="ui attached segment">
@@ -85,10 +85,10 @@
                 {% endif %}
                 {% if git_enabled %}
                     {% if subtype == 'repo_personal' %}
-                        <p>This operation loads user data from Git repository: <b>{{ git_url }}</b>.</p>
+                        <p>{{ _('This operation loads user data from Git repository: ') }}<b>{{ git_url }}</b>.</p>
                     {% else %}
-                        <p>This operation loads content data from Git repository: <b>{{ git_url }}</b>.</p>
-                        <p>All not pushed data will be lost!</p>
+                        <p>{{ _('This operation loads content data from Git repository: ') }}<b>{{ git_url }}</b>.</p>
+                        <p>{{ _('All not pushed data will be lost!') }}</p>
                     {% endif %}
                 {% else %}
                     <p>Git repository is not set up.</p>
@@ -96,9 +96,9 @@
                 <button id="bloaddata" class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button">
                     <i class="upload icon"></i>
                     {% if subtype == 'repo_personal' %}
-                        Load data from Git
+                        {{ _('Load data from Git') }}
                     {% else %}
-                        Load content data from Git
+                        {{ _('Load content data from Git') }}
                     {% endif %}
                 </button>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
