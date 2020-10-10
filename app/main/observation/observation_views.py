@@ -126,6 +126,7 @@ def observation_delete(observation_id):
     if observation.user_id != current_user.id:
         abort(404)
     db.session.delete(observation)
+    db.session.commit()
     flash('Observation was deleted', 'form-success')
     return redirect(url_for('main_observation.observations'))
 
@@ -166,13 +167,25 @@ def observed_list_item_remove(item_id):
     if observed_list_item.observed_list.user_id != current_user.id:
         abort(404)
     db.session.delete(observed_list_item)
+    db.session.commit()
     flash('Observed list item was deleted', 'form-success')
     return redirect(url_for('main_observation.observed_list'))
 
 
-@main_observation.route('/upload-observed-list', methods=['POST'])
+@main_observation.route('/observed-list-delete', methods=['GET'])
 @login_required
-def upload_observed_list():
+def observed_list_delete():
+    """delete observed list."""
+    add_form = AddToObservedListForm()
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    ObservedListItem.query.filter_by(observed_list_id=observed_list.id).delete()
+    db.session.commit()
+    flash('Observed list deleted', 'form-success')
+    return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form)
+
+@main_observation.route('/observed-list-upload', methods=['POST'])
+@login_required
+def observed_list_upload():
     if 'file' not in request.files:
         flash('No file part', 'form-error')
         return redirect(request.url)
@@ -187,14 +200,23 @@ def upload_observed_list():
         with open(path) as csvfile:
             reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+            existing_ids = set(item.dso_id for item in observed_list.observed_list_items)
             for row in reader:
                 dso_name = row['DSO_NAME']
                 if dso_name == 'none':
                     continue
                 object_name = dso_name.replace(' ', '')
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
-                if dso:
-                    observed_list.append_deepsky_object(dso.id, current_user.id)
+                if dso and not dso.id in existing_ids:
+                    new_item = ObservedListItem(
+                        observed_list_id = observed_list.id,
+                        dso_id = dso.id,
+                        create_date = datetime.now(),
+                        update_date = datetime.now(),
+                        )
+                    db.session.add(new_item)
+                    existing_ids.add(dso.id)
+        db.session.commit()
         os.remove(path)
         flash('Observed list updated.', 'form-success')
                 

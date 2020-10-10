@@ -22,7 +22,13 @@
 
             <div class="ui menu">
                 <div class="ui item">
-                    <form id="fmupload" method="post" action="{{ url_for('main_observation.upload_observed_list') }}" enctype="multipart/form-data">
+                    <button id="clear_observed" class="ui labeled icon negative button">
+                        <i class="trash alternate icon"></i>
+                        {{ _('Clear list') }}
+                    </button>
+                </div>
+                <div class="ui item">
+                    <form id="fmupload" method="post" action="{{ url_for('main_observation.observed_list_upload') }}" enctype="multipart/form-data">
                         <label for="file" class="ui icon button">
                             <i class="file icon"></i>
                              {{ _('Load from CSV file') }}
@@ -91,6 +97,21 @@
       </div>
     </div>
 
+    <div class="ui tiny modal deleteModal">
+      <div class="header">{{ _('Clear observed list') }}</div>
+      <div class="content">
+        <p>{{ _('All items from observed list will be removed.') }}</p>
+        <p>{{ _('Are you sure you want to clear observed list?') }}</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observation.observed_list_delete') }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+    
     <style>
         .ui.file.input {
           top: -999999px;
@@ -100,6 +121,11 @@
 
     <script type="text/javascript">
         $('.ui.modal.loadModal').modal({
+            onApprove: function() {
+                return validateModal()
+            }
+        });
+        $('.ui.modal.deleteModal').modal({
             onApprove: function() {
                 return validateModal()
             }
@@ -115,5 +141,9 @@
         $("#confirm_upload").click(function() {
             $("#fmupload" ).submit();
         });        
+        $('#clear_observed').click(function() {
+            $('.ui.modal.deleteModal')
+                .modal('show');
+        });
     </script>
 {% endblock %}
