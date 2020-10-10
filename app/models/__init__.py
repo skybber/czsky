@@ -10,6 +10,7 @@ from .dsolist import *
 from .location import *
 from .miscellaneous import *
 from .observation import *
+from .observedlist import *
 from .planner import *
 from .sqm import *
 from .skylist import *

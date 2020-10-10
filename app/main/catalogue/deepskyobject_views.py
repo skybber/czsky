@@ -21,7 +21,7 @@ from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, WishListItem, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, WishListItem, ObservedList, ObservedListItem, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -110,7 +110,7 @@ def _get_other_names(master_dso):
 
 @main_deepskyobject.route('/deepskyobject/switch-wish-list', methods=['GET'])
 @login_required
-def deepskyobject_switch_wishlist():
+def deepskyobject_switch_wish_list():
     dso_id = request.args.get('dso_id', None, type=int)
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
@@ -122,6 +122,23 @@ def deepskyobject_switch_wishlist():
         result = 'off'
     else:
         wish_list.append_new_deepsky_object(dso_id, current_user.id)
+        result = 'on'
+    return jsonify(result=result)
+
+@main_deepskyobject.route('/deepskyobject/switch-observed-list', methods=['GET'])
+@login_required
+def deepskyobject_switch_observed_list():
+    dso_id = request.args.get('dso_id', None, type=int)
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    observed_list_item = ObservedListItem.query.filter_by(observed_list_id=observed_list.id, dso_id=dso_id).first()
+    if observed_list_item:
+        db.session.delete(observed_list_item)
+        result = 'off'
+    else:
+        observed_list.append_new_deepsky_object(dso_id, current_user.id)
         result = 'on'
     return jsonify(result=result)
 
@@ -162,19 +179,25 @@ def deepskyobject_info(dso_id):
     other_names = _get_other_names(dso)
     from_dso_list_id = request.args.get('from_dso_list_id')
     
-    wishlist = None
-    observed_dso = None
+    wish_list = None
+    observed_list = None
     if current_user.is_authenticated:
         wish_item = WishListItem.query.filter(WishListItem.dso_id.in_((dso.id, orig_dso.id))) \
             .join(WishList) \
             .filter(WishList.user_id==current_user.id) \
             .first()
-        wishlist = [wish_item.dso_id] if wish_item is not None else []
-
+        wish_list = [wish_item.dso_id] if wish_item is not None else []
+        
+        observed_item = ObservedListItem.query.filter(ObservedListItem.dso_id.in_((dso.id, orig_dso.id))) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id==current_user.id) \
+            .first()
+        observed_list = [observed_item.dso_id] if observed_item is not None else []
+        
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           from_dso_list_id=from_dso_list_id, wishlist=wishlist, observed_dso=observed_dso,
+                           from_dso_list_id=from_dso_list_id, wish_list=wish_list, observed_list=observed_list,
                            )
 
 
@@ -434,11 +457,13 @@ def _filter_apert_descriptions(all_user_apert_descrs):
 def _do_redirect(url, dso):
     from_observation_id = request.args.get('from_observation_id')
     from_wishlist = request.args.get('from_wishlist')
+    from_observed_list = request.args.get('from_observed_list')
     from_session_plan_id = request.args.get('from_session_plan_id')
     from_dso_list_id = request.args.get('from_dso_list_id')
     return redirect(url_for(url, dso_id=dso.id,
                             from_observation_id=from_observation_id,
                             from_wishlist=from_wishlist,
+                            from_observed_list=from_observed_list,
                             from_session_plan_id=from_session_plan_id,
                             from_dso_list_id=from_dso_list_id
                             ))
@@ -446,12 +471,15 @@ def _do_redirect(url, dso):
 def _get_prev_next_dso(dso):
     from_observation_id = request.args.get('from_observation_id')
     from_wishlist = request.args.get('from_wishlist')
+    from_observed_list = request.args.get('from_observed_list')
     from_session_plan_id = request.args.get('from_session_plan_id')
     from_dso_list_id = request.args.get('from_dso_list_id')
 
     if not from_observation_id is None:
         pass # TODO
     elif not from_wishlist is None:
+        pass # TODO
+    elif not from_observed_list is None:
         pass # TODO
     elif not from_session_plan_id is None:
         pass # TODO

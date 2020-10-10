@@ -14,9 +14,10 @@ from app import db
 from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
+    AddToObservedListForm,
 )
 
-from app.models import Observation, Location
+from app.models import Observation, Location, ObservedList
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from .observation_form_utils import *
@@ -122,3 +123,42 @@ def observation_delete(observation_id):
     flash('Observation was deleted', 'form-success')
     return redirect(url_for('main_observation.observations'))
 
+@main_observation.route('/observed-list', methods=['GET'])
+@login_required
+def observed_list():
+    """View observed list."""
+    add_form = AddToObservedListForm()
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form)
+
+@main_observation.route('/observed-list-item-add', methods=['POST'])
+@login_required
+def observed_list_item_add():
+    """Add item to observed list."""
+    form = AddToObservedListForm()
+    dso_name = normalize_dso_name(form.dso_name.data)
+    if request.method == 'POST' and form.validate_on_submit():
+        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+        if deepsky_object:
+            observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+            if observed_list.append_deepsky_object(deepsky_object.id, current_user.id):
+                flash('Object was added to observed list.', 'form-success')
+            else:
+                flash('Object is already on observed list.', 'form-info')
+        else:
+            flash('Deepsky object not found.', 'form-error')
+
+    return redirect(url_for('main_observation.observed_list'))
+
+@main_observation.route('/observed-list-item/<int:item_id>/delete')
+@login_required
+def observed_list_item_remove(item_id):
+    """Remove item to observed list."""
+    observed_list_item = ObservedListItem.query.filter_by(id=item_id).first()
+    if observed_list_item is None:
+        abort(404)
+    if observed_list_item.observed_list.user_id != current_user.id:
+        abort(404)
+    db.session.delete(observed_list_item)
+    flash('Observed list item was deleted', 'form-success')
+    return redirect(url_for('main_observation.observed_list'))

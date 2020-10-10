@@ -12,6 +12,7 @@
 {% set from_constellation_id = request.args.get('from_constellation_id') %}
 {% set from_observation_id = request.args.get('from_observation_id') %}
 {% set from_wishlist = request.args.get('from_wishlist') %}
+{% set from_observed_list = request.args.get('from_observed_list') %}
 {% set from_session_plan_id = request.args.get('from_session_plan_id') %}
 {% set from_dso_list_id = request.args.get('from_dso_list_id') %}
 
@@ -20,6 +21,7 @@
             from_constellation_id=from_constellation_id,
             from_observation_id=from_observation_id,
             from_wishlist=from_wishlist,
+            from_observed_list=from_observed_list,
             from_session_plan_id=from_session_plan_id,
             from_dso_list_id=from_dso_list_id
             )}}
@@ -81,7 +83,7 @@
                 {% endif %}
                 
                 {% if current_user.is_authenticated %}
-                    {{ commons.wishlist_observed_toolbar(dso.id, wishlist, observed_dso) }}
+                    {{ commons.wish_observed_list_toolbar(dso.id, wish_list, observed_list) }}
                 {% endif %}
                 
                 {% if user_descr %}
@@ -127,14 +129,27 @@
       $(function() {
           $("a[id^='switch_wishlist_']").click(function() {
              var $this = $(this);
-             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wishlist') }}", {
-                 dso_id: {{ dso.id }}
+             var id = $(this).attr('id');
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wish_list') }}", {
+                 dso_id: id.substring(id.indexOf(id.match(/\d/)))
              }, function(data) {
-                 console.log('Done:' + data.result);
                  if (data.result == 'on') {
                      $this.find("i").attr('class', 'heart icon');
                  } else {
                      $this.find("i").attr('class', 'heart outline black icon');
+                 }
+             });              
+          });
+          $("a[id^='switch_observed_']").click(function() {
+             var $this = $(this);
+             var id = $(this).attr('id');
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_observed_list') }}", {
+                 dso_id: id.substring(id.indexOf(id.match(/\d/)))
+             }, function(data) {
+                 if (data.result == 'on') {
+                     $this.find("i").attr('class', 'eye icon');
+                 } else {
+                     $this.find("i").attr('class', 'eye slash outline black icon');
                  }
              });              
           });
@@ -373,6 +388,11 @@
                         <i class="caret left icon"></i>
                         <i class="heart icon mobile hidden"></i>
                     </a>
+                {% elif from_observed_list %}
+                    <a class="ui basic icon compact button" href="{{ url_for('main_observation.observed_list') }}#dso{{dso.id}}">
+                        <i class="caret left icon"></i>
+                        <i class="heart icon mobile hidden"></i>
+                    </a>
                 {% elif from_session_plan_id %}
                     <a class="ui basic icon compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=from_session_plan_id) }}#dso{{dso.id}}">
                         <i class="caret left icon"></i>
@@ -400,6 +420,7 @@
                            sel_tab=type,
                            from_observation_id=from_observation_id,
                            from_wishlist=from_wishlist,
+                           from_observed_list=from_observed_list,
                            from_session_plan_id=from_session_plan_id,
                            from_dso_list_id=from_dso_list_id)
                }}

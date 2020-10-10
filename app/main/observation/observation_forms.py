@@ -78,3 +78,7 @@ class ObservationNewForm(FlaskForm, ObservationMixin):
 
 class ObservationEditForm(FlaskForm, ObservationMixin):
     submit = SubmitField(lazy_gettext('Update Observation'))
+
+class AddToObservedListForm(FlaskForm):
+    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+    

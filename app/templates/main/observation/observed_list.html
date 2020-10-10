@@ -1,0 +1,73 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_observation.observations') }}">
+                <i class="caret left icon"></i>
+                {{ _('Observations') }}
+            </a>
+            <h2 class="ui header">
+                {{ _('List of observed objects') }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'warning': get_flashed_messages(category_filter=['form-warning']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add'), extra_classes='ui menu') }}
+                <div class="ui right item">
+                    <div class="ui action input">
+                        {{ add_form.dso_name(size=15) }}
+                    </div>
+                    <button class="ui icon mini button">
+                        <i class="plus icon"></i>
+                    </button>
+                </div>
+            {{ f.end_form(add_form) }}
+
+            <div style="overflow-x: scroll;">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">Name</th>
+                            <th>{{ _('Type') }}</th>
+                            <th>{{ _('Constellation') }}</th>
+                            <th>mag</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_observed_list=True) }}{% endmacro %}
+
+                    {% for item in observed_list.observed_list_items %}
+                        <tr>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
+                            <td class="collapsing specialClass">
+                                <a class="ui icon mini button" href="{{ url_for('main_observation.observed_list_item_remove', item_id=item.id) }}">
+                                    <i class="trash alternate icon"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $("tr td.specialClass").click(function (e) {
+            e.cancelBubble();
+            e.stopPropagation();
+        });
+    </script>
+{% endblock %}

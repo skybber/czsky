@@ -115,7 +115,7 @@
                         {% endif %}
     
                         {% if current_user.is_authenticated %}
-                            {{ commons.wishlist_observed_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_dsos) }}
+                            {{ commons.wish_observed_list_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
                         {% endif %}
                          
                         <div class="ui label" style="float:left;">
@@ -170,7 +170,7 @@
                         {% endif %}
                         
                         {% if current_user.is_authenticated %}
-                            {{ commons.wishlist_observed_toolbar(ug_bl_dso.dso.id, wishlist, observed_dsos) }}
+                            {{ commons.wish_observed_list_toolbar(ug_bl_dso.dso.id, wishlist, observed_list) }}
                         {% endif %}
                          
                         <div class="ui label">
@@ -200,14 +200,26 @@
           $("a[id^='switch_wishlist_']").click(function() {
              var $this = $(this);
              var id = $(this).attr('id');
-             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wishlist') }}", {
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wish_list') }}", {
                  dso_id: id.substring(id.indexOf(id.match(/\d/)))
              }, function(data) {
-                 console.log('Done:' + data.result);
                  if (data.result == 'on') {
                      $this.find("i").attr('class', 'heart icon');
                  } else {
                      $this.find("i").attr('class', 'heart outline black icon');
+                 }
+             });              
+          });
+          $("a[id^='switch_observed_']").click(function() {
+             var $this = $(this);
+             var id = $(this).attr('id');
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_observed_list') }}", {
+                 dso_id: id.substring(id.indexOf(id.match(/\d/)))
+             }, function(data) {
+                 if (data.result == 'on') {
+                     $this.find("i").attr('class', 'eye icon');
+                 } else {
+                     $this.find("i").attr('class', 'eye slash outline black icon');
                  }
              });              
           });
