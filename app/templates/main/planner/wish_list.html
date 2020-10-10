@@ -45,7 +45,7 @@
                     <tbody>
                     {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_wishlist=True) }}{% endmacro %}
 
-                    {% for item in wish_list.sky_list.sky_list_items %}
+                    {% for item in wish_list.wish_list_items %}
                         <tr>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>

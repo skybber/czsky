@@ -129,7 +129,7 @@ def constellation_info(constellation_id):
     
     wish_list = None
     if current_user.is_authenticated:
-        wish_list = [ item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).sky_list.sky_list_items ]
+        wish_list = [ item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items ]
     
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,

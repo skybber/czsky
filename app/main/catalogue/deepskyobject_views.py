@@ -21,7 +21,7 @@ from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, SkyListItem, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, WishListItem, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -116,12 +116,12 @@ def deepskyobject_switch_wishlist():
     if dso is None:
         abort(404)
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    list_item = SkyListItem.query.filter_by(sky_list_id=wish_list.sky_list_id, dso_id=dso_id).first()
-    if list_item:
-        db.session.delete(list_item)
+    wish_list_item = WishListItem.query.filter_by(wish_list_id=wish_list.id, dso_id=dso_id).first()
+    if wish_list_item:
+        db.session.delete(wish_list_item)
         result = 'off'
     else:
-        wish_list.append_deepsky_object(dso_id, current_user.id)
+        wish_list.append_new_deepsky_object(dso_id, current_user.id)
         result = 'on'
     return jsonify(result=result)
 
@@ -165,8 +165,8 @@ def deepskyobject_info(dso_id):
     wishlist = None
     observed_dso = None
     if current_user.is_authenticated:
-        wish_item = SkyListItem.query.filter(SkyListItem.dso_id.in_((dso.id, orig_dso.id))) \
-            .join(WishList, SkyListItem.sky_list_id==WishList.sky_list_id) \
+        wish_item = WishListItem.query.filter(WishListItem.dso_id.in_((dso.id, orig_dso.id))) \
+            .join(WishList) \
             .filter(WishList.user_id==current_user.id) \
             .first()
         wishlist = [wish_item.dso_id] if wish_item is not None else []

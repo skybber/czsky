@@ -15,3 +15,4 @@ from .sqm import *
 from .skylist import *
 from .star import *
 from .user import *
+from .wishlist import *

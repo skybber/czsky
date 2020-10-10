@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList
+from app.models import DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList, WishListItem
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from app.commons.search_utils import process_session_search
@@ -215,15 +215,12 @@ def wish_list_item_add():
 @login_required
 def wish_list_item_remove(item_id):
     """Remove item to wish list."""
-    list_item = SkyListItem.query.filter_by(id=item_id).first()
-    if list_item is None:
+    wish_list_item = WishListItem.query.filter_by(id=item_id).first()
+    if wish_list_item is None:
         abort(404)
-    wish_list = WishList.query.filter_by(sky_list_id=list_item.sky_list.id).first()
-    if wish_list is None:
+    if wish_list_item.wish_list.user_id != current_user.id:
         abort(404)
-    if wish_list.user_id != current_user.id:
-        abort(404)
-    db.session.delete(list_item)
+    db.session.delete(wish_list_item)
     flash('Wishlist item was deleted', 'form-success')
     return redirect(url_for('main_planner.wish_list'))
 
