@@ -480,11 +480,18 @@ def _get_prev_next_dso(dso):
     elif not from_wishlist is None:
         pass # TODO
     elif not from_observed_list is None:
-        pass # TODO
+        if current_user.is_authenticated:
+            observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+            prev_item, next_item = observed_list.get_prev_next_item(dso.id)
+            return (prev_item.deepskyObject if prev_item else None,
+                    prev_item.dso_id if prev_item else None,
+                    next_item.deepskyObject if next_item else None,
+                    next_item.dso_id if next_item else None,
+                    )
     elif not from_session_plan_id is None:
         pass # TODO
     elif not from_dso_list_id is None:
-        dso_list = DsoList.query.filter_by(id=from_dso_list_id).first()
+        dso_list = DsoList.query.filter_by(name=from_dso_list_id).first()
         if dso_list:
             prev_item, next_item = dso_list.get_prev_next_item(dso.id)
             return (prev_item.deepskyObject if prev_item else None,
