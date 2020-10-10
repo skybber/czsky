@@ -159,7 +159,7 @@ def session_plan_item_add():
         dso_name = normalize_dso_name(form.dso_name.data)
         deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
         if deepsky_object:
-            if session_plan.append_deepsky_object(deepsky_object, current_user.id):
+            if session_plan.append_deepsky_object(deepsky_object.id, current_user.id):
                 flash('Object was added to session plan.', 'form-success')
             else:
                 flash('Object is already on session plan.', 'form-info')
@@ -202,7 +202,7 @@ def wish_list_item_add():
         deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
         if deepsky_object:
             wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-            if wish_list.append_deepsky_object(deepsky_object, current_user.id):
+            if wish_list.append_deepsky_object(deepsky_object.id, current_user.id):
                 flash('Object was added to wishlist.', 'form-success')
             else:
                 flash('Object is already on wishlist.', 'form-info')

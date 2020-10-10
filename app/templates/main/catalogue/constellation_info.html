@@ -115,7 +115,7 @@
                         {% endif %}
     
                         {% if current_user.is_authenticated %}
-                            {{ commons.wishlist_observed_toolbar(user_dso_descr.deepskyObject.id, wishlist, observed_dsos) }}
+                            {{ commons.wishlist_observed_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_dsos) }}
                         {% endif %}
                          
                         <div class="ui label" style="float:left;">
@@ -195,6 +195,24 @@
             {% endfor %}
         {% endif %}
     </div>
+    <script type=text/javascript>
+      $(function() {
+          $("a[id^='switch_wishlist_']").click(function() {
+             var $this = $(this);
+             var id = $(this).attr('id');
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wishlist') }}", {
+                 dso_id: id.substring(id.indexOf(id.match(/\d/)))
+             }, function(data) {
+                 console.log('Done:' + data.result);
+                 if (data.result == 'on') {
+                     $this.find("i").attr('class', 'heart icon');
+                 } else {
+                     $this.find("i").attr('class', 'heart outline black icon');
+                 }
+             });              
+          });
+      });
+    </script>
 {% endmacro %}
 
 {% macro constellation_info(constellation) %}

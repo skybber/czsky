@@ -81,7 +81,7 @@
                 {% endif %}
                 
                 {% if current_user.is_authenticated %}
-                    {{ commons.wishlist_observed_toolbar(dso.id, wishlist, observed_dsos) }}
+                    {{ commons.wishlist_observed_toolbar(dso.id, wishlist, observed_dso) }}
                 {% endif %}
                 
                 {% if user_descr %}
@@ -122,6 +122,25 @@
             </div>
         </div>
     </div>
+
+    <script type=text/javascript>
+      $(function() {
+          $("a[id^='switch_wishlist_']").click(function() {
+             var $this = $(this);
+             $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wishlist') }}", {
+                 dso_id: {{ dso.id }}
+             }, function(data) {
+                 console.log('Done:' + data.result);
+                 if (data.result == 'on') {
+                     $this.find("i").attr('class', 'heart icon');
+                 } else {
+                     $this.find("i").attr('class', 'heart outline black icon');
+                 }
+             });              
+          });
+      });
+    </script>
+        
 {% endmacro %}
 
 {# --- Find Chart --- #}

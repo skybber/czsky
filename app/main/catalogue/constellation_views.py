@@ -15,7 +15,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject
+from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject, WishList
 from app.commons.search_utils import process_session_search
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
@@ -64,8 +64,6 @@ def _find_constellation(constellation_id):
 
 @main_constellation.route('/constellation/<string:constellation_id>')
 @main_constellation.route('/constellation/<string:constellation_id>/info')
-
-
 def constellation_info(constellation_id):
     """View a constellation info."""
     constellation = _find_constellation(constellation_id)
@@ -128,10 +126,15 @@ def constellation_info(constellation_id):
                         ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
         ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
     editable=current_user.is_editor()
+    
+    wish_list = None
+    if current_user.is_authenticated:
+        wish_list = [ item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).sky_list.sky_list_items ]
+    
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
                            dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable,
-                           ug_bl_dsos=ug_bl_dsos)
+                           ug_bl_dsos=ug_bl_dsos, wish_list=wish_list)
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required

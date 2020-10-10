@@ -20,9 +20,9 @@ class SessionPlan(db.Model):
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
-    def append_deepsky_object(self, deepsky_object, user_id):
-        if not self.sky_list.find_dso_in_skylist(deepsky_object.id):
-            new_item = _create_new_deepsky_object(self.sky_list_id, deepsky_object, user_id)
+    def append_deepsky_object(self, dso_id, user_id):
+        if not self.sky_list.find_dso_in_skylist(dso_id):
+            new_item = _create_new_deepsky_object(self.sky_list_id, dso_id, user_id)
             db.session.add(new_item)
             db.session.commit()
             return True
@@ -39,9 +39,9 @@ class WishList(db.Model):
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
-    def append_deepsky_object(self, deepsky_object, user_id):
-        if not self.sky_list.find_dso_in_skylist(deepsky_object.id):
-            new_item = _create_new_deepsky_object(self.sky_list_id, deepsky_object, user_id)
+    def append_deepsky_object(self, dso_id, user_id):
+        if not self.sky_list.find_dso_in_skylist(dso_id):
+            new_item = _create_new_deepsky_object(self.sky_list_id, dso_id, user_id)
             db.session.add(new_item)
             db.session.commit()
             return True
@@ -73,13 +73,13 @@ class WishList(db.Model):
             db.session.commit()
         return wish_list
 
-def _create_new_deepsky_object(sky_list_id, deepsky_object, user_id):
+def _create_new_deepsky_object(sky_list_id, dso_id, user_id):
     max = db.session.query(db.func.max(SkyListItem.order)).filter_by(sky_list_id=sky_list_id).scalar()
     if not max:
         max = 0
     new_item = SkyListItem(
         sky_list_id = sky_list_id,
-        dso_id = deepsky_object.id,
+        dso_id = dso_id,
         order = max + 1,
         notes = '',
         create_by = user_id,

@@ -13,14 +13,15 @@ from flask import (
     request,
     session,
     url_for,
-    send_file
+    send_file,
+    jsonify
 )
 from flask_login import current_user, login_required
 from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, SkyListItem, SHOWN_APERTURE_DESCRIPTIONS
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -107,6 +108,22 @@ def _get_other_names(master_dso):
     child_dsos = DeepskyObject.query.filter_by(master_id=master_dso.id)
     return ' / '.join(dso.name for dso in child_dsos)
 
+@main_deepskyobject.route('/deepskyobject/switch-wish-list', methods=['GET'])
+@login_required
+def deepskyobject_switch_wishlist():
+    dso_id = request.args.get('dso_id', None, type=int)
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    list_item = SkyListItem.query.filter_by(sky_list_id=wish_list.sky_list_id, dso_id=dso_id).first()
+    if list_item:
+        db.session.delete(list_item)
+        result = 'off'
+    else:
+        wish_list.append_deepsky_object(dso_id, current_user.id)
+        result = 'on'
+    return jsonify(result=result)
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
@@ -144,11 +161,20 @@ def deepskyobject_info(dso_id):
 
     other_names = _get_other_names(dso)
     from_dso_list_id = request.args.get('from_dso_list_id')
+    
+    wishlist = None
+    observed_dso = None
+    if current_user.is_authenticated:
+        wish_item = SkyListItem.query.filter(SkyListItem.dso_id.in_((dso.id, orig_dso.id))) \
+            .join(WishList, SkyListItem.sky_list_id==WishList.sky_list_id) \
+            .filter(WishList.user_id==current_user.id) \
+            .first()
+        wishlist = [wish_item.dso_id] if wish_item is not None else []
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           from_dso_list_id=from_dso_list_id,
+                           from_dso_list_id=from_dso_list_id, wishlist=wishlist, observed_dso=observed_dso,
                            )
 
 
