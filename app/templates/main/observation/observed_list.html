@@ -61,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_observed_list=True) }}{% endmacro %}
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='observed_list') }}{% endmacro %}
 
                     {% for item in observed_list.observed_list_items %}
                         <tr>

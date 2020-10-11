@@ -3,7 +3,7 @@ import numpy as np
 import math
 import threading
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from flask import (
     abort,
@@ -34,7 +34,7 @@ from .comet_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import create_common_chart_in_pipeline
+from app.commons.chart_generator import create_common_chart_in_pipeline, create_trajectory_chart_in_pipeline
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_comet = Blueprint('main_comet', __name__)
@@ -149,7 +149,6 @@ def comet_info(comet_id):
         abort(404)
 
     form  = CometFindChartForm()
-    from_observation_id = request.args.get('from_observation_id')
 
     preview_url_dir = '/static/webassets-external/preview/'
     preview_dir = 'app' + preview_url_dir
@@ -178,38 +177,49 @@ def comet_info(comet_id):
     mirror_x_part = '_mx' if form.mirror_x.data else ''
     mirror_y_part = '_my' if form.mirror_y.data else ''
     
-    comet_file_name = str(comet_id) \
-        + '_r' + str(fld_size) \
-        + '_m' + str(form.maglim.data) \
-        + invert_part + mirror_x_part + mirror_y_part + '.png'
-        
-    full_file_name = os.path.join(preview_dir, comet_file_name)
-    
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
     c = sun + mpc.comet_orbit(comet, ts, GM_SUN)
 
-    t = ts.now()
-    ra, dec, distance = earth.at(t).observe(c).radec()
+    if form.from_date.data is None or form.to_date.data is None or form.from_date.data > form.to_date.data:
+        comet_file_name = str(comet_id) \
+            + '_r' + str(fld_size) \
+            + '_m' + str(form.maglim.data) \
+            + invert_part + mirror_x_part + mirror_y_part + '.png'
+            
+        full_file_name = os.path.join(preview_dir, comet_file_name)
+        t = ts.now()
+        ra, dec, distance = earth.at(t).observe(c).radec()
+        if os.path.isfile(full_file_name) and datetime.fromtimestamp(os.path.getctime(full_file_name)) + timedelta(hours=1) < datetime.now():
+            os.remove(full_file_name)
+        if not os.path.exists(full_file_name):
+            create_common_chart_in_pipeline(ra.radians, dec.radians, comet['designation'], full_file_name, fld_size, form.maglim.data, 10, 
+                                            night_mode, form.mirror_x.data, form.mirror_y.data)
+    else:
+        comet_file_name = str(comet_id) \
+            + '_r' + str(fld_size) \
+            + '_m' + str(form.maglim.data) \
+            + invert_part + mirror_x_part + mirror_y_part \
+            + '_' + str(form.from_date.data) + '_' + str(form.to_date.data) + '_' \
+            + '.png'
+        full_file_name = os.path.join(preview_dir, comet_file_name)
+        d1 = date(form.from_date.data.year, form.from_date.data.month, form.from_date.data.day)
+        d2 = date(form.to_date.data.year, form.to_date.data.month, form.to_date.data.day)
+        trajectory = []
+        while d1<=d2:
+            t = ts.utc(d1.year, d1.month, d1.day)
+            ra, dec, distance = earth.at(t).observe(c).radec()
+            trajectory.append((ra.radians, dec.radians, ''))
+            d1 += timedelta(days=1)
 
-    if os.path.isfile(full_file_name) and datetime.fromtimestamp(os.path.getctime(full_file_name)) + timedelta(hours=1) < datetime.now():
-        os.remove(full_file_name)
-        
-    if not os.path.exists(full_file_name):
-        create_common_chart_in_pipeline(ra.radians, dec.radians, comet['designation'], full_file_name, fld_size, form.maglim.data, 10, 
+        create_trajectory_chart_in_pipeline(trajectory[0][0], trajectory[0][1], trajectory, comet['designation'], full_file_name, fld_size, form.maglim.data, 10, 
                                         night_mode, form.mirror_x.data, form.mirror_y.data)
 
     fchart_url = preview_url_dir + comet_file_name
 
-    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
-    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
-
-    return render_template('main/solarsystem/comet_info.html', form=form, type='info', comet=comet, fchart_url=fchart_url,
-                           from_observation_id=from_observation_id, mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, 
-                           disable_inc_mag=disable_inc_mag,
-                           )
+    return render_template('main/solarsystem/comet_info.html', form=form, type='info', comet=comet, fchart_url=fchart_url, mag_scale=cur_mag_scale)
 
 @main_comet.route('/comet/<string:comet_id>')
 @main_comet.route('/comet/<string:comet_id>/catalogue_data')
@@ -218,8 +228,7 @@ def comet_catalogue_data(comet_id):
     comet = _find_comet(comet_id)
     if not comet:
         abort(404)
-    from_observation_id = request.args.get('from_observation_id')
-    return render_template('main/solarsystem/comet_info.html', type='catalogue_data', user_descr=user_descr, from_observation_id=from_observation_id)
+    return render_template('main/solarsystem/comet_info.html', type='catalogue_data', user_descr=user_descr)
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:

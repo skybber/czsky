@@ -3,9 +3,9 @@
 
 {% if user_descr.star %}
 {% set endpoints = [
-    ('main_star.star_info', 'Info', 'info'),
-    ('main_star.star_fchart', 'Chart', 'info'),
-    ('main_star.star_catalogue_data', 'Catalogue data', 'table')
+    ('main_star.star_info', _('Info'), 'info'),
+    ('main_star.star_fchart', _('Chart'), 'info'),
+    ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
 ] %}
 {% else %}
 {% set endpoints = [
@@ -13,11 +13,13 @@
 ] %}
 {% endif %}
 
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, star_id=user_descr.id) %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_id=user_descr.id, back=back, back_id=back_id) }}">
                 {{ pupup_text }}
             </a>
         {% endfor %}
@@ -29,7 +31,7 @@
         <div class="ui blue segment" style="display: inline-block">
             <div class="markdown">
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_id=user_descr.id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_id=user_descr.id, back=back, back_id=back_id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
@@ -121,13 +123,13 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                    {% if from_observation_id %}
-                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=from_observation_id) }}">
+                    {% if back=='observation' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}">
                             <i class="caret left icon"></i>
                             <i class="eye icon"></i>
                         </a>
                     {% else %}
-                        <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=from_constellation_id) }}">
+                        <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}">
                             <i class="caret left icon"></i>
                             <i class="lastfm icon"></i>
                         </a>

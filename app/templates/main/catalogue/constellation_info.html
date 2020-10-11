@@ -81,7 +81,7 @@
                     </a>
                 {% endif %}
                 <div class="markdown">
-                {% filter extended_commonmark('', '?from_constellation_id=' + constellation.iau_code) %}
+                {% filter extended_commonmark('', '?back=constellation&back_id=' + constellation.iau_code) %}
 {{ user_descr }}
                 {% endfilter %}
                 </div>
@@ -90,8 +90,8 @@
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
                         {% filter extended_commonmark('') %}
-**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
-{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.iau_code) }})){% endif %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
                         {% endfilter %}
                     {% endfor %}
                     </div>
@@ -124,29 +124,29 @@
     
                         {% if editable %}
                             <a class="ui icon mini button" style="float:left;margin-left:5px;"
-                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
+                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, back='constellation', back_id=constellation.iau_code) }}">
                                 <i class="caret edit icon"></i>
                             </a>
                         {% endif %}
                     </div>
                 
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
                         </h3>
                     </a>
                     <div class="dso-list-markdown markdown" style="clear:both;">
-                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constellation&back_id=' + constellation.iau_code) %}
 {{ user_dso_descr.text | safe }}
                         {% endfilter %}
                         {% if user_dso_descr.dso_id in aperture_descr_map %}
                             {% for ap_class, app_descr in aperture_descr_map[user_dso_descr.dso_id] %}
-                                {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
+                                {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constellation&back_id=' + constellation.iau_code) %}
 **{{ ap_class }}mm** - {{ app_descr }}
                                 {% endfilter %}
                             {% endfor %}
                         {% endif %}
-                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constellation&back_id=' + constellation.iau_code) %}
 {{ user_dso_descr.references or '' }}
                         {% endfilter %}
                     </div>
@@ -178,12 +178,12 @@
                         </div>
                         {% if editable %}
                             <a class="ui icon mini button" style="float:right;margin-left:5px;"
-                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, from_constellation_id=constellation.iau_code) }}">
+                                      href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, back='constellation', back_id=constellation.iau_code) }}">
                                 <i class="caret edit icon"></i>
                             </a>
                         {% endif %}
                   </div>
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=ug_bl_dso.dso.name, from_constellation_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=ug_bl_dso.dso.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 id="dso{{ ug_bl_dso.dso.id }}" style="margin-bottom:0.8em;">
                             {{ ug_bl_dso.dso.denormalized_name() }}
                         </h3>
@@ -244,8 +244,8 @@
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
                         {% filter extended_commonmark('') %}
-**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, from_constellation_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
-{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, from_constellation_id=constellation.iau_code) }})){% endif %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
                         {% endfilter %}
                     {% endfor %}
                     </div>
@@ -255,12 +255,12 @@
         {% if aster_descriptions %}
             {% for aster_dso_descr in aster_descriptions %}
                 <div id="dso{{ aster_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=aster_dso_descr.deepskyObject.name, from_constellation_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=aster_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ aster_dso_descr.deepskyObject.denormalized_name() }}
                             {% if editable %}
                                 <a class="ui icon mini button" style="float:right;margin-left:5px;"
-                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=aster_dso_descr.dso_id, from_constellation_id=constellation.iau_code) }}">
+                                          href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=aster_dso_descr.dso_id, back='constellation', back_id=constellation.iau_code) }}">
                                     <i class="caret edit icon"></i>
                                 </a>
                             {% endif %}
@@ -280,7 +280,7 @@
                         </h3>
                     </a>
                     <div class="markdown">
-                        {% filter extended_commonmark(aster_dso_descr.deepskyObject.name, '?from_constellation_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(aster_dso_descr.deepskyObject.name, '?back=constellation&back_id=' + constellation.iau_code) %}
 {{ aster_dso_descr.text | safe }}
                         {% endfilter %}
                     </div>
@@ -305,7 +305,7 @@
                     </thead>
                     <tbody>
                     {% for d in constellation.deepsky_objects | sort(attribute='name') %}
-                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, from_constellation_id=constellation.iau_code) }}';">
+                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) }}';">
                                     <td>{{ d.denormalized_name() }}</td>
                                     <td>{{ d.type }}</td>
                                     <td>{{ d.ra_str_short() }}</td>

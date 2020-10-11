@@ -43,7 +43,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, from_wishlist=True) }}{% endmacro %}
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='wishlist') }}{% endmacro %}
 
                     {% for item in wish_list.wish_list_items %}
                         <tr>

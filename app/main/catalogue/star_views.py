@@ -37,14 +37,9 @@ def star_info(star_id):
     user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
     if user_descr is None:
         abort(404)
-    from_constellation_id = request.args.get('from_constellation_id')
-    if not from_constellation_id:
-        from_constellation_id = user_descr.constellation_id
-    from_observation_id = request.args.get('from_observation_id')
+        
     editable=current_user.is_editor()
-
-    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id, editable=editable)
+    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, editable=editable)
 
 @main_star.route('/star/<int:star_id>')
 @main_star.route('/star/<int:star_id>/catalogue_data')
@@ -53,12 +48,8 @@ def star_catalogue_data(star_id):
     user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
     if user_descr is None:
         abort(404)
-    from_constellation_id = request.args.get('from_constellation_id')
-    if not from_constellation_id:
-        from_constellation_id = user_descr.constellation_id
-    from_observation_id = request.args.get('from_observation_id')
-    return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id)
+        
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr)
 
 @main_star.route('/star/<int:star_id>/fchart', methods=['GET', 'POST'])
 def star_fchart(star_id):
@@ -72,10 +63,6 @@ def star_fchart(star_id):
         abort(404)
 
     form  = StarFindChartForm()
-    from_constellation_id = request.args.get('from_constellation_id')
-    if not from_constellation_id:
-        from_constellation_id = user_descr.constellation_id
-    from_observation_id = request.args.get('from_observation_id')
 
     field_sizes = (1, 3, 8, 20)
     fld_size = field_sizes[form.radius.data-1]
@@ -109,7 +96,6 @@ def star_fchart(star_id):
                          )
 
     return render_template('main/catalogue/star_info.html', form=form, type='fchart', user_descr=user_descr, fchart_url=fchart_url,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            )
 
@@ -160,10 +146,4 @@ def star_edit(star_id):
         db.session.commit()
         flash('Star description successfully updated', 'form-success')
 
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_observation_id = request.args.get('from_observation_id')
-
-    return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr,
-                           from_constellation_id=from_constellation_id, from_observation_id=from_observation_id,
-                           )
-
+    return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr)

@@ -6,7 +6,6 @@ from io import BytesIO
 from flask import (
     abort,
     Blueprint,
-    current_app,
     flash,
     redirect,
     render_template,
@@ -171,13 +170,12 @@ def deepskyobject_info(dso_id):
             if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
 
-    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
 
     other_names = _get_other_names(dso)
-    from_dso_list_id = request.args.get('from_dso_list_id')
     
     wish_list = None
     observed_list = None
@@ -195,9 +193,9 @@ def deepskyobject_info(dso_id):
         observed_list = [observed_item.dso_id] if observed_item is not None else []
         
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
-                           editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           from_dso_list_id=from_dso_list_id, wish_list=wish_list, observed_list=observed_list,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
+                           editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names, 
+                           wish_list=wish_list, observed_list=observed_list,
                            )
 
 
@@ -214,13 +212,13 @@ def deepskyobject_surveys(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
-    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id, field_size=field_size,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
                            )
 
 def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
@@ -236,12 +234,12 @@ def deepskyobject_catalogue_data(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
-    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     
     other_names = _get_other_names(dso)
     
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id, other_names=other_names,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
                            )
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart', methods=['GET', 'POST'])
@@ -251,7 +249,7 @@ def deepskyobject_fchart(dso_id):
     if dso is None:
         abort(404)
     form  = DeepskyObjectFindChartForm()
-    prev_dso, prev_dso_id, next_dso, next_dso_id = _get_prev_next_dso(orig_dso)
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
     field_sizes = (1, 3, 8, 20)
     fld_size = field_sizes[form.radius.data-1]
@@ -298,7 +296,7 @@ def deepskyobject_fchart(dso_id):
                          my='1' if form.mirror_y.data else '0')
 
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, fchart_url=fchart_url,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_id=prev_dso_id, next_dso_id=next_dso_id,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                            show_mirroring=(form.radius.data<=2),
@@ -426,20 +424,14 @@ def deepskyobject_edit(dso_id):
     for ad in user_apert_descriptions:
         authors[ad.aperture_class] = _create_author_entry(ad.update_by, ad.update_date)
 
-    from_constellation_id = request.args.get('from_constellation_id')
-    from_dso_list_id = request.args.get('from_dso_list_id')
-
     if goback:
-        if from_constellation_id is not None:
-            return redirect(url_for('main_constellation.constellation_info', constellation_id=from_constellation_id, _anchor='dso' + str(dso.id)))
-        if from_dso_list_id is not None:
-            return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, from_dso_list_id=from_dso_list_id))
-        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))
+        back = request.args.get('back')
+        back_id = request.args.get('back_id')
+        if back == 'constellation':
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='dso' + str(dso.id)))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
 
-    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso,
-                           from_constellation_id=from_constellation_id, from_dso_list_id=from_dso_list_id, 
-                           authors=authors,
-                           )
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors)
 
 def _create_author_entry(update_by, update_date):
     if update_by is None:
@@ -455,43 +447,31 @@ def _filter_apert_descriptions(all_user_apert_descrs):
     return apert_descriptions
 
 def _do_redirect(url, dso):
-    from_observation_id = request.args.get('from_observation_id')
-    from_wishlist = request.args.get('from_wishlist')
-    from_observed_list = request.args.get('from_observed_list')
-    from_session_plan_id = request.args.get('from_session_plan_id')
-    from_dso_list_id = request.args.get('from_dso_list_id')
-    return redirect(url_for(url, dso_id=dso.id,
-                            from_observation_id=from_observation_id,
-                            from_wishlist=from_wishlist,
-                            from_observed_list=from_observed_list,
-                            from_session_plan_id=from_session_plan_id,
-                            from_dso_list_id=from_dso_list_id
-                            ))
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id))
 
 def _get_prev_next_dso(dso):
-    from_observation_id = request.args.get('from_observation_id')
-    from_wishlist = request.args.get('from_wishlist')
-    from_observed_list = request.args.get('from_observed_list')
-    from_session_plan_id = request.args.get('from_session_plan_id')
-    from_dso_list_id = request.args.get('from_dso_list_id')
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
 
-    if not from_observation_id is None:
+    if back == 'observation' is None:
         pass # TODO
-    elif not from_wishlist is None:
+    elif back == 'wishlist':
         pass # TODO
-    elif not from_observed_list is None:
+    elif back == 'observed_list':
         if current_user.is_authenticated:
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
             prev_item, next_item = observed_list.get_prev_next_item(dso.id)
             return (prev_item.deepskyObject if prev_item else None,
-                    prev_item.dso_id if prev_item else None,
+                    prev_item.deepskyObject.denormalized_name() if prev_item else None,
                     next_item.deepskyObject if next_item else None,
-                    next_item.dso_id if next_item else None,
+                    next_item.deepskyObject.denormalized_name() if next_item else None,
                     )
-    elif not from_session_plan_id is None:
+    elif back == 'session_plan':
         pass # TODO
-    elif not from_dso_list_id is None:
-        dso_list = DsoList.query.filter_by(name=from_dso_list_id).first()
+    elif back == 'dso_list' and not (back_id is None):
+        dso_list = DsoList.query.filter_by(name=back_id).first()
         if dso_list:
             prev_item, next_item = dso_list.get_prev_next_item(dso.id)
             return (prev_item.deepskyObject if prev_item else None,
@@ -499,9 +479,9 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject if next_item else None,
                     next_item.item_id if next_item else None,
                     )
+              
     prev_dso, next_dso = dso.get_prev_next_dso()
     return (prev_dso,
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
             next_dso.catalog_number() if next_dso else None)
-
