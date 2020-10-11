@@ -30,9 +30,6 @@
         <!-- Star mag limit -->
         <div class="ui labeled item">
             <div class="ui buttons">
-                <button id="decmag" class="ui icon {{ disable_dec_mag }} button">
-                    <i class="left chevron icon"></i>
-                </button>
                 <div class="ui icon dropdown button">
                     <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}"
                             onchange="this.form.submit()">
@@ -43,11 +40,33 @@
                         {% endfor %}
                     </div>
                 </div>
-                <button id="incmag" class="ui right icon {{ disable_inc_mag }} button">
-                    <i class="right chevron icon"></i>
-                </button>
             </div>
             <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+        </div>
+        <div class="ui labeled item">
+            <div class="ui calendar" id="fromdate">
+                <div class="ui input left icon">
+                    <i class="calendar icon"></i>
+                    <input id="ifromdate" name="{{form.from_date.name}}" placeholder="Date" type="text"
+                            value="{{form.from_date.data.strftime('%d/%m/%Y') if form.from_date.data else ''}}">
+                </div>
+            </div>
+            <div class="top right aligned floating ui label">{{ _('From date') }}</div>
+        </div>
+        <div class="ui labeled item">
+            <div class="ui calendar" id="todate">
+                <div class="ui input left icon">
+                    <i class="calendar icon"></i>
+                    <input id="itodate" name="{{form.to_date.name}}" placeholder="Date" type="text"
+                            value="{{form.to_date.data.strftime('%d/%m/%Y') if form.to_date.data else ''}}">
+                </div>
+            </div>
+            <div class="top right aligned floating ui label">{{ _('To date') }}</div>
+        </div>
+        <div class="ui labeled item">
+        <button class="ui icon button" type="submit">
+           <i class="sync icon"></i>
+        </button>        
         </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
@@ -126,6 +145,30 @@
                 $('#fmchart' ).submit();
             });
 
+            $('#fromdate').calendar({
+                type: 'date',
+                formatter: {
+                    date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                    }
+                }
+            });
+            $('#todate').calendar({
+                type: 'date',
+                formatter: {
+                    date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                    }
+                }
+            });
         </script>
 
     {% endif %}

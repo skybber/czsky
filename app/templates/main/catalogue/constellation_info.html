@@ -118,8 +118,8 @@
                             {{ commons.wish_observed_list_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
                         {% endif %}
                          
-                        <div class="ui label" style="float:left;">
-                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                        <div class="ui label mobile hidden" style="float:left;">
+                            <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                         </div>
     
                         {% if editable %}
@@ -173,8 +173,8 @@
                             {{ commons.wish_observed_list_toolbar(ug_bl_dso.dso.id, wishlist, observed_list) }}
                         {% endif %}
                          
-                        <div class="ui label">
-                            <div class="ui rating center mobile hidden" data-icon="star" data-rating="1" data-max-rating="5"></div>
+                        <div class="ui label mobile hidden">
+                            <div class="ui rating center" data-icon="star" data-rating="1" data-max-rating="5"></div>
                         </div>
                         {% if editable %}
                             <a class="ui icon mini button" style="float:right;margin-left:5px;"
@@ -265,8 +265,8 @@
                                 </a>
                             {% endif %}
                             <div class="mobile hidden" style="float:right;padding-left:2px;">
-                                <div class="ui label">
-                                    <div class="ui rating center mobile hidden" data-icon="star" data-rating="{{ aster_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                                <div class="ui label mobile hidden">
+                                    <div class="ui rating center" data-icon="star" data-rating="{{ aster_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                                 </div>
                             </div>
                             {% if aster_dso_descr.deepskyObject.major_axis %}
