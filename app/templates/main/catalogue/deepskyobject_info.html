@@ -308,7 +308,7 @@
     {% else %}
         <table class="ui compact definition table">
     {% endif %}
-        {% if full_table %}<tr><td>{{ _('Name') }}</td><td>{{ dso.denormalized_name() }}</td></tr>{% endif %}
+        {% if full_table %}<tr><td>{{ _('Name') }}</td><td><a href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident={{ dso.name }}" target="_blank">{{ dso.denormalized_name() }}</a></td></tr>{% endif %}
         <tr><td>{{ _('Type') }}</td><td>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}</td></tr>
         {% if dso.common_name %}<tr><td>{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>{% endif %}
         {% if other_names %}<tr><td>{{ _('Other names') }}</td><td>{{ other_names }}</td></tr>{% endif %}
