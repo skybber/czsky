@@ -65,7 +65,7 @@
 
                     {% for item in observed_list.observed_list_items %}
                         <tr>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.deepskyObject.denormalized_name() }}</p></td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>

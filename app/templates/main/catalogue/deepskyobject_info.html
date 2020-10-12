@@ -72,8 +72,10 @@
                 {% endif %}
                 
                 {% if user_descr %}
-                    <div class="ui label mobile hidden" style="float:left;">
-                        <div class="ui rating center" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                    <div class="mobile hidden" style="float:left">
+                        <div class="ui label" style="float:left;">
+                            <div class="ui rating center" data-icon="star" data-rating="{{ user_descr.rating_to_int(5) }}" data-max-rating="5"></div>
+                        </div>
                     </div>
                 {% endif %}
                 
