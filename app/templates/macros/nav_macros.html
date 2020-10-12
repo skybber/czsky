@@ -13,28 +13,6 @@
     {% endfor %}
 {% endmacro %}
 
-{% macro render_dropdown_menu_items(current_user, endpoints) %}
-    <div class="ui inverted dropdown item poping up">
-        <i class="user icon"></i>
-        <div class="text">Account</div>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <div class="header">
-                Signed in as <b>{{ current_user.user_name }}</b>
-            </div>
-            <div class="divider"></div>
-            {% for endpoint, name, icon in endpoints %}
-                <a class="item {% if request.endpoint == endpoint %}active{% endif %}" href="{{ url_for(endpoint) }}">
-                    {% if icon %}
-                        <i class="{{ icon }} icon"></i>
-                    {% endif %}
-                    {{ name | safe }}
-                </a>
-            {% endfor %}
-        </div>
-    </div>
-{% endmacro %}
-
 {# This is called for all users (including anonymous users). It renders the basic left side of the
    navigation bar. In the default case, the left hand side will read 'Flask-Base'. In the logged in
    admin case, there will also be an item that links to admin/ route. I have added an example use of
@@ -77,13 +55,14 @@
 {# This renders the right hand side of the navigation bar. If the user is logged in, it links to
    manage their account and logout (account routes). Otherwise, it links to register and login.
 #}
+
 {% macro account_items(current_user) %}
     {% if current_user.is_authenticated %}
       {% set endpoints = [
         ('main_usersettings.public_profile', 'Your Account', 'settings'),
         ('account.logout', 'Log out', 'sign out')
       ] %}
-      {{ render_dropdown_menu_items(current_user, endpoints) }}
+      {{ render_menu_items(endpoints) }}
     {% else %}
       {% set endpoints = [
         ('account.login', 'Log In', 'sign in')
@@ -129,7 +108,22 @@
                         </div>
                     </div>
                     <div class="right menu">
-                        {{ account_items(current_user) }}
+                        {% if current_user.is_authenticated %}
+                            <div class="ui inverted dropdown item poping up">
+                                <i class="user icon"></i>
+                                <div class="text">Account</div>
+                                <i class="dropdown icon"></i>
+                                <div class="menu">
+                                    <div class="header">
+                                        Signed in as <b>{{ current_user.user_name }}</b>
+                                    </div>
+                                    <div class="divider"></div>
+                                    {{ account_items(current_user) }}
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ account_items(current_user) }}
+                        {% endif %}
                     </div>
                 </div>
             </div>
