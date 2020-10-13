@@ -40,16 +40,19 @@ def _is_editable(location):
 def locations():
     search_form = SearchLocationForm()
 
-    page, search_expr = process_paginated_session_search('location_search_page', [
+    ret, page = process_paginated_session_search('location_search_page', [
         ('location_search', search_form.q),
     ])
+    
+    if not ret:
+        return redirect(url_for('main_location.locations'))
 
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     locations = Location.query.filter(Location.is_for_observation==True,or_(Location.is_public==True, Location.user_id==current_user.id))
-    if search_expr:
-        locations = locations.filter(Location.name.like('%' + search_expr + '%'))
+    if search_form.q.data:
+        locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
     locations_for_render = locations.limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=locations.count(), search=False, record_name='locations', css_framework='semantic', not_passed_args='back')

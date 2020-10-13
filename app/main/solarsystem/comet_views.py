@@ -113,9 +113,12 @@ def comets():
     """View comets."""
     search_form = SearchCometForm()
 
-    page, search_expr = process_paginated_session_search('comet_search_page', [
+    ret, page = process_paginated_session_search('comet_search_page', [
         ('comet_search', search_form.q),
     ])
+    
+    if not ret:
+        return redirect(url_for('main_comet.comets'))
 
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
@@ -123,8 +126,8 @@ def comets():
     
     comets = comets[comets['mag'] < 17.0].sort_values(by=['mag'])
 
-    if search_expr:
-        search_expr = search_expr.replace('"','')
+    if search_form.q.data:
+        search_expr = search_form.q.data.replace('"','')
         comets = comets.query('designation.str.contains("{}")'.format(search_expr))
     
     if len(comets) > 0:

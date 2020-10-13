@@ -46,32 +46,35 @@ def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchDsoForm()
 
-    page, search_expr, dso_type, catalogue, maglim = process_paginated_session_search('dso_search_page', [
+    ret, page = process_paginated_session_search('dso_search_page', [
         ('dso_search', search_form.q),
         ('dso_type', search_form.dso_type),
         ('dso_catal', search_form.catalogue),
         ('dso_maglim', search_form.maglim),
     ])
+    
+    if not ret:
+        return redirect(url_for('main_deepskyobject.deepskyobjects'))
 
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     deepskyobjects = DeepskyObject.query
-    if search_expr:
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_expr) + '%'))
+    if search_form.q.data:
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
 
     mag_scale = (8, 16)
 
-    if dso_type and dso_type != 'All':
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.type==dso_type)
+    if search_form.dso_type.data and search_form.dso_type.data != 'All':
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.type==search_form.dso_type.data)
 
-    if catalogue and catalogue != 'All':
-        cat_id = Catalogue.get_catalogue_id_by_cat_code(catalogue)
+    if search_form.catalogue.data and search_form.catalogue.data != 'All':
+        cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
         if cat_id:
             deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
 
-    if not search_expr and maglim is not None and maglim < mag_scale[1]:
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.mag<maglim)
+    if not search_form.q.data and search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
+        deepskyobjects = deepskyobjects.filter(DeepskyObject.mag<search_form.maglim.data)
 
     deepskyobjects_for_render = deepskyobjects.order_by(DeepskyObject.id).limit(per_page).offset(offset)
 

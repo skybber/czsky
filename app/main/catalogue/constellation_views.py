@@ -38,7 +38,7 @@ def constellations():
     search_form = SearchConstellationForm()
     
     if not process_session_search([('const_search', search_form.q), ('const_season', search_form.season)]):
-        return redirect(url_for('main_constellation.constellations'))        
+        return redirect(url_for('main_constellation.constellations'))
     
     editor_user = User.get_editor_user()
     constellations = Constellation.query
