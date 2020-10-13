@@ -9,6 +9,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -33,12 +34,16 @@ _ug_bl_dsos = None
 @main_constellation.route('/constellations', methods=['GET', 'POST'])
 def constellations():
     """View all constellations."""
+    
     search_form = SearchConstellationForm()
-    search_expr, season = process_session_search([('const_search', search_form.q), ('const_season', search_form.season)])
+    
+    if not process_session_search([('const_search', search_form.q), ('const_season', search_form.season)]):
+        return redirect(url_for('main_constellation.constellations'))        
+    
     editor_user = User.get_editor_user()
     constellations = Constellation.query
-    if search_expr:
-        constellations = constellations.filter(Constellation.name.like('%' + search_expr + '%'))
+    if search_form.q.data:
+        constellations = constellations.filter(Constellation.name.like('%' + search_form.q.data + '%'))
 
     if editor_user:
         db_common_names = UserConsDescription.query \
@@ -47,8 +52,8 @@ def constellations():
     else:
         db_common_names = []
 
-    if season and season != 'All':
-        constellations = constellations.filter(Constellation.season==season)
+    if search_form.season.data and search_form.season.data != 'All':
+        constellations = constellations.filter(Constellation.season==search_form.season.data)
 
     cons_names = { i[0] : i[1] for i in db_common_names }
 

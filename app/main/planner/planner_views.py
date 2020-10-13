@@ -41,11 +41,12 @@ def session_plans():
     """View session plans."""
     search_form = SearchSessionPlanForm()
 
-    (search_expr,) = process_session_search([('session_plan_search', search_form.q)])
+    if not process_session_search([('session_plan_search', search_form.q)]):
+        return redirect(url_for('main_planner.session_plans'))        
 
     session_plans = SessionPlan.query
-    if search_expr:
-        session_plans = session_plans.filter(SessionPlan.title.like('%' + search_expr + '%'))
+    if search_form.q.data:
+        session_plans = session_plans.filter(SessionPlan.title.like('%' + search_form.q.data + '%'))
 
     return render_template('main/planner/session_plans.html', session_plans=session_plans, search_form=search_form)
 

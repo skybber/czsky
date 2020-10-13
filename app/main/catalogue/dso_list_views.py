@@ -40,15 +40,19 @@ def dso_lists_menu():
 def dso_list_info(dso_list_id):
     """View a dso list info."""
     dso_list = _find_dso_list(dso_list_id)
-    search_form = SearchDsoListForm()
-    season, = process_session_search([('dso_list_season', search_form.season),])
     if dso_list is None:
         abort(404)
+        
+    search_form = SearchDsoListForm()
+    
+    if not process_session_search([('dso_list_season', search_form.season),]):
+        return redirect(url_for('main_dso_list.dso_list_info', dso_list_id=dso_list_id))        
+
     editor_user = User.get_editor_user()
     
-    if season and season != 'All':
+    if search_form.season.data and search_form.season.data != 'All':
         constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
+        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==search_form.season.data):
             constell_ids.add(constell_id[0])
     else:
         constell_ids = None

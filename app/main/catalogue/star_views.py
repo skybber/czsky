@@ -19,7 +19,6 @@ from app import db
 
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
-from app.commons.search_utils import process_paginated_session_search
 from app.commons.chart_generator import create_star_chart
 from app.commons.utils import to_float, to_boolean
 

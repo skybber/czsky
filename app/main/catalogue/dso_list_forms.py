@@ -36,4 +36,4 @@ class SearchDsoListForm(FlaskForm):
          ('summer', lazy_gettext('Summer')),
          ('autumn',lazy_gettext('Autumn')),
          ('southern',lazy_gettext('Southern')),
-    ])
+    ], default='')
