@@ -8,7 +8,7 @@
                 <i class="caret left icon"></i>
                 {{ _('Observations') }}
             </a>
-            <h2 class="ui header">
+            <h2 class="ui header" style="margin-top:0.5em">
                 {{ _('List of observed objects') }}
             </h2>
 
@@ -22,7 +22,7 @@
 
             <div class="ui menu">
                 <div class="ui item" style="margin-right:25px">
-                    {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add'), extra_classes='ui menu') }}
+                    {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add')) }}
                     <div class="ui action input">
                         <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
                         <button class="ui icon button">

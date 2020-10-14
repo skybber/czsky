@@ -20,7 +20,7 @@ from app import db
 
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
-from app.commons.chart_generator import create_star_chart
+from app.commons.chart_generator import create_chart
 from app.commons.utils import to_float, to_boolean
 
 main_star = Blueprint('main_star', __name__)
@@ -113,7 +113,7 @@ def star_fchartimg(star_id):
     night_mode = to_boolean(request.args.get('nm'), True) 
     
     img_bytes = BytesIO()
-    create_star_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode)
+    create_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode)
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 

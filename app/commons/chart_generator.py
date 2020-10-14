@@ -59,8 +59,8 @@ def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, nigh
     else:
         pass
         #app.logger.error("DSO %s not found!", dso_name)
-
-def create_star_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode):
+        
+def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
     """Create chart in czsky process."""
     tm = time()
 
@@ -69,8 +69,8 @@ def create_star_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, nigh
     config = fchart3.EngineConfiguration()
     config.show_dso_legend = False
     config.invert_colors = False
-    config.mirror_x = False
-    config.mirror_y = False
+    config.mirror_x = mirror_x
+    config.mirror_y = mirror_y
     config.constellation_linewidth = 0.5
     config.star_border_linewidth = 0.06
     config.open_cluster_linewidth = 0.3
