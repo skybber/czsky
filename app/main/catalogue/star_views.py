@@ -7,6 +7,7 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    redirect,
     render_template,
     request,
     session,
@@ -130,6 +131,7 @@ def star_edit(star_id):
     if not current_user.is_editor():
         abort(403)
     user_descr = UserStarDescription.query.filter_by(id=star_id).first()
+    goback = False
     if user_descr is None:
         abort(404)
     form = StarEditForm()
@@ -144,5 +146,12 @@ def star_edit(star_id):
         db.session.add(user_descr)
         db.session.commit()
         flash('Star description successfully updated', 'form-success')
+        if form.goback.data == 'true':
+            goback = True
 
+    if goback:
+        back = request.args.get('back')
+        back_id = request.args.get('back_id')
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='star' + str(star_id)))
+    
     return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr)

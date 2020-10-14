@@ -60,25 +60,25 @@
                 {{ f.render_form_field(form.references) }}
 
                 {% for item in form.aperture_descr_items %}
-                <div class="three fields">
-                    <label>{{ item.aperture_class.data }}</label>
-                    {{ item.text() }}
-                    <div class="ui labeled item">
-                        <div class="top right aligned ui label">{{ _('Is public') }}</div>
-                        <div class="ui toggle checkbox">
-                            {{ item.is_public() }}
-                            <label></label>
+                    <div class="three fields">
+                        <label>{{ item.aperture_class.data }}</label>
+                        {{ item.text() }}
+                        <div class="ui labeled item">
+                            <div class="top right aligned ui label">{{ _('Is public') }}</div>
+                            <div class="ui toggle checkbox">
+                                {{ item.is_public() }}
+                                <label></label>
+                            </div>
                         </div>
+                        {{ item.aperture_class() }}
                     </div>
-                    {{ item.aperture_class() }}
-                </div>
-                {% if authors[item.aperture_class.data][0] %}
-                    <p align="right">
-                        <span class="ui small text">
-                            Updated by: {{ authors[item.aperture_class.data][0] }}, Update date: {{ authors[item.aperture_class.data][1] }}
-                        </span>
-                    </p>
-                {% endif %}
+                    {% if authors[item.aperture_class.data][0] %}
+                        <p align="right">
+                            <span class="ui small text">
+                                Updated by: {{ authors[item.aperture_class.data][0] }}, Update date: {{ authors[item.aperture_class.data][1] }}
+                            </span>
+                        </p>
+                    {% endif %}
                 {% endfor %}
 
                 <div class="two fields">

@@ -434,7 +434,7 @@ def deepskyobject_edit(dso_id):
             return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='dso' + str(dso.id)))
         return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
 
-    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors)
+    return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors, is_new=False)
 
 def _create_author_entry(update_by, update_date):
     if update_by is None:

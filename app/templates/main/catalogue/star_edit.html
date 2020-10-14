@@ -31,18 +31,25 @@
             {{ f.display_standard_flashes(flashes) }}
 
             {{ f.begin_form(form, flashes) }}
+                <input id="goback" type="hidden" value="false">
 
                 {{ f.render_form_field(form.common_name) }}
                 {{ f.render_form_field(form.text) }}
 
-                {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
-                    {{ f.render_form_field(field) }}
-                {% endfor %}
-
+                <div class="two fields">
+                    <button class="ui button bupdateback">{{ _('Update and back')}}</button>
+                    {{ f.render_form_field(form.submit_button) }}
+                </div>
+                
             {{ f.end_form() }}
         </div>
   </div>
     <script type="text/javascript">
+        $('.bupdateback' ).click(function() {
+            $('#goback').val('true');
+            $(this).closest('form').submit();
+            return false;
+        });
         var contentMDE = new EasyMDE({element: document.getElementById('text'),
                 minHeight: "500px",
                 spellChecker: false,

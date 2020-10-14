@@ -31,7 +31,8 @@ from flask_babel import lazy_gettext
 class StarEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
-    submit = SubmitField(lazy_gettext('Update'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Update'))
 
 class StarFindChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])
