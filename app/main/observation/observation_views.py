@@ -1,5 +1,6 @@
 import os
 import csv
+from io import StringIO, BytesIO
 
 from werkzeug.utils import secure_filename
 
@@ -11,6 +12,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_file,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -221,3 +223,18 @@ def observed_list_upload():
         flash('Observed list updated.', 'form-success')
                 
     return redirect(url_for('main_observation.observed_list'))
+
+@main_observation.route('/observed-list-download', methods=['POST'])
+@login_required
+def observed_list_download():
+    buf = StringIO()
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    for observed_item in observed_list.observed_list_items:
+        if not observed_item.dso_id is None:
+            buf.write(observed_item.deepskyObject.name + '\n') 
+    mem = BytesIO()
+    mem.write(buf.getvalue().encode('utf-8'))
+    mem.seek(0) 
+    return send_file(mem, as_attachment=True,
+                     attachment_filename='observed-' + current_user.user_name + '.csv',
+                     mimetype='text/csv')

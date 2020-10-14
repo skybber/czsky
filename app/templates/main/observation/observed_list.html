@@ -21,23 +21,7 @@
             {{ f.display_standard_flashes(flashes) }}
 
             <div class="ui menu">
-                <div class="ui item">
-                    <button id="clear_observed" class="ui labeled icon negative button">
-                        <i class="trash alternate icon"></i>
-                        {{ _('Clear list') }}
-                    </button>
-                </div>
-                <div class="ui item">
-                    <form id="fmupload" method="post" action="{{ url_for('main_observation.observed_list_upload') }}" enctype="multipart/form-data">
-                        <label for="file" class="ui icon button">
-                            <i class="file icon"></i>
-                             {{ _('Load from CSV file') }}
-                        </label>
-                        <input type="file" id="file" name="file" class="ui file input">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                    </form>            
-                </div>
-                <div class="ui item">
+                <div class="ui item" style="margin-right:25px">
                     {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add'), extra_classes='ui menu') }}
                     <div class="ui action input">
                         <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
@@ -46,6 +30,31 @@
                         </button>                    
                     </div>
                     {{ f.end_form(add_form) }}
+                </div>
+                <div class="ui item">
+                    <button id="clear_observed" class="ui labeled icon negative button">
+                        <i class="trash alternate icon"></i>
+                        {{ _('Clear list') }}
+                    </button>
+                </div>
+                <div class="right menu">
+                    <div class="ui item">
+                        <form id="fmdownload" method="post" action="{{ url_for('main_observation.observed_list_download') }}">
+                            <button class="ui icon button"data-content="Add users to your feed">
+                                <i class="download icon"></i>
+                            </button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                        </form>            
+                    </div>
+                    <div class="ui item">
+                        <form id="fmupload" method="post" action="{{ url_for('main_observation.observed_list_upload') }}" enctype="multipart/form-data">
+                            <label for="file" class="ui icon button">
+                                <i class="upload icon"></i>
+                            </label>
+                            <input type="file" id="file" name="file" class="ui file input">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                        </form>            
+                    </div>
                 </div>
             </div>
 
