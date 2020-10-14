@@ -174,7 +174,6 @@ table.selectable tr:hover {
   width: 400px;
 }
 
-
 .md-fig-left {
   float: left;
   margin-left: 0px !important;
@@ -192,6 +191,7 @@ table.selectable tr:hover {
   img[alt$="<"] {
     float: left;
     height: auto;
+    width: 400px;
     margin-bottom: 20px;
   }
 
