@@ -254,7 +254,7 @@ def deepskyobject_fchart(dso_id):
     form  = DeepskyObjectFindChartForm()
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
-    field_sizes = (1, 3, 8, 20)
+    field_sizes = (1, 3, 8, 20, 40)
     fld_size = field_sizes[form.radius.data-1]
 
     prev_fld_size = session.get('prev_fld')
@@ -262,10 +262,10 @@ def deepskyobject_fchart(dso_id):
 
     night_mode = not session.get('themlight', False)
 
-    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9)]
+    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 9)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
-    dso_mag_scales = [(10, 18), (10, 18), (7, 11), (7, 11)]
+    dso_mag_scales = [(10, 18), (10, 18), (7, 11), (7, 11), (7, 11)]
     cur_dso_mag_scale = dso_mag_scales[form.radius.data - 1]
 
     if prev_fld_size != fld_size:
