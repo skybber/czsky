@@ -181,6 +181,9 @@
                 */
                 {% if chart_nm == '0' %}
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
+                {% else %}
+                    ctx.fillStyle = "black";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                 {% endif %}
                 ctx.drawImage(img, x, y);
             }
