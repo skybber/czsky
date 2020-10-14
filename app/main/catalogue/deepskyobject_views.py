@@ -262,10 +262,10 @@ def deepskyobject_fchart(dso_id):
 
     night_mode = not session.get('themlight', False)
 
-    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 9)]
+    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 8)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
-    dso_mag_scales = [(10, 18), (10, 18), (7, 11), (7, 11), (7, 11)]
+    dso_mag_scales = [(10, 18), (10, 18), (7, 11), (7, 11), (5, 8)]
     cur_dso_mag_scale = dso_mag_scales[form.radius.data - 1]
 
     if prev_fld_size != fld_size:
