@@ -78,6 +78,39 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
     config.legend_linewidth = 0.2
     config.night_mode = night_mode
 
+    
+    artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
+    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
+    engine.set_configuration(config)
+
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
+
+    engine.make_map(used_catalogs)
+    used_catalogs.free_mem()
+    # app.logger.info("Map created within : %s ms", str(time()-tm))
+    
+def create_chart_legend(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
+    tm = time()
+
+    used_catalogs = _load_used_catalogs()
+
+    config = fchart3.EngineConfiguration()
+    config.show_dso_legend = False
+    config.invert_colors = False
+    config.mirror_x = mirror_x
+    config.mirror_y = mirror_y
+    config.constellation_linewidth = 0.5
+    config.star_border_linewidth = 0.06
+    config.open_cluster_linewidth = 0.3
+    config.dso_linewidth = 0.2
+    config.legend_linewidth = 0.2
+    config.night_mode = night_mode
+    config.legend_only = True
+    config.show_mag_scale_legend = True
+    config.show_map_scale_legend = True
+    config.show_orientation_legend = True
+    config.show_field_border = True
+
     artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)

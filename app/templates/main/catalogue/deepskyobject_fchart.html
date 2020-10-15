@@ -75,7 +75,7 @@
 {#
     <div style="width:800px;height:800px;overflow:hidden;">
         <button id="bOK">OK</button>​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-        <img id="ichart" src="{{ url_for('main_deepskyobject.deepskyobject_fchartimg', dso_id=dso_id) }}"></img>
+        <img id="ichart" src="{{ url_for('main_deepskyobject.deepskyobject_fchart_img', dso_id=dso_id) }}"></img>
     </div>
 #}
     <canvas id="fchart-canvas"></canvas>
@@ -143,7 +143,8 @@
 
     <script type="text/javascript">
         var canvas = document.getElementById('fchart-canvas');
-        var img = new Image();
+        var sky_img = new Image();
+        var legend_img = new Image();
         var ctx = canvas.getContext('2d');
         var mouseX = 0, mouseY = 0, dx = 0, dy = 0, mousedown = false;
         var dso_ra = {{ dso.ra }};
@@ -153,39 +154,34 @@
         var rad_coef = 1.4142135623730951;
        
         window.onload = function() {
-            img.onload = function() {
+            legend_img.onload = function() {
+                sky_img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchart_img', dso_id=dso.id,fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
+              };
+            sky_img.onload = function() {
               resizeCanvas();
             };
-            img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchartimg', dso_id=dso.id, fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
+            legend_img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra=dso.ra, dec=dso.dec, fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
         }
         
         function resizeCanvas() {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, dx, dy);
+            canvas.width = sky_img.width;
+            canvas.height = sky_img.height;
+            ctx.drawImage(sky_img, dx, dy);
+            ctx.drawImage(legend_img, 0, 0);
         }
         window.addEventListener('resize', resizeCanvas, false);
         canvas.addEventListener('mousemove', function(ev) {
             if (mousedown) {
                 var x = dx + (ev.layerX-mouseX);
                 var y = dy + (ev.layerY-mouseY);
-                /*
-                if (x > 0)
-                    x = 0;
-                if (y > 0)
-                    y = 0;
-                if (x < canvas.width - img.width)
-                    x = canvas.width - img.width;
-                if (y < canvas.height - img.height)
-                    y = canvas.height - img.height;
-                */
                 {% if chart_nm == '0' %}
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 {% else %}
                     ctx.fillStyle = "black";
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 {% endif %}
-                ctx.drawImage(img, x, y);
+                ctx.drawImage(sky_img, x, y);
+                ctx.drawImage(legend_img, 0, 0);
             }
         }, false);
         canvas.addEventListener('mousedown', function(ev) {
@@ -197,22 +193,12 @@
             if (mousedown) {
                 dx += ev.layerX - mouseX;
                 dy += ev.layerY - mouseY;
-                /*
-                if (dx > 0)
-                    dx = 0;
-                if (dy > 0)
-                    dy = 0;
-                if (dx < canvas.width - img.width)
-                    dx = canvas.width - img.width;
-                if (dy < canvas.height - img.height)
-                    dy = canvas.height - img.height;
-                */
                 ra = ra + dx * Math.PI * {{ chart_fsz }} / (180.0 * canvas.width); 
                 dec = dec + dy * Math.PI * {{ chart_fsz }} / (180.0 * canvas.height);
-                url = "{{ url_for('main_deepskyobject.deepskyobject_pfchartimg', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+                url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
                 url = url.replace('_RA_', ra.toString());
                 url = url.replace('_DEC_', dec.toString());
-                img.src = url;
+                sky_img.src = url;
                 dx = 0;
                 dy = 0;
                 mousedown = false;
