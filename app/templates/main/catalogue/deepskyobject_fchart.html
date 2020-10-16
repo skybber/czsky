@@ -193,8 +193,19 @@
             if (mousedown) {
                 dx += ev.layerX - mouseX;
                 dy += ev.layerY - mouseY;
-                ra = ra + dx * Math.PI * {{ chart_fsz }} / (180.0 * canvas.width); 
                 dec = dec + dy * Math.PI * {{ chart_fsz }} / (180.0 * canvas.height);
+                movDec = dec;
+                
+                if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
+                if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
+                
+                if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0; 
+                if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0; 
+
+                ra = ra + dx * Math.PI * {{ chart_fsz }} / (180.0 * canvas.width * Math.cos(movDec));
+                if (ra > Math.PI) ra = ra - 2 * Math.PI 
+                if (ra < Math.PI) ra = ra + 2 * Math.PI
+                
                 url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
                 url = url.replace('_RA_', ra.toString());
                 url = url.replace('_DEC_', dec.toString());
