@@ -43,6 +43,7 @@ def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, nigh
         config.dso_linewidth = 0.2
         config.legend_linewidth = 0.2
         config.night_mode = night_mode
+        config.show_flamsteed = (fld_size <= 20)
 
         artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
         engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -77,7 +78,7 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
     config.dso_linewidth = 0.2
     config.legend_linewidth = 0.2
     config.night_mode = night_mode
-
+    config.show_flamsteed = (fld_size <= 20)
     
     artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -110,6 +111,7 @@ def create_chart_legend(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, ni
     config.show_map_scale_legend = True
     config.show_orientation_legend = True
     config.show_field_border = True
+    config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -138,6 +140,7 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     config.dso_linewidth = 0.2
     config.legend_linewidth = 0.2
     config.night_mode = night_mode
+    config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -170,6 +173,7 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     config.dso_linewidth = 0.2
     config.legend_linewidth = 0.2
     config.night_mode = night_mode
+    config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
