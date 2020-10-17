@@ -311,7 +311,7 @@ def deepskyobject_fchart(dso_id):
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                           show_mirroring=(form.radius.data<=2), gui_field_sizes=gui_field_sizes,
+                           show_mirroring=(form.radius.data<=2), gui_field_sizes=gui_field_sizes, gui_field_index = (form.radius.data-1)*2, 
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'), 
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            )
