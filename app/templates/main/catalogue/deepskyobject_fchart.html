@@ -180,7 +180,7 @@
                 scaleFac = 1.0;
                 redrawAll();
             };
-            legend_img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra=dso.ra, dec=dso.dec, fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
+            reloadLegendImage();
         }
         
         function redrawAll() {
@@ -200,11 +200,19 @@
         
         window.addEventListener('resize', redrawAll, false);
         
-        function reloadImage() {
-            url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=123, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+        function reloadLegendImage() {
+            var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
             url = url.replace('_RA_', ra.toString());
             url = url.replace('_DEC_', dec.toString());
-            url = url.replace('123', fieldSizes[fldSizeIndex]);
+            url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
+            legend_img.src = url;
+        }
+        
+        function reloadImage() {
+            var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+            url = url.replace('_RA_', ra.toString());
+            url = url.replace('_DEC_', dec.toString());
+            url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
             sky_img.src = url;
         } 
 
@@ -310,7 +318,7 @@
                 if (fldSizeIndex != oldFldSizeIndex) {
                     scaleFac = imgField / fieldSizes[fldSizeIndex];  
                     redrawAll();
-                    reloadImage();
+                    reloadLegendImage();
                     console.log(fldSizeIndex)
                 }
             }
