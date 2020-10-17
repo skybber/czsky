@@ -161,7 +161,6 @@
         var MAX_ZOOM = fldSizeIndexR + 0.4;
         var MIN_ZOOM = 0.5;
         var fldSizeIndex = fieldSizes.length - 1;
-        var SCROLL_SENSITIVITY = 0.5 / 3;
         
         var dso_ra = {{ dso.ra }};
         var dso_dec = {{ dso.dec }};
@@ -189,6 +188,12 @@
             canvas.height = legend_img.height;
             img_width = sky_img.width * scaleFac
             img_height = sky_img.height * scaleFac
+            {% if chart_nm == '0' %}
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            {% else %}
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            {% endif %}
             ctx.drawImage(sky_img, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
             ctx.drawImage(legend_img, 0, 0);
         }
@@ -310,7 +315,23 @@
                 }
             }
         }
-
+        
+        function normalizeDelta(wheelEvent) {
+            var delta = 0;
+            var wheelDelta = wheelEvent.wheelDelta;
+            var deltaY = wheelEvent.deltaY;
+            
+            // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
+            if (wheelDelta) {
+                delta = -wheelDelta / 120; 
+            }
+            // FIREFOX WIN / MAC | IE
+            if(deltaY) {
+                deltaY > 0 ? delta = 1 : delta = -1;
+            }
+            return delta;
+        }
+        
         canvas.addEventListener('mousedown', onPointerDown)
         canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
         canvas.addEventListener('mouseup', onPointerUp)
@@ -318,7 +339,7 @@
         canvas.addEventListener('mousemove', onPointerMove)
         canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
         canvas.addEventListener( 'wheel', function(e) {
-            adjustZoom(e.deltaY*SCROLL_SENSITIVITY);
+            adjustZoom(normalizeDelta(e));
             console.log('WHEEL');
             event.preventDefault();
         });
