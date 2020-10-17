@@ -217,6 +217,8 @@
         function getEventLocation(e) {
             if (e.touches && e.touches.length == 1) {
                 return { x:e.touches[0].clientX, y: e.touches[0].clientY }
+            } else if (e.changedTouches && e.changedTouches.length == 1) {
+                return { x:e.changedTouches[0].pageX, y: e.changedTouches[0].pageY }
             } else if (e.clientX && e.clientY) {
                 return { x: e.clientX, y: e.clientY }        
             }
@@ -275,7 +277,7 @@
         }
 
         function handleTouch(e, singleTouchHandler) {
-            if ( e.touches.length == 1 ) {
+            if ( e.touches.length == 1 || e.changedTouches.length == 1 ) {
                 singleTouchHandler(e)
             } else if (e.type == "touchmove" && e.touches.length == 2) {
                 isDragging = false
@@ -336,18 +338,19 @@
             return delta;
         }
         
-        canvas.addEventListener('mousedown', onPointerDown)
+        canvas.addEventListener('mousedown', onPointerDown);
         canvas.addEventListener('touchstart', function(e) {
-            handleTouch(e, onPointerDown);
             console.log('Touch start');
+            handleTouch(e, onPointerDown);
         });
-        canvas.addEventListener('mouseup', onPointerUp)
+        canvas.addEventListener('mouseup', onPointerUp);
         canvas.addEventListener('touchend',  function(e) {
-            handleTouch(e, onPointerUp);
             console.log('Touch end');
+            handleTouch(e, onPointerUp);
         });
-        canvas.addEventListener('mousemove', onPointerMove)
+        canvas.addEventListener('mousemove', onPointerMove);
         canvas.addEventListener('touchmove', function(e) {
+            console.log('Touch move');
             handleTouch(e, onPointerMove);
             e.preventDefault();
         });
