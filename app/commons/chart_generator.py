@@ -31,7 +31,7 @@ def _setup_skymap_graphics(config, night_mode):
         config.legend_linewidth = 0.2
         if night_mode:
             config.background_color = (0.0, 0.0, 0.0)
-            config.constellation_lines_color = (0.2, 0.25, 0.3)
+            config.constellation_lines_color = (0.18, 0.27, 0.3)
             config.constellation_border_color = (0.2, 0.18, 0.05)
             config.draw_color = (1.0, 1.0, 1.0)
             config.label_color = (0.7, 0.7, 0.7)
@@ -40,7 +40,7 @@ def _setup_skymap_graphics(config, night_mode):
             config.galaxy_color = (0.6, 0.2, 0.2)
             config.star_cluster_color = (0.6, 0.6, 0.0)
         else:
-            config.constellation_lines_color = (0.3, 0.4, 0.6)
+            config.constellation_lines_color = (0.5, 0.7, 0.8)
             config.constellation_border_color = (0.8, 0.7, 0.1)
             config.draw_color = (0.0, 0.0, 0.0)
             config.label_color = (0.2, 0.2, 0.2)
