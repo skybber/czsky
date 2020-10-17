@@ -97,21 +97,6 @@
                 $("#fmchart" ).submit();
             }
           });
-        /*
-        var containerEl = $('#ichart').parent();
-        $('#ichart').draggable({
-            containment: [containerEl.offset().left-1000, containerEl.offset().top-1000,
-                          containerEl.offset().left+400, containerEl.offset().top+400],
-            scroll: false,
-            drag: function() {
-                var offset = $(this).offset();
-                var xPos = offset.left;
-                var yPos = offset.top;
-                console.log('Pos:'+xPos+' '+yPos)
-            },
-            cancel: "button"
-        });
-        */
 
         $('.ui.dropdown').dropdown();
 
@@ -356,14 +341,20 @@
         }
         
         canvas.addEventListener('mousedown', onPointerDown)
-        canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
+        canvas.addEventListener('touchstart', function(e) {
+            handleTouch(e, onPointerDown);
+        });
         canvas.addEventListener('mouseup', onPointerUp)
-        canvas.addEventListener('touchend',  (e) => handleTouch(e, onPointerUp))
+        canvas.addEventListener('touchend',  function(e) {
+            handleTouch(e, onPointerUp);
+        });
         canvas.addEventListener('mousemove', onPointerMove)
-        canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
+        canvas.addEventListener('touchmove', function(e) {
+            handleTouch(e, onPointerMove);
+            event.preventDefault();
+        });
         canvas.addEventListener( 'wheel', function(e) {
             adjustZoom(normalizeDelta(e));
-            console.log('WHEEL');
             event.preventDefault();
         });
 
