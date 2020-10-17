@@ -145,8 +145,11 @@
         var canvas = document.getElementById('fchart-canvas');
         var ctx = canvas.getContext('2d');
         
-        var sky_img = new Image();
-        var legend_img = new Image();
+        var skyImgBuf = [new Image(), new Image()];
+        var skyImg = { active: 0, background: 1 };
+        
+        var legendImgBuf = [new Image(), new Image()];
+        var legendImg = { active: 0, background: 1 };
         
         var isDragging = false
         var mouseX = 0;
@@ -172,30 +175,24 @@
         var scaleFac = 1.0;
         
         window.onload = function() {
-            legend_img.onload = function() {
-                reloadImage();
-              };
-            sky_img.onload = function() {
-                imgField = fieldSizes[fldSizeIndex];
-                scaleFac = 1.0;
-                redrawAll();
-            };
             reloadLegendImage();
         }
         
         function redrawAll() {
-            canvas.width = legend_img.width;
-            canvas.height = legend_img.height;
-            img_width = sky_img.width * scaleFac
-            img_height = sky_img.height * scaleFac
+            var curLegendImg = legendImgBuf[legendImg.active];
+            var curSkyImg = skyImgBuf[skyImg.active];
+            canvas.width = curLegendImg.width;
+            canvas.height = curLegendImg.height;
+            img_width = curSkyImg.width * scaleFac
+            img_height = curSkyImg.height * scaleFac
             {% if chart_nm == '0' %}
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             {% else %}
                 ctx.fillStyle = "black";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             {% endif %}
-            ctx.drawImage(sky_img, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
-            ctx.drawImage(legend_img, 0, 0);
+            ctx.drawImage(curSkyImg, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
+            ctx.drawImage(curLegendImg, 0, 0);
         }
         
         window.addEventListener('resize', redrawAll, false);
@@ -205,7 +202,14 @@
             url = url.replace('_RA_', ra.toString());
             url = url.replace('_DEC_', dec.toString());
             url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
-            legend_img.src = url;
+            legendImgBuf[legendImg.background].onload = function() {
+                legendImgBuf[legendImg.background].onload = null;
+                var old = legendImg.active;
+                legendImg.active = legendImg.background;
+                legendImg.background = old;
+                reloadImage();
+            };
+            legendImgBuf[legendImg.background].src = url;
         }
         
         function reloadImage() {
@@ -213,7 +217,16 @@
             url = url.replace('_RA_', ra.toString());
             url = url.replace('_DEC_', dec.toString());
             url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
-            sky_img.src = url;
+            skyImgBuf[skyImg.background].onload = function() {
+                skyImgBuf[skyImg.background].onload = null;
+                var old = skyImg.active;
+                skyImg.active = skyImg.background;
+                skyImg.background = old;
+                imgField = fieldSizes[fldSizeIndex];
+                scaleFac = 1.0;
+                redrawAll();
+            };
+            skyImgBuf[skyImg.background].src = url;
         } 
 
         function getEventLocation(e) {
@@ -269,8 +282,10 @@
                     ctx.fillStyle = "black";
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 {% endif %}
-                ctx.drawImage(sky_img, x, y);
-                ctx.drawImage(legend_img, 0, 0);
+                var curSkyImg = skyImgBuf[skyImg.active];
+                var curLegendImg = legendImgBuf[legendImg.active];
+                ctx.drawImage(curSkyImg, x, y);
+                ctx.drawImage(curLegendImg, 0, 0);
             }
         }
 
