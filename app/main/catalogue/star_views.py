@@ -64,7 +64,7 @@ def star_fchart(star_id):
 
     form  = StarFindChartForm()
 
-    field_sizes = (1, 3, 8, 20)
+    field_sizes = (1, 3, 8, 20, 40)
     fld_size = field_sizes[form.radius.data-1]
 
     prev_fld_size = session.get('star_prev_fld')
@@ -72,10 +72,10 @@ def star_fchart(star_id):
 
     night_mode = not session.get('themlight', False)
 
-    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9)]
+    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 8)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
-    if prev_fld_size != fld_size:
+    if prev_fld_size != fld_size or request.method == 'GET':
         pref_maglim = session.get('star_pref_maglim' + str(fld_size))
         if pref_maglim is None:
             pref_maglim = (cur_mag_scale[0] + cur_mag_scale[1] + 1) // 2
@@ -113,7 +113,7 @@ def star_fchartimg(star_id):
     night_mode = to_boolean(request.args.get('nm'), True) 
     
     img_bytes = BytesIO()
-    create_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode)
+    create_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode, show_legend=True)
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 

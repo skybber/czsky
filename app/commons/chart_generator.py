@@ -83,7 +83,7 @@ def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, nigh
         pass
         #app.logger.error("DSO %s not found!", dso_name)
         
-def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
+def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True):
     """Create chart in czsky process."""
     tm = time()
 
@@ -97,6 +97,11 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
     config.mirror_y = mirror_y
     config.show_flamsteed = (fld_size <= 20)
 
+    if show_legend:
+        config.show_mag_scale_legend = True
+        config.show_map_scale_legend = True
+        config.show_orientation_legend = True
+        config.show_field_border = True
     
     artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -149,6 +154,11 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     config.show_dso_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
+    
+    config.show_mag_scale_legend = True
+    config.show_map_scale_legend = True
+    config.show_orientation_legend = True
+    config.show_field_border = True
 
     config.show_flamsteed = (fld_size <= 20)
 

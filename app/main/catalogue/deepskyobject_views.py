@@ -36,10 +36,10 @@ from app.main.views import ITEMS_PER_PAGE
 from app.commons.chart_generator import create_dso_chart, create_chart, create_chart_legend
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
-
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
+
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
@@ -82,6 +82,7 @@ def deepskyobjects():
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
                            pagination=pagination, search_form=search_form)
 
+
 @main_deepskyobject.route('/deepskyobject/search')
 def deepskyobject_search():
     query = request.args.get('q', None)
@@ -110,6 +111,7 @@ def _get_other_names(master_dso):
     child_dsos = DeepskyObject.query.filter_by(master_id=master_dso.id)
     return ' / '.join(dso.name for dso in child_dsos)
 
+
 @main_deepskyobject.route('/deepskyobject/switch-wish-list', methods=['GET'])
 @login_required
 def deepskyobject_switch_wish_list():
@@ -127,6 +129,7 @@ def deepskyobject_switch_wish_list():
         result = 'on'
     return jsonify(result=result)
 
+
 @main_deepskyobject.route('/deepskyobject/switch-observed-list', methods=['GET'])
 @login_required
 def deepskyobject_switch_observed_list():
@@ -143,6 +146,7 @@ def deepskyobject_switch_observed_list():
         observed_list.append_new_deepsky_object(dso_id, current_user.id)
         result = 'on'
     return jsonify(result=result)
+
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
@@ -209,6 +213,7 @@ def _get_dso_image_info(dso_name, dir):
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/surveys', methods=['GET', 'POST'])
 def deepskyobject_surveys(dso_id):
     """Digital surveys view a deepsky object."""
@@ -223,6 +228,7 @@ def deepskyobject_surveys(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
                            )
+
 
 def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
     for i in range(len(ang_sizes)):
@@ -244,6 +250,7 @@ def deepskyobject_catalogue_data(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
                            )
+
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart', methods=['GET', 'POST'])
 def deepskyobject_fchart(dso_id):
@@ -268,7 +275,7 @@ def deepskyobject_fchart(dso_id):
     dso_mag_scales = [(10, 18), (10, 18), (7, 11), (7, 11), (5, 8)]
     cur_dso_mag_scale = dso_mag_scales[form.radius.data - 1]
 
-    if prev_fld_size != fld_size:
+    if prev_fld_size != fld_size or request.method == 'GET':
         pref_maglim = session.get('pref_maglim' + str(fld_size))
         if pref_maglim is None:
             pref_maglim = (cur_mag_scale[0] + cur_mag_scale[1] + 1) // 2
@@ -299,6 +306,7 @@ def deepskyobject_fchart(dso_id):
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            )
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-img', methods=['GET'])
 def deepskyobject_fchart_img(dso_id):
     dso, orig_dso = _find_dso(dso_id)
@@ -316,6 +324,7 @@ def deepskyobject_fchart_img(dso_id):
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     dso, orig_dso = _find_dso(dso_id)
@@ -329,9 +338,10 @@ def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     mirror_y = to_boolean(request.args.get('my'), False)
     
     img_bytes = BytesIO()
-    create_chart(img_bytes, float(ra), float(dec), fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
+    create_chart(img_bytes, float(ra), float(dec), fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False)
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
+
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def deepskyobject_fchart_legend_img(dso_id, ra, dec):
@@ -350,12 +360,14 @@ def deepskyobject_fchart_legend_img(dso_id, ra, dec):
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 
+
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
         return mag_interval[0]
     if mag_interval[1] < mag:
         return mag_interval[1]
     return mag
+
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -464,11 +476,13 @@ def deepskyobject_edit(dso_id):
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors, is_new=False)
 
+
 def _create_author_entry(update_by, update_date):
     if update_by is None:
         return ('', '')
     user_name = User.query.filter_by(id=update_by).first().user_name
     return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
+
 
 def _filter_apert_descriptions(all_user_apert_descrs):
     apert_descriptions = []
@@ -477,10 +491,12 @@ def _filter_apert_descriptions(all_user_apert_descrs):
             apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
     return apert_descriptions
 
+
 def _do_redirect(url, dso):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id))
+
 
 def _get_prev_next_dso(dso):
     back = request.args.get('back')
