@@ -143,37 +143,113 @@
 
     <script type="text/javascript">
         var canvas = document.getElementById('fchart-canvas');
+        var ctx = canvas.getContext('2d');
+        
         var sky_img = new Image();
         var legend_img = new Image();
-        var ctx = canvas.getContext('2d');
-        var mouseX = 0, mouseY = 0, dx = 0, dy = 0, mousedown = false;
+        
+        var isDragging = false
+        var mouseX = 0;
+        var mouseY = 0;
+        var initialPinchDistance = null
+        var dx = 0;
+        var dy = 0;
+        
+        var fieldSizes = [{{ gui_field_sizes }}];
+        
+        var fldSizeIndexR = fieldSizes.length;
+        var MAX_ZOOM = fldSizeIndexR + 0.4;
+        var MIN_ZOOM = 0.5;
+        var fldSizeIndex = fieldSizes.length - 1;
+        var SCROLL_SENSITIVITY = 0.5 / 3;
+        
         var dso_ra = {{ dso.ra }};
         var dso_dec = {{ dso.dec }};
+        
         var ra = dso_ra;
         var dec = dso_dec;
-        var rad_coef = 1.4142135623730951;
-       
+        
+        var imgField = fieldSizes[fldSizeIndex];
+        var scaleFac = 1.0;
+        
         window.onload = function() {
             legend_img.onload = function() {
-                sky_img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchart_img', dso_id=dso.id,fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
+                reloadImage();
               };
             sky_img.onload = function() {
-              resizeCanvas();
+                imgField = fieldSizes[fldSizeIndex];
+                scaleFac = 1.0;
+                redrawAll();
             };
             legend_img.src = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra=dso.ra, dec=dso.dec, fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe}}";
         }
         
-        function resizeCanvas() {
-            canvas.width = sky_img.width;
-            canvas.height = sky_img.height;
-            ctx.drawImage(sky_img, dx, dy);
+        function redrawAll() {
+            canvas.width = legend_img.width;
+            canvas.height = legend_img.height;
+            img_width = sky_img.width * scaleFac
+            img_height = sky_img.height * scaleFac
+            ctx.drawImage(sky_img, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
             ctx.drawImage(legend_img, 0, 0);
         }
-        window.addEventListener('resize', resizeCanvas, false);
-        canvas.addEventListener('mousemove', function(ev) {
-            if (mousedown) {
-                var x = dx + (ev.layerX-mouseX);
-                var y = dy + (ev.layerY-mouseY);
+        
+        window.addEventListener('resize', redrawAll, false);
+        
+        function reloadImage() {
+            url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=123, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+            url = url.replace('_RA_', ra.toString());
+            url = url.replace('_DEC_', dec.toString());
+            url = url.replace('123', fieldSizes[fldSizeIndex]);
+            sky_img.src = url;
+        } 
+
+        function getEventLocation(e) {
+            if (e.touches && e.touches.length == 1) {
+                return { x:e.touches[0].clientX, y: e.touches[0].clientY }
+            } else if (e.clientX && e.clientY) {
+                return { x: e.clientX, y: e.clientY }        
+            }
+        }
+
+        function onPointerDown(e) {
+            isDragging = true
+            mouseX = getEventLocation(e).x;
+            mouseY = getEventLocation(e).y;
+        }
+
+        function onPointerUp(e) {
+            if (isDragging) {
+                dx += getEventLocation(e).x - mouseX;
+                dy += getEventLocation(e).y - mouseY;
+                
+                fldSize = fieldSizes[fldSizeIndex];
+                
+                dec = dec + dy * Math.PI * fldSize / (180.0 * canvas.height);
+                movDec = dec;
+                
+                if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
+                if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
+                
+                if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0; 
+                if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0; 
+
+                ra = ra + dx * Math.PI * fldSize / (180.0 * canvas.width * Math.cos(movDec));
+                if (ra > Math.PI*2) ra = ra - 2 * Math.PI 
+                if (ra < 0) ra = ra + 2 * Math.PI
+
+                reloadImage();
+
+                dx = 0;
+                dy = 0;
+                isDragging = false
+                initialPinchDistance = null
+            }
+        }
+
+        function onPointerMove(e) {
+            if (isDragging) {
+                var x = dx + (getEventLocation(e).x-mouseX);
+                var y = dy + (getEventLocation(e).y-mouseY);
                 {% if chart_nm == '0' %}
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                 {% else %}
@@ -183,37 +259,68 @@
                 ctx.drawImage(sky_img, x, y);
                 ctx.drawImage(legend_img, 0, 0);
             }
-        }, false);
-        canvas.addEventListener('mousedown', function(ev) {
-            mouseX = ev.layerX;
-            mouseY = ev.layerY;
-            mousedown = true;
-        }, false );
-        canvas.addEventListener('mouseup', function(ev) {
-            if (mousedown) {
-                dx += ev.layerX - mouseX;
-                dy += ev.layerY - mouseY;
-                dec = dec + dy * Math.PI * {{ chart_fsz }} / (180.0 * canvas.height);
-                movDec = dec;
-                
-                if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
-                if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
-                
-                if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0; 
-                if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0; 
+        }
 
-                ra = ra + dx * Math.PI * {{ chart_fsz }} / (180.0 * canvas.width * Math.cos(movDec));
-                if (ra > Math.PI*2) ra = ra - 2 * Math.PI 
-                if (ra < 0) ra = ra + 2 * Math.PI
-                
-                url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz=chart_fsz, mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
-                url = url.replace('_RA_', ra.toString());
-                url = url.replace('_DEC_', dec.toString());
-                sky_img.src = url;
-                dx = 0;
-                dy = 0;
-                mousedown = false;
+        function handleTouch(e, singleTouchHandler) {
+            if ( e.touches.length == 1 ) {
+                singleTouchHandler(e)
+            } else if (e.type == "touchmove" && e.touches.length == 2) {
+                isDragging = false
+                handlePinch(e)
             }
-        }, false );        
-        
+        }
+
+        function handlePinch(e) {
+            e.preventDefault()
+            
+            var touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+            var touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY }
+            
+            // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+            var currentDistance = (touch1.x - touch2.x)**2 + (touch1.y - touch2.y)**2
+            
+            if (initialPinchDistance == null) {
+                initialPinchDistance = currentDistance
+            } else {
+                adjustZoom( null, currentDistance/initialPinchDistance )
+            }
+        }
+
+        function adjustZoom(zoomAmount, zoomFactor) {
+            if (!isDragging) {
+                if (zoomAmount) {
+                    fldSizeIndexR += zoomAmount
+                } else if (zoomFactor) {
+                    // console.log(zoomFactor)
+                    fldSizeIndexR = zoomFactor*lastZoom
+                }
+                
+                var oldFldSizeIndex = fldSizeIndex;
+                
+                fldSizeIndexR = Math.min( fldSizeIndexR, MAX_ZOOM )
+                fldSizeIndexR = Math.max( fldSizeIndexR, MIN_ZOOM )
+                
+                fldSizeIndex = Math.round(fldSizeIndexR) - 1;
+                
+                if (fldSizeIndex != oldFldSizeIndex) {
+                    scaleFac = imgField / fieldSizes[fldSizeIndex];  
+                    redrawAll();
+                    reloadImage();
+                    console.log(fldSizeIndex)
+                }
+            }
+        }
+
+        canvas.addEventListener('mousedown', onPointerDown)
+        canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
+        canvas.addEventListener('mouseup', onPointerUp)
+        canvas.addEventListener('touchend',  (e) => handleTouch(e, onPointerUp))
+        canvas.addEventListener('mousemove', onPointerMove)
+        canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
+        canvas.addEventListener( 'wheel', function(e) {
+            adjustZoom(e.deltaY*SCROLL_SENSITIVITY);
+            console.log('WHEEL');
+            event.preventDefault();
+        });
+
     </script>
