@@ -170,11 +170,11 @@
             canvas.height = curLegendImg.height;
             img_width = curSkyImg.width * scaleFac
             img_height = curSkyImg.height * scaleFac
-            {% if True or chart_nm == '0' %}
+            {% if chart_nm == '0' %}
                 ctx.fillStyle = "white";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             {% else %}
-                ctx.fillStyle = "black";
+                ctx.fillStyle = "#03030D";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             {% endif %}
             ctx.drawImage(curSkyImg, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
@@ -264,11 +264,11 @@
             if (isDragging) {
                 var x = dx + (getEventLocation(e).x-mouseX);
                 var y = dy + (getEventLocation(e).y-mouseY);
-                {% if True or chart_nm == '0' %}
+                {% if chart_nm == '0' %}
                     ctx.fillStyle = "white";
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 {% else %}
-                    ctx.fillStyle = "black";
+                    ctx.fillStyle = "#03030D";
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 {% endif %}
                 var curSkyImg = skyImgBuf[skyImg.active];
