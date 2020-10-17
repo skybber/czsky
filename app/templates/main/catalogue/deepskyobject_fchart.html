@@ -304,7 +304,6 @@
                 if (zoomAmount) {
                     fldSizeIndexR += zoomAmount
                 } else if (zoomFactor) {
-                    // console.log(zoomFactor)
                     fldSizeIndexR = zoomFactor*lastZoom
                 }
                 
@@ -319,7 +318,6 @@
                     scaleFac = imgField / fieldSizes[fldSizeIndex];  
                     redrawAll();
                     reloadLegendImage();
-                    console.log(fldSizeIndex)
                 }
             }
         }
@@ -343,18 +341,22 @@
         canvas.addEventListener('mousedown', onPointerDown)
         canvas.addEventListener('touchstart', function(e) {
             handleTouch(e, onPointerDown);
+            console.log('Touch start');
         });
         canvas.addEventListener('mouseup', onPointerUp)
         canvas.addEventListener('touchend',  function(e) {
             handleTouch(e, onPointerUp);
+            console.log('Touch end');
         });
         canvas.addEventListener('mousemove', onPointerMove)
         canvas.addEventListener('touchmove', function(e) {
             handleTouch(e, onPointerMove);
+            console.log('Touch move');
             event.preventDefault();
         });
         canvas.addEventListener( 'wheel', function(e) {
             adjustZoom(normalizeDelta(e));
+            console.log('WHEEL');
             event.preventDefault();
         });
 
