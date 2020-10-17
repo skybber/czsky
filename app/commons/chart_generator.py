@@ -23,6 +23,33 @@ def _load_used_catalogs():
                                              show_catalogs = [])
     return used_catalogs
 
+def _setup_skymap_graphics(config, night_mode):
+        config.constellation_linewidth = 0.5
+        config.constellation_linewidth = 0.3
+        config.open_cluster_linewidth = 0.3
+        config.dso_linewidth = 0.4
+        config.legend_linewidth = 0.2
+        if night_mode:
+            config.background_color = (0.0, 0.0, 0.0)
+            config.constellation_lines_color = (0.2, 0.25, 0.3)
+            config.constellation_border_color = (0.2, 0.18, 0.05)
+            config.draw_color = (1.0, 1.0, 1.0)
+            config.label_color = (0.7, 0.7, 0.7)
+            config.dso_color = (0.6, 0.6, 0.6)
+            config.nebula_color = (0.2, 0.6, 0.2)
+            config.galaxy_color = (0.6, 0.2, 0.2)
+            config.star_cluster_color = (0.6, 0.6, 0.0)
+        else:
+            config.constellation_lines_color = (0.3, 0.4, 0.6)
+            config.constellation_border_color = (0.8, 0.7, 0.1)
+            config.draw_color = (0.0, 0.0, 0.0)
+            config.label_color = (0.2, 0.2, 0.2)
+            config.dso_color = (0.3, 0.3, 0.3)
+            config.nebula_color = (0.0, 0.3, 0.0)
+            config.galaxy_color = (0.3, 0.0, 0.0)
+            config.star_cluster_color = (0.3, 0.3, 0.0)
+            
+
 def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
     """Create chart in czsky process."""
     tm = time()
@@ -33,16 +60,11 @@ def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, nigh
 
     if dso:
         config = fchart3.EngineConfiguration()
+        _setup_skymap_graphics(config, night_mode)
+        
         config.show_dso_legend = False
-        config.invert_colors = False
         config.mirror_x = mirror_x
         config.mirror_y = mirror_y
-        config.constellation_linewidth = 0.5
-        config.star_border_linewidth = 0.06
-        config.open_cluster_linewidth = 0.3
-        config.dso_linewidth = 0.2
-        config.legend_linewidth = 0.2
-        config.night_mode = night_mode
         config.show_flamsteed = (fld_size <= 20)
 
         artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
@@ -68,17 +90,13 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
+    _setup_skymap_graphics(config, night_mode)
+    
     config.show_dso_legend = False
-    config.invert_colors = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
-    config.constellation_linewidth = 0.5
-    config.star_border_linewidth = 0.06
-    config.open_cluster_linewidth = 0.3
-    config.dso_linewidth = 0.2
-    config.legend_linewidth = 0.2
-    config.night_mode = night_mode
     config.show_flamsteed = (fld_size <= 20)
+
     
     artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
@@ -96,16 +114,12 @@ def create_chart_legend(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, ni
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
+    _setup_skymap_graphics(config, night_mode)
+    
     config.show_dso_legend = False
-    config.invert_colors = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
-    config.constellation_linewidth = 0.5
-    config.star_border_linewidth = 0.06
-    config.open_cluster_linewidth = 0.3
-    config.dso_linewidth = 0.2
-    config.legend_linewidth = 0.2
-    config.night_mode = night_mode
+
     config.legend_only = True
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
@@ -130,16 +144,12 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
+    _setup_skymap_graphics(config, night_mode)
+    
     config.show_dso_legend = False
-    config.invert_colors = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
-    config.constellation_linewidth = 0.5
-    config.star_border_linewidth = 0.06
-    config.open_cluster_linewidth = 0.3
-    config.dso_linewidth = 0.2
-    config.legend_linewidth = 0.2
-    config.night_mode = night_mode
+
     config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
@@ -163,16 +173,11 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
+    _setup_skymap_graphics(config, night_mode)
+    
     config.show_dso_legend = False
-    config.invert_colors = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
-    config.constellation_linewidth = 0.5
-    config.star_border_linewidth = 0.06
-    config.open_cluster_linewidth = 0.3
-    config.dso_linewidth = 0.2
-    config.legend_linewidth = 0.2
-    config.night_mode = night_mode
     config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
