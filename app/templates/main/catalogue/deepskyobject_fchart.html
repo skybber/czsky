@@ -284,8 +284,6 @@
         }
 
         function handlePinch(e) {
-            e.preventDefault()
-            
             var touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }
             var touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY }
             
@@ -351,13 +349,11 @@
         canvas.addEventListener('mousemove', onPointerMove)
         canvas.addEventListener('touchmove', function(e) {
             handleTouch(e, onPointerMove);
-            console.log('Touch move');
-            event.preventDefault();
+            e.preventDefault();
         });
         canvas.addEventListener( 'wheel', function(e) {
             adjustZoom(normalizeDelta(e));
-            console.log('WHEEL');
-            event.preventDefault();
+            e.preventDefault();
         });
 
     </script>
