@@ -276,15 +276,15 @@
         function handleTouch(e, singleTouchHandler) {
             if ( e.touches.length == 1 || e.changedTouches.length == 1 ) {
                 singleTouchHandler(e)
-            } else if (e.type == "touchmove" && e.touches.length == 2) {
+            } else if (e.targetTouches.length >= 2) {
                 isDragging = false
                 handlePinch(e)
             }
         }
 
         function handlePinch(e) {
-            var touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-            var touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY }
+            var touch1 = { x: e.targetTouches[0].pageX, y: e.targetTouches[0].pageY }
+            var touch2 = { x: e.targetTouches[1].pageX, y: e.targetTouches[1].pageY }
             
             // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
             var currentDistance = (touch1.x - touch2.x)**2 + (touch1.y - touch2.y)**2
@@ -339,11 +339,13 @@
         canvas.addEventListener('touchstart', function(e) {
             console.log('Touch start');
             handleTouch(e, onPointerDown);
+            e.preventDefault();
         });
         canvas.addEventListener('mouseup', onPointerUp);
         canvas.addEventListener('touchend',  function(e) {
             console.log('Touch end');
             handleTouch(e, onPointerUp);
+            e.preventDefault();
         });
         canvas.addEventListener('mousemove', onPointerMove);
         canvas.addEventListener('touchmove', function(e) {
