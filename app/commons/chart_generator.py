@@ -50,40 +50,7 @@ def _setup_skymap_graphics(config, night_mode):
             config.star_cluster_color = (0.3, 0.3, 0.0)
             
 
-def create_dso_chart(png_fobj, dso_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
-    """Create chart in czsky process."""
-    tm = time()
-    
-    used_catalogs = _load_used_catalogs()
-
-    dso, cat, name = used_catalogs.lookup_dso(dso_name)
-
-    if dso:
-        config = fchart3.EngineConfiguration()
-        _setup_skymap_graphics(config, night_mode)
-        
-        config.show_dso_legend = False
-        config.mirror_x = mirror_x
-        config.mirror_y = mirror_y
-        config.show_flamsteed = (fld_size <= 20)
-
-        artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
-        engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
-        engine.set_configuration(config)
-
-        engine.set_field(dso.ra, dso.dec, fld_size*pi/180.0/2.0)
-        if dso.master_object:
-            dso = dso.master_object
-
-        engine.set_active_constellation(dso.constellation)
-        engine.make_map(used_catalogs,extra_positions=[], showing_dso=dso)
-        used_catalogs.free_mem()
-        # app.logger.info("Map created within : %s ms", str(time()-tm))
-    else:
-        pass
-        #app.logger.error("DSO %s not found!", dso_name)
-        
-def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True):
+def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
     """Create chart in czsky process."""
     tm = time()
 
@@ -109,7 +76,15 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    engine.make_map(used_catalogs)
+    showing_dsos = None
+    if dso_names:
+        showing_dsos = []
+        for dso_name in dso_names:
+            dso, cat, name = used_catalogs.lookup_dso(dso_name)
+            if dso:
+                showing_dsos.append(dso)
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos)
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
     

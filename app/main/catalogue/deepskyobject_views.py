@@ -33,7 +33,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import create_dso_chart, create_chart, create_chart_legend
+from app.commons.chart_generator import create_chart, create_chart_legend
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -317,24 +317,6 @@ def deepskyobject_fchart(dso_id):
                            )
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-img', methods=['GET'])
-def deepskyobject_fchart_img(dso_id):
-    dso, orig_dso = _find_dso(dso_id)
-    if dso is None:
-        abort(404)
-    fld_size = to_float(request.args.get('fsz'), 20.0)
-    maglim = to_float(request.args.get('mlim'), 8.0)
-    dso_maglim = to_float(request.args.get('dlim'), 8.0)
-    night_mode = to_boolean(request.args.get('nm'), True) 
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
-    
-    img_bytes = BytesIO()
-    create_dso_chart(img_bytes, dso.name, fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
-    img_bytes.seek(0)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     dso, orig_dso = _find_dso(dso_id)
@@ -348,7 +330,7 @@ def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     mirror_y = to_boolean(request.args.get('my'), False)
     
     img_bytes = BytesIO()
-    create_chart(img_bytes, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False)
+    create_chart(img_bytes, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=(dso.name,))
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 

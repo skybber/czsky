@@ -72,12 +72,7 @@
       {% endif %}
       <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
   </form>
-{#
-    <div style="width:800px;height:800px;overflow:hidden;">
-        <button id="bOK">OK</button>​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
-        <img id="ichart" src="{{ url_for('main_deepskyobject.deepskyobject_fchart_img', dso_id=dso_id) }}"></img>
-    </div>
-#}
+  
     <canvas id="fchart-canvas"></canvas>
 
     <script type="text/javascript">
