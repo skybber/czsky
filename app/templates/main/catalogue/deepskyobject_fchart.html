@@ -146,7 +146,6 @@
     var MAX_ZOOM = fldSizeIndexR + 0.4;
     var MIN_ZOOM = 0.5;
     var fldSizeIndex = {{ gui_field_index }}; // fieldSizes.length - 1;
-    var zoomFactor = 1.0;
     
     var dso_ra = {{ dso.ra }};
     var dso_dec = {{ dso.dec }};
@@ -302,9 +301,14 @@
         }
     }
 
-    function adjustZoom(zoomAmount) {
+    function adjustZoom(zoomAmount, zoomFac) {
         if (!isDragging) {
-            fldSizeIndexR += zoomAmount;
+
+            if (zoomAmount) {
+                fldSizeIndexR += zoomAmount;
+            } else {
+                fldSizeIndexR *= zoomFac;
+            }
             
             var oldFldSizeIndex = fldSizeIndex;
             
@@ -317,10 +321,8 @@
                 scaleFac = imgField / fieldSizes[fldSizeIndex];  
                 redrawAll();
                 reloadImageStart();
-                return fldSizeIndex - oldFldSizeIndex;
             }
         }
-        return 0;
     }
     
     function normalizeDelta(e) {
@@ -344,7 +346,6 @@
         if (e.targetTouches && e.targetTouches.length==2) {
             isDragging = false;
             initialDistance = Math.sqrt((e.targetTouches[0].clientX - e.targetTouches[1].clientX)**2 + (e.targetTouches[0].clientY - e.targetTouches[1].clientY)**2);
-            zoomFactor = 1.0;
         } else {
             onPointerDown(e);
         }
@@ -364,17 +365,9 @@
         e.preventDefault();
         if (initialDistance != undefined && e.touches && e.touches.length==2) {
             var distance = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX)**2 + (e.touches[0].clientY - e.touches[1].clientY) **2);
-            var newZoomFac = initialDistance / distance;
-            if (newZoomFac < 1) {
-                newZoomFac = - 1.0/newZoomFac + 1;
-            }
-            var zoomAdj = 1.2 * (Math.round(newZoomFac) - Math.round(zoomFactor)); 
-            if (zoomAdj != 0) {
-                zoomFactor += adjustZoom(zoomAdj);
-                // $('#log').text('zoomFactor=' + zoomFactor + ' fldSizeIndex=' + fldSizeIndex + ' zoomAdj=' + zoomAdj);
-            }
-            else {
-            }
+            var zoomFac = initialDistance / (initialDistance + 0.7 * (distance - initialDistance));
+            adjustZoom(null, zoomFac);
+            initialDistance = distance;
         } else {
             onPointerMove(e);
         }
