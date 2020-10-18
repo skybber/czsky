@@ -29,6 +29,7 @@ def _setup_skymap_graphics(config, night_mode):
         config.open_cluster_linewidth = 0.3
         config.dso_linewidth = 0.4
         config.legend_linewidth = 0.2
+        config.no_margin = True
         if night_mode:
             config.background_color = (0.01, 0.01, 0.05)
             config.constellation_lines_color = (0.18, 0.27, 0.3)
