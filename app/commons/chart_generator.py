@@ -51,7 +51,7 @@ def _setup_skymap_graphics(config, night_mode):
             config.star_cluster_color = (0.3, 0.3, 0.0)
             
 
-def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
+def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
     """Create chart in czsky process."""
     tm = time()
 
@@ -70,8 +70,8 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
         config.show_map_scale_legend = True
         config.show_orientation_legend = True
         config.show_field_border = True
-    
-    artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
+
+    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
@@ -89,7 +89,7 @@ def create_chart(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mod
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
     
-def create_chart_legend(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
+def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
     tm = time()
 
     used_catalogs = _load_used_catalogs()
@@ -108,7 +108,7 @@ def create_chart_legend(png_fobj, ra, dec, fld_size, star_maglim, dso_maglim, ni
     config.show_field_border = True
     config.show_flamsteed = (fld_size <= 20)
 
-    artist = fchart3.CairoDrawing(220, 220, png_fobj=png_fobj)
+    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 

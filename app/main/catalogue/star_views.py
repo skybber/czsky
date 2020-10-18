@@ -113,7 +113,7 @@ def star_fchartimg(star_id):
     night_mode = to_boolean(request.args.get('nm'), True) 
     
     img_bytes = BytesIO()
-    create_chart(img_bytes, ra, dec, fld_size, maglim, 10, night_mode, show_legend=True)
+    create_chart(img_bytes, ra, dec, fld_size, None, None, maglim, 10, night_mode, show_legend=True)
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 

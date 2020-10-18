@@ -324,13 +324,16 @@ def deepskyobject_fchart_pos_img(dso_id, ra, dec):
         abort(404)
 
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
+   
+    width = request.args.get('width', type=int)
+    height = request.args.get('height', type=int)
     
     night_mode = to_boolean(request.args.get('nm'), True) 
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
     
     img_bytes = BytesIO()
-    create_chart(img_bytes, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=(dso.name,))
+    create_chart(img_bytes, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=(dso.name,))
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 
@@ -342,12 +345,15 @@ def deepskyobject_fchart_legend_img(dso_id, ra, dec):
     
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
     
+    width = request.args.get('width', type=int)
+    height = request.args.get('height', type=int)
+    
     night_mode = to_boolean(request.args.get('nm'), True) 
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
     
     img_bytes = BytesIO()
-    create_chart_legend(img_bytes, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
+    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
     img_bytes.seek(0)
     return send_file(img_bytes, mimetype='image/png')
 
