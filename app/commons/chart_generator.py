@@ -71,7 +71,7 @@ def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_ma
         config.show_orientation_legend = True
         config.show_field_border = True
 
-    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True)
+    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
@@ -108,7 +108,7 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     config.show_field_border = True
     config.show_flamsteed = (fld_size <= 20)
 
-    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True)
+    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
