@@ -74,7 +74,7 @@
   </form>
   
     <canvas id="fchart-canvas"></canvas>
-
+  
     <script type="text/javascript">
         var labels = ["1", "2", "5", "10", "20", "40"];
         $('#slider-field-size')
@@ -134,7 +134,7 @@
         var isDragging = false
         var mouseX = 0;
         var mouseY = 0;
-        var initialPinchDistance = null
+        var initialDistance = undefined;
         var dx = 0;
         var dy = 0;
         
@@ -144,6 +144,7 @@
         var MAX_ZOOM = fldSizeIndexR + 0.4;
         var MIN_ZOOM = 0.5;
         var fldSizeIndex = {{ gui_field_index }}; // fieldSizes.length - 1;
+        var zoomFactor = 1.0;
         
         var dso_ra = {{ dso.ra }};
         var dso_dec = {{ dso.dec }};
@@ -211,13 +212,23 @@
         } 
 
         function getEventLocation(e) {
-            if (e.touches && e.touches.length == 1) {
-                return { x:e.touches[0].clientX, y: e.touches[0].clientY }
-            } else if (e.changedTouches && e.changedTouches.length == 1) {
-                return { x:e.changedTouches[0].pageX, y: e.changedTouches[0].pageY }
-            } else if (e.clientX && e.clientY) {
-                return { x: e.clientX, y: e.clientY }        
+            var pos = { x: 0, y: 0 };
+
+            if (e.type == "touchstart" || e.type == "touchmove" || e.type == "touchend") {
+                var touch = e.touches[0] || e.changedTouches[0];
+                pos.x = touch.clientX;
+                pos.y = touch.clientY;
+            } else if (e.type == "mousedown" || e.type == "mouseup" || e.type == "mousemove" || e.type=="mouseout") {
+                var rect = canvas.getBoundingClientRect();
+                pos.x = e.clientX;
+                pos.y = e.clientY;
+                if (pos.x < rect.left) pos.x = rect.left;
+                if (pos.x > rect.right) pos.x = rect.right;
+                if (pos.y < rect.top) pos.y = rect.top;
+                if (pos.y > rect.bottom) pos.y = rect.bottom;
             }
+
+            return pos;
         }
 
         function onPointerDown(e) {
@@ -251,7 +262,6 @@
                 dx = 0;
                 dy = 0;
                 isDragging = false
-                initialPinchDistance = null
             }
         }
 
@@ -273,36 +283,9 @@
             }
         }
 
-        function handleTouch(e, singleTouchHandler) {
-            if ( e.touches.length == 1 || e.changedTouches.length == 1 ) {
-                singleTouchHandler(e)
-            } else if (e.targetTouches.length >= 2) {
-                isDragging = false
-                handlePinch(e)
-            }
-        }
-
-        function handlePinch(e) {
-            var touch1 = { x: e.targetTouches[0].pageX, y: e.targetTouches[0].pageY }
-            var touch2 = { x: e.targetTouches[1].pageX, y: e.targetTouches[1].pageY }
-            
-            // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
-            var currentDistance = (touch1.x - touch2.x)**2 + (touch1.y - touch2.y)**2
-            
-            if (initialPinchDistance == null) {
-                initialPinchDistance = currentDistance
-            } else {
-                adjustZoom( null, currentDistance/initialPinchDistance )
-            }
-        }
-
-        function adjustZoom(zoomAmount, zoomFactor) {
+        function adjustZoom(zoomAmount) {
             if (!isDragging) {
-                if (zoomAmount) {
-                    fldSizeIndexR += zoomAmount
-                } else if (zoomFactor) {
-                    fldSizeIndexR = zoomFactor*lastZoom
-                }
+                fldSizeIndexR += zoomAmount;
                 
                 var oldFldSizeIndex = fldSizeIndex;
                 
@@ -315,14 +298,16 @@
                     scaleFac = imgField / fieldSizes[fldSizeIndex];  
                     redrawAll();
                     reloadLegendImage();
+                    return fldSizeIndex - oldFldSizeIndex;
                 }
             }
+            return 0;
         }
         
-        function normalizeDelta(wheelEvent) {
+        function normalizeDelta(e) {
             var delta = 0;
-            var wheelDelta = wheelEvent.wheelDelta;
-            var deltaY = wheelEvent.deltaY;
+            var wheelDelta = e.wheelDelta;
+            var deltaY = e.deltaY;
             
             // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
             if (wheelDelta) {
@@ -337,25 +322,47 @@
         
         canvas.addEventListener('mousedown', onPointerDown);
         canvas.addEventListener('touchstart', function(e) {
-            console.log('Touch start');
-            handleTouch(e, onPointerDown);
-            e.preventDefault();
+            if (e.targetTouches && e.targetTouches.length==2) {
+                isDragging = false;
+                initialDistance = Math.sqrt((e.targetTouches[0].clientX - e.targetTouches[1].clientX)**2 + (e.targetTouches[0].clientY - e.targetTouches[1].clientY)**2);
+                zoomFactor = 1.0;
+            } else {
+                onPointerDown(e);
+            }
         });
         canvas.addEventListener('mouseup', onPointerUp);
         canvas.addEventListener('touchend',  function(e) {
-            console.log('Touch end');
-            handleTouch(e, onPointerUp);
-            e.preventDefault();
+            if (initialDistance != null) {
+                initialDistance = undefined;
+            } else {
+                onPointerUp(e);
+            }
         });
+        canvas.addEventListener('mouseout', onPointerUp);
+        
         canvas.addEventListener('mousemove', onPointerMove);
         canvas.addEventListener('touchmove', function(e) {
-            console.log('Touch move');
-            handleTouch(e, onPointerMove);
             e.preventDefault();
+            if (initialDistance != undefined && e.touches && e.touches.length==2) {
+                var distance = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX)**2 + (e.touches[0].clientY - e.touches[1].clientY) **2);
+                var newZoomFac = initialDistance / distance;
+                if (newZoomFac < 1) {
+                    newZoomFac = - 1.0/newZoomFac + 1;
+                }
+                var zoomAdj = 1.2 * (Math.round(newZoomFac) - Math.round(zoomFactor)); 
+                if (zoomAdj != 0) {
+                    zoomFactor += adjustZoom(zoomAdj);
+                    // $('#log').text('zoomFactor=' + zoomFactor + ' fldSizeIndex=' + fldSizeIndex + ' zoomAdj=' + zoomAdj);
+                }
+                else {
+                }
+            } else {
+                onPointerMove(e);
+            }
         });
-        canvas.addEventListener( 'wheel', function(e) {
-            adjustZoom(normalizeDelta(e));
+        canvas.addEventListener('wheel', function(e) {
             e.preventDefault();
+            adjustZoom(normalizeDelta(e));
         });
 
     </script>
