@@ -261,9 +261,10 @@
             dy += getEventLocation(e).y - mouseY;
             
             fldSize = fieldSizes[fldSizeIndex];
-            
-            dec = dec + dy * Math.PI * fldSize / (180.0 * canvas.height);
-            movDec = dec;
+           
+            var wh = Math.max(canvas.width, canvas.height); 
+            dec = dec + dy * Math.PI * fldSize / (180.0 * wh);
+            var movDec = dec;
             
             if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
             if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
@@ -271,7 +272,7 @@
             if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0; 
             if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0; 
 
-            ra = ra + dx * Math.PI * fldSize / (180.0 * canvas.width * Math.cos(movDec));
+            ra = ra + dx * Math.PI * fldSize / (180.0 * wh * Math.cos(movDec));
             if (ra > Math.PI*2) ra = ra - 2 * Math.PI 
             if (ra < 0) ra = ra + 2 * Math.PI
 
