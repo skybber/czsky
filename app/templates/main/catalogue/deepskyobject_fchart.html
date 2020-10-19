@@ -74,7 +74,6 @@
   </form>
  
   <div id="fchart-div" style="width:100%;height:75vh;">
-    <canvas id="fchart-canvas"></canvas>
   </div>
   
 <script type="text/javascript">
@@ -124,7 +123,12 @@
 </script>
 
 <script type="text/javascript">
-    var canvas = document.getElementById('fchart-canvas');
+    var fchartDiv = '#fchart-div';
+
+    $(fchartDiv).addClass("fchart-container"); 
+    
+    var canvas = $('<canvas class="fchart-canvas"></canvas>').appendTo(this.fchartDiv)[0];
+
     var ctx = canvas.getContext('2d');
     
     var skyImgBuf = [new Image(), new Image()];
@@ -156,6 +160,14 @@
     var imgField = fieldSizes[fldSizeIndex];
     var scaleFac = 1.0;
     
+    $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
+        .appendTo(fchartDiv);
+    
+    var fullScreenBtn = $(fchartDiv).find('.fchart-fullscreenControl')
+        fullScreenBtn.click(function() {
+        toggleFullscreen();
+    });    
+
     window.onload = function() {
         adjustCanvasSize();
         reloadImageStart();
@@ -167,8 +179,8 @@
     }, false);
     
     function adjustCanvasSize() {
-        var computedWidth = $('#fchart-div').width();
-        var computedHeight = $('#fchart-div').height();
+        var computedWidth = $(fchartDiv).width();
+        var computedHeight = $(fchartDiv).height();
 
         canvas.width = Math.max(computedWidth, 1);
         canvas.height = Math.max(computedHeight, 1);
@@ -341,6 +353,17 @@
         return delta;
     }
     
+    function toggleFullscreen() {
+        
+        fullScreenBtn.toggleClass('fchart-maximize fchart-restore');
+        var isInFullscreen = fullScreenBtn.hasClass('fchart-restore');
+        fullScreenBtn.attr('title', isInFullscreen ? 'Restore original size' : 'Full screen');
+        $(fchartDiv).toggleClass('fchart-fullscreen');
+
+        adjustCanvasSize();
+        reloadImageStart();
+    };
+
     canvas.addEventListener('mousedown', onPointerDown);
     canvas.addEventListener('touchstart', function(e) {
         if (e.targetTouches && e.targetTouches.length==2) {
@@ -375,6 +398,20 @@
     canvas.addEventListener('wheel', function(e) {
         e.preventDefault();
         adjustZoom(normalizeDelta(e));
+    });
+    
+    // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
+    $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
+        var fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        if (fullscreenElt===null || fullscreenElt===undefined) {
+            fullScreenBtn.removeClass('fchart-restore');
+            fullScreenBtn.addClass('fchart-maximize');
+            fullScreenBtn.attr('title', 'Full screen');
+            $(fchartDiv).removeClass('fchart-fullscreen');
+    
+            var fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
+            (typeof fullScreenToggledFn === 'function') && fullScreenToggledFn(isInFullscreen);
+        }
     });
 
 </script>

@@ -203,3 +203,53 @@ table.selectable tr:hover {
     margin-bottom: 20px !important;
   }
 }
+
+.fchart-container {
+    position: relative;
+    border: 1px solid #ddd;
+    height: 100%;
+    /*overflow: hidden;*/
+}
+
+.fchart-canvas {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+}
+
+.fchart-maximize {
+    position: absolute;
+    top: 6px;
+    right: 3px;
+    z-index: 20;
+    width: 30px;
+    height: 30px;
+    background-image: url('data:image/gif;base64,R0lGODlhFgAWAOMJAAAAAAEBAQICAgMDAwUFBAUFBQcHBwgICAsLCv///////////////////////////yH5BAEKAA8ALAAAAAAWABYAAARm8MlJabr41i0T+CCQcJz3CYMwklsSEAUhspVnHEYw0x1w558VzYQTBXm24sgjJCUQykmT9dzxWlNq9vrwILYtqe/wRc6SBqszOE6DLZ/AT00FyKNcD4wQeLdQAiB+cCFHVxkZXA8RADs=');
+    background-repeat:  no-repeat;
+    background-position:center center;
+}
+
+.fchart-restore {
+    position: absolute;
+    top: 6px;
+    right: 3px;
+    z-index: 20;
+    width: 30px;
+    height: 30px;
+    background-image: url('data:image/gif;base64,R0lGODlhFgAWAOMJAAAAAAEBAQICAgMDAwUFBAUFBQcHBwgICAsLCv///////////////////////////yH5BAEKAA8ALAAAAAAWABYAAARk8MlJ60zJapsAyhsFPp1xfKHUZeVhAOPWwYD5xjIABDacXrseLtQhFAiBIVEwEOh8P9VzquRgrhgrNhudTaHdJ1NQ1SQCRgL41zIE1sSa6w0361y0eqXtW7EReCNlIgh6XYMbEQA7');
+    background-repeat:  no-repeat;
+    background-position:center center;
+}
+
+.fchart-fullscreen {
+    position: fixed !important;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    height: 100% !important;
+    width: 100% !important;
+    border: 0 !important;
+    max-width: none !important;
+    background: #fff; 
+}
