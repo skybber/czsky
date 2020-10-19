@@ -358,6 +358,23 @@ def deepskyobject_fchart_legend_img(dso_id, ra, dec):
     return send_file(img_bytes, mimetype='image/png')
 
 
+def _get_fld_size_maglim(fld_size_index):
+    fld_size = FIELD_SIZES[fld_size_index]
+        
+    mag_scale = MAG_SCALES[fld_size_index]
+    dso_mag_scale = DSO_MAG_SCALES[fld_size_index]
+    
+    maglim = session.get('pref_maglim' + str(fld_size))
+    if maglim is None:
+        maglim = (mag_scale[0] + mag_scale[1] + 1) // 2
+        
+    dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
+    if dso_maglim is None:
+        dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1] + 1) // 2
+        
+    return (fld_size, maglim, dso_maglim)
+
+
 def _get_fld_size_mags_from_request():
     gui_fld_size = to_float(request.args.get('fsz'), 20.0)
     
@@ -368,19 +385,13 @@ def _get_fld_size_mags_from_request():
     else:
         fld_size_index = 0
     
-    fld_size = FIELD_SIZES[fld_size_index]
-        
-    cur_mag_scale = MAG_SCALES[fld_size_index]
-    cur_dso_mag_scale = DSO_MAG_SCALES[fld_size_index]
+    fld_size, maglim, dso_maglim = _get_fld_size_maglim(fld_size_index)
     
-    maglim = session.get('pref_maglim' + str(fld_size))
-    if maglim is None:
-        maglim = (cur_mag_scale[0] + cur_mag_scale[1] + 1) // 2
-        
-    dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
-    if dso_maglim is None:
-        dso_maglim = (cur_dso_mag_scale[0] + cur_dso_mag_scale[1] + 1) // 2
-
+    if gui_fld_size > fld_size and (fld_size_index + 1) < len(FIELD_SIZES):
+        next_fld_size, next_maglim, next_dso_maglim = _get_fld_size_maglim(fld_size_index+1)
+        maglim = (maglim + next_maglim) / 2
+        dso_maglim = (dso_maglim + next_dso_maglim) / 2
+    
     return (gui_fld_size, maglim, dso_maglim)
 
 def _check_in_mag_interval(mag, mag_interval):

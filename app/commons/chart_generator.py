@@ -17,7 +17,6 @@ def _load_used_catalogs():
         usno_nomad_file = os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat')
         used_catalogs = fchart3.UsedCatalogs(data_dir, usno_nomad_file,
                                              limiting_magnitude_deepsky = 100.0,
-                                             force_messier = True,
                                              force_asterisms = False,
                                              force_unknown = False,
                                              show_catalogs = [])
