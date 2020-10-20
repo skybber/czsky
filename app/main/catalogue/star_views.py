@@ -64,7 +64,7 @@ def star_fchart(star_id):
 
     form  = StarFindChartForm()
 
-    field_sizes = (1, 3, 8, 20, 40)
+    field_sizes = (1, 3, 8, 20, 40, 60, 80)
     fld_size = field_sizes[form.radius.data-1]
 
     prev_fld_size = session.get('star_prev_fld')
@@ -72,7 +72,7 @@ def star_fchart(star_id):
 
     night_mode = not session.get('themlight', False)
 
-    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 8)]
+    mag_scales = [(12, 16), (10, 13), (8, 11), (6, 9), (6, 8), (6, 7), (6, 7)]
     cur_mag_scale = mag_scales[form.radius.data - 1]
 
     if prev_fld_size != fld_size or request.method == 'GET':

@@ -40,7 +40,7 @@ main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
 
-FIELD_SIZES = (1, 2, 5, 10, 20, 40)
+FIELD_SIZES = (1, 2, 5, 10, 20, 40, 60, 80)
     
 GUI_FIELD_SIZES = []
 
@@ -50,8 +50,8 @@ for i in range(0, len(FIELD_SIZES)-1):
     
 GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
-MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 11), (7, 11), (5, 8)]
+MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (6, 7), (6, 7)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 11), (7, 11), (6, 8), (6, 7), (6, 7)]
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():

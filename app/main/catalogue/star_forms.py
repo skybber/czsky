@@ -35,6 +35,6 @@ class StarEditForm(FlaskForm):
     submit_button = SubmitField(lazy_gettext('Update'))
 
 class StarFindChartForm(FlaskForm):
-    radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=5)])
+    radius = IntegerField(lazy_gettext('Field radius'), default=6, validators=[Length(min=1, max=5)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=8)
     submit = SubmitField(lazy_gettext('Update'))

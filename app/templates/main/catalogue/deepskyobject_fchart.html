@@ -3,7 +3,7 @@
   <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_fchart', dso_id=dso.name, back=back, back_id=back_id) }}" method="post" class="ui secondary menu">
       <!-- Field radius -->
       <div class="ui labeled item">
-          <div class="ui labeled ticked small slider" id="slider-field-size" style="width:250px">
+          <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
           </div>
           <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
           <div class="top right aligned floating ui label">{{ _('Field Size') }}</div>
@@ -77,11 +77,11 @@
   </div>
   
 <script type="text/javascript">
-    var labels = ["1", "2", "5", "10", "20", "40"];
+    var labels = ["1", "2", "5", "10", "20", "40", "60", "80"];
     $('#slider-field-size')
       .slider({
         min: 1,
-        max: 6,
+        max: 8,
         step: 1,
         start:{{ form.radius.data }},
         fireOnInit: false,
