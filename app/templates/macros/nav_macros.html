@@ -132,7 +132,7 @@
 {% endmacro %}
 
 {% macro render_nav(current_user) %}
-    <nav class="ui navigation grid {% if endpoints %}has-submenu{% endif %}">
+    <nav class="ui one column grid {% if endpoints %}has-submenu{% endif %}">
         {{ mobile_nav(current_user) }}
         {{ desktop_nav(current_user) }}
     </nav>
