@@ -159,6 +159,7 @@
     
     var imgField = fieldSizes[fldSizeIndex];
     var scaleFac = 1.0;
+    var queuedImgs = 0;
     
     $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
         .appendTo(fchartDiv);
@@ -332,7 +333,13 @@
             if (fldSizeIndex != oldFldSizeIndex) {
                 scaleFac = imgField / fieldSizes[fldSizeIndex];  
                 redrawAll();
-                reloadImageStart();
+                queuedImgs++;
+                setTimeout(function(){ 
+                   queuedImgs--;
+                   if (queuedImgs == 0) {
+                       reloadImageStart();
+                   }
+        }, 150);
             }
         }
     }
