@@ -10,6 +10,9 @@ from flask import app
 
 used_catalogs = None
 
+MAX_IMG_WIDTH = 3000
+MAX_IMG_HEIGHT = 3000
+
 def _load_used_catalogs():
     global used_catalogs
     if used_catalogs is None:

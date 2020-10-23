@@ -90,7 +90,9 @@
         },
         onChange: function(value) {
             $('#radius').val(value);
-            $("#fmchart" ).submit();
+            var nosubmit = $('#slider-field-size').data('nosubmit') || false;
+            if (!nosubmit)
+                $("#fmchart" ).submit();
         }
       });
 
@@ -99,30 +101,27 @@
     $( '#decmag' ).click(function() {
         prev = +$('#maglim').val();
         $('#maglim').val(prev - 1);
-        $('#fmchart' ).submit();
+        $('#fmchart').submit();
     });
 
     $( '#incmag' ).click(function() {
         prev = +$('#maglim').val();
         $('#maglim').val(prev + 1);
-        $('#fmchart' ).submit();
+        $('#fmchart').submit();
     });
 
     $( '#decdsomag' ).click(function() {
         prev = +$('#dso_maglim').val();
         $('#dso_maglim').val(prev - 1);
-        $('#fmchart' ).submit();
+        $('#fmchart').submit();
     });
 
     $( '#incdsomag' ).click(function() {
         prev = +$('#dso_maglim').val();
         $('#dso_maglim').val(prev + 1);
-        $('#fmchart' ).submit();
+        $('#fmchart').submit();
     });
 
-</script>
-
-<script type="text/javascript">
     var fchartDiv = '#fchart-div';
 
     $(fchartDiv).addClass("fchart-container"); 
@@ -334,12 +333,15 @@
                 scaleFac = imgField / fieldSizes[fldSizeIndex];  
                 redrawAll();
                 queuedImgs++;
-                setTimeout(function(){ 
+                setTimeout(function() { 
                    queuedImgs--;
                    if (queuedImgs == 0) {
                        reloadImageStart();
                    }
-        }, 150);
+                }, 150);
+                $('#slider-field-size').data('nosubmit', true);
+                $('#slider-field-size').slider('set value', Math.ceil((fldSizeIndex+1) / 2))
+                $('#slider-field-size').data('nosubmit', false);
             }
         }
     }
