@@ -33,7 +33,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import create_chart, create_chart_legend
+from app.commons.chart_generator import create_chart, create_chart_legend, MAX_IMG_WIDTH, MAX_IMG_HEIGHT
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -51,7 +51,7 @@ for i in range(0, len(FIELD_SIZES)-1):
 GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
 MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (6, 7), (6, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 11), (7, 11), (6, 8), (6, 7), (6, 7)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (6, 10), (6, 9)]
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
@@ -328,6 +328,11 @@ def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
     
+    if width > MAX_IMG_WIDTH:
+        width = MAX_IMG_WIDTH
+    if height > MAX_IMG_HEIGHT:
+        height = MAX_IMG_HEIGHT
+    
     night_mode = to_boolean(request.args.get('nm'), True) 
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
@@ -348,6 +353,11 @@ def deepskyobject_fchart_legend_img(dso_id, ra, dec):
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
     
+    if width > MAX_IMG_WIDTH:
+        width = MAX_IMG_WIDTH
+    if height > MAX_IMG_HEIGHT:
+        height = MAX_IMG_HEIGHT
+        
     night_mode = to_boolean(request.args.get('nm'), True) 
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
