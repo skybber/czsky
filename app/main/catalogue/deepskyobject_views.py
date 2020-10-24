@@ -50,8 +50,8 @@ for i in range(0, len(FIELD_SIZES)-1):
     
 GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
-MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (6, 7), (6, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (6, 10), (6, 9)]
+MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7), (5, 7)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (5, 10), (5, 9)]
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
