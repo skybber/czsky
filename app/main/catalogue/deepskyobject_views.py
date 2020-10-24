@@ -284,15 +284,18 @@ def deepskyobject_fchart(dso_id):
     cur_dso_mag_scale = DSO_MAG_SCALES[form.radius.data - 1]
 
     if prev_fld_size != fld_size or request.method == 'GET':
-        pref_maglim = session.get('pref_maglim' + str(fld_size))
-        if pref_maglim is None:
-            pref_maglim = (cur_mag_scale[0] + cur_mag_scale[1] + 1) // 2
+        _, pref_maglim, pref_dso_maglim = _get_fld_size_maglim(form.radius.data-1)
         form.maglim.data = pref_maglim
-        pref_dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
-        if pref_dso_maglim is None:
-            pref_dso_maglim = (cur_dso_mag_scale[0] + cur_dso_mag_scale[1] + 1) // 2
         form.dso_maglim.data = pref_dso_maglim
-
+        
+    mag_range_values = []
+    dso_mag_range_values = []
+    
+    for i in range(0, len(FIELD_SIZES)):
+        _, ml, dml = _get_fld_size_maglim(i)
+        mag_range_values.append(ml)
+        dso_mag_range_values.append(dml)
+        
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
 
@@ -314,6 +317,7 @@ def deepskyobject_fchart(dso_id):
                            show_mirroring=(form.radius.data<=2), gui_field_sizes=gui_field_sizes, gui_field_index = (form.radius.data-1)*2, 
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'), 
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
+                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values, 
                            )
 
 

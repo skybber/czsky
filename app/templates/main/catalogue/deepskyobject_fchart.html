@@ -15,9 +15,8 @@
                   <i class="left chevron icon"></i>
               </button>
               <div class="ui icon dropdown button">
-                  <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}"
-                          onchange="this.form.submit()">
-                  <span class="text">{{ form.maglim.data }}</span>
+                  <input type="hidden" id="maglim" name="maglim" value="{{ form.maglim.data }}" >
+                  <span id="smaglim" class="text">{{ form.maglim.data }}</span>
                   <div class="menu">
                       {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
                           <div class="item">{{ mag_item }}</div>
@@ -37,9 +36,8 @@
                   <i class="left chevron icon"></i>
               </button>
               <div class="ui icon dropdown button">
-                  <input type="hidden" id="{{ form.dso_maglim.name }}" name="{{ form.dso_maglim.name }}" value="{{ form.dso_maglim.data }}"
-                          onchange="this.form.submit()">
-                  <span class="text">{{ form.dso_maglim.data }}</span>
+                  <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ form.dso_maglim.data }}">
+                  <span id="sdso_maglim" class="text">{{ form.dso_maglim.data }}</span>
                   <div class="menu">
                       {% for mag_item in range(dso_mag_scale[0], dso_mag_scale[1] + 1) %}
                           <div class="item">
@@ -77,6 +75,7 @@
   </div>
   
 <script type="text/javascript">
+    var submitDisabled = false;
     var labels = ["1", "2", "5", "10", "20", "40", "60", "80"];
     $('#slider-field-size')
       .slider({
@@ -90,9 +89,9 @@
         },
         onChange: function(value) {
             $('#radius').val(value);
-            var nosubmit = $('#slider-field-size').data('nosubmit') || false;
-            if (!nosubmit)
+            if (!submitDisabled) {
                 $("#fmchart" ).submit();
+            }
         }
       });
 
@@ -121,7 +120,18 @@
         $('#dso_maglim').val(prev + 1);
         $('#fmchart').submit();
     });
+    
+    $('#maglim').change(function() {
+        if (!submitDisabled)
+            this.form.submit();
+    });
 
+    $('#dso_maglim').change(function() {
+        if (!submitDisabled)
+            this.form.submit();
+    });
+
+    /* Chart code start */
     var fchartDiv = '#fchart-div';
 
     $(fchartDiv).addClass("fchart-container"); 
@@ -144,6 +154,22 @@
     var dy = 0;
     
     var fieldSizes = [{{ gui_field_sizes }}];
+    var magRanges = [
+        {% for mr in mag_ranges %}
+            [{{ mr[0] ~ ',' ~ mr[1] }}], 
+        {% endfor %}        
+    ];
+    var magRangeValues = [
+        {% for mrv in mag_range_values %}{{ mrv }}, {% endfor %}        
+    ];
+    var dsoMagValues = [
+        {% for mr in dso_mag_ranges %}
+            [{{ mr[0] ~ ',' ~ mr[1] }}], 
+        {% endfor %}        
+    ];
+    var dsoMagRangeValues = [
+        {% for mrv in dso_mag_range_values %}{{ mrv }}, {% endfor %}        
+    ];
     
     var fldSizeIndexR = fieldSizes.length;
     var MAX_ZOOM = fldSizeIndexR + 0.4;
@@ -205,12 +231,14 @@
     }
     
     function reloadImageStart() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim='_MLIM_', dlim='_DLIM_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
         url = url.replace('_RA_', ra.toString());
         url = url.replace('_DEC_', dec.toString());
         url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
         url = url.replace('_WIDTH_', canvas.width);
         url = url.replace('_HEIGHT_', canvas.height);
+        url = url.replace('_MLIM_', magRangeValues[fldSizeIndex]);
+        url = url.replace('_DLIM_', dsoMagRangeValues[fldSizeIndex]);
         legendImgBuf[legendImg.background].onload = function() {
             legendImgBuf[legendImg.background].onload = null;
             var old = legendImg.active;
@@ -222,12 +250,14 @@
     }
     
     function reloadImage() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim=chart_mlim, dlim=chart_dlim, nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim='_MLIM_', dlim='_DLIM_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
         url = url.replace('_RA_', ra.toString());
         url = url.replace('_DEC_', dec.toString());
         url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
         url = url.replace('_WIDTH_', canvas.width);
         url = url.replace('_HEIGHT_', canvas.height);
+        url = url.replace('_MLIM_', magRangeValues[fldSizeIndex]);
+        url = url.replace('_DLIM_', dsoMagRangeValues[fldSizeIndex]);
         skyImgBuf[skyImg.background].onload = function() {
             skyImgBuf[skyImg.background].onload = null;
             var old = skyImg.active;
@@ -339,9 +369,15 @@
                        reloadImageStart();
                    }
                 }, 150);
-                $('#slider-field-size').data('nosubmit', true);
-                $('#slider-field-size').slider('set value', Math.ceil((fldSizeIndex+1) / 2))
-                $('#slider-field-size').data('nosubmit', false);
+                submitDisabled = true;
+                var index = Math.ceil((fldSizeIndex+1) / 2);
+                $('#slider-field-size').slider('set value', index);
+                $('#maglim').val(magRangeValues[index]);
+                $('#dso_maglim').val(dsoMagRangeValues[index]);
+                console.log(magRangeValues[index].toString());
+                $('#smaglim').text(magRangeValues[index].toString());
+                $('#sdso_maglim').text(dsoMagRangeValues[index].toString());
+                submitDisabled = false;
             }
         }
     }
