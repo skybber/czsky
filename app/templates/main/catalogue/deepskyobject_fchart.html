@@ -372,11 +372,11 @@
                 submitDisabled = true;
                 var index = Math.ceil((fldSizeIndex+1) / 2);
                 $('#slider-field-size').slider('set value', index);
-                $('#maglim').val(magRangeValues[index]);
-                $('#dso_maglim').val(dsoMagRangeValues[index]);
-                console.log(magRangeValues[index].toString());
-                $('#smaglim').text(magRangeValues[index].toString());
-                $('#sdso_maglim').text(dsoMagRangeValues[index].toString());
+                $('#maglim').val(magRangeValues[index-1]);
+                $('#dso_maglim').val(dsoMagRangeValues[index-1]);
+                console.log(magRangeValues[index-1].toString());
+                $('#smaglim').text(magRangeValues[index-1].toString());
+                $('#sdso_maglim').text(dsoMagRangeValues[index-1].toString());
                 submitDisabled = false;
             }
         }
