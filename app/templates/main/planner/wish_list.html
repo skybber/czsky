@@ -31,6 +31,14 @@
                 </div>
             {{ f.end_form(add_form) }}
 
+            <form action="{{ url_for('main_planner.wish_list') }}" method="post" name="search" class="ui stackable menu">
+                <div class="ui item">
+                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+                    <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+                </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+            </form>
+            
             <div style="overflow-x: scroll;">
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -45,7 +53,7 @@
                     <tbody>
                     {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='wishlist') }}{% endmacro %}
 
-                    {% for item in wish_list.wish_list_items %}
+                    {% for item in wish_list_items %}
                         <tr>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>

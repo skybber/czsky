@@ -52,3 +52,13 @@ class AddToSessionPlanForm(FlaskForm):
 
 class AddToWishListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+
+class SearchWishListForm(FlaskForm):
+    season = SelectField(lazy_gettext('Season'), choices=[
+         ('All', lazy_gettext('All')),
+         ('winter', lazy_gettext('Winter')),
+         ('spring', lazy_gettext('Spring')),
+         ('summer', lazy_gettext('Summer')),
+         ('autumn',lazy_gettext('Autumn')),
+         ('southern',lazy_gettext('Southern')),
+    ], default='')

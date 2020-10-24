@@ -13,7 +13,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList, WishListItem
+from app.models import Constellation, DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList, WishListItem
 from app.commons.pagination import Pagination, get_page_parameter
 from app.main.views import ITEMS_PER_PAGE
 from app.commons.search_utils import process_session_search
@@ -24,6 +24,7 @@ from .planner_forms import (
     SearchSessionPlanForm,
     SessionPlanNewForm,
     SessionPlanEditForm,
+    SearchWishListForm,
 )
 
 from app.commons.dso_utils import normalize_dso_name
@@ -185,13 +186,33 @@ def session_plan_item_remove(item_id):
     flash('Session plan item was deleted', 'form-success')
     return redirect(url_for('main_planner.session_plan_info', session_plan_id=session_plan.id))
 
-@main_planner.route('/wish-list', methods=['GET'])
+@main_planner.route('/wish-list', methods=['GET', 'POST'])
 @login_required
 def wish_list():
     """View wish list."""
     add_form = AddToWishListForm()
+
+    search_form = SearchWishListForm()
+    
+    if search_form.season.data and search_form.season.data != 'All':
+        constell_ids = set()
+        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==search_form.season.data):
+            constell_ids.add(constell_id[0])
+    else:
+        constell_ids = None
+    
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    return render_template('main/planner/wish_list.html', wish_list=wish_list, add_form=add_form)
+    
+    wish_list_items = []
+    
+    if constell_ids:
+        for item in wish_list.wish_list_items:
+            if item.deepskyObject and item.deepskyObject.constellation_id in constell_ids:
+                wish_list_items.append(item)
+    else:
+        wish_list_items = wish_list.wish_list_items
+    
+    return render_template('main/planner/wish_list.html', wish_list_items=wish_list_items, search_form=search_form, add_form=add_form)
 
 @main_planner.route('/wish-list-item-add', methods=['POST'])
 @login_required
