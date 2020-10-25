@@ -233,14 +233,13 @@
     }
     
     function reloadImageStart() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim='_MLIM_', dlim='_DLIM_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
         url = url.replace('_RA_', ra.toString());
         url = url.replace('_DEC_', dec.toString());
         url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
         url = url.replace('_WIDTH_', canvas.width);
         url = url.replace('_HEIGHT_', canvas.height);
-        url = url.replace('_MLIM_', magRangeValues[fldSizeIndex]);
-        url = url.replace('_DLIM_', dsoMagRangeValues[fldSizeIndex]);
+        url = url + '&' + escape(new Date());
         legendImgBuf[legendImg.background].onload = function() {
             legendImgBuf[legendImg.background].onload = null;
             var old = legendImg.active;
@@ -252,14 +251,12 @@
     }
     
     function reloadImage() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', mlim='_MLIM_', dlim='_DLIM_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
         url = url.replace('_RA_', ra.toString());
         url = url.replace('_DEC_', dec.toString());
         url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
         url = url.replace('_WIDTH_', canvas.width);
         url = url.replace('_HEIGHT_', canvas.height);
-        url = url.replace('_MLIM_', magRangeValues[fldSizeIndex]);
-        url = url.replace('_DLIM_', dsoMagRangeValues[fldSizeIndex]);
         skyImgBuf[skyImg.background].onload = function() {
             skyImgBuf[skyImg.background].onload = null;
             var old = skyImg.active;
@@ -269,6 +266,7 @@
             scaleFac = 1.0;
             redrawAll();
         };
+        url = url + '&' + escape(new Date());
         skyImgBuf[skyImg.background].src = url;
     } 
 
