@@ -310,6 +310,11 @@ def deepskyobject_fchart(dso_id):
     
     gui_field_sizes = ','.join(str(x) for x in GUI_FIELD_SIZES)
     
+    if form.ra.data is None:
+        form.ra.data = dso.ra 
+    if form.dec.data is None:
+        form.dec.data = dso.dec 
+        
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso, 
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,

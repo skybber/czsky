@@ -1,6 +1,8 @@
 {% import 'macros/common_macros.html' as commons %}
 
   <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_fchart', dso_id=dso.name, back=back, back_id=back_id) }}" method="post" class="ui secondary menu">
+      <input type="hidden" id="ra" name="ra" value="{{ form.ra.data }}" >
+      <input type="hidden" id="dec" name="dec" value="{{ form.dec.data }}" >
       <!-- Field radius -->
       <div class="ui labeled item">
           <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
@@ -179,8 +181,8 @@
     var dso_ra = {{ dso.ra }};
     var dso_dec = {{ dso.dec }};
     
-    var ra = dso_ra;
-    var dec = dso_dec;
+    var ra = parseFloat($('#ra').val());
+    var dec = parseFloat($('#dec').val());
     
     var imgField = fieldSizes[fldSizeIndex];
     var scaleFac = 1.0;
@@ -316,7 +318,10 @@
             ra = ra + dx * Math.PI * fldSize / (180.0 * wh * Math.cos(movDec));
             if (ra > Math.PI*2) ra = ra - 2 * Math.PI 
             if (ra < 0) ra = ra + 2 * Math.PI
-
+            
+            $('#ra').val(ra);
+            $('#dec').val(dec);
+            
             reloadImage();
 
             dx = 0;
@@ -374,7 +379,6 @@
                 $('#slider-field-size').slider('set value', index);
                 $('#maglim').val(magRangeValues[index-1]);
                 $('#dso_maglim').val(dsoMagRangeValues[index-1]);
-                console.log(magRangeValues[index-1].toString());
                 $('#smaglim').text(magRangeValues[index-1].toString());
                 $('#sdso_maglim').text(dsoMagRangeValues[index-1].toString());
                 submitDisabled = false;
@@ -399,7 +403,6 @@
     }
     
     function toggleFullscreen() {
-        
         fullScreenBtn.toggleClass('fchart-maximize fchart-restore');
         var isInFullscreen = fullScreenBtn.hasClass('fchart-restore');
         fullScreenBtn.attr('title', isInFullscreen ? 'Restore original size' : 'Full screen');
