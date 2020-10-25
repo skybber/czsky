@@ -87,6 +87,7 @@
             </div>
             {% if user_descr and user_descr.common_name %}
                 <h3 class="ui left floated header mobile hidden" style="white-space: nowrap;">{{ user_descr.common_name }}</h3>
+                <div class="ui hidden divider mobile only"></div>
                 <h3 class="ui header mobile only" style="clear:both;">{{ user_descr.common_name }}</h3>
             {% endif %}
             {% if not user_descr or not user_descr.common_name %}
