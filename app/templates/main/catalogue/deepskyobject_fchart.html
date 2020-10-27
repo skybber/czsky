@@ -1,17 +1,19 @@
 {% import 'macros/common_macros.html' as commons %}
 
+<div id="fchart-div" style="width:100%;height:75vh;">
+
   <form id="fmchart" action="{{ url_for('main_deepskyobject.deepskyobject_fchart', dso_id=dso.name, back=back, back_id=back_id) }}" method="post" class="ui secondary menu">
       <input type="hidden" id="ra" name="ra" value="{{ form.ra.data }}" >
       <input type="hidden" id="dec" name="dec" value="{{ form.dec.data }}" >
       <!-- Field radius -->
-      <div class="ui labeled item">
+      <div class="ui labeled right horizontally fitted item" style="z-index:100">
           <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
           </div>
           <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-          <div class="top right aligned floating ui label">{{ _('Field Size') }}</div>
+          <div class="top left aligned floating ui label">{{ _('Field Size') }}</div>
       </div>
       <!-- Star mag limit -->
-      <div class="ui labeled item">
+      <div class="ui labeled horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
               <button id="decmag" class="ui icon {{ disable_dec_mag }} button mobile hidden ">
                   <i class="left chevron icon"></i>
@@ -19,7 +21,7 @@
               <div class="ui icon dropdown button">
                   <input type="hidden" id="maglim" name="maglim" value="{{ form.maglim.data }}" >
                   <span id="smaglim" class="text">{{ form.maglim.data }}</span>
-                  <div class="menu">
+                  <div id="maglim_menu" class="menu">
                       {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
                           <div class="item">{{ mag_item }}</div>
                       {% endfor %}
@@ -29,10 +31,10 @@
                   <i class="right chevron icon"></i>
               </button>
           </div>
-          <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+          <div class="top left aligned floating ui label">{{ _('Limit mag') }}</div>
       </div>
       <!-- dso mag limit -->
-      <div class="ui labeled item">
+      <div class="ui labeled horizontally fitted item" style="margin-right:60px; z-index:100">
           <div class="ui buttons">
               <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button mobile hidden ">
                   <i class="left chevron icon"></i>
@@ -40,7 +42,7 @@
               <div class="ui icon dropdown button">
                   <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ form.dso_maglim.data }}">
                   <span id="sdso_maglim" class="text">{{ form.dso_maglim.data }}</span>
-                  <div class="menu">
+                  <div id="dso_maglim_menu" class="menu">
                       {% for mag_item in range(dso_mag_scale[0], dso_mag_scale[1] + 1) %}
                           <div class="item">
                               {{ mag_item }}
@@ -52,29 +54,13 @@
                   <i class="right chevron icon"></i>
               </button>
           </div>
-          <div class="top right aligned floating ui label">{{ _('DSO limit mag') }}</div>
+          <div class="top left aligned floating ui label">{{ _('DSO limit mag') }}</div>
       </div>
-      {% if show_mirroring %}
-          <div class="ui labeled item">
-              <div class="ui toggle checkbox">
-                  {{ form.mirror_x(onchange='this.form.submit()') }}
-                  <label></label>
-              </div>
-              <div class="top right aligned floating ui label">{{ _('Mirror X') }}</div>
-          </div>
-          <div class="ui labeled item">
-              <div class="ui toggle checkbox">
-                  {{ form.mirror_y(onchange='this.form.submit()') }}
-                  <label></label>
-              </div>
-              <div class="top right aligned floating ui label">{{ _('Mirror Y') }}</div>
-          </div>
-      {% endif %}
-      <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
   </form>
  
-  <div id="fchart-div" style="width:100%;height:75vh;">
-  </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
   
 <script type="text/javascript">
     var submitDisabled = false;
@@ -132,39 +118,20 @@
         if (!submitDisabled)
             this.form.submit();
     });
-
-    /* Chart code start */
-    var fchartDiv = '#fchart-div';
-
-    $(fchartDiv).addClass("fchart-container"); 
-    
-    var canvas = $('<canvas class="fchart-canvas"></canvas>').appendTo(this.fchartDiv)[0];
-
-    var ctx = canvas.getContext('2d');
-    
-    var skyImgBuf = [new Image(), new Image()];
-    var skyImg = { active: 0, background: 1 };
-    
-    var legendImgBuf = [new Image(), new Image()];
-    var legendImg = { active: 0, background: 1 };
-    
-    var isDragging = false
-    var mouseX = 0;
-    var mouseY = 0;
-    var initialDistance = undefined;
-    var dx = 0;
-    var dy = 0;
     
     var fieldSizes = [{{ gui_field_sizes }}];
+    
     var magRanges = [
         {% for mr in mag_ranges %}
             [{{ mr[0] ~ ',' ~ mr[1] }}], 
         {% endfor %}        
     ];
+    
     var magRangeValues = [
         {% for mrv in mag_range_values %}{{ mrv }}, {% endfor %}        
     ];
-    var dsoMagValues = [
+    
+    var dsoMagRanges = [
         {% for mr in dso_mag_ranges %}
             [{{ mr[0] ~ ',' ~ mr[1] }}], 
         {% endfor %}        
@@ -173,291 +140,43 @@
         {% for mrv in dso_mag_range_values %}{{ mrv }}, {% endfor %}        
     ];
     
-    var fldSizeIndexR = fieldSizes.length;
-    var MAX_ZOOM = fldSizeIndexR + 0.4;
-    var MIN_ZOOM = 0.5;
-    var fldSizeIndex = {{ gui_field_index }}; // fieldSizes.length - 1;
-    
-    var dso_ra = {{ dso.ra }};
-    var dso_dec = {{ dso.dec }};
-    
     var ra = parseFloat($('#ra').val());
     var dec = parseFloat($('#dec').val());
     
-    var imgField = fieldSizes[fldSizeIndex];
-    var scaleFac = 1.0;
-    var queuedImgs = 0;
+    var nightMode = {% if chart_nm == '0' %} true {% else %} false {% endif %}
     
-    $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
-        .appendTo(fchartDiv);
+    var legendUrl = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
+    var chartUrl = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
     
-    var fullScreenBtn = $(fchartDiv).find('.fchart-fullscreenControl')
-        fullScreenBtn.click(function() {
-        toggleFullscreen();
-    });    
+    var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl);
+    
+    fchart.onFieldChange(function(fldSizeIndex) {
+        submitDisabled = true;
+        var index = Math.ceil((fldSizeIndex+1) / 2);
+        $('#slider-field-size').slider('set value', index);
+        $('#maglim').val(magRangeValues[index-1]);
+        $('#dso_maglim').val(dsoMagRangeValues[index-1]);
+        $('#smaglim').text(magRangeValues[index-1].toString());
+        $('#sdso_maglim').text(dsoMagRangeValues[index-1].toString());
 
-    window.onload = function() {
-        adjustCanvasSize();
-        reloadImageStart();
-    }
-
-    window.addEventListener('resize', function(e) {
-        adjustCanvasSize();
-        reloadImageStart();
-    }, false);
-    
-    function adjustCanvasSize() {
-        var computedWidth = $(fchartDiv).width();
-        var computedHeight = $(fchartDiv).height();
-
-        canvas.width = Math.max(computedWidth, 1);
-        canvas.height = Math.max(computedHeight, 1);
-    }
-    
-    function redrawAll() {
-        var curLegendImg = legendImgBuf[legendImg.active];
-        var curSkyImg = skyImgBuf[skyImg.active];
-        canvas.width = curLegendImg.width;
-        canvas.height = curLegendImg.height;
-        img_width = curSkyImg.width * scaleFac
-        img_height = curSkyImg.height * scaleFac
-        {% if chart_nm == '0' %}
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        {% else %}
-            ctx.fillStyle = "#03030D";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        {% endif %}
-        ctx.drawImage(curSkyImg, dx + (canvas.width-img_width)/2, dy + (canvas.height-img_height)/2, img_width, img_height);
-        ctx.drawImage(curLegendImg, 0, 0);
-    }
-    
-    function reloadImageStart() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
-        url = url.replace('_RA_', ra.toString());
-        url = url.replace('_DEC_', dec.toString());
-        url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
-        url = url.replace('_WIDTH_', canvas.width);
-        url = url.replace('_HEIGHT_', canvas.height);
-        url = url + '&' + escape(new Date());
-        legendImgBuf[legendImg.background].onload = function() {
-            legendImgBuf[legendImg.background].onload = null;
-            var old = legendImg.active;
-            legendImg.active = legendImg.background;
-            legendImg.background = old;
-            reloadImage();
-        };
-        legendImgBuf[legendImg.background].src = url;
-    }
-    
-    function reloadImage() {
-        var url = "{{ url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
-        url = url.replace('_RA_', ra.toString());
-        url = url.replace('_DEC_', dec.toString());
-        url = url.replace('_FSZ_', fieldSizes[fldSizeIndex]);
-        url = url.replace('_WIDTH_', canvas.width);
-        url = url.replace('_HEIGHT_', canvas.height);
-        skyImgBuf[skyImg.background].onload = function() {
-            skyImgBuf[skyImg.background].onload = null;
-            var old = skyImg.active;
-            skyImg.active = skyImg.background;
-            skyImg.background = old;
-            imgField = fieldSizes[fldSizeIndex];
-            scaleFac = 1.0;
-            redrawAll();
-        };
-        url = url + '&' + escape(new Date());
-        skyImgBuf[skyImg.background].src = url;
-    } 
-
-    function getEventLocation(e) {
-        var pos = { x: 0, y: 0 };
-
-        if (e.type == "touchstart" || e.type == "touchmove" || e.type == "touchend") {
-            var touch = e.touches[0] || e.changedTouches[0];
-            pos.x = touch.clientX;
-            pos.y = touch.clientY;
-        } else if (e.type == "mousedown" || e.type == "mouseup" || e.type == "mousemove" || e.type=="mouseout") {
-            var rect = canvas.getBoundingClientRect();
-            pos.x = e.clientX;
-            pos.y = e.clientY;
-            if (pos.x < rect.left) pos.x = rect.left;
-            if (pos.x > rect.right) pos.x = rect.right;
-            if (pos.y < rect.top) pos.y = rect.top;
-            if (pos.y > rect.bottom) pos.y = rect.bottom;
+        $('#maglim_menu').empty();
+        var i;
+        for (i=magRanges[index-1][0]; i<=magRanges[index-1][1]; i++) {
+            $('<div class="item">' + i +'</div>')
+                .appendTo('#maglim_menu');
         }
-
-        return pos;
-    }
-
-    function onPointerDown(e) {
-        isDragging = true
-        mouseX = getEventLocation(e).x;
-        mouseY = getEventLocation(e).y;
-    }
-
-    function onPointerUp(e) {
-        if (isDragging) {
-            dx += getEventLocation(e).x - mouseX;
-            dy += getEventLocation(e).y - mouseY;
-            
-            fldSize = fieldSizes[fldSizeIndex];
-           
-            var wh = Math.max(canvas.width, canvas.height); 
-            dec = dec + dy * Math.PI * fldSize / (180.0 * wh);
-            var movDec = dec;
-            
-            if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
-            if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
-            
-            if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0; 
-            if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0; 
-
-            ra = ra + dx * Math.PI * fldSize / (180.0 * wh * Math.cos(movDec));
-            if (ra > Math.PI*2) ra = ra - 2 * Math.PI 
-            if (ra < 0) ra = ra + 2 * Math.PI
-            
-            $('#ra').val(ra);
-            $('#dec').val(dec);
-            
-            reloadImage();
-
-            dx = 0;
-            dy = 0;
-            isDragging = false
-        }
-    }
-
-    function onPointerMove(e) {
-        if (isDragging) {
-            var x = dx + (getEventLocation(e).x-mouseX);
-            var y = dy + (getEventLocation(e).y-mouseY);
-            {% if chart_nm == '0' %}
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            {% else %}
-                ctx.fillStyle = "#03030D";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-            {% endif %}
-            var curSkyImg = skyImgBuf[skyImg.active];
-            var curLegendImg = legendImgBuf[legendImg.active];
-            ctx.drawImage(curSkyImg, x, y);
-            ctx.drawImage(curLegendImg, 0, 0);
-        }
-    }
-
-    function adjustZoom(zoomAmount, zoomFac) {
-        if (!isDragging) {
-
-            if (zoomAmount) {
-                fldSizeIndexR += zoomAmount;
-            } else {
-                fldSizeIndexR *= zoomFac;
-            }
-            
-            var oldFldSizeIndex = fldSizeIndex;
-            
-            fldSizeIndexR = Math.min( fldSizeIndexR, MAX_ZOOM )
-            fldSizeIndexR = Math.max( fldSizeIndexR, MIN_ZOOM )
-            
-            fldSizeIndex = Math.round(fldSizeIndexR) - 1;
-            
-            if (fldSizeIndex != oldFldSizeIndex) {
-                scaleFac = imgField / fieldSizes[fldSizeIndex];  
-                redrawAll();
-                queuedImgs++;
-                setTimeout(function() { 
-                   queuedImgs--;
-                   if (queuedImgs == 0) {
-                       reloadImageStart();
-                   }
-                }, 150);
-                submitDisabled = true;
-                var index = Math.ceil((fldSizeIndex+1) / 2);
-                $('#slider-field-size').slider('set value', index);
-                $('#maglim').val(magRangeValues[index-1]);
-                $('#dso_maglim').val(dsoMagRangeValues[index-1]);
-                $('#smaglim').text(magRangeValues[index-1].toString());
-                $('#sdso_maglim').text(dsoMagRangeValues[index-1].toString());
-                submitDisabled = false;
-            }
-        }
-    }
-    
-    function normalizeDelta(e) {
-        var delta = 0;
-        var wheelDelta = e.wheelDelta;
-        var deltaY = e.deltaY;
         
-        // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
-        if (wheelDelta) {
-            delta = -wheelDelta / 120; 
+        $('#dso_maglim_menu').empty();
+        for (i=dsoMagRanges[index-1][0]; i<=dsoMagRanges[index-1][1]; i++) {
+            $('<div class="item">' + i +'</div>')
+                .appendTo('#dso_maglim_menu');
         }
-        // FIREFOX WIN / MAC | IE
-        if(deltaY) {
-            deltaY > 0 ? delta = 1 : delta = -1;
-        }
-        return delta;
+        
+        submitDisabled = false;
+    });
+    
+    window.onload = function() {
+        fchart.onWindowLoad();
     }
-    
-    function toggleFullscreen() {
-        fullScreenBtn.toggleClass('fchart-maximize fchart-restore');
-        var isInFullscreen = fullScreenBtn.hasClass('fchart-restore');
-        fullScreenBtn.attr('title', isInFullscreen ? 'Restore original size' : 'Full screen');
-        $(fchartDiv).toggleClass('fchart-fullscreen');
-
-        adjustCanvasSize();
-        reloadImageStart();
-    };
-
-    canvas.addEventListener('mousedown', onPointerDown);
-    canvas.addEventListener('touchstart', function(e) {
-        if (e.targetTouches && e.targetTouches.length==2) {
-            isDragging = false;
-            initialDistance = Math.sqrt((e.targetTouches[0].clientX - e.targetTouches[1].clientX)**2 + (e.targetTouches[0].clientY - e.targetTouches[1].clientY)**2);
-        } else {
-            onPointerDown(e);
-        }
-    });
-    canvas.addEventListener('mouseup', onPointerUp);
-    canvas.addEventListener('touchend',  function(e) {
-        if (initialDistance != null) {
-            initialDistance = undefined;
-        } else {
-            onPointerUp(e);
-        }
-    });
-    canvas.addEventListener('mouseout', onPointerUp);
-    
-    canvas.addEventListener('mousemove', onPointerMove);
-    canvas.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-        if (initialDistance != undefined && e.touches && e.touches.length==2) {
-            var distance = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX)**2 + (e.touches[0].clientY - e.touches[1].clientY) **2);
-            var zoomFac = initialDistance / (initialDistance + 0.7 * (distance - initialDistance));
-            adjustZoom(null, zoomFac);
-            initialDistance = distance;
-        } else {
-            onPointerMove(e);
-        }
-    });
-    canvas.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        adjustZoom(normalizeDelta(e));
-    });
-    
-    // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
-    $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
-        var fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-        if (fullscreenElt===null || fullscreenElt===undefined) {
-            fullScreenBtn.removeClass('fchart-restore');
-            fullScreenBtn.addClass('fchart-maximize');
-            fullScreenBtn.attr('title', 'Full screen');
-            $(fchartDiv).removeClass('fchart-fullscreen');
-    
-            var fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
-            (typeof fullScreenToggledFn === 'function') && fullScreenToggledFn(isInFullscreen);
-        }
-    });
 
 </script>
