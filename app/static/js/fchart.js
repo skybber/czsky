@@ -86,7 +86,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
             var distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 + 
                                      (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
             var zoomFac = this.initialDistance / (this.initialDistance + 0.7 * (distance - this.initialDistance));
-            this.adjustZoom(null, this.zoomFac);
+            this.adjustZoom(null, zoomFac);
             this.initialDistance = distance;
         } else {
             this.onPointerMove(e);
@@ -279,7 +279,7 @@ FChart.prototype.onPointerMove = function (e) {
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
     if (!this.isDragging) {
     
-        if (zoomAmount) {
+        if (zoomAmount != null) {
             this.fldSizeIndexR += zoomAmount;
         } else {
             this.fldSizeIndexR *= zoomFac;
