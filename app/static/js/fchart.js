@@ -187,11 +187,11 @@ FChart.prototype.reloadImage = function() {
 FChart.prototype.getEventLocation = function(e) {
     var pos = { x: 0, y: 0 };
 
-    if (e.type == "touchstart" || e.type == "touchmove" || e.type == "touchend") {
-        var touch = e.touches[0] || e.changedTouches[0];
+    if (e.originalEvent.type == "touchstart" || e.originalEvent.type == "touchmove" || e.originalEvent.type == "touchend") {
+        var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
         pos.x = touch.clientX;
         pos.y = touch.clientY;
-    } else if (e.type == "mousedown" || e.type == "mouseup" || e.type == "mousemove" || e.type=="mouseout") {
+    } else if (e.originalEvent.type == "mousedown" || e.originalEvent.type == "mouseup" || e.originalEvent.type == "mousemove" || e.originalEvent.type=="mouseout") {
         var rect = this.canvas.getBoundingClientRect();
         pos.x = e.clientX;
         pos.y = e.clientY;
