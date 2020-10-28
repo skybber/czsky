@@ -25,7 +25,7 @@ def _load_used_catalogs():
                                              show_catalogs = [])
     return used_catalogs
 
-def _setup_skymap_graphics(config, fld_size, night_mode):
+def _setup_skymap_graphics(config, fld_size, width, night_mode):
         config.constellation_linewidth = 0.5
         config.constellation_linewidth = 0.3
         config.open_cluster_linewidth = 0.3
@@ -35,7 +35,7 @@ def _setup_skymap_graphics(config, fld_size, night_mode):
         config.font = "Roboto"
         config.font_size = 2.8
         
-        if fld_size >= 40:
+        if fld_size >= 40 and width and width <= 768:
             config.show_star_labels = False
         
         if night_mode:
@@ -66,7 +66,7 @@ def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_ma
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, night_mode)
+    _setup_skymap_graphics(config, fld_size, width, night_mode)
     
     config.show_dso_legend = False
     config.mirror_x = mirror_x
@@ -103,7 +103,7 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, night_mode)
+    _setup_skymap_graphics(config, fld_size, width, night_mode)
     
     config.show_dso_legend = False
     config.mirror_x = mirror_x
@@ -133,7 +133,7 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, night_mode)
+    _setup_skymap_graphics(config, fld_size, None, night_mode)
     
     config.show_dso_legend = False
     config.mirror_x = mirror_x
@@ -167,7 +167,7 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, night_mode)
+    _setup_skymap_graphics(config, fld_size, None, night_mode)
     
     config.show_dso_legend = False
     config.mirror_x = mirror_x
