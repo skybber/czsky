@@ -77,7 +77,6 @@ class DeepskyObjectFindChartForm(FlaskForm):
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
     mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
-    submit = SubmitField(lazy_gettext('Update'))
     ra = HiddenField('ra')
     dec = HiddenField('dec')
     fullscreen = HiddenField('fullscreen')
