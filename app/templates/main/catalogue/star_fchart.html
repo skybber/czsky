@@ -107,7 +107,7 @@
         submitDisabled = true;
         var index = Math.ceil((fldSizeIndex+1) / 2);
         console.log(index);
-        //$('#slider-field-size').slider('set value', index);
+        $('#slider-field-size').slider('set value', index);
         $('#maglim').val(magRangeValues[index-1]);
         $('#smaglim').text(magRangeValues[index-1].toString());
 
