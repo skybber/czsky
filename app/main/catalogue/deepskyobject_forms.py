@@ -80,3 +80,4 @@ class DeepskyObjectFindChartForm(FlaskForm):
     submit = SubmitField(lazy_gettext('Update'))
     ra = HiddenField('ra')
     dec = HiddenField('dec')
+    fullscreen = HiddenField('fullscreen')

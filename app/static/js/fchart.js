@@ -1,4 +1,4 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, fullScreen) {
             
     this.fchartDiv = fchartDiv;
     
@@ -42,12 +42,20 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.queuedImgs = 0;
     
     this.onFieldChangeCallback = undefined;
+    this.onFullscreenChangeCallback = undefined;
     
-    $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
-        .appendTo(fchartDiv);
+    if (fullScreen) {
+        $('<div class="fchart-fullscreenControl  fchart-restore" title="Full screen"></div>')
+            .appendTo(fchartDiv);
+        $(this.fchartDiv).toggleClass('fchart-fullscreen');
+    } else {
+        $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
+            .appendTo(fchartDiv);
+    }
 
     this.fullScreenBtn = $(fchartDiv).find('.fchart-fullscreenControl');
     this.fullScreenBtn.click(this.toggleFullscreen.bind(this));
+    this.fullScreenBtn.attr('title', fullScreen ? 'Restore original size' : 'Full screen');
     
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
@@ -318,8 +326,16 @@ FChart.prototype.toggleFullscreen = function() {
 
     this.adjustCanvasSize();
     this.reloadImageStart();
+    
+    if (this.onFullscreenChangeCallback  != undefined) {
+        this.onFullscreenChangeCallback.call(this, isInFullscreen);
+    }
 }
 
 FChart.prototype.onFieldChange = function(callback) {
     this.onFieldChangeCallback = callback;
+};
+
+FChart.prototype.onFullscreenChange = function(callback) {
+    this.onFullscreenChangeCallback = callback;
 };
