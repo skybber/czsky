@@ -19,39 +19,7 @@
 
 {# --- Find Chart --- #}
 {% macro comet_info() %}
-    <form id="fmchart" action="{{ url_for('main_comet.comet_info', comet_id=comet['comet_id']) }}" method="post" class="ui menu">
-        <!-- Field radius -->
-        <div class="ui labeled item">
-            <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
-            </div>
-            <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-            <div class="top right aligned floating ui label">{{ _('Field Size') }}</div>
-        </div>
-        <!-- Star mag limit -->
-        <div class="ui labeled item">
-            <div class="ui buttons">
-                <button id="decmag" class="ui icon {{ disable_dec_mag }} button">
-                    <i class="left chevron icon"></i>
-                </button>
-                <div class="ui icon dropdown button">
-                    <input type="hidden" id="{{ form.maglim.name }}" name="{{ form.maglim.name }}" value="{{ form.maglim.data }}"
-                            onchange="this.form.submit()">
-                    <span class="text">{{ form.maglim.data }}</span>
-                    <div class="menu">
-                        {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
-                            <div class="item">{{ mag_item }}</div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <button id="incmag" class="ui right icon {{ disable_inc_mag }} button">
-                    <i class="right chevron icon"></i>
-                </button>
-            </div>
-            <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
-        </div>
-        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-    </form>
-    <img src="{{fchart_url}}"></img>
+    {% include 'main/solarsystem/comet_fchart.html' %}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}

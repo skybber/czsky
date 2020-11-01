@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% if user_descr.star %}
 {% set endpoints = [
@@ -43,8 +44,11 @@
 {% endmacro %}
 
 {# --- Find Chart --- #}
-{% macro star_fchart(dso, fchart) %}
-    {% include 'main/catalogue/star_fchart.html' %}
+{% macro star_fchart(user_descr) %}
+    {{ fchart.fchart(url_for('main_star.star_fchart', star_id=user_descr.id, back=back, back_id=back_id),
+                     url_for('main_star.star_fchart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm),
+                     url_for('main_star.star_fchart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm))
+    }}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}

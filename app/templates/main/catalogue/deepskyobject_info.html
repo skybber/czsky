@@ -1,6 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
     ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
@@ -19,7 +20,7 @@
                 {{ name }}
             </a>
         {% endfor %}
-        <!-- 
+        <!--
         <div class="right menu" style="margin-bottom:0px;">
             <div class="item">
                 <div class="ui mini multiple selection dropdown" style="float:right;">
@@ -44,13 +45,13 @@
             #dso-toolbar { float: left; }
         }
     </style>
-    
+
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block;width:100%">
             <div id="dso-toolbar">
                 {% if dso.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
-                        <i class="lastfm icon"></i> 
+                        <i class="lastfm icon"></i>
                         <span class="mobile hidden tablet hidden">{{ dso.constellation.name.capitalize() }}</span>
                         <span class="mobile only tablet only">{{ dso.constellation.iau_code.capitalize() }}</span>
                     </a>
@@ -66,11 +67,11 @@
                         Ø {{ commons.convert_dso_size(dso.major_axis, dso.minor_axis) }}
                     </div>
                 {% endif %}
-                
+
                 {% if current_user.is_authenticated %}
                     {{ commons.wish_observed_list_toolbar(dso.id, wish_list, observed_list) }}
                 {% endif %}
-                
+
                 {% if user_descr %}
                     <div class="mobile hidden" style="float:left">
                         <div class="ui label" style="float:left;">
@@ -78,7 +79,7 @@
                         </div>
                     </div>
                 {% endif %}
-                
+
                 {% if editable %}
                     <a class="ui icon mini button" style="float:left;margin-left:5px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, back=back, back_id=back_id) }}">
                         <i class="caret edit icon"></i>
@@ -126,7 +127,7 @@
                  } else {
                      $this.find("i").attr('class', 'heart outline black icon');
                  }
-             });              
+             });
           });
           $("a[id^='switch_observed_']").click(function() {
              var $this = $(this);
@@ -139,16 +140,19 @@
                  } else {
                      $this.find("i").attr('class', 'eye slash outline black icon');
                  }
-             });              
+             });
           });
       });
     </script>
-        
+
 {% endmacro %}
 
 {# --- Find Chart --- #}
-{% macro deepskyobject_fchart(dso, fchart) %}
-    {% include 'main/catalogue/deepskyobject_fchart.html' %}
+{% macro deepskyobject_fchart(dso) %}
+    {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_fchart', dso_id=dso.name, back=back, back_id=back_id),
+                     url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my),
+                     url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my))
+    }}
 {% endmacro %}
 
 {# --- Surveys --- #}
@@ -299,7 +303,7 @@
                     {{ dso.denormalized_name() }}
                 </div>
             </div>
-            
+
             {% if next_dso %}
                 <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id) }}">
                     {{ next_dso_title }}
@@ -323,7 +327,7 @@
                     {{ deepskyobject_catalogue_data(dso, True) }}
                 {% endif %}
             {% elif type == 'fchart' %}
-                {{ deepskyobject_fchart(dso, fchart) }}
+                {{ deepskyobject_fchart(dso) }}
             {% elif type == 'surveys' %}
                 {{ deepskyobject_surveys(dso) }}
             {% elif type == 'catalogue_data' %}
