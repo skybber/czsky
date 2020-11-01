@@ -135,6 +135,13 @@ FChart.prototype.adjustCanvasSize = function() {
 
     this.canvas.width = Math.max(computedWidth, 1);
     this.canvas.height = Math.max(computedHeight, 1);
+    if (this.nightMode) {
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    } else {
+        this.ctx.fillStyle = "#03030D";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 }
 
 FChart.prototype.redrawAll = function () {
