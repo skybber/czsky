@@ -34,10 +34,10 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
         config.no_margin = True
         config.font = "Roboto"
         config.font_size = 2.8
-        
+
         if fld_size >= 40 and width and width <= 768:
             config.show_star_labels = False
-        
+
         if night_mode:
             config.background_color = (0.01, 0.01, 0.05)
             config.constellation_lines_color = (0.18, 0.27, 0.3)
@@ -57,9 +57,9 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.0, 0.3, 0.0)
             config.galaxy_color = (0.3, 0.0, 0.0)
             config.star_cluster_color = (0.3, 0.3, 0.0)
-            
 
-def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
+
+def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
     """Create chart in czsky process."""
     tm = time()
 
@@ -67,7 +67,7 @@ def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_ma
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, night_mode)
-    
+
     config.show_dso_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
@@ -78,7 +78,7 @@ def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_ma
         config.show_map_scale_legend = True
         config.show_orientation_legend = True
         config.show_field_border = True
-        
+
     if dso_maglim is None:
         dso_maglim = -10
 
@@ -96,11 +96,14 @@ def create_chart(png_fobj, ra, dec, fld_size, width, height, star_maglim, dso_ma
             if dso:
                 showing_dsos.append(dso)
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos)
+    highlights = []
+    highlights.append([obj_ra, obj_dec])
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
     used_catalogs.free_mem()
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
-    
-    
+
+
 def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
     tm = time()
 
@@ -108,7 +111,7 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, night_mode)
-    
+
     config.show_dso_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
@@ -141,11 +144,11 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, None, night_mode)
-    
+
     config.show_dso_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
-    
+
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
     config.show_orientation_legend = True
@@ -162,11 +165,11 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     # engine.set_active_constellation(dso.constellation)
     extra_positions = []
     extra_positions.append([ra,dec,'',None])
-    
+
     engine.make_map(used_catalogs, extra_positions=extra_positions)
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
-    
+
 def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
     """Create chart in czsky process."""
     tm = time()
@@ -175,7 +178,7 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, None, night_mode)
-    
+
     config.show_dso_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
@@ -190,4 +193,4 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     engine.make_map(used_catalogs, trajectory=trajectory)
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
-    
+
