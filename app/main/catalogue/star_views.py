@@ -20,7 +20,7 @@ from app import db
 
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
-from app.commons.chart_generator import create_chart, create_chart_legend, MAX_IMG_WIDTH, MAX_IMG_HEIGHT
+from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.utils import to_float, to_boolean
 
 main_star = Blueprint('main_star', __name__)
@@ -29,20 +29,6 @@ from .star_forms import (
     StarEditForm,
     StarFindChartForm,
 )
-
-FIELD_SIZES = (1, 2, 5, 10, 20, 40, 60, 80)
-
-GUI_FIELD_SIZES = []
-
-for i in range(0, len(FIELD_SIZES)-1):
-    GUI_FIELD_SIZES.append(FIELD_SIZES[i])
-    GUI_FIELD_SIZES.append((FIELD_SIZES[i] + FIELD_SIZES[i+1]) / 2)
-
-GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
-
-# DEFAULT_MAG = [15, 12, 11, (8, 11), (6, 9), (6, 8), 6, 6, 5]
-MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7), (5, 7)]
-
 
 @main_star.route('/star/<int:star_id>')
 @main_star.route('/star/<int:star_id>/info')
@@ -80,42 +66,23 @@ def star_fchart(star_id):
 
     form  = StarFindChartForm()
 
-    fld_size = FIELD_SIZES[form.radius.data-1]
-    prev_fld_size = session.get('star_prev_fld')
-    session['star_prev_fld'] = fld_size
-
-    night_mode = not session.get('themlight', False)
-
-    cur_mag_scale = MAG_SCALES[form.radius.data - 1]
-
-    if prev_fld_size != fld_size or request.method == 'GET':
-        _, pref_maglim = _get_fld_size_maglim(form.radius.data-1)
-        form.maglim.data = pref_maglim
-
-    mag_range_values = []
-
-    for i in range(0, len(FIELD_SIZES)):
-        _, ml = _get_fld_size_maglim(i)
-        mag_range_values.append(ml)
-
-    form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
-    session['star_pref_maglim'  + str(fld_size)] = form.maglim.data
+    fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
 
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
     disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
-
-    gui_field_sizes = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
     if form.ra.data is None:
         form.ra.data = star.ra
     if form.dec.data is None:
         form.dec.data = star.dec
 
+    night_mode = not session.get('themlight', False)
+
     return render_template('main/catalogue/star_info.html', form=form, type='fchart', user_descr=user_descr,
-                           mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
-                           gui_field_sizes=gui_field_sizes, gui_field_index = (form.radius.data-1)*2,
+                           mag_scale=cur_mag_scale, dso_mag_scale=cur_dso_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
+                           gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_nm=('1' if night_mode else '0'),
-                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
+                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
                            )
 
 
@@ -125,21 +92,7 @@ def star_fchart_pos_img(star_id, ra, dec):
     if star is None:
         abort(404)
 
-    gui_fld_size, maglim = _get_fld_size_mags_from_request()
-
-    width = request.args.get('width', type=int)
-    height = request.args.get('height', type=int)
-
-    if width > MAX_IMG_WIDTH:
-        width = MAX_IMG_WIDTH
-    if height > MAX_IMG_HEIGHT:
-        height = MAX_IMG_HEIGHT
-
-    night_mode = to_boolean(request.args.get('nm'), True)
-
-    img_bytes = BytesIO()
-    create_chart(img_bytes, star.ra, star.dec, float(ra), float(dec), gui_fld_size, width, height, maglim, None, night_mode, show_legend=False)
-    img_bytes.seek(0)
+    img_bytes = common_fchart_pos_img(star.ra, star.dec, ra, dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
@@ -149,53 +102,9 @@ def star_fchart_legend_img(star_id, ra, dec):
     if star is None:
         abort(404)
 
-    gui_fld_size, maglim = _get_fld_size_mags_from_request()
-
-    width = request.args.get('width', type=int)
-    height = request.args.get('height', type=int)
-
-    if width > MAX_IMG_WIDTH:
-        width = MAX_IMG_WIDTH
-    if height > MAX_IMG_HEIGHT:
-        height = MAX_IMG_HEIGHT
-
-    night_mode = to_boolean(request.args.get('nm'), True)
-
-    img_bytes = BytesIO()
-    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, None, night_mode)
-    img_bytes.seek(0)
+    img_bytes = common_fchart_legend_img(star.ra, star.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
-
-def _get_fld_size_maglim(fld_size_index):
-    fld_size = FIELD_SIZES[fld_size_index]
-
-    mag_scale = MAG_SCALES[fld_size_index]
-
-    maglim = session.get('star_pref_maglim' + str(fld_size))
-    if maglim is None:
-        maglim = (mag_scale[0] + mag_scale[1] + 1) // 2
-
-    return (fld_size, maglim)
-
-
-def _get_fld_size_mags_from_request():
-    gui_fld_size = to_float(request.args.get('fsz'), 20.0)
-
-    for i in range(len(FIELD_SIZES)-1, -1, -1):
-        if gui_fld_size >= FIELD_SIZES[i]:
-            fld_size_index = i
-            break
-    else:
-        fld_size_index = 0
-
-    fld_size, maglim = _get_fld_size_maglim(fld_size_index)
-
-    if gui_fld_size > fld_size and (fld_size_index + 1) < len(FIELD_SIZES):
-        next_fld_size, next_maglim = _get_fld_size_maglim(fld_size_index+1)
-        maglim = (maglim + next_maglim) / 2
-
-    return (gui_fld_size, maglim)
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
@@ -203,8 +112,6 @@ def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[1] < mag:
         return mag_interval[1]
     return mag
-
-
 
 
 @main_star.route('/star/<int:star_id>/edit', methods=['GET', 'POST'])

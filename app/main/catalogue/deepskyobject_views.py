@@ -1,7 +1,6 @@
 import os
 
 from datetime import datetime
-from io import BytesIO
 
 from flask import (
     abort,
@@ -47,26 +46,12 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import create_chart, create_chart_legend, MAX_IMG_WIDTH, MAX_IMG_HEIGHT
+from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
-
-FIELD_SIZES = (1, 2, 5, 10, 20, 40, 60, 80)
-
-GUI_FIELD_SIZES = []
-
-for i in range(0, len(FIELD_SIZES)-1):
-    GUI_FIELD_SIZES.append(FIELD_SIZES[i])
-    GUI_FIELD_SIZES.append((FIELD_SIZES[i] + FIELD_SIZES[i+1]) / 2)
-
-GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
-
-# DEFAULT_MAG = [15, 12, 11, (8, 11), (6, 9), (6, 8), 6, 6, 5]
-MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7), (5, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (5, 10), (5, 9)]
 
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
@@ -288,34 +273,7 @@ def deepskyobject_fchart(dso_id):
     form  = DeepskyObjectFindChartForm()
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
-    fld_size = FIELD_SIZES[form.radius.data-1]
-
-    prev_fld_size = session.get('prev_fld')
-    session['prev_fld'] = fld_size
-
-    night_mode = not session.get('themlight', False)
-
-    cur_mag_scale = MAG_SCALES[form.radius.data - 1]
-    cur_dso_mag_scale = DSO_MAG_SCALES[form.radius.data - 1]
-
-    if prev_fld_size != fld_size or request.method == 'GET':
-        _, pref_maglim, pref_dso_maglim = _get_fld_size_maglim(form.radius.data-1)
-        form.maglim.data = pref_maglim
-        form.dso_maglim.data = pref_dso_maglim
-
-    mag_range_values = []
-    dso_mag_range_values = []
-
-    for i in range(0, len(FIELD_SIZES)):
-        _, ml, dml = _get_fld_size_maglim(i)
-        mag_range_values.append(ml)
-        dso_mag_range_values.append(dml)
-
-    form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
-    session['pref_maglim'  + str(fld_size)] = form.maglim.data
-
-    form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
-    session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
+    fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
 
     disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
     disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
@@ -323,18 +281,18 @@ def deepskyobject_fchart(dso_id):
     disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
     disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
 
-    gui_field_sizes = ','.join(str(x) for x in GUI_FIELD_SIZES)
-
     if form.ra.data is None:
         form.ra.data = dso.ra
     if form.dec.data is None:
         form.dec.data = dso.dec
 
+    night_mode = not session.get('themlight', False)
+
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                           gui_field_sizes=gui_field_sizes, gui_field_index = (form.radius.data-1)*2,
+                           gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
@@ -347,23 +305,7 @@ def deepskyobject_fchart_pos_img(dso_id, ra, dec):
     if dso is None:
         abort(404)
 
-    gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
-
-    width = request.args.get('width', type=int)
-    height = request.args.get('height', type=int)
-
-    if width > MAX_IMG_WIDTH:
-        width = MAX_IMG_WIDTH
-    if height > MAX_IMG_HEIGHT:
-        height = MAX_IMG_HEIGHT
-
-    night_mode = to_boolean(request.args.get('nm'), True)
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
-
-    img_bytes = BytesIO()
-    create_chart(img_bytes, dso.ra, dso.dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=(dso.name,))
-    img_bytes.seek(0)
+    img_bytes = common_fchart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,))
     return send_file(img_bytes, mimetype='image/png')
 
 
@@ -373,69 +315,9 @@ def deepskyobject_fchart_legend_img(dso_id, ra, dec):
     if dso is None:
         abort(404)
 
-    gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
-
-    width = request.args.get('width', type=int)
-    height = request.args.get('height', type=int)
-
-    if width > MAX_IMG_WIDTH:
-        width = MAX_IMG_WIDTH
-    if height > MAX_IMG_HEIGHT:
-        height = MAX_IMG_HEIGHT
-
-    night_mode = to_boolean(request.args.get('nm'), True)
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
-
-    img_bytes = BytesIO()
-    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
-    img_bytes.seek(0)
+    img_bytes = common_fchart_legend_img(dso.ra, dso.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
-
-def _get_fld_size_maglim(fld_size_index):
-    fld_size = FIELD_SIZES[fld_size_index]
-
-    mag_scale = MAG_SCALES[fld_size_index]
-    dso_mag_scale = DSO_MAG_SCALES[fld_size_index]
-
-    maglim = session.get('pref_maglim' + str(fld_size))
-    if maglim is None:
-        maglim = (mag_scale[0] + mag_scale[1] + 1) // 2
-
-    dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
-    if dso_maglim is None:
-        dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1] + 1) // 2
-
-    return (fld_size, maglim, dso_maglim)
-
-
-def _get_fld_size_mags_from_request():
-    gui_fld_size = to_float(request.args.get('fsz'), 20.0)
-
-    for i in range(len(FIELD_SIZES)-1, -1, -1):
-        if gui_fld_size >= FIELD_SIZES[i]:
-            fld_size_index = i
-            break
-    else:
-        fld_size_index = 0
-
-    fld_size, maglim, dso_maglim = _get_fld_size_maglim(fld_size_index)
-
-    if gui_fld_size > fld_size and (fld_size_index + 1) < len(FIELD_SIZES):
-        next_fld_size, next_maglim, next_dso_maglim = _get_fld_size_maglim(fld_size_index+1)
-        maglim = (maglim + next_maglim) / 2
-        dso_maglim = (dso_maglim + next_dso_maglim) / 2
-
-    return (gui_fld_size, maglim, dso_maglim)
-
-
-def _check_in_mag_interval(mag, mag_interval):
-    if mag_interval[0] > mag:
-        return mag_interval[0]
-    if mag_interval[1] < mag:
-        return mag_interval[1]
-    return mag
 
 
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])

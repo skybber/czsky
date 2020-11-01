@@ -36,14 +36,14 @@
       </div>
       <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
   </form>
- 
+
 </div>
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
-  
+
 <script type="text/javascript">
     var submitDisabled = false;
-    var labels = ["1", "2", "5", "10", "20", "40", "60", "80"];
+    var labels = ["1", "2", "5", "10", "20", "40", "80"];
     $('#slider-field-size')
       .slider({
         min: 1,
@@ -82,27 +82,27 @@
     });
 
     var fieldSizes = [{{ gui_field_sizes }}];
-    
+
     var magRanges = [
         {% for mr in mag_ranges %}
-            [{{ mr[0] ~ ',' ~ mr[1] }}], 
-        {% endfor %}        
+            [{{ mr[0] ~ ',' ~ mr[1] }}],
+        {% endfor %}
     ];
-    
+
     var magRangeValues = [
-        {% for mrv in mag_range_values %}{{ mrv }}, {% endfor %}        
+        {% for mrv in mag_range_values %}{{ mrv }}, {% endfor %}
     ];
-    
+
     var ra = parseFloat($('#ra').val());
     var dec = parseFloat($('#dec').val());
-    
+
     var nightMode = {% if chart_nm == '0' %} true {% else %} false {% endif %}
-    
-    var legendUrl = "{{ url_for('main_star.star_fchart_legend_img', star_id=user_descr.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
-    var chartUrl = "{{ url_for('main_star.star_fchart_pos_img', star_id=user_descr.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my) | safe }}";
-    
+
+    var legendUrl = "{{ url_for('main_star.star_fchart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm) | safe }}";
+    var chartUrl = "{{ url_for('main_star.star_fchart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm) | safe }}";
+
     var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, {{ 'true' if form.fullscreen.data == 'true' else 'false' }});
-    
+
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
         var index = Math.ceil((fldSizeIndex+1) / 2);
@@ -117,15 +117,15 @@
             $('<div class="item">' + i +'</div>')
                 .appendTo('#maglim_menu');
         }
-        
+
         submitDisabled = false;
     });
-    
+
     fchart.onFullscreenChange(function(fullScreen) {
         $('#fullscreen').val(fullScreen);
         console.log($('#fullscreen').val());
     });
-    
+
     window.onload = function() {
         fchart.onWindowLoad();
     }
