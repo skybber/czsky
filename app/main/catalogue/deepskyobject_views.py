@@ -20,7 +20,21 @@ from sqlalchemy import func
 
 from app import db
 
-from app.models import User, Catalogue, DeepskyObject, UserDsoDescription, DsoList, UserDsoApertureDescription, WishList, WishListItem, ObservedList, ObservedListItem, SHOWN_APERTURE_DESCRIPTIONS
+from app.models import (
+    Catalogue,
+    DeepskyObject,
+    DsoList,
+    ObservedList,
+    ObservedListItem,
+    SHOWN_APERTURE_DESCRIPTIONS,
+    SessionPlan,
+    SkyList,
+    User,
+    UserDsoApertureDescription,
+    UserDsoDescription,
+    WishList,
+    WishListItem,
+)
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
@@ -560,7 +574,14 @@ def _get_prev_next_dso(dso):
     if back == 'observation':
         pass # TODO
     elif back == 'wishlist':
-        pass # TODO
+        if current_user.is_authenticated:
+            wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+            prev_item, next_item = wish_list.get_prev_next_item(dso.id)
+            return (prev_item.deepskyObject if prev_item else None,
+                    prev_item.deepskyObject.denormalized_name() if prev_item else None,
+                    next_item.deepskyObject if next_item else None,
+                    next_item.deepskyObject.denormalized_name() if next_item else None,
+                    )
     elif back == 'observed_list':
         if current_user.is_authenticated:
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
@@ -571,6 +592,15 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject.denormalized_name() if next_item else None,
                     )
     elif back == 'session_plan':
+        if current_user.is_authenticated:
+            session_plan = SessionPlan.query.filter_by(id=back_id).first()
+            if session_plan.user_id == current_user.id:
+                prev_item, next_item = session_plan.sky_list.get_prev_next_item(dso.id)
+                return (prev_item.deepskyObject if prev_item else None,
+                        prev_item.deepskyObject.denormalized_name() if prev_item else None,
+                        next_item.deepskyObject if next_item else None,
+                        next_item.deepskyObject.denormalized_name() if next_item else None,
+                        )
         pass # TODO
     elif back == 'dso_list' and not (back_id is None):
         dso_list = DsoList.query.filter_by(name=back_id).first()
@@ -586,4 +616,5 @@ def _get_prev_next_dso(dso):
     return (prev_dso,
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
+
             next_dso.catalog_number() if next_dso else None)

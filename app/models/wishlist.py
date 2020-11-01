@@ -14,7 +14,7 @@ class WishList(db.Model):
         if not self.find_dso_by_id(dso_id):
             self.append_new_deepsky_object(dso_id, user_id)
         return False
-    
+
     def append_new_deepsky_object(self, dso_id, user_id):
         max = db.session.query(db.func.max(WishListItem.order)).filter_by(wish_list_id=self.id).scalar()
         if not max:
@@ -29,12 +29,21 @@ class WishList(db.Model):
         db.session.add(new_item)
         db.session.commit()
         return new_item
-    
+
     def find_dso_by_id(self, dso_id):
         for item in self.wish_list_items:
             if item.deepskyObject and item.deepskyObject.id == dso_id:
                 return item
         return None
+
+    def get_prev_next_item(self, dso_id):
+        sorted_list = sorted(self.wish_list_items, key=lambda x: x.id)
+        for i, item in enumerate(sorted_list):
+            if item.dso_id == dso_id:
+                prev_item = sorted_list[i-1] if i > 0 else None
+                next_item = sorted_list[i+1] if i < len(sorted_list) - 1 else None
+                return prev_item, next_item
+        return None, None
 
     @staticmethod
     def create_get_wishlist_by_user_id(user_id):
@@ -48,7 +57,7 @@ class WishList(db.Model):
             db.session.add(wish_list)
             db.session.commit()
         return wish_list
-    
+
 class WishListItem(db.Model):
     __tablename__ = 'wish_list_items'
     id = db.Column(db.Integer, primary_key=True)
