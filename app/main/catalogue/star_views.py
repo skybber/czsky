@@ -21,7 +21,6 @@ from app import db
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
-from app.commons.utils import to_float, to_boolean
 
 main_star = Blueprint('main_star', __name__)
 
@@ -104,14 +103,6 @@ def star_fchart_legend_img(star_id, ra, dec):
 
     img_bytes = common_fchart_legend_img(star.ra, star.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
-
-
-def _check_in_mag_interval(mag, mag_interval):
-    if mag_interval[0] > mag:
-        return mag_interval[0]
-    if mag_interval[1] < mag:
-        return mag_interval[1]
-    return mag
 
 
 @main_star.route('/star/<int:star_id>/edit', methods=['GET', 'POST'])

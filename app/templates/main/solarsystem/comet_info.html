@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
     ('main_comet.comet_info', 'Info', 'info'),
@@ -19,7 +20,10 @@
 
 {# --- Find Chart --- #}
 {% macro comet_info() %}
-    {% include 'main/solarsystem/comet_fchart.html' %}
+    {{ fchart.fchart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
+                     url_for('main_comet.comet_fchart_pos_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm),
+                     url_for('main_comet.comet_fchart_legend_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm))
+    }}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
@@ -62,42 +66,4 @@
         </div>
     </div>
 
-    {% if type == 'info' %}
-        <script src="//mozilla.github.io/pdf.js/build/pdf.js"></script>
-
-        <script type="text/javascript">
-            var labels = ["1", "3", "8", "20"];
-            $('#slider-field-size')
-              .slider({
-                min: 1,
-                max: 4,
-                step: 1,
-                start:{{ form.radius.data }},
-                fireOnInit: false,
-                interpretLabel: function(value) {
-                  return labels[value];
-                },
-                onChange: function(value) {
-                    $('#radius').val(value);
-                    $("#fmchart" ).submit();
-                }
-              });
-
-            $('.ui.dropdown').dropdown();
-
-            $( '#decmag' ).click(function() {
-                prev = +$('#maglim').val();
-                $('#maglim').val(prev - 1);
-                $('#fmchart' ).submit();
-            });
-
-            $( '#incmag' ).click(function() {
-                prev = +$('#maglim').val();
-                $('#maglim').val(prev + 1);
-                $('#fmchart' ).submit();
-            });
-
-        </script>
-
-    {% endif %}
 {% endblock %}

@@ -37,7 +37,6 @@ from app.models import (
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
-from app.commons.utils import to_float, to_boolean
 
 from .deepskyobject_forms import (
     DeepskyObjectFindChartForm,

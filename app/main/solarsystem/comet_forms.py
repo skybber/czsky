@@ -31,11 +31,11 @@ class SearchCometForm(FlaskForm):
     q = StringField('Search')
 
 class CometFindChartForm(FlaskForm):
-    radius = IntegerField(lazy_gettext('Field radius'), default=4, validators=[Length(min=1, max=4)])
-    maglim = IntegerField(lazy_gettext('Limit mag'), default=10)
+    radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=7)
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
-    mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
-    mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
+    ra = HiddenField('ra')
+    dec = HiddenField('dec')
+    fullscreen = HiddenField('fullscreen')
     from_date = DateField(lazy_gettext('From Date'), id='fromdate', format = '%d/%m/%Y', default = datetime.today)
     to_date = DateField(lazy_gettext('To Date'), id='todate', format = '%d/%m/%Y', default = datetime.today)
-    submit = SubmitField(lazy_gettext('Update'))
