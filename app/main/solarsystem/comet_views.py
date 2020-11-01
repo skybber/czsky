@@ -52,7 +52,6 @@ def _load_comet_brightness(all_comets, fname):
     with open(fname, 'r') as f:
         lines = f.readlines()
     for line in lines:
-        print(line, flush=True)
         comet_id, str_mag = line.split(' ')
         try:
             all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag)
@@ -100,7 +99,7 @@ def _get_all_comets():
 
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
 
-        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) < all_comets_expiration) and not creation_running:
+        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) > all_comets_expiration) and not creation_running:
             all_comets.loc[:,'mag'] = 22.0
             creation_running = True
             thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
@@ -174,6 +173,8 @@ def comet_info(comet_id):
         comet_dec_ang = None
         d1 = date(form.from_date.data.year, form.from_date.data.month, form.from_date.data.day)
         d2 = date(form.to_date.data.year, form.to_date.data.month, form.to_date.data.day)
+        # d1 = datetime.today + timedelta(days=-15)
+        # d2 = datetime.today + timedelta(days=-15)
         if d1 != d2:
             trajectory = []
             while d1<=d2:
@@ -181,6 +182,8 @@ def comet_info(comet_id):
                 ra1, dec1, distance = earth.at(t).observe(c).radec()
                 trajectory.append((ra1.radians, dec1.radians, ''))
                 d1 += timedelta(days=1)
+            t = ts.utc(d1.year, d1.month, d1.day)
+            comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         else:
             t = ts.utc(d1.year, d1.month, d1.day)
             comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
