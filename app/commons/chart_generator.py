@@ -130,13 +130,10 @@ def common_fchart_legend_img(obj_ra, obj_dec, ra, dec):
 def common_prepare_chart_data(form):
     fld_size = FIELD_SIZES[form.radius.data-1]
 
-    prev_fld_size = session.get('prev_fld')
-    session['prev_fld'] = fld_size
-
     cur_mag_scale = MAG_SCALES[form.radius.data - 1]
     cur_dso_mag_scale = DSO_MAG_SCALES[form.radius.data - 1]
 
-    if prev_fld_size != fld_size or request.method == 'GET':
+    if request.method == 'GET':
         _, pref_maglim, pref_dso_maglim = _get_fld_size_maglim(form.radius.data-1)
         form.maglim.data = pref_maglim
         form.dso_maglim.data = pref_dso_maglim
