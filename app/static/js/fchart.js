@@ -24,9 +24,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.fieldSizes = fieldSizes;
 
-    this.fldSizeIndexR = fieldSizes.length;
+    this.fldSizeIndexR = fldSizeIndex + 1;
 
-    this.MAX_ZOOM = this.fldSizeIndexR + 0.4;
+    this.MAX_ZOOM = fieldSizes.length + 0.49;
     this.MIN_ZOOM = 0.5;
 
     this.ra = ra;
