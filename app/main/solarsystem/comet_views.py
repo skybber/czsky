@@ -93,6 +93,9 @@ def _get_all_comets():
         all_comets_expiration = now + timedelta(days=1)
         with load.open(mpc.COMET_URL, reload=True) as f:
             all_comets = mpc.load_comets_dataframe_slow(f)
+            all_comets = (all_comets.sort_values('reference')
+                      .groupby('designation', as_index=False).last()
+                      .set_index('designation', drop=False))
             all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])
             all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','')
             all_comets['comet_id'] = all_comets['comet_id'].str.replace(' ', '')
@@ -237,9 +240,10 @@ def comet_fchart_legend_img(comet_id, ra, dec):
 def comet_catalogue_data(comet_id):
     """View a comet catalog info."""
     comet = _find_comet(comet_id)
-    if not comet:
+    if comet is None:
         abort(404)
     return render_template('main/solarsystem/comet_info.html', type='catalogue_data', user_descr=user_descr)
+
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
