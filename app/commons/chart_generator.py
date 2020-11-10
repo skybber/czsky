@@ -73,6 +73,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.2, 0.6, 0.2)
             config.galaxy_color = (0.6, 0.2, 0.2)
             config.star_cluster_color = (0.6, 0.6, 0.0)
+            config.star_colors = True
         else:
             config.constellation_lines_color = (0.5, 0.7, 0.8)
             config.constellation_border_color = (0.8, 0.7, 0.1)
