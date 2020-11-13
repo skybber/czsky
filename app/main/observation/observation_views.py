@@ -99,6 +99,10 @@ def observation_edit(observation_id):
                 update_from_advanced_form(form, observation)
             else:
                 update_from_basic_form(form, observation)
+
+            if form.goback.data == 'true':
+                return redirect(url_for('main_observation.observation_info', observation_id=observation.id))
+
     else:
         form.title.data = observation.title
         form.date.data = observation.date
@@ -221,7 +225,7 @@ def observed_list_upload():
         db.session.commit()
         os.remove(path)
         flash('Observed list updated.', 'form-success')
-                
+
     return redirect(url_for('main_observation.observed_list'))
 
 @main_observation.route('/observed-list-download', methods=['POST'])
@@ -231,10 +235,10 @@ def observed_list_download():
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     for observed_item in observed_list.observed_list_items:
         if not observed_item.dso_id is None:
-            buf.write(observed_item.deepskyObject.name + '\n') 
+            buf.write(observed_item.deepskyObject.name + '\n')
     mem = BytesIO()
     mem.write(buf.getvalue().encode('utf-8'))
-    mem.seek(0) 
+    mem.seek(0)
     return send_file(mem, as_attachment=True,
                      attachment_filename='observed-' + current_user.user_name + '.csv',
                      mimetype='text/csv')

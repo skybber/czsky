@@ -41,6 +41,7 @@
 
             {{ f.begin_form(form, flashes) }}
 
+                <input id="goback" type="hidden" value="false">
                 <input id="advmode" type="hidden" value="false">
 
                 {{ f.render_form_field(form.title) }}
@@ -140,6 +141,9 @@
                 </div>
 
                 <div class="two fields">
+                    {% if not is_new %}
+                        <button class="ui positive button bupdateback">{{ _('Update and go back')}}</button>
+                    {% endif %}
                     {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                         {{ field(class='positive ui button') }}
                     {% endfor %}
@@ -190,6 +194,12 @@
         });
 
         $(function() {
+
+            $('.bupdateback' ).click(function() {
+                $('#goback').val('true');
+                $(this).closest('form').submit();
+                return false;
+            });
 
             $('#odate').calendar({
                 type: 'date',

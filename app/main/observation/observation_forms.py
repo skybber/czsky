@@ -74,11 +74,12 @@ class ObservationMixin():
     advmode = HiddenField('Advanced Mode', default='false')
 
 class ObservationNewForm(FlaskForm, ObservationMixin):
-    submit = SubmitField(lazy_gettext('Add Observation'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Add Observation'))
 
 class ObservationEditForm(FlaskForm, ObservationMixin):
-    submit = SubmitField(lazy_gettext('Update Observation'))
+    goback = HiddenField(default='false')
+    submitt_button = SubmitField(lazy_gettext('Update Observation'))
 
 class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
-    
