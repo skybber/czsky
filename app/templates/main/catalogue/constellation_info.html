@@ -89,8 +89,13 @@
                     <br/>
                     <div class="markdown">
                     {% for user_star_descr in star_descriptions %}
+                        <div id="star{{ user_star_descr.id }}" style="visibility:hidden; width:0px"></div>
                         {% filter extended_commonmark('') %}
+                        {% if user_star_descr.star_id %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_fchart', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+                        {% else %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+                        {% endif %}
 {% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
                         {% endfilter %}
                     {% endfor %}
@@ -113,17 +118,17 @@
                                 Ø {{ commons.convert_dso_size(user_dso_descr.deepskyObject.major_axis, user_dso_descr.deepskyObject.minor_axis) }}
                             </div>
                         {% endif %}
-    
+
                         {% if current_user.is_authenticated %}
                             {{ commons.wish_observed_list_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
                         {% endif %}
-                         
+
                         <div class="mobile hidden" style="float:left;">
                           <div class="ui label">
                               <div class="ui rating center" data-icon="star" data-rating="{{ user_dso_descr.rating_to_int(5) }}" data-max-rating="5"></div>
                           </div>
                         </div>
-    
+
                         {% if editable %}
                             <a class="ui icon mini button" style="float:left;margin-left:5px;"
                                       href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, back='constellation', back_id=constellation.iau_code) }}">
@@ -131,7 +136,7 @@
                             </a>
                         {% endif %}
                     </div>
-                
+
                     <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
@@ -170,11 +175,11 @@
                                 Ø {{ commons.convert_dso_size(ug_bl_dso.dso.major_axis, ug_bl_dso.dso.minor_axis) }}
                             </div>
                         {% endif %}
-                        
+
                         {% if current_user.is_authenticated %}
                             {{ commons.wish_observed_list_toolbar(ug_bl_dso.dso.id, wishlist, observed_list) }}
                         {% endif %}
-                         
+
                         <div class="mobile hidden" style="float:left;">
                             <div class="ui label">
                                 <div class="ui rating center" data-icon="star" data-rating="1" data-max-rating="5"></div>
@@ -212,7 +217,7 @@
                  } else {
                      $this.find("i").attr('class', 'heart outline black icon');
                  }
-             });              
+             });
           });
           $("a[id^='switch_observed_']").click(function() {
              var $this = $(this);
@@ -225,7 +230,7 @@
                  } else {
                      $this.find("i").attr('class', 'eye slash outline black icon');
                  }
-             });              
+             });
           });
       });
     </script>
@@ -323,7 +328,7 @@
                                               {{ (d.major_axis / 60.0) | round(2, 'floor') }}'
                                             {% else %}
                                               {{ d.major_axis | round(2, 'floor')}}''
-                                            {% endif %}                              
+                                            {% endif %}
                                             {% if d.minor_axis %}
                                             / {% if d.minor_axis >= 100.0 and  d.minor_axis != d.major_axis %}
                                                 {{ (d.minor_axis / 60.0) | round(2, 'floor') }}'
@@ -331,7 +336,7 @@
                                                 {{ d.minor_axis | round(2, 'floor')}}''
                                               {% endif %}
                                             {% endif %}
-                                        {% endif %}                              
+                                        {% endif %}
                                     </td>
                             </tr>
                     {% endfor %}
