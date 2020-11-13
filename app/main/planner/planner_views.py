@@ -52,7 +52,7 @@ def session_plans():
     if not process_session_search([('session_plan_search', search_form.q)]):
         return redirect(url_for('main_planner.session_plans'))
 
-    session_plans = SessionPlan.query
+    session_plans = SessionPlan.query.filter_by(user_id=current_user.id)
     if search_form.q.data:
         session_plans = session_plans.filter(SessionPlan.title.like('%' + search_form.q.data + '%'))
 
