@@ -1,8 +1,13 @@
+import os
+import csv
 from datetime import datetime
+
+from werkzeug.utils import secure_filename
 
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -31,10 +36,12 @@ from app.commons.dso_utils import normalize_dso_name
 
 main_planner = Blueprint('main_planner', __name__)
 
+
 @main_planner.route('/planner-menu', methods=['GET'])
 @login_required
 def planner_menu():
     return render_template('main/planner/planner_menu.html')
+
 
 @main_planner.route('/session-plans',  methods=['GET', 'POST'])
 @login_required
@@ -43,7 +50,7 @@ def session_plans():
     search_form = SearchSessionPlanForm()
 
     if not process_session_search([('session_plan_search', search_form.q)]):
-        return redirect(url_for('main_planner.session_plans'))        
+        return redirect(url_for('main_planner.session_plans'))
 
     session_plans = SessionPlan.query
     if search_form.q.data:
@@ -51,11 +58,47 @@ def session_plans():
 
     return render_template('main/planner/session_plans.html', session_plans=session_plans, search_form=search_form)
 
-@main_planner.route('/session-plan/<int:session_plan_id>', methods=['GET'])
-@main_planner.route('/session-plan/<int:session_plan_id>/info', methods=['GET'])
+
+@main_planner.route('/session-plan/<int:session_plan_id>/info', methods=['GET', 'POST'])
 @login_required
 def session_plan_info(session_plan_id):
     """View a session plan info."""
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+
+    if session_plan.user_id != current_user.id:
+        abort(404)
+    form = SessionPlanEditForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            session_plan.title = form.title.data
+            session_plan.for_date = form.for_date.data
+            session_plan.location_id = form.location_id.data
+            session_plan.notes = form.notes.data
+            session_plan.update_by = current_user.id
+            session_plan.update_date = datetime.now()
+            db.session.add(session_plan)
+            db.session.commit()
+            flash('Session plan successfully updated', 'form-success')
+            return redirect(url_for('main_planner.session_plan_info', session_plan_id=session_plan.id))
+    else:
+        form.title.data = session_plan.title
+        form.for_date.data = session_plan.for_date
+        form.location_id.data = session_plan.location_id
+        form.notes.data = session_plan.notes
+
+    location = None
+    if form.location_id.data:
+        location = Location.query.filter_by(id=form.location_id.data).first()
+
+    return render_template('main/planner/session_plan.html', tab='info', session_plan=session_plan, form=form, location=location)
+
+
+@main_planner.route('/session-plan/<int:session_plan_id>/schedule', methods=['GET'])
+@login_required
+def session_plan_schedule(session_plan_id):
+    """View a session plan schedule."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     if session_plan is None:
         abort(404)
@@ -63,7 +106,8 @@ def session_plan_info(session_plan_id):
         abort(404)
     add_form = AddToSessionPlanForm()
     add_form.session_plan_id.data = session_plan.id
-    return render_template('main/planner/session_plan_info.html', session_plan=session_plan, add_form=add_form)
+    return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan, add_form=add_form)
+
 
 @main_planner.route('/new-session-plan', methods=['GET', 'POST'])
 @login_required
@@ -101,38 +145,14 @@ def new_session_plan():
         db.session.commit()
 
         flash('Session plan successfully created', 'form-success')
-        return redirect(url_for('main_planner.session_plan_edit', session_plan_id=new_session_plan.id))
-
-    location = None
-    if form.location_id.data:
-        location = Location.query.filter_by(id=form.location_id.data).first()
-    return render_template('main/planner/session_plan_edit.html', form=form, is_new=True, location=location)
-
-
-@main_planner.route('/session-plan/<int:session_plan_id>/edit', methods=['GET', 'POST'])
-@login_required
-def session_plan_edit(session_plan_id):
-    """Update session plan"""
-    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
-    form = SessionPlanEditForm()
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            pass
-    else:
-        form.title.data = session_plan.title
-        form.for_date.data = session_plan.for_date
-        form.location_id.data = session_plan.location_id
-        form.notes.data = session_plan.notes
+        return redirect(url_for('main_planner.session_plan_info', session_plan_id=new_session_plan.id))
 
     location = None
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/planner/session_plan_edit.html', form=form, is_new=False, session_plan=session_plan, location=location)
+    return render_template('main/planner/session_plan.html', tab='info', form=form, is_new=True, location=location)
+
 
 @main_planner.route('/session-plan/<int:session_plan_id>/delete')
 @login_required
@@ -146,6 +166,23 @@ def session_plan_delete(session_plan_id):
     db.session.delete(session_plan)
     flash('Session plan was deleted', 'form-success')
     return redirect(url_for('main_planner.session_plans'))
+
+
+@main_planner.route('/session-plan/<int:session_plan_id>/clear')
+@login_required
+def session_plan_clear(session_plan_id):
+    """Request deletion of a observation."""
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+    if session_plan.user_id != current_user.id:
+        abort(404)
+
+    SkyListItem.query.filter_by(sky_list_id=session_plan.sky_list_id).delete()
+    db.session.commit()
+    flash('Session items deleted', 'form-success')
+    return redirect(url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id))
+
 
 @main_planner.route('/session-plan-item-add', methods=['POST'])
 @login_required
@@ -168,7 +205,8 @@ def session_plan_item_add():
         else:
             flash('Deepsky object not found.', 'form-error')
 
-    return redirect(url_for('main_planner.session_plan_info', session_plan_id=session_plan.id))
+    return redirect(url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id))
+
 
 @main_planner.route('/session-plan-item/<int:item_id>/delete')
 @login_required
@@ -184,7 +222,54 @@ def session_plan_item_remove(item_id):
         abort(404)
     db.session.delete(list_item)
     flash('Session plan item was deleted', 'form-success')
-    return redirect(url_for('main_planner.session_plan_info', session_plan_id=session_plan.id))
+    return redirect(url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id))
+
+
+@main_planner.route('/session-plan/<int:session_plan_id>/clear', methods=['POST'])
+@login_required
+def session_plan_upload(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+    if session_plan.user_id != current_user.id:
+        abort(404)
+
+    if 'file' not in request.files:
+        flash('No file part', 'form-error')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    if file:
+        filename = secure_filename(file.filename)
+        path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        with open(path) as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
+            existing_ids = set(item.dso_id for item in session_plan.sky_list.sky_list_items)
+
+            for row in reader:
+                dso_name = row['DSO_NAME']
+                if dso_name == 'none':
+                    continue
+
+                dso_name = normalize_dso_name(dso_name)
+                dso = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+
+                if dso and not dso.id in existing_ids:
+
+                    if not session_plan.sky_list.find_dso_in_skylist(dso.id):
+                        new_item = session_plan.create_new_sky_list_item(session_plan.sky_list_id, dso.id, current_user.id)
+                        db.session.add(new_item)
+
+                    existing_ids.add(dso.id)
+        db.session.commit()
+        os.remove(path)
+        flash('Session plan uploaded.', 'form-success')
+
+    return redirect(url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id))
+
 
 @main_planner.route('/wish-list', methods=['GET', 'POST'])
 @login_required
@@ -193,26 +278,27 @@ def wish_list():
     add_form = AddToWishListForm()
 
     search_form = SearchWishListForm()
-    
+
     if search_form.season.data and search_form.season.data != 'All':
         constell_ids = set()
         for constell_id in db.session.query(Constellation.id).filter(Constellation.season==search_form.season.data):
             constell_ids.add(constell_id[0])
     else:
         constell_ids = None
-    
+
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    
+
     wish_list_items = []
-    
+
     if constell_ids:
         for item in wish_list.wish_list_items:
             if item.deepskyObject and item.deepskyObject.constellation_id in constell_ids:
                 wish_list_items.append(item)
     else:
         wish_list_items = wish_list.wish_list_items
-    
+
     return render_template('main/planner/wish_list.html', wish_list_items=wish_list_items, search_form=search_form, add_form=add_form)
+
 
 @main_planner.route('/wish-list-item-add', methods=['POST'])
 @login_required
@@ -232,6 +318,7 @@ def wish_list_item_add():
             flash('Deepsky object not found.', 'form-error')
 
     return redirect(url_for('main_planner.wish_list'))
+
 
 @main_planner.route('/wish-list-item/<int:item_id>/delete')
 @login_required

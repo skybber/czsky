@@ -22,13 +22,13 @@ class SessionPlan(db.Model):
 
     def append_deepsky_object(self, dso_id, user_id):
         if not self.sky_list.find_dso_in_skylist(dso_id):
-            new_item = self._create_new_sky_list_item(self.sky_list_id, dso_id, user_id)
+            new_item = self.create_new_sky_list_item(self.sky_list_id, dso_id, user_id)
             db.session.add(new_item)
             db.session.commit()
             return True
         return False
 
-    def _create_new_sky_list_item(self, sky_list_id, dso_id, user_id):
+    def create_new_sky_list_item(self, sky_list_id, dso_id, user_id):
         max = db.session.query(db.func.max(SkyListItem.order)).filter_by(sky_list_id=sky_list_id).scalar()
         if not max:
             max = 0

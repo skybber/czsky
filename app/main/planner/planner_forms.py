@@ -41,10 +41,12 @@ class SessionPlanMixin():
     notes = TextAreaField(lazy_gettext('Notes'))
 
 class SessionPlanNewForm(FlaskForm, SessionPlanMixin):
-    submit = SubmitField(lazy_gettext('Add Session Plan'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Add Session Plan'))
 
 class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
-    submit = SubmitField(lazy_gettext('Update Session Plan'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Update Session Plan'))
 
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())

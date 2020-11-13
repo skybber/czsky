@@ -1,0 +1,134 @@
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+
+{% set flashes = {
+    'error':   get_flashed_messages(category_filter=['form-error']),
+    'info':    get_flashed_messages(category_filter=['form-info']),
+    'success': get_flashed_messages(category_filter=['form-success'])
+} %}
+
+<div class="ui menu">
+    <div class="ui item" style="margin-right:25px">
+        {{ f.begin_form(add_form, flashes, action=url_for('main_planner.session_plan_item_add')) }}
+        <div class="ui action input">
+            <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
+            <button class="ui icon button">
+                <i class="plus icon"></i>
+            </button>
+        </div>
+        {{ f.end_form(add_form) }}
+    </div>
+    <div class="ui item">
+        <button id="clear_schedule" class="ui labeled icon negative button">
+            <i class="trash alternate icon"></i>
+            {{ _('Clear schedule') }}
+        </button>
+    </div>
+    <div class="right menu">
+        <div class="ui item">
+            <form id="fmupload" method="post" action="{{ url_for('main_planner.session_plan_upload', session_plan_id=session_plan.id) }}" enctype="multipart/form-data">
+                <label for="file" class="ui icon button">
+                    <i class="upload icon"></i>
+                </label>
+                <input type="file" id="file" name="file" class="ui file input">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+            </form>
+        </div>
+    </div>
+</div>
+
+<div style="overflow-x: scroll;">
+    <table class="ui searchable sortable unstackable selectable celled table">
+        <thead>
+            <tr>
+                <th class="sorted ascending">Name</th>
+                <th>{{ _('Type') }}</th>
+                <th>{{ _('Constellation') }}</th>
+                <th>mag</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+
+        {% for item in session_plan.sky_list.sky_list_items %}
+            <tr>
+                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
+                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
+                <td class="collapsing specialClass">
+                    <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_remove', item_id=item.id) }}">
+                        <i class="trash alternate icon"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="ui tiny modal loadModal">
+  <div class="header">{{ _('Load schedule list') }}</div>
+  <div class="content">
+    <p>{{ _('All data from file will be added to schedule list.') }}</p>
+    <p>{{ _('Are you sure you want to load schedule list?') }}</p>
+  </div>
+  <div class="actions">
+    <div class="ui negative cancel button">{{ _('No') }}</div>
+    <button id="confirm_upload" class="ui positive right labeled icon approve button">
+        {{ _('Yes') }}
+        <i class="checkmark icon"></i>
+    </button>
+  </div>
+</div>
+
+<div class="ui tiny modal deleteModal">
+  <div class="header">{{ _('Clear schedule list') }}</div>
+  <div class="content">
+    <p>{{ _('All planned items will be removed.') }}</p>
+    <p>{{ _('Are you sure you want to clear planned list?') }}</p>
+  </div>
+  <div class="actions">
+    <div class="ui negative cancel button">{{ _('No') }}</div>
+    <a class="ui positive right labeled icon approve button" href="{{ url_for('main_planner.session_plan_clear', session_plan_id=session_plan.id) }}">
+        {{ _('Yes') }}
+        <i class="checkmark icon"></i>
+    </a>
+  </div>
+</div>
+
+<style>
+    .ui.file.input {
+      top: -999999px;
+      position: absolute;
+    }
+</style>
+
+<script type="text/javascript">
+    $('.ui.modal.loadModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
+    });
+    $('.ui.modal.deleteModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
+    });
+    $("tr td.specialClass").click(function (e) {
+        e.cancelBubble();
+        e.stopPropagation();
+    });
+    $('#file').change(function() {
+        $('.ui.modal.loadModal')
+            .modal('show');
+    });
+    $("#confirm_upload").click(function() {
+        $("#fmupload" ).submit();
+    });
+    $('#clear_schedule').click(function() {
+        $('.ui.modal.deleteModal')
+            .modal('show');
+    });
+</script>

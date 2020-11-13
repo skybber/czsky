@@ -1,89 +1,121 @@
-{% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
 
-{% block content %}
-    <div class="ui stackable grid container">
-        <div class="fourteen wide tablet fourteen wide computer column">
-            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_planner.session_plans') }}">
-                <i class="caret left icon"></i>
-                {{ _('Session plans') }}
-            </a>
-            <h2 class="ui header">
-                {{ session_plan.title }}
-                <a class="ui icon right floated mini button" href="{{ url_for('main_planner.session_plan_edit', session_plan_id=session_plan.id) }}">
-                    <i class="caret edit icon"></i>
-                </a>
-            </h2>
+{% set flashes = {
+    'error':   get_flashed_messages(category_filter=['form-error']),
+    'info':    get_flashed_messages(category_filter=['form-info']),
+    'success': get_flashed_messages(category_filter=['form-success'])
+} %}
 
-            <table class="ui compact definition table">
-                <tr><td class="two wide">{{ _('Date') }}</td><td>{{ session_plan.for_date.strftime('%Y-%m-%d') }}</td></tr>
-                <tr><td class="two wide">{{ _('Location') }}</td><td>{{ session_plan.location.name if session_plan.location else session_plan.txt_location_name }}</td></tr>
-                <tr>
-                    <td class="two wide">{{ _('Notes') }}</td>
-                    <td>
-                        {% filter extended_commonmark('') %}
-{{ session_plan.notes }}
-                        {% endfilter %}
-                    </td>
-                </tr>
-            </table>
+{{ f.display_standard_flashes(flashes) }}
 
-            {% set flashes = {
-                'error':   get_flashed_messages(category_filter=['form-error']),
-                'warning': get_flashed_messages(category_filter=['form-warning']),
-                'info':    get_flashed_messages(category_filter=['form-info']),
-                'success': get_flashed_messages(category_filter=['form-success'])
-            } %}
-            {{ f.display_standard_flashes(flashes) }}
+{{ f.begin_form(form, flashes) }}
 
-            {{ f.begin_form(add_form, flashes, action=url_for('main_planner.session_plan_item_add'), extra_classes='ui menu') }}
-                {{ add_form.session_plan_id() }}
-                <div class="ui right item">
-                    <div class="ui action input">
-                        {{ add_form.dso_name(size=15) }}
-                    </div>
-                    <button class="ui icon mini button">
-                        <i class="plus icon"></i>
-                    </button>
-                </div>
-            {{ f.end_form(add_form) }}
+    {{ f.render_form_field(form.title) }}
 
-            <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending">Name</th>
-                            <th>{{ _('Type') }}</th>
-                            <th>{{ _('Constellation') }}</th>
-                            <th>mag</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
-
-                    {% for item in session_plan.sky_list.sky_list_items %}
-                        <tr>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
-                            <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_remove', item_id=item.id) }}">
-                                    <i class="trash alternate icon"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+    <div class="two fields">
+        <div class="field">
+            <label for="odate">{{ form.for_date.label }}</label>
+            <div class="ui calendar" id="odate">
+              <div class="ui input left icon">
+                <i class="calendar icon"></i>
+                <input id="odate" name="{{form.for_date.name}}" placeholder="Date" type="text"
+                        value="{{form.for_date.data.strftime('%d/%m/%Y') if form.for_date.data else ''}}">
+              </div>
             </div>
+            {% if form.for_date.errors %}
+                <div class="ui red pointing label">
+                    {{ form.for_date.errors[0] | safe }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="field">
+            {{ form.location_id.label }}
+            <select name="{{form.location_id.name}}" class="ui search selection dropdown dlocation">
+                {% if location %}
+                <option value="{{ location.id }}" selected="selected">{{ location.name }}</option>
+                {% endif %}
+            </select>
+            {% if form.location_id.errors %}
+                <div class="ui red pointing label">
+                    {{ form.location_id.errors[0] | safe }}
+                </div>
+            {% endif %}
         </div>
     </div>
 
-    <script type="text/javascript">
-        $('.ui.rating')
-        .rating();
-    </script>
+    {{ f.render_form_field(form.notes) }}
 
-{% endblock %}
+    <div class="two fields">
+        {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+            {{ field(class='positive ui button') }}
+        {% endfor %}
+        {% if not is_new %}
+            <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Plan') }}</a>
+        {% endif %}
+    </div>
+
+{{ f.end_form() }}
+
+{% if not is_new %}
+    <div class="ui tiny modal deleteModal">
+      <div class="header">{{ _('Delete Session Plan') }}</div>
+      <div class="content">
+        <p>{{ _('Are you sure you want to delete session plan?') }}</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_planner.session_plan_delete', session_plan_id=session_plan.id) }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+{% endif %}
+
+<script type="text/javascript">
+    var descrMDE = new EasyMDE({element: document.getElementById('notes'),
+        minHeight: "80px",
+        spellChecker: false,
+        status : false,
+    });
+
+    $(function() {
+
+        $('.ui.dropdown.dlocation').dropdown({
+            allowAdditions: true,
+            minCharacters : 3,
+            apiSettings: {
+                url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
+            }
+        });
+
+        $('#odate').calendar({
+            type: 'date',
+            formatter: {
+                date: function (date, settings) {
+                if (!date) return '';
+                var day = date.getDate();
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
+                }
+            }
+        });
+
+
+        {% if not is_new %}
+            $('.ui.modal.deleteModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdelete').click(function() {
+                $('.ui.modal.deleteModal')
+                    .modal('show');
+            });
+        {% endif %}
+    });
+
+</script>

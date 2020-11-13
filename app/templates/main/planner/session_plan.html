@@ -1,0 +1,61 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main_planner.session_plan_info', _('Info'), 'info'),
+    ('main_planner.session_plan_schedule', _('Schedule'), 'schedule'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, session_plan_id=session_plan.id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if is_new %}
+                <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
+                    <i class="caret left icon"></i>
+                    {{ _('Planner') }}
+                </a>
+                <h2 class="ui header">
+                    {{ _('Add New Session Plan') }}
+                </h2>
+            {% else %}
+                <div>
+                    <div class="ui huge breadcrumb">
+                        <a class="ui basic icon compact button" href="{{ url_for('main_planner.session_plans') }}">
+                            <i class="caret left icon"></i>
+                            <i class="lastfm icon mobile hidden"></i>
+                        </a>
+                        <div class="divider"> / </div>
+                        <div class="active section">
+                            {{ session_plan.for_date.strftime('%Y-%m-%d') }}
+                        </div>
+                        <div class="divider"> &#x2604 </div>
+                        <div class="active section">
+                            {{ session_plan.location.name if session_plan.location else session_plan.txt_location_name }}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if not is_new %}
+                {{ navigation(endpoints) }}
+            {% endif %}
+
+            {% if tab == 'info' %}
+                {% include '/main/planner/session_plan_info.html' %}
+            {% elif tab == 'schedule' %}
+                {% include '/main/planner/session_plan_schedule.html' %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
