@@ -11,7 +11,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 from app import db
 
@@ -43,14 +43,14 @@ def locations():
     ret, page = process_paginated_session_search('location_search_page', [
         ('location_search', search_form.q),
     ])
-    
+
     if not ret:
         return redirect(url_for('main_location.locations'))
 
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    locations = Location.query.filter(Location.is_for_observation==True,or_(Location.is_public==True, Location.user_id==current_user.id))
+    locations = Location.query.filter(or_(and_(Location.is_public==True,Location.is_for_observation==True), Location.user_id==current_user.id))
     if search_form.q.data:
         locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
     locations_for_render = locations.limit(per_page).offset(offset)
@@ -108,6 +108,7 @@ def new_location():
             bortle = form.bortle.data,
             rating = form.rating.data,
             is_public = form.is_public.data,
+            is_for_observation = form.is_for_observation.data,
             user_id = current_user.id,
             create_by = current_user.id,
             update_by = current_user.id,
@@ -140,6 +141,7 @@ def location_edit(location_id):
             location.bortle = form.bortle.data
             location.rating = form.rating.data
             location.is_public = form.is_public.data
+            location.is_for_observation = form.is_for_observation.data
             location.update_by = current_user.id
             location.update_date = datetime.now()
             db.session.add(location)
@@ -153,6 +155,7 @@ def location_edit(location_id):
         form.bortle.data = location.bortle
         form.rating.data = location.rating
         form.is_public.data = location.is_public
+        form.is_for_observation.data = location.is_for_observation
 
     return render_template('main/location/location_edit.html', form=form, location=location, is_new=False, countries=countries)
 
