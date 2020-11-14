@@ -33,7 +33,7 @@
                 </div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
             </form>
-            
+
             <div style="overflow-x: scroll;">
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -56,9 +56,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                    
+
                     {% for item in dso_list_items %}
-                        <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.name) }}';">
+                        <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.name, season=season) }}';">
                             <td class="collapsing">
                                 <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                             </td>
@@ -84,7 +84,7 @@
                                         {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
                                       {% else %}
                                         {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
-                                      {% endif %}                              
+                                      {% endif %}
                                       {% if dso_list.show_minor_axis and item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
                                       / {% if item.deepskyObject.minor_axis >= 100.0 %}
                                           {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
@@ -92,7 +92,7 @@
                                           {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
                                         {% endif %}
                                       {% endif %}
-                                  {% endif %}                              
+                                  {% endif %}
                               </td>
                             {% endif %}
                         </tr>

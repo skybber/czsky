@@ -23,9 +23,9 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
                 session.pop(pair[0], None)
         session['is_backr'] = True
         return (False, None, )
-        
+
     page = request.args.get(get_page_parameter(), type=int, default=None)
-    
+
     if request.args.get('back', None) or not page is None:
         if not page is None:
             session[sess_page_name] = page
@@ -41,7 +41,7 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
         session.pop(sess_page_name, 0)
         for pair in sess_arg_form_pairs: # clear session on initialize GET request
             session.pop(pair[0], None)
-    
+
     return (True, page,)
 
 
@@ -54,13 +54,13 @@ def process_session_search(sess_arg_form_pairs):
                 session.pop(pair[0], None)
         session['is_backr'] = True
         return False
-    
+
     if request.args.get('back', None):
         session['is_backr'] = True
         return False
-    
+
     if session.pop('is_backr', False):
         for pair in sess_arg_form_pairs:
             pair[1].data = session.get(pair[0], None)
-    
+
     return True

@@ -21,6 +21,7 @@ from app import db
 
 from app.models import (
     Catalogue,
+    Constellation,
     DeepskyObject,
     DsoList,
     ObservedList,
@@ -210,10 +211,12 @@ def deepskyobject_info(dso_id):
             .first()
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
+    season = request.args.get('season')
+
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list,
+                           wish_list=wish_list, observed_list=observed_list, season=season,
                            )
 
 
@@ -447,17 +450,27 @@ def _do_redirect(url, dso):
     back_id = request.args.get('back_id')
     return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id))
 
+def _get_season_constell_ids():
+    season = request.args.get('season', None)
+    if season is not None:
+        constell_ids = set()
+        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
+            constell_ids.add(constell_id[0])
+        return constell_ids
+    return None
+
 
 def _get_prev_next_dso(dso):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
+    season = request.args.get('season')
 
     if back == 'observation':
         pass # TODO
     elif back == 'wishlist':
         if current_user.is_authenticated:
             wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-            prev_item, next_item = wish_list.get_prev_next_item(dso.id)
+            prev_item, next_item = wish_list.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,
                     prev_item.deepskyObject.denormalized_name() if prev_item else None,
                     next_item.deepskyObject if next_item else None,
@@ -466,7 +479,7 @@ def _get_prev_next_dso(dso):
     elif back == 'observed_list':
         if current_user.is_authenticated:
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-            prev_item, next_item = observed_list.get_prev_next_item(dso.id)
+            prev_item, next_item = observed_list.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,
                     prev_item.deepskyObject.denormalized_name() if prev_item else None,
                     next_item.deepskyObject if next_item else None,
@@ -476,7 +489,7 @@ def _get_prev_next_dso(dso):
         if current_user.is_authenticated:
             session_plan = SessionPlan.query.filter_by(id=back_id).first()
             if session_plan.user_id == current_user.id:
-                prev_item, next_item = session_plan.sky_list.get_prev_next_item(dso.id)
+                prev_item, next_item = session_plan.sky_list.get_prev_next_item(dso.id, _get_season_constell_ids())
                 return (prev_item.deepskyObject if prev_item else None,
                         prev_item.deepskyObject.denormalized_name() if prev_item else None,
                         next_item.deepskyObject if next_item else None,
@@ -486,7 +499,7 @@ def _get_prev_next_dso(dso):
     elif back == 'dso_list' and not (back_id is None):
         dso_list = DsoList.query.filter_by(name=back_id).first()
         if dso_list:
-            prev_item, next_item = dso_list.get_prev_next_item(dso.id)
+            prev_item, next_item = dso_list.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,
                     prev_item.item_id if prev_item else None,
                     next_item.deepskyObject if next_item else None,

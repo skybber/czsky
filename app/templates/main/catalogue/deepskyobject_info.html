@@ -305,13 +305,13 @@
             </div>
 
             {% if next_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id) }}">
+                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season) }}">
                     {{ next_dso_title }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id) }}">
+                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_title }}
                 </a>

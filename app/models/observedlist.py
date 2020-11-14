@@ -14,7 +14,7 @@ class ObservedList(db.Model):
         if not self.find_list_item_by_id(dso_id):
             self.append_new_deepsky_object(dso_id, user_id)
         return False
-    
+
     def append_new_deepsky_object(self, dso_id, user_id):
         new_item = ObservedListItem(
             observed_list_id = self.id,
@@ -25,22 +25,30 @@ class ObservedList(db.Model):
         db.session.add(new_item)
         db.session.commit()
         return new_item
-    
+
     def find_list_item_by_id(self, dso_id):
         for item in self.observed_list_items:
             if item.dso_id == dso_id:
                 return item
         return None
 
-    def get_prev_next_item(self, dso_id):
+    def get_prev_next_item(self, dso_id, constell_ids):
         sorted_list = sorted(self.observed_list_items, key=lambda x: x.id)
         for i, item in enumerate(sorted_list):
             if item.dso_id == dso_id:
-                prev_item = sorted_list[i-1] if i > 0 else None
-                next_item = sorted_list[i+1] if i < len(sorted_list) - 1 else None
+                for prev_item in reversed(sorted_list[0:i]):
+                    if constell_ids is None or prev_item.deepskyObject.constellation_id in constell_ids:
+                        break
+                else:
+                    prev_item = None
+                for next_item in sorted_list[i+1:]:
+                    if constell_ids is None or next_item.deepskyObject.constellation_id in constell_ids:
+                        break
+                else:
+                    next_item = None
                 return prev_item, next_item
         return None, None
-    
+
     @staticmethod
     def create_get_observed_list_by_user_id(user_id):
         observed_list = ObservedList.query.filter_by(user_id=user_id).first()
@@ -53,7 +61,7 @@ class ObservedList(db.Model):
             db.session.add(observed_list)
             db.session.commit()
         return observed_list
-    
+
 class ObservedListItem(db.Model):
     __tablename__ = 'observed_list_items'
     id = db.Column(db.Integer, primary_key=True)
