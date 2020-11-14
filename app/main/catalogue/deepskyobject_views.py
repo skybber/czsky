@@ -238,9 +238,11 @@ def deepskyobject_surveys(dso_id):
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
+    season = request.args.get('season')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
+                           season=season,
                            )
 
 
@@ -260,9 +262,11 @@ def deepskyobject_catalogue_data(dso_id):
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
     other_names = _get_other_names(dso)
+    season = request.args.get('season')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
+                           season=season
                            )
 
 
@@ -290,6 +294,8 @@ def deepskyobject_fchart(dso_id):
 
     night_mode = not session.get('themlight', False)
 
+    season = request.args.get('season')
+
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
@@ -298,6 +304,7 @@ def deepskyobject_fchart(dso_id):
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
+                           season=season,
                            )
 
 

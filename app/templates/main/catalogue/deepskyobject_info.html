@@ -16,7 +16,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id) }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id, season=season) }}">
                 {{ name }}
             </a>
         {% endfor %}
