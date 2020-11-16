@@ -74,6 +74,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.galaxy_color = (0.6, 0.2, 0.2)
             config.star_cluster_color = (0.6, 0.6, 0.0)
             config.star_colors = True
+            config.dso_symbol_brightness = True
         else:
             config.constellation_lines_color = (0.5, 0.7, 0.8)
             config.constellation_border_color = (0.8, 0.7, 0.1)
@@ -83,6 +84,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.0, 0.3, 0.0)
             config.galaxy_color = (0.3, 0.0, 0.0)
             config.star_cluster_color = (0.3, 0.3, 0.0)
+            config.dso_symbol_brightness = False
 
 
 def common_fchart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
