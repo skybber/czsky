@@ -141,6 +141,12 @@ def common_prepare_chart_data(form):
         form.maglim.data = pref_maglim
         form.dso_maglim.data = pref_dso_maglim
 
+    form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
+    session['pref_maglim'  + str(fld_size)] = form.maglim.data
+
+    form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
+    session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
+
     mag_range_values = []
     dso_mag_range_values = []
 
@@ -148,12 +154,6 @@ def common_prepare_chart_data(form):
         _, ml, dml = _get_fld_size_maglim(i)
         mag_range_values.append(ml)
         dso_mag_range_values.append(dml)
-
-    form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
-    session['pref_maglim'  + str(fld_size)] = form.maglim.data
-
-    form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
-    session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
 
     return (fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values)
 
