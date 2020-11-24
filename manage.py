@@ -18,7 +18,7 @@ from imports.import_vic import import_vic
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
-from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc
+from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc, import_glahn_local_group
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 
@@ -152,6 +152,7 @@ def import_dso_list():
     import_rosse('data/dsolist/RosseSpirals.csv')
     import_glahn_pns('data/dsolist/Glahn_PN.csv')
     import_glahn_palomar_gc('data/dsolist/PalomarGC.csv')
+    import_glahn_local_group('data/dsolist/LocalGroup.csv')
 
 @manager.command
 def import_new_skyquality_locations():
@@ -220,6 +221,10 @@ def tmp_normalize_glahn_img():
     Link star descriptions
     """
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
-    
+
+@manager.command
+def tmp_import_glahn_local_group():
+    import_glahn_local_group('data/dsolist/LocalGroup.csv')
+
 if __name__ == '__main__':
     manager.run()

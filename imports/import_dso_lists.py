@@ -61,7 +61,7 @@ def import_herschel400(herschel400_data_file):
                     long_name = 'Herschel400',
                     show_common_name = True,
                     show_dso_type = True,
-                    show_angular_size = True, 
+                    show_angular_size = True,
                     show_minor_axis = True,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
@@ -135,7 +135,7 @@ def import_caldwell(caldwell_data_file):
                     update_by=editor_user.id,
                     show_common_name = True,
                     show_dso_type = True,
-                    show_angular_size = True, 
+                    show_angular_size = True,
                     show_minor_axis = True,
                     create_date=datetime.now(),
                     update_date=datetime.now()
@@ -196,7 +196,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                 dso_list.show_descr_name=show_descr_name
                 dso_list.update_by=editor_user.id
                 dso_list.show_dso_type = show_dso_type
-                dso_list.show_angular_size = show_angular_size 
+                dso_list.show_angular_size = show_angular_size
                 dso_list.show_minor_axis = show_minor_axis
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
@@ -210,7 +210,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     create_by=editor_user.id,
                     update_by=editor_user.id,
                     show_dso_type = show_dso_type,
-                    show_angular_size = show_angular_size, 
+                    show_angular_size = show_angular_size,
                     show_minor_axis = show_minor_axis,
                     create_date=datetime.now(),
                     update_date=datetime.now()
@@ -273,8 +273,11 @@ def import_rosse(rosse_data_file):
 
 def import_glahn_pns(glahn_pn_data_file):
     _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetary nebulas of northern hemisphere', show_minor_axis=False)
-    
+
 def import_glahn_palomar_gc(glahn_palomar_gc_data_file):
     _do_import_simple_csv(
         glahn_palomar_gc_data_file, 'palomar-gc', 'Palomar globular clusters', show_common_name=False, show_minor_axis=False)
-    
+
+def import_glahn_local_group(glahn_local_group_data_file):
+    _do_import_simple_csv(
+        glahn_local_group_data_file, 'local-group', 'Local group of galaxies', show_minor_axis=False)
