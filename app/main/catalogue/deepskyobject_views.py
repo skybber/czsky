@@ -199,7 +199,7 @@ def deepskyobject_info(dso_id):
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
-    dso_image_info = get_dso_image_info(dso.normalized_name_for_img(), '')
+    dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
 
     other_names = _get_other_names(dso)
 
