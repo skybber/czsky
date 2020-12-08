@@ -136,6 +136,5 @@ def create_app(config):
 def get_locale():
     # supported_languages = ["cs", "en"]
     # return werkzeug.datastructures.LanguageAccept([(al[0][0:2], al[1]) for al in request.accept_languages]).best_match(supported_languages)
-    if 'czsky.eu' in request.host_url:
-        return 'en'
-    return 'cs'
+    host = request.headers.get('Host')
+    return 'en' if host and 'czsky.eu' in host else 'cs'
