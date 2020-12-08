@@ -1,7 +1,18 @@
+import werkzeug
+
+from flask import (
+    current_app,
+    request,
+)
+
+from werkzeug.datastructures import LanguageAccept
+
+from app.models.user import User
+
 def to_float(value, default):
     if value is not None:
         try:
-            return float(value) 
+            return float(value)
         except ValueError:
             pass
     return default
@@ -12,3 +23,11 @@ def to_boolean(value, default):
             return False
         return True
     return default
+
+
+def get_lang_and_editor_user_from_request():
+    # supported_languages = ["cs", "en"]
+    # lang = werkzeug.datastructures.LanguageAccept([(al[0][0:2], al[1]) for al in request.accept_languages]).best_match(supported_languages)
+    # return lang, User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + lang.upper())).first()
+    lang = 'en' if 'czsky.eu' in request.host_url else 'cs'
+    return lang, User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + lang.upper())).first()

@@ -71,38 +71,48 @@
 {% endmacro %}
 
 
-{% macro constellation_user_info(constellation, user_descr) %}
+{% macro constellation_info() %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
-            <div>
-                {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
-                        <i class="caret edit icon"></i>
-                    </a>
-                {% endif %}
-                <div class="markdown">
-                {% filter extended_commonmark('', '?back=constellation&back_id=' + constellation.iau_code) %}
-{{ user_descr }}
-                {% endfilter %}
-                </div>
-                {% if star_descriptions %}
-                    <br/>
+            {% if user_descr %}
+                <div>
+                    {% if editable %}
+                        <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
+                            <i class="caret edit icon"></i>
+                        </a>
+                    {% endif %}
                     <div class="markdown">
-                    {% for user_star_descr in star_descriptions %}
-                        <div id="star{{ user_star_descr.id }}" style="visibility:hidden; width:0px"></div>
-                        {% filter extended_commonmark('') %}
-                        {% if user_star_descr.star_id %}
-**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_fchart', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
-                        {% else %}
-**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
-                        {% endif %}
-{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
-                        {% endfilter %}
-                    {% endfor %}
+                    {% filter extended_commonmark('', '?back=constellation&back_id=' + constellation.iau_code) %}
+{{ user_descr }}
+                    {% endfilter %}
                     </div>
-                {% endif %}
-            </div>
+                    {% if star_descriptions %}
+                        <br/>
+                        <div class="markdown">
+                        {% for user_star_descr in star_descriptions %}
+                            <div id="star{{ user_star_descr.id }}" style="visibility:hidden; width:0px"></div>
+                            {% filter extended_commonmark('') %}
+                            {% if user_star_descr.star_id %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_fchart', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+                            {% else %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+                            {% endif %}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
+                            {% endfilter %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <table class="ui compact definition table">
+                    <tr><td>{{ _('IAU code') }}</td><td>{{ constellation.iau_code }}</td></tr>
+                    <tr><td>{{ _('Name') }}</td><td>{{ constellation.name }}</td></tr>
+                    <tr><td>{{ _('Image') }}</td><td><img src="{{ constellation.image }}"/></td></tr>
+                    <tr><td>{{ _('Description') }}</td><td>{{ constellation.descr }}</td></tr>
+                </table>
+            {% endif %}
         </div>
+
         {% if dso_descriptions %}
             {% for user_dso_descr in dso_descriptions %}
                 <div id="dso{{ user_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
@@ -144,6 +154,11 @@
                     </a>
                     <div class="dso-list-markdown markdown" style="clear:both;">
                         {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constellation&back_id=' + constellation.iau_code) %}
+
+                            {% if user_dso_descr.dso_id in title_images %}
+![<]({{ title_images[user_dso_descr.dso_id] }})
+                            {% endif %}
+
 {{ user_dso_descr.text | safe }}
                         {% endfilter %}
                         {% if user_dso_descr.dso_id in aperture_descr_map %}
@@ -236,16 +251,7 @@
     </script>
 {% endmacro %}
 
-{% macro constellation_info(constellation) %}
-    <table class="ui compact definition table">
-        <tr><td>{{ _('IAU code') }}</td><td>{{ constellation.iau_code }}</td></tr>
-        <tr><td>{{ _('Name') }}</td><td>{{ constellation.name }}</td></tr>
-        <tr><td>{{ _('Image') }}</td><td><img src="{{ constellation.image }}"/></td></tr>
-        <tr><td>{{ _('Description') }}</td><td>{{ constellation.descr }}</td></tr>
-    </table>
-{% endmacro %}
-
-{% macro constellation_stars(constellation) %}
+{% macro constellation_stars() %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
             <div>
@@ -301,7 +307,7 @@
     </div>
 {% endmacro %}
 
-{% macro constellation_dsos(constellation) %}
+{% macro constellation_dsos() %}
     <div style="overflow-x: scroll;">
             <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -364,15 +370,11 @@
             {{ navigation(endpoints) }}
 
             {% if type == 'info' %}
-                {% if user_descr %}
-                    {{ constellation_user_info(constellation, user_descr) }}
-                {% else %}
-                    {{ constellation_info(constellation) }}
-                {% endif %}
+                {{ constellation_info() }}
             {% elif type == 'stars' %}
-                {{ constellation_stars(constellation) }}
+                {{ constellation_stars() }}
             {% elif type == 'dso' %}
-                {{ constellation_dsos(constellation) }}
+                {{ constellation_dsos() }}
             {% endif %}
         </div>
     </div>

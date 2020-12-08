@@ -38,7 +38,7 @@
 {% endmacro %}
 
 {# --- DSO Info --- #}
-{% macro deepskyobject_info(dso, user_descr) %}
+{% macro deepskyobject_info() %}
     <style>
         #dso-toolbar { float: right; }
         @media(max-width:767px) {
@@ -97,6 +97,9 @@
             <div class="markdown" style="clear:both;">
                 {% if descr_available %}
                     {% filter extended_commonmark(dso.name) %}
+                        {% if title_img %}
+![<]({{ title_img }})
+                        {% endif %}
 {{ user_descr.text  | safe}}
                     {% endfilter %}
                     {% for ap_class, app_descr in apert_descriptions %}
@@ -156,7 +159,7 @@
 {% endmacro %}
 
 {# --- Surveys --- #}
-{% macro deepskyobject_surveys(dso) %}
+{% macro deepskyobject_surveys() %}
     <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
     <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
     <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
@@ -166,7 +169,7 @@
 {% endmacro %}
 
 {# --- Catalog Data --- #}
-{% macro deepskyobject_catalogue_data(dso, first_page) %}
+{% macro deepskyobject_catalogue_data(first_page) %}
     {% if first_page %}
         <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
             <div class="ui blue segment" style="display: inline-block; width:100%">
@@ -322,16 +325,16 @@
 
             {% if type == 'info' %}
                 {% if dso_image_info or descr_available %}
-                    {{ deepskyobject_info(dso, user_descr) }}
+                    {{ deepskyobject_info() }}
                 {% else %}
-                    {{ deepskyobject_catalogue_data(dso, True) }}
+                    {{ deepskyobject_catalogue_data(True) }}
                 {% endif %}
             {% elif type == 'fchart' %}
                 {{ deepskyobject_fchart(dso) }}
             {% elif type == 'surveys' %}
-                {{ deepskyobject_surveys(dso) }}
+                {{ deepskyobject_surveys() }}
             {% elif type == 'catalogue_data' %}
-                {{ deepskyobject_catalogue_data(dso, False) }}
+                {{ deepskyobject_catalogue_data(False) }}
             {% endif %}
         </div>
     </div>

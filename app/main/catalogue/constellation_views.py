@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import glob, os
-
 from flask import (
     abort,
     Blueprint,
@@ -19,8 +17,8 @@ from app import db
 from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject, WishList, ObservedList
 from app.commons.search_utils import process_session_search
 
-from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
+from app.commons.auto_img_utils import get_dso_image_info, get_ug_bl_dsos
+from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .constellation_forms import (
     ConstellationEditForm,
@@ -29,18 +27,16 @@ from .constellation_forms import (
 
 main_constellation = Blueprint('main_constellation', __name__)
 
-_ug_bl_dsos = None
-
 @main_constellation.route('/constellations', methods=['GET', 'POST'])
 def constellations():
     """View all constellations."""
-    
+
     search_form = SearchConstellationForm()
-    
+
     if not process_session_search([('const_search', search_form.q), ('const_season', search_form.season)]):
         return redirect(url_for('main_constellation.constellations'))
-    
-    editor_user = User.get_editor_user()
+
+    lang, editor_user = get_lang_and_editor_user_from_request()
     constellations = Constellation.query
     if search_form.q.data:
         constellations = constellations.filter(Constellation.name.like('%' + search_form.q.data + '%'))
@@ -48,7 +44,7 @@ def constellations():
     if editor_user:
         db_common_names = UserConsDescription.query \
                     .with_entities(UserConsDescription.constellation_id, UserConsDescription.common_name) \
-                    .filter_by(user_id=editor_user.id, lang_code='cs')
+                    .filter_by(user_id=editor_user.id, lang_code=lang)
     else:
         db_common_names = []
 
@@ -78,21 +74,22 @@ def constellation_info(constellation_id):
     common_name = None
     dso_descriptions = None
     star_descriptions = None
+    title_images = None
     ug_bl_dsos = None
-    editor_user = User.get_editor_user()
+    lang, editor_user = get_lang_and_editor_user_from_request()
     if editor_user:
-        ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs')\
+        ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang)\
                 .first()
 
         user_descr = ucd.text if ucd else None
         common_name = ucd.common_name if ucd else None
 
-        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
+        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
                 .filter_by(constellation_id=constellation.id) \
                 .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
-        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
+        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
                 .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
@@ -100,12 +97,17 @@ def constellation_info(constellation_id):
 
         existing = set()
         dso_descriptions = []
+        title_images = {}
         for dsod in all_dso_descriptions:
             if not dsod.dso_id in existing:
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
+            if not dsod.text or not dsod.text.startswith('![<]($IMG_DIR/'):
+                image_info = get_dso_image_info(dsod.deepskyObject.normalized_name_for_img())
+                if image_info is not None:
+                    title_images[dsod.dso_id] = image_info[0]
 
-        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
+        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
                 .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                 .filter_by(constellation_id=constellation.id) \
                 .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
@@ -119,7 +121,7 @@ def constellation_info(constellation_id):
             if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
                 dsoapd.append((apdescr.aperture_class, apdescr.text),)
 
-        all_ug_bl_dsos = _get_ug_bl_dsos()
+        all_ug_bl_dsos = get_ug_bl_dsos()
         ug_bl_dsos = []
         if constellation.id in all_ug_bl_dsos:
             constell_ug_bl_dsos = all_ug_bl_dsos[constellation.id]
@@ -127,21 +129,22 @@ def constellation_info(constellation_id):
                 if not dso_id in existing:
                     dso = constell_ug_bl_dsos[dso_id]
                     if not dso.master_id in existing:
-                        dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
+                        dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
                         ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
         ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
     editable=current_user.is_editor()
-    
+
     wish_list = None
     observed_list = None
     if current_user.is_authenticated:
         wish_list = [ item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items ]
         observed_list = [ item.dso_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items ]
-    
+
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
                            dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable,
-                           ug_bl_dsos=ug_bl_dsos, wish_list=wish_list, observed_list=observed_list)
+                           ug_bl_dsos=ug_bl_dsos, wish_list=wish_list, observed_list=observed_list, title_images=title_images,
+                           )
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -153,12 +156,12 @@ def constellation_edit(constellation_id):
     if constellation is None:
         abort(404)
 
-    editor_user = User.get_editor_user()
+    lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
     form = ConstellationEditForm()
     goback = False
     if editor_user:
-        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code='cs').first()
+        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang).first()
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text
@@ -195,16 +198,16 @@ def constellation_stars(constellation_id):
         abort(404)
     star_descriptions = None
     editable=current_user.is_editor()
-    editor_user = User.get_editor_user()
-    
+    lang, editor_user = get_lang_and_editor_user_from_request()
+
     aster_descriptions = None
     if editor_user:
-        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = 'cs')\
+        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = lang)\
                 .filter_by(constellation_id=constellation.id) \
                 .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
-        all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code='cs')\
+        all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type=='AST') \
                 .order_by(UserDsoDescription.rating.desc()) \
@@ -229,35 +232,6 @@ def constellation_deepskyobjects(constellation_id):
         abort(404)
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso')
 
-
-def _get_dso_image_info(dso_name, dir):
-    dso_file_name = dso_name + '.jpg'
-    img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
-    if img_dir_def[0]:
-        return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
-    return None
-
-def _get_ug_bl_dsos():
-    global _ug_bl_dsos
-    if not _ug_bl_dsos:
-        ug_bl_dsos = {}
-        files = [f for f in sorted(glob.glob('app/static/webassets-external/users/glahn/img/dso/*.jpg'))] + \
-            [f for f in sorted(glob.glob('app/static/webassets-external/users/laville/img/dso/*.jpg'))]
-
-        for f in files:
-            base_name = os.path.basename(f)
-            if base_name.endswith('.jpg'):
-                dso_name = base_name[:-len('.jpg')]
-                normalized_name = normalize_dso_name(denormalize_dso_name(dso_name))
-                dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-                if dso:
-                    db.session.expunge(dso)
-                    if not dso.constellation_id in ug_bl_dsos:
-                        ug_bl_dsos[dso.constellation_id] = {}
-                    ug_bl_dsos[dso.constellation_id][dso.id] = dso
-
-        _ug_bl_dsos = ug_bl_dsos
-    return _ug_bl_dsos
 
 def _sort_star_descr(star_descriptions):
     return sorted(star_descriptions, key=lambda a: a.star.mag if a.star and a.star.mag else 100.0)

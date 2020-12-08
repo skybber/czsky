@@ -38,6 +38,7 @@ from app.models import (
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search
+from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
     DeepskyObjectFindChartForm,
@@ -48,6 +49,7 @@ from .deepskyobject_forms import (
 from app.main.views import ITEMS_PER_PAGE
 from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
+from app.commons.auto_img_utils import get_dso_image_info
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
@@ -177,17 +179,23 @@ def deepskyobject_info(dso_id):
         if sel_tab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
-    editor_user = User.get_editor_user()
+    lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
     apert_descriptions = []
+    title_img = None
     if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
-        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
                         .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         for apdescr in user_apert_descrs:
             if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
+
+        if user_descr and (not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/')):
+            image_info = get_dso_image_info(dso.normalized_name_for_img())
+            if image_info is not None:
+                title_img = image_info[0]
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     editable=current_user.is_editor()
@@ -213,10 +221,11 @@ def deepskyobject_info(dso_id):
 
     season = request.args.get('season')
 
+
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list, season=season,
+                           wish_list=wish_list, observed_list=observed_list, season=season, title_img=title_img,
                            )
 
 
@@ -338,12 +347,12 @@ def deepskyobject_edit(dso_id):
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    editor_user = User.get_editor_user()
+    lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
     form = DeepskyObjectEditForm()
     goback = False
     if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs').first()
+        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
 
         authors = {}
 
@@ -352,7 +361,7 @@ def deepskyobject_edit(dso_id):
                 dso_id = dso_id,
                 user_id = editor_user.id,
                 rating = form.rating.data,
-                lang_code = 'cs',
+                lang_code = lang,
                 common_name = '',
                 text = '',
                 references = '',
@@ -361,7 +370,7 @@ def deepskyobject_edit(dso_id):
                 create_date = datetime.now(),
                 )
 
-        all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code='cs') \
+        all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
                     .order_by(UserDsoApertureDescription.aperture_class)
 
         user_apert_descriptions = []
@@ -376,7 +385,7 @@ def deepskyobject_edit(dso_id):
                     dso_id = dso_id,
                     user_id = editor_user.id,
                     rating = 1,
-                    lang_code = 'cs',
+                    lang_code = lang,
                     aperture_class = aperture_class,
                     text = '',
                     create_by = current_user.id,

@@ -1,0 +1,2056 @@
+
+
+IC 3010 = ESO 441-006 = MCG -05-29-020 = LGG 270-005 = PGC 38511
+
+12 07 57.4 -30 20 22; Hya
+
+V = 12.2;  Size 1.9'x1.8';  Surf Br = 13.4;  PA = 84°
+
+
+18" (5/28/06): fairly faint, moderately large, round, fairly low surface brightness, 1' diameter, broad concentration to an ill-defined core.  A 9' string of a half-dozen mag 13/14 stars extends to the south-southwest from the galaxy.  Located 38' SE of IC 3010.
+
+
+Lewis Swift discovered IC 3010 = Sw. XI-134 on 11 Apr 1898 and noted "eeeF; cS; R; D * sf; v diff."  Based on an observation in 1900 with the 20" refractor in Denver, Herbert Howe reported "the "D * sf" is of mags 10-10.5, angle 45°, and distance 40"; it is 8' from the nebula.  Just south of the nebula, and pointing at it is a row of five stars of average mag 11.5, the farthest being less than 10' away [mentioned in my observation].  The nebula is considerably brighter than the description "eeF, v diff." would imply."
+
+******************************
+
+
+IC 3011 = NGC 4124 = NGC 4119: = UGC 7117 = MCG +02-31-036 = CGCG 069-058 = PGC 38527
+
+12 08 09.7 +10 22 43; Vir
+
+V = 11.3;  Size 4.3'x1.4';  Surf Br = 13.2;  PA = 114°
+
+
+See observing notes for NGC 4124.
+
+
+Arnold Schwassmann found IC 3011 = Sn. 124 on a plate taken 23 Feb 1900 with the 6" astrograph at the Königstuhl Observatory in Heidelberg.   His position matches NGC 4124, although he and Dreyer missed the earlier NGC designation.  Also see NGC 4119.
+
+******************************
+
+
+IC 3015 = ESO 441-009 = MCG -05-29-023 = LGG 271-009 = PGC 38588
+
+12 09 00.3 -31 31 12; Hya
+
+V = 12.3;  Size 2.9'x0.7';  Surf Br = 12.9;  PA = 166°
+
+
+18" (5/28/06): fairly faint, moderately large, elongated 3:1 NNW-SSE, 1.2'x0.4', bulging center, even surface brightness.  A mag 13 star is just off the SSE extension [45" from center].  Located 3.7' W of a mag 9.6 star and 19' ESE mag 6.8 HD 105330.
+
+
+Lewis Swift discovered IC 3015 = Sw. XI-135 on 31 Jan 1898 and recorded "pB; vF * close sf; vE at 45°."  His position is poor (7' too far southwest), as well as the position angle (P.A. 166°), but a star is close southeast.  Herbert Howe reported in 1900 "the "* close sf" is of mag 10.5, and follows 2 seconds, 0.6' south."  Howe also measured an accurate position (used by Dreyer in the IC 2).
+
+******************************
+
+
+IC 3035 = NGC 4165 = UGC 7201 = MCG +02-31-045 = CGCG 069-078 = WBL 386-002 = PGC 38885
+
+12 12 11.8 +13 14 47; Vir
+
+V = 13.5;  Size 1.3'x0.9';  Surf Br = 13.5;  PA = 160°
+
+
+See observing notes for NGC 4165.
+
+
+Arnold Schwassmann found IC 3035 = Sn. 222 on plate taken 16 Nov 1900 with the 6" astrograph at the Königstuhl Observatory in Heidelberg.   His position matches NGC 4165, although he and Dreyer missed the earlier NGC designation from d'Arrest.  Also see NGC 4119.
+
+******************************
+
+
+IC 3039 = MCG +02-31-048 = CGCG 069-084 = KUG 1209+125 = PGC 38919
+
+12 12 32.6 +12 18 36; Vir
+
+V = 14.8;  Size 0.9'x0.35';  Surf Br = 13.3;  PA = 22°
+
+
+24" (6/3/19): at 322x; faint, fairly small, elongated 5:2 SSW-NNE, ~20"x8".  A mag 15.7 star is 1' NNE, a mag 14.8 star is 1.6' NE and a mag 11.1 star is 2.6' SW.
+
+
+Royal Frost discovered IC 3039 = F. 820 on a plate taken at Harvard's Arequipa station on 7 May 1904.
+
+******************************
+
+
+IC 3042 = NGC 4178 = UGC 7215 = MCG +02-31-050 = CGCG 069-088 = PGC 38943
+
+12 12 46.4 +10 51 57; Vir
+
+V = 11.4;  Size 5.1'x1.8';  Surf Br = 13.7;  PA = 30°
+
+
+See observing notes for NGC 4178.
+
+
+Arnold Schwassmann found IC 3042 = Sn. 151 on 6 Sep 1900 on a plate taken with the 6" astrograph at Heidelberg.  His position matches NGC 4178. Neither he nor Dreyer noticed the equivalence in position so this galaxy was catalogued again as IC 3042.
+
+******************************
+
+
+IC 3050 = NGC 4189 = UGC 7235 = MCG +02-31-054 = CGCG 069-092 = LGG 285-003 = PGC 39025
+
+12 13 47.5 +13 25 33; Com
+
+V = 11.7;  Size 2.7'x2.2';  Surf Br = 13.1;  PA = 85°
+
+
+See observing notes for NGC 4189.
+
+
+Arnold Schwassmann found IC 3050 = Sn. 227 on 16 Nov 1900 with a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.   His position matches NGC 4189, although he and Dreyer missed or didn't check the earlier NGC designation.  There are a number of similar cases with Schwassmann's list of nebulae in the Virgo-Coma region including nearby NGC 4193 = IC 3051.
+
+******************************
+
+
+IC 3051 = NGC 4193 = UGC 7234 = MCG +02-31-053 = CGCG 069-091 = LGG 285-009 = PGC 39040
+
+12 13 53.6 +13 10 22; Vir
+
+V = 12.3;  Size 2.3'x2.1';  Surf Br = 13.0;  PA = 93°
+
+
+See observing notes for NGC 4193.
+
+
+Arnold Schwassmann found IC 3051 = Sn. 228 on 16 Nov 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.   His position matches NGC 4193, although he and Dreyer missed or didn't check the earlier NGC designation.  There are a number of similar cases with Schwassmann's list of nebulae in the Virgo-Coma region including nearby NGC 4189 = IC 3050.
+
+******************************
+
+
+IC 3061 = UGC 7255 = MCG +02-31-063 = CGCG 069-101 = FGC 167A = PGC 39152
+
+12 15 04.5 +14 01 44; Com
+
+V = 13.6;  Size 2.2'x0.4';  Surf Br = 13.4;  PA = 122°
+
+
+17.5" (4/25/98): very faint, small, elongated NW-SE, 0.9'x0.4'.  Picked up with averted vision 11' NW of NGC 4212.  Precedes a pair of evenly matched stars [mag 13/14 at 22"] by ~2'.  Observation in poor transparency.
+
+
+Arnold Schwassmann discovered IC 3061 = Sn 274 on 22 Nov 1900 with a plate taken using the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Based on a plate taken with Harvard's 24" photographic refractor at Arequipa station in July 1904, Frost described "spiral, edgewise, extends 1.5' at 135°."
+
+******************************
+
+
+IC 3064 = NGC 4206 = UGC 7260 = MCG +02-31-066 = CGCG 069-107 = Holm 353b = PGC 39183
+
+12 15 16.7 +13 01 26; Vir
+
+V = 12.2;  Size 6.2'x1.2';  Surf Br = 14.2;  PA = 0°
+
+
+See observing notes for NGC 4206.
+
+
+Arnold Schwassmann found IC 3064 = Sn. 230 on 14 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg. His position matches NGC 4206 although he and Dreyer missed or didn't check the earlier NGC designation.  There are a number of similar cases with Schwassmann's list of nebulae in the Virgo-Coma region.
+
+******************************
+
+
+IC 3065 = MCG +03-31-082 = CGCG 098-114 = LGG 292-061 = PGC 39173
+
+12 15 12.6 +14 25 58; Com
+
+V = 13.7;  Size 1.0'x0.75';  PA = 179°
+
+
+24" (5/20/20): at 225x and 375x; fairly faint, fairly small, slightly elongated N-S, even surface brightness, 0.6'x0.5' diameter.  A mag 10.7 star is 7' NNE and a mag 11.2 star is 6' ESE.  Located 53' W of M99.
+
+
+Royal Frost discovered IC 3065 = F. 834  on a plate taken at Harvard's Arequipa station on 7 May 1904.
+
+******************************
+
+
+IC 3074 = UGC 7279 = MCG +02-31-071 = PGC 39233
+
+12 15 46.3 +10 41 50; Vir
+
+V = 14.2;  Size 2.3'x0.3';  Surf Br = 13.8;  PA = 160°
+
+
+17.5" (5/14/88): very faint, moderately large, thin edge-on NNW-SSE, low even surface brightness.
+
+
+Arnold Schwassmann discovered IC 3074 = Sn. 152 on 6 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Based on a plate taken with Harvard's 24" photographic refractor at Arequipa station in July 1904, Frost reported "extends 2' at 170° (Sch. 152)."
+
+******************************
+
+
+IC 3077 = UGC 7285 = MCG +03-31-085 = CGCG 098-118 = LGG 289-066 = PGC 39256
+
+12 15 56.3 +14 25 59; Com
+
+V = 14.5;  Size 1.1'x0.7';  Surf Br = 14.0;  PA = 0°
+
+
+24" (5/20/20): at 225x; extremely faint, fairly small, very low surface brightness, requires averted vision to glimpse.  Located 11' E of brighter IC 3065.  Also, brighter CGCG 098-124 is 9' NE.
+
+
+Royal H. Frost discovered IC 3077 = F. 839 on a plate taken at the Arequipa station on 7 May 1904.  He noted "bM, magn 15".  The UGC and CGCG list this galaxy but do not identify it as IC 3077.
+
+******************************
+
+
+IC 3098 = NGC 4235 = UGC 7310 = MCG +01-31-036 = CGCG 041-062 = Holm 359a = PGC 39389
+
+12 17 09.8 +07 11 28; Vir
+
+V = 11.6;  Size 4.2'x0.9';  Surf Br = 13.0;  PA = 48°
+
+
+See observing notes for NGC 4235
+
+
+Arnold Schwassmann found IC 3098 = Sn. 5 on 30 Oct 1899 using a plate taken with the 6" astrograph at the Königstuhl Observatory.  His position matches NGC 4235, though both he and Dreyer missed the earlier discovery by William Herschel.  So, IC 3098 = NGC 4235.
+
+******************************
+
+
+IC 3099 = UGC 7313 = MCG +02-31-079 = CGCG 069-126 = FGC 1399 = Holm 360B = LGG 285-007 = PGC 39390
+
+12 17 09.3 +12 27 14; Vir
+
+V = 14.3;  Size 2.0'x0.3';  Surf Br = 13.5;  PA = 173°
+
+
+48" (2/28/19): at 488x; almost moderately bright and large, edge-on 6:1 nearly N-S, at least 1.2'x0.2', brighter elongated core, patchy arms.  A mag 15.8 star is close off the NE flank [30" from center]. Situated 7' SE of mag 9.0 HD 106785.
+
+
+SDSS J121644.34+122450.5 is located 6.5' SW.  This 18th magnitude galaxy is a superluminous spiral at 3 billion light years.  It appeared extremely faint, very small, round, ~15".  Definite with averted vision, though only seen ~25% of the time.
+
+
+Arnold Schwassmann discovered IC 3099 = Sn. 235 on a plate taken with a 6" astrograph on 14 Sep 1900 at the Königstuhl Observatory in Heidelberg. Royal Frost called it "bM, ex. 1.5' at 170°" based on a plate taken at Arequipa.
+
+******************************
+
+
+IC 3102 = NGC 4223 = UGC 7319 = MCG +01-31-038 = CGCG 041-0653 = LGG 278-004 = PGC 39412
+
+12 17 25.8 +06 41 24; Vir
+
+V = 11.9;  Size 2.6'x1.3';  Surf Br = 13.2;  PA = 128°
+
+
+17.5" (3/24/90): moderately bright, fairly small, elongated WNW-ESE, bright core, larger faint extensions with averted.  Located 5' N of mag 7.9 SAO 119308.
+
+
+The galaxy described above is misidentified as NGC 4241 in modern catalogues. It forms a pair with IC 3115 (the "real" NGC 4241) 8' ESE.
+
+
+Arnold Schwassmann found IC 3102 = Sn. 6 on 30 Oct 1899 using a plate taken with the 6-inch astrographic refractor at Heidelberg.  His position matches the galaxy generally identified as NGC 4241.  But Corwin argues that the traditional NGC identification is incorrect and it should be labeled as NGC 4223.  So IC 3102 = NGC 4223, instead of IC 3102 = NGC 4241.  See his discussion under NGC 4223.
+
+******************************
+
+
+IC 3104 = ESO 020-004 = PGC 39573
+
+12 18 46.0 -79 43 34; Cha
+
+V = 12.8;  Size 3.8'x1.8';  Surf Br = 14.4;  PA = 45°
+
+
+25" (3/31/19 - OzSky): this nearby galaxy (7.4 million l.y.) is located 25' S of mag 4.2 Beta Cha at the edge of the Chamaeleon III cloud in an obscured region.  At 244x; fairly faint, fairly large, oval 2:1 SW-NE, ~1.3'x0.6'. The galaxy has a low surface brightness with no obvious core or zones but it appeared somewhat uneven or patchy with an occasional dim knot to the NE of center.  A mag 13.2 star is superimposed on the SW side.  A mag 10.6 star is 2.7' NW.
+
+
+DeLisle Stewart discovered IC 3104 = D.S. 357 on a plate taken on 22 May 1900 at Harvard's Arequipa Station.  He noted "eeF, cS, or v S Cl, * 12 sp 0.5'."
+
+******************************
+
+
+IC 3113 = NGC 4246 = UGC 7334 = MCG +01-31-041 = CGCG 041-070 = Holm 359b = PGC 39479
+
+12 17 58.1 +07 11 08; Vir
+
+V = 12.7;  Size 2.4'x1.3';  Surf Br = 13.8;  PA = 83°
+
+
+See observing notes for NGC 4246.
+
+
+Arnold Schwassmann found IC 3113 = Sn. 7 on 30 Oct 1899 using a plate taken with the 6-inch astrographic refractor at Heidelberg.  His position matches NGC 4246.  This galaxy was discovered by William Herschel, and his position is a few arcmin too far south, so perhaps Schwassmann and Dreyer assumed it was new or as Corwin suggested, both simply missed the earlier identity.  Adelaide Ames listed in the identity in her 1930 catalogue of galaxies in the Coma-Virgo region.
+
+******************************
+
+
+IC 3115 = NGC 4241 = UGC 7333 = VV 431 = MCG +01-31-040 = CGCG 041-069 = PGC 39483
+
+12 17 59.8 +06 39 16; Vir
+
+V = 13.1;  Size 1.7'x1.4';  Surf Br = 13.9
+
+
+17.5" (3/24/90): extremely faint, oval, very low surface brightness.  Forms a pair with NGC 4223 8' WNW.  This galaxy is identified as IC 3115 in modern catalogues and the brighter, western galaxy is usually catalogued as NGC 4241.  My identification (NGC 4241 = IC 3115 = UGC 7333) follows the historical record.
+
+
+Arnold Schwassmann found IC 3115 = Sn. 8 on 30 Oct 1899 using a Heidelberg plate taken with a 6" astrograph.  His position matches NGC 4241 = UGC 7333.  This galaxy was discovered by William Herschel, and his position is pretty good, but the NGC position is not, so Schwassmann and Dreyer assumed it was new.  Most modern sources identify this galaxy as IC 3115 only, though the NGC designation should take precedence.
+
+******************************
+
+
+IC 3134 = CGCG 070-003 = PGC 39593
+
+12 18 56.1 +08 57 42; Vir
+
+V = 14.2;  Size 0.7'x0.3';  Surf Br = 12.4
+
+
+17.5" (5/14/88): faint, very small, round, broad concentration.  A mag 15 star is 30" NE.  Forms a pair with IC 776 6' SSE.
+
+
+Arnold Schwassmann discovered IC 3134 = Sn. 41 on 12 Feb 1900 with a plate taken at the Königstuhl Observatory in Heidelberg.  He noted "vF, vS, E 0°."
+
+******************************
+
+
+IC 3136 = UGC 7349 = MCG +01-31-048 = CGCG 042-005 = PGC 39601
+
+12 18 57.4 +06 11 04; Vir
+
+V = 14.3;  Size 1.2'x0.4';  Surf Br = 13.0;  PA = 33°
+
+
+24" (4/28/14): fairly faint, fairly small, elongated 5:2 SSW-NNE, 30"x12", even surface brightness.  Located 8' NW of NGC 4260.
+
+
+Auguste Voigt discovered IC 3136 in Jun 1865 with the 31-inch silvered-glass reflector at Marseille.  The discovery was not published or forwarded to Dreyer, so it was not included in the NGC. Wolfgang Steinicke states his discoveries were only listed in his observation log, which was not published until 1987.
+
+
+Arnold Schwassmann discovered the galaxy on a plate taken at the Königstuhl Observatory in Heidelberg and his position measured for Sn. 2 on 5 Apr 1894 matches UGC 7349.  Bigourdan found it again visually on 31 Mar 1902.  Schwassmann was credited with the discovery in the IC.
+
+******************************
+
+
+IC 3137 = UGC 7347 = FGC 1407 = PGC 39580
+
+12 18 54.7 +12 28 12; Vir
+
+V = 16.5;  Size 1.0'x0.15';  PA = 44°
+
+
+82" (5/5/19, McDonald Observatory): at 400x; low surface brightness, thin edge-on, 5:1 oriented SW-NE, ~40"x8".  Forms a line-of-sight pair with IC 3138 1.5' SSW.
+
+
+Royal Frost discovered IC 3137 = F. 858, along with IC 3138, on a plate taken on 7 May 1904 at Harvard's Arequipa Observatory in Peru.  He described it accurately as a "streak extending 1' at 45°."
+
+******************************
+
+
+IC 3138 = LEDA 213972
+
+12 18 56.2 +12 26 43; Vir
+
+V = 15.7;  Size 0.4'x0.3'
+
+
+82" (5/5/19, McDonald Observatory): at 400x; fairly faint, fairly small, slightly elongated SW-NE, 15"x12".  A mag 17.0 star is off the SW edge.  Forms a pair with IC 3137 1.5' NNW.
+
+
+IC 3138 lies a distance of 1.2 billion l.y. but IC 3137 is 4 times closer.
+
+
+Royal Frost discovered IC 3138 = F. 859, along with IC 3137, on a plate taken on 7 May 1904 at Harvard's Arequipa Observatory in Peru.  He described it as "R, bM, magn. 15.5."
+
+******************************
+
+
+IC 3153 = CGCG 042-019 = Holm 368g = WBL 397-002 = PGC 39693
+
+12 19 36.8 +05 23 52; Vir
+
+V = 14.8;  Size 0.5'x0.45'
+
+
+24" (4/28/14): faint, small, round, 15" diameter, even surface brightness.  Located 3.9' ENE of NGC 4259.  Forms the western vertex of an isosceles triangle with NGC 4273 6' SE and NGC 4270 5' NW.
+
+
+17.5" (3/28/87): very faint, small, almost round, diffuse.  Located 3' E of NGC 4259 in the NGC 4261 group and second faintest of 8 in the field.
+
+
+Hermann A. Kobold discovered IC 3153 on 8 Apr 1894 with the 18" refractor at the Strasboug Observatory.  He noted "vF, S, NGC 4273 near."  His position is an exact match with CGCG 042-019 = PGC 39693.
+
+******************************
+
+
+IC 3155 = MCG +01-32-003 = CGCG 042-022 = Holm 365b = WBL 392-011 = PGC 39708
+
+12 19 45.3 +06 00 21; Vir
+
+V = 14.0;  Size 1.0'x0.5';  Surf Br = 13.0;  PA = 34°
+
+
+24" (4/28/14): fairly faint, fairly small, elongated 5:3 SW-NE, very weak concentration, 30"x18".  Slightly larger than NGC 4269 (though lower surface brightness) just 1.2' NE.  Mag 7.7 HD 107238 lies 2.2' NNE.
+
+
+17.5" (3/24/90): very faint, very small, slightly elongated SW-NE, even surface brightness.  Located 2.2' SSW of mag 7.7 SAO 119333.  Forms the fainter member of a pair with NGC 4269 1.1' NE.
+
+
+Auguste Voigt discovered IC 3155 = Big. 290 in Jun 1865 with the 31-inch silver-on-glass reflector at Marseille.  The discovery wasn't published or forwarded to Dreyer, so IC 3155 didn't receive a NGC designation. Wolfgang Steinicke states that Voigt's discoveries were only listed in his observation log, which was published in 1987.
+
+
+Hermann Kobold independently discovered this galaxy on 5 Apr 1894 (published in 1907), as well as Bigourdan on 31 Mar 1902.  Bigourdan was credited with the discovery in the IC.
+
+******************************
+
+
+IC 3171 = MCG +04-29-065 = CGCG 128-078 = PGC 39796
+
+12 20 24.1 +25 33 38; Com
+
+V = 13.7;  Size 0.7'x0.5';  PA = 55°
+
+
+24" (5/30/16): at 225x; fairly faint, small, slightly elongated SW-NE, 20"x15", slightly brighter nucleus.  Located 14' SSE of brighter IC 780.
+
+
+Max Wolf discovered IC 3171 = W. IV-23 on a Heidelberg plate taken 23 Mar 1903.  His position is very accurate.
+
+******************************
+
+
+IC 3181 = NGC 4286 = UGC 7398 = MCG +05-29-065 = CGCG 158-083 = WBL 399-003 = PGC 39846
+
+12 20 42.1 +29 20 45; Com
+
+V = 13.1;  Size 1.6'x1.0';  Surf Br = 13.4;  PA = 150°
+
+
+See observing notes for NGC 4286.
+
+
+Max Wolf found IC 3181 = W. IV-28 on a Heidelberg plate taken 23 Mar 1903 and reported "pF, pL, lE 150°."  His position matches NGC 4286, so it's surprising that Dreyer didn't catch the equivalence IC 3181 = NGC 4286.
+
+******************************
+
+
+IC 3211 = NGC 4307A = UGC 7430 = MCG +02-32-012 = Holm 380b = PGC 40034
+
+12 22 07.3 +08 59 26; Vir
+
+V = 14.5;  Size 0.9'x0.7';  Surf Br = 13.9
+
+
+17.5" (3/24/90): extremely faint and small, round.  Located 3' S of NGC 4307.  Identified in the RNGC as NGC 4307A.
+
+
+Arnold Schwassmann discovered IC 3211 = Sn. 93 on 13 Feb 1900 from a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  He noted "eF, S."  Listed as NGC 4307A in the RNGC.
+
+******************************
+
+
+IC 3247 = UGC 7459 = MCG +05-29-077 = CGCG 158-096 = FGC 1422 = PGC 40205
+
+12 23 14.0 +28 53 38; Com
+
+V = 14.7;  Size 2.2'x0.3';  Surf Br = 14.0;  PA = 175°
+
+
+24" (5/30/16): at 225x; extremely faint, thin edge-on ~5:1 N-S, very low surface brightness, very slightly brighter elongated core, ~45"x9".  Only visible part of the time, though pops clearly and can hold for a few seconds.
+
+
+Max Wolf discovered IC 3247 = W. IV-69 on a Heidelberg plate taken 23 Mar 1903.
+
+
+RNGC, PGC, RC3, SIMBAD and secondary sources such as WikiSky, Uranometria 2000. Atlas and Megastar misidentify IC 3247 as NGC 4338.  IC 3247 is located 20' south of d'Arrest's erroneous position.  Reinmuth also questioned if NGC 4338 = IC 3247 but Malcolm Thomson feels this galaxy is too faint and would not have been visible in d'Arrest's 11-inch refractor in twilight -- I agree.  NGC 4338 is more likely a duplicate of NGC 4310 with a 1 minute error in RA.
+
+******************************
+
+
+IC 3253 = ESO 380-024 = MCG -06-27-021 = LGG 280-004 = PGC 40265
+
+12 23 45.2 -34 37 20; Cen
+
+V = 11.6;  Size 2.5'x1.1';  Surf Br = 12.6;  PA = 23°
+
+
+18" (5/28/06): very faint, fairly large, ~2'x0.8' SSW-NNE, very ill-defined glow without a well defined edge, low surface brightness, broad concentration but no core.  Viewed at a low elevation west of the meridian, which may have compromised the view.
+
+
+DeLisle Stewart discovered IC 3253 = D.S. 363 on a plate taken in 1901 at Harvard's Arequipa Station.  He noted "eF, vL, vE at 20°, lbM."  Based on photographs taken at the Helwan Observatory in 1919-20, IC 3253 was described as "F, 2.5' x 1', E 25°; compact spiral with fant sharp ncl like a star, the whorls are fine and have dark lanes between them."
+
+
+NED notes: IC 3253 has the standard morphology of a multiple-armed spiral pattern in a highly inclined galaxy of late-luminosity class, of the M101 type.
+
+******************************
+
+
+IC 3254 = NGC 4336 = UGC 7462 = MCG +03-32-020 = CGCG 099-035 = Holm 389a = PGC 40231
+
+12 23 29.8 +19 25 36; Com
+
+V = 12.5;  Size 2.0'x0.9';  Surf Br = 13.0;  PA = 162°
+
+
+See observing notes for NGC 4336.
+
+
+Royal Frost found IC 3254 on an Arequipa plate taken on 7 May 1904 and described as "B, S, R, planetary".  It was reported as number 884 in Harvard Annals 60 and his position is 2' north of NGC 4336.  Likely, NGC 4336 = IC 3254, though there is some doubt given the discrepancy in position.  See Harold Corwin's IC identification notes for the full story.
+
+******************************
+
+
+IC 3256 = NGC 4342 = UGC 7466 = MCG +01-32-039 = CGCG 042-071 = PGC 40252
+
+12 23 39.1 +07 03 14; Vir
+
+V = 12.5;  Size 1.3'x0.6';  Surf Br = 12.1;  PA = 168°
+
+
+17.5" (3/28/87): moderately bright, very small, elongated NNW-SSE, bright core, stellar nucleus.  NGC 4342 = IC 3256 has the highest surface brightness of the members in the NGC 4343 group.  NGC 4343 is 6.0' S, NGC 4341 = IC 3260 4.8' NE, IC 3267 6.6' E, IC 3259 8.3' NNE.  See notes on the identification.
+
+
+Guillaume Bigourdan found IC 3256 = Big. 291 on 23 Apr 1895.  His position matches UGC 7466, which is often taken as NGC 4342.  But see that number for the story.
+
+******************************
+
+
+IC 3258 = UGC 7470 = MCG +02-32-021 = PGC 40264 = PGC 39911
+
+12 23 44.5 +12 28 41; Vir
+
+V = 13.1;  Size 1.6'x1.4';  Surf Br = 13.8;  PA = 88°
+
+
+24" (5/29/14): fairly faint, fairly small, round, low surface brightness, very weak concentration, 24" diameter.
+
+
+17.5" (4/18/87): very faint, small, round, very diffuse.  Forms a pair with NGC 4351 16' SSE.
+
+
+Arnold Schwassmann discovered IC 3258 on 14 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Frost also recorded it on a plate taken at the Arequipa station on 10 May 1904.  He noted "R, lbM, diam. 0.7' (Sch 241)."
+
+
+IC 3258 has one of the highest blue-shifts: -437 to -473 km/sec
+
+******************************
+
+
+IC 3259 = UGC 7469 = MCG +01-32-040 = PGC 40273
+
+12 23 48.6 +07 11 11; Vir
+
+V = 13.5;  Size 1.7'x0.9';  Surf Br = 13.8;  PA = 15°
+
+
+17.5" (3/28/87): faint, fairly large, very diffuse.  Located 3.2' ENE of a mag 10 star and 5' NNW of NGC 4341 = IC 3260 in the NGC 4343 group.
+
+
+Guillaume Bigourdan discovered IC 3259 = Big. 293 = Sn. 16, along with IC 3267, on 23 Apr 1895.  Schwassmann measured an accurate position (used in the IC 2) on 4 Nov 1899 using a plate taken by Wolf at the Königstuhl Observatory.
+
+******************************
+
+
+IC 3260 = NGC 4341 = UGC 7472 = MCG +01-32-042 = CGCG 042-076 = PGC 40280
+
+12 23 53.5 +07 06 25; Vir
+
+V = 13.2;  Size 1.6'x0.5';  Surf Br = 13.0;  PA = 96°
+
+
+17.5" (3/28/87): fairly faint, fairly small, elongated ~E-W, even surface brightness.  Member of the NGC 4343 group and midway between IC 3259 4.9' NNW and IC 3267 5.0' SSW.  NGC identification uncertain and identified as IC 3260 in CGCG and MCG.
+
+
+Bigourdan found IC 3260 = Big. 294 = Sn. 17 on 23 Apr 1895 and his position matches UGC 7472.  Likewise, Arnold Schwassmann measured a very accurate position on a Heidelberg plate on 27 Nov 1900.  Dreyer assumed this was a new object, but likely William Herschel's H III-95 (later NGC 4341), discovered on 13 Apr 1784 (along the NGC 4342 and 4344), refers to the same galaxy.  Herschel's position falls between NGC 4343 and 4342.  See NGC 4341 for more on this number and Corwin's detailed analysis.
+
+******************************
+
+
+IC 3265
+
+12 23 58.8 +07 48 14; Vir
+
+V = 13.4
+
+
+17.5" (3/24/90): this number refers to a mag 13 star 1.2' NNW of the center of NGC 4353.
+
+
+Arnold Schwassmann discovered IC 3265 = Sn. 48 on a Heidelberg plate taken with a 6" astrograph in 1900.  His position corresponds with a mag 13.4 star 1.2' NNW of the center of NGC 4353.  CGCG mistakenly places the IC designation (as well as IC 3266) on NGC 4353.
+
+******************************
+
+
+IC 3266 = NGC 4353 = MCG +01-32-043 = CGCG 042-077 = PGC 40303
+
+12 24 00.2 +07 47 05; Vir
+
+V = 13.6;  Size 1.1'x0.7';  Surf Br = 13.2;  PA = 67°
+
+
+17.5" (3/24/90): faint, oval SW-NE.  A mag 13 star is 1.2' NNW.
+
+
+Arnold Schwassmann found IC 3266 = Sn. 49 on 20 Nov 1899 using a plate taken with the 6" astrograph at the Heidelberg observatory.  His position matches NGC 4353, although the NGC position is not very accurate.  The position was measured on 3 plates and there is no question on this identification.  IC 3255 = Sn. 48 refers to a star 1' N of the galaxy, although CGCG labels this galaxy as IC 3265 = IC 3266, instead of NGC 4353 = IC 3266.
+
+******************************
+
+
+IC 3267 = UGC 7474 = MCG +01-32-044 = PGC 40317
+
+12 24 05.6 +07 02 27; Vir
+
+V = 13.4;  Size 1.2'x1.2';  Surf Br = 13.7
+
+
+17.5" (3/28/87): faint, moderately large, round, quite diffuse, low even surface brightness.  Last of five galaxies in the NGC 4343 group.  Located 5.0' SSE of NGC 4341 = IC 3260 and 6.6' E of NGC 4342 = IC 3256.
+
+
+Guillaume Bigourdan discovered IC 3267 = Big. 295 = Sn. 18, along with IC 3259, on 23 Apr 1895.  Schwassmann measured an accurate position (used in the IC 2) on 4 Nov 1899 using a plate taken by Wolf at the Königstuhl Observatory.
+
+******************************
+
+
+IC 3273 = NGC 4356 = UGC 7482 = MCG +02-32-026 = CGCG 070-048 = FGC 1427 = PGC 40342
+
+12 24 14.9 +08 32 16; Vir
+
+V = 13.3;  Size 2.8'x0.5';  Surf Br = 13.7;  PA = 40°
+
+
+17.5" (3/24/90): faint, edge-on SW-NE, low surface brightness.  A mag 13 star is involved at the east edge of the core.
+
+
+Arnold Schwassmann found IC 3273 = Sn. 95 on a plate taken 23 Jan 1900 with a 6" astrograph at Heidelberg.  His position matches NGC 4356, although neither Schwassmann nor Dreyer caught the equivalence.  UGC, CGCG and MCG label this galaxy as IC 3273 and ignore the NGC designation.
+
+******************************
+
+
+IC 3274 = NGC 4360B = MCG +02-32-027 = CGCG 070-050 = Holm 393b = WBL 404-007 = PGC 40344
+
+12 24 14.7 +09 16 00; Vir
+
+V = 14.6;  Size 0.5'x0.3';  Surf Br = 12.4
+
+
+17.5" (3/24/90): very faint, extremely small, round, low surface brightness, just non-stellar.  Located just 2' SW of brighter NGC 4360.
+
+
+Arnold Schwassmann discovered IC 3274 = Sn. 96 on 15 Feb 1900  using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  He noted "eF, vS, ?."  Identified as NGC 4360B in the RNGC.
+
+******************************
+
+
+IC 3290 = ESO 322-004 = MCG -06-27-024 = LGG 298-001 = PGC 40470
+
+12 25 09.0 -39 46 32; Cen
+
+V = 12.0;  Size 2.0'x1.4';  Surf Br = 12.9;  PA = 43°
+
+
+18" (3/28/09): faint, fairly small, round, 25" diameter.  Located just 2' SW of NGC 4373, though John Herschel missed it.  Member of the Centaurus Cluster (ACO 3526)
+
+
+Joseph Turner discovered IC 3290 on 16 Apr 1877 with the 48" Melbourne Telescope while observing and sketching NGC 4373 (p. 136 of his logbook).  He noted "the south-preceding [IC 3290] shown above was not noticed by Herschel and is here considered as a new nebula.  It is very faint as compared with 2928 [NGC 4373] - elongated and brighter at north-following extremity."  Cannot resolve any of them." In a final list of 6 "New Nebulae discovered by Mr Turner" (end of his logbook), an offset is given of 9 seconds preceding in RA and 60" south with the description "extremely faint, very small, a little elongated; a little brighter at the following end."  Pietro Baracchi reobserved this galaxy with the GMT on 8 Feb 1886 and called it "pB; S; lE; glbM."  Neither of these two observations were published
+
+
+Lewis Swift rediscovered IC 3290 on 30 Jan 1898 and reported Sw. XI-137 as "pF; vS; R; close p [NGC] 4373. Note."  His note mentions this object (and others) "appear at first glance like double stars 6" or 8" apart."  His position is 1 minute of RA too far west, but the identification is certain.  Herbert Howe measured an accurate position in 1900 (used in the IC 2).  Swift is credited with the discovery in the IC.
+
+******************************
+
+
+IC 3303 = UGC 7500 = MCG +02-32-035 = PGC 40485
+
+12 25 15.3 +12 42 51; Vir
+
+V = 13.8;  Size 1.0'x0.6';  Surf Br = 13.3;  PA = 73°
+
+
+24" (4/28/14): faint to fairly faint, small, elongated 4:3 WSW-ENE, 24"x18".  Located 8.3' WNW of NGC 4388.
+
+
+17.5" (4/25/87): very faint, very small, slightly elongated, can just hold steadily with averted.  Located 8.4' WNW of NGC 4388 and 10' SSE of M84 in the central core of the Virgo cluster.
+
+
+17.5" (1/31/87): very faint, very small, elongated.
+
+
+Arnold Schwassmann discovered IC 3303 = Sn. 244 on 14 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on a plate taken at the Arequipa station on 10 May 1904.  He noted "bM, magn 14 (Sch 244)".
+
+******************************
+
+
+IC 3310
+
+12 25 55.3 +15 40 49; Com
+
+
+17.5": IC 3310 is probably a mag 14 star at the northwest end of NGC 4396 just 1.1' from center.  Although this identification does not match the IC position, it agrees if Bigourdan's offsets apply to the same reference star he used for NGC 4396.
+
+
+Guillaume Bigourdan discovered IC 3310 = Big. 297 on 1 Apr 1894.  He made an error for the position of his reference star, but once corrected his offsets matches this star.  See Malcolm Thomson's IC Corrections and Harold Corwin's identification comments.
+
+******************************
+
+
+IC 3311 = UGC 7510 = MCG +02-32-038 = CGCG 070-063 = FGC 1429 = PGC 40530
+
+12 25 33.1 +12 15 37; Vir
+
+V = 14.3;  Size 1.7'x0.3';  Surf Br = 13.4;  PA = 135°
+
+
+24" (5/29/14): faint, fairly small, elongated 2:1 SW, 0.5'x0.25', low even surface brightness.  Located 24' SSW of NGC 4388 in the central region of the Virgo Cluster.
+
+
+Arnold Schwassmann discovered IC 3311 = Sn. 185 on 12 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on a plate taken at the Arequipa station on 10 May 1904.  He noted "streak; 1.2' by 0.2' at 135° (Sch 185)".
+
+******************************
+
+
+IC 3320 = NGC 4390 = UGC 7519 = MCG +02-32-040 = CGCG 070-067 = PGC 40597
+
+12 25 50.7 +10 27 33; Vir
+
+V = 12.6;  Size 1.7'x1.3';  Surf Br = 13.3;  PA = 95°
+
+
+17.5" (4/20/87): fairly faint, fairly small, slightly elongated E-W, diffuse, even or almost even surface brightness.  Located 26' NNE of NGC 4380.
+
+
+Arnold Schwassmann found IC 3320 = Sn. 155 on 6 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  His position matches NGC 4390.  Apparently he was unaware of the NGC identification (a number of his objects have NGC designations) and Dreyer catalogued it again as IC 3320.  IC 3319 may be another designation from Schwassmann on a different plate, though the declination is off by 4'.
+
+******************************
+
+
+IC 3339 = NGC 4411 = UGC 7537 = MCG +02-32-048 = CGCG 070-074 = WBL 408-006 = PGC 40695
+
+12 26 30.0 +08 52 20; Vir
+
+V = 12.7;  Size 2.0'x1.9';  Surf Br = 14.1
+
+
+See observing notes for NGC 4411.
+
+
+Arnold Schwassmann found IC 3339 = Sn. 99 on a Heidelberg plate taken 23 Jan 1900.  His position matches NGC 4411, discovered by Christian Peters in 1881, though both Schwassmann and Dreyer assumed it was new.  See NGC 4411 for more on this number.  Gerard de Vaucouleurs used the letter suffixes NGC 4411A and 4411B for the pair in the 1964 "Reference Catalogue of Bright Galaxies".
+
+******************************
+
+
+IC 3349 = CGCG 070-081 = VCC 940 = PGC 40744
+
+12 26 47.1 +12 27 14; Vir
+
+V = 14.4;  Size 0.9'x0.8'
+
+
+24" (4/28/14): very faint, very small, round, 12" diameter, low surface brightness.  Located 10' SSE of NGC 4413 in the core of the Virgo cluster.
+
+
+Royal H. Frost discovered IC 3349 = F. 904 on a plate taken on 10 May 1904 at Harvard's Arequipa station using the 24" f/5.6 Bruce photographic refractor.  He noted "vS, R, lbM, magn 15."
+
+******************************
+
+
+IC 3355 = UGC 7548 = VV 511 = DDO 124 = MCG +02-32-056 = CGCG 070-085 = Holm 403g = PGC 40754
+
+12 26 51.1 +13 10 33; Vir
+
+V = 14.9;  Size 1.1'x0.5';  Surf Br = 14.0;  PA = 168°
+
+
+24" (5/29/14): extremely faint, small, round?, ~20" diameter, very low surface brightness.  Situated 16.6' NE of M86.
+
+
+Arnold Schwassmann discovered IC 3355 = Sn. 251 on 17 Nov 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on two plates taken at the Arequipa station in May 1904.  He noted "streak; 1.0' by 0.2' at 170° (Sch 251)".
+
+******************************
+
+
+IC 3366 = LEDA 213994
+
+12 27 12.1 +09 24 37; Vir
+
+V = 15.8;  Size 0.35'x0.15';  PA = 154°
+
+
+48" (3/1/19): at 488x; between faint and fairly faint, small, elongated 2:1 NNW-SSE, ~15"x7".  Situated just 40" S of the center of NGC 4424 and 0.3' SW of a 16th mag star.
+
+
+Arnold Schwassmann discovered IC 3366 = Sn. 105 on a plate taken with a 6" astrograph on 15 Feb 1900 at the Königstuhl Observatory in Heidelberg.  His published RA is about 4 seconds too large. This galaxy is too faint to be included in the CGCG or MCG, so does not have a standard PGC number.  As a result HyperLeda doesn't recognize LEDA 213994 as IC 3366.
+
+******************************
+
+
+IC 3370 = ESO 322-014 = MCG -06-27-029 = LGG 298-029 = PGC 40887
+
+12 27 37.3 -39 20 17; Cen
+
+V = 11.0;  Size 2.9'x2.3';  Surf Br = 13.1;  PA = 45°
+
+
+18" (3/28/09): fairly bright, moderately large, elongated 4:3 SW-NE.  Appeared unusually bright for an IC galaxy that was missed by John Herschel.  Located 28' NW of mag 7.8 HD 108684 and 36' NE of NGC 4373 in a subgroup on the NW side of the Centaurus Cluster (AGC 3526).
+
+
+Lewis Swift discovered IC 3370 = Sw. XI-139 on 30 Jan 1898 and logged "pB; pL; R; 7m * with distant companion near p[receding]."  Howe reobserved the galaxy in 1900 and reported "I see no "7m * nr p", but found one of mag 8.5, which precedes 15 seconds, 1.5' south."  Howe measured an accurate micrometric position that was used in the IC 2.
+
+******************************
+
+
+IC 3381 = UGC 7589 = MCG +02-32-074 = PGC 40985
+
+12 28 14.9 +11 47 22; Vir
+
+V = 13.4;  Size 1.2'x0.9';  Surf Br = 13.5;  PA = 110°
+
+
+17.5" (4/18/87): faint, small, slightly elongated, weak concentration.  Located 2.2' S of a mag 7.7 SAO 10014 that detracts from viewing.  Forms a pair with NGC 4452 7.2' ESE.
+
+
+Arnold Schwassmann discovered IC 3381 = Sn. 192 on 12 Sep 1900 using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on a plate taken at the Arequipa station on 10 May 1904.  Frost noted "bM, R magn 14 (Sch 192)".
+
+******************************
+
+
+IC 3388 = CGCG 070-109 = PGC 41018
+
+12 28 28.1 +12 49 25; Vir
+
+V = 14.5;  Size 0.7'x0.5';  PA = 73°
+
+
+24" (4/28/14): very faint to faint, small, round, 15"-18" diameter, low even surface brightness.  Located 15' SE of NGC 4438.  Slightly brighter IC 3393 lies 6.5' NNE.
+
+
+Royal H. Frost discovered IC 3388 = F. 918 on a plate taken on 10 May 1904 at Harvard's Arequipa station using the 24" f/5.6 Bruce photographic refractor.  He noted "R, lbM, 0.2' dia, magn 15."
+
+******************************
+
+
+IC 3392 = UGC 7602 = MCG +03-32-049 = PGC 41061
+
+12 28 43.3 +14 59 58; Com
+
+V = 12.2;  Size 2.3'x1.0';  Surf Br = 12.9;  PA = 40°
+
+
+17.5" (5/23/87): faint, fairly small, elongated SW-NE, weak concentration.  Located 14' E of NGC 4419.
+
+
+Royal H. Frost discovered IC 3392 = F. 920 on a plate taken on 7 May 1904 at Harvard's Arequipa station using the 24" f/5.6 Bruce photographic refractor.  He noted "possible spiral, ellip, 1.5' by 0.3' at 225°, B * M."
+
+******************************
+
+
+IC 3393 = MCG +02-32-081 = CGCG 070-113 = PGC 41054
+
+12 28 41.7 +12 54 57; Vir
+
+V = 14.0;  Size 1.3'x0.4';  Surf Br = 13.0;  PA = 132°
+
+
+24" (4/28/14): faint, small, elongated 5:3 NW-SE, 25"x15", low even surface brightness.  Located 15' ESE of NGC 4438 in the core of the Virgo cluster.  IC 3388 lies 6.5' SSW.
+
+
+Royal H. Frost discovered IC 3393 = F. 921 on a plate taken on 10 May 1904 at Harvard's Arequipa station using the 24" f/5.6 Bruce photographic refractor.  He noted "Elliptical, 0.5' by 0.2' at 125°, bM, magn 14."
+
+******************************
+
+
+IC 3427 = NGC 4482 = UGC 7640 = MCG +02-32-098 = CGCG 070-130 = PGC 41272
+
+12 30 10.4 +10 46 46; Vir
+
+V = 12.7;  Size 1.7'x1.0';  Surf Br = 13.2;  PA = 145°
+
+
+17.5" (4/21/90): faint, fairly small, oval 3:2 NW-SE, almost even surface brightness.
+
+
+Arnold Schwassmann found IC 3427 = Sn. 158 on 6 Sep 1900 using a plate taken with a 6" astrograph at Heidelberg, and later by Frost at Harvard in 1904.  William Herschel made the original discovery on 15 Mar 1784 (sweep 174) but his position for H III-40 (later NGC 4482) was poor (28 sec of RA too far east and 2' too far south) and Dreyer assumed Schwassman's and Frost's object was different than NGC 4482.  So NGC 4482 = IC 3427.  UGC, MCG and CGCG label this galaxy IC 3427, instead of NGC 4482.
+
+******************************
+
+
+IC 3438 = NGC 4492 = UGC 7656 = MCG +01-32-089 = PGC 41383
+
+12 30 59.7 +08 04 40; Vir
+
+V = 12.6;  Size 1.7'x1.6';  Surf Br = 13.5
+
+
+See observing notes for NGC 4492.
+
+
+Arnold Schwassmann found IC 3438 = Sn. 65 on 23 Jan 1900  using a plate taken with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  His position matches NGC 4492 (on a different plate he identified Sn. 64 as NGC 4492) and Dreyer recatalogued Sn. 65 as IC 3438 without noticing the positions were virtually identical. CGCG, UGC, CGCG, RC1, RC2, and PGC all equate IC 3438 = NGC 4492.
+
+******************************
+
+
+IC 3442 = CGCG 070-144 = MCG +02-32-111 = PGC 41435
+
+12 31 20.2 +14 06 55; Com
+
+V = 13.5;  Size 0.9'x0.7';  PA = 20°
+
+
+18" (5/12/07): this Virgo cluster dwarf was surprisingly faint and appeared extremely faint, small, round, 20" diameter, low surface brightness.  Located 20' SW of M88.
+
+
+Royal H. Frost discovered IC 3442 = F. 936 on a plate taken on 10 May 1904 at Harvard's Arequipa station using the 24" f/5.6 Bruce photographic refractor.  He noted "F, R, lbM, 0.2' dia."  It was also discovered on plates taken with the Crossley reflector in 1898-1900, but not reported until 1908 (Publications of Lick Observatory, Vol VIII) as #457 of 744 new nebulae.  Keeler wasn't mentioned in the IC II as the publication date was too late.
+
+******************************
+
+
+IC 3452 = NGC 4497 = UGC 7665 = MCG +02-32-113 = PGC 41457
+
+12 31 32.5 +11 37 29; Vir
+
+V = 12.5;  Size 2.0'x0.9';  Surf Br = 13.0;  PA = 65°
+
+
+See observing notes for NGC 4497.
+
+
+Arnold Schwassmann found IC 3452 = Sn. 199 on 8 Sep 1900 using a plate taken by Wolf with the 6" astrograph at the Königstuhl Observatory in Heidelberg.   His position (measured on two plates) matches NGC 4497, although both Schwassmann and Dreyer missed the earlier discovery.
+
+******************************
+
+
+IC 3468 = UGC 7681 = MCG +02-32-119 = CGCG 070-151 = LGG 289-084 = PGC 41552
+
+12 32 14.2 +10 15 05; Vir
+
+V = 13.2;  Size 1.2'x1.1'
+
+
+48" (2/28/19): at 488x; bright, fairly large, round, 1.0' diameter, strong sharp concentration with a very bright core.  A mag 15.5 star is 1.3' NE.  Located 12' WSW of a mag 6.3 20 Virginis.
+
+
+Royal H. Frost discovered IC 3468 = F. 948 on a plate taken on 10 May 1904 at Harvard's Arequipa Observatory in Peru.
+
+******************************
+
+
+IC 3470 = MCG +02-32-122 = CGCG 070-153 = LGG 285-041 = PGC 41573
+
+12 32 23.4 +11 15 47; Vir
+
+V = 13.7;  Size 0.9'x0.9'
+
+
+24" (5/20/17): fairly faint, small, round, 18" diameter, very weak concentration.  Picked up 6.6' NE of NGC 4503.
+
+
+24" (6/4/16): fairly faint, fairly small, round, 20" diameter, weak concentration.  Located 6.7' NE of NGC 4503.
+
+
+Royal Frost discovered IC 3470 = F. 950 on a plate taken on 10 May 1904 at Harvard's Arequipa Observatory in Peru.  He noted, "bM, magn 13.5."
+
+******************************
+
+
+IC 3474 = UGC 7687 = MCG +01-32-091 = CGCG 042-145 = FGC 1453 = LGG 287-011 = PGC 41599
+
+12 32 36.5 +02 39 41; Vir
+
+V = 14.2;  Size 2.3'x0.25';  Surf Br = 13.5;  PA = 36°
+
+
+24" (5/20/17): at 200x; very faint, moderately large, very elongated 5:1 SW-NE, 1.1'x0.2', very low surface brightness, no core or zones.  A mag 11 star is 1.5' SSE.  Located 23' due west of NGC 4527.
+
+
+Isaac Roberts discovered IC 3474 on a photograph taken 25 Mar 1892 with his 20-inch reflector.  He noted "pretty faint; elongated north following to south preceding; no structure or nucleus; 17th mag star on the north preceding side and a bright star on the south following side.  1894 March 25th."
+
+******************************
+
+
+IC 3476 = UGC 7695 = MCG +02-32-125 = VV 563 = PGC 41608
+
+12 32 41.9 +14 03 02; Com
+
+V = 12.7;  Size 2.1'x1.8';  Surf Br = 14.0;  PA = 30°
+
+
+48" (4/5/13): at 488x, this irregular galaxy appeared bright, fairly large, irregular, elongated ~2:1 SSW-NNE.  Unusual asymmetric appearance with an extension to the southwest, which includes a small HII knot (possibly double), roughly 0.6' SW of center.  The overall size is roughly 1.5'x0.8'.  The noted HII region was the site of SN 1970A.  Located 25' SSE of M88.
+
+
+24" (5/20/17): at 200x; fairly faint, moderately large, irregularly round, elongated ~4:3 SSW-NNE, 1.0'x0.7'.  Uneven surface brightness or knotty, very weak central brighening with no distinct core or nucleus.  Located 25' SSE of M88.  IC 3478 lies 8.8' N.
+
+
+17.5" (4/25/87): fairly faint, fairly small, slightly elongated ~N-S.  Appears diffuse with just a weak concentration.  Forms a pair with IC 3478 8' N.
+
+
+Arnold Schwassmann discovered IC 3476 = Sn. 288 on 22 Nov 1900 using a plate taken by Wolf with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on a plate taken at the Arequipa station on 10 May 1904.  He noted "Fan-shaped, 1.0' by 0.5', bM (Sch 288)."  Finally it was also discovered on plates taken with the Crossley reflector in 1898-1900, but not reported until 1908 (Publications of Lick Observatory, Vol VIII) as #464 of 744 new nebulae.
+
+******************************
+
+
+IC 3478 = UGC 7696 = MCG +02-32-126 = CGCG 070-158 = PGC 41614
+
+12 32 44.2 +14 11 46; Com
+
+V = 13.6;  Size 0.9'x0.8';  Surf Br = 13.0;  PA = 105°
+
+
+24" (5/20/17): faint, small, irregular round, diffuse, 0.4' diameter, very faint stellar nucleus.  Located 17' SE of M88 and 8.8' N of IC 3476.
+
+
+Arnold Schwassmann discovered IC 3478 = Sn. 289 on 22 Nov 1900 using a plate taken by Wolf with the 6" astrograph at the Königstuhl Observatory in Heidelberg.  Royal Frost also reported it on a plate taken at the Arequipa station on 10 May 1904 and noted "bM, magn. 15 (Sch. 289)."  Finally it was also discovered on plates taken with the Crossley reflector in 1898-1900, but not reported until 1908 (Publications of Lick Observatory, Vol VIII) as #465 of 744 new nebulae.
+
+******************************
+
+
+IC 3481 = Arp 175 NED1 = VV 43a = MCG +02-32-027 = CGCG 070-159 = PGC 41634 = Zwicky's Triplet
+
+12 32 52.2 +11 24 15; Vir
+
+V = 13.6;  Size 0.9'x0.8'
+
+
+24" (6/4/16): fairly faint to moderately bright, small, round, fairly high surface brightness, 20" diameter, fairly bright stellar nucleus.  Based on my size estimate, I only noticed the bright core region.
+
+
+IC 3481 is the first of three in a linear trio (Arp 175 = Zwicky's Triplet) with IC 3481A 1.4' SE and IC 3483 5.5' SE.  IC 3481A appeared faint, small, round, 12" diameter, low surface brightness.  On deep images, IC 3481 and 3481A are connected by a tidal plume and a huge arcing tail from IC 3481A reaches about 2/3 of the way to IC 3483.  But IC 3483 has a very low recessional velocity, so a true connection of all three galaxies is very unlikely.
+
+
+Royal Frost discovered IC 3481 = F. 953 on a plate taken 10 May 1904 at Harvard's Arequipa Observatory in Peru.  He noted, "bM, magn 13."
+
+
+Fritz Zwicky first discussed the interaction between IC 3481, 3481A and 3483, in his 1952 paper "Luminous Intergalactic Matter".  It was also discussed in his 1956 paper "Multiple Galaxies" (1956ErNW...29..344Z).  The trio is identified as "Zwicky's Triplet" in the RC2, although Arp 103 = CGCG 252-003, called "Zwicky's Connected System", is generally given this nickname.
+
+******************************
+
+
+IC 3483 = Arp 175 NED03 = VV 43c = MCG +02-32-129 = CGCG 070-160 = PGC 41670 = Zwicky's Triplet
+
+12 33 10.1 +11 20 50; Vir
+
+V = 14.5;  Size 0.85'x0.5';  Surf Br = 13.1;  PA = 177°
+
+
+24" (6/4/16): faint to fairly faint, elongated 5:2 N-S, 36"x15", low surface brightness.  Situated just  southwest of a mag 10 star.  Third in a linear trio (Zwicky's System or Triplet) with IC 3481A 4.1 NW and IC 3481 5.5' NW.  The latter two galaxy are interacting, but IC 3483 lies well in the foreground.
+
+
+Royal Frost discovered IC 3483 = F. 955, along with IC 3481, on a plate taken 10 May 1904 at Harvard's Arequipa Observatory in Peru.  He noted, "bM, magn 14."
+
+******************************
+
+
+IC 3499 = UGC 7712 = MCG +02-32-138 = CGCG 070-169 = LGG 289-086 = PGC 41738
+
+12 33 45.0 +10 59 45; Vir
+
+V = 13.3;  Size 1.4'x0.45';  Surf Br = 12.7;  PA = 125°
+
+
+24" (5/20/17): at 375x; fairly faint to moderately bright, very elongated 3:1 NW-SE, ~45"x15".  Contains a relatively large bright elongated core that gradually increases to a small bright nucleus with direct vision.  Situated 10' NW of mag 7.6 HD 109401.  IC 3510 lies 8.6' NE.
+
+
+Royal Frost discovered IC 3499 = F. 959 on a plate taken on 10 May 1904 at Harvard's Arequipa Observatory in Peru.  He noted, "bM, wisps extend each side 0.3' at 130°."
+
+******************************
+
+
+IC 3510 = UGC 7728 = MCG +02-32-142 = CGCG 070-173 = PGC 41803
+
+12 34 14.8 +11 04 17; Vir
+
+V = 14.2;  Size 0.8'x0.6';  PA = 0°
+
+
+24" (5/20/17): at 375x; very faint, fairly small, low surface brightniess, no structure, 15" diameter.  A mag 13.5 star at the northeast edge interferes with viewing.  IC 3499 lies 8.6' NE.
+
+
+Royal Frost discovered IC 3510 = F. 963 on a plate taken on 10 May 1904 at Harvard's Arequipa Observatory in Peru.  He noted, "bM, magn. 15, 10 magn. star nf."  His position is accurate.
+
+******************************
+
+
+IC 3528 = MCG +03-32-074A = CGCG 099-095 = Holm 421b = PGC 41882
+
+12 34 55.9 +15 33 56; Com
+
+V = 14.4;  Size 0.5'x0.5';  Surf Br = 12.7
+
+
+17.5" (5/23/87): extremely faint and small, round.  Forms the fainter member of a pair 2' ENE of NGC 4540.
+
+
+Royal H. Frost discovered IC 3528 = F. 970 on a plate taken on 7 May 1904 at Harvard's Arequipa station.  He noted "bM, magn 14."
+
+******************************
+
+
+IC 3545 = NGC 4555 = UGC 7762 = MCG +05-30-026 = CGCG 159-021 = PGC 41975
+
+12 35 41.2 +26 31 23; Com
+
+V = 12.1;  Size 1.9'x1.6';  Surf Br = 13.3;  PA = 125°
+
+
+See observing notes for NGC 4555.
+
+
+Max Wolf found IC 3545 = W. IV-211 on a Heidelberg plate taken on 23 Mar 1903.  His position is a perfect match with NGC 4555, discovered by William Herschel.  Wolf mistakenly labeled a much fainter nearby galaxy as NGC 4555, and assumed he had found a new one.  So, IC 3545 = NGC 4555.
+
+******************************
+
+
+IC 3546 = NGC 4565B = MCG +04-30-005 = CGCG 129-009 = CGCG 159-020 = Holm 426c = PGC 41976
+
+12 35 41.7 +26 13 20; Com
+
+V = 14.3;  Size 0.8'x0.4';  Surf Br = 12.9;  PA = 139°
+
+
+17.5" (5/13/88): very faint, very small, roundish.  Forms the east vertex of an equilateral triangle with two mag 15 stars 1.3' WSW and 1.3' WNW.  Located 17' NW of NGC 4565, though lies far in the background (~300 million l.y.)
+
+
+17.5" (5/10/86): faint, small, roundish at 222x.
+
+
+Max Wolf discovered IC 3546 = W. IV-222 on a Heidelberg plate taken 23 Mar 1903.  He reported "F, S, lE 150°."  It was also discovered on plates taken with the Crossley reflector in 1898-1900, but not reported until 1908 (Publications of Lick Observatory, Vol VIII) as #513 of 744 new nebulae.  Keeler wasn't mentioned in the IC II as it was already being published.
+
+******************************
+
+
+IC 3550 = NGC 4559C = Holm 423d
+
+12 35 52.1 +27 55 55; Com
+
+Size 0.2'
+
+
+48" (4/7/13): IC 3550 appeared as a faint, very small, 8" HII knot in NGC 4559.  Appears to be detached from the galaxy on the southwest side, 2.1' SW of center and 0.8' WNW of a mag 15 star = IC 3554.
+
+
+Max Wolf discovered IC 3550 = W. IV-218, along with IC 3551, 3552, 3554, 3555, 3563 and 3564, on a Heidelberg plate taken 23 Mar 1903.  He reported "F, S, lE 150°."  I don't know where the letter designation NGC 4559C originates.  It's not used in the RC1 or RC2.
+
+******************************
+
+
+IC 3551
+
+12 35 53.7 +27 57 51; Com
+
+Size 10"
+
+
+48" (4/7/13): IC 3551 is a faint, 10" HII knot on the west side of the core of NGC 4559, 0.9' WNW of center.
+
+
+Max Wolf discovered IC 3551 = W. IV-219 on a Heidelberg plate taken 23 Mar 1903.
+
+******************************
+
+
+IC 3554
+
+12 35 55.2 +27 55 38; Com
+
+
+48" (4/7/13): this mag 15 star is off the south side of NGC 4559, 2.0' from center.  IC 3550 = NGC 4559C, an HII region, lies 0.8' WNW.
+
+
+Max Wolf discovered IC 3554 = W. IV-222 on a Heidelberg plate taken 23 Mar 1903.  This is the only object he catalogued within NGC 4559 that is not an HII region or star cloud.
+
+******************************
+
+
+IC 3555
+
+12 35 55.9 +27 59 20; Com
+
+Size 0.3'x0.1'
+
+
+48" (4/7/13): IC 3555 is faint, 20"x10" HII region in NGC 4559, extended NW-SE, situated 1.8' NNW of center in the halo.  IC 3552 is a fainter, extremely compact HII knot less than 30" NW that was not seen.
+
+
+Max Wolf discovered IC 3555 = W. IV-223 on a Heidelberg plate taken 23 Mar 1903.  The identification is certain.
+
+******************************
+
+
+IC 3556 = MCG +05-30-029 = CGCG 159-025 = PGC 42005
+
+12 35 58.5 +26 57 57; Com
+
+V = 14.7;  Size 0.8'x0.5';  PA = 177°
+
+
+18" (5/12/07): very faint, small, slightly elongated N-S, 20"x15".  Located 2' SE of NGC 4558 in the NGC 4556 group.  This galaxy is misidentified in CGCG, MCG, UGC, and PGC as NGC 4563 or NGC 4558.
+
+
+Max Wolf discovered IC 3556 = W. IV-225 on a Heidelberg plate taken 23 Mar 1903.  He reported "F, S, R, bM."  Although his position is accurate, the NGC 2000, MCG and PGC misidentify IC 3556 as NGC 4558 and CGCG and UGC "Notes" misidentify IC 3556 as NGC 4563!
+
+******************************
+
+
+IC 3559 = MCG +05-30-031 = PGC 42012
+
+12 36 03.4 +26 59 14; Com
+
+V = 15.7;  Size 0.5'x0.2';  PA = 69°
+
+
+18" (5/12/07): this marginal object was only glimpsed knowing the exact location in the NGC 4556 group.  Located 2.4' E of NGC 4558 and 1.7' NE of IC 3556 in a tight group of a half dozen galaxies.
+
+
+Max Wolf discovered IC 3559 = W. IV-226 on a Heidelberg plate taken 23 Mar 1903.  He reported "vF, vS, R, bM."  MCG, PGC and HyperLeda omit the NGC label, although the identification is certain.
+
+******************************
+
+
+IC 3561 = MCG +05-30-032 = CGCG 159-026 = PGC 42013
+
+12 36 04.8 +26 53 58; Com
+
+V = 14.7;  Size 0.6'x0.2';  PA = 71°
+
+
+18" (5/12/07): very faint, very small, round, 20" diameter.  Located 4.2' ESE of NGC 4556 in a small group of galaxies.
+
+
+Max Wolf discovered IC 3561 = W. IV-228 on a Heidelberg plate taken 23 Mar 1903.  He reported "cF, vS, R, bM *."
+
+******************************
+
+
+IC 3563
+
+12 36 07.2  +27 55 38; Com
+
+Size 6"
+
+
+48" (4/7/13): IC 3563 is a very compact HII region and IC 3564 a star association attached at its east side.  Both objects were easily visible, but not resolved, as a fairly faint 20" patch near the southeast end of NGC 4559, 3' from center.
+
+
+Max Wolf discovered IC 3563 = W. IV-229 on a Heidelberg plate taken 23 Mar 1903.
+
+******************************
+
+
+IC 3564
+
+12 36 08.1 +27 55 42; Com
+
+Size 15"
+
+
+48" (4/7/13): IC 3564 is a stellar association attached to IC 3563 near the southeast end of NGC 4559.  At 375x, both objects were easily visible, but not resolved, as a fairly faint 20" patch, 3' from center.
+
+
+Max Wolf discovered IC 3564 = W. IV-230 on a Heidelberg plate taken 23 Mar 1903.
+
+******************************
+
+
+IC 3568 = PK 123+34.1 = UGC 7731 = PGC 41662 = PN G123.6+34.5 = Theoretician's Planetary = Lemon Slice Nebula = Baby Eskimo Nebula
+
+12 33 06.7 +82 33 50; Cam
+
+V = 10.6;  Size 18"
+
+
+48" (11/1/13): at 488x unfiltered contains an extremely high surface brightness inner disc, ~8" diameter.  The mag 13.5 central star was only occasionally visible in very soft seeing.  A fairly bright halo increases the diameter 2.5 times to roughly 20".  A mag 13 star is just off the west side, ~15" from center (forms the double A 9001).
+
+
+18" (11/7/07): at 450x unfiltered a very bright, high surface brightness disc 6"-8" in diameter is surrounded by a much fainter 15"-18" halo.  With direct vision, the difficult mag 13.5 central star was sometimes visible within the very high surface brightness glow.  The outer envelope appeared round, though with a uneven or fuzzy edge.  A mag 13.5-14 star is close off the west edge just 15" from the center and a mag 11.5 star lies 1.6' SSW.
+
+
+18" (2/16/07): at 323x unfiltered, this small planetary is dominated by a 6"-8" high surface brightness disc.  Surrounding this well-defined disc is a much fainter, round outer halo of 15"-18".  A mag 13.5 star is just off the west edge of this outer halo.  With direct vision what appeared to be the central star occasionally popped out in the center of the very high surface brightness glow.
+
+
+17.5" (5/15/99): at 220x unfiltered, appears as a very small, high surface brightness disc, ~10" diameter with a mag 13.5-14 star close off the west edge.  At 380x, the disc is concentrated to a quasi-stellar nucleus, but it was difficult to distinguish the central star due to the high surface brightness glow.  Surrounding the central region is a much fainter, round, outer shell that increases the diameter to 15"-20".  Seeing not steady enough for higher power.
+
+
+13.1": bright, small, round, high surface brightness disc 15" diameter.  A mag 13.5 star is almost in contact at the west edge 15" from the center.
+
+
+8": just non-stellar at 100x, definite disc seen at 165x.  This planetary can take high power due to its high surface brightness.
+
+
+Robert G. Aitken discovered IC 3568 visually on 31 Aug 1900 while examining comet Borrelly-Brooks with the 12-inch refractor at Lick Observatory. The next night he examined it with the 36-inch and found a nebulous star or planetary with a mag 10.5-11 central star (BD +83°.357) within a 5"-6" halo.  He noted it formed a 14.8" double (A 9001) with a mag 13 star.  This object is Aiten's only discovery in the IC.
+
+
+Based on Crossley photographs at Lick, Curtis (1918) reported "the nucleus is surrounded by very bright matter in a disk 18" in diameter, apparently perfectly round, and fading out a little at the edges."
+
+
+In the 1956 book "Gaseous Nebulae", Lawrence Aller stated the "theoretician's planetary nebula" was most closely approximated  by IC 3568.  The 1987 study "The shapes and shaping of the planetary nebulae IC 3568, NGC 40, and NGC 6543" by Balick et al adds "If IC 3568 did not exist, it might have been created by theoreticians".
+
+
+Brian Skiff notes the UGC misidentification (UGC 7731) as a galaxy.  The UGC description is "Compact or *" and description "alm compl stellar on PA prints, prob extr compact gx."  Because of the misclassification in UGC, this planetary is has the galaxy designation PGC 41662, though HyperLeda now shows the object type as a planetary.
+
+******************************
+
+
+IC 3569 = NGC 4561 = UGC 7768 = MCG +03-32-076 = CGCG 099-098 = VV 571 = LGG 289-055 = PGC 42020
+
+12 36 08.2 +19 19 20; Com
+
+V = 12.5;  Size 1.5'x1.3';  Surf Br = 13.0;  PA = 30°
+
+
+See observing notes for NGC 4561.
+
+
+Royal Frost found IC 3569 = F.978 on a plate taken 9 May 1904 at Arequipa on a Bruce 24-inch plate.  He reported it in Harvard Annals 60 as new, though his position is just 11 seconds of RA east of NGC 4561.  Dreyer apparently thought it was new, but NGC 4561 = IC 3569.
+
+******************************
+
+
+IC 3576 = DDO 138 = UGC 7781 = MCG +01-32-112 = CGCG 042-176 = PGC 42074
+
+12 36 37.7 +06 37 15; Vir
+
+V = 13.5;  Size 2.3'x2.1';  Surf Br = 15.0
+
+
+24" (5/20/17): very faint, moderately large, very diffuse, very low surface brightness, ~1' diameter.  On the SDSS, this galaxy appears to be a blue, barred Magellanic-type irregular.
+
+
+Arnold Schwassmann discovered IC 3576 on a plate taken 8 Nov 1899 with the 6" astrograph at the Konigstuhl Observatory in Heidelberg.  His position is accurate.
+
+******************************
+
+
+IC 3583 = UGC 7784 = MCG +02-32-154 = CGCG 070-191 = PGC 42081
+
+12 36 43.5 +13 15 34; Vir
+
+V = 12.8;  Size 2.2'x1.1';  Surf Br = 13.6;  PA = 0°
+
+
+24" (6/4/16): at 322x; faint, fairly small, roughly oval 5:3 N-S, low even surface brightness, diffuse appearance with no structure.  A mag 13 star is at the southeast edge and a mag 11 star is 1' NE of the geometric center.  Located 6' NNW of M90.  This irregular galaxy is interacting with M90 (forming Arp 76), and apparently disturbing the outer arm on the northeast side, which appears somewhat stretched towards IC 3583.
+
+
+Isaac Roberts discovered IC 3583 on a photograph taken 29 Apr 1892 with a 20" reflector at his Starfield observatory in Crowborough, Sussex.  He described "a streak of nebulosity extending in north preceding direction from a 13th mag star; two 12th mag stars near, and the faint comes of the one on the north following side seems to touch the nebulosity."  Frost also catalogued it based on a plate taken 10 May 1904 at Harvard's Arequipa station.  He noted "Elliptical, 1.1' x 0.2' at 185°, a 13 mag * f[ollows] 2 or 3 s[econds]."
+
+******************************
+
+
+IC 3585 = UGC 7783 = MCG +05-30-035 = CGCG 159-028 = PGC 42067
+
+12 36 39.9 +26 49 48; Com
+
+V = 13.4;  Size 1.1'x0.9';  Surf Br = 13.2;  PA = 126°
+
+
+18" (5/12/07): faint, small, round, 20" diameter, weak even concentration.  A mag 12-12.5 star lies 0.8' S.  Located 13' SE of NGC 4556 in a group.
+
+
+Max Wolf discovered IC 3585 = W. IV-239 on a Heidelberg plate taken 23 Mar 1903.  He noted "cF, S, neb *."
+
+******************************
+
+
+IC 3588 = NGC 4571 = UGC 7788 = MCG +02-32-156 = CGCG 070-194 = PGC 42100
+
+12 36 56.4 +14 13 02; Com
+
+V = 11.3;  Size 3.6'x3.2';  Surf Br = 13.8;  PA = 55°
+
+
+See observing notes for NGC 4571.
+
+
+Arnold Schwassmann found IC 3588 = Sn. 293 on 12 Sep 1900 using a plate taken by Wolf the 6" astrograph at the Königstuhl Observatory in Heidelberg.  His position matches NGC 4571, although he misidentified the nearby 14th mag star to the west (Sn. 292) as NGC 4571 and assumed Sn. 293 was new, despite a good position in the NGC.  So, IC 3588 = NGC 4571.
+
+******************************
+
+
+IC 3600 = MCG +05-30-041 = CGCG 159-035 = PGC 42161
+
+12 37 41.1 +27 07 44; Com
+
+Size 0.7'x0.4';  PA = 134°
+
+
+18" (5/12/07): very faint, extremely small, round, 10" diameter.  Located to the NE of the core of the NGC 4556 group (29' NE of NGC 4556).
+
+
+Max Wolf discovered IC 3600 = W. IV-240 on a Heidelberg plate taken 23 Mar 1903.  He noted "F, vS, neb *."
+
+******************************
+
+
+IC 3639 = ESO 381-008 = MCG -06-28-011 = AM 1238-362 NED2 = Tol 74 = LGG 297-002 = KTS 45B = PGC 42504
+
+12 40 52.9 -36 45 21; Cen
+
+V = 12.2;  Size 1.2'x1.2';  Surf Br = 12.4
+
+
+24" (5/22/17): moderately bright, fairly small, round, 0.6' diameter, small bright nucleus.  A mag 13.5 star is off the southwest edge [37" from center].  IC 3639 forms a pair with ring galaxy ESO 381-009 1.8' NE.  ESO 381-006, a thin edge-on 2.6' NW, was not seen.  The trio forms KTS 45.
+
+
+ESO 381-009 appeared very faint, very small, roundish, 20" diameter.  Only the core/nucleus was seen and not the halo/ring. A mag 13.7 is at the east edge [25" from center].
+
+
+Lewis Swift discovered IC 3639 = Sw. XI-140 on 15 Feb 1898 and recorded "pF; pS; 2 or 3 vF st in contact."  Herbert Howe reobserved this object in 1900 and reported "Instead of "2 or 3 vF st in contact," I noticed only one of mag 12.5 south and a little preceding."  Howe's micrometric position is accurate.
+
+******************************
+
+
+IC 3653 = MCG +02-32-178 = CGCG 070-215 = PGC 42550
+
+12 41 15.7 +11 23 14; Vir
+
+V = 13.6;  Size 0.7'x0.7'
+
+
+24" (5/22/17): at 375x; fairly faint, fairly small, round, 20" diameter.  Moderate surface brightness with only a broad, weak concentration and no distinct core/nucleus.  Located 19' SW of M59.
+
+
+Royal Frost discovered IC 3653 on taken 10 May 1904.  His position is accurate.
+
+******************************
+
+
+IC 3663 = CGCG 070-217 = PGC 42586
+
+12 41 39.4 +12 14 51; Vir
+
+V = 15.1;  Size 0.9'x0.55';  Surf Br = 14.1;  PA = 175°
+
+
+24" (5/24/20): at 225x; extremely faint, small, roundish, very low even surface brightness, 15"-20" diameter.  Located 19' WSW of NGC 4640 and 22' SSW of IC 810.
+
+
+Royal Frost discovered IC 3663 = F. 1014 on a plate taken at Harvard's Arequipa Station on 10 May 1904.  This galaxy is not in PGC and HyperLEDA fails to label PGC 42586 as IC 3663.  Corwin notes IC 3663 has sometimes been misapplied to LEDA 1405025, which is 5.6' SSW.  This latter galaxy is smaller but has a higher surface brightness.
+
+******************************
+
+
+IC 3667 = NGC 4618 = Arp 23 = VV 73 = Holm 438a = UGC 7853 = MCG +07-26-037 = CGCG 216-017 = PGC 42575
+
+12 41 32.5 +41 09 02; CVn
+
+V = 10.8;  Size 4.2'x3.4';  Surf Br = 13.5;  PA = 25°
+
+
+See observing notes for NGC 4618.
+
+
+Max Wolf found IC 3667 = W. V. 1 on a Heidelberg plate taken 21 Mar 1903. His position is identical to NGC 4618, so apparently both Wolf and Dreyer completely missed the earlier identity.
+
+******************************
+
+
+IC 3668 = 2MASX J12413292+4107257
+
+12 41 32.9 +41 07 26; CVn
+
+V = 14.9;  Size 0.4'x0.2';  PA = 31°
+
+
+48" (4/7/13): IC 3668 is a bright, elongated HII region(s) at the south end of the singe prominent arm of NGC 4618 = Arp 23, ~20"x10".  Situated 1.7' S of center.
+
+
+18" (5/15/10): extending mostly to the south side of the central bar of NGC 4618 is a faint, beefy arm that often appears detached and barely connected on the east end of the central region.  This broad arm winds counterclockwise from east to south roughly 100° with IC 3668, the brightest region or knot, near the south end of the arm, ~1.8' from the center of the bar.
+
+
+William Herschel possibly discovered IC 3668 = Wolf V-2 on 9 Apr 1787 in his observation of NGC 4618.  He recorded "Two. The most north considerably or vB.  The most south pB.  Their nebulosities run into each other; the most north vmbM."  The southern object may be IC 3668, the HII complex on the south end of the galaxy .  John Herschel also called this galaxy double.  On 12 Apr 1830 he logged, "Double; a B, L nebula, gbM, with a F one attached, 70° sf, so as to run together into one; moonlight."  JH included two GC designations, but Dreyer combined them in the NGC.
+
+
+NGC 4618 was observed several times at Birr Castle and two knots were clearly noted on the south side, probably IC 3668 and 3669.  On 10 Apr 1855, R.J. Mitchell wrote, "The s branch is patchy, having 2 B spots near p end."  Three nights later he added "Seen as before, I susp a * in the f of the 2 knots in s branch."  On 27 Mar 1868, C.E. Burton remarked, "The s end of annulus suspected to have two B patches in it."  Max Wolf independently discovered IC 3668 on a Heidelberg plate taken 21 Mar 1903 and is credited in the IC.  He noted "pF, pS, iF, N."
+
+******************************
+
+
+IC 3669
+
+12 41 35.9 +41 08 10; CVn
+
+
+48" (4/7/13): IC 3669 is a brighter arc or section of the single broad arm on the southeast side about 1' SE of the core of NGC 4618.
+
+
+R.J. Mitchell probably discovered IC 3669, along with IC 3668, during an observation of NGC 4618.  On 10 Apr 1855, he wrote, "The s branch is patchy, having 2 B spots near p end."  Three nights later he added "Seen as before, I susp a * in the f of the 2 knots in s branch."  A later observation in 1868 by C.E. Burton also noted, "The s end of annulus suspected to have two B patches in it.; S st inv."   Max Wolf independently discovered IC 3669 = W. V-3 on a Heidelberg plate taken 21 Mar 1903.  Wolf is credited with the discovery in the IC.
+
+******************************
+
+
+IC 3672 = IC 809 = UGC 7863 = MCG +02-32-184 = CGCG 070-225 = PGC 42638
+
+12 42 08.7 +11 45 15; Vir
+
+V = 13.7;  Size 1.0'x0.9'
+
+
+48" (4/19/17): at 697x; moderately to fairly bright, fairly large, slightly elongated 5:4 NW-SE, contains a large brighter core but no nucleus, and a low surface brightness outer halo ~50"x40".  A mag 10.9 star is 1.2' SSW.  Picked up 6.6' NNE of M59.
+
+
+24" (5/22/17): at 375x; fairly faint, fairly small, round, 25" diameter, fairly even surface brightness.  Situated 1.2' NNE of an 11th magnitude star and 6.5' NNE of M59.
+
+
+Arnold Schwassmann found IC 3672 = Sn. 213 on a plate taken by Max Wolf with a 6-inch astrograph at the Heidelberg Observatory in Sep 1900.  He noted "F, S, R, li[ke] *12."  His position (2 measures) matches IC 809 = UGC 7863, which was discovered by Swift on 6 May 1888.  Despite the earlier discovery by Swift, CGCG, UGC and MCG all identify this galaxy as IC 3672, though IC 809 should be the primary designation.
+
+******************************
+
+
+IC 3675 = NGC 4625 = Holm 438b = UGC 7861 = MCG +07-26-038 = CGCG 216-018 = PGC 42607
+
+12 41 52.7 +41 16 26; CVn
+
+V = 12.3;  Size 2.2'x1.9';  Surf Br = 13.8
+
+
+See observing notes for NGC 4625.
+
+
+Max Wolf found IC 3675 = W. V. 4 on a Heidelberg plate taken on 21 Mar 1803.  His position matches NGC 4625, but both Wolf and Dreyer missed the equivalence.  So, IC 3675 = NGC 4625 (similarly, IC 3667 = NGC 4618).
+
+******************************
+
+
+IC 3688 = NGC 4633 = UGC 7874 = MCG +03-32-085 = CGCG 099-111 = CGCG 100-001 = Holm 445b = PGC 42699
+
+12 42 37.2 +14 21 31; Com
+
+V = 13.1;  Size 2.1'x0.9';  Surf Br = 13.6;  PA = 30°
+
+
+See observing notes for NGC 4633.
+
+
+Arnold Schwassmann found IC 3688 = Sn. 295 on 23 Nov 1900 using a plate taken by Wolf with a 6" astrograph at the Heidelberg Observatory.  His position matches NGC 4633, discovered earlier by Edward Swift.  Lewis and Dreyer assumed Sn. 295 was new, possibly due to the discrepancy in RA. All modern sources equate NGC 4633 = IC 3688.
+
+******************************
+
+
+IC 3791 = NGC 4695 = UGC 7966 = MCG +09-21-048 = CGCG 270-023 = LGG 300-004 = PGC 43173
+
+12 47 32.1 +54 22 29; UMa
+
+V = 13.4;  Size 1.1'x0.7';  Surf Br = 12.9;  PA = 80°
+
+
+See observing notes for NGC 4695.
+
+
+Lewis Swift found IC 3791 = Sw. XI-141 on 23 May 1897 and reported "eeeF; S; cE; [NGC 4732] 4732 in field."  There is nothing at his position but 5' S is NGC 4695.  NGC 4732 is 1.5° S of this field, but Harold Corwin comments he probably was referring to NGC 4686.  See Corwin's notes.
+
+******************************
+
+
+IC 3804 = NGC 4711 = UGC 7973 = MCG +06-28-033 = CGCG 188-022 = PGC 43286
+
+12 48 45.9 +35 19 58; CVn
+
+V = 13.4;  Size 1.5'x0.9';  Surf Br = 13.5;  PA = 40°
+
+
+16" LX200 (4/14/07): fairly faint, moderately large, elongated 2:1 SW-NE, broad weak concentration.  NGC 4687 lies 17' W.  Located 6.2' W of a mag 7.8 star.
+
+
+17.5": fairly faint, elongated SW-NE, gradually brighter halo.  Located 6.2' WNW of mag 7.7 SAO 63208.
+
+
+17.5": fairly faint, fairly small, elongated SSW-NNE, weak concentration.  Located 7' W of mag 8 star.
+
+
+Max Wolf found IC 3804 on a Heidelberg plate taken on 21 Mar 1903. His position and description matches NGC 4711, but both Wolf and Dreyer missed the equivalence.  CGCG, UGC, and MCG use the IC desgination, though the primary identity should by NGC 4711.  This confusion was noted by Malcolm Thomson as well as Harold Corwin.
+
+******************************
+
+
+IC 3806 = UGC 7974 = MCG +03-33-006 = CGCG 100-008 = PGC 43303
+
+12 48 55.5 +14 54 28; Com
+
+V = 13.6;  Size 1.5'x0.5';  Surf Br = 13.2;  PA = 177°
+
+
+17.5" (5/14/94): faint, small, elongated 2:1 N-S, 1.0'x0.5', no concentration.  A mag 10 star is 9.1' SSE.  Picked up viewing NGC 4710 19' NE.
+
+
+Royal H. Frost discovered IC 3806 = F. 1039 on two plates taken from May 1904 at Harvard's Arequipa station.  He noted "R, 0.2' diam, bM, mag 13.5."
+
+******************************
+
+
+IC 3827 = MCG -02-33-021 = IC 3838 = PGC 43487
+
+12 50 52.1 -14 29 31; Crv
+
+V = 13.4;  Size 1.0'x0.7';  Surf Br = 12.8;  PA = 60°
+
+
+18" (5/16/09): very faint, small, slightly elongated ~N-S, 24"x20".  A mag 14.7 star is just 34' S of center.  Located 10' S of the NGC 4724/4727 duo.  IC 3831 lies 8' SE.
+
+
+Herbert Howe found IC 3827 = Ho I-15 on 20 Apr 1898.  He gave a micrometric position in the notes to list III (MN LX. 2), though it's 5.5 seconds of time too large.  According to Harold Corwin, Bigourdan's #304 (later IC 3838) is the first observation on 14 Apr 1895, though his RA is 1 minute too large due to an error with the offset star.
+
+******************************
+
+
+IC 3831 = MCG -02-33-027 = PGC 43536
+
+12 51 18.6 -14 34 25; Crv
+
+V = 12.6;  Size 1.4'x0.9';  Surf Br = 12.8;  PA = 151°
+
+
+18" (5/16/09): fairly faint, fairly small, elongated 5:3 NW-SE, gradually increases to the center with a small bright core.  IC 3827 lies 8' NW.
+
+
+Guillaume Bigourdan discovered IC 3831 = Big. 301 = Ho II-10 on 14 Apr 1895.  Herbert Howe independently discovered it in on 11 May 1899, noted "F; vS; R" and measured an accurate position (used in the IC 2).
+
+******************************
+
+
+IC 3833 = NGC 4722 = MCG -02-33-031 = LGG 307-003 = PGC 43560
+
+12 51 32.3 -13 19 48; Crv
+
+V = 12.9;  Size 1.5'x0.7';  Surf Br = 12.8;  PA = 35°
+
+
+18" (5/16/09): moderately bright, moderately large, elongated 5:2  SSW-NNE, 1.2'x0.5'.  Contains a round bright core that increases to the center with direct vision.
+
+
+17.5" (3/16/96): fairly faint, fairly small, elongated 2:1 SW-NE, 1.0'x0.4', small bright core.  A mag 14 star lies 1.1' E of center.  In field with NGC 4748 11' SE.
+
+
+Guillaume Bigourdan found IC 3833 = Big. 302 on 15 Apr 1895.  His position matches PGC 43560, which was likely one of two galaxies discovered by Wilhelm Tempel in 1882 and catalogued as NGC 4722 and NGC 4723.  Herbert Howe searched the field in 1898 with the 20" refractor in Denver looking for NGC 4722/4723 and reported finding only a single nebula.  His position (given in the IC 2 Notes section) matches IC 3833.  See notes for NGC 4723 and Harold Corwin's identification notes for the full story.
+
+******************************
+
+
+IC 3834 = NGC 4740 = MCG -02-33-030 = PGC 43559
+
+12 51 32.3 -14 13 15; Crv
+
+V = 13.6;  Size 0.8'x0.4';  Surf Br = 12.3;  PA = 85°
+
+
+18" (5/16/09): faint, small, round, low even surface brightness.  A mag 15 star lies 43" W of center.  Located 11' NE of NGC 4727/4724 pair.
+
+
+Guillaume Bigourdan discovered IC 3834 = Big. 302 on 14 Apr 1895.  His position matches PGC 43559, a galaxy often taken as NGC 4740 or NGC 4726.  Herbert Howe searched for NGC 4726 in 1899 but found IC 3834, which he assumed was NGC 4726. Dreyer gave his position in the IC 2 Notes and modern catalogues (with the exception of NED) identify IC 3834 as NGC 4726.  Harold Corwin concludes that NGC 4740, found by Swift, is a reobservation of NGC 4727.  See NGC 4726 and 4740 for more.
+
+******************************
+
+
+IC 3864 = LEDA 4346459
+
+12 54 12.3 +18 57 05; Com
+
+V = 17.9;  Size 0.2'x0.15';  PA = 146°
+
+
+48" (4/2/11): IC 3864 is one of the very faintest entries in the entire IC.  This galaxy is located at the west end of AGC 1638 in a 5' oval group containing a half-dozen members of AGC 1638.  Extremely faint and small, 5" diameter.  A brighter mag 16.4 star lies 30" S.
+
+
+Max Wolf discovered IC 3864 = W. VI-80, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, iF, * 14 s 30"; many other neb about."
+
+******************************
+
+
+IC 3867 = LEDA 87471
+
+12 54 19.6 +18 56 30; Com
+
+V = 15.6;  Size 0.5'x0.3';  PA = 115°
+
+
+48" (4/2/11): fairly faint, small, oval 4:3 NW-SE, 20"x15".  Brightest of 7 in AGC 1638 along with IC 3864, IC 3869, IC 3871, IC 3872, IC 3874 and IC 3886.  Six of these galaxies (with the exception of IC 3886) form the outline of a 5' oval centered about 6' WSW of a mag 10 star.  Jimi Lowrey and I tracked down this group as IC 3886, IC 3864 and IC 3874 are among the faintest galaxies in the IC (discovered photographically, of course)!
+
+
+Max Wolf discovered IC 3867 = W. VI-83, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, S, iF, N."
+
+******************************
+
+
+IC 3869 = LEDA 87472
+
+12 54 21.3 +18 58 17; Com
+
+V = 16.4;  Size 0.3'x0.2'
+
+
+48" (4/2/11): very faint, very small, elongated 3:2 SW-NE, 0.3'x0.2'.  Located 1.8' NNE of IC 3867 in a faint group of IC galaxies within AGC 1638.
+
+
+Max Wolf discovered IC 3869 = W. VI-85, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, iF, N."
+
+******************************
+
+
+IC 3871 = LEDA 3798192
+
+12 54 25.7 +18 55 45; Com
+
+V = 15.9;  Size 0.4'x0.4';  PA = 13°
+
+
+48" (4/2/11): faint, very small, round, 9" diameter.  Located 1.6' SE of IC 3867 in a 5' group of 6 IC galaxies at the west side of AGC 1638
+
+
+Max Wolf discovered IC 3871 = W. VI-87, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, R, bM."
+
+******************************
+
+
+IC 3872 = LEDA 3798227
+
+12 54 30.6 +18 57 47; Com
+
+V = 15.9;  Size 0.3'x0.3'
+
+
+48" (4/2/11): faint, very small, round, 12" diameter.  IC 3874 lies 1' ESE.  A mag 16-16.5 star lies 1.2' ESE. Located on the west side of AGC 1638 in a 5' group of a half-dozen IC galaxies.
+
+
+Max Wolf discovered IC 3872 = W. VI-88, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, iF, N."
+
+******************************
+
+
+IC 3874 = LEDA 87473
+
+12 54 34.4 +18 57 25 ; Com
+
+V = 15.9;  Size 0.4'x0.3';  PA = 101°
+
+
+48" (4/2/11): faint, very small, round, 12" diameter.  Similar IC 3874 lies 1' WNW.  This pair of galaxies is at the east end of 5' circlet of 6 IC galaxies on the west side of AGC 1638.  A mag 16.3 star lies 22" SE of center.
+
+
+Max Wolf discovered IC 3874 = W. VI-90, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, iF, * 15 sf 0.3'."
+
+******************************
+
+
+IC 3886 = LEDA 4346995
+
+12 55 00.3 +19 00 42; Com
+
+V = 17.4;  Size 0.2'x0.2'
+
+
+48" (4/2/11): extremely faint and small, 6" diameter.  This galaxy was chosen to track down as it one of the faintest galaxies listed in the IC!  Located 17' ESE of mag 7.1 HD 112084 and 3.4' NE of a mag 10.3 star.  This galaxy is on the NE side of AGC 1638 with several additional faint but easier IC galaxies packed into an compact arrangement (ring) ~9' SW.
+
+
+Max Wolf discovered IC 3886 = W. VI-98, along with several other faint IC galaxies within AGC 1638, on a Heidelberg plate taken 27 Jan 1904.  He reported "vF, vS, iF, bM.", with the note "Ch!! conn 1'n, &&, viF."  Harold Corwin translates this description as "Very remarkable chain connecting 1 arcmin north, very irregular figure."  Although there are two stars 1' north, they are not connected in any way to this extremely faint galaxy.
+
+******************************
+
+
+IC 3896 = ESO 219-012 = PGC 44180
+
+12 56 43.2 -50 20 49; Cen
+
+V = 10.9;  Size 2.5'x1.9';  Surf Br = 12.6;  PA = 10°
+
+
+24" (4/11/08 - Magellan Observatory, Australia): at 260x, this galaxy appeared fairly bright, moderately large, elongated 3:2 ~N-S, 1.2'x0.8'.  Sharply concentrated with a very small, very bright core ~10" diameter.  IC 3896A lies 20' NW and ESO 219-021, a large elongated galaxy, lies 54' E.  This bright IC galaxy is located 1.7° SW of NGC 4945.
+
+
+Royal H. Frost discovered IC 3896 = F. 1040 on two plates taken in May 1904 at Harvard's Arequipa station.  He noted "bM, magn 14."
+
+******************************
+
+
+IC 3900 = MCG +05-31-009 = CGCG 160-019 = PGC 44068 = PGC 1802312
+
+12 55 41.4 +27 15 02; Com
+
+V = 14.0;  Size 0.7'x0.5';  Surf Br = 12.7;  PA = 177°
+
+
+17.5" (5/14/94): fairly faint, very small, round, high surface brightness, weakly concentrated, occasional stellar nucleus.  Collinear with a mag 13 star and a mag 10.5 star 1.3' S and 3.1' S of center, respectively.  Easily picked up 14.5' SW of NGC 4798 in AGC 1656.
+
+
+Stephane Javelle discovered IC 3900 = J. 3-1228 on 25 Jun 1903 with the 30-inch refractor at the Nice Observatory.
+
+******************************
+
+
+IC 3935 = NGC 4849 = UGC 8086 = MCG +05-31-044 = CGCG 160-056 = Holm 495a = PGC 44424
+
+12 58 12.7 +26 23 49; Com
+
+V = 12.8;  Size 1.7'x1.3';  Surf Br = 13.6;  PA = 175°
+
+
+See observing notes for NGC 4849.
+
+
+Stephane Javelle found IC 3935 = J. 3-1230 on 12 Jun 1895.  His position matches UGC 8086.  This galaxy was originally discovered by Truman Safford on 16 May 1866 and listed as #23 in his discovery list (later NGC 4849).  His RA was 8 seconds too large.  Both d'Arrest and Spitaler also measured this galaxy, but neither gave an accurate position.  CGCG mislabels this galaxy as IC 838 (a companion galaxy 1.9' north-northeast).
+
+******************************
+
+
+IC 3943 = CGCG 160-069 = PGC 44485
+
+12 58 36.4 +28 06 49; Com
+
+V = 14.5;  Size 0.7'x0.2';  PA = 59°
+
+
+24" (6/3/19): at 322x; faint, fairly small, elongated 2:1 or 5:2 SW-NE, ~24"x10".  Located 3.8' SE of NGC 4851 and directly between two stars at 1.3' separation.
+
+
+18" (4/20/12): at 282x this Coma cluster member appeared faint, small, elongated 2:1 SW-NE, 21"x10".  Situated at the midpoint of a mag 14.8 star 1.3' SSW and a mag 13.5 star 1.3' NNE.
+
+
+17.5" (4/21/90): very faint, very small, slightly elongated.  Located between two mag 13 and 15 stars.  Member of AGC 1656 with the NGC 4858/NGC 4860 pair 6' E.
+
+
+Hermann Kobold discovered IC 3943 = K. 2-7 on 28 May 1895 with the 18-inch refractor at the Strasbourg Observatory.
+
+******************************
+
+
+IC 3946 = MCG +05-31-050 = CGCG 160-210 = PGC 44508
+
+12 58 48.7 +27 48 37; Com
+
+V = 14.0;  Size 0.7'x0.4';  Surf Br = 12.5;  PA = 80°
+
+
+17.5" (4/21/90): very faint, small, elongated 2:1 WSW-ENE.  A mag 14 star is 1.1' NW.  Located in AGC 1656 with IC 3949 2.1' NE and IC 3947 1.7' SSE.
+
+
+Hermann Kobold discovered IC 3946 = K. 2-8, along with IC 3947 and 3949, on 12 May 1896 with the 18-inch refractor at the Strasbourg Observatory.  He noted "F, pS, bM." and measured an accurate micrometric position.
+
+******************************
+
+
+IC 3947 = CGCG 160-211 = PGC 44515
+
+12 58 52.1 +27 47 05; Com
+
+V = 14.5;  Size 0.3'x0.2'
+
+
+17.5" (4/21/90): extremely faint and small, round.  Located in AGC 1656 with IC 3946 1.7' NNW and IC 3949 3.0' NNE.
+
+
+Hermann Kobold discovered IC 3947 = K. 2-9, along with IC 3946 and 3949, on 12 May 1896 with the 18-inch refractor at the Strasbourg Observatory.  His micrometric position matches CGCG 160-211.
+
+******************************
+
+
+IC 3949 = UGC 8096 = MCG +05-31-052 = PGC 44524
+
+12 58 56.1 +27 49 59; Com
+
+V = 14.3;  Size 1.0'x0.2';  Surf Br = 12.3;  PA = 73°
+
+
+17.5" (4/21/90): very faint, fairly small, edge-on SW-NE, weak concentration.  A mag 12.5 star is 1.5' N.  Located in a rich section of AGC 1656 with IC 3946 2.1' SW, IC 3960 2.9' NE and IC 3947 3.0' SSW.
+
+
+13.1" (4/29/84): very faint, elongated.  Situated between two stars in AGC 1656.
+
+
+Hermann Kobold discovered IC 3949 = K. 2-10, along with IC 3946 and 3947, on 12 May 1896 with the 18-inch refractor at the Strasbourg Observatory.  He described it as "F, pS, E."
+
+******************************
+
+
+IC 3955 = CGCG 160-216 = PGC 44544
+
+12 59 06.0 +27 59 48; Com
+
+V = 14.4;  Size 0.6'x0.4';  PA = 41°
+
+
+18" (4/20/12): faint, small, elongated 5:3 SSW-NNE, ~20"x12".  Located 7' WNW of NGC 4872 and 2' NW of NGC 4864/4867 in the Coma cluster.
+
+
+17.5" (4/21/90): extremely faint and small, round.  Located 2' NW of the NGC 4864/NGC 4867 pair and 7' WNW of NGC 4872 in a rich portion of AGC 1656.
+
+
+Hermann Kobold discovered IC 3955 = K. 2-11 on 22 Apr 1895 with the 18-inch refractor at Strasbourg and recorded "vF, S, N 14 mag."
+
+******************************
+
+
+IC 3957 = MCG +05-31-060 = CGCG 160-217 = PGC 44554
+
+12 59 07.5 +27 46 04; Com
+
+V = 14.8;  Size 0.4'x0.4';  Surf Br = 12.7
+
+
+48" (5/10/18): at 610x; moderately bright, fairly small, round, 0.3' diameter, very small bright nucleus.  Forms the SW vertex of a small triangle with similar IC 5959 and IC 3963.  LEDA 1817584 is close off the NW side [18" from center].  The companion was faint (V = 16.8), very small, round, 0.2' diameter.
+
+
+17.5" (4/28/90): extremely faint and small, round.  In a close trio with IC 3959 1.0' N and IC 3963 1.4' ENE within AGC 1656.
+
+
+Hermann Kobold discovered IC 3957 = K. 2-12 on 12 May 1896 with the 18-inch refractor at Strasbourg and recorded "cF, vS, R, bM."
+
+******************************
+
+
+IC 3959 = MCG +05-31-059 = CGCG 160-218 = PGC 44553
+
+12 59 08.2 +27 47 02; Com
+
+V = 14.3;  Size 0.5'x0.5';  Surf Br = 12.8
+
+
+48" (5/10/18): at 610x; moderately bright, fairly small, round, 25" diameter, very small bright core.  Forms the NW vertex of a small isosceles triangle with IC 3957 1' S and IC 3963 1.3' SE.
+
+
+QSO B1256+280, a 20th magnitude quasar at z = 2.66 (light-travel time of 11.2 Gyr) is situated just 30" NE.   I only "suspected" or "sensed" it two or three times without a confident pop.  But on one occasion I had a strong impression it formed a right angle with IC 3939 and nearby IC 3963.  Jimi confirmed this configuration on the DSS while I was at the eyepiece! [The precise angle is 100°].
+
+
+17.5" (4/21/90): very faint, very small, round.  A mag 12.5 star is 1.6' NNW.  In a close trio with IC 3957 1.0' S and IC 3963 1.3' SE, also IC 3947 lies 3.5' W.  Located in a rich section of AGC 1656.
+
+
+Hermann Kobold discovered IC 3959 = K. 2-13 on 12 May 1896 with the 18-inch refractor at Strasbourg and recorded "F, pS, R, lbM."
+
+******************************
+
+
+IC 3960 = MCG +05-31-055 = CGCG 160-219 = PGC 44551
+
+12 59 07.9 +27 51 18; Com
+
+V = 14.9;  Size 0.4'x0.4';  Surf Br = 12.7
+
+
+17.5" (4/21/90): extremely faint, very small, round.  Located 8.8' SW of NGC 4874 in the core of AGC 1656.  Forms a pair with IC 3949 2.9' SW.
+
+
+Hermann Kobold discovered IC 3960 = K. 2-14 on 12 May 1896 with the 18-inch refractor at Strasbourg and recorded "vF, pS, diffic."
+
+******************************
+
+
+IC 3961 = NGC 4861 = Arp 266 = UGC 8098 = MCG +06-29-003 = CGCG 189-005 = VV 797 = Mrk 59 = I Zw 49 = LGG 334-010 = PGC 44536
+
+12 59 01.8 +34 51 39; CVn
+
+V = 12.3;  Size 4.0'x1.5';  Surf Br = 14.1;  PA = 15°
+
+
+48" (4/7/13): very unusual appearance at 488x as the galaxy is dominated by a very high surface brightness HII region (Mrk 59) at the SSW end, about 15" in diameter and 13th magnitude. The knot appeared extremely bright, roundish, sharp-edged.  The main glow of the galaxy is very elongated to the NNE, 3.0'x 0.6', extending just past a mag 13 star near the opposite end.  The core is a somewhat brighter, elongated, knotty region, offset closer to the giant HII region.  The glow of the galaxy dims as it extends to the star at the opposite end and fades out just beyond.  PGC 101479, a compact galaxy, is exactly in line with the major axis of NGC 4861, 3.5' NNE of the mag 12 star.  It appeared faint or fairly faint (B = 16.8), round, 12"-15" diameter.
+
+
+17.5" (1/23/93): faint, very elongated SSW-NNE, even low surface brightness.  Located between two mag 12 stars at low power.  The "star" at the SSW end is slightly nebulous at 166x and appears as a definite nonstellar knot at 332x.  UGC and CGCG misidentify this HII region as NGC 4861 (and the galaxy as IC 3961).  This is one of the few extragalactic HII regions which responds to OIII filtration.
+
+
+13.1" (2/23/85): faint, elongated streak SSW-NNE.  Stretches between two 12th magnitude "stars".  The star at the south end is actually a giant HII region and it appears slightly fuzzy at 166x and clearly nonstellar at 312x.
+
+
+Max Wolf found IC 3961 = W. V-103 in 1903 on a Heidelberg plate.  His postion, comments ("pL, pF, elongated in PA 30°) and note ("between two mag 12 stars") matches NGC 4861.  Harold Corwin notes that one of the mag 12 stars is the prominent HII region.  See NGC 4861.
+
+
+UGC and CGCG identify the main galaxy as IC 3961 and the bright HII knot as NGC 4861 (Webb Society Quarterly Journal #45, July 1981).  Although LdR noted a "bright little knot" at the south end, the HII complex was not given a separate designation in the NGC or IC.
+
+
+******************************
+
+
+IC 3963 = MCG +05-31-061 = CGCG 160-220 = PGC 44567
+
+12 59 13.5 +27 46 29; Com
+
+V = 14.8;  Size 0.7'x0.4';  Surf Br = 12.8
+
+
+48" (5/10/18): at 610x; moderately bright, fairly small, oval 4:3 E-W, ~0.4'x0.3', very small bright nucleus.  Forms the eastern vertex of a small isosceles triangle with IC 3959 1.3' NW and IC 3957 1.4' WSW.
+
+
+17.5" (4/28/90): extremely faint and small, elongated E-W.  Third of three in equilateral triangle with IC 3959 1.4' WNW and IC 3957 1.4' WSW in AGC 1656.
+
+
+Hermann Kobold discovered IC 3963 = K. 2-15 on 12 May 1896 with the 18-inch refractor at Strasbourg and recorded "vF, vS, R, bM."
+
+******************************
+
+
+IC 3973 = CGCG 160-228 = PGC 44612
+
+12 59 30.8 +27 53 03; Com
+
+V = 14.4;  Size 0.5'x0.3';  PA = 160°
+
+
+18" (4/20/12): fairly faint, small, slightly elongated NNW-SSE, 20"x15".  Situated 4.7' SSW of NGC 4874 in the swarm of small galaxies that surround 4874 in the Coma cluster.
+
+
+17.5" (4/21/90): very faint, very small, slightly elongated WNW-ESE.  Located in the central core of AGC 1656 just 4.6' S of NGC 4874.  Also first of three on a SW-NE line with NGC 4875 2.1' NE and NGC 4876 3.5' ENE.  IC 3976 lies 2.1' S.
+
+
+Hermann Kobold discovered IC 3973 = K. 2-18 on 20 May 1895 with the 18-inch refractor at Strasbourg and recorded "F, vS, R, N 13 mag.."
+
+******************************
+
+
+IC 3974 = NGC 4947 = ESO 382-005 = AM 1302-350 = MCG -06-29-006 = LGG 327-003 = PGC 45269
+
+13 05 20.2 -35 20 17; Cen
+
+V = 11.8;  Size 2.4'x1.3';  Surf Br = 12.9;  PA = 10°
+
+
+See observing notes for NGC 4947.
+
+
+Lewis Swift found IC 3974 = Sw. XI-146 on 28 Mar 1898 and recorded  "eeF; pS; lE".  There is nothing near his position but exactly 5 min of RA east is NGC 4947 and Harold Corwin suggests IC 3974 is most likely a duplicate observation of NGC 4947.
+
+******************************
+
+
+IC 3976 = CGCG 160-226 = PGC 44603
+
+12 59 29.4 +27 51 00; Com
+
+V = 14.7;  Size 0.5'x0.2';  PA = 160°
+
+
+18" (4/20/12): very faint, small, oval NNW-SSE, 18"x12".  Located 2' SSW of brighter IC 3973 in the Coma cluster.
+
+
+17.5" (4/21/90): very faint, extremely small, elongated NW-SE.  Located in core of AGC 1656 6.7' SSW of NGC 4874.  IC 3973 lies 2.0' N.
+
+
+Hermann Kobold discovered IC 3976 = K. 2-19 on 13 May 1896 with the 18-inch refractor at Strasbourg and recorded "*14 inv in vF neb."
+
+******************************
+
+
+IC 3986 = ESO 443-024 = MCG -05-31-012 = LGG 324-001 = PGC 44852
+
+13 01 00.8 -32 26 29; Cen
+
+V = 11.8;  Size 1.9'x1.5';  Surf Br = 12.8;  PA = 165°
+
+
+14" (4/4/16 - Coonabaraban, 178x): moderately bright to fairly bright, fairly small, slightly elongated NNW-SSE, 40"x30", small bright nucleus.  A mag 11.6 star is 1.2' NW of center, a mag 11.1 star is 2' WNW and a mag 7.9 star is 10' SE.  A 5' string of stars extends to the south-southwest.  HCG 63 lies 25' SE.
+
+
+This galaxy is the brightest member of the galaxy group LGG 324, which includes three members of HCG 63 as well as ESO 443-032 (identified as IC 3986 in modern sources) 11' NE.  ESO 443-032 appeared fairly faint to moderately bright, fairly small, slightly elongated, 35"x30", contains a small bright nucleus.  ESO 443-029, just 4.8' NE (a member of more distant AGC 3537) was very faint, small, round, 25" diameter, low surface brightness.
+
+
+17.5" (5/22/93): fairly faint, small, round, weak concentration, crisp-edged.  Forms part of the "Bowl" of a "Dipper" asterism formed by an 8' group of stars mostly to the south.  HCG 63 lies 25' SE.
+
+
+Lewis Swift discovered IC 3986 = Sw. XI-147 on 31 Jan 1898 and reported "eeF; pS; R; 10m * nr nf."  His RA is over 1.0 minute west of ESO 443-032, which is not unusual for his discoveries during his last year of observing.  But there is no brighter star near, casting doubt on this identification.  A good candidate is ESO 443-024, which is 10' south of Swift's position and 30 seconds of RA east.  A mag 10.5 star is nearby (as well as a closer mag 11.5 star), although the closer star is north-northwest, not northeast.  Still, assuming he mixed up the direction, ESO 443-024 is somewhat brighter and a better candidate.  I suggested this identification to Harold Corwin in April 2016 and he agreed.
+
+******************************
+
+
+IC 3998 = CGCG 160-236 = PGC 44664
+
+12 59 46.8 +27 58 26; Com
+
+V = 14.6;  Size 0.8'x0.5';  PA = 10°
+
+
+18" (4/20/12): one of the numerous galaxies in the halo of NGC 4874 (2.6' ENE of center), this member of the Coma cluster is located about a third of the way from NGC 4874 to NGC 4889.  At 322x it appeared faint, small, oval 4:3 N-S, 16"x12", contains a very small brighter nucleus.
+
+
+17.5" (4/21/90): located in the central core of AGC 1656 between NGC 4874 and NGC 4889.  Extremely faint and small, round.  Forms a close pair with PGC 44652 = Goodwin #458 1.1' SSE.  Located 2.6' ENE of NGC 4874 and a swarm of galaxies are in the field surrounding NGC 4874.  Also located 4.7' due west of NGC 4889 (brightest in AGC 1656).
+
+
+13.1" (4/29/84): extremely faint, very small, between NGC 4874 and NGC 4889 in core of AGC 1656.
+
+
+Hermann Kobold discovered IC 3998 = K. 2-20 on 22 Apr 1895 with the 18-inch refractor at Strasbourg and recorded "eF, pS."
+
+******************************

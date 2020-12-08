@@ -191,7 +191,7 @@ class User(UserMixin, db.Model):
 
     @staticmethod
     def get_editor_user():
-        return User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME')).first()
+        return User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
 
     def __repr__(self):
         return '<User \'%s\'>' % self.full_name

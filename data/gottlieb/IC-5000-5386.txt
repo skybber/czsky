@@ -1,0 +1,2971 @@
+
+
+IC 5003 = IC 5039 = IC 5046 = IC 5029 = ESO 463-020 = MCG -05-49-001 = PGC 65249
+
+20 43 14.3 -29 51 12; Mic
+
+V = 12.7;  Size 2.4'x0.6';  Surf Br = 13.0;  PA = 156°
+
+
+See observing notes for IC 5039.
+
+
+Lewis Swift found IC 5003 = Sw. XII-18 on 8 Sep 1897 and reported "vF, [cS], R, 2 st nr sf, point to it.  Sp of 2 [with Sw. XII-19].   There is nothing near his position, but based on his description Harold Corwin found that Swift made an 18 minute error in time in recording the RA.  Once corrected his position matches ESO 463-020 and this was the fourth time Swift "discovered" this galaxy near the end of his observing career!  See IC 5039 for the full story.
+
+******************************
+
+
+IC 5004 = NGC 6923 = ESO 462-029 = MCG -05-48-017 = AM 2028-310 = LGG 437-001 = PGC 64884
+
+20 31 38.7 -30 49 58; Mic
+
+V = 11.9;  Size 2.6'x1.3';  Surf Br = 13.1;  PA = 78°
+
+
+See observing notes for NGC 6923.
+
+
+Lewis Swift found IC 5004= Sw. XI-192 on 22 Jul 1897 and called it "eF; pS; lE; wide D * near s[outh]."  There is nothing at his position, but Harold Corwin found that 6 minutes of RA east is NGC 6923 (discovered by John Herschel) and Swift's description fits (the wide double star is ~4' S.)  So, IC 5504 = NGC 6923.  See Harold Corwin's notes for more on the IC number.
+
+******************************
+
+
+IC 5005 = ESO 528-004 = MCG -04-48-007 = AM 2022-255 = LGG 436-002 = PGC 64657
+
+20 25 20.2 -25 49 44; Cap
+
+V = 12.7;  Size 1.9'x1.4';  Surf Br = 13.7;  PA = 67°
+
+
+18" (9/3/08): fairly faint, moderately large, slightly elongated, 1.0'x0.8', weak concentration.  The edge of the halo is ill-defined.  A star is at the NW end [brighter of a wide, 28" pair with a  slightly fainter star further NW].  Located 9.7' due east of mag 7 HD 194102 and 3' N of a mag 10 star.  IC 4999 lies 22' SW.
+
+
+17.5" (8/8/02): faint, moderately large, elongated 3:2 SW-NE, 1.2'x0.8'.  Fairly low, nearly even surface brightness.  A faint star is close NNW.  Located 3' due north of a mag 10 star.
+
+
+17.5" (8/6/97): fairly faint, elongated 3:2 SW-NE, 1.4'x1.0'.  Very weak or no concentration. A mag 13.5 star (which has a faint companion preceding) is at the NW edge [35" from center].  Located 2.8' N of a mag 10 star.
+
+
+E.E. Barnard discovered IC 5005 on 28 Aug 1888 with the 12-inch refractor at Lick Observatory  He noted "Verified the faint nebula of Aug 26 [IC 4999] and found another smaller one, very faint, just north of 12m star.  It is following an 8m star [by 43 seconds of time]."  The identification is certain.
+
+******************************
+
+
+IC 5007 = IC 5041 = IC 5047 = IC 5030 = ESO 463-021 = MCG -05-49-002 = PGC 65258
+
+20 43 34.4 -29 42 13; Mic
+
+V = 12.6;  Size 2.6'x1.5';  Surf Br = 13.9;  PA = 28°
+
+
+See observing notes for IC 5041 or IC 5047.
+
+
+Lewis Swift found IC 5007 = Sw. XII-19 on 8 Sep 1897 and reported "eeF, cL, R, bet 2 groups of B st sf a.d np, nf of 2 [with Sw. XII-18].   There is nothing near his position, but based on his description Harold Corwin found that Swift made an 18 minute error in time in recording the RA.  Once corrected his position matches ESO 463-021 and this was the fourth time Swift "discovered" this galaxy!  See IC 5039 for the full story.
+
+******************************
+
+
+IC 5011 = IC 5013 = AM 2025-361 = ESO 400-029 = MCG -06-45-003 = PGC 64772
+
+20 28 33.8 -36 01 38; Mic
+
+V = 11.7;  Size 2.4'x1.2';  Surf Br = 12.7;  PA = 19°
+
+
+24" (9/30/16): at 282x; fairly bright, moderately large, elongated 5:2 SSW-NNE, 1.8'x0.7'.  Sharply concentrated with three distinct zones: a small high surface brightness core, a fairly low surface brightness halo, a small high surface brightness core and a very small, intensely bright nucleus.  Mag 7.8 HD 194727 is 10' S.
+
+
+IC 5011 forms an interacting contact pair with ESO 400-030 at the southeast edge of the halo [1.0' SSE from center].  The companion appeared as a very faint, fairly small glow held nearly continuously with averted and concentration.  Seems to have a small brighter core and an elongated halo ~18"x12".
+
+
+17.5" (8/6/97): fairly bright, moderately large, very elongated 3:1 SSW-NNE, 2.0'x0.7'.  Sharp concentration and dominated by a striking bright core with much fainter extensions.  Located 10' N of a mag 7.5 star (SAO 212153).  A companion (ESO 400-030) at the south edge was not seen, probably due to the low elevation.
+
+
+17.5" (8/3/94): fairly bright, moderately large, elongated 2:1 SSW-NNE.  Sharply concentrated with a very bright core that appears elongated at 225x or double at moments.  The much fainter halo gradually fades into the background.  A mag 7.5 star is 10' S near the edge of the field.
+
+
+Lewis Swift discovered IC 5011 = Sw. XI-193 on 25 Jul 1897 and recorded "pB, vS, eE".  There is nothing at his position but 1.3 minutes of RA east is ESO 400-029 and his description clearly applies.  He found the galaxy again a month later (29 Aug 1897) and reported "eeS; eE in meridian [N-S]; curious object."  This time his RA was only 8 seconds too small.  So, IC 5011 = IC 5013.  See Harold Corwin's and Malcolm Thomson's remarks for more.
+
+******************************
+
+
+IC 5013 = IC 5011 = AM 2025-361 = ESO 400-029 = MCG -06-45-003 = PGC 64772
+
+20 28 33.8 -36 01 38; Mic
+
+V = 11.7;  Size 2.4'x1.2';  Surf Br = 12.7;  PA = 19°
+
+
+24" (9/30/16): at 282x; fairly bright, moderately large, elongated 5:2 SSW-NNE, 1.8'x0.7'.  Sharply concentrated with three distinct zones: a small high surface brightness core, a fairly low surface brightness halo, a small high surface brightness core and a very small, intensely bright nucleus.  Mag 7.8 HD 194727 is 10' S.
+
+
+IC 5013 forms an interacting contact pair with ESO 400-030 at the southeast edge of the halo [1.0' SSE from center].  The companion appeared as a very faint, fairly small glow held nearly continuously with averted and concentration.  It seemed to have a small brighter core and an elongated halo ~18"x12".
+
+
+17.5" (8/6/97): fairly bright, moderately large, very elongated 3:1 SSW-NNE, 2.0'x0.7'.  Sharp concentration and dominated by a striking bright core with much fainter extensions.  Located 10' N of a mag 7.5 star (SAO 212153).  A companion (ESO 400-030) at the south edge was not seen, probably due to the low elevation.
+
+
+17.5" (8/3/94): fairly bright, moderately large, elongated 2:1 SSW-NNE.  Sharply concentrated with a very bright core that appears elongated at 225x or double at moments.  The much fainter halo gradually fades into the background.  A mag 7.5 star is 10' S near the edge of the field.
+
+
+Lewis Swift discovered IC 5013 = Sw. XI-194, for the second time, on 29 Aug 1897 and reported "eeS; eE in meridian [N-S]; curious object."  His RA is only 8 seconds too small.  His first observation was a month earlier and the discovered was listed as Sw. XI-193 (later IC 5011), but his RA was 1.3 minutes too small.  His description "pB; vS; eE" clearly applies to the same galaxy. So, IC 5011 = IC 5013.  Malcolm Thomson equated IC 5011 with ESO 400-029, but was not convinced that IC 5013 was equivalent or applied to the companion on the southeast side (ESO 400-030).
+
+******************************
+
+
+IC 5015
+
+20 28 33 -31 42.1; Mic
+
+
+= NGC 6925?, Corwin.  = NGC 6923?, Gottlieb.
+
+
+Lewis Swift found IC 5015 = Sw. XII-20 on 18 Aug 1897 and reported "pB, pS, R, nearly bet 2 st with dist. companion"  There is no galaxy near his position that he might have picked up.   Harold Corwin suggests Lewis Swift's XII-20 (later IC 5015), found on 18 Aug 1897, may be a duplicate observation.  He feels Swift's description "pB, pS, R, nearly bet 2 st with dist. companion" is a reasonable fit, though the position is poor (typical for those made in 1897).  But I would be surprised if Swift called this galaxy "pretty small" as well as "round", and his position is well off in both RA (5.8 minutes of time) and Dec (17').  Another possibility is NGC 6923, which differs to 3 minutes of RA and 1.1° in declination and also is "nearly bet 2 stars", one with a distant companion.
+
+******************************
+
+
+IC 5019 = ESO 400-035 = PGC 64850
+
+20 30 47.1 -36 04 37; Mic
+
+V = 14.6;  Size 1.7'x0.3';  Surf Br = 13.8;  PA = 85°
+
+
+24" (9/6/18): at 225x; extremely faint, very small, slightly elongated, 15"x10" (core region seen).  This galaxy was surprisingly faint and was only occasionally glimpsed.  A mag 14 star is 1' N and two mag 13.5/14.6 stars are less than 3' ESE.  Located 27' ESE of IC 5013 (interacting contact pair).
+
+
+Lewis Swift discovered IC 5019 = Sw. XI-195 on 16 Sep 1897 and reported "vF; cS; R; several pB stars south and following."  There is nothing at his position but 15' N is ESO 400-035.  If this identification is correct, he made another mistake; the pB stars are northeast, not southeast.
+
+******************************
+
+
+IC 5020 = ESO 400-034 = MCG -06-45-006 = PGC 64845
+
+20 30 38.5 -33 29 08; Mic
+
+V = 12.3;  Size 3.0'x2.1';  Surf Br = 14.2;  PA = 153°
+
+
+24" (9/30/16): at 282x; moderately bright, fairly large, elongated 3:2 NNW-SSE, 2.0'x1.4', contains a relatively large bright core that gradually increases to the center.
+
+
+17.5" (8/6/97): moderately bright, moderately large, irregularly round, gradually increases to a brighter center, 1.5' diameter.  Located in a stream of stars flowing ~E-W through the 22' field and a second curving lane of stars heading south (includes a brighter mag 11 star) is close following the galaxy.
+
+
+17.5" (8/3/94): fairly faint, slightly elongated ~E-W.  Broad concentration with no distinct core but the nucleus appears offset to the west side giving an asymmetric appearance.  A flipped "?" asterism (reversed N-S) is just following with the hook ending just east of the galaxy with a mag 14 star.
+
+
+Lewis Swift discovered IC 5020 = Sw. XI-196 on 29 Aug 1897 and logged "pF; pS; lE."  His position is 10 seconds of RA east and 1.6' south of ESO 400-034 = PGC 64845.
+
+******************************
+
+
+IC 5029 = IC 5039 = IC 5046 = IC 5003 = ESO 463-020 = MCG -05-49-001 = PGC 65249
+
+20 43 14.3 -29 51 12; Mic
+
+V = 12.7;  Size 2.4'x0.6';  Surf Br = 13.0;  PA = 156°
+
+
+See observing notes for IC 5039.
+
+
+Lewis Swift found IC 5029 = Sw. XII-22 on 26 Jul 1897 and reported "eeF, eS, eE, F * with dist companion nr sf, point to it, np of 2 [with Sw. XII-23].  There is nothing near his position, but based on his description this was the second of four discoveries of the same pair of galaxies!   In this case his RA was 3 minutes of time too small.  See IC 5039 for more on the story.
+
+******************************
+
+
+IC 5038 = ESO 106-012 = AM 2042-651 = PGC 65365
+
+20 46 51.7 -65 01 01; Pav
+
+V = 13.4;  Size 1.4'x0.7';  Surf Br = 13.2;  PA = 75°
+
+
+30" (10/18/17 - OzSky): at 264x and 429x; moderately bright, oval 3:2 WSW-ENE, ~40"x28", brighter core.  Two mag 14 and 15 stars are off the WSW end [1.0' and 1.6' from center].  Forms a pair with IC 5042 7' SE.  A 30" pair of mag 10.7/11.5 stars is 5' ENE.  IC 5038 was easily found 6.5' due south of mag 6.7 HD 197359.
+
+
+DeLisle Stewart discovered IC 5038 = D.S. 684 on a plate taken on 23 Aug 1900 at Harvard's Arequipa station in Peru.  He noted "vF, vS, R, alm stell."
+
+******************************
+
+
+IC 5039 = IC 5046 = IC 5003 = IC 5029 = ESO 463-020 = MCG -05-49-001 = PGC 65249
+
+20 43 14.3 -29 51 12; Mic
+
+V = 12.7;  Size 2.4'x0.6';  Surf Br = 13.0;  PA = 156°
+
+
+17.5" (8/6/97): moderately bright, fairly large edge-on, 2'x0.5' NNW-SSE, broad concentration.  A faint star is very close to the SE extension [36" from center].  In field with IC 5041 10' NNE.
+
+
+17.5" (8/5/91): faint, moderately large, very elongated 3:1 NW-SE, sharp concentration.  A mag 15 star is at the SE end and a 14th magnitude star is 1.7' ENE of center.  Forms a pair with IC 5041 10.0' NNE.
+
+
+Lewis Swift found IC 5039 = Sw. XI-197 = Sw. XI-198, along with IC 5041 = Sw. XI-199, on 29 Aug 1897 and recorded (for XI-197) "vF; pS; R; 2 F st near nf point to it; 1st of 3."  His position for IC 5039 is 17 seconds of RA west of ESO 463-020 = PGC 65249 and that of IC 5041 is 2.5' N of ESO 463-021 = PGC 65258.  The listing for Sw. XI-198 is only 15 seconds of time east with description "eeF; eS; eE; near p[receding] star of sev[eral] curved; 2nd of 3."  Howe rexamined the field in 1900 and found only 1 nebula near Swift's position of both numbers and concluded they referred to the same object based on the descriptions.
+
+
+Remarkably, this was the 3rd out of 4 times he "discovered" this pair in the summer of 1897 at the age of 77.  His first observation of the pair, Sw. XI-200 (later IC 5046) and Sw. XI-201 (later IC 5047) was on 9 Jun 1897.  IC 5046 was described as "eF; pS; vE; eeF * and vF * near sf, point to it; sp of 2.", while IC 5047 says "eeF; pS; vE; 8m * 31' n[orth]; v diff; nf of 2."  His RA was about 1.5 minutes too large and his dec was 3' too far south, but the description fits.  He found the pair again on 26 Jul 1897 and recorded Sw. XII-22 (later IC 5029) and Sw. XII-23 (later IC 5030), but his RA was 3 minutes too small, and the dec for IC 5030 10' too far south.  The 4th observation was recorded as Sw. XII-18 (later IC 5003) and XII-19 (later IC 5007) on 8 Sep 1897 and this time his RA was 18 minutes too small!  Once again, the description of the field clinches this identification (uncovered by Harold Corwin).  As a result, IC 5003 = IC 5029 = IC 5039 = IC 5046 and IC 5007 = IC 5030 = IC 5041 = IC 5047.  The IC positions for 5039 and 5041 are from Howe and very accurate, though IC 5046 and 5047 refer to Swift's first observation of the pair.
+
+******************************
+
+
+IC 5041 = IC 5047 = IC 5007 = IC 5030 = ESO 463-021 = MCG -05-49-002 = PGC 65258
+
+20 43 34.4 -29 42 13; Mic
+
+V = 12.6;  Size 2.6'x1.5';  Surf Br = 13.9;  PA = 28°
+
+
+17.5" (8/6/97): fairly faint, irregularly round, broad concentration with large ill-defined core.  At least 2' diameter, though hard to estimate diameter and slowly fades around the periphery.  Forms a pair with brighter IC 5039 10' SSW.
+
+
+17.5" (8/5/91): very faint, fairly small, irregularly round, low surface brightness.  Pair with IC 5039 10' SSW.
+
+
+See notes on IC 5039.
+
+******************************
+
+
+IC 5042 = ESO 106-013 = PGC 65394
+
+20 47 46.0 -65 05 04; Pav
+
+V = 13.2;  Size 1.2'x0.8';  Surf Br = 13.1;  PA = 41°
+
+
+30" (10/18/17 - OzSky): at 264x and 429x; fairly faint or moderately bright, fairly small, slightly elongated SW-NE, 0.6'x0.45', broad weak concentration.  Forms a pair with slightly brighter IC 5038 7' NW.  A 30" pair of mag 10.7/11.5 stars is 6' N.  Located 12' SSE of mag 6.7 HD 197359.
+
+
+DeLisle Stewart discovered IC 5042 = D.S. 685 on a plate taken on 23 Aug 1900 at Harvard's Arequipa station in Peru.  He noted "vF, vS, R, alm stell."
+
+******************************
+
+
+IC 5046 = IC 5039 = IC 5003 = IC 5029 = ESO 463-020 = MCG -05-49-001 = PGC 65249
+
+20 43 14.3 -29 51 12; Mic
+
+V = 12.7;  Size 2.4'x0.6';  Surf Br = 13.0;  PA = 156°
+
+
+17.5" (8/6/97): moderately bright, fairly large edge-on, 2'x0.5' NNW-SSE, broad concentration.  A faint star is very close to the SE extension [36" from center].  In field with IC 5041 10' NNE.
+
+
+17.5" (8/5/91): faint, moderately large, very elongated 3:1 NW-SE, sharp concentration.  A mag 15 star is at the SE end and a 14th magnitude star is 1.7' ENE of center.  Forms a pair with IC 5041 10.0' NNE.
+
+
+Lewis Swift discovered IC 5046 = Sw. XI-200 on 9 Jun 1897 and reported "eF; pS; vE; eeF * and vF * near sf point to it; sp of 2 [with IC 5047]."  His position is roughly 1.5 minutes of time too large and 3' too far south.  But the description is a perfect match.  Swift discovered this galaxy a total of 4 times in the summer of 1897!  See IC 5039 for the story.
+
+******************************
+
+
+IC 5047 = IC 5041 = IC 5007 = IC 5030 = ESO 463-021 = MCG -05-49-002 = PGC 65258
+
+20 43 34.4 -29 42 13; Mic
+
+V = 12.6;  Size 2.6'x1.5';  Surf Br = 13.9;  PA = 28°
+
+
+17.5" (8/6/97): fairly faint, irregularly round, broad concentration with large ill-defined core.  At least 2' diameter, though hard to estimate diameter and slowly fades around the periphery.  Forms a pair with brighter IC 5039 10' SSW.
+
+
+17.5" (8/5/91): very faint, fairly small, irregularly round, low surface brightness.  Pair with IC 5039 10' SSW.
+
+
+See notes on IC 5039.
+
+******************************
+
+
+IC 5049 = ESO 341-014 = AM 2044-383 = MCG -06-45-014 = MCG -06-45-015 = PGC 65377 = PGC 65378
+
+20 47 23.4 -38 24 56; Mic
+
+Size 1.5'x1.0';  PA = 148°
+
+
+24" (9/8/18): at 260x; fairly faint, fairly small, oval 3:2 NNW-SSE, ~40"x25".  With careful viewing I noticed this was a double system with the halos merged [16" between centers].  Each component was no more 20" diameter.  The NNW galaxy (IC 5049A) was more evident, though its total B magnitude (15.1) is fainter.  These galaxies are the brightest members of the galaxy cluster ACO S897 (z = .041)
+
+
+Lewis Swift discovered IC 5049 = Sw. XI-202 on 17 Sep 1897 and wrote "eeF; pS; R."  His position is 30 seconds of time west and 4' south of a merged, double system, which Swift apparently didn't resolve.  The components are called IC 5049A and 5049B in NED.
+
+
+******************************
+
+
+IC 5052 = ESO 074-015 = AM 2047-692 = PGC 65603
+
+20 52 06 -69 12 14; Pav
+
+V = 11.2;  Size 5.9'x0.8';  Surf Br = 12.7;  PA = 143°
+
+
+30" (10/14/15 - OzSky): at 394x; gorgeous edge-on galaxy!  Fairly bright, extremely large, very thin ~10:1 NW-SE, ~5.5'x0.6', slightly brighter core, bulges very slightly at the center or offset to the northwest side, tapers more thinly on the southeast end.  A mag 16.3 star is at the north edge of the northwest extension, a mag 16.5 star is off the south edge at this end and a mag 17.5 star is very close to the tip.
+
+
+18" (7/9/02 - Magellan Observatory, Australia): at 128x this galaxy appears as a beautiful, narrow edge-on streak with little or no central concentration.  It is elongated ~10:1 NW-SE, ~5'x0.5', with a slightly bulging core and a gradual tapering towards the tips.  A mag 10 star lies 5' N.  Located 30' SE of mag 5.4 Sigma Pavonis.  NGC 6943 lies 43' NW.
+
+
+DeLisle Stewart discovered IC 5052 = DS 692 on a plate taken on 23 Aug 1900 at Harvard's Arequipa station in Peru.  He noted "F, L, eE at 140°, 4' long."
+
+******************************
+
+
+IC 5053 = ESO 074-018 = AM 2048-711 NED1 = PGC 65662
+
+20 53 36.2 -71 08 28; Pav
+
+V = 13.7;  Size 1.6'x0.6';  Surf Br = 13.5;  PA = 55°
+
+
+30" (10/18/17 - OzSky): at 264x; fairly faint or moderately bright, elongated 5:2 SW-NE, 1.0'x 0.4', brighter core.  A mag 11.5 star is 1.7' N. A thin equatorial dust lane was not noticed. IC 5053 is located 16' SE of mag 8.2 HD 197828 and forms an interacting pair with IC 5054 6.7' N.  The pair is probably part of the Pavo-I Group, which is centered 3° WNW.
+
+
+DeLisle Stewart discovered IC 5053 = DS 694 on a plate taken on 26 Sep 1900 at Harvard's Arequipa station.  He noted "cF, vS, bM, * mag 11 n 2'."
+
+******************************
+
+
+IC 5054 = ESO 074-019 = AM 2048-711 NED2 = PGC 65665
+
+20 53 45.4 -71 01 29; Pav
+
+V = 13.9;  Size 2.0'x0.4';  Surf Br = 13.5;  PA = 5°
+
+
+30" (10/18/17 - OzSky): at 264x; fairly faint, moderately large, very elongated 4:1 N-S, ~50"x12", slightly brighter core.  Bracketed between a mag 9.9 star 0.8' SW of center and a mag 12.7 star 0.8' NE of center!  Forms a wide interacting pair with IC 5053 7' SSW.  Located 14' ESE of mag 8.2 HD 197828.
+
+
+DeLisle Stewart discovered IC 5054 = D.S. 695 on a plate taken on 26 Sep 1900 at Harvard's Arequipa station.  He noted "cF, vS, bet 2 F st."  His position is 1' too far southwest, but there is no question on the identity.
+
+******************************
+
+
+IC 5057
+
+20 47 13.5 +00 19 19; Aqr
+
+V = 14.5
+
+
+24" (9/26/19): IC 5057 is a mag 14.5 star just off the west side of NGC 6962 (brightest in a group), 1.4' from the center.
+
+
+Guillaume Bigourdan discovered IC 5057 on 27 Jul 1884.  His position matches a single star on the west edge of NGC 6962.
+
+
+2MASX J20470744+0018016, a faint galaxy 3' SW of NGC 6962, was misidentified as IC 5057 in the 1921 Helwan Observatory observations, based on photos taken in 1914-16.  It was described as "vF, vS; a vF star 20" following."
+
+******************************
+
+
+IC 5058 = NGC 6965 = MCG +00-53-004 = CGCG 374-016 = WBL 666-004 = PGC 65376
+
+20 47 20.4 +00 29 00; Aqr
+
+V = 14.1;  Size 0.6'x0.4';  Surf Br = 12.4
+
+
+18" (8/1/05): faintest of six in the NGC 6962 group.  Appeared very faint, very small, round, 15"-20" diameter.  At first I thought it had a faint stellar nucleus with direct vision, but with careful viewing this was a mag 15-15.5 star at the south edge.  Located 1.3' N of a mag 13 star, on a line with two mag 14 stars a similar distance to the east and west.  This galaxy is misidentified as NGC 6963 in most modern catalogues.
+
+
+17.5" (7/16/88): very faint, small, slightly elongated ~N-S, broad concentration, barely visible continuously with direct vision.  Located 10' N of NGC 6962 within a triangle of mag 13-14 stars including a mag 14 star 1.4' E and a mag 13 star 1.3' S.  Faintest of six in NGC 6962 group.  This galaxy is misidentified in the RNGC, UGC, MCG, CGCG as NGC 6963.
+
+
+17.5" (8/31/86): very faint (requires averted), small, slightly elongated ~N-S, faint stellar nucleus.
+
+
+13.1" (8/23/84): requires averted vision to confirm, similar to NGC 6961.
+
+
+13.1" (7/27/84): extremely faint, very small, round.  Located 10' N of NGC 6962 within a small equilateral triangle of faint stars.
+
+
+Guillaume Bigourdan found IC 5058 = B. 438 (= NGC 6965) on 2 Oct 1891 and reobserved on 17 Oct 1897.  He reported "this object once appeared rather diffuse and once quite stellar, is distinct from NGC 6963."  His position applies to NGC 6965 (misidentified as NGC 6963 in many modern catalogues).  Unfortunately the NGC position for 6965 is poor, leading to misidentifications in later catalogues.  See NGC 6965.
+
+******************************
+
+
+IC 5061
+
+20 47 37.0 +00 20 09; Aqr
+
+V = 14/14.5/14.5;  Size 8"/16"
+
+
+24" (9/25/19): at 375x; this number applies to 3 mag 14/14.5 stars that were easily resolved.  The northern two stars form an 8" pair with the 3rd star 15" to the south.  Located 4.6' E of NGC 6962.
+
+
+Ralph Copeland discovered IC 5061 = Big. 439 in an observation of the NGC 6962 group on 28 Sep 1873.  Part of his desription reads, "A pB, R, neb, gbM in Pos 55.9°, Dist 236.1" from (1) [NGC 6964] has a * 13 np and another *13 sp, both in contact; possibly the whole is a triple *; definition very bad."  His offset from NGC 6964 and description clearly applies to this triple star.  Bigourdan "discovered" it again on 27 Jul 1884, called it a "small cluster in which there are several stars; the brightest seems accompanied by a little nebulosity", and measured an accurate position.  Finally, Baron von Engelhardt observed it on 15 Aug 1887 and thought it was either a star with nebulosity or a double star.
+
+******************************
+
+
+IC 5062
+
+20 48 10.3 -08 21 36; Aqr
+
+V = 15/15
+
+
+17.5" (7/1/89): faint mag 15/15 double star at 10" separation.  Situated 6' W of NGC 6968.
+
+
+Guillaume Bigourdan discovered IC 5062 on 7 Oct 1891.  His position lands on a
+
+******************************
+
+
+IC 5063 = ESO 187-023 = AM 2048-571 = PGC 65600
+
+20 52 02.3 -57 04 08; Ind
+
+V = 11.9;  Size 2.1'x1.4';  Surf Br = 12.9;  PA = 116°
+
+
+30" (10/18/17 - OzSky): at 264x; bright, large, slightly elongated NW-SE, ~1.5'x1.1'.  Sharply concentrated with a relatively large, very bright core. More abrupt light cutoff on the north side [probably due to its dust lane].  A mag 11.3 star is 3.3' N.  Forms a pair with IC 5064 11' SSE.  IC 5063 is a well studied Seyfert 2 galaxy and an infrared, X-ray, Radio and Gamma-ray source.
+
+
+Royal H. Frost discovered IC 5063 = F. 1214 on a plate taken at Harvard's Arequipa station on 17 May 1904.  He noted "bM, magn 13."
+
+******************************
+
+
+IC 5064 = ESO 187-028 = PGC 65634
+
+20 52 38.3 -57 13 57; Ind
+
+V = 13.4;  Size 1.3'x0.8';  Surf Br = 13.3;  PA = 51°
+
+
+30" (10/18/17 - OzSky): at 264x; moderately bright and large, elongated 3:2 SW-NE, ~50"x30", contains a bright elongated core.  Structure was intermittently visible in the halo with averted vision (perhaps spiral arms).  Forms a pair with IC 5063 11' NNW.
+
+
+Royal H. Frost discovered IC 5064 = F. 1215 on a plate taken at Harvard's Arequipa station on 17 May 1904.  He noted "bM, magn 13." (same as IC 5063)
+
+******************************
+
+
+IC 5065 = ESO 463-030 = MCG -05-49-004 = AM 2048-300 = PGC 65580
+
+20 51 45.8 -29 50 50; Mic
+
+V = 13.7;  Size 1.1'x0.9';  Surf Br = 13.5
+
+
+18" (7/11/10): fairly faint, fairly small, elongated 4:3 ~N-S, 0.7x0.5, sharply concentrated with a small bright core.  Situated just 4.1' SSE of a mag 7 star and best viewed with the star removed from the field.
+
+
+Lewis Swift discovered IC 5065 = Sw. XII-24 on 8 Sep 1897 and reported "vF, pS, R, 8m * in margin of field n."  There is nothing at his position, but 1 min 30 seconds of time further east is ESO 463-030, which fits his description though the star would be well within the boundary of his 33' field.  The comment about the 8th mag star was not copied into the IC.  MCG doesn't label -05-49-004 as IC 5065.
+
+******************************
+
+
+IC 5067 = IC 5068B = LBN 329
+
+20 47 36 +42 54 12; Cyg
+
+Size 42'x14'
+
+
+18" (9/25/06): I viewed the IC 5068 complex using a 20mm Nagler (113x) with an OIII filter or UHC filter.  To the northwest of IC 5068 is an obvious second large patch of nebulosity that is generally designated IC 5068B (though possibly equal to IC 5067).  This piece is very large and elongated NW to SE, extending perhaps 40'x15'.  It contains a bright circular 10' patch to the south of mag 8.2 SAO 50061.  A broad river of faint nebulosity streams away towards the northwest from this brighter region.
+
+
+Rev. Thomas Espin discovered IC 5067 visually, along with IC 5068 and 5070, on 7 Sep 1899 with his 17 1/4-inch reflector. He simply noted "faint" and there is nothing at his position, about 37' W of the neck of the Pelican Nebula (IC 5070).  Harold Corwin suggests that if Espin's declination was off by 1.5°, then IC 5067 corresponds with IC 5068B, described here.  Espin's positions for IC 5068 and 5070 are good, so IC 5067 is lost without additional information, but Corwin notes that IC 5068B is the brightest nebula in the region that he might have picked up.
+
+******************************
+
+
+IC 5068 = LBN 328 = Ced 183b
+
+20 50 29 +42 29; Cyg
+
+Size 30'
+
+
+18" (9/25/06): IC 5068 is the second of three very large emission nebulae roughly one degree south of the southern end of the Pelican Nebula.  At 113x and an OIII filter, this object appears very large, diffuse, irregular glow, roughly 25'x20'.  It is noticeably brighter in a 12' circular region about 10' N of a mag 7.3 star (HD 198690) and a group of brighter stars that are near the southeast side of the nebula.
+
+
+To the northwest is a second large patch of nebulosity, generally designated IC 5068B, though if Espin's declination was off by 1.5°, this may be IC 5067.  This piece is very large and elongated NW to SE, extending perhaps 40'x15'.  It contains a bright circular 10' patch to the south of a mag 8 star (SAO 50061).  A broad river of faint nebulosity streams away towards the northwest from this brighter region.
+
+
+To the east of IC 5068 is the least conspicuous section, dubbed IC 5068C.  This detached piece extends 30'x15' (elongated E-W) and overall has a low surface brightness appearing as a hazy glow.  A mag 6.7 star is at the southwest end and a mag 7 star is at the eastern edge.
+
+
+Reverend Thomas Espin discovered IC 5068, along with IC 5070, visually on 7 Sep 1899 with a 17 1/4-inch reflector at his Tow Law observatory in England. He simply noted "very faint", but his position is only 6' NW of center of this very large, parallelogram-shaped nebula, so the identification is fairly certain.
+
+
+Discovered by Espin (AN 3633).  Described simply as "very faint".  The Pelican Nebula is also announced in this short list of 6 objects.  His discovery position is 1 tmin W of the Sky Catalogue 2000.0 position!
+
+******************************
+
+
+IC 5070 = Sh 2-117 = LBN 350 = Ced 183c = Pelican Nebula
+
+20 50 48 +44 21; Cyg
+
+Size 80'x70'
+
+
+18" (7/17/07): The huge Pelican Nebula overfilled the 67' field in the 31 Nagler.  The UHC filter gave a higher contrast than the OIII filter.  Several brighter sections were noted on the close-up chart A1 in the U2000 atlas.  One of the brightest pieces is the "neck" of the Pelican located 20'-25' W of mag 4.8 57 Cygni and collinear with two mag 8/9 stars 10' and 12' due west.  The glow extends 10' in length.  To the SW of the mag 4.8 star is the large "beak" section that streams from NW to SE and extends roughly 20'x8', widening a bit at the SE end.  The west side of the beak is defined by a dark lane that parallels the nebulosity and the large, faint body of the Pelican is west of this lane and includes 5.1-magnitude 56 Cygni (the nebulosity is very weak here).  The brightest section of the body is a large, circular patch at the south end, ~12' diameter, and located 30' SE of 56 Cygni and 55' S of the "neck".
+
+
+18" (9/25/06): This was the first observation of the Pelican Nebula in quite awhile and I forgot about this huge, interesting emission nebula.  The view was fascinating at 113x with an OIII or UHC filter as this object overfilled the 44' field.  I started exploring to the west of 4.8-magnitude 57 Cygni.  The brightest section is possibly on a line with this star and a mag 7.2 star further east and corresponds with the neck portion on the Pelican.  This is where the ionization front is most evident on photographs.  The elongated "beak" of the Pelican also begins to the west of the bright star and streams off in a wide river of nebulosity towards the southeast and passing out of the field.  A long darker lane apparently free of nebulosity isolates the "neck" from the main body of the Pelican.  The irregular body spreads out to the south of the neck well beyond the southern edge of the eyepiece field and extends at least 65' from the neck terminating at the SE end with a roundish bright patch of nebulosity ~12' in diameter.  The Pelican is located directly west of the North American Nebula and part of the same huge complex of nebulosity in this region (separated by the dark cloud LDN 935).
+
+
+13.1" (7/5/83): the entire body of the "Pelican" is easily visible at 62x and a UHC filter.  The "head and neck" section is easy to view along with the fainter "bill" and a long body extending from head.  Located west of the North America Nebula in a rich field between two mag 7 stars.
+
+
+8" (6/22/81): faint, surrounding scattered group of stars at 50x and UHC filter.  Appears as a bright patch to the west of two bright stars (neck section).
+
+
+Reverend Thomas Espin discovered IC 5070, along with IC 5068, visually on 7 Sep 1899 with a 17 1/4-inch reflector at his Tow Law observatory in England. The discovery was included in a short list of 6 new objects (including the Cocoon Nebula) in AN 3633 and noted as "faint and diffused".  His position corresponds with the "neck" of the Pelican, the brightest part of the nebula, so the identification is certain.
+
+
+Max Wolf photographed the region surrounding the North American Nebula on 1 Jun 1891 (AN 3048) on a 3 hour plate. He gives a general description of the region with no specific positions, though mentions strong nebulosity was recorded around the stars 56 and 57 Cygni, which are involved in the Pelican Nebula.  So, certainly it was captured on his early image.  Espin is credited with the discovery in the IC2, but Wolf should share credit.
+
+******************************
+
+
+IC 5071 = ESO 047-019 = AM 2056-725 = PGC 65915
+
+21 01 19.7 -72 38 34; Pav
+
+V = 12.5;  Size 3.4'x0.6';  Surf Br = 13.1;  PA = 17°
+
+
+30" (10/18/17 - OzSky): at 264x; moderately bright and large, very elongated 5:1 or 6:1 SSW-NNE, 1.5'x0.25', small brighter elongated core, low surface brightness outer extensions.  Appears slightly brighter on the northern extension (perhaps a HII knot?).  A mag 13.3 star is off the western flank of the northern end of the galaxy [0.9' from center] and a 25" pair of mag 13.2/14 stars is close northeast of the northern tip of the galaxy [2.1' from center].  Forms a pair with IC 5073 9.5' ESE.
+
+
+DeLisle Stewart discovered IC 5071 = D.S. 699 on a plate taken at Harvard's Arequipa station on 26 Sep 1900.  He noted "cB, S, eE at 20°, stell N."
+
+******************************
+
+
+IC 5073 = ESO 047-021 = PGC 65992
+
+21 03 19.9 -72 41 16; Pav
+
+V = 14.1;  Size 1.1'x1.0';  Surf Br = 14.1
+
+
+30" (10/18/17 - OzSky): at 264x; fairly faint, fairly small, round, 24" diameter, very small brighter nucleus.  Using averted vision, a very low surface brightness halo [a pair of narrow spiral arms on DSS] doubled the diameter.  Forms a wide pair with IC 5071 9.5' WNW.
+
+
+DeLisle Stewart discovered IC 5073 = D.S. 701 on a plate taken at Harvard's Arequipa station on 26 Sep 1900.  He noted "eF, S, R."
+
+******************************
+
+
+IC 5076 = LBN 394 = Ced 185
+
+20 55 54 +47 25; Cyg
+
+Size 9'x6'
+
+
+17.5" (10/24/92): fairly faint, fairly large, 4' diameter.  Extends west of mag 5.7 SAO 50246.  The vicinity is fairly rich in arcs of stars.  The nebulosity is on the west side of a striking 5' group of stars that are centered on the bright star.  Ten of the stars surrounding the mag 5.7 star form a semi-circle including a tight quadruple 2' SE.  A scattered group of stars (h2091 = NGC 6991) is 10' WSW.
+
+
+13.1" (8/25/84): fairly faint, extends generally west of the mag 5.7 star although the border is irregular.
+
+
+8" (8/28/81): mag 6 star surrounded by very faint reflection nebula at low power using a Daystar 300 filter.
+
+
+Isaac Roberts discovered IC 5076 on 13 Sep 1895 while taking a photograph of the "cluster" NGC 6991.  The discovery was announced in MNRAS, 56, 33 (1895).  He noted "it is about 6 1/2 minutes of arc in length from north to south, and 5 minutes of arc in breath from preceding to following, irregular in outline and with many stars, both bright and faint, involved or in alignment with it.  The nebulosity has no regular structure and is of a fleecy character, the margins gradually fading into invisibility."
+
+******************************
+
+
+IC 5078 = MCG -03-53-021 = UGCA 419 = PGC 65960
+
+21 02 31.3 -16 49 06; Cap
+
+V = 12.7;  Size 4.1'x1.1';  Surf Br = 14.2;  PA = 85°
+
+
+17.5" (8/11/96): very faint, fairly small, elongated ~2:1 WSW-ENE, low surface brightness.  The view is severely hampered by a mag 12 star superimposed on the SW side of the galaxy.  The extension following the star is easier to view, but still requires attention and could easily be passed over.  The galaxy is sandwiched between a mag 12 star 1' SE and a brighter mag 11 star 1' NW.
+
+
+DeLisle Stewart discovered IC 5078 = DS 703 on a plate taken at Harvard's Arequipa station on 26 Sep 1900.  He noted "nebulous streak, nr middle * of 3, susp."
+
+******************************
+
+
+IC 5082 = NGC 7010 = MCG -02-53-024 = PGC 66039
+
+21 04 39.5 -12 20 18; Aqr
+
+V = 13.5;  Size 2.3'x1.3';  Surf Br = 14.5;  PA = 30°
+
+
+17.5" (7/1/89): fairly faint, fairly small, elongated 2:1 SW-NE, weakly concentrated.
+
+
+Guillaume Bigourdan found IC 5082 = Big. 440 on 27 Aug 1886. According to Harold Corwin, due to John Herschel's poor position for NGC 7010 (10' too far south), Bigourdan misidentified NGC 7010 with a star and rediscovered the galaxy at the correct position.  Dreyer assumed Bigourdan's object was new, but IC 5082 = NGC 7010.  MCG (-02-53-024) labels this galaxy as IC 5082 only.
+
+******************************
+
+
+IC 5083 = CGCG 425-038 = PGC 66011
+
+21 03 51.5 +11 45 49; Equ
+
+Size 0.5'x0.5'
+
+
+17.5" (11/25/00): faint, very small, round, 15" diameter, faint but sharp stellar nucleus.  Located 4' due west of mag 8.8 SAO 106811.  Forms a close pair with a mag 14 star just following.
+
+
+Lewis Swift discovered IC 5083 = Sw. XI-203 on 12 Aug 1896 and reported "eeeF; vS; p[receding] 8m * 13s same parallel; wide D * near n[orth]; ee diff."  His position is 5' too far northwest, but his detailed description is a perfect match.  Swift gave the discovery date as 1897 in his large 11th list, but it must have been found in 1896 as reported in his first Lowe Observatory list in 1896 AJ, 17. Howe measured an accurate micrometric position in 1898 or 1899 that was used in the IC2.
+
+******************************
+
+
+IC 5086 = ESO 464-025 = MCG -05-50-002 = PGC 66179
+
+21 08 32.0 -29 46 09; Mic
+
+V = 12.8;  Size 1.5'x1.5';  Surf Br = 13.6
+
+
+17.5" (8/6/97): fairly faint, fairly small, round, 1.0' diameter.  Evenly concentrated down to a faint stellar nucleus but there is no well-defined core region.  Forms the west vertex of an isosceles triangle with two similar mag 12 stars 5.8' E and 4.0' NE.
+
+
+E.E. Barnard discovered IC 5086 = Sw. XI-204 on 15 Jul 1890 with the 12-inch refractor at Lick Observatory.  He wrote in his logbook, "1' S and 22' p a 8m star.  1/2' dia, R, indef, 12 1/2 mag.  Not in NGC."  His rough pointing position is 5' S of IC 5086 and the comment about the 8th mag star applies.
+
+
+Lewis Swift possibly found this galaxy again on 15 Sep 1897 and recorded "eeF, pS, R, F * near f 90 degrees."   His position is poor - 20' southwest of ESO 464-025, though other positions are notoriously poor during his last year at Lowe Observatory at age 77.  Swift is credited with the discovery as Barnard didn't publish his discovery or inform Dreyer.
+
+******************************
+
+
+IC 5090 = UGC 11691 = MCG +00-54-003 = CGCG 375-006 = WBL 669-003 = PGC 66299
+
+21 11 30.5 -02 01 57; Aqr
+
+V = 13.5;  Size 1.2'x0.5';  Surf Br = 12.8;  PA = 26°
+
+
+17.5" (8/8/02): fairly faint, very elongated 4:1 SSW-NNE, 1.0'x0.25', increases to a brighter core. Forms a pair with MCG +00-54-002 5.7' W.  Located 7' N of mag 7.7 HD 201718.
+
+
+Herbert Couper Wilson discovered IC 5090 visually on 8 Oct 1895 while searching for Comet Faye with the 16.2-inch refractor of the Goodsell Observatory in Minnesota.  He remarked, "the nebula is very faint, very small and round, with a rather sharp condensation, 12m or 13m, in the center.  He measured an accurate micrometric position using the mag 7.7 star 7' S.
+
+******************************
+
+
+IC 5092 = ESO 107-017 = LGG 443-005 = PGC 66452
+
+21 16 14.5 -64 27 53; Pav
+
+V = 12.1;  Size 2.9'x2.4';  Surf Br = 14.0;  PA = 8°
+
+
+30" (10/10/15 - OzSky): at 394x; IC 5092 has an unusual appearance.  It is moderately bright and large, containing a central bar oriented E-W surrounded by a large low surface brightness halo with a hint of spiral structure.  Located 17' NW of mag 6.3 HD 202299 and 41' SE of NGC 7020, the brightest member of a small galaxy group (LGG 443).
+
+
+Royal Frost discovered IC 5092 = F. 1217 on a plate taken on 19 Sep 1903 at Harvard's Arequipa station using the Bruce 24" photographic refractor.  The galaxy was described as "pL, E, mbM."
+
+******************************
+
+
+IC 5104 = UGC 11731 = MCG +03-54-007 = PGC 66622
+
+21 21 29.4 +21 14 28; Peg
+
+V = 13.4;  Size 1.6'x0.4';  Surf Br = 12.8;  PA = 173°
+
+
+17.5" (7/26/95): very faint, fairly small, edge-on 6:1 N-S, 1.2'x0.2', no concentration.  An unequal double star is 1.2' E and a brighter easy pair is 2.4' SSW.  Located 4.6' S of mag 8.2 SAO 89645.
+
+
+Stephane Javelle discovered IC 5104 = J. 3-1406 on 26 Oct 1897.  His position is 2.6' too far south due to an error in the position of his reference star.
+
+******************************
+
+
+IC 5105 = ESO 342-039 = MCG -07-44-001 = LGG 445-004 = PGC 66694
+
+21 24 22.0 -40 32 16; Mic
+
+V = 11.6;  Size 2.6'x1.6';  Surf Br = 13.2;  PA = 40°
+
+
+13.1" (10/20/84): faint, small, round, brighter core.  Just visible continuously with direct vision.
+
+
+Lewis Swift discovered IC 5105 = Sw. XII-25 on 19 Aug 1897 and noted "vF, vS, R, * with dist. comp. n and s."  His position is 5.4' too far south, but matches in RA.  There are numerous stars around, so I don't know which stars he had in mind.
+
+******************************
+
+
+IC 5110 = ESO 145-007 = AM 2126-601 = PGC 66878
+
+21 30 43.4 -60 00 07; Ind
+
+V = 13.1;  Size 1.4'x1.0';  Surf Br = 13.3;  PA = 49°
+
+
+30" (10/14/15 - OzSky): at 394x; moderately bright, fairly small, 45" diameter, contains a bright elongated core that appears to be a bar, stellar nucleus.  NGC 7059 lies 25' W.
+
+
+Royal Frost discovered IC 5110 = F. 1219 on a plate taken on 19 Sep 1903 at Harvard's Arequipa station using the Bruce 24" photographic refractor.
+
+******************************
+
+
+IC 5114 = NGC 7091 = ESO 403-008 = MCG -06-47-007 = PGC 66972
+
+21 34 07.6 -36 39 12; Gru
+
+V = 12.9;  Size 2.1'x1.7';  Surf Br = 14.1;  PA = 86°
+
+
+See observing notes for NGC 7091
+
+
+Lewis Swift found IC 5114 = Sw. XI-206 on 9 Jul 1897 and wrote "eF; pS; R; e[xtremely] wide D * f[ollows] 30 s."  There is nothing near his position, which is roughly 2 minutes of time west and 3.5' south of NGC 7091 (see for problems on its position).  Swift's description applies to this galaxy, though, with the two stars (1.2' separation) rougly 30 seconds of time following.  So, despite his poor position (very common in his last two lists), IC 5114 is likely NGC 7091.
+
+******************************
+
+
+IC 5115 = CGCG 426-062 = CGCG 427-001 = PGC 66899
+
+21 31 37.6 +11 49 54; Peg
+
+V = 14.1;  Size 0.6'x0.6'
+
+
+24" (7/28/19): very similar view as previous notes at 322x.  Visible with direct vision and not difficult to hold continuously.
+
+
+24" (10/6/18): fairly faint, fairly small, round, ~25" diameter, very small bright nucleus.  The galaxy forms a right angle with a mag 14 star 0.8' W and a mag 14.5 star 1.3' SSE.  This compact CGCG is situated just 32' SE of the center of M15!
+
+
+Lewis Swift discovered IC 5115 = Sw. XI-205 on 12 Sep 1896 and wrote, "eeF; vS; faint * near f; not [NGC]7068."  There is nothing at his position but nearly 30 seconds of RA east is CGCG 426-060, and this galaxy is taken as IC 5115.  Although a group of at least 8 stars is immediately west, there isn’t a faint star close east that would have drawn his attention.  Secondly, I find it odd that NGC 7068 was mentioned in the description as it is located 1.2° NW, well outside of Swift's field of view.  Finally, CGCG 426-060 has a very low surface brightness and was missed in my 24", I'm skeptical it was picked up by Swift.
+
+******************************
+
+
+IC 5117 = PK 89-5.1 = PN G089.8-05.1
+
+21 32 31.0 +44 35 48; Cyg
+
+V = 11.5;  Size 2"
+
+
+18" (11/17/08): picked up at 175x in a rich star field by blinking with an OIII filter.  Excellent contrast gain using the filter.  Forms the fainter component (V = 11.5) of a "double star" with a mag 10 star 21" ENE, but with the filter the planetary dominates the star.  Interestingly, there is similar double (Es 1339 = 10.8/11.5 at 24") in terms of separation and position angle ~3' NE!  Without a filter at 175x, IC 5117 has a soft, bluish appearance.  Using 450x, a very small 2" disc was clearly visible but it was too small to resolve any structure.
+
+
+13.1" (8/7/85): appears as mag 11.5 "star" without a filter.  Forms a 20" double with a mag 10 star just east.  Using an OIII filter the planetary is brighter than the star by one magnitude (contrast gain of roughly 2.5 magnitudes).
+
+
+Williamina Fleming discovered IC 5117 = Fleming 104 in 1905 while classifying stars by examining photographic objective-prism spectra.  A note in the 1905 Harvard College Observatory Circular No. 98 ("Stars Having Peculiar Spectra") simply mentions "this object is exceedingly faint."  Thomas Espin made several visual observations in 1911 with his 17.25" reflector and the "nebula was thought to show a tiny disc."
+
+
+Based on Crossley photographs taken at Lick, Heber Curtis (1918) reported IC 5117 was "indistinguishable from a star on the Crossley negatives, but shown to have a minute disk visually with the 36-inch refractor."
+
+******************************
+
+
+IC 5121 = NGC 7096 = ESO 107-046 = AM 2137-640 NED01 = PGC 67168
+
+21 41 19.9 -63 54 29; Ind
+
+V = 11.9;  Size 2.0'x1.8';  Surf Br = 13.0;  PA = 130°
+
+
+See observing notes for NGC 7096.
+
+
+Royal Frost found IC 5121 = F. 1221 on an Arequipa plate taken 19 Sep 1903 and recorded "planetary, stellar, 13 magn." There is nothing at his postion but exactly 30' N is NGC 7096.  NED, SIMBAD, Southern Galaxy Catalogue, and ESO equate IC 5121 with NGC 7096.  Jenni Kay questions this identification (e-mail 20 Aug 1998 and in Deep Sky Observer #159 in 2012), as the description for IC 5121 doesn't seem appropriate.  See Corwin's comments.
+
+******************************
+
+
+IC 5122 = ESO 531-14 = PGC 67123
+
+21 39 45.9 -22 24 23; Cap
+
+V = 15.4;  Size 0.8'x0.4';  Surf Br = 14.0;  PA = 55°
+
+
+18" (8/9/10): extremely faint, very small, round, 12" diameter, requires averted vision.  Located 4' NNW of NGC 7103, the brightest galaxy in cluster ACO S963.  IC 5122 is collinear with a mag 14 star 2' ENE and a mag 13.3 star 4.7' ENE.
+
+
+18" (8/12/07): extremely faint and small, round, 10" diameter, requires averted vision.  Located 4.2' NNW of NGC 7103 in cluster ACO S963.
+
+
+17.5" (10/13/90): extremely faint, very small, round, cannot hold steadily with averted.  Faintest of four in ACO S963 and forms the west vertex of an equilateral triangle with NGC 7103 4.2' SSE and NGC 7104 4.2' ESE.  IC 1393 lies 6.5' E.
+
+
+Herbert Howe discovered IC 5122 = Ho. II-13 on 17 Sep 1898 and noted "vF, eS.  Near [NGC] 7103 and 7104."  He added a note "No. 13 is in the same field with 7103, 7104, and [IC 5124].  These five objects have all been seen in one night".  MCG misidentifies -04-51-006 as being IC 5122 instead of NGC 7103.  This error is repeated in the PGC, NED and HyperLeda.
+
+******************************
+
+
+IC 5125 = ESO 188-016 = AM 2139-525 NED1 = PGC 67187
+
+21 41 50.2 -52 46 25; Ind
+
+V = 13.4;  Size 0.8'x0.7';  Surf Br = 12.5
+
+
+25" (10/10/15 - OzSky): at 244x; fairly faint to moderately bright, fairly small, round, 30" diameter, weak concentration.  NGC 7106 lies 8.3' NE.
+
+
+DeLisle Stewart discovered IC 5125 = DS 723 on a plate taken in 1899 at Harvard's Arequipa station in Peru.  He noted "F, eS, R, bM."
+
+******************************
+
+
+IC 5127 = NGC 7102 = UGC 11786 = MCG +01-55-008 = CGCG 402-013 = PGC 67120
+
+21 39 44.7 +06 17 10; Peg
+
+V = 13.5;  Size 1.7'x1.1';  Surf Br = 14.0;  PA = 153°
+
+
+See observing notes for NGC 7102.
+
+
+Guillaume Bigourdan found IC 5127 = Big. 338 on 27 Oct 1894.  There is nothing at his position.  But Harold Corwin and Courtney Seligman re-reduced his position based on an accurate coordinates of his offset star (BD+5 4837).  The resulting position is just 5 seconds of RA east of NGC 7102, resulting in IC 5127 = NGC 7102.  But, Corwin mentions that "he dates his three measurements to the same night on which he made three measurements of NGC 7102 (these reduce to the correct position)."  So, this requires Bigourdan to have measured the same object twice, once assuming it was new.
+
+******************************
+
+
+IC 5131 = ESO 403-027 = MCG -06-47-014 = PGC 67352
+
+21 47 25.3 -34 53 01; PsA
+
+V = 12.3;  Size 1.4'x1.4';  Surf Br = 12.9
+
+
+17.5" (7/16/93): fairly faint, small, round, small bright core, stellar nucleus.  Situated at the midpoint on a line connecting two stars mag 13.5 and 14.5 separation 3.0' oriented SW-NE.  1st of 3 with NGC 7130 11' SE and NGC 7135 29' E.
+
+
+Lewis Swift discovered IC 5131 = Sw. XI-207, along with IC 5135 = NGC 7130, on 17 Sep 1897 and noted "vF; vS; R."  His position is 5.4' too far southwest, roughly the same offset as XI-208 = IC 5135 and XI-209 = NGC 7135.  Herbert Howe measured an accurate micrometric position (given in the IC2) in 1898-99.
+
+******************************
+
+
+IC 5132 = Bernes 41
+
+21 42 40.3 +66 10 07; Cep
+
+Size 1'
+
+
+18" (10/29/11): faint, small glow surrounding a mag 12 star about 4' NNW of the main section of NGC 7129.  IC 5133, a slightly fainter glow and central star lies 1' NE.
+
+
+17.5" (10/17/98): IC 5132 and IC 5133 refers to faint nebulosity surrounding a pair of mag 12 stars at 1' separation situated ~5' NNW of NGC 7129 (same complex of reflection nebulae).  It was difficult to verify with certainty as the background sky around six stars arranged in two parallel rows each ~2' in length appears to be weakly glowing.  IC 5132 and 5133 are surrounding the two stars closest to NGC 7129 and the background glow does appear very slightly enhanced around these stars.
+
+
+Isaac Roberts discovered IC 5132 and 5133 on a photograph taken 25 Sep 1895 of NGC 7129. He noted "there are three stara, each about 13th magnitude, surrounded by very faint nebulosity in the positions following, measured from the centre of the tristellar nucleus of the nebula: (1) 358" north following; (2) 326" north preceding; (3) 277" north preceding.  The stars Nos. 2 and 3 are not referred to in Dr. Dreyer's catalogues, and the measurements given above are approximate."  His offsets identify the two stars given here, although Dreyer's positions are offset to the southwest.  Roberts' first object didn't make it into the IC as Dreyer apparently thought it was identical to NGC 7133.
+
+******************************
+
+
+IC 5133 = Bernes 41
+
+21 42 47.1 +66 10 51; Cep
+
+Size 1'
+
+
+18" (10/29/11): very faint, small glow surrounding a mag 12 star about 5' NNW of the main section of NGC 7129.  IC 5132, a slightly brighter glow and central star lies 1' SW.
+
+
+17.5" (10/17/98): IC 5132/5133 are very weak nebulae surrounding mag 12 stars ~5' NNW.
+
+
+Isaac Roberts discovered IC 5133 and 5132 on a photograph taken 25 Sep 1895 of NGC 7129.  See comments for IC 5132.
+
+******************************
+
+
+IC 5134 = NGC 7129 = LBN 497 = Ced 196
+
+21 42 58.6 +66 06 10; Cep
+
+
+See observing notes for NGC 7129.
+
+
+Guillaume Bigourdan found IC 5134 = Big. 339 on 15 Oct 1895 and noted "star, which appears accompanied by nebulosity located especially opposite 7129."  His position and description clearly applies to the nebulosity around the brightest southern star, as he thought NGC 7129 only applied to one of the northern patches. So, IC 5134 is technically part of NGC 7129.
+
+******************************
+
+
+IC 5135 = NGC 7130 = ESO 403-032 = AM 2145-351 = LGG 445-017 = PGC 67387
+
+21 48 19.5 -34 57 06; PsA
+
+V = 12.1;  Size 1.5'x1.4';  Surf Br = 12.7
+
+
+17.5" (8/6/97): moderately bright, moderately large, round, ~1.5' diameter.  Well concentrated with a prominent core and much fainter halo.  NGC 7135 lies 19' ENE.
+
+
+17.5" (7/16/93): moderately bright, moderately large, slightly elongated ~N-S, large bright core.  Appears to have a knot or star superimposed at the north edge.  Second of three with NGC 7135 19' ENE and IC 5131 11' NW.
+
+
+13" (8/5/83): faint, small, round, NGC 7135 in field 19' ENE.
+
+
+Lewis Swift found IC 5135 = Sw. XI-208 on 17 Sep 1897 and reported "vF; pL; R; sp of 2 [with Sw. XI-209 = NGC 7135]; not 7130 or 7135."  His position is 4.5' SW of NGC 7130 (John Herschel made a 30' error in declination), close enough that Howe was able to find it in 1898-99 and measure an accurate position (used in the IC 2).  It's unclear what Swift assumed to be NGC 7130.
+
+******************************
+
+
+IC 5136 = NGC 7135 = ESO 403-035 = MCG -06-48-001 = AM 2146-350 = PGC 67425
+
+21 49 45.6 -34 52 33; PsA
+
+V = 11.7;  Size 3.0'x1.9';  Surf Br = 13.5;  PA = 47°
+
+
+See observing notes for NGC 7135.
+
+
+Lewis Swift found IC 5136 = Sw. XII-27 on 15 Sep 1897 and reported "eeF, S, R, wide D * points to it, sev pB st sf and np."   There is nothing near his position.  Harold Corwin suggests that Swift found NGC 7135, which is 1.2° south of his position and 1 minute of RA east.   I don't see what stars he had in mind, though, for the "wide D *" that points to the galaxy.   He found the galaxy again just 2 nights later and reported Sw. XI-209 as "eeF; pL; R; 3 B st form a triangle; nf of 2 [with IC 5135 = NGC 7130]."  Herbert Howe reexamined the field in 1899 and realized Swift's #209 was identical to NGC 7135, so Dreyer didn't assign another IC desigation.
+
+******************************
+
+
+IC 5139 = ESO 466-011 = MCG -05-51-017 = PGC 67447
+
+21 50 25.6 -30 59 41; PsA
+
+V = 12.3;  Size 2.1'x1.0';  Surf Br = 13.0;  PA = 33°
+
+
+17.5" (8/6/97): fairly faint, fairly small, elongated 5:2 SW-NE, 1.2'x0.5', weakly concentrated.  A faint star appears is attached at the NE end (just visible on DSS).
+
+
+17.5" (7/25/95): fairly faint, fairly small, elongated 5:2 SW-NE, 1.2'x0.5', fairly high surface brightness, broad concentration to a brighter core.  There appears to be an extremely faint star or knot at the NE end.  Bracketed by two mag 14.5 stars 2' NE and two similar stars 2' SW.
+
+
+Lewis Swift discovered IC 5139 = Sw. XII-28 on 18 Aug 1897 and noted "vF, S, lE."  His RA is 16 seconds too large, actually a fairly close match considering his very poor positions during his last summer of observing.
+
+******************************
+
+
+IC 5143 = NGC 7155 = ESO 237-016 = LGG 448-003 = PGC 67663
+
+21 56 09.7 -49 31 19; Ind
+
+V = 12.2;  Size 2.2'x1.8';  Surf Br = 13.5;  PA = 4°
+
+
+See observing notes for NGC 7155.
+
+
+Lewis Swift found IC 5143 = Sw. XI-210 on 17 Sep 1897 and logged "eeF; pS; R; in line with 2 9m st[ars]."  There is nothing at his position, but 28' S is NGC 7155 and Harold Corwin comments that Swift's description of the two 9th mag stars clinches the identification.  So, IC 5143 = NGC 7155.  There's confusion on the observation date; his second discovery list at Lowe Observatory (in Popular Astronomy) gives 27 Sep, but his large 11th list gives 17 Sep.
+
+******************************
+
+
+IC 5144 = CGCG 427-039 = WBL 674-001 = PGC 1473533
+
+21 54 09.5 +15 02 13; Peg
+
+V = 14.3;  Size 0.7'x0.6'
+
+
+24" (8/12/15): at 375x; faint, small, round, 18" diameter.  A mag 15 star is just 24" SE of center.  Easily picked up, though not plotted as a "star" on the Megastar chart.
+
+
+CGCG 427-040, just 2.7' ENE, appeared extremely to very faint, small, round, 20" diameter, low even surface brightness.  CGCG 427-040 is misidentified as IC 5144 in MCG, PGC and HyperLeda.  UGC 11845 lies 4.6' ESE.  This difficult edge-on (B = 16.1) appeared extremely faint, fairly small, elongated 2:1 NW-SE, ~20"x10", very low surface brightness! A mag 13 star lies 1.3' SE.
+
+
+E.E. Barnard discovered IC 5144, along with IC 5145, on 30 Jul 1888 and described in his notebook, "1 outer radius + 1 thickness [of Ring micrometer] = 7' 17" south and 17 seconds +/- preceding this nebula [IC 5145] is a small faint neb close preceding several small stars." Dreyer was notified privately of both of these discoveries.  Very close to Barnard's offset from IC 5145 is the brightest galaxy of 4 within 3', which matches his description. MCG, PGC, and HyperLeda (as of late 2015) misidentify CGCG 427-040 as IC 5144 (though has an uncertain symbol).  See Harold Corwin's notes for more.
+
+******************************
+
+
+IC 5145 = UGC 11844 = MCG +02-55-028 = CGCG 427-041 = WBL 674-003 = PGC 67619
+
+21 54 23.1 +15 09 25; Peg
+
+V = 13.4;  Size 1.6'x0.9';  Surf Br = 13.6;  PA = 171°
+
+
+24" (8/12/15): at 375x; moderately bright, elongated 5:3 ~N-S, 40"x24", contains a brighter, elongated core.  A mag 14.5 star is 1.2' S.  Brightest in a group (WBL 674) with IC 5144 8' SSW, CGCG 427-040 6.8' S and UGC 11845 8.5' SSE.
+
+
+E.E. Barnard discovered IC 5145, along with IC 5144, on 30 Jul 1888 with the 12-inch refractor at Lick Observatory.  It was found after comet-seeking "in the field and s.p. an 8th magnitude star [mag 7.7 HD 208277]."  He notified Dreyer directly, so no discovery announcement was published before the IC was published.  His position is 4.3' too far northwest, but shares the same offset with IC 5144.
+
+******************************
+
+
+IC 5146 = Ced 198 = LBN 424 = Cr 470 = Sh 2-125 = Cocoon Nebula
+
+21 53 24 +47 16; Cyg
+
+Size 12'x12'
+
+
+17.5" (8/8/91): at 82x using an H-Beta filter, the Cocoon Nebula appears fairly bright, very large, about 10' diameter.  Surrounds six stars including two bright mag 9-10 stars embedded near the center and at the south edge.  Has an irregular round shape with a very irregular surface brightness with dark mottling and brighter regions.  The nebula is quite prominent using an H-Beta filter, which gives an excellent contrast gain (higher than OIII). The nebulous glow is superimposed on a scattered star group and is situated at the east end of long dark lane = B168 which extends 1° WNW! (excellent in binoculars).  There is a distinctive edge to the Milky Way on the north edge of lane.
+
+
+8" (8/12/83): about 20 stars over a very faint "milky" region, fairly large, just slightly higher contrast than Milky Way background.  A short arc of stars is off the west edge.  A long starless dark lane extends west.  Two bright stars oriented N-S are just east.
+
+
+E.E. Barnard discovered IC 5146 = Cocoon Nebula on a photograph taken 11 Oct 1893 using the 6" Willard lens at Lick Observatory.  Max Wolf also photographed the field on 28 Jul 1894 with the 6-inch camera at Königstuhl.  Wolf announced his discovery with a photograph taken on 10 Jul 1904 and discussed the dark lane (Barnard 168) and nebulosity in detail in his paper "Remarkable nebula in Cygnus" (MNRAS, 64, 838,1904).
+
+
+Mary Clerke, who was in correspondence with Wolf at the time, includes Wolf's 1904 photograph (plate XX) in her second edition (1905) of "The System of the Stars".  She labeled the photograph "The Cocoon Nebula in Cygnus" and writes (p. 352) "The depicted nebula, which had been discovered ten years previously, is about 10' in diameter, of a round shape, and a complex structure.  "It is placed centrally," Dr. Wolf writes, "in a very fine lacuna void of faint stars, which surrounds the luminous cloud like a trench."  Moreover, this negative "halo forms the end of a long channel, running eastward from the western nebulous clouds and their lucanae, to a length of more the two degrees."  The coexistence in the same sidereal district of nebulae and stars could not well be asserted with stronger emphasis than by clearly of a dark fosse for the accommodation of the cocoon-like object in Plate XX."  I tracked down the nickname after a discussion on AMASTRO in August 2015.
+
+
+The Reverend Thomas Espin discovered the nebula visually on 13 Aug 1899 and described object #6 in AN [3633] 152, 141 as a "large, faint glow about 8', well seen each night [2]."  Espin and Wolf is credited with the discovery in the IC.
+
+
+Dave Riddle notes that B168 could apply to both the bright nebula and the associated dark lane. Barnard refers to a "small nebula at the E end of dark lane. This nebula is 10' in diameter with over a dozen stars of different magnitudes in it. There is no central condensation, nor does the nebula condense about any of the stars. There are some dark markings in it. The dark lane is 1.7 degrees long and 9' wide."
+
+******************************
+
+
+IC 5148 = IC 5150 = PK 2-52.1 = ESO 344-5 = PN G002.7-52.4 = Spare Tyre Nebula
+
+21 59 35.1 -39 23 08; Gru
+
+V = 11.0;  Size 120"
+
+
+48" (10/23/14): beautiful, large annular planetary at 375x, round, roughly 2' diameter, with a relatively thick annulus and a 30" central dark hole.  Contains a very easy central star, which seemed quite easy for mag 16.3-16.5.  The annulus appeared mottled and irregular in brightness.  A 60° arc along the NW portion of the annulus is slightly brighter and a 90° arc from SE to NE is much brighter and a little thicker.  A mag 10.5 star is off the SSW side (1.9' from center), but no superimposed stars were seen.
+
+
+18" (8/30/08): viewed from Lake Sonoma at a very low elevation, though in a dark portion of the southern sky.  Beautiful view at 115x using an OIII filter as a 2' annular ring with a relatively thick rim and 30" central hole.  A mag 10.5 star is close off the SSW side (1.8' from the center).
+
+
+18" (7/6/02 - Magellan Observatory, Australia): at 171x and UHC filter, this beautiful planetary appears as a large round ring, nearly 2' diameter, with a bright, thick annulus that is irregularly lit.  The rim is slightly brighter and thicker along the SE side and also appeared slightly enhanced on the NW side.  The central hole appears 25"-30" diameter and is dark except for a central star that was intermittently visible with averted vision at 228x unfiltered, although the catalogued magnitude is 16.5!  Good contrast enhancement with a UHC filter.  A mag 10.5 is off the SSW side, 1.8' from the center.
+
+
+17.5" (10/30/99): Even at -39° declination, this moderately large planetary is a beautiful annular ring at 100x with an OIII filter.  Appears round, ~100" diameter, the annulus has an irregular surface brightness.  The central "hole" is perhaps 25" in diameter and fairly dark.  A mag 10.5 star is close off the SSW edge.
+
+
+17.5" (8/20/88): perfect annular 2' ring visible at 82x using an OIII filter.  A mag 10.5 star is just off the SSW edge 1.8' from the center.  The ring-shape is clearly visible with direct vision.
+
+
+17.5" (7/22/87): beautiful ring at 140x with an OIII filter.  Appears fairly large, fairly bright with a mag 11 star off the south edge.
+
+
+13.1" (8/17/85): fairly faint with OIII at 79x, fairly large.  Appears clearly annular with averted vision.  The central hole is possibly elongated N-S. A mag 11 star is off the south edge.
+
+
+Walter Gale, an amateur from Sydney, discovered IC 5150 on 4 Jun 1894 with his 8.5-inch reflector from Paddington and it was reported in the B.A.A. Vol VI, No. 5 (p218) in 1895.  He described it as just visible in a 6-inch reflector and a 5-inch refractor.  Using his new 10-inch reflector, it spanned 45"x35" N-S with the central vacancy less than half the diameter and not entirely dark.  He also commented it was remarkable that such a relatively bright object was overlooked by John Herschel.
+
+
+Lewis Swift independently found this planetary on 23 July 1897 on Echo Mountain in southern California and recorded Sw. XII-29 (later IC 5148) as "vF, L, lE, 2 B st point to it, nearest in contact."  Swift's position was 30 sec of RA too small.  By priority, the primary designation should be IC 5150 (from Gale), although it is generally known as IC 5148 or IC 5148-50.  Baracchi observed it using the Great Melbourne Telescope and described the planetary as almost circular, ~1.5' diameter, not quite dark in the central portion.
+
+******************************
+
+
+IC 5149 = ESO 466-027 = MCG -05-51-033 = PGC 67770
+
+21 58 59.0 -27 24 50; PsA
+
+V = 13.6;  Size 1.2'x0.5';  Surf Br = 12.9;  PA = 33°
+
+
+24" (9/6/18): fairly faint, elongated ~5:2 SW-NE, ~50"x20".  Contains a bright, round core. The galaxy is nearly colllinear with a mag 11.4 star 2.2' NW and a mag 13 star is 3.7' NW.  ESO 466-024, situated 11' WNW, appeared moderately bright (somewhat brighter than IC 5149), slightly elongated, ~40"x30", a strong bright core seems offset towards the north side.  A mag 14.7 star is 0.8' S.
+
+
+Lewis Swift discovered IC 5149 = Sw. XII-30 on 8 Sep 1897 and reported "eF, S, R, 6 1/2 mag * same parallel follows 63s."  His position is 4' too far northwest but his comment of a bright star 63 seconds of RA to the east clinches the identification.  I'm surprised he missed ESO 466-024, which was in his same eyepiece field.
+
+******************************
+
+
+IC 5150 = IC 5148 = PK 2-52.1 = ESO 344-5 = PN G002.7-52.4 = Spare Tyre Nebula
+
+21 59 35.1 -39 23 08; Gru
+
+V = 11.0;  Size 120"
+
+
+48" (10/23/14): beautiful, large annular planetary at 375x, round, roughly 2' diameter, with a relatively thick annulus and a 30" central dark hole.  Contains a very easy central star, which seems brighter than mag 16.5.  The annulus is mottled and irregular in brightness.  A 60° arc along the NW portion of the annulus is slightly brighter and a 90° arc from SE to NE is much brighter and a little thicker.  A mag 10.5 star is off the SSW side (1.9' from center), but there are no superimposed stars.
+
+
+18" (8/30/08): viewed from Lake Sonoma at a very low elevation, though in a dark portion of the southern sky.  Beautiful view at 115x using an OIII filter as a 2' annular ring with a relatively thick rim and 30" central hole.  A mag 10.5 star is close off the SSW side (1.8' from the center).
+
+
+18" (7/6/02 - Magellan Observatory, Australia): at 171x and UHC filter, this beautiful planetary appears as a large round ring, nearly 2' diameter, with a bright, thick annulus that is irregularly lit.  The rim is slightly brighter and thicker along the SE side and also appeared slightly enhanced on the NW side.  The central hole appears 25"-30" diameter and is dark except for a central star that was intermittently visible with averted vision at 228x unfiltered, although it is listed with a magnitude of 16.5!  Good contrast enhancement with a UHC filter.  A mag 10.5 is off the SSW side, 1.8' from the center.
+
+
+17.5" (10/30/99): Even at -39° declination, this moderately large planetary is a beautiful annular ring at 100x with an OIII filter.  Appears round, ~100" diameter, the annulus has an irregular surface brightness.  The central "hole" is perhaps 25" in diameter and fairly dark.  A mag 10.5 star is close off the SSW edge.
+
+
+17.5" (8/20/88): perfect annular 2' ring visible at 82x using an OIII filter.  A mag 10.5 star is just off the SSW edge 1.8' from the center.  The ring-shape is clearly visible with direct vision.
+
+
+17.5" (7/22/87): beautiful ring at 140x with an OIII filter.  Appears fairly large, fairly bright with a mag 11 star off the south edge.
+
+
+13.1" (8/17/85): fairly faint with OIII at 79x, fairly large.  Appears clearly annular with averted vision.  The central hole is possibly elongated N-S. A mag 11 star is off the south edge.  Similar view on 7/20/85.
+
+
+See IC 5148.
+
+******************************
+
+
+IC 5152 = ESO 237-027 = AM 2159-513 = PGC 67908
+
+22 02 41.9 -51 17 44; Ind
+
+V = 10.6;  Size 5.2'x3.2';  Surf Br = 13.5;  PA = 100°
+
+
+11" (8/8/04 - Haleakala Crater): at 127x appeared moderately bright, fairly large, elongated 2:1 ~E-W, roughly 2.5'x1.3', broad weak concentration to a slightly brighter core.  A 7.7-magnitude star (HD 209142) is superimposed just north of the west end of the galaxy and somewhat hinders the view.  With averted vision the glow appears to extend slightly west of the bright star and the core is just a small brightening to the east of the star.
+
+
+18" (7/6/02 - Magellan Observatory, Australia): this nearby Irregular galaxy (probably just outside the Local Group) was viewed at 171x and 228x.  It appeared bright, large, elongated 2:1 ~WNW-ESE, ~3'x1.5'.  A mag 7.9 star (HD 209142) is perched on the NW end and detracts from viewing.  It's very surprising that John Herschel missed this galaxy as it is quite large and relatively prominent.  Gradually concentrated to a brighter 45" core.
+
+
+DeLisle Stewart discovered IC 5152 = DS 732 on a plate taken in 1899 at Harvard's Arequipa station in Peru.  He noted "F, cL, cE at 150°, cbM."  This galaxy is often listed as a Local Group member though is likely outside the Local Group.
+
+******************************
+
+
+IC 5156 = ESO 404-025 = MCG -06-48-019 = LGG 450-012 = PGC 67932
+
+22 03 14.9 -33 50 18; PsA
+
+V = 12.6;  Size 2.2'x0.8';  Surf Br = 12.7;  PA = 175°
+
+
+18" (7/21/04): fairly faint to moderately bright, moderately large, elongated 5:2 N-S, 1.4'x0.5', brighter core and fairly easy stellar nucleus.  A wide pair of mag 12/13 stars lies 7'-8' E.  Forms a pair with ESO 404-023 situated 7' WNW.  Also ESO 404-019 lies 23' WSW.
+
+
+13.1" (10/20/84): faint, small, slightly elongated N-S, weakly concentrated.
+
+
+Lewis Swift discovered IC 5156 = Sw. XII-32 on 16 Oct 1897 and reported "pF, pS, R, in vacancy."  His position is just 2' too far north, unusually accurate for his last summer of observing at age 77.
+
+******************************
+
+
+IC 5157 = ESO 404-026 = MCG -06-48-020 = PGC 67941
+
+22 03 27.0 -34 56 31; PsA
+
+V = 12.7;  Size 1.4'x1.3';  Surf Br = 13.4
+
+
+17.5" (9/23/95): fairly faint but surprisingly bright for an IC galaxy at a fairly low elevation.  Appears round, 1.2' diameter, even concentration to a small bright core and occasional stellar nucleus.  Precedes a line (5' length) of three equally spaced mag 12-13 stars with the closest 2.6' NE.
+
+
+Lewis Swift discovered IC 5157 = Sw. XII-31 = D.S. 735 on 26 Jul 1897 and reported "pB, pS; R; 3 st in line nr nf."  His RA is 30 seconds too small, but the identification is certain based on his description of the 3 stars.  DeLisle Stewart also found it on a plate taken at Harvard's Arequipa station in 1899 and measured a more accurate position (used in the IC2).
+
+******************************
+
+
+IC 5160 = UGC 11884 = CGCG 428-018 = PGC 67929
+
+22 03 04.8 +10 55 29; Peg
+
+V = 14.1;  Size 1.1'x0.8';  PA = 21°
+
+
+18" (8/8/10): faint, fairly small, slightly elongated ~N-S, ~27"x20".  Exhibits a weak, even concentration to the center but no core or zones.  Located 16' E of mag 6.4 HD 209288 and 16' S of NGC 7190.  Roughly 6' S is NGC 7193, a distinctive asterism of a dozen mag 11-12 stars (considered an open cluster remnant) that is very elongated NW to SE, extending ~6'x1'.
+
+
+Stephane Javelle discovered IC 5160 = J. 3-1412 on 15 Oct 1903 and measured an accurate position.  UGC reverses the declinations of IC 5160 and NGC 7190.  NED comments that "often incorrectly called NGC 7190; that is UGC 11885."
+
+******************************
+
+
+IC 5168 = HCG 91B = ESO 467-015 = MCG -05-52-039 = PGC 68164
+
+22 09 16.3 -27 43 50; PsA
+
+V = 14.8;  Size 1.1'x0.2';  Surf Br = 14.0;  PA = 168°
+
+
+24" (8/1/19): at 260x; faint, moderately large, extremely thin edge-on, nearly 10:1 NNW-SSE, ~0.9'x0.1', can hold steadily with averted.  Forms an equilateral triangle with two mag 14.5/14.8 stars 1.7' NE and ESE.  Located 5' NNE of NGC 7214 and faintest in the HCG 91 quartet. Modern catalogues identify ESO 467-011 as IC 5168.
+
+
+ESO 467-011, located 5.6' SW of NGC 7214, was a threshold object and popped a couple of times at 220x as a thin edge-on, ~5:1 NW-SE.
+
+
+18" (9/3/05): extremely faint, small, thin edge-on streak NNW-SSE, 0.4'x0.1'.  Only visible when the seeing settled down.
+
+
+17.5" (10/13/90): extremely faint, small, edge-on NNW-SSE, can just hold steadily with averted.  Located 5.1' NNE of NGC 7214 in HCG 91.
+
+
+Lewis Swift discovered IC 5168 = Sw. XI-211 on 31 Aug 1897 and reported in his 11th discovery list, "eeF; vS; vE; [right] ∆ with 2 F st."  In his earlier third discovery list from Lowe, he also noted the 2 faint stars were near south-following.  His position falls near the southeast tip of ESO 467-011, a faint edge-on, which all sources (ESO, MCG, PGC, NED, HyperLEDA, SIMBAD) take as IC 5168 based on the very good positional match.  But there aren't two faint stars close southeast matching his description or in any other direction that he likely would have seen.  Instead, in Aug 2019 I proposed to Harold Corwin that ESO 465-015 = HCG 91B, about 10' NE of Swift's position, was a better candidate.  This galaxy is a brighter edge-on with two mag 14.5 stars less than 2' NE and SE forming an equilateral triangle.  He agrees with this identification.
+
+
+ESO 467-011 was found on a plate taken between 1914-1916 with the 30" Reynolds reflector at the Helwan Observatory.  It was reported as #242 in a list of 256 new nebulae published in 1921 and described as "pF, 1' long, spindle, mE 170°, lbM."
+
+******************************
+
+
+IC 5171 = ESO 288-046 = PGC 68223
+
+22 10 56.7 -46 04 53; Gru
+
+V = 12.6;  Size 3.0'x0.4';  Surf Br = 12.8;  PA = 158°
+
+
+30" (10/9/15 - OzSky): at 394x; fairly bright, fairly large, edge-on 5:1 NNW-SSE, 2.0'x0.4'.  The northwest end of the galaxy seems fainter than the southeast, or perhaps the dimmer outer portion extends further.  A mag 12.3 star is 2' SE and two additional mag 12.5 and 13.5 stars are 4' and 5' SE, respectively.  IC 5181 lies 25' ENE.
+
+
+Joseph Lunt discovered IC 5171 visually in 1900 while searching for Brorsen's Comet with the 18-inch f/15 refractor of the Royal Observatory at the Cape of Good Hope.  His RA is nearly 30 seconds too large, but the identification is certain.
+
+******************************
+
+
+IC 5175 = ESO 3440914 = PGC 68296
+
+22 12 48.2 -38 07 39; Gru
+
+V = 13.6;  Size 1.4'x0.5';  Surf Br = 13.0;  PA = 94°
+
+
+24" (10/1/16): fairly faint, small, elongated 2:1 E-W, 24"x12", contains a very small brighter nucleus.  A mag 10.4 star is 50" SW.  Forms an interacting pair with IC 5174 at 2.6' SSW, but the companion was not picked up.
+
+
+DeLisle Stewart discovered IC 5175 = DS 739, along with IC 5174, on a plate taken in 1899 at Harvard's Arequipa station.  He noted "eF, eS, R, bM."
+
+******************************
+
+
+IC 5176 = ESO 108-020 = FGCE 1717 = RFGC 3908 = PGC 68389
+
+22 14 52.9 -66 51 28; Tuc
+
+V = 12.5;  Size 4.5'x0.5';  Surf Br = 13.2;  PA = 29°
+
+
+25" (10/10/15 - OzSky): at 318x; excellent narrow edge-on ~10:1 SSW-NNE!  Contains a large, bright, very elongated core that bulges very slightly near the center.  The extensions taper near the tips, reaching a size of ~2.5'x0.25'.
+
+
+DeLisle Stewart discovered IC 5176 = DS 741 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "vF, S, eE at 30°, * n[orth]."  The position angle is erroneously stated as 151° (supplement of 29°) in the PGC and RC3.
+
+******************************
+
+
+IC 5179 = IC 5183 = IC 5184 = ESO 405-005 = MCG -06-48-031 = PGC 68455
+
+22 16 09.1 -36 50 37; Gru
+
+V = 11.8;  Size 2.3'x1.1';  Surf Br = 12.7;  PA = 57°
+
+
+17.5" (9/23/95): moderately bright, moderately large, elongated 2:1 SW-NE, 2.0'x1.0', broad concentration to a large brighter core.  Unusually bright for an IC galaxy.  Forms the north vertex of a triangle with a mag 10 star 4.6' SW and a mag 11 star 5.8' SSE.
+
+
+Lewis Swift found IC 5179 = Sw. XII-33 on 26 Jul 1897 and reported "vF, L, R, * close S, B * sp".  There is nothing at his position but 3 minutes of time further east is IC 5184, which Swift discovered just a week earlier and which also has a poor RA (off by 40 seconds).  In addition, IC 5183 is a third "discovery" by Swift just two months later. This happened during his last year at observing at Lowe Observatory when numerous errors occurred in descriptions and positions.  So, IC 5179 = IC 5183 = IC 5184.  See IC 5184 for more.
+
+
+This galaxy was correctly identified in the Helwan Observatory Bulletin for 1935, despite the very poor position, and described as "1.5'x0.5', E 65°, spiral of the "S" type, with pF central region 1'x 0.25', lE 40°, no nucleus, very little absorption and condensation on the preceding side."
+
+******************************
+
+
+IC 5180 = UGC 11938 = MCG +06-48-012 = CGCG 513-011 = PGC 68234
+
+22 11 12.0 +38 55 37; Lac
+
+V = 13.3;  Size 1.0'x0.8';  Surf Br = 13.1
+
+
+17.5" (7/30/92): faint, fairly small, elongated 2:1 ~N-S, gradually increases to a very small bright core, stellar nucleus.  Located in a rich star field.  Brighter of a pair with MCG +06-48-014 3.2' SE.  NGC 7227 lies 13' SSE.
+
+
+Guillaume Bigourdan discovered IC 5180 = Big. 345 on 21 Sep 1890.  His position is accurate.  MCG doesn't label +06-48-012  as IC 5180.
+
+******************************
+
+
+IC 5181 = ESO 289-001 = LGG 455-001 = PGC 68317
+
+22 13 21.7 -46 01 03; Gru
+
+V = 11.5;  Size 2.6'x0.8';  Surf Br = 12.2;  PA = 74°
+
+
+30" (10/9/15 - OzSky): at 394x; very bright, large, very elongated 4:1 WSW-ENE, 2.0'x0.5', narrow lens shape, sharply concentrated with a small, intense core.  NGC 7232A lies 8.2' NNE and IC 5171 is 25' WSW.  IC 5181 is a member of the NGC 7213 group, which includes NGC 7232, 7233 and IC 5170, among others.
+
+
+NGC 7232A appeared fairly faint to moderately bright, fairly large. thin edge-on 5:1 WNW-ESE, 1.6'x0.3', weakly concentrated with no defined core.  A mag 8.5 star (HD 210796) lies just 2.4' SE, nearly along the direction of the major axis, and detracts a bit from viewing.  In addition, mag 7.7 HD 210795 is also in the field 5.6' NNE!
+
+
+13.1" (8/11/85): moderately bright, elongated spiral with bulging brighter core and fainter extensions SW-NE.  Located 14' SSW of mag 7.6 SAO 231040 and 8.6' SW of mag 8.5 SAO 231041.  Surprisingly bright for an IC galaxy and easily visible for so low an elevation from Northern California.
+
+
+Joseph Lunt discovered IC 5181 visually around 1900, during a search for Brorsen's Comet with the 18-inch f/15 refractor at the Royal Observatory at the Cape of Good Hope.  IC 5181 is generally attached to ESO 289-001 = PGC 68317, though Lunt's RA is nearly 1 minute greater and his declination 7' further north, closer to fainter NGC 7232A.  But since PGC 68317 is much brighter, the identification is probably more likely.  This galaxy was found again on Bruce plates taken from Arequipa, Peru and reported as new in the list of 1659 nebulae published in Volume 72 of the Annals of the Harvard College Observatory (1913).
+
+******************************
+
+
+IC 5183 = IC 5179 = IC 5184 = ESO 405-005 = MCG -06-48-031 = PGC 68455
+
+22 16 09.1 -36 50 37; Gru
+
+V = 11.8;  Size 2.3'x1.1';  Surf Br = 12.7;  PA = 57°
+
+
+See observing notes for NGC 5179.
+
+
+See IC 5179.
+
+******************************
+
+
+IC 5184 = IC 5179 = IC 5183 = ESO 405-005 = MCG -06-48-031 = PGC 68455
+
+22 16 09.1 -36 50 37; Gru
+
+V = 11.8;  Size 2.3'x1.1';  Surf Br = 12.7;  PA = 57°
+
+
+See observing notes for NGC 5179.
+
+
+Lewis Swift discovered IC 5184 = Sw. XII-35 on 19 Jul 1897 and recorded "pF, pS, lE, bet 2 st in meridian, 8 1/2m star sp, np of 2 [with IC 5186]."  His RA was 40 seconds of time too small, but he clearly observed ESO 405-005 based on his detailed description.  Swift found this galaxy again just a week later and recorded Sw. XII-33 (later IC 5179) as "vF, L, R, * close S, B * sp", but his RA was 3 minutes too small.  Finally, he "rediscovered" this galaxy two months later on 20 Sep 1897 and described Sw. XII-34 (later IC 5183) as "pB, C, [sic] S, F * in contact sf, sev pB st form segment of large circle."  On the third observation his declination was 1° too far north.  So, IC 5179 = IC 5183 = IC 5184, all announced in his 12th (and last) discovery paper.   DeLisle Stewart also found it on a Harvard plate at Arequipa and reported "cB, S, cE at 40°, Spiral?"  He mistakenly assumed it was Sw. XII-36 = IC 5186, as Swift's position coincidentally matches this galaxy, otherwise it might have a fourth designation.
+
+******************************
+
+
+IC 5186 = ESO 405-007 = MCG -06-49-001 = PGC 68548
+
+22 18 46.5 -36 48 06; Gru
+
+V = 11.9;  Size 1.9'x1.2';  Surf Br = 12.6;  PA = 112°
+
+
+17.5" (7/20/96): fairly faint, fairly small, elongated 3:2 SW-NE, broad concentration.  Located 1.7' E of a mag 12 star (appeared mag 13).  The outer halo (not seen) changes orientation of the major axis.
+
+
+Lewis Swift discovered IC 5186 = Sw. XII-36 on 19 Jul 1897 and recorded "eeF, S, R, F * nr p[receding], 8m * np, sf of 2 [with IC 5184]."  His position is a close match with IC 5179 = IC 5183 = IC 5184, but his description doesn't match the surrounding star field.  ESO 405-007 is 2.5 minutes of RA east and 2.5' north of Swift's position but a much better fit in description.  Swift's positions were generally very poor in his last two lists, so the large discrepancy in RA is not unusual.  DeLisle Stewart is also credited in the IC, but he picked up IC 5179 on a Harvard plate.
+
+******************************
+
+
+IC 5191 = UGC 11963 = MCG +06-48-021 = CGCG 513-020 = WBL 679-001 = PGC 68399
+
+22 15 02.5 +37 18 01; Lac
+
+Size 1.0'x0.2';  PA = 67°
+
+
+24" (8/13/15): first in the NGC 7242 group.  At 375x appeared fairly faint, fairly small, very elongated up to 5:1 WSW-ENE, ~30"x6".  Located 7.4' due west of NGC 7242 in a rich star field with a mag 11.5 star 1.6' ENE.
+
+
+17.5" (7/15/93): first of 7 in the NGC 7242 group.  Very faint, small, elongated 5:2 WSW-ENE.  Located near the intersection of two collinear rays of stars.  A mag 11 star is 1.7' NE at the intersection point.  Located 7.4' W of NGC 7242.
+
+
+17.5" (7/28/92): very faint, small, very elongated 3:1 SW-NE.  A mag 11 star is 1.5' NE.  First in the NGC 7242 group and second brightest in a group with NGC 7240 3.5' ESE, IC 1441 3' E and NGC 7242 7' E.
+
+
+E.E. Barnard discovered IC 5191, along with IC 5192 and IC 5193, on 5 Dec 1888 using the 12-inch refractor at Lick Observatory.  His very accurate discovery sketch (reproduced from his notebook in AN #4136) matches UGC 11963.  He called it the second brightest and largest of 6 in the group.  He computed the position for the brightest member (NGC 7242), though was uncertain if it was NGC 7242 or 7240.  MCG misidentifies IC 5191 as IC 1441.  UGC (11963) and CGCG (513-020) don't identify their catalogue entries as IC 5191.  See Corwin's notes.
+
+******************************
+
+
+IC 5192 = MCG +06-48-022 = PGC 68407
+
+22 15 14.5 +37 16 18; Lac
+
+Size 0.4'x0.2'
+
+
+17.5" (7/15/93): extremely faint, very small, slightly elongated.  Second of seven in the NGC 7242 group and first of three in a close trio with NGC 7240 1.5' ENE and IC 1441 1.5' NNE.  IC 5191 lies 2.8' NW.  Photographs reveal three very faint stars are superimposed and these may have confused the observation or contributed to the observed glow.
+
+
+E.E. Barnard discovered IC 5192, along with IC 5191 and 5193, on 5 Dec 1888 using the Lick 12-inch refractor.  His field sketch matches MCG +06-48-022 = PGC 68407.  On the colorized DSS, this is a very small galaxy with a star superimposed at the north edge and a very faint close double on the east edge.  The stars probably contributed to the visibility.  MCG fails to label this galaxy as IC 5192.
+
+******************************
+
+
+IC 5193 = MCG +06-48-026 = PGC 68436
+
+22 15 43.6 +37 14 35; Lac
+
+Size 0.3'x0.3'
+
+
+17.5" (7/15/93): last of seven in the NGC 7242 group.  Extremely faint and small, round.  Forms the SE vertex of a small parallelogram with three mag 13 stars just preceding (sides are 1.3' by 0.8').  Located 3.4' SSE of NGC 7242.
+
+
+E.E. Barnard discovered IC 5193, along with IC 5191 and 5192, on 5 Dec 1888.  His field sketch matches MCG +06-48-026 = PGC 68436.  MCG and PGC don't label their equivalent entries as IC 5193.
+
+******************************
+
+
+IC 5195 = IV Zw 90 = Holm 789b = PGC 68435
+
+22 15 41.6 +37 18 10; Lac
+
+Size 0.15'x0.15'
+
+
+17.5" (7/15/93): appears as a mag 16 "star" superimposed at the northeast edge of NGC 7242.  Visible with averted vision less than one-quarter of the time.  I could not clearly distinguish if this object appeared nonstellar.  Dreyer's IC description "0.5' S of 7242" is incorrect.
+
+
+Guillaume Bigourdan discovered IC 5195 = Big. 449 on 16 Oct 1895.  Bigourdan placed this object "toward PA = 45 deg [northeast], d = 0.5' with respect to NGC 7242".  Dreyer mistakenly copied this into the IC description as "0.5' s[outh] of 7242".  This is a remarkably faint galaxy to be discovered with a 12-inch scope.  Malcolm Thomson notes that he could not decide if this object was nonstellar on the POSS.  See Corwin's notes.
+
+******************************
+
+
+IC 5201 = ESO 289-018 = PGC 68618
+
+22 20 57.4 -46 02 09; Gru
+
+V = 10.6;  Size 8.5'x3.9';  Surf Br = 14.3;  PA = 33°
+
+
+25" (10/21/17 - OzSky): at 244x; moderately bright, very large, elongated 5:2 SW-NE, ~7.5'x3'.  Strongly concentrated with a large elongated bar oriented SSW-NNE (over 1' in length) within a brighter core. The bar dominates a much fainter diffuse outer halo of low surface brightness.  Still, there was a suggestion of spiral structure in the outer halo on the SSW and NNE ends.
+
+
+A giant HII complex/OB association stood out on the SW side of the halo [1.5' SSW of center] as a small knot.  It appeared fairly faint, roundish, 12"-15" diameter, stellar or quasi-stellar nucleus.
+
+
+Located 19' WSW of mag 6.4 Pi-1 and 23' WSW of mag 5.6 mag Pi-2 Gruis.  The pair is a nice binocular double at a wide 4' separation.  Pi-1 is a red giant transitioning into a carbon star and a very unequal double star (mag 6.5/10.7 at 2.8").
+
+
+Joseph Lunt discovered IC 5201 visually in 1900 during a search for Brorsen's Comet.  He was observing with the 18-inch refractor of the Royal Observatory at the Cape of Good Hope.  Lunt's position was 22 seconds of RA too large and 2' too far south.
+
+******************************
+
+
+IC 5204 = NGC 7300 = MCG -02-57-011 = LGG 458-003 = PGC 69040
+
+22 30 59.9 -14 00 13; Aqr
+
+V = 12.8;  Size 2.0'x1.0';  Surf Br = 13.5;  PA = 160°
+
+
+See observing notes for NGC 7300.  Identification uncertain.
+
+
+Lewis Swift found IC 5204 = Sw. XI-212 on 8 Aug 1896 and reported "vF, eE, a ray, p[receding] of 2."  There is nothing near his position, but Harold Corwin suggests this number is probably a duplicate of NGC 7300.  Swift's "f[ollowing] of 2" is IC 5228, which is a good match with NGC 7302 in position and description.  His comment "eE, a ray" fits NGC 7300, which is 21.5' WNW of NGC 7302 (within Swift's 33' field), though this implies he made a 10 minute error in time (too small), as well as nearly a 25' error in declination!
+
+******************************
+
+
+IC 5210 = ESO 602-012 = MCG -03-57-004 = PGC 68674
+
+22 22 31.1 -18 52 11; Aqr
+
+V = 13.0;  Size 1.2'x1.1';  Surf Br = 13.1
+
+
+17.5" (8/6/97): fairly faint, fairly small, round, 1.0' diameter.  With direct vision a stellar nucleus is easily visible. Located 2.3' NNE of a mag 11 star.  Forms a pair with IC 5211 2.9' ESE.
+
+
+Lewis Swift discovered IC 5210 = Sw. XI-214, along with IC 5211, on 8 Aug 1896 while searching for Comet 1889 V (Brooks).  His description for XI-214 reads "eF; S; near n[orth] of f[ollowing] * of 7 in line p and f; p of 2.", which is a perfect match with ESO 602-012 = PGC 68674.  Swift's RA is 20 seconds too small, but Howe measured an accurate position in 1898-99 that was used in the IC 2.
+
+******************************
+
+
+IC 5211 = ESO 602-014 = MCG -03-57-005 = PGC 68695
+
+22 22 43.0 -18 52 49; Aqr
+
+V = 13.6;  Size 1.1'x0.7';  Surf Br = 13.1;  PA = 161°
+
+
+17.5" (8/6/97): faint, small, elongated 3:2  NNW-SSE, 0.9'x0.6', weak concentration.  Forms a pair with IC 5210 2.9' WNW.
+
+
+Lewis Swift discovered IC 5211 = Sw. XI-213, along with IC 5210, on 8 Aug 1896 while searching for Comet 1889 V (Brooks).  He recorded ""eeeF; vS; R; f[ollows] below star 15 seconds l s [?]; f of 2."  Although his description is valid (except for the cryptic abbreviation) his position is 15 seconds of RA west of IC 5210, instead of east.  Howe measured an accurate position in 1898-99 that was used in the IC 2, though I've followed Swift's descriptions in assigning #213 to IC 5211.
+
+******************************
+
+
+IC 5217 = PK 100-5.1 = PN G100.6-05.4
+
+22 23 55.7 +50 58 01; Lac
+
+V = 11.3;  Size 8"x6"
+
+
+18" (7/2/08): picked up easily at 174x as a "soft" mag 11.5 with a pale blue color.  Good contrast gain blinking with an OIII filter.  A brighter mag 10 comparison star lies 1.8' S but blinking with the filter the planetary switches apparent brightness with this star.  At 435x, IC 5217 appeared as a 7"x5" blue disc, slightly elongated SSW-NNE.  With direct vision, a slightly brighter quasi-stellar center was visible suggesting the central star was just below the threshold of visibility.
+
+
+18" (12/08/07): picked up at 115x as a soft blue-grey "star".  Good contrast gain using a NPB filter.  Without a filter, a brighter mag 10 star lies to the south though with the filter the planetary matches the star.  At 225x a definite small disc was visible, crisp-edged, round, ~6" diameter.  The seeing was too soft to use high power.
+
+
+13.1" (10/10/86): at 166x appears fairly bright but just non-stellar.  Good contrast gain with OIII filter.  A bright compact bluish disc is visible at 214x, slightly elongated.  Estimate V = 11.5 and 5" diameter.  Located 1.3° due south of mag 4.4 Beta Lac.
+
+
+8": stellar planetary at 100x, slightly fuzzy at 220x and an easy ellipse is visible at 400x.
+
+
+Williamina Fleming discovered IC 5217 = Fleming 102 in 1904 based on its emission line spectrum on a Harvard  plate.  Several visual observations were made by Thomas Espin in 1911 with his 17.25" reflector and he estimated the size from 2.5" to 4" in diameter and "apparently elongated N and S."
+
+
+Based on Crossley photographs taken at Lick, Heber Curtis (1918) reported "no central star can be distinguished.  A bright oval about 7.5"x6" in a 5 min exposure; slightly larger and quite "square-shouldered" in the long exposure.  Brighter along the middle, but no details of structure can be made out."
+
+******************************
+
+
+IC 5225 = NGC 7294 = ESO 533-044 = MCG -04-53-009 = AM 2229-253 = PGC 69088
+
+22 32 08.1 -25 23 52; PsA
+
+V = 12.5;  Size 1.9'x1.2';  Surf Br = 13.3;  PA = 47°
+
+
+See observing notes for NGC 7294.
+
+
+Lewis Swift found IC 5225 = Sw. XI-38 on 6 Oct 1897 and reported, "eeF; pS; R; betw 2 stars; a dozen stars in margin of field following, form semicircle, 4 st np a curve, one D, sp of 2 [should be np of 2, with IC 5226].  Although nothing is at his position, NGC 7294 is 36 seconds of RA further east and 2' S, and his detailed description matches (specifically "4 st np a curve, one D[ouble]".  So clearly IC 5225 = NGC 7294.
+
+
+Harold Corwin notes that "ESO suggested that I5225 might be ESO 533-G039 = MCG -04-53-007, or that it might be ESO 533-G025 = MCG -04-52-045."  MCG list -04-53-007 as IC 5225?  But Corwin comments "The positions are further off, and the fields around these galaxies do not match Swift's description."
+
+******************************
+
+
+IC 5226 = ESO 533-045 = MCG -04-53-010 = PGC 69097
+
+22 32 30.2 -25 39 43; PsA
+
+V = 12.6;  Size 1.8'x1.4';  Surf Br = 13.0;  PA = 36°
+
+
+24" (7/29/16): at 200x; fairly faint to moderately bright, moderately large, slightly elongated, 1.2'x1.0', sharply concentrated with a very small brighter nucleus, low surface brightness halo.  With careful viewing the core extended into a bar, elongated 2:1 SW-NE.  A mag 14.3 star is at the northeast edge.  NGC 7294 lies 16.6' NNW.
+
+
+Lewis Swift discovered IC 5226 = Sw. XII-39 on 6 Oct 1897 and reported, "eeeF, pL, R, no * nr, trapezium, nf of 2 [with IC 5225 = NGC 7294].  There is nothing at his position, but his RA for IC 5225 was 36 seconds of time too small (not an unusual error at the end of his career at age 77).  It's reasonable to assume a similar offset for IC 5226, though there is nothing near this offset position.  But Harold Corwin found that if Swift made another error of exactly 1° in declination (too far north), this corrected position matches ESO 533-045.  Furthermore, the nearest star is about 4' away ("no * nr") and there are 4 stars to the southeast (including two 9th magnitude) matching his comment "trapezium".  ESO, MCG and PGC don't assign IC 5226 to ESO 533-045, but NED and HyperLeda follow Corwin.
+
+
+ESO 533-045 was discovered again on a plate taken between 1914-1916 with the 30" Reynolds reflector at the Helwan Observatory.  It was reported as #248 in a list of 256 new nebulae published in 1921 and described as "F, pS, star surr. by atmosphere, another star 12 mag follows 40", edge of plate."
+
+******************************
+
+
+IC 5228 = NGC 7302 = MCG -02-57-013 = PGC 69094
+
+22 32 23.8 -14 07 14; Aqr
+
+V = 12.3;  Size 1.8'x1.1';  Surf Br = 12.8;  PA = 97°
+
+
+See observing notes for NGC 7302.
+
+
+Lewis Swift found IC 5228 = Sw. XI-215 on 8 Aug 1896 and reported "pB; pS; R; B * nr s; f of 2 [with IC 5204 = NGC 7300]."  His position was just 2' west of NGC 7302 and the description fits, so the equivalence IC 5228 = NGC 7302 is certain.  See IC 5204 for more as well as Corwin's comments.
+
+******************************
+
+
+IC 5231 = MCG +04-53-004 = CGCG 474-007 = Mrk 913 = PGC 69166
+
+22 34 00.7 +23 20 19; Peg
+
+V = 14.5;  Size 0.7'x0.6'
+
+
+18" (9/26/11): faint to fairly faint, small, irregularly round, 20" diameter.  Has a relatively high surface brightness with a very small brighter nucleus.  Located 0.9° SW of NGC 7332/7339, a distinctive pair of edge-on galaxies.  PGC 1685715, an extremely compact companion just 40" W, was not seen.
+
+
+Stephane Javelle discovered IC 5231 = J. 3-1418 on 9 Oct 1895.  His micrometric position is accurate.
+
+******************************
+
+
+IC 5235 = ESO 109-013 = PGC 69497
+
+22 41 25.5 -66 34 49; Tuc
+
+Size 0.6'x0.4';  PA = 83°
+
+
+30" (10/14/15 - OzSky): at 303x; very faint, very small, round, 15" diameter.  Nearly attached to a mag 15.5-16 star at its west edge.  A mag 9.7 star lies 2' WNW.  Forms a pair with brighter IC 5236 2.3' SSE. Picked up 8.6' SE of NGC 7329.
+
+
+DeLisle Stewart discovered IC 5235 = DS 761, along with IC 5236, on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "eeF, bM."
+
+******************************
+
+
+IC 5236 = ESO 109-014 = PGC 69503
+
+22 41 30.1 -66 37 05; Tuc
+
+Size 0.8'x0.4';  PA = 64°
+
+
+30" (10/14/15 - OzSky): at 303x; fairly faint, small, slightly elongated SW-NE, 0.4'x0.3'.  A mag 16.2 star is at the northwest edge.  Brighter of a pair with IC 5235 2.3' NNW.  Picked up 10.6' SE of NGC 7329.
+
+
+DeLisle Stewart discovered IC 5236 = DS 762, along with IC 5235, on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "eF, eeS, cE at 60°, bM."
+
+******************************
+
+
+IC 5237 = NGC 7361 = ESO 468-023 = MCG -05-53-027 = UGCA 434 = AM 2239-301 = PGC 69539
+
+22 42 18.1 -30 03 24; PsA
+
+V = 12.3;  Size 3.8'x1.0';  Surf Br = 13.5;  PA = 5°
+
+
+See observing notes for NGC 7361.
+
+
+Lewis Swift found IC 5237 = Sw. XII-40 on 19 Jul 1897 and reported "eeeF; eeeS; eeeE; eee dif; a line.  8m * np."  There is nothing at his position but 2.4 minutes of time further east is NGC 7361 and his description fits. Coincidentally, John Herschel's position was also 2 minutes of time too small.  At age 77 Swift's positions were often very poor and he wasn't careful in checking prior discoveries, so the identification IC 5237 = NGC 7361 is nearly certain.
+
+******************************
+
+
+IC 5239 = ESO 345-017 = PGC 69044 = LEDA 192654
+
+22 31 07.2 -38 01 35; Gru
+
+Size 1.2'x0.6';  PA = 54°
+
+
+24" (9/7/18): at 225x; extremely faint, small, round, 18" diameter (core only seen).  No other details were visible as I only glimpsed this galaxy with averted vision.
+
+
+ESO 345-021, located 18' E, appeared very faint (brighter than ESO 345-017), small, roundish, 24".  No other details.  Mag 9.4 HD 213589 is 6' E and halfway to the bright star is a 17" pair of mag 13.5/14 stars.  Could -021 possibly be IC 5239?
+
+
+Lewis Swift discovered IC 5239 = Sw. XI-216 on 7 Jul 1897 and wrote, "vF; pS; R."  There is nothing anywhere near his position that he might have seen.  The ESO and PGC label ESO 345-038 (an interacting pair) as IC 5239.  Although this galaxy is only 2' from Swift's nominal position, Harold Corwin notes that this galaxy is much too faint to have been seen by Swift and I agree.  He suggests that Swift made a 10 minute error in RA (too large) and that ESO 345-017 is IC 5239.  Although a much better candidate, I feel this galaxy may still be too faint to have been noticed by Swift.  Perhaps he picked up ESO 345-021, a brighter galaxy that is exactly 8 minutes of RA (west) from Swift's position.
+
+******************************
+
+
+IC 5240 = ESO 290-002 = PGC 69521
+
+22 41 52.4 -44 46 02; Gru
+
+V = 11.9;  Size 2.8'x1.9';  Surf Br = 13.6;  PA = 100°
+
+
+18" (11/14/09): fairly faint, fairly small, bright core appears to contain a brightening or bar ~E-W, 1.0'x0.8'.  Surrounding the core is a faint, small halo.  Located 32' SSW of mag 6.1 HD 214987 and 2.1 degrees north of mag 2.1 Beta Gruis.
+
+
+The "bar" feature was verified afterwards on the DSS, which is surprising as the galaxy was very low in the sky.
+
+
+William Henry Finlay discovered IC 5240 on 26 Dec 1886 with either the 6-inch or 7-inch equatorial refractor at the Royal Observatory, Cape of Good Hope.  Lewis Swift independently discovered the galaxy on 8 Aug 1897 and logged "pF; pL; R; faint star near sf."  Finlay's discovery wasn't published until 1898 and he credited Swift in his table of nebulae (MNRAS 58, 329), though Dreyer listed Finlay first in the IC.
+
+******************************
+
+
+IC 5242 = UGC 12148 = MCG +04-53-010 = CGCG 474-020 = PGC 69487
+
+22 41 15.2 +23 24 25; Peg
+
+V = 13.7;  Size 0.8'x0.7'
+
+
+18" (9/26/11): faint, fairly small, round, 0.4'. A mag 13.4 star is attached at the north end.  Forms a pair with IC 5243 2.8' SE.  Located 4' N of a distinctive string of 4 stars including mag 9.4 SAO 90705.  Also situated 0.9° SE of NGC 7332/7339, a striking pair of edge-on galaxies.
+
+
+Stephane Javelle discovered IC 5242 = J. 3-1421, along with IC 5243, on 9 Nov 1896.  His micrometric position is accurate.
+
+******************************
+
+
+IC 5243 = UGC 12153 = MCG +04-53-011 = CGCG 474-021 = II Zw 185 = PGC 69495
+
+22 41 24.6 +23 22 29; Peg
+
+V = 14.5;  Size 0.7'x0.6'
+
+
+18" (9/26/11): faint, small, round, 20" diameter, very small brighter nucleus.  Although listed as 0.8 mag fainter than IC 5242 (2.8' NW), IC 5243 has a higher surface brightness but is slightly smaller.  Located 2.2' NE of mag 9.4 SAO 90705.  This star is also the closest in a 2' string of four stars extending further southwest.
+
+
+Stephane Javelle discovered IC 5243 = J. 3-1422, along with IC 5242, on 9 Nov 1896.  His micrometric position is accurate.
+
+******************************
+
+
+IC 5246 = ESO 109-019 = PGC 69696
+
+22 46 39.2 -64 53 55; Tuc
+
+Size 1.1'x0.7';  PA = 151°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint to moderately bright, moderately large, roundish, ~40" diameter.  A mag 15.7 star is attached at the west end.  Situated within a group of stars including an elongated group of 5 mag 12-13 stars to the north and east and two mag 11 stars 7' WSW and SSW.  IC 5249 lies 5' NE.  Located 10' NNW of IC 5250 (bright double system) in a group containing several IC galaxies as well as NGC 7358.
+
+
+DeLisle Stewart discovered IC 5246 = DS 765 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He simply noted "eF, eS."
+
+******************************
+
+
+IC 5247 = ESO 109-020 = PGC 69700
+
+22 46 50.1 -65 16 26; Tuc
+
+V = 14.0;  Size 1.4'x0.4';  Surf Br = 13.2;  PA = 124°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint to moderately bright, moderately large, very elongated 4:1 NW-SE, 0.8'x0.2', broad weak concentration.  A mag 14.5 star is 40" NE.  Picked up 12' SE of NGC 7358 and 13' SSW of IC 5250, a prominent double system.  Several other IC galaxies are in this group.
+
+
+DeLisle Stewart discovered IC 5247 = DS 766 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "vF, vS, vE at 125°, mbM."
+
+******************************
+
+
+IC 5249 = ESO 109-021 = FGCE 1777 = RFGC 3998 = AM 2243-650 NED2 = PGC 69707
+
+22 47 06.3 -64 49 55; Tuc
+
+V = 13.7;  Size 4.4'x0.4';  Surf Br = 14.0;  PA = 14°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint, large, superthin galaxy!  Stretches ~20:1 SSW-NNE, 3.0'x0.15', only a broad weak concentration towards the center with no distinct core or zones.  A mag 15 star is very close to the northern tip [1.3' from center]. This is certainly one of the thinnest edge-on galaxies I have ever viewed.  A 1' pair of mag 12.5 stars lies ~3' SW.  IC 5249 is in a group with IC 5246 5' SW and IC 5250 (merged double) at 14' SSE.
+
+
+DeLisle Stewart discovered IC 5249 = DS 767 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "eF, vS, eeE at 15°, vlbM."
+
+******************************
+
+
+IC 5250 = ESO 109-022 = AM 2244-651 = LGG 462-006 = PGC 69713 + 69714
+
+22 47 20.4 -65 03 31; Tuc
+
+V = 11.1;  Size 3.0'x3.0';  Surf Br = 13.3
+
+
+30" (10/15/15 - OzSky): at 303x; excellent merged pair within a common halo!  Both galaxies are bright, fairly small, high surface brightness, and both contain very bright nonstellar nuclei.  The merged system is elongated E-W with the brighter galaxy (IC 5250B) on the east side.  The common halo extends perhaps 1.5'x0.75'.  IC 5250B is slightly elongated NW-SE and a mag 13.5 star is superimposed on the southeast edge.  A mag 13.2 star is 1.2' SE.  The center of IC 5250A is just 30" to the west and not quite as bright as IC 5250A.  Each component is roughly 0.6' in size.   IC 5250 is the brightest in a group that includes NGC 7358 12' SW, superthin IC 5249 14' N, IC 5246 10.5' NNW and IC 5247 13' SSW.
+
+
+James Dunlop discovered IC 5250 = D 255 = D.S. 768  on 5 Sep 1826 with his homemade 9-inch f/12 speculum reflector.  He described a "small faint elliptical nebula in the parallel of the equator, about 25" long and 12" or 15" broad."  His position is just 3' following this interacting pair of galaxies (similar in appearance to the Antennae).  DeLisle Stewart found the galaxy on plates taken 21 Aug 1900 at Harvard's Arequipa station in Peru, published a fairly accurate position and described "cB, S, R, F * f 0.5'."  Stewart is credited with the discovery in the IC.
+
+******************************
+
+
+IC 5260 = NGC 7404 = ESO 346-010 = MCG -07-47-001 = PGC 69964
+
+22 54 18.6 -39 18 54; Gru
+
+V = 12.8;  Size 1.5'x0.9';  Surf Br = 12.9;  PA = 2°
+
+
+See observing notes for NGC 7404.  Identification very uncertain.
+
+
+Lewis Swift found IC 5260 = Sw. XII-41 on 19 Jul 1897 and reported  "eeF; pS; R; 9m star nr sp; ee dif."  There is nothing at his position and it was reported as "not found" on photographs taken at the Helwan observatory in Egypt in 1919-20.
+
+
+It's possible that IC 5260 refers to NGC 7421, which is 2.3 minutes of RA due east of Swift's position is NGC 7421 and it has a mag 10.9 star to the southwest.  Alternatively, Harold Corwin suggests IC 5260 may be a reobservation of NGC 7404, though this galaxy is two degrees north and 0.3 minutes of RA east of Swfit's position.  It has a mag 7.3 star 11' to its southwest.  Either identification is fairly speculative.
+
+******************************
+
+
+IC 5261 = ESO 603-026 = MCG -04-54-001 = PGC 69969
+
+22 54 25.2 -20 21 46; Aqr
+
+V = 13.2;  Size 1.5'x1.3';  Surf Br = 13.7;  PA = 135°
+
+
+17.5" (8/6/97): faint, moderately large, round, 1.5' diameter.  Located 5' ENE of mag 9 SAO 191476.  This diffuse glow exhibited only a broad very weak concentration.  A mag 14.5-15 star is close off the east edge 1.1' from center.
+
+
+Lewis Swift discovered IC 5261 = Sw. XI-218 on 11 Sep 1896 and wrote "eeeF; pL; R; f[ollows] 9m * 22 seconds; ee dif."  His position is 8 seconds of time east and 1.5' south of ESO 603-026 = PGC 69969. His description clinches the identification.. Swift listed the discovery date as 12 September in his first Lowe Observatory discovery list.
+
+******************************
+
+
+IC 5262 = ESO 406-020 = MCG -06-50-009 = PGC 70007
+
+22 55 21.3 -33 53 29; PsA
+
+V = 13.3;  Size 1.0'x0.6';  Surf Br = 12.6;  PA = 142°
+
+
+17.5" (8/6/97): fairly faint, fairly small, elongated 4:3 N-S, 0.9'x0.7'.  A mag 12 star lies 1.4' N and a mag 11 star 1.9' NE.  This is a double system with PGC 70010 but the southeast component was not seen.  Also MCG -06-50-011 2' S was not seen.
+
+
+Lewis Swift discovered IC 5262 = Sw. XII-42 on 22 Aug 1897 and logged "eeeF, pS, R, bet a * p and a wide D nf, 8m * f, ee dif, np of 2."  Although Swift calls this off the "north-preceding of 2" there is no listing in his table to the southeast of IC 5262 and Corwin suggests Swift may be referring to IC 5271, which is northeast.
+
+******************************
+
+
+IC 5264 = ESO 406-029 = MCG -06-50-014 = PGC 70081
+
+22 56 53.0 -36 33 15; Gru
+
+V = 12.6;  Size 2.5'x0.5';  Surf Br = 12.7;  PA = 82°
+
+
+24" (8/1/19): moderately bright, relatively large, thin edge-on 6:1 WSW-ENE, brighter bulging core, thin extensions.  Excellent contrast in galaxy types with IC 1459 6' NE.
+
+
+18" (10/25/08): fairly faint, moderately large, edge-on 5:1 WSW-ENE, ~1.5'x0.3'.  Located 6.5' SW of IC 1459 in the Grus Chain.
+
+
+17.5" (8/6/97): fairly faint, fairly large, edge-on 6:1 WSW-ENE, nearly 3.0'x0.5' in size.  Appears as a long thin streak of nearly uniform surface brightness and slightly tapering towards the tips.  Forms the fainter member of a pair with IC 1459 6' NNE.
+
+
+17.5" (7/22/87): faint, moderately large, thin edge-on 5:1 WSW-ENE.  A mag 14 star is off the east tip.  Located 6' SSW of brighter IC 1459.
+
+
+8" (8/1/19): at 107x and 174x; very faint, moderately large, ghostly streak but not difficult.
+
+
+E.E. Barnard discovered IC 5264 = Sw. XI-219 on 15 Dec 1889.  He found this galaxy while measuring IC 1459 (discovered 2 nights earlier) with the 12-inch refractor at Lick Observatory.  Barnard wrote in his logbook, "a small faint neb'y about 4' S and 1' p this neb [IC 1459].  Small and elong in parallel nearly [~E-W]."  No accurate offsets were measured, but this clearly applies to IC 5264.  As this entry was not published or passed along to Dreyer, Barnard never received discovery credit.
+
+
+Lewis Swift independently discovered this galaxy on 10 Jun 1896 and described Sw. XI-219 (later IC 5264) as "vF; S; eeE; a ray; sp of below st; sp of 2 [with IC 1459 = IC 5265]."  His position is 0.2 min of RA too small and 3.5' too far south (same error in dec as IC 5265).  Curiously, he gave the discovery date as 2 Sep 1896 in his first Lowe Observatory discovery list and 4 Sep 1897 in his third Lowe discovery list (he made a number of mistakes on discovery dates and of course positions during his last observing year).  Ironically, Swift mentioned "I am glad I have at length found in Barnard's field a nebula his keen eye failed to see", though it turns out that wasn't the case!
+
+
+Interestingly, earlier in March 1896 he wrote a short article in Popular Astronomy titled "The Lowe Observatory" and mentioned "Near some of Sir John Herschel’s southern nebulae I have discovered several overlooked by him, notably, one between [NGC 7418] and [NGC 7421], in field with the latter.  It is very faint, very small, exceedingly elongated to a ray five times as long as broad.  I am surprised at his failure to see it."   There is nothing between these galaxies, but assuming he confused the identifications of the nearby galaxies his description may apply to IC 5264!
+
+
+In a 1912 report on observations of nebulae made at the Helwan Observatory between 1909-1911, Harold Knox-Shaw reported - due to Swift's poor position - there was nothing at the position for IC 5264 on photos taken with the 30" reflector and reported it as new (possibly equivalent to IC 5264).
+
+******************************
+
+
+IC 5265 = IC 1459 = ESO 406-030 = MCG -06-50-016 = PGC 70090
+
+22 57 10.5 -36 27 45; Gru
+
+V = 10.0;  Size 5.2'x3.8';  Surf Br = 13.2;  PA = 40°
+
+
+See observing notes for IC 1459
+
+
+Lewis Swift found IC 5265 = Sw. XI-220 on 16 Jun 1896 and reported "B, cL, R, betw 2 stars p and f; nf of 2 [with IC 5264].  There is nothing at his position but 25 seconds of RA west and 4' N is IC 1459 and the description matches. Swift mentioned his object "may possibly be = no. 1459 in Dreyer's Index Catalogue" in a footnote to his discovery list at Lowe Observatory.  The date of his observation is unclear; the big 11th list gives 16 Jun 1896 but his first discovery at Lowe (in AJ) gives 2 Sep 1896. Corwin notes that Dreyer questioned if IC 5265 might be identical to NGC 7418, but it's not.
+
+******************************
+
+
+IC 5266 = ESO 109-029 = AM 2255-652 = LGG 462-009 = PGC 70142
+
+22 58 20.8 -65 07 47; Tuc
+
+V = 13.8;  Size 1.5'x0.4';  Surf Br = 13.0;  PA = 33°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint to moderately bright, fairly large, edge-on 6:1 SSW-NNE, 1.4'x0.25', weak concentration with a bulging core.  In a group with IC 5272 8.4' SE, bright NGC 7417 6.4' NW and PGC 127682 6.1' SSW.  A mag 10 star is 5' SSW (on line with PGC 127682).  PGC 127682 appeared fairly faint, small, round, 18" diameter.  It was easily picked up 1.3' SSW of a mag 10.5 star and 2.1' E of a mag 11.2 star.
+
+
+DeLisle Stewart discovered IC 5266 = DS 773 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted "eF, vS, cE, stell N."
+
+******************************
+
+
+IC 5267 = ESO 290-029 = MCG -07-47-007 = LGG 464-003 = PGC 70094
+
+22 57 13.6 -43 23 46; Gru
+
+V = 10.5;  Size 5.2'x3.9';  Surf Br = 13.7;  PA = 140°
+
+
+18" (11/14/09): fairly bright, fairly large, elongated 4:3 or 3:2 NNW-SSE.  Contains a relatively large, 1' bright core that gradually increases to a faint stellar nucleus.  A much fainter halo fades gradually into the background, but appears to extend along the major axis for roughly 2.5'x1.7'.  NGC 7412 lies 48' NNW and IC 5267A = ESO 290-026 is 14' WSW.  This is one of the brighter IC galaxies that was missed by John Herschel.
+
+
+William Henry Finlay discovered IC 5267 on 26 Dec 1886 with either the 6-inch or 7-inch refractor at the Royal Observatory, Cape of Good Hope.  Lewis Swift independently discovered the galaxy on 23 Sep 1897 and logged "pB; S; R; mbM."  His position was 3.5' too far south, but accurate in RA.  Finlay's discovery (with no description) wasn't published until 1898 and he credited Swift in the table of nebulae (MNRAS 58, 329).  Dreyer gave Finlay primary credit in the IC.
+
+******************************
+
+
+IC 5269 = ESO 406-032 = MCG -06-50-017 = LGG 465-003 = PGC 70110
+
+22 57 43.6 -36 01 34; PsA
+
+V = 12.2;  Size 1.8'x0.8';  Surf Br = 12.5;  PA = 51°
+
+
+18" (10/25/08): fairly faint, small, elongated 2:1 SW-NE, 40"x20", weak concentration.  IC 5270 at the north end of the Grus Chain lies 10.5' NNE.
+
+
+13.1" (10/20/84): faint, small, very elongated 3:1 SW-NE, brighter center.  Forms a pair with IC 5270 11' NNE and IC 1459 lies 26' SSW.
+
+
+13.1" (7/20/85): fairly small, elongated SW-NE, brighter center.
+
+
+Lewis Swift discovered IC 5269 = Sw. XI-222 on 10 Sep 1896 and reported "vF; pS; R; np of 2 [with IC 5270]."  His position is 10 seconds of RA west and 6' north of ESO 406-032 = PGC 70110, not unusual for his later IC positions.  Swift confused the orientation as IC 5269 is the south-preceding of the pair, though the discovery dates are a month apart so the positions were perhaps recorded on different nights.  Furthermore, Swift gave the discovery date of IC 5269 and 5270 as 2 Sep 1896 in his first Lowe Observatory list (in AJ) and 4 Sep in this third Lowe list (probably different observations).  MCG reverses the identifications of IC 5269 and IC 5270.
+
+******************************
+
+
+IC 5270 = ESO 406-033 = MCG -06-50-018 = PGC 70117
+
+22 57 54.9 -35 51 29; PsA
+
+V = 12.3;  Size 3.2'x0.6';  Surf Br = 12.9;  PA = 103°
+
+
+18" (10/25/08): fairly faint, moderately large, elongated 3:1~ E-W, 1.2'x0.4'.  This galaxy sits at the north end of the Grus Chain that extends ~1.5 degrees south to NGC 7421.
+
+
+13.1" (7/20/85): faint, edge-on ~E-W, even surface brightness.  Otherwise similar in size and brightness to IC 5269 11' SSW.  The IC orientation for the pair is incorrect.  This galaxy is the furthest north in a string of ~10 galaxies stretching south to IC 5273.
+
+
+Lewis Swift discovered IC 5270 = Sw. XI-223 on 12 Aug 1896 and recorded "vF; pS; vE; sf of 2 [with IC 5269]."  His position is 14' too far south and IC 5270 is the north-following of 2.  According to Swift's large AN table, he discovered nearby IC 5269 a month later, though the pair would have both been in his 33' field.  Furthermore, the discovery date is given as 4 Sep 1897 in his earlier 3rd list of nebulae from Lowe Observatory.  He probably added the comment "sf of 2" when preparing the table for publication.  MCG reverses the identifications of IC 5269 and IC 5270, probably because Swift's position for IC 5269 is 10' north of IC 5270 .
+
+
+E.E. Barnard probably made an earlier observation of IC 5270 and IC 5269 on 15 Dec 1889 with the 12-inch refractor at Lick Observatory.  He recorded in his logbook, "pL, vF, extended, a small, faint __ (can't decipher word) 5' +/- S.  A 6m star 22' N and 1' following."  There is nothing at his position (in ink), but his declination is just 3' off from IC 5270 and the galaxy 5' +/- south is probably IC 5269.  The 6th mag star HD 217096 is 22' NNE of IC 5270, though 8' following.  Barnard never published these discoveries or informed Dreyer, so Swift is credited in the IC.
+
+******************************
+
+
+IC 5271 = ESO 406-034 = MCG -06-50-019 = PGC 70128
+
+22 58 01.8 -33 44 32; PsA
+
+V = 11.6;  Size 2.6'x0.9';  Surf Br = 12.3;  PA = 138°
+
+
+17.5" (8/6/97): bright, large, very elongated 3:1 NW-SE.  Contains a large, bright bulging core. Seems nearly 3.0' in length and 1.0' across at the core, although this is a bit larger than the listed dimensions.  Impressive for an IC galaxy!
+
+
+13.1" (10/20/84): fairly faint, very elongated 5:2 NNW-SSE, small bright nucleus, easy at 166x.
+
+
+Lewis Swift discovered IC 5271 = Sw. XII-43 on 22 Aug 1897 and reported "pF, pS, vE, bet 2 st."  Swift's position is unusually accurate for such a late discovery.  DeLisle Stewart recorded this galaxy on a plate taken in 1899 at Harvard's Arequipa station in Peru.  He noted "F, S, cE at 145°, * N, cbM (MN 59, 568, Sw. XII, 43)."
+
+******************************
+
+
+IC 5272 = ESO 109-030 = AM 2257-661 = LGG 462-011 = PGC 70188
+
+22 59 31.1 -65 11 37; Tuc
+
+V = 14.1;  Size 1.1'x0.8';  PA = 33°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint, moderately large, roundish, ~40" diameter, weak concentration, hints of structure in the irregular halo.  IC 5266 lies 8.3' NW and PGC 127682 is 10' WSW.
+
+
+DeLisle Stewart discovered IC 5272 = DS 774 on a plate taken on 21 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "eF, vS, R."
+
+******************************
+
+
+IC 5273 = ESO 346-022 = MCG -06-50-020 = PGC 70184
+
+22 59 26.7 -37 42 10; Gru
+
+V = 11.4;  Size 2.7'x1.8';  Surf Br = 13.0;  PA = 56°
+
+
+13.1" (10/20/84): moderately large, very diffuse, broad concentration, irregularly round or slightly elongated.  Slightly brighter than NGC 7421 which lies 20' NW.  Furthest southern member in the nearly  2° N-S string of 7 brighter galaxies (9 total) in Grus and Pisces Austrinus (Grus Chain)
+
+
+E.E. Barnard discovered IC 5273 = Sw. XI-224 on 12 Dec 1889, while searching for Brorsen's Comet (5D/Brorsen) with the 12-inch refractor at Lick Observatory.  He recorded in his logbook, "R, 1' dia, 12th mag."  His rough position (no offsets) was 7' too far south.  Immediately afterwards he logged "fogged all over and the entire heavens blotted out."  He found it again the next night, calling it "1' dia, R, gbM, 12th mag." and added the comment "same as last night?".  Lewis Swift independently discovered this galaxy on 12 Aug 1896 and recorded "vF, cL, lE, 2 wide D st near p."  Swift was credited with the discovery in the IC as Barnard never published his discovery or informed Dreyer.
+
+******************************
+
+
+IC 5283 = Arp 298 NED2 = MCG +01-58-026 = CGCG 405-027 = Holm 803b = PGC 70350
+
+23 03 18.0 +08 53 37; Peg
+
+V = 13.8;  Size 0.8'x0.4';  Surf Br = 12.4;  PA = 54°
+
+
+17.5" (11/1/86): very faint, small, round, diffuse, even surface brightness.  Forms a close pair with NGC 7469, just 1.3' NNE of the brighter galaxy.
+
+
+Guillaume Bigourdan discovered IC 5283 = Big. 348 = J. 3-1432 on 4 Sep 1891.  Stephane Javelle independently discovered it on 16 Oct 1903 and measured a very accurate micrometric position.
+
+******************************
+
+
+IC 5285 = UGC 12365 = MCG +04-54-026 = II Zw 188 = PGC 70497
+
+23 06 59.1 +22 56 10; Peg
+
+V = 12.6;  Size 1.6'x1.2';  Surf Br = 13.1;  PA = 100°
+
+
+13.1" (9/22/84): faint, very small, almost round, slightly elongated ~E-W, possible faint stellar nucleus.  A very faint mag 14.5 star is at the west edge 23" from center.  Forms a pair with NGC 7489 6' ENE.  This object is an unusual ring galaxy.
+
+
+Stephane Javelle discovered IC 5285 = J. 3-1434 on 16 Oct 1903 and measured an accurate micrometric position.
+
+******************************
+
+
+IC 5289 = ESO 407-008 = AM 2308-324 = PGC 70645
+
+23 11 17.0 -32 27 15; Scl
+
+Size 1.1'x0.7';  PA = 35°
+
+
+24" (9/6/18): at 375x; very faint, small, round, 20" diameter, fairly low surface brightness. A mag 14.7 star is 30" E.  Located 23' WSW of mag 7.6 HD 219034 and 1.6° W of mag 4.4 Gamma Sculptoris.
+
+
+IC 4289 is probably a collisional Ring galaxy and I observed the nucleus, which is embedded in the north portion of the ring.  I saw no sign of this structure.
+
+
+Lewis Swift discovered IC 5289 = Sw. XI-225 on 10 Sep 1896 and noted "a few eeeF st[ars] in neb[ulosity]."  His position is 7' SW of an empty ring galaxy with apparently two interacting galaxies embedded on the north and south side of the ring!
+
+******************************
+
+
+IC 5290 = NGC 7520 = ESO 535-008 = MCG -04-54-014 = PGC 70705
+
+23 12 53.3 -23 28 09; Aqr
+
+V = 13.2;  Size 1.3'x0.8';  Surf Br = 13.1;  PA = 66°
+
+
+18" (10/25/08): fairly faint, fairly small, elongated 3:2 SW-NE, 0.6'x0.4', very weak concentration.  Situated between two fainter doubles 5' NNE (a 15" pair of mag 13.5/14.5 stars)  and 5' S (a 10" pair of mag 14 stars).  Another mag 13 star lies 2' SE.
+
+
+NGC 7520 is listed as nonexistent in most sources.  Harold Corwin suggests the possibility that NGC 7520 is equivalent to IC 5290 (described above).
+
+
+Johann Palisa discovered IC 5290 on 4 Oct 1896 with the 27-inch refractor at Wien University Observatory.  He noted it was found in the place of Comet Spitaler, which he was apparently searching for.
+
+
+Harold Corwin suggests that NGC 7520, discovered by Wilhelm Tempel in 1876 may be identical to IC 5290.  There is nothing near his rough position (given only to the nearest min of time and noted as very uncertain "::").  This would require that Tempel's declination to be 20' too far south, though the RA is less than a minute off.  Still this identification is very uncertain and PGC uses IC 5290 as the designation (HyperLeda gives IC 5290 as the primary and NGC 7520 as a secondary designation).
+
+******************************
+
+
+IC 5294 = NGC 7552 = ESO 291-012 = MCG -07-47-028 = VV 440 = LGG 472-003 = PGC 70884 = Grus Quartet
+
+23 16 11.0 -42 34 59; Gru
+
+V = 10.6;  Size 3.4'x2.7';  Surf Br = 12.8;  PA = 1°
+
+
+See observing notes for NGC 7552.
+
+
+Lewis Swift found IC 5294 = Sw. XI-226 on 22 Oct 1897 and reported "pB; pS; R; 8m * p."  His position was just 9 seconds of RA west of NGC 7552 and his description of the brighter star clinches the equivalence.
+
+
+Based on a 60-minute exposure taken with the 30" Reynolds reflector at the Helwan observatory in 1919-20, it was reported "No nebula here except NGC 7552"
+
+******************************
+
+
+IC 5297 = CGCG 475-055 = PGC 70875
+
+23 15 58.4 +25 01 31; Peg
+
+V = 14.5;  Size 0.8'x0.6'
+
+
+17.5" (9/23/89): very faint, very small, round, weak concentration.  Picked up 7' NE of mag 8.5 SAO 091128 while starhopping to NGC 7548 to the NW.
+
+
+Stephane Javelle discovered IC 5297 = J. 3-1441 on 22 Nov 1899 and measured an accurate micrometric position.
+
+******************************
+
+
+IC 5298 = MCG +04-54-038 = CGCG 475-056 = PGC 70877
+
+23 16 00.7 +25 33 24; Peg
+
+V = 14.1;  Size 0.7'x0.7';  Surf Br = 13.1
+
+
+24" (12/20/17): at 375x; fairly faint, fairly small, elongated 5:3 SSW-NNE, 0.5'x0.3', fairly low surface brightness halo with very small bright core and stellar nucleus.  Several bright stars are nearby mag 8.2 SAO 91123 is 10' WSW, mag 8.7 SAO 91139 is 8' ESE, and mag 9.0 SAO 91137 is 7' SE.
+
+
+Stephane Javelle discovered IC 5298 = J. 3-1442 on 23 Nov 1899
+
+******************************
+
+
+IC 5304 = MCG -02-59-011 = PGC 71028
+
+23 18 52.6 -10 15 34; Aqr
+
+V = 13.3;  Size 1.4'x0.9';  PA = 12°
+
+
+24" (9/22/17): at 375x; fairly faint, fairly small, slightly elongated N-S, 40"x30", small bright core increases to a very small bright nucleus.  Fairly similar in size and surface brightness to IC 1479 8.6' SSW.  A 13th mag star is 1.6' SW.
+
+
+Lewis Swift discovered IC 5304 = Sw. XII-44 on 26 Jul 1897 and recorded "extremely faint, S, round, 3 or 4 F st nr sp [south-preceding]."  There is nothing at his position but 40 seconds of RA east and 2.3' N is MCG -02-59-011 = PGC 71028.  His position is poor enough that it possibly refers to IC 1479, which is 34 seconds of RA east and 6' S of his position.  Because of the better match in declination, PGC 71028 is a more likely identification.
+
+******************************
+
+
+IC 5305 = MCG +02-59-021 = CGCG 431-037 = WBL 706-002 = PGC 70987
+
+23 18 06.2 +10 18 00; Peg
+
+V = 14.3;  Size 0.5'x0.35'
+
+
+17.5" (11/18/95): faint, very small, round, 15" diameter, weak concentration.  Located 3.8' NNE of a mag 11.5 star and 1.9' W of NGC 7594.  Collinear with two mag 14 stars 45" SSW and 1.4' SSW.  IC 5306 lies 3.4' SSE and IC 5307 5.5' SE.
+
+
+Hermann Kobold discovered IC 5305 = K. 2-38, along with IC 5306 and 5307, on 26 Oct 1897 using the 18" Merz refractor at the Strasbourg Observatory.  His micrometric position is accurate.  He identified this object as Kobold 21 (his 21st discovery) in his 1907 compilation of positions in Strasbourg Annales, Vol. 3, 1907.
+
+
+In Aug 1880, Andrew Ainslie Common described NGC 7594 as "f[ollowing] 3 stars in a line 90 degrees pointing to another fainter nebula s(outh)."  The northern of these "3 stars" appears to be IC 5305!
+
+******************************
+
+
+IC 5306 = MCG +02-59-022 = CGCG 431-036 = WBL 706-001 = PGC 70992
+
+23 18 11.3 +10 14 46; Peg
+
+V = 14.7;  Size 0.6'x0.25';  PA = 0°
+
+
+17.5" (11/18/95): extremely faint and small, round, 15" diameter, low surface brightness.  Situated on a line with IC 5305 3.4' NNW and two mag 14 stars 2.0' NNW and 2.7' NNW.  Located 2.0' E of a mag 11.5 star.  A mag 15.5 star is less than 1' WSW.  In a group with IC 5307 2.7' ESE.  An extremely faint edge-on at the northwest edge (LEDA 1376799) was not seen
+
+
+Hermann Kobold discovered IC 5306 = K. 2-39, along with IC 5305 and 5307, on 26 Oct 1897 and noted "vF, S."  His position is within 1' of CGCG 431-036 = PGC 70992. He identified this object as Kobold 22 (his 22nd discovery) in his 1907 compilation of positions in Strasbourg Annales, Vol. 3, 1907.
+
+
+Andrew Common possibly discovered this galaxy 17 years earlier.  He remarked for NGC 7594 (#27 in his discovery list), "f[ollows] 3 stars in a line 90 degrees pointing to another fainter nebula s(outh)".  The nebula to the south is IC 1478 and the northern "star" is probably IC 5305. But without a more specific location Dreyer didn't include the "fainter nebula south" in the NGC.
+
+******************************
+
+
+IC 5307 = LEDA 214932
+
+23 18 22.1 +10 14 08; Peg
+
+V = 14.8;  Size 0.3'x0.25'
+
+
+17.5" (11/18/95): extremely faint and small, round, 15" diameter.  Faintest of four in NGC 7594 group and requires averted to glimpse.  Located 2.7' ESE of IC 5306 and 4.3' SE of NGC 7594.
+
+
+Hermann Kobold discovered IC 5307 = K. 2-40, along with IC 5305 and 5306, on 26 Oct 1897.  He simply noted "vF, vS", but his position is accurate enough to clearly match LEDA 214932.  This galaxy is mentioned in the notes to UGC 12485 (NGC 7594) but was not identified as IC 5307.  Kobold identified this object as Kobold 23 (his 23rd discovery) in his 1907 compilation of positions in Strasbourg Annales, Vol. 3, 1907.
+
+******************************
+
+
+IC 5308 = NGC 7599 = ESO 347-034 = MCG -07-47-033 = LGG 472-006 = PGC 71066
+
+23 19 21.1 -42 15 25; Gru
+
+V = 11.5;  Size 4.4'x1.3';  Surf Br = 13.3;  PA = 57°
+
+
+See observing notes for NGC 7599.
+
+
+Lewis Swift found IC 5308 = Sw. XI-227 on 8 Aug 1897 and reported "eeF; S; cE; f of 7599."  There is no galaxy he might have picked up following NGC 7599, but Harold Corwin suggests that Swift confused NGC 7590 as NGC 7599, in which case IC 5308 is a duplicate of NGC 7599. IC 5308 was identified as a double star (3' SW of center), based on a photograph taken at the Helwan observatory in 1919-20.  See Corwin's historical notes.
+
+******************************
+
+
+IC 5309 = UGC 12498 = MCG +01-59-042 = PGC 71051
+
+23 19 11.8 +08 06 33; Psc
+
+V = 13.7;  Size 1.3'x0.6';  Surf Br = 13.3;  PA = 23°
+
+
+17.5" (9/14/85): faint, very elongated SSW-NNE.  A mag 14 star is at the south edge 22" from the center.  Located 7' NW of NGC 7611 in the Pegasus I cluster.
+
+
+13.1" (9/22/84): very faint, very small, elongated 5:2 ~N-S.  Low surface brightness and requires averted vision.  A faint star is off the south end.  Similar size to NGC 7611 7' SE.
+
+
+13.1" (11/5/83): very faint, diffuse, faint stellar nucleus.
+
+
+Stephane Javelle discovered IC 5309 = J. 3-1445 on 23 Oct 1903 and recorded "Faint, elongated fan-shaped, a mag 14 almost in contact to the south, ~30", no condensation."  He reversed the sign of the polar distance offset from his reference star, so the IC position is in error.  Once corrected it's a perfect match with UGC 12498.
+
+
+Based on photographs taken between 1914-1916 with the 24-inch Yerkes reflector, Hubble described IC 5309 as "pF, mbB, E 0°, 50" x 30", *14m on south edge."
+
+******************************
+
+
+IC 5313 = NGC 7632 = ESO 291-021 = MCG -07-47-035 = AM 2319-424 = LGG 472-007 = PGC 71213
+
+23 22 00.9 -42 28 50; Gru
+
+V = 12.1;  Size 2.2'x1.1';  Surf Br = 12.9;  PA = 92°
+
+
+See observing notes for NGC 7632
+
+
+Lewis Swift found IC 5313 = Sw. XI-228 on 8 Aug 1897 and noted, "eeeF; pL; R; 10m * near sp."   His RA was 14 seconds too small and the dec 1.7' too far south but the comment "10m * nr south-preceding" clinches the identity IC 5313 = NGC 7632.  In his third discovery list from Lowe Observatory (in Popular Astronomy), he added "11m * f[ollows the 10m star].
+
+
+Based on a photograph taken with the 30" reflector at the Helwan observatory, it was reported (1921): "No nebula here except NGC 7632"
+
+******************************
+
+
+IC 5318 = MCG -02-59-015 = PGC 71338
+
+23 24 06.9 -11 51 38; Aqr
+
+V = 13.7;  Size 1.0'x0.6';  Surf Br = 12.9;  PA = 135°
+
+
+17.5" (8/25/95): very faint, very small, probably elongated 3:2 NW-SE, 30"x20".  View severely hindered by mag 10 star attached at the northwest end!  Difficult to determine dimensions and orientation due to glare from star and faintness of galaxy.
+
+
+Herbert Howe discovered IC 5318 on 28 Sep 1897 with the 20" refractor at the Chamberlin Observatory in Denver and described "vF, vS, f 9.5m star 1 second."  His position is accurate.
+
+******************************
+
+
+IC 5319 = LEDA 1446384
+
+23 24 49.0 +13 59 48; Peg
+
+V = 14.8;  Size 0.6'x0.6'
+
+
+24" (1/1/16): at 375x; faint to fairly faint, small, round, 18" diameter.  Located 5.7' ENE of NGC 7651.  Member of AGC 2593-South.
+
+
+Howe discovered IC 5319 = Ho. III-22 on 25 Nov 1899 and recorded "eF, eS; near 7651." His position is accurate.
+
+******************************
+
+
+IC 5320 = ESO 077-021 = PGC 71530
+
+23 28 22.0 -67 45 37; Tuc
+
+Size 0.6'x0.5';  PA = 135°
+
+
+30" (10/15/15 - OzSky): at 303x; faint to fairly faint, small, round, 20" diameter.  Forms a close pair with similar IC 5322 0.9' E.  In a quartet with brighter IC 5324 3.7' S and IC 5323 5.4' SW.
+
+
+Royal Frost discovered IC 5320 = F. 1234, along with IC 5322, on a plate taken on 12 Oct 1903 at Harvard's Arequipa station in Peru.  He noted "bM, magn 14."  His position, though, 1 minute of time too far west (same as IC 5322), so the RA is out of order with IC 5323 and 5324.
+
+******************************
+
+
+IC 5321 = ESO 605-007 = MCG -03-59-009 = PGC 71430
+
+23 26 20.2 -17 57 23; Aqr
+
+V = 13.1;  Size 1.3'x0.8';  PA = 45°
+
+
+24" (9/23/17): at 220x and 375x; fairly faint, small, round, 25" diameter.  Well defined halo (core?) with very little concentration. A 13th magnitude star is 1' NW.  A collinear trio (included the wide double HJ 3194) lies 15' SE.
+
+
+Lewis Swift discovered IC 5321 = Sw. XI-229 on 13 Sep 1896 and recorded "eF; vS; R; F * close nf."  There is nothing at his position in his large 11th list, but the declination was stated as 1° further north in his first Lowe Observatory discovery list in Astronomical Journal Vol. 17 (1896).  Also the "F * close nf" is actually northwest, again as originally published.  These errors were caught by Herbert Howe while reobserving NGC/IC objects in 1899 at the Chamberlin Observatory in Denver.  Howe recovered Swift's object 6' north of the position given in his AJ list and estimated the nearby star to the NW as 10th mag, although it is closer to 13th mag.
+
+******************************
+
+
+IC 5322 = ESO 077-022 = PGC 71536
+
+23 28 30.8 -67 45 41; Tuc
+
+Size 0.7'x0.55';  PA = 77°
+
+
+30" (10/15/15 - OzSky): at 303x; fairly faint, fairly small, round, 20"-24" diameter.  Forms a close pair with similar IC 5320 0.9' W.  In a quartet with brighter IC 5324 3.8' SSW and IC 5323 6.1' SW.  A mag 11.5 star lies 2' NE and a mag 12 star is 3' E.
+
+
+Royal Frost discovered IC 5322 = F. 1235, along with IC 5320, on a plate taken on 12 Oct 1903 at Harvard's Arequipa station in Peru.  He noted "bM, magn 14."  See IC 5320.
+
+******************************
+
+
+IC 5323 = ESO 077-019 = PGC 71489
+
+23 27 37.0 -67 48 56; Tuc
+
+V = 13.0;  Size 1.6'x1.1';  Surf Br = 13.4;  PA = 160°
+
+
+30" (10/15/15 - OzSky): at 303x; bright, moderately large, irregularly round, 45"x35", strongly concentrated with a very bright core that gradually increases but no well defined nuclear zone.  Collinear with a mag 12.4 star 2.1' SSE and a mag 11.5 star 4.2' SSE.  Two additional mag 12-13 stars are further east.  Brightest in a quartet with IC 5324 3.9' E, IC 5320 5.4' NE and IC 5322 6.1' NE.
+
+
+DeLisle Stewart discovered IC 5323 = DS 782, along with IC 5324, on a plate taken on 29 Aug 1900 at Harvard's Arequipa station in Peru.  He noted it as "F, S, bM."
+
+******************************
+
+
+IC 5324 = ESO 077-020 = PGC 71526
+
+23 28 17.8 -67 49 17; Tuc
+
+V = 13.1;  Size 1.1'x1.0';  Surf Br = 13.2;  PA = 37°
+
+
+30" (10/15/15 - OzSky): at 303x; moderately bright to fairly bright, fairly small, round, 30" diameter, sharply concentrated with a very small bright nucleus.  A mag 12.5 star is 2.1' E and a similar star is 3' SSE.  In a quartet with brighter IC 5323 3.9' W, IC 5320 3.7' N and IC 5322 3.8' NNE.
+
+
+DeLisle Stewart discovered IC 5324 = DS 783, along with IC 5323, on a plate taken on 29 Aug 1900 at Harvard's Arequipa station in Peru.  He noted "F, S, bM."
+
+******************************
+
+
+IC 5325 = ESO 347-018 = MCG -07-48-004 = LGG 472-009 = PGC 71548
+
+23 28 43.3 -41 20 00; Phe
+
+V = 11.3;  Size 2.8'x2.5';  Surf Br = 13.2;  PA = 8°
+
+
+18" (10/16/09): moderately bright, slightly elongated NW-SE, 1.5'x1.2', irregular.  Located just 1' NE of an 11th magnitude star (not in GSC).  This object appears more like an emission nebula than a galaxy with a slightly brighter region that seems offset to the north side.  This object is brighter than most of the NGC galaxies in the area and was surprisingly missed by John Herschel.
+
+
+Lewis Swift discovered IC 5325 = Sw. XI-230 on 8 Aug 1897 and recorded "pB; pS; R; 9m * close s[outh]."  His position was 9' too far south, but the identification is certain.  DeLisle Stewart picked it up on a Harvard plate at Arequipa in 1900 and described it as "F, S, R, gbM, * 1' sp (A.N. 147, 209, Sw. XI, 230)".  Stewart's accurate position was used in the IC.
+
+******************************
+
+
+IC 5326 = ESO 470-011 = MCG -05-55-015 = PGC 71581
+
+23 29 35.2 -28 49 52; Scl
+
+Size 1.0'x0.45';  PA = 116°
+
+
+24" (9/6/18): at 225x; very faint, fairly small, elongated 2:1 NW-SE, ~30"x15", low even surface brightness.  Mag 9.3 HD 221097 lies 6' SW.
+
+
+ESO 470-015, located 12.7' E, appeared faint, fairly small, round, 30", even surface brightness.  The ESO was comparable (if not slightly higher surface brightness) to IC 5326.
+
+
+Lewis Swift discovered IC 5326 = Sw. XI-231 on 14 Sep 1896 and wrote "eeeF; S; vE; 8m * p[receding]."  His position is 3.4' too far SSW and the bright star (mag 9.2 HD 221097) is 6' SW.  Herbert Howe measured an accurate position (used in the IC) during his survey of NGC and IC objects at Denver.
+
+******************************
+
+
+IC 5328 = ESO 291-029 = PGC 71730
+
+23 33 16.4 -45 00 57; Phe
+
+V = 11.4;  Size 2.5'x1.5';  Surf Br = 12.8;  PA = 40°
+
+
+30" (10/13/15 - OzSky): at 303x; bright, fairly large, oval 3:2 SW-NE, ~1.8'x1.2'.  The large, brighter core is sharply concentrated with an extremely bright nucleus.  IC 5328A, a nearly superimposed companion, is attached at the southwest end of the halo.  It appeared faint to fairly faint, small, slightly elongated NW-SE, 20"x15", nearly even surface brightness.  The galaxy is elongated in the direction of mag 6.9 HD 221473 located 9' SW.  IC 5328B, located 14' SE, appeared fairly faint, edge-on 5:1 N-S, 0.5'x0.1', no noticeable core or nucleus, low surface brightness.  The galaxy is collinear with a mag 10.8 star situated 1.9' S.  The three galaxies are part of a physical group.
+
+
+13.1" (9/3/86): fairly faint, fairly small, oval ~E-W, brighter core.  Located 7' NE of mag 7 SAO 231655.  Forms a very close pair with IC 5328A on the southwest edge, but the companion was not visible at the very low elevation from northern California.
+
+
+Lewis Swift discovered IC 5328 = Sw. XI-232 on 8 Aug 1897 and recorded "vF; S; R; bet 2 st; 8m sf, 7m sp."  His position (in AN 3517) is less than 2' too far south and his description matches.  The RA in his short third Lowe Observatory discovery list in Popular Astronomy is 52 seconds of time too small.  Also the discovery date was first given as 8 Aug 1897, instead of 3 Oct 1897 in his large AN list.  The earlier date appears to be correct as the list was dated 12 Sep 1897.  Perhaps he remeasured the position on the later date.
+
+******************************
+
+
+IC 5332 = ESO 408-009 = MCG -06-51-012 = LGG 478-001 = PGC 71775
+
+23 34 27.5 -36 06 04; Scl
+
+V = 10.5;  Size 7.8'x6.2';  Surf Br = 14.5
+
+
+24" (11/23/19): at 200x, faint, very large, slightly elongated, low surface brightness, weak concentration with a slightly brighter core region.  The halo fades out without a distinct border but roughly 5'x4'.  There was a suggestion of structure but the low elevation affected seeing subtle details. A mag 10 star is 4' NE and a mag 11 star is 4' E (part of a group).  A mag 12.5 star is off the W side, 3.5' from center.
+
+
+13.1" (10/20/84): extremely faint, at visual threshold.  At 74x and 88x appears as a large, very diffuse hazy region with averted vision only.  Not seen at 166x although viewed at a low elevation.  Located 12' NE of the double star SEE 489 = 7.0/11.7 at 20".
+
+
+James Dunlop probably discovered IC 5332 = D 546? on 14 Jul 1826.  He reported finding an "extremely feeble nebula, ill defined; it appears rather elongated oblique to the equator; it is north following a star of the 7th magnitude, and also north of the small stars."  His position is 1° south and 1 minute of RA east of IC 5332, but a 7th magnitude is 13' SW matching his description and a group stars is close southwest.  This identification was suggested by Glen Cozens in his analysis of Dunlop's discoveries.
+
+
+Lewis Swift independently discovered IC 5332 = Sw. XI-233 on 19 Nov 1897 and reported "eeeF; vL; bet 2 st; D[ouble] * p[recedes] 45 sec little s[outh]; pentagon p[receding]."  The double is the unequal double SEE 489, mentioned in my observation.  This object was first reported in his 5th discovery list from Lowe Observatory in which he has the note, "..it is a remarkable object.  It appears to be a nebulous nebula, if such an expression be allowable.  Its appearance was as if a central, considerably elongated nebula with sharp outlines, was centrally superimposed on another nebula very much larger, and of unimagined faintness.  It was impossible, the seeing being excellent, to assign limits to the outer envelope.  It is the largest and among the faintest of all my nebulas. I have requested the Director of the Lick Observatory to examine it with the 36-inch telescope."  Swift was credited with the discovery in the IC.
+
+
+IC 5332 was first recognized on a Helwan Observatory plate taken between 1914-16 by Harold Knox-Shaw.
+
+******************************
+
+
+IC 5333 = NGC 7697 = ESO 110-012 = AM 2332-654 = PGC 71800 = LEDA 127728
+
+23 34 53.0 -65 23 46; Tuc
+
+V = 13.5;  Size 1.6'x0.3';  Surf Br = 12.6;  PA = 87°
+
+
+25" (10/15/17 - OzSky): at 397x; fairly faint to moderately bright, very thin edge-on ~8:1 E-W, ~1.2'x0.15', tapers at the tips, contains a thin brighter elongated core.  The galaxy is at the eastern vertex of a triangle with a mag 11 star 4' SW and a mag 12.5 star 3.5' NW.  Also a mag 14.3 star is 1.7' ENE, along with a 15.2 star 1.6' ESE.
+
+
+DeLisle Stewart found IC 5333 = D.S. 784 on an Arequipa plate taken on 29 Aug 1900 and reported "cB, S, edge of plate, susp."  His position is 1.5' from NGC 7697.  This galaxy was discovered by John Herschel on 6 Sep 1836 but has an erroneous position due to errors by both Herschel and Dreyer.  As a result Stewart assumed it was new when found at the edge of the plate.  PGC and HyperLEDA identify ESO 110-012 as IC 5333 only. See NGC 7697 for more errors with this number.
+
+******************************
+
+
+IC 5334 = MCG -01-60-008 = PGC 71784
+
+23 34 36.4 -04 32 03; Aqr
+
+V = 13.2;  Size 1.8'x0.5';  PA = 127°
+
+
+24" (9/29/16): at 200x; fairly faint, elongated 5:2 NW-SE, ~40"x16", contains a very small bright nucleus with a faint stellar peak.  Located 19' SE of mag 6.9 HD 221600.  IC 1498 lies 50' SW.
+
+
+Herbert Howe discovered IC 5334 = Ho. I-21 on 14 Dec 1894 with the 20-inch refractor at the Chamberlin Observatory in Denver.  He recorded "nebulous * 10.5m.  Possibly close D[ouble] *.  Extended nebulosity susp. at 135° and 315° [SE and NW].  His position is very accurate and his position angle for the suspected nebulosity is correct.
+
+******************************
+
+
+IC 5336 = LEDA 1642748 + 1642687
+
+23 36 18.7 +21 05 58; Psc
+
+V = 15.5;  Size 0.4'x0.3'
+
+
+24" (12/1/16): extremely faint, very small, possibly elongated, 15" diameter.  Only a single glow of the double system (separation 25") was seen with confidence.  The components are pretty similar in mag and size, so either or perhaps both were seen but not simultaneously.  The listed size and mag's refer to IC 5336 NED2 = LEDA 1642687.  This double system lies in the core of AGC 2626, 3.8' SW of IC 5338 (central cD).  A 30" pair of mag 9.7/12.3 stars is 3.7' NW.
+
+
+Stephane Javelle discovered IC 5336 = J. 3-1453, along with IC 5337 and 5338, on 25 Nov 1897.  He noted "faint, elongated in the meridian [N-S], ill defined, very slightly condensed."
+
+******************************
+
+
+IC 5337 = MCG +03-60-012 = CGCG 455-025 = WBL 719-001 = PGC 71875
+
+23 36 25.0 +21 09 02; Peg
+
+V = 14.7;  Size 0.8'x0.15';  PA = 2°
+
+
+24" (12/1/16): fairly faint, small, 20" diameter.  This is an edge-on with a length of 0.8', so I must have picked up only the middle section.  It forms a close pair with IC 5338, the brightest member of AGC 2626, just 1.3' E.  I was surprised the surface brightness of IC 5537 was comparable to the bright core of IC 5338.
+
+
+Stephane Javelle discovered IC 5337 = J. 3-1454, along with IC 5336 and 5338, on 25 Nov 1897.  He noted "faint, roughly round, 20" to 25", gradually condensed, mag 15 nucleus."
+
+******************************
+
+
+IC 5338 = UGC 12703 = MCG +03-60-013 = CGCG 455-026 = 3C 464 = WBL 719-002 = PGC 71884
+
+23 36 30.4 +21 08 45; Peg
+
+V = 13.7;  Size 1.0'x0.7';  Surf Br = 13.4;  PA = 29°
+
+
+24" (12/1/16): fairly faint, fairly small, round, 0.4' diameter, contains a small brighter core/nucleus, low surface brightness halo.  IC 5338 is the brightest cluster member in AGC 2626 and it forms a close pair with IC 5337, the second ranked member, just 1.3' W.  Fainter IC 5336 (a close double system) lies 3.8' SW.
+
+
+CGCG 455-028 is 3.5' SE.  It appeared very faint, round, 12"-15" diameter, slightly brighter nucleus, low surface brightness.  A mag 12.7 star is 1.3' SSW.    AGC 2626 lies at a redshift-based distance of ~725 million l.y.
+
+
+Stephane Javelle discovered IC 5338 = J. 3-1455, along with IC 5336 and 5337, on 25 Nov 1897.  He noted "faint, roughly elongated in the meridian [N-S], 25" to 30", gradually condenses to a mag 15 stellar nucleus."
+
+******************************
+
+
+IC 5341 = CGCG 476-087 = MCG +04-55-035 = PGC 71981
+
+23 38 26.8 +26 59 06; Peg
+
+V = 14.4;  Size 0.4'x0.4'
+
+
+17.5" (8/10/91): very faint, extremely small, round.  Located 2.8' SSW of NGC 7720 in the core of AGC 2634.  First of three very close, extremely faint and small galaxies with CGCG 476-090 40" SE and CGCG 476-092 1.7' E.
+
+
+Herbert Howe discovered IC 5341 = Ho III-23, along with IC 5342, on 27 Nov 1899 with the 20-inch refractor at the Chamberlin Observatory.  He noted "eF, eS; near [NGC] 7720" and measured an accurate micrometric position.
+
+******************************
+
+
+IC 5342 = CGCG 476-094 = MCG +04-55-039 = PGC 71984
+
+23 38 38.8 +27 00 40; Peg
+
+V = 14.6;  Size 0.7'x0.5';  Surf Br = 11.6;  PA = 26°
+
+
+17.5" (8/10/91): very faint, small, round, bright core.  Located 2' N of a mag 11 star and 2.4' SE of NGC 7720 in the core of AGC 2634.  2MASX J23383626+2701467 (perhaps PGC 71991) is 1.5' NNW.  IC 5342 is probably the brightest of several close companions to NGC 7720.
+
+
+Herbert Howe discovered IC 5342 = Ho III-24, along with IC 5341, on 27 Nov 1899.  He noted "eF, eS; near [NGC] 7720" and measured an accurate micrometric position.  MCG misidentifies MCG +04-55-039 as IC 5342.
+
+******************************
+
+
+IC 5343 = ESO 536-015 = MCG -04-55-019 = PGC 72032
+
+23 39 22.4 -22 29 50; Aqr
+
+Size 0.8'x0.7'
+
+
+24" (9/6/18): at 225x; fairly faint, fairly small, round, 30" diameter, weak even concentration.  Situated 5' NW of mag 7.3 HD 2223322.  Forms a pair with IC 5345 5.5' NNE.  This duo is the brightest in a small group (USGC S293) at ~340 million l.y.
+
+
+Lewis Swift discovered IC 5343 = Sw. XI-234 on 19 Oct 1897 and noted "eF; pS; 7 1/2m * 19s sf = [HD 222332].  His position is 3' SW of ESO 536-015 and the description fits.  Howe measured an accurate position in October 1899 and discovered nearby IC 5345.
+
+******************************
+
+
+IC 5345 = ESO 536-016 = MCG -04-55-020 = PGC 72040
+
+23 39 32.2 -22 24 48; Aqr
+
+Size 0.7'x0.5';  PA = 154°
+
+
+24" (9/6/18): at 225x; fairly faint, small, round, 20" diameter.  Forms a pair with IC 5343 5.5' SSW.  Situated 8' NNW of mag 7.3 HD 222332.  IC 5345 has a similar surface brightness as 5343, but is smaller.
+
+
+Herbert Howe discovered IC 5345 = Ho. II-14 on 11 Oct 1898 and wrote "vF, vS, R, 6.5' n of Swift 234 [IC 5343].  His position is accurate.  I'm a little surprised that Swift missed this galaxy, though picked up IC 5343 in the same field.
+
+******************************
+
+
+IC 5348 = NGC 7744 = ESO 292-017 = MCG -07-48-017 = AM 2342-431 = PGC 72300
+
+23 44 59.2 -42 54 39; Phe
+
+V = 11.9;  Size 2.2'x1.7';  Surf Br = 13.2;  PA = 105°
+
+
+See observing notes for NGC 7744.
+
+
+Lewis Swift found IC 5348 = Sw. XI-235 on 23 Sep 1897 and reported "eF; eS; R."  His position is 17 seconds of RA west of NGC 7744.  Perhaps due to the significant difference in description (John Herschel called the object "considerably bright"), Dreyer assumed Swift's object was new. Harold Corwin notes there are no other nearby galaxies that Swift might have picked up instead.  So, IC 5348 = NGC 7744.
+
+******************************
+
+
+IC 5349 = ESO 471-011 = MCG -05-56-005 = PGC 72358 = PGC 72359
+
+23 46 23.0 -28 00 15; Scl
+
+V = 14.2;  Size 0.9'x0.2';  Surf Br = 12.3;  PA = 20°
+
+
+24" (8/16/12): faint, small, elongated 2:1 SSW-NNE, 25"x12".  This is a contact double system (PGC 72358 and 72359) with the nuclei separated by just 12"!  At 282x the cores were just resolved, though the galaxy was on the NNE end was nearly stellar.  The two cores or "knots" were similar in brightness.  PGC 85740 lies 2.9' ENE.
+
+
+18" (8/25/06): faint, very small, elongated 2:1 SSW-NNE, 20"x10", weak concentration.
+
+
+17.5" (11/1/97): very faint, small, elongated 2:1 SSW-NNE, weak concentration.  Initially, this galaxy required averted to view but with concentration it could almost be held continuously.  Located at the west end of AGC 4038. (first of 11 viewed).
+
+
+Herbert Howe discovered IC 5349 = Ho. II-15 on 16 Nov 1898 and recorded "vF, vmE 200°, 20" long."  His position and description is an exact match.  He also added the note "No. 15 has puzzled me somewhat.  The southern end is the brightest portion, and at times it seems as if the object were really a faint double star, one or both components of which are nebulous."  He was right about this object being double!
+
+******************************
+
+
+IC 5350 = ESO 471-014 = MCG -05-56-009 = PGC 72396
+
+23 47 14.7 -27 57 28; Scl
+
+V = 13.5;  Size 0.7'x0.6';  Surf Br = 12.5
+
+
+24" (8/16/12): fairly faint, small, round, 20" diameter, gradually increases to a very small bright nucleus.  PGC 85755 lies 2.0' SE.  Located 10' NNW of IC 5353.
+
+
+18" (8/25/06): faint but readily visible at 220x, very small, round, 20" diameter.  Furthest northern member in the core of AGC 4038.
+
+
+17.5" (10/25/97): faint, very small, round, increases to a very small brighter core and stellar nucleus.  Forms the vertex of an isosceles triangle with a mag 10 star 5' N and a mag 11 star 4.5' ESE. Located on the north side of galaxy cluster AGC 4038 with the central region (IC 5353, IC 5354, IC 5358) about 10' S.
+
+
+Lewis Swift discovered IC 5350 = Sw. XI-236 on 14 Sep 1896. His description reads "eeeF; eS; R; 9m * near f[ollowing]; 1st of 5 [with IC 5353, 5354, 5358 and 5362]."  His position is poor (offset 5.5' to the southwest), but this is the brightest galaxy nearby. Howe measured an accurate position in 1898, so the IC position is good.
+
+******************************
+
+
+IC 5351 = HCG 97D = Shkh 30-2 = MCG -01-60-032 = PGC 72404
+
+23 47 18.9 -02 18 50; Psc
+
+V = 13.6;  Size 0.5'x0.4';  Surf Br = 12.0;  PA = 177°
+
+
+24" (9/28/19): at 322x; faint, small, round, ~20" diameter, very small brighter nucleus.  Attached on the north side of a mag 12.7 star, which partly masks the galaxy!  IC 5357, the brightest in the quintet, is just 1.3' NE.
+
+
+18" (9/3/05): very faint, small.  Appears as a low surface brightness glow or extension attached at the north side of a mag 11-12 star that significantly detracts from viewing.  In a group of four IC galaxies (HCG 97 = Shkh 30).
+
+
+17.5" (9/3/94): this is the third brightest galaxy in HCG 97 group = Shkh 30.  Extremely faint and small, round, 10" diameter.  A mag 11 star attached at the south side makes viewing very difficult.  Located 1.3' SW of IC 5357.  IC 5356 lies 2.5' SE and IC 5359 is 4.7' E.
+
+
+17.5" (10/21/95): extremely faint and small, round.  A mag 12 star attached at the south side detracts from viewing.
+
+
+E.E. Barnard discovered IC 5351, along with IC 5352, 5356, 5367 and 5369, on 28 Oct 1889 and noted "cF, vS, bM".  This group (best known as HCG 97) was discovered while observing Brooks Comet (1889V) with the 36-inch Clark refractor at Lick Observatory.  His sketch in AN 4136 clearly identifies all members in the group.
+
+******************************
+
+
+IC 5352 = HCG 97E = Shkh 30-4 = PGC 72405 = LEDA 196630
+
+23 47 19.9 -02 16 51; Psc
+
+V = 15.6;  Size 0.4'x0.3';  PA = 66°
+
+
+24" (9/28/19): at 322x; between extremely faint and very faint, very small, round, 10"-12" diameter.  I was unable to hold the faintest (and smallest) member of the HCG 97 quintet but it was not a threshold object.  Situated 1.5' NW of IC 5357 (brightest in the group).
+
+
+E.E. Barnard discovered IC 5351, along with IC 5352, 5356, 5367 and 5369, on 28 Oct 1889 and noted "pF, pS, gbM".  This group (best known as HCG 97) was discovered while observing Brooks Comet (1889V) with the 36-inch Clark refractor at Lick Observatory.  His sketch in AN 4136 clearly identifies all members in the group.
+
+
+Hickson failed to label his HCG 97E as IC 5351 and the PGC, HyperLEDA and SIMBAD only identify IC 5352 as HCG 97E.  NED correctly labels this galaxy as IC 5351.
+
+******************************
+
+
+IC 5353 = ESO 471-017 = MCG -05-56-010 = AM 2344-282 = PGC 72421
+
+23 47 28.6 -28 06 33; Scl
+
+V = 13.0;  Size 1.4'x1.0';  Surf Br = 13.3;  PA = 140°
+
+
+24" (8/16/12): fairly faint, fairly small, round, 25" diameter, very small bright core.  Located in the core of AGC 4038 4.1' NW of IC 5358.  Forms a close pair with PGC 72423, just  42" E.  IC 5354 lies 1.6' S.  This galaxy is one of the brightest in the cluster along with IC 5358.
+
+
+18" (8/25/06): fairly faint, small, slightly elongated NW-SE, very small brighter core, stellar nucleus.  The halo increases in size with averted vision to ~30"x25".  With careful viewing an extremely faint companion was glimpsed close east.  Located in the core of AGC 4038 with IC 5354 1.6' S.
+
+
+17.5" (10/25/97): very faint, fairly small, irregular shape, halo grows in size with averted vision, weak concentration to a brighter core.  Located in the core of AGC 4038 with IC 5354 1.6' S and IC 5358 3.9' SE.  A mag 11 star lies 4' NE and a mag 15 star is 1.0' NNE.
+
+
+Lewis Swift discovered IC 5353 = Sw. XI-237 on 14 Sep 1896. His description reads "eF; S; R; 6m * with distant companion f[ollows]; 2nd of 5 [with IC 5351, 5354, 5358 and 5362]."  His position is 4.4' too far southwest  (similar offset as IC 5351), but Howe measured an accurate position in 1898, so the IC position is good.
+
+******************************
+
+
+IC 5354 = ESO 471-016 = MCG -05-56-011 = AM 2344-282 = PGC 72416
+
+23 47 28.6 -28 08 09; Scl
+
+V = 14.0;  Size 0.8'x0.4';  Surf Br = 12.6;  PA = 66°
+
+
+24" (8/16/12): faint, small, round, 18" diameter, very small bright nucleus.  Located in the rich core of AGC 4038 and 1.6' S of IC 5353.  This is a double system with a small galaxy (ESO-LV 4710161) on the northeast edge, but I didn't look for the tiny companion.
+
+
+18" (8/25/06): very faint, very small, round, 15" diameter, weak concentration.  Located 1.6' S of brighter IC 5353 and 3.5' W of IC 5358.
+
+
+17.5" (10/25/97): extremely faint, very small, round.  This member of AGC 4038 required averted vision to view.  A faint companion at the NE edge was not seen.  Located just 1.6' S of IC 5353 and 3.5' W of IC 5358.
+
+
+Lewis Swift discovered IC 5354 = Sw. XI-238 on 14 Sep 1896. His description reads "eeF; S; R; 3rd of 5 [with IC 5351, 5353, 5358 and 5362]."  His position is 3' too far southwest  (similar offset as IC 5353 and 5358) but Howe measured an accurate position in 1898 and the IC position is good.  This is a double galaxy, though Swift and Howe probably just picked up the brighter western component.
+
+******************************
+
+
+IC 5356 = HCG 97C = MCG -01-60-034 = Shkh 30-3 = PGC 72409
+
+23 47 23.8 -02 21 04; Psc
+
+V = 14.1;  Size 0.8'x0.4';  Surf Br = 12.7;  PA = 33°
+
+
+24" (9/28/19): at 322x; fairly faint, fairly small, oval 5:3 SW-NE, ~30"x18", well concentrated with a small bright nucleus and much fainter extensions.  A mag 14.5-15 star is 0.8' SW and a similar star 45" NE.
+
+
+18" (9/3/05): fairly faint, small, elongated 3:2 SW-NE, even surface brightness.  Located 2.7' SW of a mag 10 star and 3' S of IC 5357 in HCG 97.  Four faint stars are near including three mag 14.5 stars running SW to NE with the galaxy nearly between two of these stars.
+
+
+17.5" (9/3/94): second brightest galaxy in HCG 97 group.  Very faint, very small, slightly elongated (although difficult to pin down direction), very weak concentration.  Located between two mag 14 stars off the SW and NE ends and 3.0' due south of IC 5357.  Forms the southern vertex of an isosceles triangle with a mag 11 star 2.5' NW and a mag 10 star 2.6' NE.  IC 5351 lies 2.5' NW and IC 5359 is 4.0' NE.
+
+
+17.5" (10/21/95): very faint, small, round.  A mag 14.5 star is 45" SSW.
+
+
+E.E. Barnard discovered IC 5356 on 28 Oct 1889 while observing Comet Brooks (1889V) with the Lick 36-inch refractor.  He noted "not F, R, mbM."
+
+******************************
+
+
+IC 5357 = HCG 97A = MCG -01-60-033 = Shkh 30-1 = PGC 72408
+
+23 47 22.9 -02 18 02; Psc
+
+V = 13.0;  Size 0.9'x0.5';  Surf Br = 12.0;  PA = 150°
+
+
+24" (9/28/19): largest and brightest member of the HCG 97 quintet.  At 322x; moderately bright, elongated 2:1 NNW-SSE, 1.0'x0.5', brighter core that gradually increases to the center.
+
+
+18" (9/3/05): brightest in quartet of IC galaxies forming HCG 97 = Shkh 30.  At 225x appeared moderately bright, fairly small, elongated 4:3 NNW-SSE, 0.8'x0.6', broad concentration.  Located 3' NW of a mag 10.5 star and 1.3' NE of a mag 11.5 star.
+
+
+17.5" (9/3/94): brightest of four IC galaxies in HCG 97 = Shkh 30.  Faint, small, elongated 3:2 NW-SE, 0.7'x0.4', gradually brightens to a small bright core and an almost stellar nucleus.  A mag 11 star (with IC 5351 attached) is 2' SW.  IC 5351 lies 1.3' SW, IC 5356 3.0' S and IC 5359 3.8' ESE. IC 5352 = HCG 97E was not seen.
+
+
+17.5" (10/21/95): faint, fairly small, elongated 4:3 NNW-SSE.
+
+
+E.E. Barnard discovered IC 5357 on 28 Oct 1889 while observing Comet Brooks (1889V) with the Lick 36-inch refractor.  He noted "'B, R, mbM."
+
+******************************
+
+
+IC 5358 = ESO 471-019 = MCG -05-56-013 = AM 2344-282 = PGC 72441
+
+23 47 44.2 -28 08 22; Scl
+
+V = 12.6;  Size 2.5'x1.0';  Surf Br = 13.6;  PA = 122°
+
+
+24" (8/16/12): this cD galaxy is at the center of AGC 4038.  At 282x appeared fairly faint, fairly small, elongated 2:1 NW-SE, ~50"x25", sharply concentrated with a bright 15" core and much fainter extensions.  A companion (IC 5358A = PGC 72423) is attached on the southwest side, 25" between centers.  IC 5358A appeared faint, very small, round, 15" diameter (similar in size to the core of IC 5358).  IC 5353 lies 4' NW, with a faint companion following.
+
+
+18" (8/25/06): this double galaxy is the brightest in AGC 4038 and appeared as a fairly faint glow, fairly small, elongated ~5:3 WNW-ESE, small bright core.  With careful viewing a very faint, very small companion was attached on the southwest side.
+
+
+17.5" (11/1/97): initially seen as a single irregular-shaped galaxy but after careful viewing this double system was resolved into two nearly tangent objects oriented WSW-ENE (the brighter, larger object to the NE is IC 5358).  At moments both objects can be seen to have nearly stellar nuclei.  This cD galaxy is the brightest in AGC 4038 = Klemola 44.
+
+
+17.5" (10/25/97): this faint galaxy is the largest of ten viewed in AGC 4038.  Appeared faint, fairly small, elongated 4:3 NW-SE, 1.2'x0.9', weak concentration.  Nearby is IC 5353 3.9' NW, IC 5354 3.5' W and PGC 72436 2.0' S.  Located 16' W of Delta Sculptoris (V = 4.5).
+
+
+Lewis Swift discovered IC 5358 = Sw. XI-239 on 14 Sep 1896. His description reads "eF; S; R; 4th of 5 [with IC 5351, 5353, 5354 and 5362]."  His position is 3.6' too far southwest  (similar offset as IC 5353 and 5354).  Howe remeasured all these galaxies and mentions for IC 5358 "binuclear, at an angle of 250°, with a distance of 20"."  So Howe discovered IC 5358A, the attached companion on the southwest side, and it should have received an IC designation.
+
+******************************
+
+
+IC 5359 = HCG 97B = Shkh 30-5 = MCG -01-60-036 = PGC 72430
+
+23 47 37.9 -02 19 00; Psc
+
+V = 14.7;  Size 1.1'x0.2';  Surf Br = 12.8;  PA = 138°
+
+
+24" (9/28/19): at 322x; between very faint and faint, edge-on streak ~6:1 NW-SE, ~50"x8", low even surface brightness, no core.  Situated between a mag 10.4 star 1.5' WSW and a mag 9.9 star 3.6' ENE.  Due to its low surface brightness, HCG 97B is one of the two most difficult (along with HCG 97E) in the quintet.
+
+
+18" (9/3/05): extremely faint, small, very low surface brightness glow 1.5' following a mag 10 star.  In fairly poor seeing, the image was too unsteady to see the elongation well.
+
+
+17.5" (9/3/94): faintest of four galaxies in the HCG 97 compact group.  Extremely faint, small, very elongated 4:1 NW-SE.  Only visible with averted vision and cannot be held steadily.  A mag 10 star, just 1.6' WSW, detracts from viewing.  Last in a group with IC 5351 4.7' W, IC 5357 3.8' WNW and IC 5356 4' SW.
+
+
+E.E. Barnard discovered IC 5359 on 28 Oct 1889 while observing Comet Brooks (1889V) with the Lick 36-inch refractor.  He noted "F, pS, gbM."
+
+******************************
+
+
+IC 5361 = NGC 7761 = MCG -02-60-020 = PGC 72641
+
+23 51 28.9 -13 22 54; Aqr
+
+V = 13.1;  Size 1.2'x1.2';  Surf Br = 13.4
+
+
+17.5" (8/29/92): fairly faint, small, round, 1' diameter, very even concentration, small bright core, very symmetrical appearance.  Two brighter stars mag 10 are 3.5' W and 7' WSW.  Located in a field that is strangely devoid of any faint stars.
+
+
+Guillaume Bigourdan found IC 5361 = Big. 356 on 30 Nov 1891.  His position matches NGC 7761 = PGC 72641, which was discovered by Ormond Stone in 1886 at Leander McCormick Observatory.  Stone's rough position was two minutes of RA too far west, so both Bigourdan and later Herbert Howe assumed they found a new object.  So, IC 5361 = NGC 7761. See Corwin's notes for discussion.
+
+******************************
+
+
+IC 5362 = IC 5363 = ESO 471-026 = MCG -05-56-023 = PGC 72648
+
+23 51 36.7 -28 21 54; Scl
+
+V = 12.8;  Size 1.3'x1.3';  Surf Br = 13.3
+
+
+18" (10/29/11): fairly faint, fairly small, round, 30" diameter, weak even concentration to a small bright core and faint stellar nucleus.  Located 4.5' SW of SEE 497, a close, very unequal mag 8/11 pair at 5" that was resolved.
+
+
+Although centered in AGC 4049, IC 5362 appears to be foreground object at a similar redshift as AGC 4038, which is located about 0.9° WNW.
+
+
+Lewis Swift discovered IC 5362 = Sw. XI-241 on 14 Sep 1896 and recorded (in AN 3517) "eeF; pS; bet 2 B st; 5th of 5 [with IC 5350, 5353, 5354, and 5358]."  His description in AJ 388 reads, "eeF, pS, nrly bet an 8m * nf and a 9m * sp nearer the former, 5th of 5."  There is nothing near his position (identical in both lists).  Herbert Howe reported "I saw nothing in the place given by Swift, but measured one 34 seconds following at nearly the same declination.  It precedes a star of mag 8, 17 seconds, 2.3' south.  This star has a companion of mag 12 at 70°, 6"."  Howe's accurate position was used in the IC.  Swift probably discovered this galaxy again on 24 Jul 1897 and reported Sw. XII-45 (later IC 5363) as "vF, eS, R, 3 st in line p[receding], one D[ouble]."  His position is a fairly poor fit; 18' SE of IC 5362 (not unusual in his last summer of observing). Another discrepancy is his description mentions "3 stars in line [to west]" and 3 collinear stars are nearly due east of IC 5363.
+
+******************************
+
+
+IC 5364 = ESO 471-47 = AM 2353-291 = PGC 72950
+
+23 56 25.0 -29 01 24; Scl
+
+Size 1.3'x0.9'
+
+
+24" (9/7/18): IC 5364 is an interacting overlapping pair, only 17" between centers.  The eastern galaxy (IC 5364 NED2) was brighter.  At 260x it appeared faint, small, round, 20" diameter.  The western galaxy (IC 5364 NED1) is tangent but resolved as a very faint, round glow, 12" diameter (the nucleus of a Ring galaxy).
+
+
+ESO 471-049 is a brighter spiral situated 14' ESE.  It was fairly faint, fairly small, elongated 2:1 ~N-S, 0.8'x0.4', slightly brighter nucleus.  Three mag 12.5-13.8 stars are close west.  Mag 9.4 HD 224284 lies 9' WSW.
+
+
+Lewis Swift discovered IC 5364 = Sw. XI-242 on 15 Sep 1896 and called it "vF; pS; R; 8m * near sf."  His position is 4.5' SE of ESO 471-IG47, though a mag 9.4 star is 5.5' SSE of this galaxy, in agreement with Swift's description.  Apparently he missed ESO 471-049, which is larger and brighter.
+
+
+******************************
+
+
+IC 5368 = IC 1523 = LEDA 3091908
+
+23 59 06.6 +06 52 23; Psc
+
+Size 0.3'x0.2';  PA = 5°
+
+
+24" (9/8/18): at 375x; faint, very small, round, 15"-18" diameter.  Situated just 3' WNW of mag 4.0 Omega Piscium.  One the overpowering star was placed outside the field, this faint galaxy was immediately  noticed, and although faint and small, it was not as difficult a target as expected.
+
+
+E.E. Barnard found IC 5368 (date unknown),  probably with the 36-inch Lick refractor and reported it directly to Dreyer as "eF, vS, lbM, 3' p or f from Omega Piscium"  Burnham discovered this galaxy on 19 Aug 1889 while checking if mag 4.0 Omega Psc was a double.  I wouldn't be surprised if E.E. Barnard also observed this galaxy at the same time as Burnham, but later reported it to Dreyer as new. As a result IC 1523 = IC 5368.
+
+******************************
+
+
+IC 5369 = CGCG 498-055 = CGCG 499-027 = PGC 73190
+
+23 59 50.6 +32 42 08; And
+
+V = 14.2;  Size 0.9'x0.4';  Surf Br = 13.0;  PA = 85°
+
+
+17.5" (10/4/97): extremely faint, very small, elongated WSW-ESE.  Requires averted at 280x for clear view, so doesn't appear as bright as CGCG magnitude (15.3z).  Collinear with two mag 10.5 stars (~3' S) which are two vertices of a nice equilateral triangle of similar bright stars with sides 1'.  First of five in the IC 5370 cluster.
+
+
+Stephane Javelle discovered IC 5369 = J. 3-1460, along with IC 5370, 5371, 5372 and 5373, on 9 Nov 1899.  His positions are all offset 1' to the south, due to an error in the position of his reference star.  IC 5369 was described as "faint, round, 20" to 25" diameter, mag 15 stellar nucleus."
+
+******************************
+
+
+IC 5370 = MCG +05-01-018 = CGCG 498-056 = CGCG 499-028 = PGC 5
+
+00 00 09.2 +32 44 18; And
+
+V = 14.1;  Size 0.6'x0.5';  Surf Br = 12.7;  PA = 117°
+
+
+17.5" (10/4/97): very faint, very small, slightly elongated, very small bright core. Halo increases to ~40" with averted vision. There are several stars to the west including a mag 13.5 star 1.4' W.  Brightest in a group including IC 5369, IC 5371, IC 5372 and IC 5373.
+
+
+Stephane Javelle discovered IC 5370 = J. 3-1461, along with IC 5369, 5371, 5372 and 5373, on 9 Nov 1899.  He recorded "pretty bright, round, 20", mag 13 stellar nucleus."
+
+******************************
+
+
+IC 5371 = CGCG 499-030 = CGCG 498-058 = PGC 24
+
+00 00 14.8 +32 49 55; And
+
+Size 0.5'x0.45';  PA = 148°
+
+
+17.5" (10/4/97): extremely faint, very small, round, 20" diameter.  Located 1.4' NW of a mag 14 star.  This is the furthest north of five galaxies in the IC 5370 group.  Similar IC 5372 lies 2.4' S.
+
+
+Stephane Javelle discovered IC 5371 = J. 3-1462, along with IC 5369, 5370, 5372 and 5373, on 9 Nov 1899.  He recorded "faint, 10" to 15" or more, paired with a mag 15 star."  I apparently missed a faint star at the east side.  PGC assigns MCG +05-01-019 to IC 5371 instead of IC 5373.  Megastar software misidentifies IC 5372 as IC 5371.
+
+******************************
+
+
+IC 5372 = LEDA 2801010
+
+00 00 16.3 +32 47 33; And
+
+Size 0.5'x0.4'
+
+
+17.5" (10/4/97): extremely faint and small (required averted vision), round, 15" diameter, no concentration.  Located 40" NW of a mag 12.5 star which is 2' due west of IC 5373 in the IC 5370 group.
+
+
+Stephane Javelle discovered IC 5372 = J. 3-1463, along with IC 5369, 5370, 5371 and 5373, on 9 Nov 1899.  He noted "faint, round, 15", mag 14 nucleus."  PGC doesn't identify PGC 2801010 as IC 5372.
+
+******************************
+
+
+IC 5373 = MCG +05-01-019 = CGCG 498-059w = CGCG 499-031w = PGC 36 = PGC 48
+
+00 00 28.9 +32 46 56; And
+
+V = 14.7;  Size 0.6'x0.4';  Surf Br = 13.0;  PA = 150°
+
+
+17.5" (10/4/97): very faint, very small, round, 25" diameter, weak concentration.  Second brightest in the IC 5370 group.  Situated between two mag 12.5 stars 2.1' W and 2.7' E.  Also 6' SW of a mag 9.1 star. IC 5370 lies 5' SW.  This is a contact double system, although I probably only viewed the brighter western component.
+
+
+Stephane Javelle discovered IC 5373 = J. 3-1464, along with IC 5369, 5370, 5371 and 5372, on 9 Nov 1899.  He recorded "pretty bright, round, 20", mag 13 stellar nucleus."  MCG doesn't label its +05-01-019 as IC 5373.  The CGCG magnitude includes both components.
+
+******************************
+
+
+IC 5378 = Arp 130 = VV 263 = UGC 1 = MCG +03-01-015+16 = CGCG 456-018 = PGC 178
+
+00 02 37.9 +16 38 38; Peg
+
+Size 0.6'x0.6'
+
+
+24" (12/1/16): fairly faint, small, round, 15"-18" diameter, slightly brighter nucleus.  A 20" pair of mag 14.5 stars is off the west side.  MCG +03-01-016, a very low surface brightness companion adjacent to the north [30" between centers], was not seen.
+
+
+18" (11/14/09): faint, small, round, 20" diameter, two mag 14 stars [23" separation] are close preceding [nearer star is 30" west].  A much fainter companion (MCG +03-01-016 = PGC 178) attached on the north side was not seen.  Located 30' NNW of NGC 7814.
+
+
+Isaac Roberts discovered IC 5378, along with IC 5377 and 5379, on a plate taken on 17 Nov 1895 of NGC 7814.  He described IC 5378 as "Faint; elongated north to south; one of three 15th mag stars involved; condensation at the north extremity; length including the star about 42"."  His position is 1.3' too far south (same as IC 5379), but his description is very accurate (except the involved mag 15 star is the nucleus).
+
+******************************
+
+
+IC 5381 = UGC 7 = MCG +03-01-019 = CGCG 456-023 = PGC 212
+
+00 03 11.3 +15 57 54; Peg
+
+V = 13.8;  Size 1.4'x0.4';  Surf Br = 13.0;  PA = 54°
+
+
+13.1" (10/10/86): very faint, small, very elongated 3:1 SW-NE.  Located just NW of a small isosceles triangle of mag 12-13 stars with side about 1' with the closest star 43" SE.  Can just hold steadily with averted.  Forms a pair with NGC 7814 10' N.
+
+
+Isaac Roberts discovered IC 5381 = J. 3-1468, along with IC 5377 and 5378, on a plate taken with his 20-inch reflector on 17 Nov 1895 of NGC 7814.  He described IC 5381 as "Bright; elongated north following to south preceding about 50"; stellar nucleus about 17th mag; four 12 to 16 stars on the south near it."  It was found again by Keeler or Perrine between 1898-00 on plates taken with the Crossley reflector and catalogued as #740 in a table of 744 new nebulae published in 1908.  Finally, Stephane Javelle rediscovered it visually at the Nice Observatory on 12 Nov 1903 while measuring NGC 7814 and recorded it as #1468 in his third discovery list.
+
+******************************
+
+
+IC 5384 = NGC 7813 = MCG -02-01-016 = Mrk 936 = PGC 287
+
+00 04 09.1 -11 59 02; Cet
+
+V = 14.2;  Size 0.8'x0.3';  Surf Br = 12.5;  PA = 158°
+
+
+17.5" (11/6/93): very faint, very small, round, weak concentration, can just steadily with direct vision.  A mag 13 star is 3' NW.  Located 12' ESE of mag 8.2 SAO 147055.  The listed magnitude appears too bright.
+
+
+Herbert Howe found IC 5384 in 1899-00 while searching for NGC 7813 with the 20" refractor at the Chamberlin Observatory in Denver.  He reported "I do not find anything in the NGC place of this Muller nebula.  But 55 seconds following, at nearly the same declination, I found a similar object, elongated, however at 160°, while Muller puts the elongation at 80°.  He says "*8.5 f 38 seconds," while I found such a star preceding 49 seconds.  He also says "*9 np 40 seconds."  There are two such stars about 8' north, and a few seconds preceding.  The region may well be examined with a larger telescope."
+
+
+Dreyer noted the possible equivalence with NGC 7813 in the IC description and Harold Corwin concludes "NGC 7813 is probably identical with IC 5384, though the descriptions do not match, and Muller's position is a typically poor one from the second Leander McCormick list in AJ."  MCG labels this galaxy IC 5384 as this designation is secure.
+
+******************************
+
+
+IC 5386 = NGC 7832 = MCG -01-01-033 = PGC 485
+
+00 06 28.5 -03 42 58; Psc
+
+V = 12.3;  Size 1.9'x1.0';  Surf Br = 12.8;  PA = 25°
+
+
+See observing notes for NGC 7832.
+
+
+Lewis Swift found IC 5386 = Sw. XI-1 on 12 Sep 1896 and logged "pB; pS; vE."  His position is 5' southeast of NGC 7832.   The IC position (based on Herbert Howe's observation in 1898-99) matches NGC 7832.  Corwin notes that neither Swift, Dreyer nor Howe noticed the equivalence with NGC 7832.
+
+******************************

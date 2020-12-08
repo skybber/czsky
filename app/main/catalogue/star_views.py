@@ -33,7 +33,7 @@ from .star_forms import (
 @main_star.route('/star/<int:star_id>/info')
 def star_info(star_id):
     """View a star info."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
@@ -45,7 +45,7 @@ def star_info(star_id):
 @main_star.route('/star/<int:star_id>/catalogue_data')
 def star_catalogue_data(star_id):
     """View a deepsky object info."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
@@ -55,7 +55,7 @@ def star_catalogue_data(star_id):
 @main_star.route('/star/<int:star_id>/fchart', methods=['GET', 'POST'])
 def star_fchart(star_id):
     """View a star  findchart."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code='cs').first()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 

@@ -19,6 +19,7 @@ from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
 from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc, import_glahn_local_group
+from imports.import_gottlieb import import_gottlieb
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 
@@ -175,7 +176,7 @@ def add_test_user():
         user = User(
             user_name='test',
             full_name='test',
-            password='heslo',
+            password='nologin',
             confirmed=True,
             email=user_email)
         db.session.add(user)
@@ -184,6 +185,7 @@ def add_test_user():
 @manager.command
 def add_help_users():
     add_help_user('8mag', '8mag')
+    add_help_user('s.gottlieb', 's.gottlieb')
     add_help_user('skyquality', 'skyquality')
 
 def add_help_user(user_name, user_email):
@@ -206,7 +208,7 @@ def add_editor_user():
         user = User(
             user_name='editor',
             full_name='Editor Editorovic',
-            password='heslo',
+            password='nologin',
             confirmed=True,
             email=user_email,
             role=role,
@@ -223,8 +225,18 @@ def tmp_normalize_glahn_img():
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
 
 @manager.command
+def tmp_import_gottlieb():
+    add_help_user('s.gottlieb', 's.gottlieb')
+    import_gottlieb('data/gottlieb')
+
+@manager.command
 def tmp_import_glahn_local_group():
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
+
+@manager.command
+def tmp_import_abell_pn():
+    import_abell_pn('data/dsolist/AbellPN.csv')
+
 
 if __name__ == '__main__':
     manager.run()

@@ -1,4 +1,5 @@
 import os
+import werkzeug
 
 from werkzeug.utils import secure_filename
 
@@ -117,7 +118,7 @@ def create_app(config):
     app.register_blueprint(main_planner)
     from .main.solarsystem import main_solarsystem as main_solarsystem
     app.register_blueprint(main_solarsystem)
-    from .main.solarsystem import main_comet as main_comet 
+    from .main.solarsystem import main_comet as main_comet
     app.register_blueprint(main_comet)
 
     from .account import account as account_blueprint
@@ -133,5 +134,8 @@ def create_app(config):
 
 @babel.localeselector
 def get_locale():
+    # supported_languages = ["cs", "en"]
+    # return werkzeug.datastructures.LanguageAccept([(al[0][0:2], al[1]) for al in request.accept_languages]).best_match(supported_languages)
+    if 'czsky.eu' in request.host_url:
+        return 'en'
     return 'cs'
-

@@ -40,7 +40,7 @@ class DeepskyObject(db.Model):
 
     def normalized_name_for_img(self):
         return normalize_dso_name_for_img(self.name)
-    
+
     def simbad_id(self):
         return dso_name_to_simbad_id(self.name)
 

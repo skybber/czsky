@@ -20,17 +20,27 @@ def _load_descriptions(dirname, base_name, dso_list, editor_user):
             content = f.read()
         lines = content.splitlines()
 
-        dso_list_descr = DsoListDescription(
-            dso_list_id=dso_list.id,
-            long_name=lines[0],
-            short_descr=lines[2],
-            lang_code = descr_file[-(2+app_len):-app_len],
-            text='\n'.join(lines[4:]),
-            create_by= editor_user.id,
-            update_by=editor_user.id,
-            create_date=datetime.now(),
-            update_date=datetime.now(),
-        )
+        lang_code = descr_file[-(2+app_len):-app_len]
+
+        dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang_code).first()
+        if dso_list_descr:
+            dso_list_descr.long_name=lines[0]
+            dso_list_descr.short_descr=lines[2]
+            dso_list_descr.text='\n'.join(lines[4:])
+            dso_list_descr.update_by=editor_user.id
+            dso_list_descr.update_date=datetime.now()
+        else:
+            dso_list_descr = DsoListDescription(
+                dso_list_id=dso_list.id,
+                long_name=lines[0],
+                short_descr=lines[2],
+                lang_code = lang_code,
+                text='\n'.join(lines[4:]),
+                create_by= editor_user.id,
+                update_by=editor_user.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
+            )
         result.append(dso_list_descr)
     return result
 
