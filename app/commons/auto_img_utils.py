@@ -17,6 +17,13 @@ def get_dso_image_info(dso_name):
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
 
+def get_dso_image_info_with_imgdir(dso_name):
+    dso_file_name = dso_name + '.jpg'
+    img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
+    if img_dir_def[0]:
+        return '$IMG_DIR/dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
+    return None
+
 
 def get_ug_bl_dsos():
     global _ug_bl_dsos

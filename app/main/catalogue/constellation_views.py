@@ -17,7 +17,7 @@ from app import db
 from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject, WishList, ObservedList
 from app.commons.search_utils import process_session_search
 
-from app.commons.auto_img_utils import get_dso_image_info, get_ug_bl_dsos
+from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir, get_ug_bl_dsos
 from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .constellation_forms import (
@@ -103,7 +103,7 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
             if not dsod.text or not dsod.text.startswith('![<]($IMG_DIR/'):
-                image_info = get_dso_image_info(dsod.deepskyObject.normalized_name_for_img())
+                image_info = get_dso_image_info_with_imgdir(dsod.deepskyObject.normalized_name_for_img())
                 if image_info is not None:
                     title_images[dsod.dso_id] = image_info[0]
 

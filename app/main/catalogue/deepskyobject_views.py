@@ -48,8 +48,7 @@ from .deepskyobject_forms import (
 
 from app.main.views import ITEMS_PER_PAGE
 from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
-from app.commons.img_dir_resolver import resolve_img_path_dir, parse_inline_link
-from app.commons.auto_img_utils import get_dso_image_info
+from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
@@ -193,14 +192,14 @@ def deepskyobject_info(dso_id):
                 apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
 
         if user_descr and (not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/')):
-            image_info = get_dso_image_info(dso.normalized_name_for_img())
+            image_info = get_dso_image_info_with_imgdir(dso.normalized_name_for_img())
             if image_info is not None:
                 title_img = image_info[0]
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
-    dso_image_info = _get_dso_image_info(dso.normalized_name_for_img(), '')
+    dso_image_info = get_dso_image_info(dso.normalized_name_for_img(), '')
 
     other_names = _get_other_names(dso)
 
@@ -227,14 +226,6 @@ def deepskyobject_info(dso_id):
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
                            wish_list=wish_list, observed_list=observed_list, season=season, title_img=title_img,
                            )
-
-
-def _get_dso_image_info(dso_name, dir):
-    dso_file_name = dso_name + '.jpg'
-    img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
-    if img_dir_def[0]:
-        return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
-    return None
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/surveys', methods=['GET', 'POST'])
