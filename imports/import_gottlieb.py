@@ -105,12 +105,12 @@ def import_gottlieb(gottlieb_dir):
             i = 0
 
             search_obj_id = True
-            catalogue_infos = True
-            aperture_infos = False
 
             dso_name = None
             dso_apert_descr = {}
             dso_descr = ''
+            last_apert = None
+            ignored_text = True
 
             while i < len(lines):
                 line = lines[i]
@@ -123,11 +123,11 @@ def import_gottlieb(gottlieb_dir):
                     if dso_name:
                         _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag)
                     search_obj_id = True
-                    catalogue_infos = True
-                    aperture_infos = False
                     dso_name = None
                     dso_descr = ''
                     dso_apert_descr = {}
+                    last_apert = None
+                    ignored_text = True
                     continue
 
                 if search_obj_id:
@@ -137,17 +137,18 @@ def import_gottlieb(gottlieb_dir):
                         dso_name = pobj_id.group(1) + pobj_id.group(2)
                     continue
 
-                if catalogue_infos or aperture_infos:
-                    papertd = re.match(r'(\d+(?:\.\d+)?")(.*)', line)
+                papertd = re.match(r'(\d+(?:\.\d+)?")(.*)', line)
+                if papertd:
+                    if last_apert:
+                        if dso_descr:
+                            dso_apert_descr[last_apert] = dso_apert_descr[last_apert] + '\n\n' + dso_descr
+                            dso_descr = ''
+                    last_apert = papertd.group(1)[:-1]
+                    dso_apert_descr[last_apert] = papertd.group(2)
+                    ignored_text = False
+                    continue
 
-                    if not papertd:
-                        if aperture_infos:
-                            aperture_infos = False
-                        continue
-
-                    catalogue_infos = False
-                    aperture_infos = True
-                    dso_apert_descr[papertd.group(1)[:-1]] = papertd.group(2)
+                if ignored_text:
                     continue
 
                 if len(dso_descr) > 0:
