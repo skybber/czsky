@@ -104,7 +104,7 @@
                     {% endfilter %}
                     {% for ap_class, app_descr in apert_descriptions %}
                         {% filter extended_commonmark(dso.name) %}
-**{{ ap_class }}mm** - {{ app_descr }}
+**{{ commons.norm_aperture_class(ap_class) }}** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
                     {% filter extended_commonmark(dso.name) %}

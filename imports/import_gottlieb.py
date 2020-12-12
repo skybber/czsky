@@ -51,19 +51,22 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
         db.session.add(udd)
 
         for apert, apert_descr in dso_apert_descr.items():
-            apertf = float(apert)
-            if apertf < 8:
-                apert_class = '100/150'
-            elif apertf < 12:
-                apert_class = '200/250'
-            elif apertf < 16:
-                apert_class = '300/350'
-            elif apertf < 24:
-                apert_class = '400/500'
-            elif apertf < 36:
-                apert_class = '600/800'
+            if apert == 'Naked-eye':
+                apert_class = 'Naked-eye'
             else:
-                apert_class = '900/1200'
+                apertf = float(apert)
+                if apertf < 8:
+                    apert_class = '100/150'
+                elif apertf < 12:
+                    apert_class = '200/250'
+                elif apertf < 16:
+                    apert_class = '300/350'
+                elif apertf < 24:
+                    apert_class = '400/500'
+                elif apertf < 36:
+                    apert_class = '600/800'
+                else:
+                    apert_class = '900/1200'
 
             uad = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=user_gottlieb.id, aperture_class=apert_class, lang_code='en').first()
 
@@ -137,14 +140,21 @@ def import_gottlieb(gottlieb_dir):
                         dso_name = pobj_id.group(1) + pobj_id.group(2)
                     continue
 
-                papertd = re.match(r'(\d+(?:\.\d+)?")(.*)', line)
+                papertd = re.match(r'((?:\d+(?:\.\d+)?")|(?:Naked-eye))\:?(.*)', line)
                 if papertd:
                     if last_apert:
                         if dso_descr:
                             dso_apert_descr[last_apert] = dso_apert_descr[last_apert] + '\n\n' + dso_descr
                             dso_descr = ''
-                    last_apert = papertd.group(1)[:-1]
-                    dso_apert_descr[last_apert] = papertd.group(2)
+                    last_apert = papertd.group(1)
+                    apert_prefix = ''
+                    if last_apert != 'Naked-eye':
+                        last_apert = last_apert[:-1]
+                        apert_prefix = papertd.group(1) + ' '
+                    if last_apert in dso_apert_descr:
+                        dso_apert_descr[last_apert] = dso_apert_descr[last_apert] + '\n\n' + apert_prefix + papertd.group(2)
+                    else:
+                        dso_apert_descr[last_apert] = apert_prefix + papertd.group(2)
                     ignored_text = False
                     continue
 

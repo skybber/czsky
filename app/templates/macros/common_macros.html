@@ -1,5 +1,7 @@
 {% macro convert_mag(mag) %}{{ mag if mag and mag < 100.0 else '- ' }}{% endmacro %}
 
+{% macro norm_aperture_class(ap_class) %}{{ 'Naked-eye' if ap_class=='Naked-eye' else ap_class + 'mm' }}{% endmacro %}
+
 {% macro convert_dso_size(major_axis, minor_axis) %}
   {% if major_axis >= 600.0 %}
       {{ (major_axis / 60.0) | int }}'
@@ -25,4 +27,3 @@
         <a id="switch_observed_{{ dso_id }}" class="icon detail"><i class="eye {{ '' if dso_id in observed_list else 'slash outline black' }} icon"></i></a>
     </div>
 {% endmacro %}
-        
