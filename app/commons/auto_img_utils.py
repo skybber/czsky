@@ -4,7 +4,7 @@ import os
 from app.commons.img_dir_resolver import parse_inline_link, resolve_img_path_dir
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 
-from app.models import DeepskyObject
+from app.models import DeepskyObject, Constellation
 
 from app import db
 
@@ -29,6 +29,10 @@ def get_ug_bl_dsos():
     global _ug_bl_dsos
     if not _ug_bl_dsos:
         ug_bl_dsos = {}
+
+        for c in Constellation.get_all():
+            ug_bl_dsos[c.id] = {}
+
         files = [f for f in sorted(glob.glob('app/static/webassets-external/users/glahn/img/dso/*.jpg'))] + \
             [f for f in sorted(glob.glob('app/static/webassets-external/users/laville/img/dso/*.jpg'))]
 
@@ -40,8 +44,6 @@ def get_ug_bl_dsos():
                 dso = DeepskyObject.query.filter_by(name=normalized_name).first()
                 if dso:
                     db.session.expunge(dso)
-                    if not dso.constellation_id in ug_bl_dsos:
-                        ug_bl_dsos[dso.constellation_id] = {}
                     ug_bl_dsos[dso.constellation_id][dso.id] = dso
 
         _ug_bl_dsos = ug_bl_dsos

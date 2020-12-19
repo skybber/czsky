@@ -11,6 +11,16 @@ class Constellation(db.Model):
     image = db.Column(db.String(256))
     deepsky_objects = db.relationship('DeepskyObject', backref='constellation', lazy=True)
 
+    _all = None
+
+    @classmethod
+    def get_all(cls):
+        if not Constellation._all:
+            Constellation._all = []
+            Constellation._all.extend(Constellation.query.all())
+        return Constellation._all
+
+
 class UserConsDescription(db.Model):
     __tablename__ = 'user_cons_descriptions'
     id = db.Column(db.Integer, primary_key=True)

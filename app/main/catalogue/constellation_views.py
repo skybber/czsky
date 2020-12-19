@@ -18,7 +18,7 @@ from app.models import User, Constellation, UserConsDescription, UserDsoDescript
 from app.commons.search_utils import process_session_search
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir, get_ug_bl_dsos
-from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.utils import get_cs_editor_user, get_lang_and_editor_user_from_request
 
 from .constellation_forms import (
     ConstellationEditForm,
@@ -77,6 +77,8 @@ def constellation_info(constellation_id):
     title_images = None
     ug_bl_dsos = None
     lang, editor_user = get_lang_and_editor_user_from_request()
+    cs_editor_user = get_cs_editor_user()
+
     if editor_user:
         ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang)\
                 .first()
@@ -89,11 +91,41 @@ def constellation_info(constellation_id):
                 .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
-        all_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
+        all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs')\
                 .join(UserDsoDescription.deepskyObject, aliased=True) \
                 .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
                 .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
                 .all()
+
+        if lang != 'cs':
+            # Show all objects that are in CS version plus UG-BL objects
+            existing = set(dsod.dso_id for dsod in all_cs_dso_descriptions)
+            all_dso_descriptions = []
+            available_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
+                    .join(UserDsoDescription.deepskyObject, aliased=True) \
+                    .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
+                    .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
+                    .all()
+
+            available_dso_descriptions_map = {}
+
+            for dsod in available_dso_descriptions:
+                available_dso_descriptions_map[dsod.dso_id] = dsod
+                if dsod.dso_id in existing:
+                    all_dso_descriptions.append(dsod)
+                elif dsod.deepskyObject.mag<10.0:
+                    all_dso_descriptions.append(dsod)
+                    existing.add(dsod.dso_id)
+
+            constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
+            for dso_id in constell_ug_bl_dsos:
+                dso = constell_ug_bl_dsos[dso_id]
+                loading_dso_id = dso.master_id if dso.master_id is not None else dso_id
+                if not dso_id in existing and loading_dso_id in available_dso_descriptions_map:
+                    all_dso_descriptions.append(available_dso_descriptions_map[loading_dso_id])
+
+        else:
+            all_dso_descriptions = all_cs_dso_descriptions
 
         existing = set()
         dso_descriptions = []
@@ -121,16 +153,15 @@ def constellation_info(constellation_id):
             if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
                 dsoapd.append((apdescr.aperture_class, apdescr.text),)
 
-        all_ug_bl_dsos = get_ug_bl_dsos()
         ug_bl_dsos = []
-        if constellation.id in all_ug_bl_dsos:
-            constell_ug_bl_dsos = all_ug_bl_dsos[constellation.id]
-            for dso_id in constell_ug_bl_dsos:
-                if not dso_id in existing:
-                    dso = constell_ug_bl_dsos[dso_id]
-                    if not dso.master_id in existing:
-                        dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
-                        ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
+        constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
+        for dso_id in constell_ug_bl_dsos:
+            if not dso_id in existing:
+                dso = constell_ug_bl_dsos[dso_id]
+                if not dso.master_id in existing:
+                    dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
+                    ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
+
         ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
     editable=current_user.is_editor()
 
