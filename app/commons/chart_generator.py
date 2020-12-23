@@ -213,6 +213,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     _setup_skymap_graphics(config, fld_size, width, night_mode)
 
     config.show_dso_legend = False
+    config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
     config.show_flamsteed = (fld_size <= 20)
@@ -220,7 +221,6 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     if show_legend:
         config.show_mag_scale_legend = True
         config.show_map_scale_legend = True
-        config.show_orientation_legend = True
         config.show_field_border = True
 
     if dso_maglim is None:
@@ -257,13 +257,13 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     _setup_skymap_graphics(config, fld_size, width, night_mode)
 
     config.show_dso_legend = False
+    config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
 
     config.legend_only = True
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
-    config.show_orientation_legend = True
     config.show_field_border = True
     config.show_flamsteed = (fld_size <= 20)
 
@@ -290,12 +290,12 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     _setup_skymap_graphics(config, fld_size, None, night_mode)
 
     config.show_dso_legend = False
+    config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
 
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
-    config.show_orientation_legend = True
     config.show_field_border = True
 
     config.show_flamsteed = (fld_size <= 20)
@@ -324,6 +324,7 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     _setup_skymap_graphics(config, fld_size, None, night_mode)
 
     config.show_dso_legend = False
+    config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
     config.show_flamsteed = (fld_size <= 20)
