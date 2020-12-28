@@ -64,3 +64,28 @@ class SearchWishListForm(FlaskForm):
          ('autumn',lazy_gettext('Autumn')),
          ('southern',lazy_gettext('Southern')),
     ], default='')
+
+
+class PlannerAddForm(FlaskForm):
+    season = SelectField(lazy_gettext('Object Type'), choices=[
+         ('All', lazy_gettext('All')),
+         ('GX', lazy_gettext('Galaxy')),
+         ('GC', lazy_gettext('Globular Cluster')),
+         ('OC', lazy_gettext('Open Cluster')),
+         ('PN', lazy_gettext('Planetary Nebula')),
+         ('BN', lazy_gettext('Bright Nebula')),
+         ('DN', lazy_gettext('Dark Nebula')),
+         ('GALCL', lazy_gettext('Galaxy Cluster')),
+         ('PartOf', lazy_gettext('Part Of')),
+    ], default='')
+    constellation = SelectField(lazy_gettext('Object Type'), choices=[
+         ('All', lazy_gettext('All')),
+         ('GX', lazy_gettext('Galaxy')),
+         ('GC', lazy_gettext('Globular Cluster')),
+         ('OC', lazy_gettext('Open Cluster')),
+         ('PN', lazy_gettext('Planetary Nebula')),
+         ('BN', lazy_gettext('Bright Nebula')),
+         ('DN', lazy_gettext('Dark Nebula')),
+         ('GALCL', lazy_gettext('Galaxy Cluster')),
+         ('PartOf', lazy_gettext('Part Of')),
+    ], default='')
