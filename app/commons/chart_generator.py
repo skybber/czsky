@@ -54,6 +54,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
         config.constellation_linewidth = 0.5
         config.constellation_linewidth = 0.3
         config.open_cluster_linewidth = 0.3
+        config.grid_linewidth = 0.15
         config.dso_linewidth = 0.4
         config.legend_linewidth = 0.2
         config.no_margin = True
@@ -73,6 +74,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.2, 0.6, 0.2)
             config.galaxy_color = (0.6, 0.2, 0.2)
             config.star_cluster_color = (0.6, 0.6, 0.0)
+            config.grid_color = (0.09, 0.135, 0.15)
             config.star_colors = True
             config.dso_symbol_brightness = True
         else:
@@ -84,6 +86,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.0, 0.3, 0.0)
             config.galaxy_color = (0.3, 0.0, 0.0)
             config.star_cluster_color = (0.3, 0.3, 0.0)
+            config.grid_color = (0.7, 0.7, 0.7)
             config.dso_symbol_brightness = False
 
 
@@ -216,6 +219,8 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
+    config.show_equatorial_grid = True
+
     config.show_flamsteed = (fld_size <= 20)
 
     if show_legend:
@@ -265,6 +270,8 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
     config.show_field_border = True
+    config.show_equatorial_grid = True
+
     config.show_flamsteed = (fld_size <= 20)
 
     if dso_maglim is None:
@@ -297,6 +304,7 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
     config.show_field_border = True
+    config.show_equatorial_grid = True
 
     config.show_flamsteed = (fld_size <= 20)
 
@@ -327,6 +335,8 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     config.show_orientation_legend = False
     config.mirror_x = mirror_x
     config.mirror_y = mirror_y
+    config.show_equatorial_grid = True
+
     config.show_flamsteed = (fld_size <= 20)
 
     artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
@@ -338,4 +348,3 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     engine.make_map(used_catalogs, trajectory=trajectory)
     used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
-
