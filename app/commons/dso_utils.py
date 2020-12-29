@@ -133,14 +133,13 @@ def main_component_dso_name(dso_name):
 
 def dso_name_to_simbad_id(name):
     if name.startswith('PK'):
-        return 'PK_' + name[3]
+        return 'PK_' + name[2:]
     if name.startswith('Abell') and len(name)<=7:
-        return 'PN_A66' + name[5]
+        return 'PN_A66' + name[5:]
     if name.startswith('K1-') or name.startswith('K2-') or name.startswith('K3-') or \
        name.startswith('M1-') or name.startswith('M2-') or name.startswith('M3-') or name.startswith('M4-') or \
        name.startswith('DeHt') or name.startswith('Hoffleit')  or name.startswith('Hu') or name.startswith('Sa') or name.startswith('Vy') or \
        name.startswith('IRAS') or name.startswith('Kr'):
         return 'PN_' + name
     return name
-    
-    
+
