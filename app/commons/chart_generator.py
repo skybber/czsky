@@ -38,6 +38,9 @@ DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (5, 9
 
 from .utils import to_float, to_boolean
 
+free_mem_counter = 0
+NO_FREE_MEM_CYCLES = 500
+
 def _load_used_catalogs():
     global used_catalogs
     if used_catalogs is None:
@@ -252,7 +255,10 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     highlights.append([obj_ra, obj_dec])
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
-    used_catalogs.free_mem()
+    free_mem_counter += 1
+    if free_mem_counter > NO_FREE_MEM_CYCLES:
+        free_mem_counter = 0
+        used_catalogs.free_mem()
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
@@ -287,7 +293,10 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
     engine.make_map(used_catalogs)
-    used_catalogs.free_mem()
+    free_mem_counter += 1
+    if free_mem_counter > NO_FREE_MEM_CYCLES:
+        free_mem_counter = 0
+        used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
@@ -322,7 +331,10 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
     extra_positions.append([ra,dec,'',None])
 
     engine.make_map(used_catalogs, extra_positions=extra_positions)
-    used_catalogs.free_mem()
+    free_mem_counter += 1
+    if free_mem_counter > NO_FREE_MEM_CYCLES:
+        free_mem_counter = 0
+        used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
@@ -349,5 +361,8 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
     engine.make_map(used_catalogs, trajectory=trajectory)
-    used_catalogs.free_mem()
+    free_mem_counter += 1
+    if free_mem_counter > NO_FREE_MEM_CYCLES:
+        free_mem_counter = 0
+        used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
