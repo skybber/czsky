@@ -214,6 +214,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
     """Create chart in czsky process."""
+    global free_mem_counter
     tm = time()
 
     used_catalogs = _load_used_catalogs()
@@ -263,6 +264,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
 
 
 def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
+    global free_mem_counter
     tm = time()
 
     used_catalogs = _load_used_catalogs()
@@ -301,6 +303,7 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
 
 def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
     """Create chart in czsky process."""
+    global free_mem_counter
     tm = time()
 
     used_catalogs = _load_used_catalogs()
@@ -339,6 +342,7 @@ def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, 
 
 def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
     """Create chart in czsky process."""
+    global free_mem_counter
     tm = time()
 
     used_catalogs = _load_used_catalogs()
