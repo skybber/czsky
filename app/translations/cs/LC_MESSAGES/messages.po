@@ -254,7 +254,6 @@ msgid "Planetary Nebula"
 msgstr "Planetární mlhovina"
 
 #: app/main/planner/planner_forms.py:76 app/main/planner/planner_forms.py:87
-#, fuzzy
 msgid "Bright Nebula"
 msgstr "Jasná mlhovina"
 
@@ -337,17 +336,14 @@ msgid "Telrad"
 msgstr "Telrad"
 
 #: app/templates/macros/fchart_macros.html:21
-#, fuzzy
 msgid "Constellation lines"
 msgstr "Tvary souhvězdí"
 
 #: app/templates/macros/fchart_macros.html:25
-#, fuzzy
 msgid "Constellation borders"
 msgstr "Hranice souhvězdí"
 
 #: app/templates/macros/fchart_macros.html:29
-#, fuzzy
 msgid "Deepsky objects"
 msgstr "Deepsky objekty"
 
@@ -634,7 +630,6 @@ msgid "Items"
 msgstr "Položky"
 
 #: app/templates/main/observation/observation_edit.html:145
-#, fuzzy
 msgid "Update and go back"
 msgstr "Uložit a zpět"
 
@@ -662,7 +657,6 @@ msgid "Observed List"
 msgstr "Pozorované objekty"
 
 #: app/templates/main/observation/observation_menu.html:21
-#, fuzzy
 msgid "View observed objects"
 msgstr "Zobrazit sekci pozorování"
 
@@ -679,7 +673,6 @@ msgid "Clear list"
 msgstr "Smazat seznam"
 
 #: app/templates/main/observation/observed_list.html:95
-#, fuzzy
 msgid "Load observation list"
 msgstr "Nahrát seznam"
 
@@ -688,7 +681,6 @@ msgid "All data from file will be added to observation list."
 msgstr "Všechny objekty ze souboru budou přidány do seznamu pozorovaných objektů"
 
 #: app/templates/main/observation/observed_list.html:98
-#, fuzzy
 msgid "Are you sure you want to load observation list?"
 msgstr "Skutečně chcete nahrát seznam pozorovaných objektů?"
 
@@ -701,7 +693,6 @@ msgid "All items from observed list will be removed."
 msgstr "Všechny položky ze seznamu pozorovaných objektů budou odstraněny."
 
 #: app/templates/main/observation/observed_list.html:113
-#, fuzzy
 msgid "Are you sure you want to clear observed list?"
 msgstr "Skutečně chcete vyčistit seznamu pozorovaných objektů?"
 
@@ -775,7 +766,6 @@ msgid "All data from file will be added to schedule list."
 msgstr "Všechny objekty ze souboru budou přidány do plánu."
 
 #: app/templates/main/planner/session_plan_schedule.html:75
-#, fuzzy
 msgid "Are you sure you want to load schedule list?"
 msgstr "Skutečně chcete nahrát seznam plánovaných objektů?"
 
@@ -788,7 +778,6 @@ msgid "All planned items will be removed."
 msgstr "Všechny položky z plánu budou odstraněny."
 
 #: app/templates/main/planner/session_plan_schedule.html:90
-#, fuzzy
 msgid "Are you sure you want to clear planned list?"
 msgstr "Skutečně chcete odstranit všechny položky z plánu?"
 
@@ -822,22 +811,18 @@ msgid "Store to Git"
 msgstr ""
 
 #: app/templates/main/userdata/data_store.html:46
-#, fuzzy
 msgid "Store content to Git content repository"
 msgstr "Git repozitář pro společný obsah"
 
 #: app/templates/main/userdata/data_store.html:55
-#, fuzzy
 msgid "This operation stores user data to Git repository: "
 msgstr "Synchronizace s git repozitáři"
 
 #: app/templates/main/userdata/data_store.html:57
-#, fuzzy
 msgid "This operation stores content data to Git repository: "
 msgstr "Synchronizace s git repozitáři"
 
 #: app/templates/main/userdata/data_store.html:60
-#, fuzzy
 msgid "Git repository is not set up."
 msgstr "Git repozitář"
 
@@ -854,17 +839,14 @@ msgid "Load from Git"
 msgstr ""
 
 #: app/templates/main/userdata/data_store.html:79
-#, fuzzy
 msgid "Load content from Git content repository"
 msgstr "Git repozitář pro společný obsah"
 
 #: app/templates/main/userdata/data_store.html:88
-#, fuzzy
 msgid "This operation loads user data from Git repository: "
 msgstr "Synchronizace s git repozitáři"
 
 #: app/templates/main/userdata/data_store.html:90
-#, fuzzy
 msgid "This operation loads content data from Git repository: "
 msgstr "Synchronizace s git repozitáři"
 
@@ -873,12 +855,10 @@ msgid "All not pushed data will be lost!"
 msgstr ""
 
 #: app/templates/main/userdata/data_store.html:99
-#, fuzzy
 msgid "Load data from Git"
 msgstr "Nahrát data z GIT repozitáře"
 
 #: app/templates/main/userdata/data_store.html:101
-#, fuzzy
 msgid "Load content data from Git"
 msgstr "Nahrát data z GIT repozitáře"
 
