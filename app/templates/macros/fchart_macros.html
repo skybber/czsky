@@ -11,6 +11,7 @@
       <input type="hidden" id="show_constell_shapes" name="{{ form.show_constell_shapes.name }}" value="{{ form.show_constell_shapes.data }}">
       <input type="hidden" id="show_constell_borders" name="{{ form.show_constell_borders.name }}" value="{{ form.show_constell_borders.data }}">
       <input type="hidden" id="show_dso" name="{{ form.show_dso.name }}" value="{{ form.show_dso.data }}">
+      <input type="hidden" id="show_egrid" name="{{ form.show_equatorial_grid.name }}" value="{{ form.show_equatorial_grid.data }}">
       <div class="ui right horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
               <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if form.show_telrad.data=='true' else ''}}"
@@ -28,6 +29,10 @@
               <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}"
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
+              </button>
+              <button id="bshow-egrid" class="ui toggle icon button{{ ' active' if form.show_equatorial_grid.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-variation="tiny basic">
+                  <i class="globe icon"></i>
               </button>
           </div>
       </div>
@@ -158,6 +163,11 @@
     $('#bshow-dso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('#bshow-egrid').click(function(){
+        $(this).toggleClass('active');
+        $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
     });
 
     fchart.onFullscreenChange(function(fullScreen) {

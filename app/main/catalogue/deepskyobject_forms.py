@@ -80,6 +80,7 @@ class DeepskyObjectFindChartForm(FlaskForm):
     show_telrad = HiddenField('show_telrad', default='false')
     show_constell_shapes = HiddenField('show_constell_shapes', default='true')
     show_constell_borders = HiddenField('show_constell_borders', default='true')
+    show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     show_dso = HiddenField('show_dso', default='true')
     ra = HiddenField('ra')
     dec = HiddenField('dec')

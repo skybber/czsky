@@ -235,6 +235,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     config.show_constellation_shapes = 'C' in flags
     config.show_constellation_borders = 'B' in flags
     config.show_deepsky = 'D' in flags
+    config.show_equatorial_grid = 'E' in flags
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -395,5 +396,8 @@ def get_chart_legend_flags(form):
 
     if form.show_dso.data == 'true':
         chart_flags += 'D'
+
+    if form.show_equatorial_grid.data == 'true':
+        chart_flags += 'E'
 
     return (chart_flags, legend_flags)
