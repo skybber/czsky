@@ -61,7 +61,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
-        this.reloadImageStart();
+        this.reloadLegendImage();
+        this.reloadImage();
     }).bind(this), false);
 
     $(this.canvas).bind('mousedown', this.onPointerDown.bind(this));
@@ -126,7 +127,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();
-    this.reloadImageStart();
+    this.reloadLegendImage();
+    this.reloadImage();
 }
 
 FChart.prototype.adjustCanvasSize = function() {
@@ -162,7 +164,7 @@ FChart.prototype.redrawAll = function () {
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
 
-FChart.prototype.reloadImageStart = function () {
+FChart.prototype.reloadLegendImage = function () {
     var url = this.legendUrl;
     url = url.replace('_RA_', this.ra.toString());
     url = url.replace('_DEC_', this.dec.toString());
@@ -178,7 +180,6 @@ FChart.prototype.reloadImageStart = function () {
         var old = this.legendImg.active;
         this.legendImg.active = this.legendImg.background;
         this.legendImg.background = old;
-        this.reloadImage();
     }).bind(this);
     this.legendImgBuf[this.legendImg.background].src = url;
 }
@@ -320,7 +321,8 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
             setTimeout((function() {
                this.queuedImgs--;
                if (this.queuedImgs == 0) {
-                   this.reloadImageStart();
+                   this.reloadLegendImage();
+                   this.reloadImage();
                }
             }).bind(this), 150);
 
@@ -338,7 +340,8 @@ FChart.prototype.toggleFullscreen = function() {
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
 
     this.adjustCanvasSize();
-    this.reloadImageStart();
+    this.reloadLegendImage();
+    this.reloadImage();
 
     if (this.onFullscreenChangeCallback  != undefined) {
         this.onFullscreenChangeCallback.call(this, isInFullscreen);
