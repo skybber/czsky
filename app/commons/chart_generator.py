@@ -111,9 +111,10 @@ def common_fchart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
     night_mode = to_boolean(request.args.get('nm'), True)
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
+    flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    create_chart(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names)
+    create_chart(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -132,9 +133,10 @@ def common_fchart_legend_img(obj_ra, obj_dec, ra, dec):
     night_mode = to_boolean(request.args.get('nm'), True)
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
+    flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y)
+    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -212,7 +214,7 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None):
+def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -229,6 +231,10 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     config.show_equatorial_grid = True
 
     config.show_flamsteed = (fld_size <= 20)
+
+    config.show_constellation_shapes = 'C' in flags
+    config.show_constellation_borders = 'B' in flags
+    config.show_deepsky = 'D' in flags
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -263,7 +269,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False):
+def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, flags=''):
     global free_mem_counter
     tm = time()
 
@@ -282,6 +288,8 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     config.show_map_scale_legend = True
     config.show_field_border = True
     config.show_equatorial_grid = True
+
+    config.fov_telrad = 'T' in flags
 
     config.show_flamsteed = (fld_size <= 20)
 
@@ -370,3 +378,22 @@ def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_
         free_mem_counter = 0
         used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
+
+
+def get_chart_legend_flags(form):
+    chart_flags = ''
+    legend_flags = ''
+
+    if form.show_telrad.data == 'true':
+        legend_flags += 'T'
+
+    if form.show_constell_shapes.data == 'true':
+        chart_flags += 'C'
+
+    if form.show_constell_borders.data == 'true':
+        chart_flags += 'B'
+
+    if form.show_dso.data == 'true':
+        chart_flags += 'D'
+
+    return (chart_flags, legend_flags)

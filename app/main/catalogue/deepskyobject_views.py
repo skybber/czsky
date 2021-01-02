@@ -47,7 +47,7 @@ from .deepskyobject_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import get_chart_legend_flags, common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -287,6 +287,8 @@ def deepskyobject_fchart(dso_id):
     disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
     disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
 
+    chart_flags, legend_flags = get_chart_legend_flags(form)
+
     if form.ra.data is None:
         form.ra.data = dso.ra
     if form.dec.data is None:
@@ -304,7 +306,7 @@ def deepskyobject_fchart(dso_id):
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           season=season,
+                           chart_flags=chart_flags, legend_flags=legend_flags, season=season,
                            )
 
 

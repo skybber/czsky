@@ -6,12 +6,26 @@
       <input type="hidden" id="ra" name="ra" value="{{ form.ra.data }}" >
       <input type="hidden" id="dec" name="dec" value="{{ form.dec.data }}" >
       <input type="hidden" id="fullscreen" name="fullscreen" value="{{ form.fullscreen.data }}" >
-      <!-- Field radius -->
-      <div class="ui labeled right horizontally fitted item" style="z-index:100">
-          <div class="ui labeled ticked small slider" id="slider-field-size" style="width:150px">
+      <input type="hidden" id="radius" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
+      <input type="hidden" id="show_telrad" name="{{ form.show_telrad.name }}" value="{{ form.show_telrad.data }}">
+      <input type="hidden" id="show_constell_shapes" name="{{ form.show_constell_shapes.name }}" value="{{ form.show_constell_shapes.data }}">
+      <input type="hidden" id="show_constell_borders" name="{{ form.show_constell_borders.name }}" value="{{ form.show_constell_borders.data }}">
+      <input type="hidden" id="show_dso" name="{{ form.show_dso.name }}" value="{{ form.show_dso.data }}">
+      <div class="ui right horizontally fitted item" style="z-index:100">
+          <div class="ui buttons">
+              <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if form.show_telrad.data=='true' else ''}}">
+                  <i class="bullseye icon"></i>
+              </button>
+              <button id="bshow-constell-shapes" class="ui toggle icon button{{ ' active' if form.show_constell_shapes.data=='true' else ''}}">
+                  <i class="lastfm icon"></i>
+              </button>
+              <button id="bshow-constell-borders" class="ui toggle icon button{{ ' active' if form.show_constell_borders.data=='true' else ''}}">
+                  <i class="draw polygon icon"></i>
+              </button>
+              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}">
+                  <i class="superpowers icon"></i>
+              </button>
           </div>
-          <input type="hidden" id="{{ form.radius.name }}" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-          <div class="top left aligned floating ui label">{{ _('Field Size') }}</div>
       </div>
       <!-- Star mag limit -->
       <div class="ui labeled horizontally fitted item" style="z-index:100">
@@ -102,7 +116,7 @@
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
         var index = Math.ceil((fldSizeIndex+1) / 2);
-        $('#slider-field-size').slider('set value', index);
+        $('#radius').val(index);
         $('#maglim').val(magRangeValues[index-1]);
         $('#dso_maglim').val(dsoMagRangeValues[index-1]);
         $('#smaglim').text(magRangeValues[index-1].toString());
@@ -124,32 +138,29 @@
         submitDisabled = false;
     });
 
-    fchart.onFullscreenChange(function(fullScreen) {
-        $('#fullscreen').val(fullScreen);
-        console.log($('#fullscreen').val());
+    $('#bshow-telrad').click(function(){
+        $(this).toggleClass('active');
+        $('#show_telrad').val($('#show_telrad').val() == 'true' ? 'false' : 'true');
     });
 
-    $('#slider-field-size')
-      .slider({
-        min: 1,
-        max: 7,
-        step: 1,
-        start:{{ form.radius.data }},
-        fireOnInit: false,
-        interpretLabel: function(value) {
-          return labels[value];
-        },
-        onChange: function(value) {
-            $('#radius').val(value);
-            if (!submitDisabled) {
-                $('#maglim').val(magRangeValues[value-1]);
-                $('#dso_maglim').val(dsoMagRangeValues[value-1]);
-                $('#smaglim').text(magRangeValues[value-1].toString());
-                $('#sdso_maglim').text(dsoMagRangeValues[value-1].toString());
-                $("#fmchart" ).submit();
-            }
-        }
-      });
+    $('#bshow-constell-shapes').click(function(){
+        $(this).toggleClass('active');
+        $('#show_constell_shapes').val($('#show_constell_shapes').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('#bshow-constell-borders').click(function(){
+        $(this).toggleClass('active');
+        $('#show_constell_borders').val($('#show_constell_borders').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('#bshow-dso').click(function(){
+        $(this).toggleClass('active');
+        $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+    });
+
+    fchart.onFullscreenChange(function(fullScreen) {
+        $('#fullscreen').val(fullScreen);
+    });
 
     $('.ui.dropdown').dropdown();
 
@@ -192,5 +203,11 @@
     }
 
 </script>
+<style>
+.ui.active.toggle.button {
+  background-color: #006000 !important;
+}
+</style>
+
 
 {% endmacro %}
