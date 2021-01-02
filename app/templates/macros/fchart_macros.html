@@ -37,7 +37,7 @@
           </div>
       </div>
       <!-- Star mag limit -->
-      <div class="ui labeled horizontally fitted item" style="z-index:100">
+      <div class="ui horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
               <button id="decmag" class="ui icon {{ disable_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
@@ -57,7 +57,7 @@
           </div>
       </div>
       <!-- dso mag limit -->
-      <div class="ui labeled horizontally fitted item" style="margin-right:60px; z-index:100">
+      <div class="ui horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
               <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
@@ -75,6 +75,13 @@
               </div>
               <button id="incdsomag" class="ui right icon {{ disable_dso_inc_mag }} button mobile hidden">
                   <i class="right chevron icon"></i>
+              </button>
+          </div>
+      </div>
+      <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
+          <div class="ui buttons">
+              <button id="bfullscreen" type="button" class="ui icon button">
+                  <i class="expand icon"></i>
               </button>
           </div>
       </div>
@@ -168,6 +175,10 @@
     $('#bshow-egrid').click(function(){
         $(this).toggleClass('active');
         $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('#bfullscreen').click(function(){
+        fchart.toggleFullscreen();
     });
 
     fchart.onFullscreenChange(function(fullScreen) {

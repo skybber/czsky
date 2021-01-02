@@ -45,19 +45,11 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.onFieldChangeCallback = undefined;
     this.onFullscreenChangeCallback = undefined;
+    this.fullScreen = fullScreen;
 
     if (fullScreen) {
-        $('<div class="fchart-fullscreenControl  fchart-restore" title="Full screen"></div>')
-            .appendTo(fchartDiv);
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
-    } else {
-        $('<div class="fchart-fullscreenControl fchart-maximize" title="Full screen"></div>')
-            .appendTo(fchartDiv);
     }
-
-    this.fullScreenBtn = $(fchartDiv).find('.fchart-fullscreenControl');
-    this.fullScreenBtn.click(this.toggleFullscreen.bind(this));
-    this.fullScreenBtn.attr('title', fullScreen ? 'Restore original size' : 'Full screen');
 
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
@@ -113,9 +105,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
         var fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
         if (fullscreenElt===null || fullscreenElt===undefined) {
-            this.fullScreenBtn.removeClass('fchart-restore');
-            this.fullScreenBtn.addClass('fchart-maximize');
-            this.fullScreenBtn.attr('title', 'Full screen');
             $(fchartDiv).removeClass('fchart-fullscreen');
 
             var fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
@@ -334,10 +323,8 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
 }
 
 FChart.prototype.toggleFullscreen = function() {
-    this.fullScreenBtn.toggleClass('fchart-maximize fchart-restore');
-    var isInFullscreen = this.fullScreenBtn.hasClass('fchart-restore');
-    this.fullScreenBtn.attr('title', isInFullscreen ? 'Restore original size' : 'Full screen');
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
+    var isInFullscreen = $(this.fchartDiv).hasClass('fchart-fullscreen');
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
