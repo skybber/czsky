@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-01-02 14:44+0100\n"
+"POT-Creation-Date: 2021-01-02 16:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,7 +85,7 @@ msgstr ""
 #: app/main/catalogue/deepskyobject_forms.py:58
 #: app/main/catalogue/deepskyobject_forms.py:76
 #: app/main/catalogue/star_forms.py:39 app/main/solarsystem/comet_forms.py:35
-#: app/templates/macros/fchart_macros.html:40
+#: app/templates/macros/fchart_macros.html:45
 #: app/templates/main/catalogue/deepskyobjects.html:36
 msgid "Limit mag"
 msgstr ""
@@ -109,7 +109,7 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:77
 #: app/main/catalogue/star_forms.py:40 app/main/solarsystem/comet_forms.py:36
-#: app/templates/macros/fchart_macros.html:60
+#: app/templates/macros/fchart_macros.html:65
 msgid "DSO limit mag"
 msgstr ""
 
@@ -269,11 +269,11 @@ msgstr ""
 msgid "Part Of"
 msgstr ""
 
-#: app/main/solarsystem/comet_forms.py:44
+#: app/main/solarsystem/comet_forms.py:45
 msgid "From Date"
 msgstr ""
 
-#: app/main/solarsystem/comet_forms.py:45
+#: app/main/solarsystem/comet_forms.py:46
 msgid "To Date"
 msgstr ""
 
@@ -331,19 +331,23 @@ msgstr ""
 msgid "Content git repository"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:17
+#: app/templates/macros/fchart_macros.html:18
 msgid "Telrad"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:21
+#: app/templates/macros/fchart_macros.html:22
 msgid "Constellation lines"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:25
+#: app/templates/macros/fchart_macros.html:26
 msgid "Constellation borders"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:29
+#: app/templates/macros/fchart_macros.html:30
+msgid "Equatorial grid"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:34
 msgid "Deepsky objects"
 msgstr ""
 
