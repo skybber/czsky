@@ -26,13 +26,13 @@
                     data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-variation="tiny basic">
                   <i class="draw polygon icon"></i>
               </button>
-              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}"
-                    data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-variation="tiny basic">
-                  <i class="superpowers icon"></i>
-              </button>
               <button id="bshow-egrid" class="ui toggle icon button{{ ' active' if form.show_equatorial_grid.data=='true' else ''}}"
                     data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-variation="tiny basic">
                   <i class="globe icon"></i>
+              </button>
+              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-variation="tiny basic">
+                  <i class="superpowers icon"></i>
               </button>
           </div>
       </div>
