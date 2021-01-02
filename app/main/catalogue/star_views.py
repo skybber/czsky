@@ -21,6 +21,7 @@ from app import db
 from app.models import User, Permission, Star, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.utils import get_lang_and_editor_user_from_request
 
 main_star = Blueprint('main_star', __name__)
 
@@ -33,7 +34,8 @@ from .star_forms import (
 @main_star.route('/star/<int:star_id>/info')
 def star_info(star_id):
     """View a star info."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
@@ -45,7 +47,8 @@ def star_info(star_id):
 @main_star.route('/star/<int:star_id>/catalogue_data')
 def star_catalogue_data(star_id):
     """View a deepsky object info."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
@@ -55,7 +58,8 @@ def star_catalogue_data(star_id):
 @main_star.route('/star/<int:star_id>/fchart', methods=['GET', 'POST'])
 def star_fchart(star_id):
     """View a star  findchart."""
-    user_descr = UserStarDescription.query.filter_by(id=star_id, lang_code=lang).first()
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
