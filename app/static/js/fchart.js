@@ -169,6 +169,7 @@ FChart.prototype.reloadLegendImage = function () {
         var old = this.legendImg.active;
         this.legendImg.active = this.legendImg.background;
         this.legendImg.background = old;
+        this.redrawAll();
     }).bind(this);
     this.legendImgBuf[this.legendImg.background].src = url;
 }
@@ -313,7 +314,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
                    this.reloadLegendImage();
                    this.reloadImage();
                }
-            }).bind(this), 150);
+            }).bind(this), 100);
 
             if (this.onFieldChangeCallback  != undefined) {
                 this.onFieldChangeCallback.call(this, this.fldSizeIndex);
