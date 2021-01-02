@@ -13,16 +13,20 @@
       <input type="hidden" id="show_dso" name="{{ form.show_dso.name }}" value="{{ form.show_dso.data }}">
       <div class="ui right horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
-              <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if form.show_telrad.data=='true' else ''}}">
+              <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if form.show_telrad.data=='true' else ''}}"
+                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-variation="tiny basic">
                   <i class="bullseye icon"></i>
               </button>
-              <button id="bshow-constell-shapes" class="ui toggle icon button{{ ' active' if form.show_constell_shapes.data=='true' else ''}}">
+              <button id="bshow-constell-shapes" class="ui toggle icon button{{ ' active' if form.show_constell_shapes.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Constellation lines')}}" data-variation="tiny basic">
                   <i class="lastfm icon"></i>
               </button>
-              <button id="bshow-constell-borders" class="ui toggle icon button{{ ' active' if form.show_constell_borders.data=='true' else ''}}">
+              <button id="bshow-constell-borders" class="ui toggle icon button{{ ' active' if form.show_constell_borders.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-variation="tiny basic">
                   <i class="draw polygon icon"></i>
               </button>
-              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}">
+              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
               </button>
           </div>
@@ -30,10 +34,10 @@
       <!-- Star mag limit -->
       <div class="ui labeled horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
-              <button id="decmag" class="ui icon {{ disable_dec_mag }} button mobile hidden ">
+              <button id="decmag" class="ui icon {{ disable_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
               </button>
-              <div class="ui icon dropdown button">
+              <div class="ui icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
                   <input type="hidden" id="maglim" name="maglim" value="{{ form.maglim.data }}" >
                   <span id="smaglim" class="text">{{ form.maglim.data }}</span>
                   <div id="maglim_menu" class="menu">
@@ -42,19 +46,18 @@
                       {% endfor %}
                   </div>
               </div>
-              <button id="incmag" class="ui right icon {{ disable_inc_mag }} button mobile hidden ">
+              <button id="incmag" class="ui right icon {{ disable_inc_mag }} button mobile hidden">
                   <i class="right chevron icon"></i>
               </button>
           </div>
-          <div class="top left aligned floating ui label">{{ _('Limit mag') }}</div>
       </div>
       <!-- dso mag limit -->
       <div class="ui labeled horizontally fitted item" style="margin-right:60px; z-index:100">
           <div class="ui buttons">
-              <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button mobile hidden ">
+              <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
               </button>
-              <div class="ui icon dropdown button">
+              <div class="ui icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-variation="tiny basic">
                   <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ form.dso_maglim.data }}">
                   <span id="sdso_maglim" class="text">{{ form.dso_maglim.data }}</span>
                   <div id="dso_maglim_menu" class="menu">
@@ -65,11 +68,10 @@
                       {% endfor %}
                   </div>
               </div>
-              <button id="incdsomag" class="ui right icon {{ disable_dso_inc_mag }} button mobile hidden ">
+              <button id="incdsomag" class="ui right icon {{ disable_dso_inc_mag }} button mobile hidden">
                   <i class="right chevron icon"></i>
               </button>
           </div>
-          <div class="top left aligned floating ui label">{{ _('DSO limit mag') }}</div>
       </div>
       <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
   </form>
