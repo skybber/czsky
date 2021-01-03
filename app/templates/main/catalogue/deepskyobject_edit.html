@@ -60,16 +60,9 @@
                 {{ f.render_form_field(form.references) }}
 
                 {% for item in form.aperture_descr_items %}
-                    <div class="three fields">
+                    <div class="two fields">
                         <label>{{ item.aperture_class.data }}</label>
                         {{ item.text() }}
-                        <div class="ui labeled item">
-                            <div class="top right aligned ui label">{{ _('Is public') }}</div>
-                            <div class="ui toggle checkbox">
-                                {{ item.is_public() }}
-                                <label></label>
-                            </div>
-                        </div>
                         {{ item.aperture_class() }}
                     </div>
                     {% if authors[item.aperture_class.data][0] %}
