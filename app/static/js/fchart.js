@@ -4,7 +4,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     $(fchartDiv).addClass("fchart-container");
 
-    this.canvas = $('<canvas class="fchart-canvas"></canvas>').appendTo(this.fchartDiv)[0];
+    this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
     this.skyImgBuf = [new Image(), new Image()];
@@ -103,6 +103,16 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
         this.adjustZoom(normalizeDelta(e), null);
+    }).bind(this));
+
+    $(this.canvas).bind('keydown', (function(e) {
+        console.log("huh")
+        if (e.keyCode == 34) {
+            this.adjustZoom(-1, null);
+            e.preventDefault();
+        } else if (e.keyCode == 33) {
+            this.adjustZoom(1, null);
+        }
     }).bind(this));
 
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
