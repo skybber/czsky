@@ -28,6 +28,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.MAX_ZOOM = fieldSizes.length + 0.49;
     this.MIN_ZOOM = 0.5;
+    this.ZOOM_INTERVAL = 200;
+    this.MAX_ZOOM_STEPS = 10;
 
     this.ra = ra;
     this.dec = dec;
@@ -46,6 +48,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.onFieldChangeCallback = undefined;
     this.onFullscreenChangeCallback = undefined;
     this.fullScreen = fullScreen;
+    this.zoomInterval = undefined;
+    this.zoomStep = undefined;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -140,8 +144,8 @@ FChart.prototype.redrawAll = function () {
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
-    var img_width = curSkyImg.width * this.scaleFac
-    var img_height = curSkyImg.height * this.scaleFac
+    var img_width = curSkyImg.width * this.scaleFac;
+    var img_height = curSkyImg.height * this.scaleFac;
     if (this.nightMode) {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -189,8 +193,12 @@ FChart.prototype.reloadImage = function() {
         this.skyImg.active = this.skyImg.background;
         this.skyImg.background = old;
         this.imgField = this.fieldSizes[this.fldSizeIndex];
-        this.scaleFac = 1.0;
-        this.redrawAll();
+        if (this.zoomInterval == undefined) {
+            this.scaleFac = 1.0;
+            this.redrawAll();
+        } else {
+            this.reverseScale = true;
+        }
     }.bind(this);
     url = url + '&t=' + new Date().getTime();
     this.skyImgBuf[this.skyImg.background].src = url;
@@ -305,8 +313,16 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
         this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
         if (this.fldSizeIndex != oldFldSizeIndex) {
-            this.scaleFac = this.imgField / this.fieldSizes[this.fldSizeIndex];
+            this.scaleFacTotal = this.imgField / this.fieldSizes[this.fldSizeIndex];
+            this.zoomStep = 0;
+            this.nextScaleFac();
             this.redrawAll();
+            this.reverseScale = false;
+            if (this.zoomInterval != undefined) {
+              clearInterval(this.zoomInterval);
+            }
+            var t = this;
+            this.zoomInterval = setInterval(function(){t.zoomFunc();}, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
             this.queuedImgs++;
             setTimeout((function() {
                this.queuedImgs--;
@@ -314,13 +330,39 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
                    this.reloadLegendImage();
                    this.reloadImage();
                }
-            }).bind(this), 100);
+            }).bind(this), 50);
 
             if (this.onFieldChangeCallback  != undefined) {
                 this.onFieldChangeCallback.call(this, this.fldSizeIndex);
             }
         }
     }
+}
+
+FChart.prototype.zoomFunc = function() {
+    if (this.nextScaleFac()) {
+        this.redrawAll();
+    } else {
+        clearInterval(this.zoomInterval);
+        this.zoomInterval = undefined;
+        this.redrawAll();
+    }
+}
+
+FChart.prototype.nextScaleFac = function() {
+    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+        this.zoomStep ++;
+        if (this.scaleFacTotal > 1) {
+            this.scaleFac = 1 + (this.scaleFacTotal-1) * this.zoomStep / this.MAX_ZOOM_STEPS;
+        } else {
+            this.scaleFac = 1 - (1 - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
+        }
+        if (this.reverseScale) {
+            this.scale = 1/this.scale;
+        }
+        return true;
+    }
+    return false;
 }
 
 FChart.prototype.toggleFullscreen = function() {
