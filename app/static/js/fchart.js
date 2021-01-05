@@ -43,6 +43,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
+    this.cumulativeScaleFac = 1.0;
     this.queuedImgs = 0;
 
     this.onFieldChangeCallback = undefined;
@@ -209,6 +210,7 @@ FChart.prototype.reloadImage = function() {
         this.imgField = this.fieldSizes[this.fldSizeIndex];
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
+            this.cumulativeScaleFac = 1.0;
             this.redrawAll();
         } else {
             this.reverseScale = true;
@@ -327,7 +329,13 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
         this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
         if (this.fldSizeIndex != oldFldSizeIndex) {
-            this.scaleFacTotal = this.imgField / this.fieldSizes[this.fldSizeIndex];
+            if (this.zoomInterval === undefined && this.scaleFac != 1.0) {
+                this.cumulativeScaleFac = this.scaleFac;
+                this.scaleFacTotal = this.fieldSizes[oldFldSizeIndex]  / this.fieldSizes[this.fldSizeIndex];
+            } else {
+                //this.cumulativeScaleFac = 1.0;
+                this.scaleFacTotal = this.imgField  / this.fieldSizes[this.fldSizeIndex];
+            }
             this.zoomStep = 0;
             this.nextScaleFac();
             this.redrawAll();
@@ -382,6 +390,7 @@ FChart.prototype.nextScaleFac = function() {
             }
             //console.log('Normal:' + this.scaleFacTotal + ' ' + this.scaleFac + ' ' + this.zoomStep);
         }
+        this.scaleFac = this.scaleFac * this.cumulativeScaleFac;
     }
 }
 
