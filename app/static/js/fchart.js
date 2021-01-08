@@ -31,6 +31,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.ZOOM_INTERVAL = 200;
     this.MAX_ZOOM_STEPS = 10;
 
+    this.MOVE_INTERVAL = 200;
+    this.MAX_MOVE_STEPS = 10;
+    this.MOVE_DIST = 80;
+
     this.ra = ra;
     this.dec = dec;
     this.obj_ra = ra;
@@ -51,6 +55,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.fullScreen = fullScreen;
     this.zoomInterval = undefined;
     this.zoomStep = undefined;
+
+    this.moveInterval = undefined;
+    this.moveStep = undefined;
+    this.moveX = 0;
+    this.moveY = 0;
+    this.backwardMove = false;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -107,6 +117,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     }).bind(this));
 
     $(this.canvas).bind('keydown', (function(e) {
+        var moveMap = {
+            37: [1, 0],
+            38: [0, 1],
+            39: [-1, 0],
+            40: [0, -1],
+        }
         if (e.keyCode == 33) {
             if (this.zoomInterval === undefined) {
                 this.adjustZoom(-1, null);
@@ -115,6 +131,11 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         } else if (e.keyCode == 34) {
             if (this.zoomInterval === undefined) {
                 this.adjustZoom(1, null);
+            }
+            e.preventDefault();
+        } else if (e.keyCode in moveMap) {
+            if (this.moveInterval === undefined) {
+                this.moveXY(moveMap[e.keyCode][0], moveMap[e.keyCode][1]);
             }
             e.preventDefault();
         }
@@ -168,7 +189,7 @@ FChart.prototype.redrawAll = function () {
         this.ctx.fillStyle = "#03030D";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    this.ctx.drawImage(curSkyImg, this.dx + (this.canvas.width-img_width)/2, this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
+    this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
 
@@ -211,9 +232,15 @@ FChart.prototype.reloadImage = function() {
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
             this.cumulativeScaleFac = 1.0;
-            this.redrawAll();
+            if (this.moveInterval === undefined) {
+                this.moveX = 0;
+                this.moveY = 0;
+                this.redrawAll();
+            } else {
+                this.backwardMove = true;
+            }
         } else {
-            this.reverseScale = true;
+            this.backwardScale = true;
         }
     }.bind(this);
     url = url + '&t=' + new Date().getTime();
@@ -266,32 +293,52 @@ FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
         this.dx += this.getEventLocation(e).x - this.mouseX;
         this.dy += this.getEventLocation(e).y - this.mouseY;
-
-        this.fldSize = this.fieldSizes[this.fldSizeIndex];
-
-        var wh = Math.max(this.canvas.width, this.canvas.height);
-        this.dec = this.dec + this.dy * Math.PI * this.fldSize / (180.0 * wh);
-        var movDec = this.dec;
-
-        if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
-        if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
-
-        if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
-        if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
-
-        this.ra = this.ra + this.dx * Math.PI * this.fldSize / (180.0 * wh * Math.cos(movDec));
-        if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
-        if (this.ra < 0) this.ra = this.ra + 2 * Math.PI
-
-        $('#ra').val(this.ra);
-        $('#dec').val(this.dec);
-
-        this.reloadImage();
-
+        this.moveEnd();
         this.dx = 0;
         this.dy = 0;
         this.isDragging = false
     }
+}
+
+FChart.prototype.moveXY = function(mx, my) {
+    this.totalMoveX = this.MOVE_DIST * mx;
+    this.totalMoveY = this.MOVE_DIST * my;
+    this.dx += this.totalMoveX;
+    this.dy += this.totalMoveY
+    this.moveEnd();
+    this.dx -= this.totalMoveX;
+    this.dy -= this.totalMoveY
+    var t = this;
+    this.moveStep = 0;
+    this.moveInterval = setInterval(function(){t.moveFunc();}, this.MOVE_INTERVAL/this.MAX_MOVE_STEPS);
+    this.backwardMove = false;
+    this.nextMovePosition();
+    this.redrawAll();
+}
+
+FChart.prototype.moveEnd = function() {
+
+    this.fldSize = this.fieldSizes[this.fldSizeIndex];
+
+    var wh = Math.max(this.canvas.width, this.canvas.height);
+    this.dec = this.dec + this.dy * Math.PI * this.fldSize / (180.0 * wh);
+    var movDec = this.dec;
+
+    if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
+    if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
+
+    if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
+    if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
+
+    this.ra = this.ra + this.dx * Math.PI * this.fldSize / (180.0 * wh * Math.cos(movDec));
+    if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
+    if (this.ra < 0) this.ra = this.ra + 2 * Math.PI
+
+    $('#ra').val(this.ra);
+    $('#dec').val(this.dec);
+
+    this.reloadImage();
+
 }
 
 FChart.prototype.onPointerMove = function (e) {
@@ -309,6 +356,29 @@ FChart.prototype.onPointerMove = function (e) {
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         this.ctx.drawImage(curSkyImg, x, y);
         this.ctx.drawImage(curLegendImg, 0, 0);
+    }
+}
+
+FChart.prototype.moveFunc = function() {
+    this.nextMovePosition();
+    this.redrawAll();
+    if (this.moveStep == this.MAX_MOVE_STEPS) {
+        clearInterval(this.moveInterval);
+        this.moveInterval = undefined;
+        this.moveStep = 0;
+    }
+}
+
+FChart.prototype.nextMovePosition = function() {
+    if (this.moveStep < this.MAX_MOVE_STEPS) {
+        this.moveStep ++;
+        if (this.backwardMove) {
+            this.moveX = this.totalMoveX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveY = this.totalMoveY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+        } else {
+            this.moveX = this.totalMoveX * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveY = this.totalMoveY * this.moveStep / this.MAX_MOVE_STEPS;
+        }
     }
 }
 
@@ -339,7 +409,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
             this.zoomStep = 0;
             this.nextScaleFac();
             this.redrawAll();
-            this.reverseScale = false;
+            this.backwardScale = false;
             if (this.zoomInterval != undefined) {
               clearInterval(this.zoomInterval);
             }
@@ -367,28 +437,25 @@ FChart.prototype.zoomFunc = function() {
     if (this.zoomStep == this.MAX_ZOOM_STEPS) {
         clearInterval(this.zoomInterval);
         this.zoomInterval = undefined;
-        // console.log('END: ' + this.scaleFac);
     }
 }
 
 FChart.prototype.nextScaleFac = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.zoomStep ++;
-        if (this.reverseScale) {
+        if (this.backwardScale) {
             var st = 1.0/this.scaleFacTotal;
             if (st > 1) {
                 this.scaleFac = 1 + (st-1) * (this.MAX_ZOOM_STEPS-this.zoomStep) / this.MAX_ZOOM_STEPS;
             } else {
                 this.scaleFac = 1 - (1 - st) * (this.MAX_ZOOM_STEPS-this.zoomStep) / this.MAX_ZOOM_STEPS;
             }
-            //console.log('Reverse:' + st + ' ' + this.scaleFac + ' ' + this.zoomStep);
         } else {
             if (this.scaleFacTotal > 1) {
                 this.scaleFac = 1 + (this.scaleFacTotal-1) * this.zoomStep / this.MAX_ZOOM_STEPS;
             } else {
                 this.scaleFac = 1 - (1 - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
             }
-            //console.log('Normal:' + this.scaleFacTotal + ' ' + this.scaleFac + ' ' + this.zoomStep);
         }
         this.scaleFac = this.scaleFac * this.cumulativeScaleFac;
     }
