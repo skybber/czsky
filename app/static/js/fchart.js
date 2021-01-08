@@ -45,10 +45,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
 
+    this.queuedImgs = 0;
+
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
     this.cumulativeScaleFac = 1.0;
-    this.queuedImgs = 0;
+    this.backwardScale = false;
 
     this.onFieldChangeCallback = undefined;
     this.onFullscreenChangeCallback = undefined;
@@ -60,6 +62,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.moveStep = undefined;
     this.moveX = 0;
     this.moveY = 0;
+    this.cumulativeMoveX = 0;
+    this.cumulativeMoveY = 0;
     this.backwardMove = false;
 
     if (fullScreen) {
@@ -235,6 +239,8 @@ FChart.prototype.reloadImage = function() {
             if (this.moveInterval === undefined) {
                 this.moveX = 0;
                 this.moveY = 0;
+                this.cumulativeMoveX = 0;
+                this.cumulativeMoveY = 0;
                 this.redrawAll();
             } else {
                 this.backwardMove = true;
@@ -294,6 +300,7 @@ FChart.prototype.onPointerUp = function(e) {
         this.dx += this.getEventLocation(e).x - this.mouseX;
         this.dy += this.getEventLocation(e).y - this.mouseY;
         this.moveEnd();
+        this.reloadImage();
         this.dx = 0;
         this.dy = 0;
         this.isDragging = false
@@ -301,13 +308,18 @@ FChart.prototype.onPointerUp = function(e) {
 }
 
 FChart.prototype.moveXY = function(mx, my) {
+    this.cumulativeMoveX = this.moveX;
+    this.cumulativeMoveY = this.moveY;
     this.totalMoveX = this.MOVE_DIST * mx;
     this.totalMoveY = this.MOVE_DIST * my;
     this.dx += this.totalMoveX;
-    this.dy += this.totalMoveY
+    this.dy += this.totalMoveY;
     this.moveEnd();
     this.dx -= this.totalMoveX;
-    this.dy -= this.totalMoveY
+    this.dy -= this.totalMoveY;
+
+    this.reloadImage();
+
     var t = this;
     this.moveStep = 0;
     this.moveInterval = setInterval(function(){t.moveFunc();}, this.MOVE_INTERVAL/this.MAX_MOVE_STEPS);
@@ -337,8 +349,6 @@ FChart.prototype.moveEnd = function() {
     $('#ra').val(this.ra);
     $('#dec').val(this.dec);
 
-    this.reloadImage();
-
 }
 
 FChart.prototype.onPointerMove = function (e) {
@@ -365,7 +375,6 @@ FChart.prototype.moveFunc = function() {
     if (this.moveStep == this.MAX_MOVE_STEPS) {
         clearInterval(this.moveInterval);
         this.moveInterval = undefined;
-        this.moveStep = 0;
     }
 }
 
@@ -373,11 +382,11 @@ FChart.prototype.nextMovePosition = function() {
     if (this.moveStep < this.MAX_MOVE_STEPS) {
         this.moveStep ++;
         if (this.backwardMove) {
-            this.moveX = this.totalMoveX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
-            this.moveY = this.totalMoveY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulativeMoveX + this.totalMoveX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveY = this.cumulativeMoveY + this.totalMoveY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
         } else {
-            this.moveX = this.totalMoveX * this.moveStep / this.MAX_MOVE_STEPS;
-            this.moveY = this.totalMoveY * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulativeMoveX + this.totalMoveX * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveY = this.cumulativeMoveY + this.totalMoveY * this.moveStep / this.MAX_MOVE_STEPS;
         }
     }
 }
