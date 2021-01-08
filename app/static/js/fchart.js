@@ -46,6 +46,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.chartUrl = chartUrl;
 
     this.queuedImgs = 0;
+    this.reloadingImg = false
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
@@ -244,10 +245,16 @@ FChart.prototype.reloadImage = function() {
                 this.redrawAll();
             } else {
                 this.backwardMove = true;
+                this.cumulativeMoveX = 0;
+                this.cumulativeMoveY = 0;
+                this.redrawAll();
             }
         } else {
             this.backwardScale = true;
         }
+
+        this.reloadingImg=false;
+
     }.bind(this);
     url = url + '&t=' + new Date().getTime();
     this.skyImgBuf[this.skyImg.background].src = url;
@@ -318,7 +325,10 @@ FChart.prototype.moveXY = function(mx, my) {
     this.dx -= this.totalMoveX;
     this.dy -= this.totalMoveY;
 
-    this.reloadImage();
+    if (!this.reloadingImg) {
+        this.reloadingImg = true;
+        this.reloadImage();
+    }
 
     var t = this;
     this.moveStep = 0;
