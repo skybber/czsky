@@ -447,7 +447,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
                this.queuedImgs--;
                if (this.queuedImgs == 0) {
                    this.reloadLegendImage();
-                   this.reloadImage();
+                   this.forceReloadImage();
                }
             }).bind(this), 50);
 
