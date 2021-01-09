@@ -223,7 +223,6 @@ FChart.prototype.reloadImage = function() {
     if (this.reloadingImgCnt == 0) {
         this.reloadingImgCnt = 1;
         this.doReloadImage();
-
     } else {
         this.reloadingImgCnt = 2;
     }
@@ -236,6 +235,8 @@ FChart.prototype.forceReloadImage = function() {
 
 FChart.prototype.doReloadImage = function() {
     var url = this.chartUrl;
+    var cumulX = this.cumulativeMoveX;
+    var cumulY = this.cumulativeMoveY;
     url = url.replace('_RA_', this.ra.toString());
     url = url.replace('_DEC_', this.dec.toString());
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
@@ -257,7 +258,11 @@ FChart.prototype.doReloadImage = function() {
                 this.moveY = 0;
                 this.redrawAll();
             } else {
-                this.backwardMove = true;
+                this.cumulativeMoveX -= cumulX;
+                this.cumulativeMoveY -= cumulY;
+                if (this.cumulativeMoveY == 0 && this.cumulativeMoveY == 0) {
+                    this.backwardMove = true;
+                }
             }
         } else {
             this.backwardScale = true;
