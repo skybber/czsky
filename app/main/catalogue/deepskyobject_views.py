@@ -101,6 +101,8 @@ def deepskyobject_search():
     query = request.args.get('q', None)
     if query is None:
         abort(404)
+    if query and query.isdigit():
+        query = 'NGC' + query
     normalized_name = normalize_dso_name(denormalize_dso_name(query))
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if not dso:

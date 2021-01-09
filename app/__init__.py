@@ -120,6 +120,8 @@ def create_app(config):
     app.register_blueprint(main_solarsystem)
     from .main.solarsystem import main_comet as main_comet
     app.register_blueprint(main_comet)
+    from .main.chart import main_chart as main_chart
+    app.register_blueprint(main_chart)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

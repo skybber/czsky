@@ -259,8 +259,10 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
             if dso:
                 showing_dsos.append(dso)
 
-    highlights = []
-    highlights.append([obj_ra, obj_dec])
+    highlights = None
+    if not obj_ra is None and not obj_dec is None:
+        highlights = []
+        highlights.append([obj_ra, obj_dec])
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
     free_mem_counter += 1

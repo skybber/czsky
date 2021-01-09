@@ -1,0 +1,1 @@
+from app.main.chart.chart_views import main_chart

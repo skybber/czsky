@@ -1,0 +1,44 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_chart.chart', 'Chart', 'Chart')
+] %}
+
+{# --- Find Chart --- #}
+{% macro chart_info() %}
+    {{ fchart.fchart(url_for('main_chart.chart', back=back, back_id=back_id),
+                     url_for('main_chart.chart_pos_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=chart_flags),
+                     url_for('main_chart.chart_legend_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=legend_flags))
+    }}
+{% endmacro %}
+
+{# --- Catalogue Data --- #}
+{% macro chart_catalogue_data() %}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic computer tablet only compact button" href="{{ url_for('main.index') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Dashboard') }}
+                    </a>
+                    <div class="divider">  </div>
+                </div>
+            </div>
+
+            <h2 class="ui header" style="margin-top:0.5em">
+                {{ _('Chart') }}
+            </h2>
+            {{ chart_info() }}
+        </div>
+    </div>
+
+{% endblock %}
