@@ -45,7 +45,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
 
-    this.reloadingImgCnt = 0;
+    this.queuedImgs = 0;
+    this.reloadingImg = false
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
@@ -73,7 +74,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
         this.reloadLegendImage();
-        this.forceReloadImage();
+        this.reloadImage();
     }).bind(this), false);
 
     $(this.canvas).bind('mousedown', this.onPointerDown.bind(this));
@@ -219,20 +220,6 @@ FChart.prototype.reloadLegendImage = function () {
 }
 
 FChart.prototype.reloadImage = function() {
-    if (this.reloadingImgCnt == 0) {
-        this.reloadingImgCnt = 1;
-        this.doReloadImage();
-    } else {
-        this.reloadingImgCnt = 2;
-    }
-}
-
-FChart.prototype.forceReloadImage = function() {
-    this.reloadingImgCnt = 1;
-    this.doReloadImage()
-}
-
-FChart.prototype.doReloadImage = function() {
     var url = this.chartUrl;
     url = url.replace('_RA_', this.ra.toString());
     url = url.replace('_DEC_', this.dec.toString());
@@ -265,10 +252,9 @@ FChart.prototype.doReloadImage = function() {
         } else {
             this.backwardScale = true;
         }
-        this.reloadingImgCnt --;
-        if (this.reloadingImgCnt > 0) {
-            this.doReloadImage();
-        }
+
+        this.reloadingImg=false;
+
     }.bind(this);
     url = url + '&t=' + new Date().getTime();
     this.skyImgBuf[this.skyImg.background].src = url;
@@ -339,7 +325,10 @@ FChart.prototype.moveXY = function(mx, my) {
     this.dx -= this.totalMoveX;
     this.dy -= this.totalMoveY;
 
-    this.reloadImage();
+    if (!this.reloadingImg) {
+        this.reloadingImg = true;
+        this.reloadImage();
+    }
 
     var t = this;
     this.moveStep = 0;
@@ -436,17 +425,23 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
                 //this.cumulativeScaleFac = 1.0;
                 this.scaleFacTotal = this.imgField  / this.fieldSizes[this.fldSizeIndex];
             }
-            this.backwardScale = false;
             this.zoomStep = 0;
             this.nextScaleFac();
             this.redrawAll();
+            this.backwardScale = false;
             if (this.zoomInterval != undefined) {
               clearInterval(this.zoomInterval);
             }
             var t = this;
             this.zoomInterval = setInterval(function(){t.zoomFunc();}, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
-            this.reloadLegendImage();
-            this.reloadImage();
+            this.queuedImgs++;
+            setTimeout((function() {
+               this.queuedImgs--;
+               if (this.queuedImgs == 0) {
+                   this.reloadLegendImage();
+                   this.reloadImage();
+               }
+            }).bind(this), 50);
 
             if (this.onFieldChangeCallback  != undefined) {
                 this.onFieldChangeCallback.call(this, this.fldSizeIndex);
@@ -491,7 +486,7 @@ FChart.prototype.toggleFullscreen = function() {
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
-    this.forceReloadImage();
+    this.reloadImage();
 
     if (this.onFullscreenChangeCallback  != undefined) {
         this.onFullscreenChangeCallback.call(this, isInFullscreen);
