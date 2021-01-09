@@ -442,15 +442,20 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
             }
             var t = this;
             this.zoomInterval = setInterval(function(){t.zoomFunc();}, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
-            this.queuedImgs++;
-            setTimeout((function() {
-               this.queuedImgs--;
-               if (this.queuedImgs == 0) {
-                   this.reloadLegendImage();
-                   this.forceReloadImage();
-               }
-            }).bind(this), 50);
-
+            if (this.queuedImgs == 0) {
+               this.reloadLegendImage();
+               this.forceReloadImage();
+            } else {
+              this.queuedImgs++;
+              setTimeout((function() {
+                 // wait some time to keep order of requests
+                 this.queuedImgs--;
+                 if (this.queuedImgs == 0) {
+                     this.reloadLegendImage();
+                     this.forceReloadImage();
+                 }
+              }).bind(this), 50);
+            }
             if (this.onFieldChangeCallback  != undefined) {
                 this.onFieldChangeCallback.call(this, this.fldSizeIndex);
             }
