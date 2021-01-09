@@ -44,6 +44,8 @@ def global_search():
     if constellation:
         return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
+    if query and query.isdigit():
+        query = 'NGC' + query
 
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
