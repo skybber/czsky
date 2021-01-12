@@ -67,10 +67,16 @@ def chart():
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
-    if form.ra.data is None:
-        form.ra.data = 0.0
-    if form.dec.data is None:
-        form.dec.data = 0.0
+    ra = request.args.get('ra', None)
+    dec = request.args.get('dec', None)
+    if ra is not None and dec is not None:
+        form.ra.data = float(ra)
+        form.dec.data = float(dec)
+    else:
+        if form.ra.data is None:
+            form.ra.data = 0.0
+        if form.dec.data is None:
+            form.dec.data = 0.0
 
     night_mode = not session.get('themlight', False)
 
