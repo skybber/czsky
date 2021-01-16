@@ -256,7 +256,9 @@ FChart.prototype.doReloadImage = function() {
             if (this.moveInterval === undefined) {
                 this.moveX = 0;
                 this.moveY = 0;
-                this.redrawAll();
+                if (this.reloadingImgCnt <= 1) {
+                    this.redrawAll();
+                }
             } else {
                 this.cumulativeMoveX -= cumulX;
                 this.cumulativeMoveY -= cumulY;
