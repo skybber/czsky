@@ -9,6 +9,8 @@ class Constellation(db.Model):
     season = db.Column(db.String(32))
     descr = db.Column(db.Text)
     image = db.Column(db.String(256))
+    label_ra = db.Column(db.Float)
+    label_dec = db.Column(db.Float)
     deepsky_objects = db.relationship('DeepskyObject', backref='constellation', lazy=True)
 
     _all = None

@@ -41,13 +41,14 @@ from app.commons.search_utils import process_paginated_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
-    DeepskyObjectFindChartForm,
     DeepskyObjectEditForm,
     SearchDsoForm,
 )
 
+from app.main.chart.chart_forms import ChartForm
+
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import get_chart_legend_flags, common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -173,8 +174,8 @@ def deepskyobject_info(dso_id):
 
     sel_tab = request.args.get('sel_tab', None)
     if sel_tab:
-        if sel_tab == 'fchart':
-            return _do_redirect('main_deepskyobject.deepskyobject_fchart', dso)
+        if sel_tab == 'chart':
+            return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
         if sel_tab == 'surveys':
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if sel_tab == 'catalogue_data':
@@ -272,13 +273,13 @@ def deepskyobject_catalogue_data(dso_id):
                            )
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart', methods=['GET', 'POST'])
-def deepskyobject_fchart(dso_id):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart', methods=['GET', 'POST'])
+def deepskyobject_chart(dso_id):
     """View a deepsky object findchart."""
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
-    form  = DeepskyObjectFindChartForm()
+    form  = ChartForm()
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
     fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
@@ -300,7 +301,7 @@ def deepskyobject_fchart(dso_id):
 
     season = request.args.get('season')
 
-    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='fchart', dso=dso,
+    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
@@ -312,23 +313,23 @@ def deepskyobject_fchart(dso_id):
                            )
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def deepskyobject_fchart_pos_img(dso_id, ra, dec):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def deepskyobject_chart_pos_img(dso_id, ra, dec):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
 
-    img_bytes = common_fchart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,))
+    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,))
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/fchart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def deepskyobject_fchart_legend_img(dso_id, ra, dec):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def deepskyobject_chart_legend_img(dso_id, ra, dec):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
 
-    img_bytes = common_fchart_legend_img(dso.ra, dso.dec, ra, dec, )
+    img_bytes = common_chart_legend_img(dso.ra, dso.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
 

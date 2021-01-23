@@ -35,7 +35,7 @@ from .comet_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import get_chart_legend_flags, common_fchart_pos_img, common_fchart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.utils import to_float
 
 main_comet = Blueprint('main_comet', __name__)
@@ -211,8 +211,8 @@ def comet_info(comet_id):
                            )
 
 
-@main_comet.route('/comet/<string:comet_id>/fchart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def comet_fchart_pos_img(comet_id, ra, dec):
+@main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def comet_chart_pos_img(comet_id, ra, dec):
     comet = _find_comet(comet_id)
     if comet is None:
         abort(404)
@@ -220,12 +220,12 @@ def comet_fchart_pos_img(comet_id, ra, dec):
     comet_ra = to_float(request.args.get('obj_ra'), None)
     comet_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_fchart_pos_img(comet_ra, comet_dec, ra, dec)
+    img_bytes = common_chart_pos_img(comet_ra, comet_dec, ra, dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_comet.route('/comet/<string:comet_id>/fchart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def comet_fchart_legend_img(comet_id, ra, dec):
+@main_comet.route('/comet/<string:comet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def comet_chart_legend_img(comet_id, ra, dec):
     comet = _find_comet(comet_id)
     if comet is None:
         abort(404)
@@ -233,7 +233,7 @@ def comet_fchart_legend_img(comet_id, ra, dec):
     comet_ra = to_float(request.args.get('obj_ra'), None)
     comet_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_fchart_legend_img(comet_ra, comet_dec, ra, dec, )
+    img_bytes = common_chart_legend_img(comet_ra, comet_dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
 

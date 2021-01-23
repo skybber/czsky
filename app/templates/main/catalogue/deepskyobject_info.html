@@ -5,7 +5,7 @@
 
 {% set endpoints = [
     ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-    ('main_deepskyobject.deepskyobject_fchart', _('Chart'), 'table'),
+    ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
     ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
     ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
 ] %}
@@ -150,11 +150,11 @@
 
 {% endmacro %}
 
-{# --- Find Chart --- #}
-{% macro deepskyobject_fchart(dso) %}
-    {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_fchart', dso_id=dso.name, back=back, back_id=back_id),
-                     url_for('main_deepskyobject.deepskyobject_fchart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=chart_flags),
-                     url_for('main_deepskyobject.deepskyobject_fchart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=legend_flags))
+{# ---  Chart --- #}
+{% macro deepskyobject_chart(dso) %}
+    {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
+                     url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=chart_flags),
+                     url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=legend_flags))
     }}
 {% endmacro %}
 
@@ -329,8 +329,8 @@
                 {% else %}
                     {{ deepskyobject_catalogue_data(True) }}
                 {% endif %}
-            {% elif type == 'fchart' %}
-                {{ deepskyobject_fchart(dso) }}
+            {% elif type == 'chart' %}
+                {{ deepskyobject_chart(dso) }}
             {% elif type == 'surveys' %}
                 {{ deepskyobject_surveys() }}
             {% elif type == 'catalogue_data' %}

@@ -1,9 +1,11 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
     ('main_constellation.constellation_info', _('Info'), 'info'),
+    ('main_constellation.constellation_chart', _('Chart'), 'info'),
     ('main_constellation.constellation_stars', _('Stars'), 'star'),
     ('main_constellation.constellation_deepskyobjects', _('DSO'), 'dso'),
 ] %}
@@ -93,7 +95,7 @@
                             <div id="star{{ user_star_descr.id }}" style="visibility:hidden; width:0px"></div>
                             {% filter extended_commonmark('') %}
                             {% if user_star_descr.star_id %}
-**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_fchart', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_chart', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
                             {% else %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_info', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
                             {% endif %}
@@ -251,6 +253,14 @@
     </script>
 {% endmacro %}
 
+{# ---  Chart --- #}
+{% macro constellation_chart(constellation) %}
+    {{ fchart.fchart(url_for('main_constellation.constellation_chart', constellation_id=constellation.id, back=back, back_id=back_id),
+                     url_for('main_constellation.constellation_chart_pos_img', constellation_id=constellation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=chart_flags),
+                     url_for('main_constellation.constellation_chart_legend_img', constellation_id=constellation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=legend_flags))
+    }}
+{% endmacro %}
+
 {% macro constellation_stars() %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
         <div class="ui blue segment" style="display: inline-block">
@@ -371,6 +381,8 @@
 
             {% if type == 'info' %}
                 {{ constellation_info() }}
+            {% elif type == 'chart' %}
+                {{ constellation_chart(constellation) }}
             {% elif type == 'stars' %}
                 {{ constellation_stars() }}
             {% elif type == 'dso' %}

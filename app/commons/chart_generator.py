@@ -96,7 +96,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.dso_symbol_brightness = False
 
 
-def common_fchart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
 
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
@@ -119,7 +119,7 @@ def common_fchart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
     return img_bytes
 
 
-def common_fchart_legend_img(obj_ra, obj_dec, ra, dec):
+def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)

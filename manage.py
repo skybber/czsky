@@ -22,6 +22,7 @@ from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn
 from imports.import_gottlieb import import_gottlieb
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
+from imports.import_constellations_positions import import_constellations_positions
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -141,6 +142,7 @@ def initialize_catalogues():
     import_hnsky('data/deep_sky.hnd')
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
+    import_constellations_positions('data/constlabel.cla')
 
 @manager.command
 def import_dso_list():
@@ -236,6 +238,10 @@ def tmp_import_glahn_local_group():
 @manager.command
 def tmp_import_abell_pn():
     import_abell_pn('data/dsolist/AbellPN.csv')
+
+@manager.command
+def tmp_import_constellations_positions():
+    import_constellations_positions('data/constlabel.cla')
 
 
 if __name__ == '__main__':
