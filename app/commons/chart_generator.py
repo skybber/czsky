@@ -77,7 +77,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.nebula_color = (0.2, 0.6, 0.2)
             config.galaxy_color = (0.6, 0.2, 0.2)
             config.star_cluster_color = (0.6, 0.6, 0.0)
-            if width <= 768:
+            if width and width <= 768:
                 config.grid_color = (0.18, 0.27, 0.3)
             else:
                 config.grid_color = (0.12, 0.18, 0.20)
@@ -115,6 +115,18 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
 
     img_bytes = BytesIO()
     create_chart(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
+    img_bytes.seek(0)
+    return img_bytes
+
+def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None):
+    gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
+
+    mirror_x = to_boolean(request.args.get('mx'), False)
+    mirror_y = to_boolean(request.args.get('my'), False)
+    flags = request.args.get('flags')
+
+    img_bytes = BytesIO()
+    create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -245,7 +257,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True if width else False)
+    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png', pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
@@ -270,6 +282,62 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
         free_mem_counter = 0
         used_catalogs.free_mem()
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
+
+
+def create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+    """Create chart PDF in czsky process."""
+    global free_mem_counter
+    tm = time()
+
+    used_catalogs = _load_used_catalogs()
+
+    config = fchart3.EngineConfiguration()
+    _setup_skymap_graphics(config, fld_size, None, False)
+
+    config.show_dso_legend = False
+    config.show_orientation_legend = True
+    config.mirror_x = mirror_x
+    config.mirror_y = mirror_y
+    config.show_equatorial_grid = True
+
+    config.show_flamsteed = (fld_size <= 20)
+
+    config.show_constellation_shapes = 'C' in flags
+    config.show_constellation_borders = 'B' in flags
+    config.show_deepsky = 'D' in flags
+    config.show_equatorial_grid = 'E' in flags
+
+    if show_legend:
+        config.show_mag_scale_legend = True
+        config.show_map_scale_legend = True
+        config.show_field_border = True
+
+    if dso_maglim is None:
+        dso_maglim = -10
+
+    artist = fchart3.CairoDrawing(pdf_fobj, 180, 220, format='pdf')
+    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
+    engine.set_configuration(config)
+
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
+
+    showing_dsos = None
+    if dso_names:
+        showing_dsos = []
+        for dso_name in dso_names:
+            dso, cat, name = used_catalogs.lookup_dso(dso_name)
+            if dso:
+                showing_dsos.append(dso)
+
+    highlights = None
+    if not obj_ra is None and not obj_dec is None:
+        highlights = []
+        highlights.append([obj_ra, obj_dec])
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
+
+    print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
+
 
 
 def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, flags=''):
@@ -299,83 +367,13 @@ def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim,
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(width if width else 220, height if height else 220, png_fobj=png_fobj, pixels=True if width else False)
+    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png', pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
     engine.make_map(used_catalogs)
-    free_mem_counter += 1
-    if free_mem_counter > NO_FREE_MEM_CYCLES:
-        free_mem_counter = 0
-        used_catalogs.free_mem()
-    # app.logger.info("Map created within : %s ms", str(time()-tm))
-
-def create_common_chart_in_pipeline(ra, dec, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
-    """Create chart in czsky process."""
-    global free_mem_counter
-    tm = time()
-
-    used_catalogs = _load_used_catalogs()
-
-    config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, None, night_mode)
-
-    config.show_dso_legend = False
-    config.show_orientation_legend = False
-    config.mirror_x = mirror_x
-    config.mirror_y = mirror_y
-
-    config.show_mag_scale_legend = True
-    config.show_map_scale_legend = True
-    config.show_field_border = True
-    config.show_equatorial_grid = True
-
-    config.show_flamsteed = (fld_size <= 20)
-
-    artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
-    engine.set_configuration(config)
-
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
-
-    # engine.set_active_constellation(dso.constellation)
-    extra_positions = []
-    extra_positions.append([ra,dec,'',None])
-
-    engine.make_map(used_catalogs, extra_positions=extra_positions)
-    free_mem_counter += 1
-    if free_mem_counter > NO_FREE_MEM_CYCLES:
-        free_mem_counter = 0
-        used_catalogs.free_mem()
-    # app.logger.info("Map created within : %s ms", str(time()-tm))
-
-def create_trajectory_chart_in_pipeline(ra, dec, trajectory, caption, full_file_name, fld_size, star_maglim, dso_maglim, night_mode, mirror_x, mirror_y):
-    """Create chart in czsky process."""
-    global free_mem_counter
-    tm = time()
-
-    used_catalogs = _load_used_catalogs()
-
-    config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, None, night_mode)
-
-    config.show_dso_legend = False
-    config.show_orientation_legend = False
-    config.mirror_x = mirror_x
-    config.mirror_y = mirror_y
-    config.show_equatorial_grid = True
-
-    config.show_flamsteed = (fld_size <= 20)
-
-    artist = fchart3.CairoDrawing(220, 220, filename=full_file_name)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
-    engine.set_configuration(config)
-
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
-
-    engine.make_map(used_catalogs, trajectory=trajectory)
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
         free_mem_counter = 0

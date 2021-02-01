@@ -233,10 +233,8 @@ FChart.prototype.forceReloadImage = function() {
     this.doReloadImage()
 }
 
-FChart.prototype.doReloadImage = function() {
-    var url = this.chartUrl;
-    var cumulX = this.cumulativeMoveX;
-    var cumulY = this.cumulativeMoveY;
+FChart.prototype.formatUrl = function(inpUrl) {
+    var url = inpUrl;
     url = url.replace('_RA_', this.ra.toString());
     url = url.replace('_DEC_', this.dec.toString());
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
@@ -244,6 +242,13 @@ FChart.prototype.doReloadImage = function() {
     url = url.replace('_HEIGHT_', this.canvas.height);
     url = url.replace('_OBJ_RA_', this.obj_ra.toString());
     url = url.replace('_OBJ_DEC_', this.obj_dec.toString());
+    return url;
+}
+
+FChart.prototype.doReloadImage = function() {
+    var url = this.formatUrl(this.chartUrl);
+    var cumulX = this.cumulativeMoveX;
+    var cumulY = this.cumulativeMoveY;
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = null;
         var old = this.skyImg.active;

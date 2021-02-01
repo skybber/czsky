@@ -45,7 +45,7 @@ from .chart_forms import (
 )
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_chart_pdf_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_chart = Blueprint('main_chart', __name__)
@@ -90,14 +90,19 @@ def chart():
                            chart_flags=chart_flags, legend_flags=legend_flags,
                            )
 
-
 @main_chart.route('/chart/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def chart_pos_img(ra, dec):
     img_bytes = common_chart_pos_img(None, None, ra, dec)
     return send_file(img_bytes, mimetype='image/png')
 
-
 @main_chart.route('/chart/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def chart_legend_img(ra, dec):
     img_bytes = common_chart_legend_img(None, None, ra, dec)
     return send_file(img_bytes, mimetype='image/png')
+
+@main_chart.route('/chart/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def chart_pdf(ra, dec):
+    img_bytes = common_chart_pdf_img(None, None, ra, dec)
+    return send_file(img_bytes, mimetype='application/pdf')
+
+
