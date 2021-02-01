@@ -48,7 +48,7 @@ from .deepskyobject_forms import (
 from app.main.chart.chart_forms import ChartForm
 
 from app.main.views import ITEMS_PER_PAGE
-from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_chart_pdf_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -331,6 +331,15 @@ def deepskyobject_chart_legend_img(dso_id, ra, dec):
 
     img_bytes = common_chart_legend_img(dso.ra, dso.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def chart_pdf(dso_id, ra, dec):
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    img_bytes = common_chart_pdf_img(dso.ra, dso.dec, ra, dec)
+    return send_file(img_bytes, mimetype='application/pdf')
 
 
 

@@ -135,7 +135,6 @@
 
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
-    var pdfUrl = "{{ fchart_pdf_url | safe }}";
 
     var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, {{ 'true' if form.fullscreen.data == 'true' else 'false' }});
 
