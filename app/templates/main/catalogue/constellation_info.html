@@ -79,7 +79,7 @@
             {% if user_descr %}
                 <div>
                     {% if editable %}
-                        <a class="ui icon right floated mini button" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
+                        <a class="ui icon right floated mini button mobile hidden" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
                             <i class="caret edit icon"></i>
                         </a>
                     {% endif %}
@@ -142,7 +142,7 @@
                         </div>
 
                         {% if editable %}
-                            <a class="ui icon mini button" style="float:left;margin-left:5px;"
+                            <a class="ui icon mini button mobile hidden" style="float:left;margin-left:5px;"
                                       href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=user_dso_descr.dso_id, back='constellation', back_id=constellation.iau_code) }}">
                                 <i class="caret edit icon"></i>
                             </a>
