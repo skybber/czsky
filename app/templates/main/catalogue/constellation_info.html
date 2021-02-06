@@ -203,7 +203,7 @@
                             </div>
                         </div>
                         {% if editable %}
-                            <a class="ui icon mini button" style="float:right;margin-left:5px;"
+                            <a class="ui icon mini button mobile hidden" style="float:right;margin-left:5px;"
                                       href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=ug_bl_dso.dso.id, back='constellation', back_id=constellation.iau_code) }}">
                                 <i class="caret edit icon"></i>
                             </a>

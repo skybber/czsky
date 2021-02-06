@@ -81,7 +81,7 @@
                 {% endif %}
 
                 {% if editable %}
-                    <a class="ui icon mini button" style="float:left;margin-left:5px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, back=back, back_id=back_id) }}">
+                    <a class="ui icon mini button mobile hidden" style="float:left;margin-left:5px;" href="{{ url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso.id, back=back, back_id=back_id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
