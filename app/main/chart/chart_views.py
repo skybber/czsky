@@ -1,4 +1,6 @@
 import os
+from datetime import datetime
+import numpy as np
 
 from datetime import datetime
 
@@ -74,7 +76,11 @@ def chart():
         form.dec.data = float(dec)
     else:
         if form.ra.data is None:
-            form.ra.data = 0.0
+            day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
+            day_now = datetime.now().timetuple().tm_yday
+            form.ra.data = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
+            if form.ra.data > 2 * np.pi:
+                form.ra.data -= 2 * np.pi
         if form.dec.data is None:
             form.dec.data = 0.0
 
