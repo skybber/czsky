@@ -2,6 +2,7 @@ import os
 import numpy as np
 import math
 import threading
+import base64
 
 from datetime import date, datetime, timedelta
 
@@ -10,6 +11,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -220,8 +222,14 @@ def comet_chart_pos_img(comet_id, ra, dec):
     comet_ra = to_float(request.args.get('obj_ra'), None)
     comet_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_chart_pos_img(comet_ra, comet_dec, ra, dec)
-    return send_file(img_bytes, mimetype='image/png')
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(comet_ra, comet_dec, ra, dec, visible_objects=visible_objects)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])

@@ -1,4 +1,4 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, fullScreen) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen) {
 
     this.fchartDiv = fchartDiv;
 
@@ -12,6 +12,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
+    this.reqInProcess = 0;
 
     this.isDragging = false;
     this.mouseX = 0;
@@ -44,6 +45,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
+    this.searchUrl = searchUrl;
+    this.jsonLoad = jsonLoad;
 
     this.queuedImgs = 0;
     this.reloadingImgCnt = 0;
@@ -66,6 +69,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.cumulativeMoveX = 0;
     this.cumulativeMoveY = 0;
     this.backwardMove = false;
+    this.dsoRegions = undefined;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -76,6 +80,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         this.reloadLegendImage();
         this.forceReloadImage();
     }).bind(this), false);
+
+    $(this.canvas).bind('click', this.onClick.bind(this));
 
     $(this.canvas).bind('mousedown', this.onPointerDown.bind(this));
 
@@ -246,7 +252,28 @@ FChart.prototype.formatUrl = function(inpUrl) {
 }
 
 FChart.prototype.doReloadImage = function() {
-    var url = this.formatUrl(this.chartUrl);
+    var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
+
+    if (this.jsonLoad) {
+        // this.skyImgBuf[this.skyImg.background].src = url;
+        this.reqInProcess ++;
+        $.getJSON(url, {
+            json : true
+        }, function(data) {
+            this.reqInProcess --;
+            if (this.reqInProcess == 0) {
+                this.dsoRegions = data.img_map;
+                this.activateImageOnLoad();
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
+            }
+        }.bind(this));
+    } else {
+        activateImageOnLoad();
+        this.skyImgBuf[this.skyImg.background].src = url;
+    }
+}
+
+FChart.prototype.activateImageOnLoad = function() {
     var cumulX = this.cumulativeMoveX;
     var cumulY = this.cumulativeMoveY;
     this.skyImgBuf[this.skyImg.background].onload = function() {
@@ -279,8 +306,6 @@ FChart.prototype.doReloadImage = function() {
             this.doReloadImage();
         }
     }.bind(this);
-    url = url + '&t=' + new Date().getTime();
-    this.skyImgBuf[this.skyImg.background].src = url;
 }
 
 FChart.prototype.getEventLocation = function(e) {
@@ -319,6 +344,27 @@ function normalizeDelta(e) {
     return delta;
 }
 
+FChart.prototype.findDso = function(e) {
+    if (this.dsoRegions != undefined) {
+        var rect = this.canvas.getBoundingClientRect();
+        var x = e.clientX-rect.left;
+        var y = rect.bottom -e.clientY;
+        for (i = 0; i < this.dsoRegions.length; i += 5) {
+            if (x >= this.dsoRegions[i+1] && x <= this.dsoRegions[i+3] && y >= this.dsoRegions[i+2] && y <= this.dsoRegions[i+4]) {
+                return this.dsoRegions[i];
+            }
+        }
+    }
+    return null;
+}
+
+FChart.prototype.onClick = function(e) {
+    var dso  = this.findDso(e)
+    if (dso != null) {
+        window.location.href = this.searchUrl + dso.replace(/\s/g, '');
+    }
+}
+
 FChart.prototype.onPointerDown = function(e) {
     this.isDragging = true
     this.mouseX = this.getEventLocation(e).x;
@@ -329,10 +375,12 @@ FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
         this.dx += this.getEventLocation(e).x - this.mouseX;
         this.dy += this.getEventLocation(e).y - this.mouseY;
-        this.moveEnd();
-        this.reloadImage();
-        this.dx = 0;
-        this.dy = 0;
+        if (this.dx != 0 || this.dy != 0) {
+            this.moveEnd();
+            this.reloadImage();
+            this.dx = 0;
+            this.dy = 0;
+        }
         this.isDragging = false
     }
 }
@@ -382,6 +430,12 @@ FChart.prototype.moveEnd = function() {
 }
 
 FChart.prototype.onPointerMove = function (e) {
+    var dso  = this.findDso(e)
+    if (dso != null) {
+        this.canvas.style.cursor = "pointer"
+    } else {
+        this.canvas.style.cursor = "default"
+    }
     if (this.isDragging) {
         var x = this.dx + (this.getEventLocation(e).x-this.mouseX);
         var y = this.dy + (this.getEventLocation(e).y-this.mouseY);

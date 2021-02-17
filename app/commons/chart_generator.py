@@ -96,7 +96,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.dso_symbol_brightness = False
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None):
 
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
@@ -114,7 +114,7 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None):
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    create_chart(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
+    create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -226,7 +226,7 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+def create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -276,7 +276,7 @@ def create_chart(png_fobj, obj_ra, obj_dec, ra, dec, fld_size, width, height, st
         highlights = []
         highlights.append([obj_ra, obj_dec])
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects)
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
         free_mem_counter = 0

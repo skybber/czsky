@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import base64
 
 from io import BytesIO
 
@@ -7,6 +8,7 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -99,8 +101,14 @@ def star_chart_pos_img(star_id, ra, dec):
     if star is None:
         abort(404)
 
-    img_bytes = common_chart_pos_img(star.ra, star.dec, ra, dec)
-    return send_file(img_bytes, mimetype='image/png')
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(star.ra, star.dec, ra, dec, visible_objects=visible_objects)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
 
 
 @main_star.route('/star/<string:star_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])

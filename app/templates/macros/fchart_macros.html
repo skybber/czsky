@@ -136,7 +136,8 @@
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
-    var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, {{ 'true' if form.fullscreen.data == 'true' else 'false' }});
+    var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl,
+            "{{ url_for('main.global_search') }}?q=", true, {{ 'true' if form.fullscreen.data == 'true' else 'false' }});
 
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;

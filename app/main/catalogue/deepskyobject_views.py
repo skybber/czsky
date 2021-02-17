@@ -1,4 +1,5 @@
 import os
+import base64
 
 from datetime import datetime
 
@@ -6,13 +7,13 @@ from flask import (
     abort,
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
     session,
     url_for,
     send_file,
-    jsonify
 )
 from flask_login import current_user, login_required
 from sqlalchemy import func
@@ -319,8 +320,14 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     if dso is None:
         abort(404)
 
-    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,))
-    return send_file(img_bytes, mimetype='image/png')
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
