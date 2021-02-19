@@ -251,5 +251,28 @@ table.selectable tr:hover {
     width: 100% !important;
     border: 0 !important;
     max-width: none !important;
-    background: #fff; 
+    background: #fff;
+}
+
+.fchart-splitview {
+    position: fixed !important;
+    z-index: 9999;
+    top: 0;
+    left: 420px;
+    height: 100% !important;
+    width: calc(100% - 420px) !important;
+    border: 0 !important;
+    max-width: none !important;
+    background: #fff;
+}
+
+.fchart-iframe {
+    position: fixed !important;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    height: 100% !important;
+    width: 420px !important;
+    border: 0 !important;
+    max-width: none !important;
 }

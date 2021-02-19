@@ -4,6 +4,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     $(fchartDiv).addClass("fchart-container");
 
+    this.iframe = $('<iframe src="http://localhost:5000/deepskyobject/M1/" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
@@ -361,7 +362,12 @@ FChart.prototype.findDso = function(e) {
 FChart.prototype.onClick = function(e) {
     var dso  = this.findDso(e)
     if (dso != null) {
-        window.location.href = this.searchUrl + dso.replace(/\s/g, '');
+        dso = dso.replace(/\s/g, '');
+        if (this.isInSplitView()) {
+            $(".fchart-iframe").attr('src', encodeURI(this.searchUrl + dso + "&embed=true"));
+        } else {
+            window.location.href = encodeURI(this.searchUrl + dso);
+        }
     }
 }
 
@@ -559,16 +565,46 @@ FChart.prototype.nextScaleFac = function() {
     }
 }
 
+FChart.prototype.isInFullScreen = function() {
+    return $(this.fchartDiv).hasClass('fchart-fullscreen');
+}
+
+FChart.prototype.isInSplitView = function() {
+    return $(this.fchartDiv).hasClass('fchart-splitview');
+}
+
+FChart.prototype.toggleSplitView = function() {
+    if (this.isInFullScreen()) {
+        $(this.fchartDiv).toggleClass('fchart-fullscreen');
+    }
+
+    $(this.fchartDiv).toggleClass('fchart-splitview');
+
+    if (this.isInSplitView()) {
+        $(".fchart-iframe").show();
+    } else {
+        $(".fchart-iframe").hide();
+    }
+
+    this.adjustCanvasSize();
+    this.reloadLegendImage();
+    this.forceReloadImage();
+}
+
 FChart.prototype.toggleFullscreen = function() {
+    if (this.isInSplitView()) {
+        $(this.fchartDiv).toggleClass('fchart-splitview');
+        $(".fchart-iframe").hide();
+    }
+
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
-    var isInFullscreen = $(this.fchartDiv).hasClass('fchart-fullscreen');
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
     this.forceReloadImage();
 
     if (this.onFullscreenChangeCallback  != undefined) {
-        this.onFullscreenChangeCallback.call(this, isInFullscreen);
+        this.onFullscreenChangeCallback.call(this, this.isInFullScreen());
     }
 }
 

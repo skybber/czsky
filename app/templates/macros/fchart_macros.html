@@ -90,6 +90,13 @@
           </div>
       </div>
   {% endif %}
+  <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100">
+      <div class="ui buttons">
+          <button id="bsplitview" type="button" class="ui icon button">
+              <i class="columns icon"></i>
+          </button>
+      </div>
+  </div>
   <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
       <div class="ui buttons">
           <button id="bfullscreen" type="button" class="ui icon button">
@@ -187,6 +194,10 @@
     $('#bshow-egrid').click(function(){
         $(this).toggleClass('active');
         $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('#bsplitview').click(function(){
+        fchart.toggleSplitView();
     });
 
     $('#bfullscreen').click(function(){
