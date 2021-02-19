@@ -1,10 +1,14 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_dso) {
 
     this.fchartDiv = fchartDiv;
 
     $(fchartDiv).addClass("fchart-container");
 
-    this.iframe = $('<iframe src="" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
+    if (default_dso == '') {
+        default_dso = 'M1'
+    }
+
+    this.iframe = $('<iframe src="' + encodeURI(searchUrl + default_dso + "&embed=true") + '" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
