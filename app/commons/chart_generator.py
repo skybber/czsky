@@ -19,7 +19,7 @@ used_catalogs = None
 MAX_IMG_WIDTH = 3000
 MAX_IMG_HEIGHT = 3000
 
-FIELD_SIZES = (1, 2, 5, 10, 20, 40, 80)
+FIELD_SIZES = (1, 2, 5, 10, 20, 40, 100)
 
 GUI_FIELD_SIZES = []
 
