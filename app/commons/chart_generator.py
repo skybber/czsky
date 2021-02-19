@@ -70,7 +70,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
         if night_mode:
             config.background_color = (0.01, 0.01, 0.05)
             config.constellation_lines_color = (0.18, 0.27, 0.3)
-            config.constellation_border_color = (0.2, 0.18, 0.05)
+            config.constellation_border_color = (0.3, 0.27, 0.07)
             config.draw_color = (1.0, 1.0, 1.0)
             config.label_color = (0.7, 0.7, 0.7)
             config.dso_color = (0.6, 0.6, 0.6)
