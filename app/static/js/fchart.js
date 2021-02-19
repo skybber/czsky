@@ -1,10 +1,10 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview) {
 
     this.fchartDiv = fchartDiv;
 
     $(fchartDiv).addClass("fchart-container");
 
-    this.iframe = $('<iframe src="http://localhost:5000/deepskyobject/M1/" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
+    this.iframe = $('<iframe src="" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
@@ -59,7 +59,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     this.onFieldChangeCallback = undefined;
     this.onFullscreenChangeCallback = undefined;
+    this.onSplitViewChangeCallback = undefined;
     this.fullScreen = fullScreen;
+    this.splitview = splitview;
     this.zoomInterval = undefined;
     this.zoomStep = undefined;
 
@@ -74,6 +76,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
+    } else if (splitview) {
+        $(this.fchartDiv).toggleClass('fchart-splitview');
     }
 
     window.addEventListener('resize', (function(e) {
@@ -573,28 +577,11 @@ FChart.prototype.isInSplitView = function() {
     return $(this.fchartDiv).hasClass('fchart-splitview');
 }
 
-FChart.prototype.toggleSplitView = function() {
-    if (this.isInFullScreen()) {
-        $(this.fchartDiv).toggleClass('fchart-fullscreen');
-    }
-
-    $(this.fchartDiv).toggleClass('fchart-splitview');
-
-    if (this.isInSplitView()) {
-        $(".fchart-iframe").show();
-    } else {
-        $(".fchart-iframe").hide();
-    }
-
-    this.adjustCanvasSize();
-    this.reloadLegendImage();
-    this.forceReloadImage();
-}
-
 FChart.prototype.toggleFullscreen = function() {
     if (this.isInSplitView()) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
         $(".fchart-iframe").hide();
+        this.onSplitViewChangeCallback.call(this, false);
     }
 
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -608,10 +595,37 @@ FChart.prototype.toggleFullscreen = function() {
     }
 }
 
+FChart.prototype.toggleSplitView = function() {
+    if (this.isInFullScreen()) {
+        $(this.fchartDiv).toggleClass('fchart-fullscreen');
+        this.onFullscreenChangeCallback.call(this, false);
+    }
+
+    $(this.fchartDiv).toggleClass('fchart-splitview');
+
+    if (this.isInSplitView()) {
+        $(".fchart-iframe").show();
+    } else {
+        $(".fchart-iframe").hide();
+    }
+
+    this.adjustCanvasSize();
+    this.reloadLegendImage();
+    this.forceReloadImage();
+
+    if (this.onSplitViewChangeCallback  != undefined) {
+        this.onSplitViewChangeCallback.call(this, this.isInSplitView());
+    }
+}
+
 FChart.prototype.onFieldChange = function(callback) {
     this.onFieldChangeCallback = callback;
 };
 
 FChart.prototype.onFullscreenChange = function(callback) {
     this.onFullscreenChangeCallback = callback;
+};
+
+FChart.prototype.onSplitViewChange = function(callback) {
+    this.onSplitViewChangeCallback = callback;
 };

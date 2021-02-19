@@ -7,6 +7,7 @@
       <input type="hidden" id="ra" name="ra" value="{{ form.ra.data }}" >
       <input type="hidden" id="dec" name="dec" value="{{ form.dec.data }}" >
       <input type="hidden" id="fullscreen" name="fullscreen" value="{{ form.fullscreen.data }}" >
+      <input type="hidden" id="splitview" name="splitview" value="{{ form.splitview.data }}" >
       <input type="hidden" id="radius" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
       <input type="hidden" id="show_telrad" name="{{ form.show_telrad.name }}" value="{{ form.show_telrad.data }}">
       <input type="hidden" id="show_constell_shapes" name="{{ form.show_constell_shapes.name }}" value="{{ form.show_constell_shapes.data }}">
@@ -90,7 +91,7 @@
           </div>
       </div>
   {% endif %}
-  <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100">
+  <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100" data-tooltip="{{ _('Split view') }}">
       <div class="ui buttons">
           <button id="bsplitview" type="button" class="ui icon button">
               <i class="columns icon"></i>
@@ -144,7 +145,10 @@
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
     var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl,
-            "{{ url_for('main.global_search') }}?q=", true, {{ 'true' if form.fullscreen.data == 'true' else 'false' }});
+            "{{ url_for('main.global_search') }}?q=", true,
+            {{ 'true' if form.fullscreen.data == 'true' else 'false' }},
+            {{ 'true' if form.splitview.data == 'true' else 'false' }}
+    );
 
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
@@ -196,16 +200,20 @@
         $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
     });
 
-    $('#bsplitview').click(function(){
-        fchart.toggleSplitView();
-    });
-
     $('#bfullscreen').click(function(){
         fchart.toggleFullscreen();
     });
 
     fchart.onFullscreenChange(function(fullScreen) {
         $('#fullscreen').val(fullScreen);
+    });
+
+    $('#bsplitview').click(function(){
+        fchart.toggleSplitView();
+    });
+
+    fchart.onSplitViewChange(function(splitView) {
+        $('#splitview').val(splitView);
     });
 
     $('.ui.dropdown').dropdown();

@@ -182,6 +182,8 @@ def deepskyobject_info(dso_id):
         if sel_tab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
+    embed = request.args.get('embed', None)
+
     lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
     apert_descriptions = []
@@ -228,7 +230,7 @@ def deepskyobject_info(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list, season=season, title_img=title_img,
+                           wish_list=wish_list, observed_list=observed_list, season=season, title_img=title_img, embed=embed
                            )
 
 
@@ -243,10 +245,11 @@ def deepskyobject_surveys(dso_id):
 
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
     season = request.args.get('season')
+    embed = request.args.get('embed', None)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
-                           season=season,
+                           season=season, embed=embed,
                            )
 
 
@@ -267,10 +270,11 @@ def deepskyobject_catalogue_data(dso_id):
 
     other_names = _get_other_names(dso)
     season = request.args.get('season')
+    embed = request.args.get('embed', None)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
-                           season=season
+                           season=season, embed=embed
                            )
 
 
@@ -476,7 +480,8 @@ def _filter_apert_descriptions(all_user_apert_descrs):
 def _do_redirect(url, dso):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
-    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id))
+    embed = request.args.get('embed', None)
+    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id, embed=embed))
 
 def _get_season_constell_ids():
     season = request.args.get('season', None)

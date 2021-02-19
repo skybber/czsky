@@ -1,14 +1,27 @@
-{% extends 'layouts/base.html' %}
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-    ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
-    ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
-    ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
-] %}
+{% if not embed %}
+    {% set endpoints = [
+        ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
+        ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
+        ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
+        ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
+        ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
+        ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% endif %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
@@ -16,7 +29,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id, season=season) }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id, season=season, embed=embed) }}">
                 {{ name }}
             </a>
         {% endfor %}
@@ -267,56 +280,58 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                  {% if back == 'constellation' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="lastfm icon mobile hidden"></i>
-                      </a>
-                  {% elif back == 'observation' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="eye icon mobile hidden"></i>
-                      </a>
-                  {% elif back == 'wishlist' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_planner.wish_list') }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="heart icon mobile hidden"></i>
-                      </a>
-                  {% elif back == 'observed_list' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_observation.observed_list') }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="heart icon mobile hidden"></i>
-                      </a>
-                  {% elif back == 'session_plan' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_planner.session_plan_schedule', session_plan_id=back_id) }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="tasks icon mobile hidden"></i>
-                      </a>
-                  {% elif back == 'dso_list' %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}">
-                          <i class="caret left icon"></i>
-                          <i class="tasks icon mobile hidden"></i>
-                      </a>
-                  {% else %}
-                      <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
-                          <i class="caret left icon"></i>
-                          <i class="list icon"></i>
-                      </a>
+                  {% if not embed %}
+                      {% if back == 'constellation' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="lastfm icon mobile hidden"></i>
+                          </a>
+                      {% elif back == 'observation' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="eye icon mobile hidden"></i>
+                          </a>
+                      {% elif back == 'wishlist' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_planner.wish_list') }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="heart icon mobile hidden"></i>
+                          </a>
+                      {% elif back == 'observed_list' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_observation.observed_list') }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="heart icon mobile hidden"></i>
+                          </a>
+                      {% elif back == 'session_plan' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_planner.session_plan_schedule', session_plan_id=back_id) }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="tasks icon mobile hidden"></i>
+                          </a>
+                      {% elif back == 'dso_list' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="tasks icon mobile hidden"></i>
+                          </a>
+                      {% else %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
+                              <i class="caret left icon"></i>
+                              <i class="list icon"></i>
+                          </a>
+                      {% endif %}
+                      <div class="divider"> / </div>
                   {% endif %}
-                <div class="divider"> / </div>
                 <div class="active section">
                     {{ dso.denormalized_name() }}
                 </div>
             </div>
 
             {% if next_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season) }}">
+                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     {{ next_dso_title }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season) }}">
+                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_title }}
                 </a>

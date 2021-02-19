@@ -43,6 +43,7 @@ def global_search():
         abort(404)
 
     query = query.strip()
+    embed = request.args.get('embed', None)
 
     r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)?[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
     m = r_radec.match(query)
@@ -56,13 +57,13 @@ def global_search():
         else:
             multipl = 0.0
         dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
-        return redirect(url_for('main_chart.chart', ra=ra, dec=dec))
+        return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=embed))
 
     constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first() or \
                     Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
 
     if constellation:
-        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code, embed=embed))
 
     if query and query.isdigit():
         query = 'NGC' + query
@@ -70,6 +71,6 @@ def global_search():
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if dso:
-        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, embed=embed))
 
     abort(404)
