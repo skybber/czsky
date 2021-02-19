@@ -226,7 +226,6 @@ def deepskyobject_info(dso_id):
 
     season = request.args.get('season')
 
-
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
@@ -305,6 +304,7 @@ def deepskyobject_chart(dso_id):
     night_mode = not session.get('themlight', False)
 
     season = request.args.get('season')
+    embed = request.args.get('embed', None)
 
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
@@ -314,7 +314,7 @@ def deepskyobject_chart(dso_id):
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags, season=season,
+                           chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed
                            )
 
 
