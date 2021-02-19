@@ -251,6 +251,7 @@ table.selectable tr:hover {
     width: 100% !important;
     border: 0 !important;
     max-width: none !important;
+    background: #000;
 }
 
 .fchart-splitview {
@@ -262,7 +263,7 @@ table.selectable tr:hover {
     width: calc(100% - 420px) !important;
     border: 0 !important;
     max-width: none !important;
-    background: #fff;
+    background: #000;
 }
 
 .fchart-iframe {
