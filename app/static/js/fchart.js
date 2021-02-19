@@ -82,6 +82,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
     } else if (splitview) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
+        $(".fchart-iframe").show();
     }
 
     window.addEventListener('resize', (function(e) {
