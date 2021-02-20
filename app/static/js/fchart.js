@@ -8,7 +8,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         default_dso = 'M1'
     }
 
-    this.iframe = $('<iframe src="' + encodeURI(searchUrl + default_dso + "&embed=true") + '" frameborder="0" class="fchart-iframe" style="display:none"></src>').appendTo(this.fchartDiv)[0];
+    this.iframe = $('<iframe src="' + encodeURI(searchUrl + default_dso + "&embed=true") + '" frameborder="0" class="fchart-iframe" style="display:none" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
