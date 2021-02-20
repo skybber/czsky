@@ -1,14 +1,15 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_dso) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url) {
 
     this.fchartDiv = fchartDiv;
 
     $(fchartDiv).addClass("fchart-container");
 
-    if (default_dso == '') {
-        default_dso = 'M1'
+    var url = default_chart_iframe_url;
+    if (url == '') {
+        url = searchUrl + "M1&embed=true";
     }
 
-    this.iframe = $('<iframe src="' + encodeURI(searchUrl + default_dso + "&embed=true") + '" frameborder="0" class="fchart-iframe" style="display:none" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>').appendTo(this.fchartDiv)[0];
+    this.iframe = $('<iframe src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
@@ -174,6 +175,13 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     });
 
 }
+
+FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
+    this.legendUrl = legendUrl;
+    this.chartUrl = chartUrl;
+    this.reloadLegendImage();
+    this.reloadImage();
+};
 
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();
@@ -629,3 +637,4 @@ FChart.prototype.onFullscreenChange = function(callback) {
 FChart.prototype.onSplitViewChange = function(callback) {
     this.onSplitViewChangeCallback = callback;
 };
+

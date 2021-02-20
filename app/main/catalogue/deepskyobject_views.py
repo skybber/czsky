@@ -283,6 +283,10 @@ def deepskyobject_chart(dso_id):
     if dso is None:
         abort(404)
     form  = ChartForm()
+
+    if request.args.get('splitview'):
+        form.splitview.data = 'true'
+
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
     fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
@@ -302,8 +306,13 @@ def deepskyobject_chart(dso_id):
 
     night_mode = not session.get('themlight', False)
 
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
     season = request.args.get('season')
-    embed = request.args.get('embed', None)
+    embed = request.args.get('embed')
+
+    default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='true', allow_back='true')
 
     return render_template('main/catalogue/deepskyobject_info.html', form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
@@ -313,7 +322,7 @@ def deepskyobject_chart(dso_id):
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed
+                           default_chart_iframe_url=default_chart_iframe_url, chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed
                            )
 
 
@@ -495,7 +504,6 @@ def _get_season_constell_ids():
 def _get_prev_next_dso(dso):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
-    season = request.args.get('season')
 
     if back == 'observation':
         pass # TODO

@@ -1,4 +1,4 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url=None, default_dso='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url=None, default_chart_iframe_url='') %}
 
 <div id="fchart-div" style="width:100%;height:75vh;">
 
@@ -144,13 +144,11 @@
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
-    console.log('{{ default_dso }}');
-
     var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=", true,
             {{ 'true' if form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if form.splitview.data == 'true' else 'false' }},
-            '{{ default_dso }}'
+            '{{ default_chart_iframe_url }}'
     );
 
     fchart.onFieldChange(function(fldSizeIndex) {
@@ -259,9 +257,14 @@
         $('#download_pdf').attr("href", fchart.formatUrl('{{fchart_pdf_url | safe  }}'));
     });
 
+    function updateChartUrls(legendUrl, chartUrl) {
+        fchart.updateUrls(legendUrl, chartUrl);
+    }
+
     window.onload = function() {
         fchart.onWindowLoad();
     }
+
 
 </script>
 <style>

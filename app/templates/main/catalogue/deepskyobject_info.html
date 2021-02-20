@@ -26,6 +26,9 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
+{% set prev_url =  url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) %}
+{% set next_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
@@ -169,7 +172,7 @@
                      url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=chart_flags),
                      url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, mx=chart_mx, my=chart_my, flags=legend_flags),
                      url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_flags),
-                     default_dso=dso.name
+                     default_chart_iframe_url=default_chart_iframe_url
                      )
     }}
 {% endmacro %}
@@ -326,13 +329,13 @@
             </div>
 
             {% if next_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
+                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     {{ next_dso_title }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a class="ui basic icon compact right floated button" href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
+                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_title }}
                 </a>
@@ -357,8 +360,19 @@
         </div>
     </div>
     <script type="text/javascript">
+    {% if embed %}
+        $('#bprev' ).click(function() {
+            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
+            return true;
+        });
+        $('#bnext' ).click(function() {
+            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, sel_tab=type, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
+            return false;
+        });
+    {% endif %}
         $('.ui.rating')
         .rating();
+
     </script>
     <style>
 {% if type == 'surveys' %}
