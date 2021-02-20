@@ -157,7 +157,10 @@ def constellation_info(constellation_id):
                 aperture_descr_map[apdescr.dso_id] = []
             dsoapd = aperture_descr_map[apdescr.dso_id]
             if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
-                dsoapd.append((apdescr.aperture_class, apdescr.text),)
+                if apdescr.aperture_class == '<100':
+                    dsoapd.insert(0, (apdescr.aperture_class, apdescr.text))
+                else:
+                    dsoapd.append((apdescr.aperture_class, apdescr.text))
 
         ug_bl_dsos = []
         constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
