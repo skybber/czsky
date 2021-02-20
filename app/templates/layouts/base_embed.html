@@ -7,7 +7,7 @@
         {# Any templates that extend this template can set custom_head_tags to add scripts to their page #}
         {% block custom_head_tags %}{% endblock %}
     </head>
-    <body>
+    <body style="margin-top: 8px;">
         {% include 'partials/_flashes.html' %}
         {# When extended, the content block contains all the html of the webpage #}
         {% block content %}
