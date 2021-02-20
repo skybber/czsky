@@ -279,6 +279,9 @@ def wish_list():
 
     search_form = SearchWishListForm()
 
+    if not process_session_search([('wish_list_season', search_form.season),]):
+        return redirect(url_for('main_planner.wish_list'))
+
     if search_form.season.data and search_form.season.data != 'All':
         constell_ids = set()
         for constell_id in db.session.query(Constellation.id).filter(Constellation.season==search_form.season.data):
@@ -297,7 +300,9 @@ def wish_list():
     else:
         wish_list_items = wish_list.wish_list_items
 
-    return render_template('main/planner/wish_list.html', wish_list_items=wish_list_items, search_form=search_form, add_form=add_form)
+    season = search_form.season.data if search_form.season.data and search_form.season.data!='All' else None
+
+    return render_template('main/planner/wish_list.html', wish_list_items=wish_list_items, season=season, search_form=search_form, add_form=add_form)
 
 
 @main_planner.route('/wish-list-item-add', methods=['POST'])

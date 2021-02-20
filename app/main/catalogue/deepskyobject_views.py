@@ -182,8 +182,6 @@ def deepskyobject_info(dso_id):
         if sel_tab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
-    embed = request.args.get('embed', None)
-
     lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
     apert_descriptions = []
@@ -225,11 +223,12 @@ def deepskyobject_info(dso_id):
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
     season = request.args.get('season')
+    embed = request.args.get('embed')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list, season=season, title_img=title_img, embed=embed
+                           wish_list=wish_list, observed_list=observed_list, title_img=title_img, season=season, embed=embed
                            )
 
 
