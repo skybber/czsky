@@ -193,7 +193,10 @@ def deepskyobject_info(dso_id):
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         for apdescr in user_apert_descrs:
             if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
-                apert_descriptions.append((apdescr.aperture_class, apdescr.text),)
+                if apdescr.aperture_class == '<100':
+                    apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
+                else:
+                    apert_descriptions.append((apdescr.aperture_class, apdescr.text))
 
         if user_descr and (not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/')):
             image_info = get_dso_image_info_with_imgdir(dso.normalized_name_for_img())
