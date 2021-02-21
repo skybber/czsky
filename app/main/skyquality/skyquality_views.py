@@ -12,13 +12,13 @@ from flask_login import current_user, login_required
 from app import db
 
 from app.models import Location
+from app.commons.search_utils import get_items_per_page
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 
 from app.main.forms import (
     SearchForm,
 )
 
-from app.main.views import ITEMS_PER_PAGE
 from app.commons.coordinates import mapy_cz_url, google_url
 
 main_skyquality = Blueprint('main_skyquality', __name__)
@@ -32,7 +32,7 @@ def skyquality_locations():
     search_form = SearchForm()
 
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    per_page = ITEMS_PER_PAGE
+    per_page = get_items_per_page(search_form.items_per_page)
     offset = (page - 1) * per_page
 
     locations = Location.query.filter(Location.is_for_observation == True)

@@ -11,8 +11,6 @@ from flask_login import current_user, login_required
 
 main_solarsystem = Blueprint('main_solarsystem', __name__)
 
-ITEMS_PER_PAGE = 10
-
 @main_solarsystem.route('/solarsystem-menu', methods=['GET'])
 def solarsystem_menu():
     return render_template('main/solarsystem/solarsystem_menu.html')

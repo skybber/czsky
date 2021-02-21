@@ -22,8 +22,6 @@ from .userdata_forms import GitSaveForm
 
 main_userdata = Blueprint('main_userdata', __name__)
 
-ITEMS_PER_PAGE = 10
-
 @main_userdata.route('/userdata-menu', methods=['GET'])
 @login_required
 def userdata_menu():

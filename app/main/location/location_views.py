@@ -17,7 +17,7 @@ from app import db
 
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
-from app.commons.search_utils import process_paginated_session_search
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 from app.commons.coordinates import parse_lonlat
 
 from .location_forms import (
@@ -26,7 +26,6 @@ from .location_forms import (
     SearchLocationForm,
 )
 
-from app.main.views import ITEMS_PER_PAGE
 from app.commons.countries import countries
 
 main_location = Blueprint('main_location', __name__)
@@ -44,10 +43,11 @@ def locations():
         ('location_search', search_form.q),
     ])
 
+    per_page = get_items_per_page(search_form.items_per_page)
+
     if not ret:
         return redirect(url_for('main_location.locations'))
 
-    per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     locations = Location.query.filter(or_(and_(Location.is_public==True,Location.is_for_observation==True), Location.user_id==current_user.id))

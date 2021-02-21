@@ -47,3 +47,4 @@ class LocationEditForm(FlaskForm, LocationMixin):
 
 class SearchLocationForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
+    items_per_page = IntegerField(lazy_gettext('Items per page'))

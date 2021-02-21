@@ -22,7 +22,6 @@ from app.main.forms import (
     SearchForm,
 )
 
-from app.main.views import ITEMS_PER_PAGE
 from app.commons.coordinates import mapy_cz_url, google_url
 
 main_sqm = Blueprint('main_sqm', __name__)

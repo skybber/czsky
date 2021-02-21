@@ -1,7 +1,9 @@
 from datetime import datetime
 
 from flask_wtf import FlaskForm
+from flask_babel import lazy_gettext
 from wtforms import ValidationError
+
 from wtforms.fields import (
     BooleanField,
     DateField,
@@ -27,6 +29,8 @@ from wtforms.validators import (
     required
 )
 
+
 class SearchForm(FlaskForm):
     q = StringField('Search')
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
 

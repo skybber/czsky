@@ -20,7 +20,6 @@ from app import db
 
 from app.models import Constellation, DeepskyObject, Location, SessionPlan, SkyList, SkyListItem, User, WishList, WishListItem
 from app.commons.pagination import Pagination, get_page_parameter
-from app.main.views import ITEMS_PER_PAGE
 from app.commons.search_utils import process_session_search
 
 from .planner_forms import (

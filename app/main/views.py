@@ -19,8 +19,6 @@ from sqlalchemy import func
 
 main = Blueprint('main', __name__)
 
-ITEMS_PER_PAGE = 10
-
 @main.route('/')
 def index():
     return render_template('main/index.html', is_anonymous=current_user.is_anonymous)

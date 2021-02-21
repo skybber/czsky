@@ -56,6 +56,7 @@ class SearchDsoForm(FlaskForm):
          ('PN', 'Planetary Nebula'),
     ], default='')
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
 
 class DsoApertureDescriptionForm(FlaskForm):
     aperture_class = HiddenField()

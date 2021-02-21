@@ -27,3 +27,22 @@
         <a id="switch_observed_{{ dso_id }}" class="icon detail"><i class="eye {{ '' if dso_id in observed_list else 'slash outline black' }} icon"></i></a>
     </div>
 {% endmacro %}
+
+{% macro items_per_page(items_per_page) %}
+    <span class="ui item" style="margin-left:10px;">
+                    {{ _('Items per page') }}
+    </span>
+    <div class="ui icon bottom right pointing dropdown button">
+        <input type="hidden" name="{{ items_per_page.name }}" value="{{ items_per_page.data }}" onchange="this.form.submit()">
+        <div class="default text">{{ items_per_page.data }}</div>
+        <i class="dropdown icon"></i>
+        <div class="menu" style="z-index: 1000;">
+            <div class="item">10</div>
+            <div class="item">15</div>
+            <div class="item">20</div>
+            <div class="item">25</div>
+            <div class="item">50</div>
+            <div class="item">100</div>
+        </div>
+    </div>
+{% endmacro %}

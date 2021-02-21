@@ -26,8 +26,8 @@ from .observation_forms import (
 )
 
 from app.models import Observation, Location, ObservedList, ObservedListItem
+from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
-from app.main.views import ITEMS_PER_PAGE
 from .observation_form_utils import *
 
 main_observation = Blueprint('main_observation', __name__)

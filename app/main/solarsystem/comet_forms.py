@@ -29,6 +29,7 @@ from flask_babel import lazy_gettext
 
 class SearchCometForm(FlaskForm):
     q = StringField('Search')
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
 
 class CometFindChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])

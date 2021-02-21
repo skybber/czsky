@@ -38,7 +38,7 @@ from app.models import (
 )
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.search_utils import process_paginated_session_search
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
@@ -48,7 +48,6 @@ from .deepskyobject_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
-from app.main.views import ITEMS_PER_PAGE
 from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_chart_pdf_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
@@ -68,10 +67,11 @@ def deepskyobjects():
         ('dso_maglim', search_form.maglim),
     ])
 
+    per_page = get_items_per_page(search_form.items_per_page)
+
     if not ret:
         return redirect(url_for('main_deepskyobject.deepskyobjects'))
 
-    per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
     deepskyobjects = DeepskyObject.query

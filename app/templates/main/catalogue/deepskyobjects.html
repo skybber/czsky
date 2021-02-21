@@ -12,86 +12,88 @@
                 {{ _('Deepsky Objects') }}
             </h2>
 
-            <form action="{{ url_for('main_deepskyobject.deepskyobjects') }}" method="post" name="search" class="ui menu">
-                <div class="ui item">
-                    {{search_form.catalogue(class='ui dropdown button',onchange='this.form.submit()')}}
-                    <div class="top right aligned floating ui label">{{ _('Catalog') }}</div>
-                </div>
-                <div class="ui item computer tablet only">
-                    {{search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()')}}
-                    <div class="top right aligned floating ui label">{{ _('Object Type') }}</div>
-                </div>
-                <div class="ui item">
-                    <div class="ui icon dropdown button">
-                        <input type="hidden" id="{{ search_form.maglim.name }}" name="{{ search_form.maglim.name }}" value="{{ search_form.maglim.data }}"
-                                onchange="this.form.submit()">
-                        <span class="text">{{ search_form.maglim.data }}</span>
-                        <div class="menu">
-                            <div class="item"></div>
-                            {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
-                                <div class="item">{{ mag_item }}</div>
-                            {% endfor %}
+            <form action="{{ url_for('main_deepskyobject.deepskyobjects') }}" method="post" name="search">
+                <div class="ui menu">
+                    <div class="ui item">
+                        {{search_form.catalogue(class='ui dropdown button',onchange='this.form.submit()')}}
+                        <div class="top right aligned floating ui label">{{ _('Catalog') }}</div>
+                    </div>
+                    <div class="ui item computer tablet only">
+                        {{search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()')}}
+                        <div class="top right aligned floating ui label">{{ _('Object Type') }}</div>
+                    </div>
+                    <div class="ui item">
+                        <div class="ui icon dropdown button">
+                            <input type="hidden" id="{{ search_form.maglim.name }}" name="{{ search_form.maglim.name }}" value="{{ search_form.maglim.data }}"
+                                    onchange="this.form.submit()">
+                            <span class="text">{{ search_form.maglim.data }}</span>
+                            <div class="menu">
+                                <div class="item"></div>
+                                {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
+                                    <div class="item">{{ mag_item }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+                    </div>
+
+                    <div class="ui right search item">
+                        <div class="ui action input">
+                            {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                            <button class="ui icon button">
+                                <i class="search icon"></i>
+                            </button>
                         </div>
                     </div>
-                    <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
                 </div>
 
-                <div class="ui right search item">
-                    <div class="ui action input">
-                        {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
-                        <button class="ui icon button">
-                            <i class="search icon"></i>
-                        </button>
-                    </div>
+                {# Use overflow-x: scroll so that mobile views don't freak out
+                 # when the table is too wide #}
+                <div style="overflow-x: scroll;">
+                    <table class="ui searchable sortable unstackable selectable celled table">
+                        <thead>
+                            <tr>
+                                <th class="sorted ascending">Name</th>
+                                <th>{{ _('Type') }}</th>
+                                <th class="mobile hidden">RA</th>
+                                <th class="mobile hidden">Dec</th>
+                                <th>{{ _('Constellation') }}</th>
+                                <th class="right aligned collapsing">mag</th>
+                                <th class="right aligned collapsing mobile hidden">Ø</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for d in deepskyobjects %}
+                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name) }}';">
+                                <td>{{ d.denormalized_name() }}</td>
+                                <td>{{ d.type }}</td>
+                                <td class="mobile hidden">{{ d.ra_str_short() }}</td>
+                                <td class="mobile hidden">{{ d.dec_str_short() }}</td>
+                                <td>{{ d.get_constellation_iau_code() }}</td>
+                                <td class="right aligned collapsing">{{ commons.convert_mag(d.mag) }}</td>
+                                <td class="right aligned collapsing mobile hidden">
+                                    {% if d.major_axis %}
+                                        {% if d.major_axis >= 100.0 %}
+                                          {{ (d.major_axis / 60.0) | round(2, 'floor') }}'
+                                        {% else %}
+                                          {{ d.major_axis | round(2, 'floor')}}''
+                                        {% endif %}
+                                        {% if d.minor_axis %}
+                                        / {% if d.minor_axis >= 100.0 and  d.minor_axis != d.major_axis %}
+                                            {{ (d.minor_axis / 60.0) | round(2, 'floor') }}'
+                                          {% else %}
+                                            {{ d.minor_axis | round(2, 'floor')}}''
+                                          {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
                 </div>
             </form>
-
-            {# Use overflow-x: scroll so that mobile views don't freak out
-             # when the table is too wide #}
-            <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending">Name</th>
-                            <th>{{ _('Type') }}</th>
-                            <th class="mobile hidden">RA</th>
-                            <th class="mobile hidden">Dec</th>
-                            <th>{{ _('Constellation') }}</th>
-                            <th class="right aligned collapsing">mag</th>
-                            <th class="right aligned collapsing mobile hidden">Ø</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for d in deepskyobjects %}
-                        <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name) }}';">
-                            <td>{{ d.denormalized_name() }}</td>
-                            <td>{{ d.type }}</td>
-                            <td class="mobile hidden">{{ d.ra_str_short() }}</td>
-                            <td class="mobile hidden">{{ d.dec_str_short() }}</td>
-                            <td>{{ d.get_constellation_iau_code() }}</td>
-                            <td class="right aligned collapsing">{{ commons.convert_mag(d.mag) }}</td>
-                            <td class="right aligned collapsing mobile hidden">
-                                {% if d.major_axis %}
-                                    {% if d.major_axis >= 100.0 %}
-                                      {{ (d.major_axis / 60.0) | round(2, 'floor') }}'
-                                    {% else %}
-                                      {{ d.major_axis | round(2, 'floor')}}''
-                                    {% endif %}                              
-                                    {% if d.minor_axis %}
-                                    / {% if d.minor_axis >= 100.0 and  d.minor_axis != d.major_axis %}
-                                        {{ (d.minor_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ d.minor_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                    {% endif %}
-                                {% endif %}                              
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {{ pagination.links }} {{ pagination.info }}
-            </div>
         </div>
     </div>
 {% endblock %}

@@ -5,6 +5,8 @@ from flask import (
 
 from app.commons.pagination import get_page_parameter
 
+ITEMS_PER_PAGE = 10
+
 def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
     if request.method == 'POST':
         for pair in sess_arg_form_pairs:
@@ -64,3 +66,14 @@ def process_session_search(sess_arg_form_pairs):
             pair[1].data = session.get(pair[0], None)
 
     return True
+
+def get_items_per_page(items_per_page):
+    if request.method == 'GET':
+        items_per_page.data = session.get('items_per_page', None)
+        if not items_per_page.data:
+            items_per_page.data = ITEMS_PER_PAGE
+    else:
+        session['items_per_page'] = items_per_page.data
+    print(request.method + ' ' + str(items_per_page.data), flush=True)
+    return items_per_page.data
+
