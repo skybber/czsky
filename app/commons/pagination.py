@@ -160,11 +160,9 @@ PREV_LABEL = "&laquo;"
 NEXT_LABEL = "&raquo;"
 RECORD_NAME = "records"
 
-DISPLAY_MSG = "displaying <b>{start} - {end}</b> {record_name} in \
-total <b>{total}</b>"
+DISPLAY_MSG = "<b>{start} - {end} / {total}</b>"
 
-SEARCH_MSG = "found <b>{found}</b> {record_name}, \
-displaying <b>{start} - {end}</b>"
+SEARCH_MSG = "found <b>{found} / {start} - {end}</b>"
 
 _bs4 = '<nav aria-label="..."><ul class="pagination{0}{1}">'
 _bs33 = '<nav aria-label="..."><ul class="pagination{0}{1}">'
