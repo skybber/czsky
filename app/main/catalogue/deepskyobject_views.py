@@ -173,13 +173,13 @@ def deepskyobject_info(dso_id):
     if dso is None:
         abort(404)
 
-    sel_tab = request.args.get('sel_tab', None)
-    if sel_tab:
-        if sel_tab == 'chart':
+    seltab = request.args.get('seltab', None)
+    if seltab:
+        if seltab == 'chart':
             return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
-        if sel_tab == 'surveys':
+        if seltab == 'surveys':
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
-        if sel_tab == 'catalogue_data':
+        if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
     lang, editor_user = get_lang_and_editor_user_from_request()
@@ -286,9 +286,6 @@ def deepskyobject_chart(dso_id):
     if dso is None:
         abort(404)
     form  = ChartForm()
-
-    if request.args.get('splitview'):
-        form.splitview.data = 'true'
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
@@ -492,7 +489,9 @@ def _do_redirect(url, dso):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
-    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id, embed=embed))
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
 def _get_season_constell_ids():
     season = request.args.get('season', None)

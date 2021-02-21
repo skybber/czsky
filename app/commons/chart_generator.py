@@ -164,6 +164,12 @@ def common_prepare_chart_data(form):
         form.maglim.data = pref_maglim
         form.dso_maglim.data = pref_dso_maglim
 
+        if request.args.get('splitview', 'false') == 'true':
+            form.splitview.data = 'true'
+        if request.args.get('fullscreen', 'false') == 'true':
+            form.fullscreen.data = 'true'
+
+
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
 

@@ -91,6 +91,12 @@
           </div>
       </div>
   {% endif %}
+  <div id="isearch" class="ui horizontally fitted item computer tablet only" style="width: 150px; z-index:100; display:none;">
+      <div class="ui icon input">
+          <input id="search" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
+          <i class="search icon"></i>
+      </div>
+  </div>
   <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100" data-tooltip="{{ _('Split view') }}">
       <div class="ui buttons">
           <button id="bsplitview" type="button" class="ui icon button">
@@ -118,9 +124,7 @@
     var fieldSizes = [{{ gui_field_sizes }}];
 
     var magRanges = [
-        {% for mr in mag_ranges %}
-            [{{ mr[0] ~ ',' ~ mr[1] }}],
-        {% endfor %}
+        {% for mr in mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
     ];
 
     var magRangeValues = [
@@ -128,9 +132,7 @@
     ];
 
     var dsoMagRanges = [
-        {% for mr in dso_mag_ranges %}
-            [{{ mr[0] ~ ',' ~ mr[1] }}],
-        {% endfor %}
+        {% for mr in dso_mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
     ];
     var dsoMagRangeValues = [
         {% for mrv in dso_mag_range_values %}{{ mrv }}, {% endfor %}
@@ -150,6 +152,10 @@
             {{ 'true' if form.splitview.data == 'true' else 'false' }},
             '{{ default_chart_iframe_url }}'
     );
+
+    if ({{ 'true' if form.fullscreen.data == 'true' or form.splitview.data == 'true' else 'false' }}) {
+        $("#isearch").show();
+    }
 
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
@@ -207,14 +213,24 @@
 
     fchart.onFullscreenChange(function(fullScreen) {
         $('#fullscreen').val(fullScreen);
+        if (fullScreen) {
+            $("#isearch").show();
+        } else {
+            $("#isearch").hide();
+        }
     });
 
     $('#bsplitview').click(function(){
         fchart.toggleSplitView();
     });
 
-    fchart.onSplitViewChange(function(splitView) {
-        $('#splitview').val(splitView);
+    fchart.onSplitViewChange(function(splitViewVisible) {
+        $('#splitview').val(splitViewVisible);
+        if (splitViewVisible) {
+            $("#isearch").show();
+        } else {
+            $("#isearch").hide();
+        }
     });
 
     $('.ui.dropdown').dropdown();
@@ -255,6 +271,14 @@
 
     $('#download_pdf').click(function(event){
         $('#download_pdf').attr("href", fchart.formatUrl('{{fchart_pdf_url | safe  }}'));
+    });
+
+    $('.search').keypress(function(event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&seltab=chart&fullscreen=" + $('#fullscreen').val() + "&splitview=" + $('#splitview').val());
+        }
+        event.stopPropagation();
     });
 
     function updateChartUrls(legendUrl, chartUrl) {

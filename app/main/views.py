@@ -43,7 +43,11 @@ def global_search():
         abort(404)
 
     query = query.strip()
-    embed = request.args.get('embed', None)
+
+    seltab = request.args.get('seltab')
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    embed = request.args.get('embed')
 
     r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)?[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
     m = r_radec.match(query)
@@ -71,6 +75,6 @@ def global_search():
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if dso:
-        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, embed=embed))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, seltab=seltab, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
     abort(404)
