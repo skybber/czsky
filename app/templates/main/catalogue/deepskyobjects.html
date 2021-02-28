@@ -59,17 +59,17 @@
                                     </a>
                                 </th>
                                 <th>{{ _('Type') }}</th>
-                                <th>
+                                <th class="mobile hidden">
                                     <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
                                         RA {{ table_sort['ra'].icon | safe }}
                                     </a>
                                 </th>
-                                <th>
+                                <th class="mobile hidden">
                                     <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
                                         Dec {{ table_sort['dec'].icon | safe }}
                                     </a>
                                 </th>
-                                <th>
+                                <th class="right aligned collapsing">
                                     <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
                                         {{ _('Constellation') }} {{ table_sort['constellation'].icon | safe }}
                                     </a>
