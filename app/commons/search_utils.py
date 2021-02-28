@@ -25,7 +25,7 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
                 session.pop(pair[0], None)
         # is backr necessary ???
         session['is_backr'] = True
-        return (False, None, ) # post/redirect using backr
+        return (False, page, ) # post/redirect using backr
 
     if request.args.get('back', None):
         # is redirect necessary in back???
@@ -40,6 +40,8 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
         page = request.args.get(get_page_parameter(), type=int, default=None)
         if page is not None:
             session[sess_page_name] = page
+            for pair in sess_arg_form_pairs: # put data from session to form on page action
+                pair[1].data = session.get(pair[0], None)
 #         else:
 #             session.pop(sess_page_name, 0)
 #             for pair in sess_arg_form_pairs: # clear session on initialize GET request
