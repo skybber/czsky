@@ -69,6 +69,7 @@ def deepskyobjects():
         ('dso_type', search_form.dso_type),
         ('dso_catal', search_form.catalogue),
         ('dso_maglim', search_form.maglim),
+        ('items_per_page', search_form.items_per_page)
          ])
 
     if not ret:
