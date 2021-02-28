@@ -40,7 +40,6 @@ from app.models import (
 )
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.search_utils import process_paginated_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .chart_forms import (

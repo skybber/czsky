@@ -38,7 +38,7 @@ from app.models import (
 )
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort
 from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
@@ -55,22 +55,26 @@ main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
 
+DSO_TABLE_COLUMNS = [ 'name', 'type', 'ra', 'dec', 'constellation', 'mag', 'size' ]
+
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchDsoForm()
+
+    sort_by = request.args.get('sortby')
 
     ret, page = process_paginated_session_search('dso_search_page', [
         ('dso_search', search_form.q),
         ('dso_type', search_form.dso_type),
         ('dso_catal', search_form.catalogue),
         ('dso_maglim', search_form.maglim),
-    ])
-
-    per_page = get_items_per_page(search_form.items_per_page)
+         ])
 
     if not ret:
-        return redirect(url_for('main_deepskyobject.deepskyobjects'))
+        return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))
+
+    per_page = get_items_per_page(search_form.items_per_page)
 
     offset = (page - 1) * per_page
 
@@ -91,11 +95,33 @@ def deepskyobjects():
     if not search_form.q.data and search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
         deepskyobjects = deepskyobjects.filter(DeepskyObject.mag<search_form.maglim.data)
 
-    deepskyobjects_for_render = deepskyobjects.order_by(DeepskyObject.id).limit(per_page).offset(offset)
+    sort_def = { 'name': DeepskyObject.name,
+                 'type': DeepskyObject.type,
+                 'ra': DeepskyObject.ra,
+                 'dec': DeepskyObject.dec,
+                 'constellation': DeepskyObject.constellation_id,
+                 'mag': DeepskyObject.mag,
+    }
+
+    table_sort = create_table_sort(sort_by, sort_def.keys())
+
+    order_by_field = None
+    if sort_by:
+        desc = sort_by[0] == '-'
+        sort_by_name = sort_by[1:] if desc else sort_by
+        order_by_field = sort_def.get(sort_by_name)
+        if order_by_field and desc:
+            order_by_field = order_by_field.desc()
+
+    if order_by_field is None:
+        order_by_field = DeepskyObject.id
+
+    deepskyobjects_for_render = deepskyobjects.order_by(order_by_field).limit(per_page).offset(offset)
 
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
-                           pagination=pagination, search_form=search_form)
+                           pagination=pagination, search_form=search_form, table_sort=table_sort)
 
 
 @main_deepskyobject.route('/deepskyobject/search')

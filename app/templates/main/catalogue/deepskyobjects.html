@@ -50,15 +50,35 @@
                 {# Use overflow-x: scroll so that mobile views don't freak out
                  # when the table is too wide #}
                 <div style="overflow-x: scroll;">
-                    <table class="ui searchable sortable unstackable selectable celled table">
+                    <table class="ui searchable unstackable selectable celled table">
                         <thead>
                             <tr>
-                                <th class="sorted ascending">Name</th>
+                                <th>
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['name'].sort) }}" style="color: inherit;">
+                                        Name {{ table_sort['name'].icon | safe }}
+                                    </a>
+                                </th>
                                 <th>{{ _('Type') }}</th>
-                                <th class="mobile hidden">RA</th>
-                                <th class="mobile hidden">Dec</th>
-                                <th>{{ _('Constellation') }}</th>
-                                <th class="right aligned collapsing">mag</th>
+                                <th>
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
+                                        RA {{ table_sort['ra'].icon | safe }}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
+                                        Dec {{ table_sort['dec'].icon | safe }}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                                        {{ _('Constellation') }} {{ table_sort['constellation'].icon | safe }}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
+                                        mag {{ table_sort['mag'].icon | safe }}
+                                    </a>
+                                </th>
                                 <th class="right aligned collapsing mobile hidden">Ø</th>
                             </tr>
                         </thead>
