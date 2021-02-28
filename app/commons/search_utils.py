@@ -76,7 +76,6 @@ def get_items_per_page(items_per_page):
             items_per_page.data = ITEMS_PER_PAGE
     else:
         session['items_per_page'] = items_per_page.data
-    print(request.method + ' ' + str(items_per_page.data), flush=True)
     return items_per_page.data
 
 def create_table_sort(current_sort_by, table_columns):
