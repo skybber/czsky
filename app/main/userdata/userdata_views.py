@@ -2,7 +2,6 @@ import threading
 from posix import wait
 
 from flask import (
-    abort,
     Blueprint,
     current_app,
     flash,
@@ -66,8 +65,6 @@ def git_save():
                 except git.GitCommandError as e:
                     flash('Storing data to Git repository failed.' + str(e), 'form-error')
             else:
-                if not current_user.is_admin():
-                    abort(403)
                 try:
                     save_public_content_data_to_git(current_user, form.commit_message.data)
                     flash('Content data was stored to git repository.', 'form-success')
@@ -87,8 +84,6 @@ def git_load():
             except git.GitCommandError as e:
                 flash('Loading data from Git repository failed.' + str(e), 'form-success')
         else:
-            if not current_user.is_admin():
-                abort(403)
             try:
                 thread = threading.Thread(target=_do_load_public_content_data_from_git, args=(current_app._get_current_object(), current_user.user_name, ))
                 thread.start()
