@@ -35,7 +35,7 @@
                 {{ _('User Data') }}
             </a>
 
-            {% if current_user.is_admin() %}
+            {% if current_user.is_editor() %}
                 {{ navigation(endpoints) }}
             {% endif %}
 
