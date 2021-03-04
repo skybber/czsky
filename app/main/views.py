@@ -73,6 +73,6 @@ def global_search():
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if dso:
-        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, seltab=seltab, fullscreen=fullscreen, splitview=splitview, embed=embed))
+        return redirect(url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name, seltab=seltab, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
     abort(404)

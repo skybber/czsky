@@ -191,6 +191,27 @@ def deepskyobject_switch_observed_list():
         result = 'on'
     return jsonify(result=result)
 
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/seltab')
+def deepskyobject_seltab(dso_id):
+    """View a deepsky object seltab."""
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('dso_embed_seltab', None)
+
+    if seltab:
+        if seltab == 'chart':
+            return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
+        if seltab == 'surveys':
+            return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
+        if seltab == 'catalogue_data':
+            return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
+
+    return deepskyobject_info(dso_id)
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
@@ -200,14 +221,9 @@ def deepskyobject_info(dso_id):
     if dso is None:
         abort(404)
 
-    seltab = request.args.get('seltab', None)
-    if seltab:
-        if seltab == 'chart':
-            return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
-        if seltab == 'surveys':
-            return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
-        if seltab == 'catalogue_data':
-            return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
+    embed = request.args.get('embed')
+    if embed:
+        session['dso_embed_seltab'] = 'info'
 
     lang, editor_user = get_lang_and_editor_user_from_request()
     user_descr = None
@@ -253,7 +269,6 @@ def deepskyobject_info(dso_id):
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
     season = request.args.get('season')
-    embed = request.args.get('embed')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
@@ -274,6 +289,9 @@ def deepskyobject_surveys(dso_id):
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
     season = request.args.get('season')
     embed = request.args.get('embed', None)
+
+    if embed:
+        session['dso_embed_seltab'] = 'surveys'
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
@@ -299,6 +317,9 @@ def deepskyobject_catalogue_data(dso_id):
     other_names = _get_other_names(dso)
     season = request.args.get('season')
     embed = request.args.get('embed', None)
+
+    if embed:
+        session['dso_embed_seltab'] = 'catalogue_data'
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
@@ -338,6 +359,9 @@ def deepskyobject_chart(dso_id):
 
     season = request.args.get('season')
     embed = request.args.get('embed')
+
+    if embed:
+        session['dso_embed_seltab'] = 'chart'
 
     default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='true', allow_back='true')
 

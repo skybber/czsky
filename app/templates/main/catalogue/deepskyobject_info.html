@@ -26,8 +26,8 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{% set prev_url =  url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) %}
-{% set next_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) %}
+{% set prev_url =  url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) %}
+{% set next_url = url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -183,7 +183,12 @@
     <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
     <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
     <script type="text/javascript">
-        var aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:{{ field_size }}, target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"});
+        var aladin = A.aladin('#aladin-lite-div', {
+                survey: "P/DSS2/color",
+                fov:{{ field_size }},
+                target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"
+                {% if embed %} ,fullScreen: true {% endif %}
+        });
     </script>
 {% endmacro %}
 
@@ -329,13 +334,13 @@
             </div>
 
             {% if next_dso %}
-                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_info', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
+                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     {{ next_dso_title }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
             {% if prev_dso %}
-                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_info', dso_id=prev_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
+                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=prev_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_title }}
                 </a>
@@ -362,11 +367,11 @@
     <script type="text/javascript">
     {% if embed %}
         $('#bprev' ).click(function() {
-            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, seltab=type, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
+            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
             return true;
         });
         $('#bnext' ).click(function() {
-            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
+            parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
             return false;
         });
     {% endif %}
