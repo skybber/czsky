@@ -245,8 +245,8 @@ table.selectable tr:hover {
 .fchart-fullscreen {
     position: fixed !important;
     z-index: 9999;
-    top: 0;
-    left: 0;
+    top: 0 !important;
+    left: 0 !important;
     height: 100% !important;
     width: 100% !important;
     border: 0 !important;
@@ -258,9 +258,7 @@ table.selectable tr:hover {
     position: fixed !important;
     z-index: 9999;
     top: 0;
-    left: 420px;
     height: 100% !important;
-    width: calc(100% - 420px) !important;
     border: 0 !important;
     max-width: none !important;
     background: #000;
@@ -272,7 +270,30 @@ table.selectable tr:hover {
     top: 0;
     left: 0;
     height: 100% !important;
-    width: 420px !important;
+    width: 420px;
     border: 0 !important;
     max-width: none !important;
+}
+
+.fchart-iframe-no-mouse {
+    pointer-events: none;
+}
+
+.fchart-separator {
+    position: fixed !important;
+    z-index: 9999;
+    top: 0;
+    left: 420px;
+    cursor: col-resize;
+    background-color: #aaa;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='30'><path d='M2 0 v30 M5 0 v30 M8 0 v30' fill='none' stroke='black'/></svg>");
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 5px;
+    height: 100%;
+
+    /* Prevent the browser's built-in drag from interfering */
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

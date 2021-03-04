@@ -9,8 +9,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         url = searchUrl + "M1&embed=true";
     }
 
-    this.iframe = $('<iframe src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
-    this.canvas = $('<canvas class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
+    this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
+    this.separator = $('<div class="fchart-separator" style="display:none"></div>').appendTo(this.fchartDiv)[0];
+    this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
     this.skyImgBuf = [new Image(), new Image()];
@@ -84,6 +85,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     } else if (splitview) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
         $(".fchart-iframe").show();
+        $(".fchart-separator").show();
+        this.setSplitViewPosition();
     }
 
     window.addEventListener('resize', (function(e) {
@@ -163,6 +166,41 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
         }
     }).bind(this));
 
+    $(this.separator).bind('mousedown',  (function(e) {
+        var md = {
+            e,
+            offsetLeft:  this.separator.offsetLeft,
+            firstWidth:  this.iframe.offsetWidth,
+            secondLeft: $(this.fchartDiv).offset().left,
+            secondWidth: $(this.fchartDiv).width()
+        };
+
+        $(this.iframe).css('pointer-events', 'none');
+
+        $(document).bind('mousemove',  (function(e) {
+            var delta = {x: e.clientX - md.e.clientX,
+                         y: e.clientY - md.e.clientY};
+
+            delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
+
+            $(this.separator).css('left', md.offsetLeft + delta.x);
+            $(this.iframe).width(md.firstWidth + delta.x);
+            $(this.fchartDiv).css('left', md.secondLeft + delta.x);
+            $(this.fchartDiv).width(md.secondWidth - delta.x);
+            var computedWidth = $(this.fchartDiv).width();
+            var computedHeight = $(this.fchartDiv).height();
+            this.adjustCanvasSizeWH(computedWidth, computedHeight);
+        }).bind(this));
+
+        $(document).bind('mouseup',  (function(e) {
+            $(document).unbind('mousemove');
+            $(document).unbind('mouseup');
+            $(this.iframe).css('pointer-events', 'auto');
+            this.reloadLegendImage();
+            this.forceReloadImage();
+        }).bind(this));
+    }).bind(this));
+
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
     $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
         var fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
@@ -192,7 +230,10 @@ FChart.prototype.onWindowLoad = function() {
 FChart.prototype.adjustCanvasSize = function() {
     var computedWidth = $(this.fchartDiv).width();
     var computedHeight = $(this.fchartDiv).height();
+    this.adjustCanvasSizeWH(computedWidth, computedHeight);
+}
 
+FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
     this.canvas.width = Math.max(computedWidth, 1);
     this.canvas.height = Math.max(computedHeight, 1);
     if (this.nightMode) {
@@ -589,10 +630,16 @@ FChart.prototype.toggleFullscreen = function() {
     if (this.isInSplitView()) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
         $(".fchart-iframe").hide();
+        $(".fchart-separator").hide();
         this.onSplitViewChangeCallback.call(this, false);
     }
 
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
+
+    if (!this.isInFullScreen()) {
+        $(this.fchartDiv).css('left', 0);
+        $(this.fchartDiv).css('width', '100%');
+    }
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
@@ -613,8 +660,14 @@ FChart.prototype.toggleSplitView = function() {
 
     if (this.isInSplitView()) {
         $(".fchart-iframe").show();
+        $(".fchart-separator").show();
+        this.setSplitViewPosition();
+
     } else {
         $(".fchart-iframe").hide();
+        $(".fchart-separator").hide();
+        $(this.fchartDiv).css('left', 0);
+        $(this.fchartDiv).css('width', '100%');
     }
 
     this.adjustCanvasSize();
@@ -625,6 +678,13 @@ FChart.prototype.toggleSplitView = function() {
         this.onSplitViewChangeCallback.call(this, this.isInSplitView());
     }
 }
+
+FChart.prototype.setSplitViewPosition = function() {
+    var leftWidth = $(".fchart-iframe").width() + 5;
+    $(this.fchartDiv).css('left', leftWidth);
+    $(this.fchartDiv).css('width','calc(100% - ' + leftWidth + 'px)');
+}
+
 
 FChart.prototype.onFieldChange = function(callback) {
     this.onFieldChangeCallback = callback;
