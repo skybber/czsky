@@ -63,6 +63,8 @@ def process_session_search(sess_arg_form_pairs):
 
     if request.args.get('back', None):
         session['is_backr'] = True
+        for pair in sess_arg_form_pairs:
+            pair[1].data = session.get(pair[0], None)
         return False
 
     if session.pop('is_backr', False):
@@ -70,6 +72,7 @@ def process_session_search(sess_arg_form_pairs):
             pair[1].data = session.get(pair[0], None)
 
     return True
+
 
 def get_items_per_page(items_per_page):
     if request.method == 'GET':

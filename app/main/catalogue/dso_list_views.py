@@ -46,15 +46,19 @@ def dso_list_info(dso_list_id):
         abort(404)
 
     search_form = SearchDsoListForm()
+    if search_form.season.data == 'All':
+        search_form.season.data = None
 
     if not process_session_search([('dso_list_season', search_form.season),]):
-        return redirect(url_for('main_dso_list.dso_list_info', dso_list_id=dso_list_id))
+        return redirect(url_for('main_dso_list.dso_list_info', dso_list_id=dso_list_id, season=search_form.season.data))
+
+    season = request.args.get('season', None)
 
     lang, editor_user = get_lang_and_editor_user_from_request()
 
-    if search_form.season.data and search_form.season.data != 'All':
+    if season:
         constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==search_form.season.data):
+        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
             constell_ids.add(constell_id[0])
     else:
         constell_ids = None
@@ -72,8 +76,6 @@ def dso_list_info(dso_list_id):
                     user_descrs[dso_list_item.dso_id] = udd.common_name
                 else:
                     user_descrs[dso_list_item.dso_id] = dso_list_item.deepskyObject.name
-
-    season = search_form.season.data if search_form.season.data and search_form.season.data!='All' else None
 
     return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, dso_list_descr=dso_list_descr, dso_list_items=dso_list_items,
                            user_descrs=user_descrs, season=season, search_form=search_form)

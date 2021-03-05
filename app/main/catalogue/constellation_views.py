@@ -38,9 +38,13 @@ def constellations():
     """View all constellations."""
 
     search_form = SearchConstellationForm()
+    if search_form.season.data == 'All':
+        search_form.season.data = None
 
     if not process_session_search([('const_search', search_form.q), ('const_season', search_form.season)]):
-        return redirect(url_for('main_constellation.constellations'))
+        return redirect(url_for('main_constellation.constellations', season=search_form.season.data))
+
+    season = request.args.get('season', None)
 
     lang, editor_user = get_lang_and_editor_user_from_request()
     constellations = Constellation.query
@@ -54,8 +58,8 @@ def constellations():
     else:
         db_common_names = []
 
-    if search_form.season.data and search_form.season.data != 'All':
-        constellations = constellations.filter(Constellation.season==search_form.season.data)
+    if season:
+        constellations = constellations.filter(Constellation.season==season)
 
     cons_names = { i[0] : i[1] for i in db_common_names }
 

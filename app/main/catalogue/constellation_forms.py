@@ -37,7 +37,7 @@ class SearchConstellationForm(FlaskForm):
          ('summer', lazy_gettext('Summer')),
          ('autumn',lazy_gettext('Autumn')),
          ('southern',lazy_gettext('Southern')),
-    ], default='')
+    ], default=None)
 
 class ConstellationEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
