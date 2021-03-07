@@ -422,9 +422,10 @@ FChart.prototype.onClick = function(e) {
     if (dso != null) {
         dso = dso.replace(/\s/g, '');
         if (this.isInSplitView()) {
-            $(".fchart-iframe").attr('src', encodeURI(this.searchUrl + dso + "&embed=true"));
+            var url = this.searchUrl + encodeURIComponent(dso) + "&embed=true";
+            $(".fchart-iframe").attr('src', url);
         } else {
-            window.location.href = encodeURI(this.searchUrl + dso);
+            window.location.href = this.searchUrl + encodeURIComponent(dso);
         }
     }
 }
