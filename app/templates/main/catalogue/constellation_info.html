@@ -149,7 +149,7 @@
                         {% endif %}
                     </div>
 
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=user_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=user_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepskyObject.denormalized_name() }}
                         </h3>
@@ -209,7 +209,7 @@
                             </a>
                         {% endif %}
                   </div>
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=ug_bl_dso.dso.name, back='constellation', back_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=ug_bl_dso.dso.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 id="dso{{ ug_bl_dso.dso.id }}" style="margin-bottom:0.8em;">
                             {{ ug_bl_dso.dso.denormalized_name() }}
                         </h3>
@@ -301,7 +301,7 @@
                             </a>
                         {% endif %}
                     </div>
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=aster_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=aster_dso_descr.deepskyObject.name, back='constellation', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ aster_dso_descr.deepskyObject.denormalized_name() }}
                         </h3>
