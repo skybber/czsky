@@ -182,6 +182,24 @@
         submitDisabled = false;
     });
 
+    fchart.onFullscreenChange(function(fullScreen) {
+        $('#fullscreen').val(fullScreen);
+        if (fullScreen) {
+            $("#isearch").show();
+        } else {
+            $("#isearch").hide();
+        }
+    });
+
+    fchart.onSplitViewChange(function(splitViewVisible) {
+        $('#splitview').val(splitViewVisible);
+        if (splitViewVisible) {
+            $("#isearch").show();
+        } else {
+            $("#isearch").hide();
+        }
+    });
+
     $('#bshow-telrad').click(function(){
         $(this).toggleClass('active');
         $('#show_telrad').val($('#show_telrad').val() == 'true' ? 'false' : 'true');
@@ -211,26 +229,8 @@
         fchart.toggleFullscreen();
     });
 
-    fchart.onFullscreenChange(function(fullScreen) {
-        $('#fullscreen').val(fullScreen);
-        if (fullScreen) {
-            $("#isearch").show();
-        } else {
-            $("#isearch").hide();
-        }
-    });
-
     $('#bsplitview').click(function(){
         fchart.toggleSplitView();
-    });
-
-    fchart.onSplitViewChange(function(splitViewVisible) {
-        $('#splitview').val(splitViewVisible);
-        if (splitViewVisible) {
-            $("#isearch").show();
-        } else {
-            $("#isearch").hide();
-        }
     });
 
     $('.ui.dropdown').dropdown();
