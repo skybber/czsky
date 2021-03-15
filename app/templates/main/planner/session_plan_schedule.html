@@ -102,7 +102,7 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
           {% for item in selection_compound_list %}
               <tr>
