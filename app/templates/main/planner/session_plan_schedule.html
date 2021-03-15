@@ -114,7 +114,7 @@
                   <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[2] }}</td>
                   <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item.id) }}">
+                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id) }}">
                           <i class="arrow right icon"></i>
                       </a>
                   </td>
