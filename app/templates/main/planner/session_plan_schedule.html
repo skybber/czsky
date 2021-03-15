@@ -7,65 +7,174 @@
     'success': get_flashed_messages(category_filter=['form-success'])
 } %}
 
-<div class="ui menu">
-    <div class="ui item" style="margin-right:25px">
-        {{ f.begin_form(add_form, flashes, action=url_for('main_planner.session_plan_item_add')) }}
-        <div class="ui action input">
-            <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
-            <button class="ui icon button">
-                <i class="plus icon"></i>
-            </button>
+
+{{ f.begin_form(search_form, flashes, action=url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id), extra_classes='ui tiny menu') }}
+
+    <div class="ui item">
+        <div id="objsource_dropdown" class="ui dropdown">
+            <input type="hidden" id="obj_source" name="{{ search_form.obj_source.name }}" value="{{ search_form.obj_source.data }}">
+            <span class="text">{{ _('Choose Source') }}</span>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <div class="item" data-value="WL">{{ _('Wish List') }}</div>
+                <div class="item">
+                    <i class="dropdown icon"></i>
+                    <span class="text">{{ _('DSO List')}}</span>
+                    <div class="menu">
+                        {% for dsol in dso_lists %}
+                            <div class="item" data-value="DL_{{ dsol.id }}">{{ dsol.name }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="item">
+                    <i class="dropdown icon"></i>
+                    <span class="text">{{ _('Catalogs')}}</span>
+                    <div class="menu">
+                        {% for cat in catalogues_menu_items %}
+                            <div class="item" data-value="{{ cat[0] }}">{{ cat[1] }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
-        {{ f.end_form(add_form) }}
+        <div class="top right aligned floating ui label">{{ _('Object Source') }}</div>
+    </div>
+    <div class="ui item computer tablet only">
+        {{ search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
+        <div class="top right aligned floating ui label">{{ _('Object Type') }}</div>
     </div>
     <div class="ui item">
-        <button id="clear_schedule" class="ui labeled icon negative button">
-            <i class="trash alternate icon"></i>
-            {{ _('Clear schedule') }}
-        </button>
-    </div>
-    <div class="right menu">
-        <div class="ui item">
-            <form id="fmupload" method="post" action="{{ url_for('main_planner.session_plan_upload', session_plan_id=session_plan.id) }}" enctype="multipart/form-data">
-                <label for="file" class="ui icon button">
-                    <i class="upload icon"></i>
-                </label>
-                <input type="file" id="file" name="file" class="ui file input">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-            </form>
+        <div class="ui icon dropdown button">
+            <input type="hidden" id="{{ search_form.maglim.name }}" name="{{ search_form.maglim.name }}" value="{{ search_form.maglim.data }}"
+                    onchange="this.form.submit()">
+            <span class="text">{{ search_form.maglim.data }}</span>
+            <div class="menu">
+                <div class="item"></div>
+                {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
+                    <div class="item">{{ mag_item }}</div>
+                {% endfor %}
+            </div>
         </div>
+        <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
     </div>
-</div>
+    <div id="time_from" class="ui calendar item">
+      <div class="ui input left icon">
+        <i class="time icon"></i>
+        <input type="text" placeholder="Time">
+      </div>
+    </div>
+    <div id="time_to" class="ui calendar item">
+      <div class="ui input left icon">
+        <i class="time icon"></i>
+        <input type="text" placeholder="Time">
+      </div>
+    </div>
+{{ f.end_form(search_form) }}
 
-<div style="overflow-x: scroll;">
-    <table class="ui searchable sortable unstackable selectable celled table">
-        <thead>
-            <tr>
-                <th class="sorted ascending">Name</th>
-                <th>{{ _('Type') }}</th>
-                <th>{{ _('Constellation') }}</th>
-                <th>mag</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
-        {% for item in session_plan.sky_list.sky_list_items %}
-            <tr>
-                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
-                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
-                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
-                <td class="collapsing specialClass">
-                    <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_remove', item_id=item.id) }}">
-                        <i class="trash alternate icon"></i>
-                    </a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<div class="ui segment" style="overflow-x: scroll;">
+<div class="ui two column very relaxed grid">
+    <div class="column">
+      <table class="ui searchable sortable unstackable selectable celled table">
+          <thead>
+              <tr>
+                  <th>
+                      <a href="{{ url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['name'].sort) }}" style="color: inherit;">
+                          {{ _('Name') }} {{ table_sort['name'].icon | safe }}
+                      </a>
+                  </th>
+
+                  <th>{{ _('Type') }}</th>
+                  <th class="right aligned collapsing">
+                      <a href="{{ url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                          {{ _('Constellation') }} {{ table_sort['constellation'].icon | safe }}
+                      </a>
+                  </th>
+                  <th>
+                      <a href="{{ url_for('main_planner.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
+                          mag {{ table_sort['mag'].icon | safe }}
+                      </a>
+                  </th>
+                  <th></th>
+              </tr>
+          </thead>
+          <tbody>
+          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+
+          {% for item in selection_list %}
+              <tr>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.denormalized_name() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.type }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.get_constellation_iau_code() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.mag }}</td>
+                  <td class="collapsing specialClass">
+                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item.id) }}">
+                          <i class="arrow right icon"></i>
+                      </a>
+                  </td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+      {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+    </div>
+    <div class="column">
+
+      <div class="ui tiny menu">
+          {{ f.begin_form(add_form, flashes, action=url_for('main_planner.session_plan_item_add', session_plan_id=session_plan.id), extra_classes="ui item") }}
+          <div class="ui action input">
+              <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
+              <button class="ui icon button">
+                  <i class="plus icon"></i>
+              </button>
+          </div>
+          {{ f.end_form(add_form) }}
+          <div class="right tiny menu">
+              <div class="ui item">
+                  <button id="clear_schedule" class="ui icon negative button" data-tooltip="{{ _('Clear schedule') }}" data-variation="tiny basic">
+                      <i class="trash alternate icon"></i>
+                  </button>
+              </div>
+                  <form id="fmupload" method="post" action="{{ url_for('main_planner.session_plan_upload', session_plan_id=session_plan.id) }}" enctype="multipart/form-data" class="ui item">
+                      <label for="file" class="ui icon button"  data-tooltip="{{ _('Upload plan') }}" data-variation="tiny basic">
+                          <i class="upload icon"></i>
+                      </label>
+                      <input type="file" id="file" name="file" class="ui file input">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                  </form>
+          </div>
+      </div>
+
+      <table class="ui searchable sortable unstackable selectable celled table">
+          <thead>
+              <tr>
+                  <th class="sorted ascending">Name</th>
+                  <th>{{ _('Type') }}</th>
+                  <th>{{ _('Constellation') }}</th>
+                  <th>mag</th>
+                  <th></th>
+              </tr>
+          </thead>
+          <tbody>
+          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+
+          {% for item in session_plan.sky_list.sky_list_items %}
+              <tr>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.type }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.mag }}</td>
+                  <td class="collapsing specialClass">
+                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_delete', session_plan_id=session_plan.id, item_id=item.id) }}">
+                          <i class="trash alternate icon"></i>
+                      </a>
+                  </td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <div class="ui tiny modal loadModal">
@@ -100,35 +209,45 @@
 
 <style>
     .ui.file.input {
-      top: -999999px;
-      position: absolute;
+      display: none;
     }
 </style>
 
 <script type="text/javascript">
-    $('.ui.modal.loadModal').modal({
-        onApprove: function() {
-            return validateModal()
-        }
-    });
-    $('.ui.modal.deleteModal').modal({
-        onApprove: function() {
-            return validateModal()
-        }
-    });
-    $("tr td.specialClass").click(function (e) {
-        e.cancelBubble();
-        e.stopPropagation();
-    });
-    $('#file').change(function() {
-        $('.ui.modal.loadModal')
-            .modal('show');
-    });
-    $("#confirm_upload").click(function() {
-        $("#fmupload" ).submit();
-    });
-    $('#clear_schedule').click(function() {
-        $('.ui.modal.deleteModal')
-            .modal('show');
+    $(function(){
+        $('.ui.modal.loadModal').modal({
+            onApprove: function() {
+                return validateModal()
+            }
+        });
+        $('.ui.modal.deleteModal').modal({
+            onApprove: function() {
+                return validateModal()
+            }
+        });
+        $("tr td.specialClass").click(function (e) {
+            e.cancelBubble();
+            e.stopPropagation();
+        });
+        $('#file').change(function() {
+            $('.ui.modal.loadModal')
+                .modal('show');
+        });
+        $("#confirm_upload").click(function() {
+            $("#fmupload" ).submit();
+        });
+        $('#clear_schedule').click(function() {
+            $('.ui.modal.deleteModal')
+                .modal('show');
+        });
+        $('#objsource_dropdown')
+            .dropdown({
+              allowCategorySelection: true,
+              onChange: function (value, text, $selectedItem) {
+                  console.log('HUH');
+                  $('#obj_source').val(value);
+                  $(this).closest('form').submit();
+              }
+        });
     });
 </script>

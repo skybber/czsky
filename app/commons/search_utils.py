@@ -3,6 +3,8 @@ from flask import (
     session,
 )
 
+from flask_babel import lazy_gettext
+
 from app.commons.pagination import get_page_parameter
 
 ITEMS_PER_PAGE = 10
@@ -109,3 +111,22 @@ def create_table_sort(current_sort_by, table_columns):
             icon = ''
         table_sort[sort_by] = { 'sort': prefix + sort_by, 'icon': icon}
     return table_sort
+
+def get_catalogues_menu_items():
+    return [
+         ('M', 'Messier'),
+         ('NGC', 'NGC'),
+         ('IC', 'IC'),
+         ('Abell','Abell'),
+         ('Sh2','Sharpless'),
+         ('HCG', 'Hickson'),
+         ('B', 'Barnard'),
+         ('Cr', 'Collinder'),
+         ('Pal', 'Palomar'),
+         ('PK', 'Perek-Kohoutek'),
+         ('Stock', 'Stock'),
+         ('UGC', 'UGC'),
+         ('Mel', 'Melotte'),
+         ('LDN', 'LDN'),
+         ('VIC', 'Vic'),
+    ]

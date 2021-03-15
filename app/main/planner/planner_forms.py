@@ -48,6 +48,20 @@ class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Session Plan'))
 
+class SessionPlanScheduleSearch(FlaskForm):
+    q = StringField('Search')
+    obj_source= HiddenField('obj_source', default='WL')
+    dso_type = SelectField('Object type', choices=[
+         ('All', 'All types'),
+         ('GX', 'Galaxy'),
+         ('GC', 'Globular Cluster'),
+         ('OC', 'Open Cluster'),
+         ('BN', 'Nebula'),
+         ('PN', 'Planetary Nebula'),
+    ], default='')
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
+
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
@@ -65,27 +79,3 @@ class SearchWishListForm(FlaskForm):
          ('southern',lazy_gettext('Southern')),
     ], default='')
 
-
-class PlannerAddForm(FlaskForm):
-    season = SelectField(lazy_gettext('Object Type'), choices=[
-         ('All', lazy_gettext('All')),
-         ('GX', lazy_gettext('Galaxy')),
-         ('GC', lazy_gettext('Globular Cluster')),
-         ('OC', lazy_gettext('Open Cluster')),
-         ('PN', lazy_gettext('Planetary Nebula')),
-         ('BN', lazy_gettext('Bright Nebula')),
-         ('DN', lazy_gettext('Dark Nebula')),
-         ('GALCL', lazy_gettext('Galaxy Cluster')),
-         ('PartOf', lazy_gettext('Part Of')),
-    ], default='')
-    constellation = SelectField(lazy_gettext('Object Type'), choices=[
-         ('All', lazy_gettext('All')),
-         ('GX', lazy_gettext('Galaxy')),
-         ('GC', lazy_gettext('Globular Cluster')),
-         ('OC', lazy_gettext('Open Cluster')),
-         ('PN', lazy_gettext('Planetary Nebula')),
-         ('BN', lazy_gettext('Bright Nebula')),
-         ('DN', lazy_gettext('Dark Nebula')),
-         ('GALCL', lazy_gettext('Galaxy Cluster')),
-         ('PartOf', lazy_gettext('Part Of')),
-    ], default='')
