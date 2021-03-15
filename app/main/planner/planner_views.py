@@ -4,6 +4,13 @@ from datetime import datetime
 
 from werkzeug.utils import secure_filename
 
+import numpy as np
+
+from astropy.time import Time
+from astropy.coordinates import EarthLocation, SkyCoord
+import astropy.units as u
+from astroplan import Observer
+
 from flask import (
     abort,
     Blueprint,
@@ -204,9 +211,41 @@ def session_plan_schedule(session_plan_id):
 
     dso_lists = DsoList.query.all()
 
-    return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan, selection_list=selection_list, dso_lists=dso_lists,
-                           catalogues_menu_items=catalogues_menu_items, mag_scale=mag_scale, add_form=add_form, search_form=search_form, pagination=pagination,
-                           table_sort=table_sort)
+    loc = session_plan.location
+
+    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+    t = Time(session_plan.for_date)
+    observer = Observer(name=loc.name, location=loc_coords, timezone='Europe/Prague')
+
+    selection_rms_list = rise_merid_set_time(t, observer, [ (x.ra, x.dec) for x in selection_list])
+    selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
+
+    sli = session_plan.sky_list.sky_list_items
+    session_plan_rms_list = rise_merid_set_time(t, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli])
+    session_plan_compound_list = [ (sli[i], *session_plan_rms_list[i]) for i in range(len(sli))]
+
+    return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan,
+                           selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
+                           dso_lists=dso_lists, catalogues_menu_items=catalogues_menu_items, mag_scale=mag_scale,
+                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort)
+
+
+def rise_merid_set_time(t, observer, ra_dec_list):
+    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
+    rise_list = to_HM_format(observer.target_rise_time(t, coords)) if len(coords) > 0 else []
+    merid_list = to_HM_format(observer.target_meridian_transit_time(t, coords))  if len(coords) > 0 else []
+    set_list = to_HM_format(observer.target_set_time(t, coords)) if len(coords) > 0 else []
+
+    return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
+
+def to_HM_format(tm):
+    ret = []
+    for t in tm:
+        try:
+            ret.append(t.strftime("%H:%M"))
+        except ValueError:
+            ret.append('')
+    return ret
 
 
 @main_planner.route('/new-session-plan', methods=['GET', 'POST'])

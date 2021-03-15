@@ -1,5 +1,7 @@
 alembic==1.4.3
 appdirs==1.4.4
+astroplan==0.8
+astropy==4.2 
 attrs==20.2.0
 beautifulsoup4==4.9.3 
 blinker==1.4

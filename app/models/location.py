@@ -11,6 +11,7 @@ class Location(db.Model):
     name = db.Column(db.String(128), nullable=False, index=True)
     longitude = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
+    elevation = db.Column(db.Float, default=0)
     descr = db.Column(db.Text)
     bortle = db.Column(db.Float)
     rating = db.Column(db.Integer)

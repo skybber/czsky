@@ -95,18 +95,24 @@
                           mag {{ table_sort['mag'].icon | safe }}
                       </a>
                   </th>
+                  <th>{{ _('Rise') }}</th>
+                  <th>{{ _('Merid') }}</th>
+                  <th>{{ _('Set') }}</th>
                   <th></th>
               </tr>
           </thead>
           <tbody>
           {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
-          {% for item in selection_list %}
+          {% for item in selection_compound_list %}
               <tr>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.denormalized_name() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.type }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.get_constellation_iau_code() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item.mag }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].denormalized_name() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].type }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].get_constellation_iau_code() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].mag }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[1] }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[2] }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item.id) }}">
                           <i class="arrow right icon"></i>
@@ -152,20 +158,26 @@
                   <th>{{ _('Type') }}</th>
                   <th>{{ _('Constellation') }}</th>
                   <th>mag</th>
+                  <th>{{ _('Rise') }}</th>
+                  <th>{{ _('Merid') }}</th>
+                  <th>{{ _('Set') }}</th>
                   <th></th>
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
-          {% for item in session_plan.sky_list.sky_list_items %}
+          {% for item in session_plan_compound_list %}
               <tr>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.denormalized_name() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.type }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item.deepskyObject.mag }}</td>
-                  <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_delete', session_plan_id=session_plan.id, item_id=item.id) }}">
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.denormalized_name() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.type }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.mag }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[1] }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[2] }}</td>
+                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[3] }}</td>
+                   <td class="collapsing specialClass">
+                      <a class="ui icon mini button" href="{{ url_for('main_planner.session_plan_item_delete', session_plan_id=session_plan.id, item_id=item[0].id) }}">
                           <i class="trash alternate icon"></i>
                       </a>
                   </td>
