@@ -13,7 +13,7 @@
                     {{ _('Planner') }}
                 </a>
             {% else %}
-              <a class="ui basic compact button" href="{{ url_for('main_planner.session_plan_info', session_plan_id=session_plan.id) }}">
+              <a class="ui basic compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id) }}">
                   <i class="caret left icon"></i>
                 {{ _('Session plans') }}
               </a>
@@ -94,7 +94,7 @@
           </div>
           <div class="actions">
             <div class="ui negative cancel button">{{ _('No') }}</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_planner.session_plan_delete', session_plan_id=session_plan.id) }}">
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_sessionplan.session_plan_delete', session_plan_id=session_plan.id) }}">
                 {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>

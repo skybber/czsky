@@ -2,8 +2,8 @@
 {% import 'macros/form_macros.html' as f %}
 
 {% set endpoints = [
-    ('main_planner.session_plan_info', _('Info'), 'info'),
-    ('main_planner.session_plan_schedule', _('Schedule'), 'schedule'),
+    ('main_sessionplan.session_plan_info', _('Info'), 'info'),
+    ('main_sessionplan.session_plan_schedule', _('Schedule'), 'schedule'),
 ] %}
 
 {% macro navigation(items) %}
@@ -31,7 +31,7 @@
             {% else %}
                 <div>
                     <div class="ui huge breadcrumb">
-                        <a class="ui basic icon compact button" href="{{ url_for('main_planner.session_plans') }}">
+                        <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plans') }}">
                             <i class="caret left icon"></i>
                             <i class="lastfm icon mobile hidden"></i>
                         </a>

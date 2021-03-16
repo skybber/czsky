@@ -116,6 +116,10 @@ def create_app(config):
     app.register_blueprint(main_usersettings)
     from .main.planner import main_planner as main_planner
     app.register_blueprint(main_planner)
+    from .main.planner import main_sessionplan as main_sessionplan
+    app.register_blueprint(main_sessionplan)
+    from .main.planner import main_wishlist as main_wishlist
+    app.register_blueprint(main_wishlist)
     from .main.solarsystem import main_solarsystem as main_solarsystem
     app.register_blueprint(main_solarsystem)
     from .main.solarsystem import main_comet as main_comet

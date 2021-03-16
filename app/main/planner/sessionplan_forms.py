@@ -78,4 +78,3 @@ class SearchWishListForm(FlaskForm):
          ('autumn',lazy_gettext('Autumn')),
          ('southern',lazy_gettext('Southern')),
     ], default='')
-

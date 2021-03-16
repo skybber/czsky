@@ -20,7 +20,7 @@
             } %}
             {{ f.display_standard_flashes(flashes) }}
 
-            {{ f.begin_form(add_form, flashes, action=url_for('main_planner.wish_list_item_add'), extra_classes='ui menu') }}
+            {{ f.begin_form(add_form, flashes, action=url_for('main_wishlist.wish_list_item_add'), extra_classes='ui menu') }}
                 <div class="ui right item">
                     <div class="ui action input">
                         {{ add_form.dso_name(size=15) }}
@@ -31,7 +31,7 @@
                 </div>
             {{ f.end_form(add_form) }}
 
-            <form action="{{ url_for('main_planner.wish_list') }}" method="post" name="search" class="ui stackable menu">
+            <form action="{{ url_for('main_wishlist.wish_list') }}" method="post" name="search" class="ui stackable menu">
                 <div class="ui item">
                     {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
                     <div class="top right aligned floating ui label">{{ _('Season') }}</div>
@@ -60,7 +60,7 @@
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
                             <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_planner.wish_list_item_remove', item_id=item.id) }}">
+                                <a class="ui icon mini button" href="{{ url_for('main_wishlist.wish_list_item_remove', item_id=item.id) }}">
                                     <i class="trash alternate icon"></i>
                                 </a>
                             </td>
