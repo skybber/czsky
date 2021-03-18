@@ -48,6 +48,7 @@
 {% macro header_items_mobile(current_user) %}
     {% set endpoints = [
       ('main.index', config.APP_NAME, 'home'),
+      ('main.switch_theme', '', 'eye')
     ]%}
     {{ render_menu_items( endpoints ) }}
 {% endmacro %}
