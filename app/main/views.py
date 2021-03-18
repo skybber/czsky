@@ -31,7 +31,7 @@ def about():
 
 @main.route('/swtheme')
 def switch_theme():
-    session['themlight'] = not session.get('themlight', False)
+    session['themered'] = not session.get('themered', False)
     return redirect(request.referrer)
 
 @main.route('/search')

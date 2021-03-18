@@ -209,7 +209,7 @@ def constellation_chart(constellation_id):
     if form.dec.data is None:
         form.dec.data = constellation.label_dec
 
-    night_mode = not session.get('themlight', False)
+    night_mode = True
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 

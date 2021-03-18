@@ -83,7 +83,7 @@ def chart():
         if form.dec.data is None:
             form.dec.data = 0.0
 
-    night_mode = not session.get('themlight', False)
+    night_mode = True
 
     return render_template('main/chart/chart.html', form=form,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,

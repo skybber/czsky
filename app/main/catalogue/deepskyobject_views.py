@@ -352,7 +352,7 @@ def deepskyobject_chart(dso_id):
     if form.dec.data is None:
         form.dec.data = dso.dec
 
-    night_mode = not session.get('themlight', False)
+    night_mode = True
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
