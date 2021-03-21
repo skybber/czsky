@@ -11,7 +11,7 @@
 {{ f.begin_form(search_form, flashes, action=url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), extra_classes='ui tiny menu') }}
 
     <div class="ui item">
-        <div id="objsource_dropdown" class="ui dropdown">
+        <div id="objsource_dropdown" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Source') }}" data-variation="tiny basic">
             <input type="hidden" id="obj_source" name="{{ search_form.obj_source.name }}" value="{{ search_form.obj_source.data }}">
             <span class="text">{{ _('Choose Source') }}</span>
             <i class="dropdown icon"></i>
@@ -37,13 +37,11 @@
                 </div>
             </div>
         </div>
-        <div class="top right aligned floating ui label">{{ _('Object Source') }}</div>
     </div>
-    <div class="ui item computer tablet only">
+    <div class="ui item computer tablet only" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Type') }}" data-variation="tiny basic">
         {{ search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
-        <div class="top right aligned floating ui label">{{ _('Object Type') }}</div>
     </div>
-    <div class="ui item">
+    <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
         <div class="ui icon dropdown button">
             <input type="hidden" id="{{ search_form.maglim.name }}" name="{{ search_form.maglim.name }}" value="{{ search_form.maglim.data }}"
                     onchange="this.form.submit()">
@@ -55,18 +53,17 @@
                 {% endfor %}
             </div>
         </div>
-        <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
     </div>
-    <div id="time_from" class="ui calendar item">
+    <div id="time_from" class="ui calendar item" style="width: 120px" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Time from') }}" data-variation="tiny basic">
       <div class="ui input left icon">
         <i class="time icon"></i>
-        <input type="text" placeholder="Time">
+        <input type="text" placeholder="Time" id="{{ search_form.time_from.name }}" name="{{ search_form.time_from.name }}" value="{{ search_form.time_from.data }}">
       </div>
     </div>
-    <div id="time_to" class="ui calendar item">
+    <div id="time_to" class="ui calendar item" style="width: 120px" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Time to') }}" data-variation="tiny basic">
       <div class="ui input left icon">
         <i class="time icon"></i>
-        <input type="text" placeholder="Time">
+        <input type="text" placeholder="Time" id="{{ search_form.time_to.name }}" name="{{ search_form.time_to.name }}" value="{{ search_form.time_to.data }}">
       </div>
     </div>
 {{ f.end_form(search_form) }}
@@ -256,10 +253,37 @@
             .dropdown({
               allowCategorySelection: true,
               onChange: function (value, text, $selectedItem) {
-                  console.log('HUH');
                   $('#obj_source').val(value);
                   $(this).closest('form').submit();
               }
         });
+        $('#time_from').calendar({
+            type: 'time',
+            ampm: false,
+            onChange: function(value) {
+                $(this).calendar.changed = true;
+            },
+            onHide: function () {
+                if ($(this).calendar.changed) {
+                    $(this).calendar.changed = false;
+                    $(this).closest('form').submit();
+                }
+            }
+        })
+        $('#time_to').calendar({
+            type: 'time',
+            ampm: false,
+            changed: false,
+            onChange: function(value) {
+                $(this).calendar.changed = true;
+            },
+            onHide: function () {
+                if ($(this).calendar.changed) {
+                    $(this).calendar.changed = false;
+                    $(this).closest('form').submit();
+                }
+            }
+        })
+      ;
     });
 </script>

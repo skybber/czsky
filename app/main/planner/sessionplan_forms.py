@@ -49,9 +49,9 @@ class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     submit_button = SubmitField(lazy_gettext('Update Session Plan'))
 
 class SessionPlanScheduleSearch(FlaskForm):
-    q = StringField('Search')
+    q = StringField(lazy_gettext('Search'))
     obj_source= HiddenField('obj_source', default='WL')
-    dso_type = SelectField('Object type', choices=[
+    dso_type = SelectField(lazy_gettext('Object type'), choices=[
          ('All', 'All types'),
          ('GX', 'Galaxy'),
          ('GC', 'Globular Cluster'),
@@ -61,6 +61,8 @@ class SessionPlanScheduleSearch(FlaskForm):
     ], default='')
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
     items_per_page = IntegerField(lazy_gettext('Items per page'))
+    time_from = TimeField('Time From', format='%H:%M')
+    time_to = TimeField('Time From', format='%H:%M')
 
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())

@@ -84,8 +84,8 @@
     $(function() {
 
         $('.ui.dropdown.dlocation').dropdown({
-            allowAdditions: true,
-            minCharacters : 3,
+            saveRemoteData: false,
+            minCharacters: 0,
             apiSettings: {
                 url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
             }
