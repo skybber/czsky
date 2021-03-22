@@ -1,6 +1,7 @@
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 
 from werkzeug.utils import secure_filename
 
@@ -385,10 +386,11 @@ def session_plan_schedule(session_plan_id):
 
     loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
     observation_time = Time(session_plan.for_date)
-    observer = Observer(name=loc.name, location=loc_coords, timezone='Europe/Prague')
+    time_zone='Europe/Prague'
+    observer = Observer(name=loc.name, location=loc_coords, timezone=time_zone)
 
-    time_from = setup_search_from(search_form, observer, observation_time)
-    time_to = setup_search_to(search_form, observer, observation_time, time_from)
+    time_from = setup_search_from(search_form, observer, observation_time, time_zone)
+    time_to = setup_search_to(search_form, observer, observation_time, time_from, time_zone)
 
     if use_time_filter:
         time_filtered_list = []
@@ -423,32 +425,38 @@ def session_plan_schedule(session_plan_id):
                            add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort)
 
 
-def setup_search_from(search_form, observer, observation_time):
-    default_time = observer.twilight_evening_astronomical(observation_time)
+def setup_search_from(search_form, observer, observation_time, time_zone):
+    default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(pytz.timezone(time_zone))
     if search_form.time_from.data:
         try:
-            field_time = Time(observation_time.strftime('%Y-%m-%d ' + search_form.time_from.data))
+            field_time = combine_date_and_time(observation_time, search_form.time_from.data, time_zone)
         except ValueError:
             field_time = default_time
     else:
         field_time = default_time
-    search_form.time_from.data = field_time.strftime('%H:%M')
+    search_form.time_from.data = field_time.time()
     return field_time
 
 
-def setup_search_to(search_form, observer, observation_time, time_from):
-    default_time = observer.twilight_morning_astronomical(observation_time)
+def setup_search_to(search_form, observer, observation_time, time_from, time_zone):
+    default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(pytz.timezone(time_zone))
+    print(search_form.time_to.data, flush=True)
     if search_form.time_to.data:
         try:
-            field_time = Time(observation_time.strftime('%Y-%m-%d ' + search_form.time_to.data))
+            field_time = combine_date_and_time(observation_time, search_form.time_to.data, time_zone)
         except ValueError:
+            print('Value')
             field_time = default_time
     else:
         field_time = default_time
     if field_time < time_from:
-        field_time = field_time + TimeDelta(24.0 * u.hr)
-    search_form.time_to.data = field_time.strftime('%H:%M')
+        field_time += timedelta(days=1)
+    search_form.time_to.data = field_time.time()
     return field_time
+
+
+def combine_date_and_time(date_part, time_part, time_zone):
+    return datetime.combine(date_part.to_datetime().date(), datetime.strptime(time_part, '%H:%M').time(), pytz.timezone(time_zone))
 
 
 def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
@@ -460,8 +468,6 @@ def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
 
     return [(rise_list[i], merid_list[i], set_list[i], up_list) for i in range(len(rise_list))]
 
-
-    return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
 
 def wrap2array(ar):
     try:
