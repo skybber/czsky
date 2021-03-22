@@ -87,8 +87,8 @@ def convert_sqlocation2location(sq_location, user_skyquality):
             longLat = sq_location.coords.split(',')
             if longLat and len(longLat) == 2:
                 try:
-                    longitude = lonlat_parse(longLat[0])
-                    latitude = lonlat_parse(longLat[1])
+                    latitude = lonlat_parse(longLat[0])
+                    longitude = lonlat_parse(longLat[1])
                 except ValueError:
                     print('Unknown long-lat format=' + sq_location.coords)
                     return None
@@ -170,6 +170,14 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
                 loc = convert_sqlocation2location(sq_location, user_skyquality)
                 save_location(loc)
                 added_locations += 1
+            else:
+                loc_new = convert_sqlocation2location(sq_location, user_skyquality)
+                location.longitude = loc_new.longitude
+                location.latitude = loc_new.latitude
+                location.bortle = loc_new.bortle
+                location.rating = loc_new.rating
+                save_location(location)
+
         print(str() + ' previously scrapped locations are put to DB.')
 
     max_loc = cur.execute("SELECT max(location_id) FROM locations").fetchone()
