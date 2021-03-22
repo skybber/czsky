@@ -386,11 +386,11 @@ def session_plan_schedule(session_plan_id):
 
     loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
     observation_time = Time(session_plan.for_date)
-    time_zone='Europe/Prague'
-    observer = Observer(name=loc.name, location=loc_coords, timezone=time_zone)
+    tz_info = pytz.timezone('Europe/Prague')
+    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
 
-    time_from = setup_search_from(search_form, observer, observation_time, time_zone)
-    time_to = setup_search_to(search_form, observer, observation_time, time_from, time_zone)
+    time_from = setup_search_from(search_form, observer, observation_time, tz_info)
+    time_to = setup_search_to(search_form, observer, observation_time, time_from, tz_info)
 
     if use_time_filter:
         time_filtered_list = []
@@ -402,7 +402,7 @@ def session_plan_schedule(session_plan_id):
             else:
                 do_add = is_up
             if do_add:
-                time_filtered_list.append((selection_list[i], to_HM_format(rise_t), to_HM_format(merid_t), to_HM_format(set_t)))
+                time_filtered_list.append((selection_list[i], to_HM_format(rise_t, tz_info), to_HM_format(merid_t, tz_info), to_HM_format(set_t, tz_info)))
 
         all_count = len(time_filtered_list)
         if offset>=all_count:
@@ -410,11 +410,11 @@ def session_plan_schedule(session_plan_id):
             page = 0
         selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
-        selection_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list])
+        selection_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
         selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
 
     sli = session_plan.sky_list.sky_list_items
-    session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli])
+    session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli], tz_info)
     session_plan_compound_list = [ (sli[i], *session_plan_rms_list[i]) for i in range(len(sli))]
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
@@ -425,11 +425,11 @@ def session_plan_schedule(session_plan_id):
                            add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort)
 
 
-def setup_search_from(search_form, observer, observation_time, time_zone):
-    default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(pytz.timezone(time_zone))
+def setup_search_from(search_form, observer, observation_time, tz_info):
+    default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(tz_info)
     if search_form.time_from.data:
         try:
-            field_time = combine_date_and_time(observation_time, search_form.time_from.data, time_zone)
+            field_time = combine_date_and_time(observation_time, search_form.time_from.data, tz_info)
         except ValueError:
             field_time = default_time
     else:
@@ -438,12 +438,12 @@ def setup_search_from(search_form, observer, observation_time, time_zone):
     return field_time
 
 
-def setup_search_to(search_form, observer, observation_time, time_from, time_zone):
-    default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(pytz.timezone(time_zone))
+def setup_search_to(search_form, observer, observation_time, time_from, tz_info):
+    default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(tz_info)
     print(search_form.time_to.data, flush=True)
     if search_form.time_to.data:
         try:
-            field_time = combine_date_and_time(observation_time, search_form.time_to.data, time_zone)
+            field_time = combine_date_and_time(observation_time, search_form.time_to.data, tz_info)
         except ValueError:
             print('Value')
             field_time = default_time
@@ -455,8 +455,8 @@ def setup_search_to(search_form, observer, observation_time, time_from, time_zon
     return field_time
 
 
-def combine_date_and_time(date_part, time_part, time_zone):
-    return datetime.combine(date_part.to_datetime().date(), datetime.strptime(time_part, '%H:%M').time(), pytz.timezone(time_zone))
+def combine_date_and_time(date_part, time_part, tz_info):
+    return datetime.combine(date_part.to_datetime().date(), datetime.strptime(time_part, '%H:%M').time(), tz_info)
 
 
 def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
@@ -476,21 +476,24 @@ def wrap2array(ar):
     except TypeError:
         return [ar]
 
-def rise_merid_set_time_str(t, observer, ra_dec_list):
+
+def rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
     coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = ar_to_HM_format(observer.target_rise_time(t, coords)) if len(coords) > 0 else []
-    merid_list = ar_to_HM_format(observer.target_meridian_transit_time(t, coords))  if len(coords) > 0 else []
-    set_list = ar_to_HM_format(observer.target_set_time(t, coords)) if len(coords) > 0 else []
+    rise_list = ar_to_HM_format(observer.target_rise_time(t, coords), tz_info) if len(coords) > 0 else []
+    merid_list = ar_to_HM_format(observer.target_meridian_transit_time(t, coords), tz_info)  if len(coords) > 0 else []
+    set_list = ar_to_HM_format(observer.target_set_time(t, coords), tz_info) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
 
-def to_HM_format(t):
+
+def to_HM_format(t, tz_info):
     try:
-        return t.strftime('%H:%M')
+        return t.to_datetime(tz_info).strftime('%H:%M')
     except ValueError:
         return ''
 
-def ar_to_HM_format(tm):
+
+def ar_to_HM_format(tm, tz_info):
     ret = []
     try:
         it = iter(tm)
@@ -499,9 +502,8 @@ def ar_to_HM_format(tm):
 
     for t in tm:
         try:
-            ret.append(t.strftime('%H:%M'))
+            ret.append(t.to_datetime(tz_info).strftime('%H:%M'))
         except ValueError:
             ret.append('')
     return ret
-
 
