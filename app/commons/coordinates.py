@@ -47,10 +47,10 @@ def dec_to_float(ra):
     return 0.0
 
 def mapy_cz_url(lon, lat):
-    return 'https://www.mapy.cz/zakladni?x=' + str(lat) + '&y=' + str(lon) + '&z=17'
+    return 'https://www.mapy.cz/zakladni?x=' + str(lon) + '&y=' + str(lat) + '&z=17'
 
 def google_url(lon, lat):
-    return 'https://www.google.com/maps/place/' + str(lon) + ',' + str(lat)
+    return 'https://www.google.com/maps/place/' + str(lat) + ',' + str(lon)
 
 def open_street_map_url(lon, lat):
     return 'https://www.openstreetmap.org/?mlat=' + str(lat) + '&mlon=' + str(lon) + '&zoom=12'
