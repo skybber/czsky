@@ -26,7 +26,7 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
 
         session[sess_page_name] = page
         for pair in sess_arg_form_pairs:
-            if pair[1].data:
+            if pair[1].data is not None:
                 session[pair[0]] = _field_data_to_serializable(pair[1])
             else:
                 session.pop(pair[0], None)

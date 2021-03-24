@@ -34,6 +34,8 @@ from app.models import (
     DsoList,
     DsoListItem,
     Location,
+    ObservedList,
+    ObservedListItem,
     SessionPlan,
     SkyList,
     SkyListItem,
@@ -305,6 +307,7 @@ def session_plan_schedule(session_plan_id):
         ('planner_dso_maglim', search_form.maglim),
         ('planner_time_from', search_form.time_from),
         ('planner_time_to', search_form.time_to),
+        ('planner_not_observed', search_form.not_observed),
         ]);
 
     if not ret:
@@ -325,33 +328,40 @@ def session_plan_schedule(session_plan_id):
     table_sort = create_table_sort(sort_by, sort_def.keys())
 
     if search_form.obj_source.data is None or search_form.obj_source.data == 'WL':
-        subquery1 = db.session.query(WishListItem.dso_id) \
+        wishlist_subquery = db.session.query(WishListItem.dso_id) \
             .join(WishListItem.wish_list) \
             .filter(WishList.user_id==current_user.id)
 
         dso_query = DeepskyObject.query \
-            .filter(DeepskyObject.id.in_(subquery1))
+            .filter(DeepskyObject.id.in_(wishlist_subquery))
 
     elif search_form.obj_source.data.startswith('DL_'):
         dso_list_id = int(search_form.obj_source.data[3:])
 
-        subquery1 = db.session.query(DsoListItem.dso_id) \
+        dsolist_subquery = db.session.query(DsoListItem.dso_id) \
             .join(DsoListItem.dso_list) \
             .filter(DsoList.id==dso_list_id)
 
         dso_query = DeepskyObject.query \
-            .filter(DeepskyObject.id.in_(subquery1))
+            .filter(DeepskyObject.id.in_(dsolist_subquery))
     else:
         dso_query = DeepskyObject.query
         cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.obj_source.data)
         if cat_id:
             dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
-    subquery = db.session.query(SkyListItem.dso_id) \
+    scheduled_subquery = db.session.query(SkyListItem.dso_id) \
         .join(SkyListItem.sky_list) \
         .filter(SkyList.id==session_plan.sky_list_id)
 
-    dso_query = dso_query.filter(DeepskyObject.id.notin_(subquery))
+    dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
+
+    if search_form.not_observed.data:
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedListItem.observed_list) \
+            .filter(ObservedList.user_id==current_user.id)
+        dso_query = dso_query.filter(DeepskyObject.id.notin_(observed_subquery))
+
 
     if search_form.dso_type.data and search_form.dso_type.data != 'All':
         dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
@@ -440,12 +450,10 @@ def setup_search_from(search_form, observer, observation_time, tz_info):
 
 def setup_search_to(search_form, observer, observation_time, time_from, tz_info):
     default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(tz_info)
-    print(search_form.time_to.data, flush=True)
     if search_form.time_to.data:
         try:
             field_time = combine_date_and_time(observation_time, search_form.time_to.data, tz_info)
         except ValueError:
-            print('Value')
             field_time = default_time
     else:
         field_time = default_time

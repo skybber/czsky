@@ -63,6 +63,7 @@ class SessionPlanScheduleSearch(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
     time_from = TimeField('Time From', format='%H:%M')
     time_to = TimeField('Time From', format='%H:%M')
+    not_observed = BooleanField('Not observed', default='checked')
 
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())

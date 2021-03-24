@@ -210,8 +210,7 @@ def deepskyobject_seltab(dso_id):
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
-
-    return deepskyobject_info(dso_id)
+    return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
