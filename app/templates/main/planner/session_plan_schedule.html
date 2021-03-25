@@ -123,7 +123,7 @@
           {% endfor %}
           </tbody>
       </table>
-      {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+      {{ pagination.links }} {{ commons.items_per_page_as_links(search_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page)) }} {{ pagination.info }}
     </div>
     <div class="column">
 

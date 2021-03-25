@@ -46,3 +46,33 @@
         </div>
     </div>
 {% endmacro %}
+
+{% macro items_per_page_as_links(per_page, url) %}
+    <span class="ui item" style="margin-left:10px;">
+                    {{ _('Items per page') }}
+    </span>
+    <div class="ui icon bottom right pointing dropdown button">
+        <div class="default text">{{ per_page }}</div>
+        <i class="dropdown icon"></i>
+        <div class="menu" style="z-index: 1000;">
+            <div class="item">
+              <a href="{{ url }}&per_page=10" style="color: inherit;">10</a>
+             </div>
+            <div class="item">
+              <a href="{{ url }}&per_page=15" style="color: inherit;">15</a>
+            </div>
+            <div class="item">
+              <a href="{{ url }}&per_page=20" style="color: inherit;">20</a>
+            </div>
+            <div class="item">
+              <a href="{{ url }}&per_page=25" style="color: inherit;">35</a>
+            </div>
+            <div class="item">
+              <a href="{{ url }}&per_page=50" style="color: inherit;">50</a>
+            </div>
+            <div class="item">
+              <a href="{{ url }}&per_page=100" style="color: inherit;">100</a>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

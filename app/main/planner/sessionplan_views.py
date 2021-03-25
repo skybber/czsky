@@ -287,6 +287,7 @@ def session_plan_upload(session_plan_id):
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
 
+
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/schedule', methods=['GET', 'POST'])
 @login_required
 def session_plan_schedule(session_plan_id):
@@ -301,6 +302,10 @@ def session_plan_schedule(session_plan_id):
 
     sort_by = request.args.get('sortby')
 
+    str_per_page = request.args.get('per_page', None)
+    if str_per_page is not None:
+        session['items_per_page'] = int(str_per_page)
+
     ret, page = process_paginated_session_search('planner_search_page', [
         ('planner_dso_type', search_form.dso_type),
         ('planner_dso_obj_source', search_form.obj_source),
@@ -308,6 +313,7 @@ def session_plan_schedule(session_plan_id):
         ('planner_time_from', search_form.time_from),
         ('planner_time_to', search_form.time_to),
         ('planner_not_observed', search_form.not_observed),
+        ('items_per_page', search_form.items_per_page)
         ]);
 
     if not ret:
@@ -417,7 +423,7 @@ def session_plan_schedule(session_plan_id):
         all_count = len(time_filtered_list)
         if offset>=all_count:
             offset = 0
-            page = 0
+            page = 1
         selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
         selection_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
@@ -427,6 +433,7 @@ def session_plan_schedule(session_plan_id):
     session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli], tz_info)
     session_plan_compound_list = [ (sli[i], *session_plan_rms_list[i]) for i in range(len(sli))]
 
+    print("#### " + str(all_count) + " " + str(page))
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan,
@@ -469,9 +476,9 @@ def combine_date_and_time(date_part, time_part, tz_info):
 
 def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
     coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = wrap2array(observer.target_rise_time(time_from, coords, which='next')) if len(coords) > 0 else []
-    merid_list = wrap2array(observer.target_meridian_transit_time(time_from, coords, which='next'))  if len(coords) > 0 else []
-    set_list = wrap2array(observer.target_set_time(time_to, coords, which='previous')) if len(coords) > 0 else []
+    rise_list = wrap2array(observer.target_rise_time(time_from, coords, which='next', n_grid_points=10)) if len(coords) > 0 else []
+    merid_list = wrap2array(observer.target_meridian_transit_time(time_from, coords, which='next', n_grid_points=10))  if len(coords) > 0 else []
+    set_list = wrap2array(observer.target_set_time(time_to, coords, which='previous', n_grid_points=10)) if len(coords) > 0 else []
     up_list = wrap2array(observer.target_is_up(time_from, coords)) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i], up_list) for i in range(len(rise_list))]
@@ -487,9 +494,9 @@ def wrap2array(ar):
 
 def rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
     coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = ar_to_HM_format(observer.target_rise_time(t, coords), tz_info) if len(coords) > 0 else []
-    merid_list = ar_to_HM_format(observer.target_meridian_transit_time(t, coords), tz_info)  if len(coords) > 0 else []
-    set_list = ar_to_HM_format(observer.target_set_time(t, coords), tz_info) if len(coords) > 0 else []
+    rise_list = ar_to_HM_format(observer.target_rise_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
+    merid_list = ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info)  if len(coords) > 0 else []
+    set_list = ar_to_HM_format(observer.target_set_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
 
