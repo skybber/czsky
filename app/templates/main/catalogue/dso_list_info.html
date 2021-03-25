@@ -38,7 +38,7 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending collapsing">{{ _('Number') }}</th>
+                            <th class="sorted ascending collapsing">N</th>
                             <th class="sorted ascending">{{ _('Name') }}</th>
                             {% if dso_list.show_common_name %}
                                 <th class="mobile hidden">{{ _('Common name') }}</th>
@@ -48,7 +48,7 @@
                             {% endif %}
                             <th class="mobile hidden">RA</th>
                             <th class="mobile hidden">Dec</th>
-                            <th>{{ _('Constellation') }}</th>
+                            <th><i class="lastfm icon"></i></th>
                             <th class="right aligned">mag</th>
                             {% if dso_list.show_angular_size %}
                                 <th class="right aligned mobile hidden">{{ _('Size') }}</th>

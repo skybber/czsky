@@ -88,7 +88,7 @@
                   <th>{{ _('Type') }}</th>
                   <th class="right aligned collapsing">
                       <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
-                          {{ _('Constellation') }} {{ table_sort['constellation'].icon | safe }}
+                          <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
                       </a>
                   </th>
                   <th>
@@ -157,7 +157,7 @@
               <tr>
                   <th class="sorted ascending">Name</th>
                   <th>{{ _('Type') }}</th>
-                  <th>{{ _('Constellation') }}</th>
+                  <th><i class="lastfm icon"></i></th>
                   <th>mag</th>
                   <th>{{ _('Rise') }}</th>
                   <th>{{ _('Merid') }}</th>
