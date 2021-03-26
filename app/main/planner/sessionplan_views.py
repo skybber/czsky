@@ -466,7 +466,6 @@ def session_plan_schedule(session_plan_id):
             offset = 0
             page = 1
         selection_compound_list = time_filtered_list[offset:offset+per_page]
-        selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
         selection_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
         selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
