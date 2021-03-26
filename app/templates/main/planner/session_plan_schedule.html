@@ -22,7 +22,7 @@
                     <span class="text">{{ _('DSO List')}}</span>
                     <div class="menu">
                         {% for dsol in dso_lists %}
-                            <div class="item" data-value="DL_{{ dsol.id }}">{{ dsol.name }}</div>
+                            <div class="item" data-value="DL_{{ dsol.id }}">{{ dsol.long_name }}</div>
                         {% endfor %}
                     </div>
                 </div>
