@@ -10,7 +10,9 @@ import numpy as np
 from astropy.time import Time, TimeDelta
 from astropy.coordinates import EarthLocation, SkyCoord
 import astropy.units as u
-from astroplan import Observer
+from astroplan import Observer, FixedTarget
+from astroplan import (AltitudeConstraint, AirmassConstraint, AtNightConstraint)
+from astroplan import is_observable, is_always_observable, months_observable
 
 from flask import (
     abort,
@@ -446,10 +448,25 @@ def session_plan_schedule(session_plan_id):
             if is_up or rise_t < time_to or set_t>time_from:
                 time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
 
+        # filter by altitude
+        if search_form.min_altitude.data > 0:
+            constraints = [AltitudeConstraint(search_form.min_altitude.data*u.deg)]
+            targets = []
+            for item in time_filtered_list:
+                dso = item[0]
+                target = FixedTarget(coord=SkyCoord(ra=dso.ra * u.rad, dec=dso.dec * u.rad), name=dso.name)
+                targets.append(target)
+            time_range = Time([time_from, time_to])
+            observable_list = is_observable(constraints, observer, targets, time_range=time_range)
+            print(str(observable_list), flush=True)
+            time_filtered_list = [ time_filtered_list[i] for i in range(len(time_filtered_list)) if observable_list[i] ]
+
+
         all_count = len(time_filtered_list)
         if offset>=all_count:
             offset = 0
             page = 1
+        selection_compound_list = time_filtered_list[offset:offset+per_page]
         selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
         selection_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
