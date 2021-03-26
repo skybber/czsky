@@ -449,7 +449,7 @@ def session_plan_schedule(session_plan_id):
                 time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
 
         # filter by altitude
-        if search_form.min_altitude.data > 0:
+        if len(time_filtered_list) > 0 and search_form.min_altitude.data > 0:
             constraints = [AltitudeConstraint(search_form.min_altitude.data*u.deg)]
             targets = []
             for item in time_filtered_list:
@@ -460,7 +460,6 @@ def session_plan_schedule(session_plan_id):
             observable_list = is_observable(constraints, observer, targets, time_range=time_range)
             print(str(observable_list), flush=True)
             time_filtered_list = [ time_filtered_list[i] for i in range(len(time_filtered_list)) if observable_list[i] ]
-
 
         all_count = len(time_filtered_list)
         if offset>=all_count:
