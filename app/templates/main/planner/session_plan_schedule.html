@@ -115,17 +115,17 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, embed='true') }}{% endmacro %}
 
           {% for item in selection_compound_list %}
               <tr>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].denormalized_name() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].type }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].get_constellation_iau_code() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[0].mag }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[1] }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[2] }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url1(item) }}';">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].denormalized_name() }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].type }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].mag }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id) }}">
                           <i class="arrow right icon"></i>
@@ -178,17 +178,17 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, embed='true') }}{% endmacro %}
 
           {% for item in session_plan_compound_list %}
               <tr>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.denormalized_name() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.type }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[0].deepskyObject.mag }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[1] }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[2] }}</td>
-                  <td onclick="window.location.href='{{ to_dso_url2(item) }}';">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.denormalized_name() }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.type }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.mag }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', session_plan_id=session_plan.id, item_id=item[0].id) }}">
                           <i class="trash alternate icon"></i>
@@ -239,73 +239,77 @@
 </style>
 
 <script type="text/javascript">
-    $(function(){
-        $('.ui.modal.loadModal').modal({
-            onApprove: function() {
-                return validateModal()
-            }
-        });
-        $('.ui.modal.deleteModal').modal({
-            onApprove: function() {
-                return validateModal()
-            }
-        });
-        $("tr td.specialClass").click(function (e) {
-            e.cancelBubble();
-            e.stopPropagation();
-        });
-        $('#file').change(function() {
-            $('.ui.modal.loadModal')
-                .modal('show');
-        });
-        $("#confirm_upload").click(function() {
-            $("#fmupload" ).submit();
-        });
-        $('#clear_schedule').click(function() {
-            $('.ui.modal.deleteModal')
-                .modal('show');
-        });
-        $('#objsource_dropdown')
-            .dropdown({
-              allowCategorySelection: true,
-              onChange: function (value, text, $selectedItem) {
-                  $('#obj_source').val(value);
-                  $(this).closest('form').submit();
-              }
-        });
-        $('#not_observed')
-            .checkbox({
-              onChange: function (value) {
-                  $(this).closest('form').submit();
-              }
-        });
-        $('#time_from').calendar({
-            type: 'time',
-            ampm: false,
-            onChange: function(value) {
-                $(this).calendar.changed = true;
-            },
-            onHide: function () {
-                if ($(this).calendar.changed) {
-                    $(this).calendar.changed = false;
-                    $(this).closest('form').submit();
-                }
-            }
-        })
-        $('#time_to').calendar({
-            type: 'time',
-            ampm: false,
-            changed: false,
-            onChange: function(value) {
-                $(this).calendar.changed = true;
-            },
-            onHide: function () {
-                if ($(this).calendar.changed) {
-                    $(this).calendar.changed = false;
-                    $(this).closest('form').submit();
-                }
-            }
-        })
-      ;
+function setIFrameSrc(url) {
+    $('#plIframe').attr('src', url)
+}
+
+$(function(){
+    $('.ui.modal.loadModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
     });
+    $('.ui.modal.deleteModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
+    });
+    $("tr td.specialClass").click(function (e) {
+        e.cancelBubble();
+        e.stopPropagation();
+    });
+    $('#file').change(function() {
+        $('.ui.modal.loadModal')
+            .modal('show');
+    });
+    $("#confirm_upload").click(function() {
+        $("#fmupload" ).submit();
+    });
+    $('#clear_schedule').click(function() {
+        $('.ui.modal.deleteModal')
+            .modal('show');
+    });
+    $('#objsource_dropdown')
+        .dropdown({
+          allowCategorySelection: true,
+          onChange: function (value, text, $selectedItem) {
+              $('#obj_source').val(value);
+              $(this).closest('form').submit();
+          }
+    });
+    $('#not_observed')
+        .checkbox({
+          onChange: function (value) {
+              $(this).closest('form').submit();
+          }
+    });
+    $('#time_from').calendar({
+        type: 'time',
+        ampm: false,
+        onChange: function(value) {
+            $(this).calendar.changed = true;
+        },
+        onHide: function () {
+            if ($(this).calendar.changed) {
+                $(this).calendar.changed = false;
+                $(this).closest('form').submit();
+            }
+        }
+    })
+    $('#time_to').calendar({
+        type: 'time',
+        ampm: false,
+        changed: false,
+        onChange: function(value) {
+            $(this).calendar.changed = true;
+        },
+        onHide: function () {
+            if ($(this).calendar.changed) {
+                $(this).calendar.changed = false;
+                $(this).closest('form').submit();
+            }
+        }
+    })
+  ;
+});
 </script>

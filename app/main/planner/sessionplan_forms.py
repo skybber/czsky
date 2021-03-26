@@ -66,6 +66,7 @@ class SessionPlanScheduleSearch(FlaskForm):
     time_from = TimeField('Time From', format='%H:%M')
     time_to = TimeField('Time From', format='%H:%M')
     not_observed = BooleanField('Not observed', default='checked')
+    selected_dso_name = HiddenField(default='M1')
 
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())

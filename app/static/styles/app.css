@@ -297,3 +297,10 @@ table.selectable tr:hover {
     -ms-user-select: none;
     user-select: none;
 }
+
+.planner-iframe {
+    height: 100% !important;
+    width: 420px;
+    border: 0 !important;
+    max-width: none !important;
+}

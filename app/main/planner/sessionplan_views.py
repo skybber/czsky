@@ -340,6 +340,7 @@ def session_plan_schedule(session_plan_id):
         ('planner_time_from', search_form.time_from),
         ('planner_time_to', search_form.time_to),
         ('planner_not_observed', search_form.not_observed),
+        ('planner_selected_dso_name', search_form.selected_dso_name),
         ('items_per_page', search_form.items_per_page)
         ]);
 
@@ -478,10 +479,14 @@ def session_plan_schedule(session_plan_id):
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
+    if not search_form.selected_dso_name.data:
+        search_form.selected_dso_name.data = 'M1'
+
     return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
-                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list)
+                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
+                           selected_dso_name=search_form.selected_dso_name.data)
 
 
 def _setup_search_from(search_form, observer, observation_time, tz_info):

@@ -18,8 +18,16 @@
 {% endmacro %}
 
 {% block content %}
+    {% if tab != 'schedule' %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
+    {% else %}
+    <div class="ui two column divided grid" style="height: 100% !important; width: 100% !important;">
+        <div class="column" style="width: 420px !important">
+            <iframe id="plIframe" src="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=selected_dso_name, embed=true) }}" frameborder="0" class="planner-iframe"></iframe>
+        </div>
+        <div class="column" style="flex: 1">
+    {% endif %}
             {% if is_new %}
                 <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
                     <i class="caret left icon"></i>
@@ -56,6 +64,12 @@
             {% elif tab == 'schedule' %}
                 {% include '/main/planner/session_plan_schedule.html' %}
             {% endif %}
+    {% if tab != 'schedule' %}
         </div>
     </div>
+    {% else %}
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
