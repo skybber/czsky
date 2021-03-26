@@ -54,6 +54,18 @@
             </div>
         </div>
     </div>
+    <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Min altitude') }}" data-variation="tiny basic">
+        <div class="ui icon dropdown button">
+            <input type="hidden" id="{{ search_form.min_altitude.name }}" name="{{ search_form.min_altitude.name }}" value="{{ search_form.min_altitude.data }}"
+                    onchange="this.form.submit()">
+            <span class="text">&gt;{{ search_form.min_altitude.data }}°</span>
+            <div class="menu">
+                {% for min_alt_item in min_alt_item_list %}
+                    <div class="item" data-value="{{ min_alt_item }}">&gt;{{ min_alt_item }}°</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <div id="time_from" class="ui calendar item" style="width: 120px" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Time from') }}" data-variation="tiny basic">
       <div class="ui input left icon">
         <i class="time icon"></i>

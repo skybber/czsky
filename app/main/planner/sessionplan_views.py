@@ -59,6 +59,7 @@ from app.commons.dso_utils import normalize_dso_name
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
+min_alt_item_list = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 
 @main_sessionplan.route('/session-plans',  methods=['GET', 'POST'])
 @login_required
@@ -213,11 +214,34 @@ def session_plan_item_add(session_plan_id):
             flash('Object was added to session plan.', 'form-success')
         else:
             flash('Object is already on session plan.', 'form-info')
+
+        _reorder_by_merid_time(session_plan)
     else:
         flash('Deepsky object not found.', 'form-error')
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
+
+
+def _reorder_by_merid_time(session_plan):
+    loc = session_plan.location
+    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+    observation_time = Time(session_plan.for_date)
+    tz_info = pytz.timezone('Europe/Prague')
+
+    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
+
+    sli = session_plan.sky_list.sky_list_items
+    merid_time_list = _merid_time(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli])
+    session_plan_compound_list = [ (sli[i], merid_time_list[i]) for i in range(len(sli))]
+    session_plan_compound_list.sort(key=lambda x: x[1])
+    i = 1
+    for item in session_plan_compound_list:
+        sky_list_item = item[0]
+        sky_list_item.order = i
+        i += 1
+        db.session.add(sky_list_item)
+    db.session.commit()
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/item/<int:item_id>/delete')
@@ -310,6 +334,7 @@ def session_plan_schedule(session_plan_id):
         ('planner_dso_type', search_form.dso_type),
         ('planner_dso_obj_source', search_form.obj_source),
         ('planner_dso_maglim', search_form.maglim),
+        ('planner_min_altitude', search_form.min_altitude),
         ('planner_time_from', search_form.time_from),
         ('planner_time_to', search_form.time_to),
         ('planner_not_observed', search_form.not_observed),
@@ -360,8 +385,10 @@ def session_plan_schedule(session_plan_id):
         .join(SkyListItem.sky_list) \
         .filter(SkyList.id==session_plan.sky_list_id)
 
+    # Subtract already scheduled dsos
     dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
 
+    # Subtract observed dsos
     if search_form.not_observed.data:
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
@@ -369,9 +396,11 @@ def session_plan_schedule(session_plan_id):
         dso_query = dso_query.filter(DeepskyObject.id.notin_(observed_subquery))
 
 
+    # filter by type
     if search_form.dso_type.data and search_form.dso_type.data != 'All':
         dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
 
+    # filter by magnitude limit
     if search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
         dso_query = dso_query.filter(DeepskyObject.mag<search_form.maglim.data)
 
@@ -405,20 +434,17 @@ def session_plan_schedule(session_plan_id):
     tz_info = pytz.timezone('Europe/Prague')
     observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
 
-    time_from = setup_search_from(search_form, observer, observation_time, tz_info)
-    time_to = setup_search_to(search_form, observer, observation_time, time_from, tz_info)
+    time_from = _setup_search_from(search_form, observer, observation_time, tz_info)
+    time_to = _setup_search_to(search_form, observer, observation_time, time_from, tz_info)
 
+    # filter by rise-set time
     if use_time_filter:
         time_filtered_list = []
-        selection_rms_list = rise_merid_set_up(time_from, time_to, observer, [ (x.ra, x.dec) for x in selection_list])
+        selection_rms_list = _rise_merid_set_up(time_from, time_to, observer, [ (x.ra, x.dec) for x in selection_list])
         for i in range(len(selection_rms_list)):
             rise_t, merid_t, set_t, is_up = selection_rms_list[i]
-            if (rise_t is not None) and (set_t is not None):
-                do_add = rise_t < time_to or set_t>time_from
-            else:
-                do_add = is_up
-            if do_add:
-                time_filtered_list.append((selection_list[i], to_HM_format(rise_t, tz_info), to_HM_format(merid_t, tz_info), to_HM_format(set_t, tz_info)))
+            if is_up or rise_t < time_to or set_t>time_from:
+                time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
 
         all_count = len(time_filtered_list)
         if offset>=all_count:
@@ -426,27 +452,28 @@ def session_plan_schedule(session_plan_id):
             page = 1
         selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
-        selection_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
+        selection_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
         selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
 
-    sli = session_plan.sky_list.sky_list_items
-    session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli], tz_info)
+    # create session plan list
+    sli = session_plan.sky_list.sky_list_items.copy()
+    sli.sort(key=lambda x: x.order)
+    session_plan_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli], tz_info)
     session_plan_compound_list = [ (sli[i], *session_plan_rms_list[i]) for i in range(len(sli))]
 
-    print("#### " + str(all_count) + " " + str(page))
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
-                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort)
+                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list)
 
 
-def setup_search_from(search_form, observer, observation_time, tz_info):
+def _setup_search_from(search_form, observer, observation_time, tz_info):
     default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(tz_info)
     if search_form.time_from.data:
         try:
-            field_time = combine_date_and_time(observation_time, search_form.time_from.data, tz_info)
+            field_time = _combine_date_and_time(observation_time, search_form.time_from.data, tz_info)
         except ValueError:
             field_time = default_time
     else:
@@ -455,11 +482,11 @@ def setup_search_from(search_form, observer, observation_time, tz_info):
     return field_time
 
 
-def setup_search_to(search_form, observer, observation_time, time_from, tz_info):
+def _setup_search_to(search_form, observer, observation_time, time_from, tz_info):
     default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(tz_info)
     if search_form.time_to.data:
         try:
-            field_time = combine_date_and_time(observation_time, search_form.time_to.data, tz_info)
+            field_time = _combine_date_and_time(observation_time, search_form.time_to.data, tz_info)
         except ValueError:
             field_time = default_time
     else:
@@ -470,50 +497,45 @@ def setup_search_to(search_form, observer, observation_time, time_from, tz_info)
     return field_time
 
 
-def combine_date_and_time(date_part, time_part, tz_info):
+def _combine_date_and_time(date_part, time_part, tz_info):
     return datetime.combine(date_part.to_datetime().date(), datetime.strptime(time_part, '%H:%M').time(), tz_info)
 
 
-def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
+def _rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
     coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = wrap2array(observer.target_rise_time(time_from, coords, which='next', n_grid_points=10)) if len(coords) > 0 else []
-    merid_list = wrap2array(observer.target_meridian_transit_time(time_from, coords, which='next', n_grid_points=10))  if len(coords) > 0 else []
-    set_list = wrap2array(observer.target_set_time(time_to, coords, which='previous', n_grid_points=10)) if len(coords) > 0 else []
-    up_list = wrap2array(observer.target_is_up(time_from, coords)) if len(coords) > 0 else []
+    rise_list = _wrap2array(observer.target_rise_time(time_from, coords, which='next', n_grid_points=10)) if len(coords) > 0 else []
+    merid_list = _wrap2array(observer.target_meridian_transit_time(time_from, coords, which='next', n_grid_points=10))  if len(coords) > 0 else []
+    set_list = _wrap2array(observer.target_set_time(time_to, coords, which='previous', n_grid_points=10)) if len(coords) > 0 else []
+    up_list = _wrap2array(observer.target_is_up(time_from, coords)) if len(coords) > 0 else []
 
-    return [(rise_list[i], merid_list[i], set_list[i], up_list) for i in range(len(rise_list))]
-
-
-def wrap2array(ar):
-    try:
-        it = iter(ar)
-        return ar
-    except TypeError:
-        return [ar]
+    return [(rise_list[i], merid_list[i], set_list[i], up_list[i]) for i in range(len(rise_list))]
 
 
-def rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
+def _rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
     coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = ar_to_HM_format(observer.target_rise_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
-    merid_list = ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info)  if len(coords) > 0 else []
-    set_list = ar_to_HM_format(observer.target_set_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
+    rise_list = _ar_to_HM_format(observer.target_rise_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
+    merid_list = _ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info)  if len(coords) > 0 else []
+    set_list = _ar_to_HM_format(observer.target_set_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
 
 
-def to_HM_format(t, tz_info):
+def _merid_time(t, observer, ra_dec_list):
+    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
+    merid_list = observer.target_meridian_transit_time(t, coords, n_grid_points=10) if len(coords) > 0 else []
+    return _wrap2array(merid_list)
+
+
+def _to_HM_format(t, tz_info):
     try:
         return t.to_datetime(tz_info).strftime('%H:%M')
     except ValueError:
         return ''
 
 
-def ar_to_HM_format(tm, tz_info):
+def _ar_to_HM_format(tm, tz_info):
     ret = []
-    try:
-        it = iter(tm)
-    except TypeError:
-        tm = [tm]
+    tm = _wrap2array(tm)
 
     for t in tm:
         try:
@@ -521,4 +543,12 @@ def ar_to_HM_format(tm, tz_info):
         except ValueError:
             ret.append('')
     return ret
+
+
+def _wrap2array(ar):
+    try:
+        it = iter(ar)
+        return ar
+    except TypeError:
+        return [ar]
 

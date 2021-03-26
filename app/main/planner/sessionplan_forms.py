@@ -61,6 +61,7 @@ class SessionPlanScheduleSearch(FlaskForm):
          ('PN', 'Planetary Nebula'),
     ], default='')
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
+    min_altitude = IntegerField(lazy_gettext('Min altitude'), default=5)
     items_per_page = IntegerField(lazy_gettext('Items per page'))
     time_from = TimeField('Time From', format='%H:%M')
     time_to = TimeField('Time From', format='%H:%M')
