@@ -61,8 +61,9 @@ def global_search():
         dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
         return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=embed))
 
-    constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first() or \
-                    Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
+    constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
+    if not constellation:
+        constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
 
     if constellation:
         return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code, embed=embed))
