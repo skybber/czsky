@@ -431,7 +431,7 @@ def _get_highlights_dso_list():
 def _create_highlights(obj_ra, obj_dec, highlights_dso_list):
     highlights = []
     if not obj_ra is None and not obj_dec is None:
-        hl = fchart3.HighlightDefinition('cross', (0.0, 0.5, 0.0), [[obj_ra, obj_dec]])
+        hl = fchart3.HighlightDefinition('cross', (0.0, 0.5, 0.0), [['', obj_ra, obj_dec]])
         highlights.append(hl)
 
     if highlights_dso_list:
