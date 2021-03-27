@@ -29,7 +29,6 @@ from app.models import (
     ObservedListItem,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
-    SkyList,
     User,
     UserDsoApertureDescription,
     UserDsoDescription,
@@ -48,7 +47,18 @@ from .deepskyobject_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
-from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_chart_pdf_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import (
+    get_chart_legend_flags,
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_chart_pdf_img,
+    common_prepare_chart_data,
+    common_fchart_dso_list_menu,
+    MAG_SCALES,
+    DSO_MAG_SCALES,
+    STR_GUI_FIELD_SIZES,
+)
+
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -191,6 +201,7 @@ def deepskyobject_switch_observed_list():
         result = 'on'
     return jsonify(result=result)
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/seltab')
 def deepskyobject_seltab(dso_id):
     """View a deepsky object seltab."""
@@ -211,6 +222,7 @@ def deepskyobject_seltab(dso_id):
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
+
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
@@ -272,7 +284,7 @@ def deepskyobject_info(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list, title_img=title_img, season=season, embed=embed
+                           wish_list=wish_list, observed_list=observed_list, title_img=title_img, season=season, embed=embed,
                            )
 
 
@@ -328,10 +340,11 @@ def deepskyobject_catalogue_data(dso_id):
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart', methods=['GET', 'POST'])
 def deepskyobject_chart(dso_id):
-    """View a deepsky object findchart."""
+    """View a deepsky object fchart."""
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
+
     form  = ChartForm()
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
@@ -362,9 +375,9 @@ def deepskyobject_chart(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'chart'
 
-    default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='true', allow_back='true')
+    default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/deepskyobject_info.html', form=form, type='chart', dso=dso,
+    return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
@@ -372,7 +385,8 @@ def deepskyobject_chart(dso_id):
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           default_chart_iframe_url=default_chart_iframe_url, chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed
+                           default_chart_iframe_url=default_chart_iframe_url, chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed,
+                           fchart_dso_list_menu=common_fchart_dso_list_menu()
                            )
 
 
@@ -384,7 +398,9 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
+
     img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects)
+
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
@@ -399,6 +415,7 @@ def deepskyobject_chart_legend_img(dso_id, ra, dec):
         abort(404)
 
     img_bytes = common_chart_legend_img(dso.ra, dso.dec, ra, dec, )
+
     return send_file(img_bytes, mimetype='image/png')
 
 
@@ -407,7 +424,9 @@ def chart_pdf(dso_id, ra, dec):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
+
     img_bytes = common_chart_pdf_img(dso.ra, dso.dec, ra, dec)
+
     return send_file(img_bytes, mimetype='application/pdf')
 
 
@@ -581,7 +600,7 @@ def _get_prev_next_dso(dso):
         if current_user.is_authenticated:
             session_plan = SessionPlan.query.filter_by(id=back_id).first()
             if session_plan.user_id == current_user.id:
-                prev_item, next_item = session_plan.sky_list.get_prev_next_item(dso.id, _get_season_constell_ids())
+                prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
                 return (prev_item.deepskyObject if prev_item else None,
                         prev_item.deepskyObject.denormalized_name() if prev_item else None,
                         next_item.deepskyObject if next_item else None,

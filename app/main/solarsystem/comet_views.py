@@ -35,7 +35,17 @@ from .comet_forms import (
     CometFindChartForm,
 )
 
-from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import (
+    get_chart_legend_flags,
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_prepare_chart_data,
+    common_fchart_dso_list_menu,
+    MAG_SCALES,
+    DSO_MAG_SCALES,
+    STR_GUI_FIELD_SIZES
+)
+
 from app.commons.utils import to_float
 
 main_comet = Blueprint('main_comet', __name__)
@@ -203,12 +213,12 @@ def comet_info(comet_id):
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
-    return render_template('main/solarsystem/comet_info.html', form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
+    return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            mag_scale=cur_mag_scale, dso_mag_scale=cur_dso_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_nm=('1' if night_mode else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags,
+                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_fchart_dso_list_menu(),
                            )
 
 

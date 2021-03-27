@@ -39,8 +39,7 @@ from app.models import (
     ObservedList,
     ObservedListItem,
     SessionPlan,
-    SkyList,
-    SkyListItem,
+    SessionPlanItem,
     User,
     WishList,
     WishListItem,
@@ -122,22 +121,12 @@ def new_session_plan():
     form = SessionPlanNewForm()
     if request.method == 'POST' and form.validate_on_submit():
 
-        new_sky_list = SkyList(
-            user_id = current_user.id,
-            name = 'future',
-            create_by = current_user.id,
-            update_by = current_user.id,
-            create_date = datetime.now(),
-            update_date = datetime.now(),
-        )
-
         new_session_plan = SessionPlan(
             user_id = current_user.id,
             title = form.title.data,
             for_date = form.for_date.data,
             location_id = form.location_id.data,
             notes = form.notes.data,
-            sky_list = new_sky_list,
             create_by = current_user.id,
             update_by = current_user.id,
             create_date = datetime.now(),
@@ -146,8 +135,6 @@ def new_session_plan():
 
         db.session.add(new_session_plan)
         db.session.commit()
-        new_sky_list.name = 'SessionPlan[user.id={}]'.format(new_session_plan.id)
-        db.session.add(new_sky_list)
         db.session.commit()
 
         flash('Session plan successfully created', 'form-success')
@@ -184,7 +171,7 @@ def session_plan_clear(session_plan_id):
     if session_plan.user_id != current_user.id:
         abort(404)
 
-    SkyListItem.query.filter_by(sky_list_id=session_plan.sky_list_id).delete()
+    SessionPlanItem.query.filter_by(session_plan_id=session_plan_id).delete()
     db.session.commit()
     flash('Session items deleted', 'form-success')
     session['is_backr'] = True
@@ -212,7 +199,10 @@ def session_plan_item_add(session_plan_id):
             deepsky_object = DeepskyObject.query.filter(DeepskyObject.id==dso_id).first()
 
     if deepsky_object:
-        if session_plan.append_deepsky_object(deepsky_object.id, current_user.id):
+        if not session_plan.find_dso_by_id(deepsky_object.id):
+            new_item = session_plan.create_new_session_plan_item(deepsky_object.id, current_user.id)
+            db.session.add(new_item)
+            db.session.commit()
             flash('Object was added to session plan.', 'form-success')
         else:
             flash('Object is already on session plan.', 'form-info')
@@ -233,35 +223,33 @@ def _reorder_by_merid_time(session_plan):
 
     observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
 
-    sli = session_plan.sky_list.sky_list_items
-    merid_time_list = _merid_time(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli])
-    session_plan_compound_list = [ (sli[i], merid_time_list[i]) for i in range(len(sli))]
+    spi = session_plan.session_plan_items
+    merid_time_list = _merid_time(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi])
+    session_plan_compound_list = [ (spi[i], merid_time_list[i]) for i in range(len(spi))]
     session_plan_compound_list.sort(key=lambda x: x[1])
     i = 1
     for item in session_plan_compound_list:
-        sky_list_item = item[0]
-        sky_list_item.order = i
+        session_plan_item = item[0]
+        session_plan_item.order = i
         i += 1
-        db.session.add(sky_list_item)
+        db.session.add(session_plan_item)
     db.session.commit()
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/item/<int:item_id>/delete')
+@main_sessionplan.route('/session-plan-item/<int:item_id>/delete')
 @login_required
-def session_plan_item_delete(session_plan_id, item_id):
+def session_plan_item_delete(item_id):
     """Remove item from session plan."""
-    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
+    session_plan_item = SessionPlanItem.query.filter_by(id=item_id).first()
+
+    if session_plan_item is None:
         abort(404)
-    if session_plan.user_id != current_user.id:
+    if session_plan_item.session_plan.user_id != current_user.id:
         abort(404)
 
-    list_item = SkyListItem.query.filter_by(id=item_id).first()
-    if list_item is not None:
-        session_plan2 = SessionPlan.query.filter_by(sky_list_id=list_item.sky_list.id).first()
-        if session_plan2 is not None and session_plan2.id == session_plan.id:
-            db.session.delete(list_item)
-            flash('Session plan item was deleted', 'form-success')
+    db.session.delete(session_plan_item)
+    db.session.commit()
+    flash('Session plan item was deleted', 'form-success')
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
@@ -289,7 +277,7 @@ def session_plan_upload(session_plan_id):
         file.save(path)
         with open(path) as csvfile:
             reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
-            existing_ids = set(item.dso_id for item in session_plan.sky_list.sky_list_items)
+            existing_ids = set(item.dso_id for item in session_plan.session_plan_items)
 
             for row in reader:
                 dso_name = row['DSO_NAME']
@@ -301,10 +289,9 @@ def session_plan_upload(session_plan_id):
 
                 if dso and not dso.id in existing_ids:
 
-                    if not session_plan.sky_list.find_dso_in_skylist(dso.id):
-                        new_item = session_plan.create_new_sky_list_item(session_plan.sky_list_id, dso.id, current_user.id)
+                    if not session_plan.find_dso_by_id(dso.id):
+                        new_item = session_plan.create_new_session_plan_item(dso.id, current_user.id)
                         db.session.add(new_item)
-
                     existing_ids.add(dso.id)
         db.session.commit()
         os.remove(path)
@@ -384,9 +371,8 @@ def session_plan_schedule(session_plan_id):
         if cat_id:
             dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
-    scheduled_subquery = db.session.query(SkyListItem.dso_id) \
-        .join(SkyListItem.sky_list) \
-        .filter(SkyList.id==session_plan.sky_list_id)
+    scheduled_subquery = db.session.query(SessionPlanItem.dso_id) \
+        .filter(SessionPlanItem.session_plan_id==session_plan.id)
 
     # Subtract already scheduled dsos
     dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
@@ -459,7 +445,6 @@ def session_plan_schedule(session_plan_id):
                 targets.append(target)
             time_range = Time([time_from, time_to])
             observable_list = is_observable(constraints, observer, targets, time_range=time_range)
-            print(str(observable_list), flush=True)
             time_filtered_list = [ time_filtered_list[i] for i in range(len(time_filtered_list)) if observable_list[i] ]
 
         all_count = len(time_filtered_list)
@@ -472,10 +457,10 @@ def session_plan_schedule(session_plan_id):
         selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
 
     # create session plan list
-    sli = session_plan.sky_list.sky_list_items.copy()
-    sli.sort(key=lambda x: x.order)
-    session_plan_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in sli], tz_info)
-    session_plan_compound_list = [ (sli[i], *session_plan_rms_list[i]) for i in range(len(sli))]
+    spi = session_plan.session_plan_items.copy()
+    spi.sort(key=lambda x: x.order)
+    session_plan_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi], tz_info)
+    session_plan_compound_list = [ (spi[i], *session_plan_rms_list[i]) for i in range(len(spi))]
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 

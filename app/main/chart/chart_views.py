@@ -46,7 +46,18 @@ from .chart_forms import (
     ChartForm,
 )
 
-from app.commons.chart_generator import get_chart_legend_flags, common_chart_pos_img, common_chart_legend_img, common_chart_pdf_img, common_prepare_chart_data, MAG_SCALES, DSO_MAG_SCALES, STR_GUI_FIELD_SIZES
+from app.commons.chart_generator import (
+    get_chart_legend_flags,
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_chart_pdf_img,
+    common_prepare_chart_data,
+    common_fchart_dso_list_menu,
+    MAG_SCALES,
+    DSO_MAG_SCALES,
+    STR_GUI_FIELD_SIZES
+)
+
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_chart = Blueprint('main_chart', __name__)
@@ -85,14 +96,14 @@ def chart():
 
     night_mode = True
 
-    return render_template('main/chart/chart.html', form=form,
+    return render_template('main/chart/chart.html', fchart_form=form,
                            mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
                            dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                            gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags,
+                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_fchart_dso_list_menu(),
                            )
 
 @main_chart.route('/chart/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

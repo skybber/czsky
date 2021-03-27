@@ -46,8 +46,10 @@
 {# --- Chart --- #}
 {% macro star_chart(user_descr) %}
     {{ fchart.fchart(url_for('main_star.star_chart', star_id=user_descr.id, back=back, back_id=back_id),
-                     url_for('main_star.star_chart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=chart_flags),
-                     url_for('main_star.star_chart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=legend_flags))
+                     url_for('main_star.star_chart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=chart_flags, olid=fchart_form.obj_list_id.data),
+                     url_for('main_star.star_chart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=legend_flags),
+                     fchart_form, fchart_dso_list_menu,
+                     )
     }}
 {% endmacro %}
 

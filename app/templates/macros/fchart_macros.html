@@ -1,39 +1,43 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url=None, default_chart_iframe_url='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_form, fchart_dso_list_menu, fchart_pdf_url=None, default_chart_iframe_url='') %}
+
+{% set is_fullscreen = True if fchart_form.fullscreen.data == 'true' else False %}
+{% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
+{% set data_position='data-position="left center"' if is_fullscreen or is_splitview else '' %}
 
 <div id="fchart-div" style="width:100%;height:75vh;">
 
   <div  class="ui secondary menu">
   <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
-      <input type="hidden" id="ra" name="ra" value="{{ form.ra.data }}" >
-      <input type="hidden" id="dec" name="dec" value="{{ form.dec.data }}" >
-      <input type="hidden" id="fullscreen" name="fullscreen" value="{{ form.fullscreen.data }}" >
-      <input type="hidden" id="splitview" name="splitview" value="{{ form.splitview.data }}" >
-      <input type="hidden" id="radius" name="{{ form.radius.name }}" value="{{ form.radius.data }}">
-      <input type="hidden" id="show_telrad" name="{{ form.show_telrad.name }}" value="{{ form.show_telrad.data }}">
-      <input type="hidden" id="show_constell_shapes" name="{{ form.show_constell_shapes.name }}" value="{{ form.show_constell_shapes.data }}">
-      <input type="hidden" id="show_constell_borders" name="{{ form.show_constell_borders.name }}" value="{{ form.show_constell_borders.data }}">
-      <input type="hidden" id="show_dso" name="{{ form.show_dso.name }}" value="{{ form.show_dso.data }}">
-      <input type="hidden" id="show_egrid" name="{{ form.show_equatorial_grid.name }}" value="{{ form.show_equatorial_grid.data }}">
+      <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
+      <input type="hidden" id="dec" name="dec" value="{{ fchart_form.dec.data }}" >
+      <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
+      <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
+      <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
+      <input type="hidden" id="show_telrad" name="{{ fchart_form.show_telrad.name }}" value="{{ fchart_form.show_telrad.data }}">
+      <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
+      <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
+      <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
+      <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
       <div class="ui right horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
-              <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if form.show_telrad.data=='true' else ''}}"
-                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-variation="tiny basic">
+              <button id="bshow-telrad" class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}}"
+                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="left center" data-variation="tiny basic">
                   <i class="bullseye icon"></i>
               </button>
-              <button id="bshow-constell-shapes" class="ui toggle icon button{{ ' active' if form.show_constell_shapes.data=='true' else ''}}"
-                    data-inverted="" data-tooltip="{{ _('Constellation lines')}}" data-variation="tiny basic">
+              <button id="bshow-constell-shapes" class="ui toggle icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Constellation lines')}}" data-position="left center" data-variation="tiny basic">
                   <i class="lastfm icon"></i>
               </button>
-              <button id="bshow-constell-borders" class="ui toggle icon button{{ ' active' if form.show_constell_borders.data=='true' else ''}}"
-                    data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-variation="tiny basic">
+              <button id="bshow-constell-borders" class="ui toggle icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-position="left center" data-variation="tiny basic">
                   <i class="draw polygon icon"></i>
               </button>
-              <button id="bshow-egrid" class="ui toggle icon button{{ ' active' if form.show_equatorial_grid.data=='true' else ''}}"
-                    data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-variation="tiny basic">
+              <button id="bshow-egrid" class="ui toggle icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-position="left center" data-variation="tiny basic">
                   <i class="globe icon"></i>
               </button>
-              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if form.show_dso.data=='true' else ''}}"
-                    data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-variation="tiny basic">
+              <button id="bshow-dso" class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}}"
+                    data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="left center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
               </button>
           </div>
@@ -44,9 +48,9 @@
               <button id="decmag" class="ui icon {{ disable_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
               </button>
-              <div class="ui icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
-                  <input type="hidden" id="maglim" name="maglim" value="{{ form.maglim.data }}" >
-                  <span id="smaglim" class="text">{{ form.maglim.data }}</span>
+              <div class="ui icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-position="left center" data-variation="tiny basic">
+                  <input type="hidden" id="maglim" name="maglim" value="{{ fchart_form.maglim.data }}" >
+                  <span id="smaglim" class="text">{{ fchart_form.maglim.data }}</span>
                   <div id="maglim_menu" class="menu">
                       {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
                           <div class="item">{{ mag_item }}</div>
@@ -64,9 +68,9 @@
               <button id="decdsomag" class="ui icon {{ disable_dso_dec_mag }} button mobile hidden">
                   <i class="left chevron icon"></i>
               </button>
-              <div class="ui icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-variation="tiny basic">
-                  <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ form.dso_maglim.data }}">
-                  <span id="sdso_maglim" class="text">{{ form.dso_maglim.data }}</span>
+              <div class="ui icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-position="left center" data-variation="tiny basic">
+                  <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ fchart_form.dso_maglim.data }}">
+                  <span id="sdso_maglim" class="text">{{ fchart_form.dso_maglim.data }}</span>
                   <div id="dso_maglim_menu" class="menu">
                       {% for mag_item in range(dso_mag_scale[0], dso_mag_scale[1] + 1) %}
                           <div class="item">
@@ -80,12 +84,71 @@
               </button>
           </div>
       </div>
+      <div class="ui horizontally fitted item" style="z-index:100">
+          <div class="ui floating dropdown icon button" data-inverted="" data-tooltip="{{ _('Object List') }}" data-position="left center" data-variation="tiny basic">
+              <input type="hidden" id="obj_list_id" name="{{ fchart_form.obj_list_id.name }}" value="{{ fchart_form.obj_list_id.data }}">
+              <i class="list icon"></i>
+              <div class="menu">
+                  <div class="item" data-value="">{{ _('None') }}</div>
+                  {% if fchart_dso_list_menu and (fchart_dso_list_menu.is_wish_list or fchart_dso_list_menu.session_plans or fchart_dso_list_menu.observations) %}
+                      {% if fchart_dso_list_menu.is_wish_list %}
+                          <div class="item" data-value="wl">{{ _('Wish List') }}</div>
+                      {% endif %}
+                      {% if fchart_dso_list_menu.session_plans %}
+                          <div class="item">
+                              <i class="dropdown icon"></i>
+                              <span class="text">{{ _('Session plans')}}</span>
+                              <div class="right menu">
+                                  {% for spl in fchart_dso_list_menu.session_plans %}
+                                      <div class="item" data-value="pl{{ spl.id }}">{{ spl.for_date.strftime('%Y-%m-%d') }} {{ spl.location.name if spl.location else spl.txt_location_name }}</div>
+                                  {% endfor %}
+                              </div>
+                          </div>
+                      {% endif %}
+                      {% if fchart_dso_list_menu.observations %}
+                          <div class="item">
+                              <i class="dropdown icon"></i>
+                              <span class="text">{{ _('Observations')}}</span>
+                              <div class="right menu">
+                                  {% for obs in fchart_dso_list_menu.observations %}
+                                      <div class="item" data-value="ob{{ obs.id }}">{{ obs.date.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.txt_location_name }}</div>
+                                  {% endfor %}
+                              </div>
+                          </div>
+                      {% endif %}
+                      {% if fchart_dso_list_menu.dso_lists %}
+                          <div class="item">
+                              <i class="dropdown icon"></i>
+                              <span class="text">{{ _('DSO List')}}</span>
+                              <div class="right menu">
+                                  {% for dsol in fchart_dso_list_menu.dso_lists %}
+                                      <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
+                                  {% endfor %}
+                              </div>
+                          </div>
+                      {% endif %}
+                  {% elif fchart_dso_list_menu and fchart_dso_list_menu.dso_lists %}
+                      <div class="item">
+                          <i class="dropdown icon"></i>
+                          <span class="text">{{ _('DSO List')}}</span>
+                          <div class="right menu">
+                              {% for dsol in fchart_dso_list_menu.dso_lists %}
+                                  <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
+                              {% endfor %}
+                          </div>
+                      </div>
+                  {% endif %}
+              </div>
+          </div>
+      </div>
+
       <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
   </form>
+  <!-- Export to PDF -->
   {% if fchart_pdf_url is not none %}
       <div class="ui horizontally fitted tablet item mobile hidden" style="z-index:100">
           <div class="ui buttons">
-                  <a id="download_pdf" href="" target="_blank" class="ui icon button"  data-inverted="" data-tooltip="{{ _('PDF export') }}" data-variation="tiny basic">
+                  <a id="download_pdf" href="" target="_blank" class="ui icon button" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="left center" data-variation="tiny basic">
                       <i class="download icon"></i>
                   </a>
           </div>
@@ -99,14 +162,14 @@
   </div>
   <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100">
       <div class="ui buttons">
-          <button id="bsplitview" type="button" class="ui icon button" data-inverted="" data-tooltip="{{ _('Split view') }}" data-variation="tiny basic">
+          <button id="bsplitview" type="button" class="ui icon button" data-inverted="" data-tooltip="{{ _('Split view') }}" data-position="left center" data-variation="tiny basic">
               <i class="columns icon"></i>
           </button>
       </div>
   </div>
   <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
       <div class="ui buttons">
-          <button id="bfullscreen" type="button" class="ui icon button">
+          <button id="bfullscreen" type="button" class="ui icon button" data-inverted="" data-tooltip="{{ _('Toggle fullscreen') }}" data-position="left center" data-variation="tiny basic">
               <i class="expand icon"></i>
           </button>
       </div>
@@ -148,12 +211,12 @@
 
     var fchart = new FChart('#fchart-div', {{ gui_field_index }}, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=", true,
-            {{ 'true' if form.fullscreen.data == 'true' else 'false' }},
-            {{ 'true' if form.splitview.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
             '{{ default_chart_iframe_url }}'
     );
 
-    if ({{ 'true' if form.fullscreen.data == 'true' or form.splitview.data == 'true' else 'false' }}) {
+    if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
         $("#isearch").show();
     }
 
@@ -268,6 +331,12 @@
         if (!submitDisabled)
             this.form.submit();
     });
+
+    $('#obj_list_id').change(function() {
+        if (!submitDisabled)
+            this.form.submit();
+    });
+
 
     $('#download_pdf').click(function(event){
         $('#download_pdf').attr("href", fchart.formatUrl('{{fchart_pdf_url | safe  }}'));

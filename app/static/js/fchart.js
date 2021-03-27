@@ -6,7 +6,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
 
     var url = default_chart_iframe_url;
     if (url == '') {
-        url = searchUrl + "M1&embed=true";
+        url = searchUrl + "M1&embed=fc";
     }
 
     this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
@@ -422,7 +422,7 @@ FChart.prototype.onClick = function(e) {
     if (dso != null) {
         dso = dso.replace(/\s/g, '');
         if (this.isInSplitView()) {
-            var url = this.searchUrl + encodeURIComponent(dso) + "&embed=true";
+            var url = this.searchUrl + encodeURIComponent(dso) + "&embed=fc";
             $(".fchart-iframe").attr('src', url);
         } else {
             window.location.href = this.searchUrl + encodeURIComponent(dso);

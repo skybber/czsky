@@ -27,7 +27,7 @@
                         <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
                         <button class="ui icon button">
                             <i class="plus icon"></i>
-                        </button>                    
+                        </button>
                     </div>
                     {{ f.end_form(add_form) }}
                 </div>
@@ -44,7 +44,7 @@
                                 <i class="download icon"></i>
                             </button>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                        </form>            
+                        </form>
                     </div>
                     <div class="ui item">
                         <form id="fmupload" method="post" action="{{ url_for('main_observation.observed_list_upload') }}" enctype="multipart/form-data">
@@ -53,7 +53,7 @@
                             </label>
                             <input type="file" id="file" name="file" class="ui file input">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                        </form>            
+                        </form>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
                             <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_observation.observed_list_item_remove', item_id=item.id) }}">
+                                <a class="ui icon mini button" href="{{ url_for('main_observation.observed_list_item_delete', item_id=item.id) }}">
                                     <i class="trash alternate icon"></i>
                                 </a>
                             </td>
@@ -90,7 +90,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="ui tiny modal loadModal">
       <div class="header">{{ _('Load observation list') }}</div>
       <div class="content">
@@ -120,7 +120,7 @@
         </a>
       </div>
     </div>
-    
+
     <style>
         .ui.file.input {
           top: -999999px;
@@ -149,7 +149,7 @@
         });
         $("#confirm_upload").click(function() {
             $("#fmupload" ).submit();
-        });        
+        });
         $('#clear_observed').click(function() {
             $('.ui.modal.deleteModal')
                 .modal('show');

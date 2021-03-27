@@ -24,7 +24,7 @@
     {% else %}
     <div class="ui two column divided grid" style="height: 100% !important; width: 100% !important;">
         <div class="column" style="width: 420px !important">
-            <iframe id="plIframe" src="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=selected_dso_name, embed=true) }}" frameborder="0" class="planner-iframe"></iframe>
+            <iframe id="plIframe" src="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=selected_dso_name, embed='pl') }}" frameborder="0" class="planner-iframe"></iframe>
         </div>
         <div class="column" style="flex: 1">
     {% endif %}

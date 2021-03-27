@@ -115,7 +115,7 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, embed='true') }}{% endmacro %}
+          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, embed='pl') }}{% endmacro %}
 
           {% for item in selection_compound_list %}
               <tr>
@@ -178,7 +178,7 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, embed='true') }}{% endmacro %}
+          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
 
           {% for item in session_plan_compound_list %}
               <tr>
@@ -190,7 +190,7 @@
                   <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
                   <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', session_plan_id=session_plan.id, item_id=item[0].id) }}">
+                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id) }}">
                           <i class="trash alternate icon"></i>
                       </a>
                   </td>

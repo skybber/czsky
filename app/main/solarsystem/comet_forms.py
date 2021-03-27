@@ -46,3 +46,4 @@ class CometFindChartForm(FlaskForm):
     show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     from_date = DateField(lazy_gettext('From Date'), id='fromdate', format = '%d/%m/%Y', default = datetime.today)
     to_date = DateField(lazy_gettext('To Date'), id='todate', format = '%d/%m/%Y', default = datetime.today)
+    obj_list_id= HiddenField('obj_list_id', default=None)

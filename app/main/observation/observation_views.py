@@ -165,7 +165,7 @@ def observed_list_item_add():
 
 @main_observation.route('/observed-list-item/<int:item_id>/delete')
 @login_required
-def observed_list_item_remove(item_id):
+def observed_list_item_delete(item_id):
     """Remove item to observed list."""
     observed_list_item = ObservedListItem.query.filter_by(id=item_id).first()
     if observed_list_item is None:

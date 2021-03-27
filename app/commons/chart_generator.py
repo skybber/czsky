@@ -13,6 +13,16 @@ from flask import (
 import fchart3
 
 from flask import app
+from flask_login import current_user
+
+from app import db
+
+from app.models import (
+    DsoList,
+    Observation,
+    SessionPlan,
+    WishList,
+)
 
 used_catalogs = None
 
@@ -53,6 +63,7 @@ def _load_used_catalogs():
                                              show_catalogs = [])
     return used_catalogs
 
+
 def _setup_skymap_graphics(config, fld_size, width, night_mode):
         config.constellation_linewidth = 0.5
         config.constellation_linewidth = 0.3
@@ -82,7 +93,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             else:
                 config.grid_color = (0.12, 0.18, 0.20)
             config.star_colors = True
-            config.dso_symbol_brightness = True
+            config.dso_dynamic_brightness = True
         else:
             config.constellation_lines_color = (0.5, 0.7, 0.8)
             config.constellation_border_color = (0.8, 0.7, 0.1)
@@ -93,11 +104,40 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.galaxy_color = (0.3, 0.0, 0.0)
             config.star_cluster_color = (0.3, 0.3, 0.0)
             config.grid_color = (0.7, 0.7, 0.7)
-            config.dso_symbol_brightness = False
+            config.dso_dynamic_brightness = False
+
+
+def _get_highlights_dso_list():
+    obj_list_id = request.args.get('olid')
+    marked_dsos = None
+
+    if obj_list_id:
+
+        if obj_list_id.startswith('dl'):
+            dso_list_id = int(obj_list_id[2:])
+            dso_list = DsoList.query.filter_by(id=dso_list_id).first()
+            if dso_list:
+                marked_dsos = [ x.deepskyObject for x in dso_list.dso_list_items ]
+        elif current_user is not None:
+            if obj_list_id == 'wl':
+                wish_list = WishList.query.filter_by(user_id=current_user.id).first()
+                if wish_list and wish_list.user_id == current_user.id:
+                    marked_dsos = [ x.deepskyObject for x in wish_list.wish_list_items ]
+            elif obj_list_id.startswith('pl'):
+                session_plan_id = int(obj_list_id[2:])
+                session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+                if session_plan and session_plan.user_id == current_user.id:
+                    marked_dsos = [ x.deepskyObject for x in session_plan.session_plan_items ]
+            elif obj_list_id.startswith('ob'):
+                observation_id = int(obj_list_id[2:])
+                observation = Observation.query.filter_by(id=observation_id).first()
+                if observation and observation.user_id == current_user.id:
+                  marked_dsos = [ x.deepskyObject for x in observation.observation_items ]
+
+    return marked_dsos
 
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None):
-
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -112,21 +152,11 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
+    highlights_dso_list = _get_highlights_dso_list()
 
     img_bytes = BytesIO()
-    create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim, night_mode, mirror_x, mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
-    img_bytes.seek(0)
-    return img_bytes
-
-def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None):
-    gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
-
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
-    flags = request.args.get('flags')
-
-    img_bytes = BytesIO()
-    create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names, flags=flags)
+    _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
+                  night_mode, highlights_dso_list, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -148,7 +178,20 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, flags=flags)
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, flags=flags)
+    img_bytes.seek(0)
+    return img_bytes
+
+
+def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None):
+    gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
+
+    mirror_x = to_boolean(request.args.get('mx'), False)
+    mirror_y = to_boolean(request.args.get('my'), False)
+    flags = request.args.get('flags')
+
+    img_bytes = BytesIO()
+    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -183,6 +226,7 @@ def common_prepare_chart_data(form):
         _, ml, dml = _get_fld_size_maglim(i)
         mag_range_values.append(ml)
         dso_mag_range_values.append(dml)
+
 
     return (fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values)
 
@@ -232,7 +276,8 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode, highlights_dso_list,
+                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -277,20 +322,30 @@ def create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, 
             if dso:
                 showing_dsos.append(dso)
 
-    highlights = None
+    highlights = []
+
     if not obj_ra is None and not obj_dec is None:
-        highlights = []
-        highlights.append([obj_ra, obj_dec])
+        hl = fchart3.HighlightDefinition('cross', (0.0, 0.5, 0.0), [[obj_ra, obj_dec]])
+        highlights.append(hl)
+
+    if highlights_dso_list:
+        hl_positions = []
+        for dso in highlights_dso_list:
+            hl_positions.append([dso.ra, dso.dec])
+        hl = fchart3.HighlightDefinition('circle', (0.0, 0.0, 1.0), hl_positions)
+        highlights.append(hl)
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects)
+
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
         free_mem_counter = 0
         used_catalogs.free_mem()
+
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
     """Create chart PDF in czsky process."""
     global free_mem_counter
     tm = time()
@@ -335,18 +390,18 @@ def create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, 
             if dso:
                 showing_dsos.append(dso)
 
-    highlights = None
+    highlighted_list = None
     if not obj_ra is None and not obj_dec is None:
-        highlights = []
-        highlights.append([obj_ra, obj_dec])
+        highlighted_list = []
+        highlighted_list.append([obj_ra, obj_dec])
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlighted_list=highlighted_list)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
 
-def create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, flags=''):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, flags=''):
     global free_mem_counter
     tm = time()
 
@@ -407,3 +462,25 @@ def get_chart_legend_flags(form):
         chart_flags += 'E'
 
     return (chart_flags, legend_flags)
+
+
+class FChartDsoListMenu:
+    def __init__(self, dso_lists, is_wish_list, session_plans, observations):
+        self.dso_lists = dso_lists
+        self.is_wish_list = is_wish_list
+        self.session_plans = session_plans
+        self.observations = observations
+
+
+def common_fchart_dso_list_menu():
+    dso_lists = DsoList.query.all()
+    if current_user is not None:
+        is_wish_list = True
+        session_plans = SessionPlan.query.filter_by(user_id=current_user.id).all()
+        observations = Observation.query.filter_by(user_id=current_user.id).all()
+    else:
+        is_wish_list = False
+        session_plans = None
+        observations = None
+
+    return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observations)
