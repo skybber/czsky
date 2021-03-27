@@ -128,14 +128,10 @@
                           </div>
                       {% endif %}
                   {% elif fchart_dso_list_menu and fchart_dso_list_menu.dso_lists %}
-                      <div class="item">
-                          <i class="dropdown icon"></i>
-                          <span class="text">{{ _('DSO List')}}</span>
-                          <div class="right menu">
-                              {% for dsol in fchart_dso_list_menu.dso_lists %}
-                                  <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
-                              {% endfor %}
-                          </div>
+                      <div class="right menu">
+                          {% for dsol in fchart_dso_list_menu.dso_lists %}
+                              <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
+                          {% endfor %}
                       </div>
                   {% endif %}
               </div>
