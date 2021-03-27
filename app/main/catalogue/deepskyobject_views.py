@@ -430,7 +430,6 @@ def chart_pdf(dso_id, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-
 @main_deepskyobject.route('/deepskyobject/<int:dso_id>/edit', methods=['GET', 'POST'])
 @login_required
 def deepskyobject_edit(dso_id):
