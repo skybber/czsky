@@ -15,7 +15,7 @@ class SessionPlan(db.Model):
     for_date = db.Column(db.DateTime, default=datetime.now())
     # TODO: obsolete, remove
     sky_list_id = db.Column(db.Integer, nullable=False)
-    session_plan_items = db.relationship('SessionPlanItem', backref='session_plan_list', lazy=True)
+    session_plan_items = db.relationship('SessionPlanItem', backref='session_plan', lazy=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

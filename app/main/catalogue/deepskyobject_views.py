@@ -177,6 +177,7 @@ def deepskyobject_switch_wish_list():
     wish_list_item = WishListItem.query.filter_by(wish_list_id=wish_list.id, dso_id=dso_id).first()
     if wish_list_item:
         db.session.delete(wish_list_item)
+        db.session.commit()
         result = 'off'
     else:
         wish_list.append_new_deepsky_object(dso_id, current_user.id)
@@ -195,6 +196,7 @@ def deepskyobject_switch_observed_list():
     observed_list_item = ObservedListItem.query.filter_by(observed_list_id=observed_list.id, dso_id=dso_id).first()
     if observed_list_item:
         db.session.delete(observed_list_item)
+        db.session.commit()
         result = 'off'
     else:
         observed_list.append_new_deepsky_object(dso_id, current_user.id)

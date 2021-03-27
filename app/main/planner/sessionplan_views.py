@@ -135,7 +135,6 @@ def new_session_plan():
 
         db.session.add(new_session_plan)
         db.session.commit()
-        db.session.commit()
 
         flash('Session plan successfully created', 'form-success')
         return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=new_session_plan.id))
@@ -157,6 +156,7 @@ def session_plan_delete(session_plan_id):
     if session_plan.user_id != current_user.id:
         abort(404)
     db.session.delete(session_plan)
+    db.session.commit()
     flash('Session plan was deleted', 'form-success')
     return redirect(url_for('main_sessionplan.session_plans'))
 
@@ -247,12 +247,13 @@ def session_plan_item_delete(item_id):
     if session_plan_item.session_plan.user_id != current_user.id:
         abort(404)
 
+    session_plan_id = session_plan_item.session_plan_id
     db.session.delete(session_plan_item)
     db.session.commit()
     flash('Session plan item was deleted', 'form-success')
 
     session['is_backr'] = True
-    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/upload', methods=['POST'])
