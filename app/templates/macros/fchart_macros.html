@@ -128,11 +128,9 @@
                           </div>
                       {% endif %}
                   {% elif fchart_dso_list_menu and fchart_dso_list_menu.dso_lists %}
-                      <div class="right menu">
-                          {% for dsol in fchart_dso_list_menu.dso_lists %}
-                              <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
-                          {% endfor %}
-                      </div>
+                      {% for dsol in fchart_dso_list_menu.dso_lists %}
+                          <div class="item" data-value="dl{{ dsol.id }}">{{ dsol.long_name }}</div>
+                      {% endfor %}
                   {% endif %}
               </div>
           </div>
