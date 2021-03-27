@@ -11,8 +11,8 @@
     {{ fchart.fchart(url_for('main_chart.chart', back=back, back_id=back_id),
                      url_for('main_chart.chart_pos_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=chart_flags, olid=fchart_form.obj_list_id.data),
                      url_for('main_chart.chart_legend_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_nm, flags=legend_flags),
-                     url_for('main_chart.chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_flags),
                      fchart_form, fchart_dso_list_menu,
+                     url_for('main_chart.chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_flags),
                      )
     }}
 {% endmacro %}
