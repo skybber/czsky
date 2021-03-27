@@ -476,7 +476,7 @@ class FChartDsoListMenu:
 
 def common_fchart_dso_list_menu():
     dso_lists = DsoList.query.all()
-    if current_user is not None:
+    if not current_user.is_anonymous:
         is_wish_list = True
         session_plans = SessionPlan.query.filter_by(user_id=current_user.id).all()
         observations = Observation.query.filter_by(user_id=current_user.id).all()
