@@ -136,7 +136,7 @@ def _search_star(query):
                     bayer = LONG_LAT_TO_GREEK[star_name]
                 if bayer:
                     star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
-                elif query.isdigit(star_name):
+                elif star_name.isdigit():
                     star = Star.query.filter_by(flamsteed=int(star_name), constellation_id=constell.id).first()
         elif len(words) == 1 and query[0].isdigit():
             i = 1
