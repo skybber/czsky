@@ -474,7 +474,7 @@ class FChartDsoListMenu:
         self.observations = observations
 
 
-def common_fchart_dso_list_menu():
+def common_chart_dso_list_menu():
     dso_lists = DsoList.query.all()
     if not current_user.is_anonymous:
         is_wish_list = True

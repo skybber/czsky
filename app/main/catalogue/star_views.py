@@ -27,6 +27,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_chart_dso_list_menu,
     MAG_SCALES,
     DSO_MAG_SCALES,
     STR_GUI_FIELD_SIZES
@@ -100,7 +101,7 @@ def star_chart(star_id):
                            gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
                            chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_nm=('1' if night_mode else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_fchart_dso_list_menu(),
+                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_chart_dso_list_menu(),
                            )
 
 

@@ -53,7 +53,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_fchart_dso_list_menu,
+    common_chart_dso_list_menu,
     MAG_SCALES,
     DSO_MAG_SCALES,
     STR_GUI_FIELD_SIZES,
@@ -388,7 +388,7 @@ def deepskyobject_chart(dso_id):
                            chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
                            mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
                            default_chart_iframe_url=default_chart_iframe_url, chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed,
-                           fchart_dso_list_menu=common_fchart_dso_list_menu()
+                           fchart_dso_list_menu=common_chart_dso_list_menu()
                            )
 
 

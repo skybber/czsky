@@ -1,4 +1,4 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_form, fchart_dso_list_menu, fchart_pdf_url=None, default_chart_iframe_url='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, fchart_dso_list_menu, default_chart_iframe_url='') %}
 
 {% set is_fullscreen = True if fchart_form.fullscreen.data == 'true' else False %}
 {% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
@@ -333,7 +333,7 @@
 
 
     $('#download_pdf').click(function(event){
-        $('#download_pdf').attr("href", fchart.formatUrl('{{fchart_pdf_url | safe  }}'));
+        $('#download_pdf').attr("href", fchart.formatUrl('{{ fchart_pdf_url | safe  }}'));
     });
 
     $('.search').keypress(function(event) {
