@@ -334,13 +334,13 @@
                 </div>
             </div>
 
-            {% if next_dso %}
+            {% if next_dso and embed != 'pl' %}
                 <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     {{ next_dso_title }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
-            {% if prev_dso %}
+            {% if prev_dso and embed != 'pl' %}
                 <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=prev_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
                     <i class="caret left icon"></i>
                     {{ prev_dso_title }}
@@ -366,7 +366,7 @@
         </div>
     </div>
     <script type="text/javascript">
-    {% if embed %}
+    {% if embed == 'fc' %}
         $('#bprev' ).click(function() {
             parent.window.location.href = "{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, back=back, back_id=back_id, season=season, splitview='true') | safe }}";
             return true;
