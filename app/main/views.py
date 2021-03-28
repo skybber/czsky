@@ -43,6 +43,7 @@ def global_search():
     query = query.strip()
 
     seltab = request.args.get('seltab')
+    fromchart = request.args.get('fromchart')
     fullscreen = request.args.get('fullscreen')
     splitview = request.args.get('splitview')
     embed = request.args.get('embed')
@@ -63,10 +64,13 @@ def global_search():
 
     constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
     if not constellation:
-        constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
+            constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
 
     if constellation:
-        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code, embed=embed))
+        if fromchart is not None:
+            return redirect(url_for('main_constellation.constellation_chart', constellation_id=constellation.iau_code, fullscreen=fullscreen, splitview=splitview, embed=embed))
+        else:
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
     if query and query.isdigit():
         query = 'NGC' + query

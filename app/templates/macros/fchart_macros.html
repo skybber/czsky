@@ -339,7 +339,7 @@
     $('.search').keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&seltab=chart&fullscreen=" + $('#fullscreen').val() + "&splitview=" + $('#splitview').val());
+            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart&fullscreen=" + $('#fullscreen').val() + "&splitview=" + $('#splitview').val());
         }
         event.stopPropagation();
     });
