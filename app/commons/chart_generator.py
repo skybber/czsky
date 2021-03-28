@@ -25,6 +25,7 @@ from app.models import (
 )
 
 used_catalogs = None
+dso_name_cache = None
 
 MAX_IMG_WIDTH = 3000
 MAX_IMG_HEIGHT = 3000
@@ -61,6 +62,8 @@ def _load_used_catalogs():
                                              force_asterisms = False,
                                              force_unknown = False,
                                              show_catalogs = [])
+        global dso_name_cache
+        dso_name_cache = {}
     return used_catalogs
 
 
@@ -283,16 +286,21 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    showing_dsos = None
+    showing_dsos = set()
     if dso_names:
-        showing_dsos = []
         for dso_name in dso_names:
-            dso, cat, name = used_catalogs.lookup_dso(dso_name)
+            dso = _find_dso_by_name(dso_name)
             if dso:
-                showing_dsos.append(dso)
+                showing_dsos.add(dso)
 
     highlights_dso_list = _get_highlights_dso_list()
     highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            dso = _find_dso_by_name(hl_dso.name)
+            if dso:
+                showing_dsos.add(dso)
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects)
 
@@ -340,16 +348,21 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    showing_dsos = None
+    showing_dsos = set()
     if dso_names:
-        showing_dsos = []
         for dso_name in dso_names:
-            dso, cat, name = used_catalogs.lookup_dso(dso_name)
+            dso = _find_dso_by_name(dso_name)
             if dso:
-                showing_dsos.append(dso)
+                showing_dsos.add(dso)
 
     highlights_dso_list = _get_highlights_dso_list()
     highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            dso = _find_dso_by_name(hl_dso.name)
+            if dso:
+                showing_dsos.add(dso)
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights)
 
@@ -431,17 +444,27 @@ def _get_highlights_dso_list():
 def _create_highlights(obj_ra, obj_dec, highlights_dso_list):
     highlights = []
     if not obj_ra is None and not obj_dec is None:
-        hl = fchart3.HighlightDefinition('cross', (0.0, 0.5, 0.0), [['', obj_ra, obj_dec]])
+        hl = fchart3.HighlightDefinition('cross', 1.3, (0.0, 0.5, 0.0), [['', obj_ra, obj_dec]])
         highlights.append(hl)
 
     if highlights_dso_list:
         hl_data = []
         for dso in highlights_dso_list:
             hl_data.append([dso.name, dso.ra, dso.dec])
-        hl = fchart3.HighlightDefinition('circle', (0.0, 0.0, 1.0), hl_data)
+        hl = fchart3.HighlightDefinition('circle', 0.8, (0.1, 0.2, 0.4), hl_data)
         highlights.append(hl)
 
     return highlights
+
+
+def _find_dso_by_name(dso_name):
+    dso = dso_name_cache.get(dso_name)
+    if not dso_name in dso_name_cache:
+        dso, cat, name = used_catalogs.lookup_dso(dso_name)
+        dso_name_cache[dso_name] = dso
+    else:
+        dso = dso_name_cache[dso_name]
+    return dso
 
 
 def get_chart_legend_flags(form):
