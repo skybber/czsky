@@ -8,12 +8,14 @@ class Star(db.Model):
     __tablename__ = 'stars'
     id = db.Column(db.Integer, primary_key=True)
     hr = db.Column(db.Integer, unique=True, index=True)                     # Harvard Revised Number = Bright Star Number
-    bayer_flamsteed = db.Column(db.String(10), index=True)                  # Name, generally Bayer and/or Flamsteed name
+    common_name = db.Column(db.String(40), index=True)                                  # Common name
+    bayer = db.Column(db.String(5), index=True)                             # Bayer designation
+    flamsteed = db.Column(db.String(10), index=True)                        # Flamsteed designation
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
     constellation = db.relationship("Constellation")
     hd = db.Column(db.Integer, unique=True, index=True)                     # Henry Draper Catalog Number
     sao = db.Column(db.Integer, index=True)                                 # SAO Catalog Number
-    fk5 = db.Column(db.Integer, unique=True, index=True)
+    fk5 = db.Column(db.Integer, unique=True)
     multiple = db.Column(db.String(1))                                      # Double or multiple-star code
     ads = db.Column(db.String(5))                                           # Aitken's Double Star Catalog (ADS) designation
     ads_comp = db.Column(db.String(2))                                      # ADS number components

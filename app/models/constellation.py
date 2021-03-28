@@ -14,6 +14,7 @@ class Constellation(db.Model):
     deepsky_objects = db.relationship('DeepskyObject', backref='constellation', lazy=True)
 
     _all = None
+    _iau_dict = None
 
     @classmethod
     def get_all(cls):
@@ -21,6 +22,14 @@ class Constellation(db.Model):
             Constellation._all = []
             Constellation._all.extend(Constellation.query.all())
         return Constellation._all
+
+    @classmethod
+    def get_iau_dict(cls):
+        if not Constellation._iau_dict:
+            Constellation._iau_dict = {}
+            for co in Constellation.get_all():
+                Constellation._iau_dict[co.iau_code] = co
+        return Constellation._iau_dict
 
 
 class UserConsDescription(db.Model):

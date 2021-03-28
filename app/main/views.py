@@ -13,11 +13,14 @@ from flask import (
 from flask_login import current_user, login_required
 
 from app.commons.dso_utils import normalize_dso_name
-from app.models import Constellation, DeepskyObject, EditableHTML
+from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK
+from app.commons.utils import get_lang_and_editor_user_from_request
+from app.models import Constellation, DeepskyObject, Star, UserStarDescription, EditableHTML
 
 from sqlalchemy import func
 
 main = Blueprint('main', __name__)
+
 
 @main.route('/')
 def index():
@@ -42,12 +45,16 @@ def global_search():
 
     query = query.strip()
 
+    if not query:
+        abort(404)
+
     seltab = request.args.get('seltab')
     fromchart = request.args.get('fromchart')
     fullscreen = request.args.get('fullscreen')
     splitview = request.args.get('splitview')
     embed = request.args.get('embed')
 
+    # 1. search by radec
     r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)?[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
     m = r_radec.match(query)
     if m is not None:
@@ -62,6 +69,7 @@ def global_search():
         dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
         return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=embed))
 
+    # 2. Search constellation
     constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
     if not constellation:
             constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
@@ -72,7 +80,9 @@ def global_search():
         else:
             return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
-    if query and query.isdigit():
+
+    # 3. Search DSO
+    if query.isdigit():
         query = 'NGC' + query
 
     normalized_name = normalize_dso_name(query)
@@ -80,4 +90,48 @@ def global_search():
     if dso:
         return redirect(url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name, seltab=seltab, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
+    # 3. Search Star
+    star = None
+    if query[:1] in GREEK_TO_LAT and len(query) > 1:
+        bayer = query[:1]
+        constell = _get_constell(query[1:])
+        if constell:
+            star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
+    else:
+        words = query.split()
+        if len(words) == 2:
+            constell = _get_constell(words[1])
+            if constell:
+                star_name = words[0].lower()
+                bayer = None
+                if star_name in GREEK_TO_LAT:
+                    bayer = star_name
+                elif star_name in SHORT_LAT_TO_GREEK:
+                    bayer = SHORT_LAT_TO_GREEK[star_name]
+                elif star_name in LONG_LAT_TO_GREEK:
+                    bayer = LONG_LAT_TO_GREEK[star_name]
+                if bayer:
+                    star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
+
+    if not star:
+        star = Star.query.filter_by(common_name=query.lower().capitalize()).first()
+
+    if star:
+        lang, editor_user = get_lang_and_editor_user_from_request()
+        usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
+        if usd:
+            if fromchart is not None:
+                return redirect(url_for('main_star.star_chart', star_id=usd.id, fullscreen=fullscreen, splitview=splitview, embed=embed))
+            else:
+                return redirect(url_for('main_star.star_info', star_id=usd.id))
+        else:
+            return redirect(url_for('main_chart.chart', ra=star.ra, dec=star.dec, embed=embed))
+
     abort(404)
+
+def _get_constell(costell_code):
+    constell_iau_code = costell_code.strip().lower().capitalize()
+    if constell_iau_code:
+        constell = Constellation.get_iau_dict().get(constell_iau_code)
+        return constell
+    return None
