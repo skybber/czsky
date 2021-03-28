@@ -22,7 +22,7 @@
                     </thead>
                     <tbody>
                     {% for p in session_plans | sort(attribute='title') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_info', session_plan_id=p.id) }}';">
+                        <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=p.id) }}';">
                             <td>{{ p.title }}</td>
                             <td>{{ p.location.title }}</td>
                             <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
