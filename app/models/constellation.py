@@ -20,7 +20,9 @@ class Constellation(db.Model):
     def get_all(cls):
         if not Constellation._all:
             Constellation._all = []
-            Constellation._all.extend(Constellation.query.all())
+            for co in Constellation.query.all():
+                db.session.expunge(co)
+                Constellation._all.append(co)
         return Constellation._all
 
     @classmethod
