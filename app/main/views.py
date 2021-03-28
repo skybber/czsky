@@ -13,7 +13,7 @@ from flask import (
 from flask_login import current_user, login_required
 
 from app.commons.dso_utils import normalize_dso_name
-from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK
+from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.models import Constellation, DeepskyObject, Star, UserStarDescription, EditableHTML
 
@@ -134,6 +134,8 @@ def _search_star(query):
                     bayer = SHORT_LAT_TO_GREEK[star_name]
                 elif star_name in LONG_LAT_TO_GREEK:
                     bayer = LONG_LAT_TO_GREEK[star_name]
+                elif star_name in LONG_LAT_CZ_TO_GREEK:
+                    bayer = LONG_LAT_CZ_TO_GREEK[star_name]
                 if bayer:
                     star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
                 elif star_name.isdigit():
