@@ -88,7 +88,7 @@
           <div class="ui floating dropdown icon button" data-inverted="" data-tooltip="{{ _('Object List') }}" data-position="left center" data-variation="tiny basic">
               <i class="list icon"></i>
               <div class="menu">
-                  <div class="item" data-value="">{{ _('None') }}</div>
+                  <div class="item" onclick="callDsoListUrl('{{ url_for('main_chart.chart') }}')">{{ _('None') }}</div>
                   {% set dso_list_menu=chart_control.chart_dso_list_menu %}
                   {% if dso_list_menu and (dso_list_menu.is_wish_list or dso_list_menu.session_plans or dso_list_menu.observations) %}
                       {% if dso_list_menu.is_wish_list %}
@@ -369,7 +369,6 @@
     window.onload = function() {
         fchart.onWindowLoad();
     }
-
 
 </script>
 <style>
