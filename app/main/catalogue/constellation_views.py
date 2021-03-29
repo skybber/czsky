@@ -23,14 +23,10 @@ from app.commons.search_utils import process_session_search
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir, get_ug_bl_dsos
 from app.commons.utils import get_cs_editor_user, get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
-    get_chart_legend_flags,
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
-    MAG_SCALES,
-    DSO_MAG_SCALES,
-    STR_GUI_FIELD_SIZES
 )
 
 from .constellation_forms import (
@@ -208,27 +204,14 @@ def constellation_chart(constellation_id):
 
     form  = ChartForm()
 
-    fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
-
-    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
-    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
+    chart_control = common_prepare_chart_data(form)
 
     if form.ra.data is None:
         form.ra.data = constellation.label_ra
     if form.dec.data is None:
         form.dec.data = constellation.label_dec
 
-    night_mode = True
-
-    chart_flags, legend_flags = get_chart_legend_flags(form)
-
-    return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation,
-                           mag_scale=cur_mag_scale, dso_mag_scale=cur_dso_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
-                           gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
-                           chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_nm=('1' if night_mode else '0'),
-                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_chart_dso_list_menu(),
-                           )
+    return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation, chart_control=chart_control, )
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

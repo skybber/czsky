@@ -37,6 +37,8 @@ class CometFindChartForm(FlaskForm):
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     ra = HiddenField('ra')
     dec = HiddenField('dec')
+    mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
+    mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
     fullscreen = HiddenField('fullscreen')
     splitview = HiddenField('splitview')
     show_telrad = HiddenField('show_telrad', default='false')
@@ -46,4 +48,3 @@ class CometFindChartForm(FlaskForm):
     show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     from_date = DateField(lazy_gettext('From Date'), id='fromdate', format = '%d/%m/%Y', default = datetime.today)
     to_date = DateField(lazy_gettext('To Date'), id='todate', format = '%d/%m/%Y', default = datetime.today)
-    obj_list_id= HiddenField('obj_list_id', default=None)

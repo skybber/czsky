@@ -48,15 +48,11 @@ from .deepskyobject_forms import (
 from app.main.chart.chart_forms import ChartForm
 
 from app.commons.chart_generator import (
-    get_chart_legend_flags,
     common_chart_pos_img,
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
-    MAG_SCALES,
-    DSO_MAG_SCALES,
-    STR_GUI_FIELD_SIZES,
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
@@ -351,22 +347,12 @@ def deepskyobject_chart(dso_id):
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
-    fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
-
-    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
-    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
-
-    disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
-    disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
-
-    chart_flags, legend_flags = get_chart_legend_flags(form)
+    chart_control = common_prepare_chart_data(form)
 
     if form.ra.data is None:
         form.ra.data = dso.ra
     if form.dec.data is None:
         form.dec.data = dso.dec
-
-    night_mode = True
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
@@ -381,14 +367,7 @@ def deepskyobject_chart(dso_id):
 
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           mag_scale=cur_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
-                           dso_mag_scale=cur_dso_mag_scale, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                           gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
-                           chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_dlim=str(form.dso_maglim.data), chart_nm=('1' if night_mode else '0'),
-                           chart_mx=('1' if form.mirror_x.data else '0'), chart_my=('1' if form.mirror_y.data else '0'),
-                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           default_chart_iframe_url=default_chart_iframe_url, chart_flags=chart_flags, legend_flags=legend_flags, season=season, embed=embed,
-                           fchart_dso_list_menu=common_chart_dso_list_menu()
+                           chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url, season=season, embed=embed,
                            )
 
 

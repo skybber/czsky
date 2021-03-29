@@ -36,14 +36,10 @@ from .comet_forms import (
 )
 
 from app.commons.chart_generator import (
-    get_chart_legend_flags,
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
-    MAG_SCALES,
-    DSO_MAG_SCALES,
-    STR_GUI_FIELD_SIZES
 )
 
 from app.commons.utils import to_float
@@ -167,10 +163,7 @@ def comet_info(comet_id):
 
     form  = CometFindChartForm()
 
-    fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values = common_prepare_chart_data(form)
-
-    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
-    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
+    chart_control = common_prepare_chart_data(form)
 
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -209,17 +202,8 @@ def comet_info(comet_id):
     if form.dec.data is None:
         form.dec.data = comet_dec
 
-    night_mode = True
 
-    chart_flags, legend_flags = get_chart_legend_flags(form)
-
-    return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           mag_scale=cur_mag_scale, dso_mag_scale=cur_dso_mag_scale, disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag,
-                           gui_field_sizes=STR_GUI_FIELD_SIZES, gui_field_index = (form.radius.data-1)*2,
-                           chart_fsz=str(fld_size), chart_mlim=str(form.maglim.data), chart_nm=('1' if night_mode else '0'),
-                           mag_ranges=MAG_SCALES, mag_range_values=mag_range_values, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                           chart_flags=chart_flags, legend_flags=legend_flags, fchart_dso_list_menu=common_chart_dso_list_menu(),
-                           )
+    return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec, chart_control=chart_control, )
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

@@ -139,7 +139,7 @@ def initialize_catalogues():
     """
     import_catalogues('data/astro_catalogues.csv')
     import_constellations('data/88-constellations.csv')
-    import_bright_stars_bsc5('data/bsc5.dat')
+    import_bright_stars_bsc5_json_all('data/bsc5-all.json')
     import_hnsky('data/deep_sky.hnd')
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')

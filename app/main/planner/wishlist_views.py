@@ -1,6 +1,7 @@
 import os
 import csv
 from datetime import datetime
+import base64
 
 from werkzeug.utils import secure_filename
 
@@ -11,9 +12,11 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -30,19 +33,27 @@ from app.models import (
 
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.search_utils import process_session_search, process_paginated_session_search, get_items_per_page, create_table_sort, get_catalogues_menu_items
+from app.commons.chart_generator import (
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_prepare_chart_data,
+)
 
 from .wishlist_forms import (
     AddToWishListForm,
     SearchWishListForm,
 )
 
+from app.main.chart.chart_forms import ChartForm
+
 from app.commons.dso_utils import normalize_dso_name
 
 main_wishlist = Blueprint('main_wishlist', __name__)
 
 @main_wishlist.route('/wish-list', methods=['GET', 'POST'])
+@main_wishlist.route('/wish-list/info', methods=['GET', 'POST'])
 @login_required
-def wish_list():
+def wish_list_info():
     """View wish list."""
     add_form = AddToWishListForm()
 
@@ -51,7 +62,7 @@ def wish_list():
         search_form.season.data = None
 
     if not process_session_search([('wish_list_season', search_form.season),]):
-        return redirect(url_for('main_wishlist.wish_list', season=search_form.season.data))
+        return redirect(url_for('main_wishlist.wish_list_info', season=search_form.season.data))
 
     season = request.args.get('season', None)
 
@@ -73,7 +84,7 @@ def wish_list():
     else:
         wish_list_items = wish_list.wish_list_items
 
-    return render_template('main/planner/wish_list.html', wish_list_items=wish_list_items, season=season, search_form=search_form, add_form=add_form)
+    return render_template('main/planner/wish_list.html',type='info', wish_list_items=wish_list_items, season=season, search_form=search_form, add_form=add_form)
 
 
 @main_wishlist.route('/wish-list-item-add', methods=['POST'])
@@ -93,7 +104,7 @@ def wish_list_item_add():
         else:
             flash('Deepsky object not found.', 'form-error')
 
-    return redirect(url_for('main_wishlist.wish_list'))
+    return redirect(url_for('main_wishlist.wish_list_info'))
 
 
 @main_wishlist.route('/wish-list-item/<int:item_id>/delete')
@@ -107,4 +118,69 @@ def wish_list_item_remove(item_id):
         abort(404)
     db.session.delete(wish_list_item)
     flash('Wishlist item was deleted', 'form-success')
-    return redirect(url_for('main_wishlist.wish_list'))
+    return redirect(url_for('main_wishlist.wish_list_info'))
+
+
+@main_wishlist.route('/wish-list/chart', methods=['GET', 'POST'])
+@login_required
+def wish_list_chart():
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    if wish_list is None:
+        abort(404)
+
+    form  = ChartForm()
+
+    chart_control = common_prepare_chart_data(form)
+
+    dso_id = request.args.get('dso_id')
+
+    wish_list_item = None
+    if dso_id and dso_id.isdigit():
+        idso_id = int(dso_id)
+        wish_list_item = next((x for x in wish_list.wish_list_items if x.deepskyObject.id == idso_id), None)
+
+    if not wish_list_item:
+        wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
+
+    if form.ra.data is None:
+        form.ra.data = wish_list_item.deepskyObject.ra if wish_list_item else 0
+    if form.dec.data is None:
+        form.dec.data = wish_list_item.deepskyObject.dec if wish_list_item else 0
+
+    if wish_list_item:
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='wishlist', dso_id=wish_list_item.deepskyObject.name, embed='fc', allow_back='true')
+    else:
+        default_chart_iframe_url = None
+
+    return render_template('main/planner/wish_list.html', fchart_form=form, type='chart', wish_list=wish_list, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url, )
+
+
+@main_wishlist.route('/wish-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+@login_required
+def  wish_list_chart_pos_img(ra, dec):
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    if wish_list is None:
+        abort(404)
+
+    highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
+
+
+@main_wishlist.route('/wish-list/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+@login_required
+def wish_list_chart_legend_img(ra, dec):
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    if wish_list is None:
+        abort(404)
+
+    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')

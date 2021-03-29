@@ -1,6 +1,7 @@
 import os
 import csv
 from io import StringIO, BytesIO
+import base64
 
 from werkzeug.utils import secure_filename
 
@@ -9,6 +10,7 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -29,6 +31,13 @@ from app.models import Observation, Location, ObservedList, ObservedListItem
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from .observation_form_utils import *
+from app.commons.chart_generator import (
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_prepare_chart_data,
+)
+
+from app.main.chart.chart_forms import ChartForm
 
 main_observation = Blueprint('main_observation', __name__)
 
@@ -63,7 +72,7 @@ def observation_info(observation_id):
         abort(404)
     if observation.user_id != current_user.id:
         abort(404)
-    return render_template('main/observation/observation_info.html', observation=observation)
+    return render_template('main/observation/observation_info.html', observation=observation, type='info')
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])
 @login_required
@@ -242,3 +251,50 @@ def observed_list_download():
     return send_file(mem, as_attachment=True,
                      attachment_filename='observed-' + current_user.user_name + '.csv',
                      mimetype='text/csv')
+
+@main_observation.route('/observation/<int:observation_id>/chart', methods=['GET', 'POST'])
+def observation_chart(observation_id):
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if observation is None:
+        abort(404)
+
+    form  = ChartForm()
+
+    chart_control = common_prepare_chart_data(form)
+
+    observation_item = ObservationItem.query.filter_by(observation_id=observation.id).first()
+
+    if form.ra.data is None:
+        form.ra.data = observation_item.deepskyObject.ra if observation_item else 0
+    if form.dec.data is None:
+        form.dec.data = observation_item.deepskyObject.dec if observation_item else 0
+
+    return render_template('main/observation/observation_info.html', fchart_form=form, type='chart', observation=observation, chart_control=chart_control,)
+
+
+@main_observation.route('/observation/<int:observation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def  observation_chart_pos_img(observation_id, ra, dec):
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if observation is None:
+        abort(404)
+
+    highlights_dso_list = [ x.deepskyObject for x in observation.observation_items if observation ]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
+
+
+@main_observation.route('/observation/<int:observation_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def observation_chart_legend_img(observation_id, ra, dec):
+    observation = Observation.query.filter_by(id=observation_id).first()
+    if observation is None:
+        abort(404)
+
+    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')

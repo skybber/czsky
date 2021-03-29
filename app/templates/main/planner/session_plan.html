@@ -1,15 +1,16 @@
 {% extends 'layouts/base.html' %}
-{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
-    ('main_sessionplan.session_plan_info', _('Info'), 'info'),
-    ('main_sessionplan.session_plan_schedule', _('Schedule'), 'schedule'),
+    ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
+    ( url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
+    ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
 ] %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, session_plan_id=session_plan.id) %}
+        {% for url, pupup_text, icon in items %}
+            {% set href = url %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
@@ -17,8 +18,23 @@
     </div>
 {% endmacro %}
 
+{# --- Chart --- #}
+{% macro session_plan_chart(session_plan) %}
+    {{ fchart.fchart(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, back=back, back_id=back_id),
+                     url_for('main_sessionplan.session_plan_chart_pos_img', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, ),
+                     url_for('main_sessionplan.session_plan_chart_legend_img', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                     None,
+                     fchart_form, fchart_session_plan_menu, default_chart_iframe_url=default_chart_iframe_url)
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
 {% block content %}
-    {% if tab != 'schedule' %}
+    {% if type != 'schedule' %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
     {% else %}
@@ -59,12 +75,14 @@
                 {{ navigation(endpoints) }}
             {% endif %}
 
-            {% if tab == 'info' %}
+            {% if type == 'info' %}
                 {% include '/main/planner/session_plan_info.html' %}
-            {% elif tab == 'schedule' %}
+            {% elif type == 'schedule' %}
                 {% include '/main/planner/session_plan_schedule.html' %}
+            {% elif type == 'chart' %}
+                {{ session_plan_chart(session_plan) }}
             {% endif %}
-    {% if tab != 'schedule' %}
+    {% if type != 'schedule' %}
         </div>
     </div>
     {% else %}

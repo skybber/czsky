@@ -52,6 +52,36 @@ from .utils import to_float, to_boolean
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 500
 
+
+class ChartControl:
+    def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
+                 dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
+                 disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
+                 chart_nm=None, gui_field_sizes=None, gui_field_index=None,
+                 chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
+                 chart_dso_list_menu=None):
+        self.chart_fsz = chart_fsz
+        self.mag_scale = mag_scale
+        self.mag_ranges = mag_ranges
+        self.mag_range_values = mag_range_values
+        self.dso_mag_scale = dso_mag_scale
+        self.dso_mag_ranges = dso_mag_ranges
+        self.dso_mag_range_values = dso_mag_range_values
+        self.disable_dec_mag = disable_dec_mag
+        self.disable_inc_mag = disable_inc_mag
+        self.disable_dso_dec_mag = disable_dso_dec_mag
+        self.disable_dso_inc_mag = disable_dso_inc_mag
+        self.chart_nm = chart_nm
+        self.gui_field_sizes = gui_field_sizes
+        self.gui_field_index = gui_field_index
+        self.chart_mx = chart_mx
+        self.chart_my = chart_my
+        self.chart_mlim = chart_mlim
+        self.chart_flags = chart_flags
+        self.legend_flags = legend_flags
+        self.chart_dso_list_menu = chart_dso_list_menu
+
+
 def _load_used_catalogs():
     global used_catalogs
     if used_catalogs is None:
@@ -110,7 +140,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.dso_dynamic_brightness = False
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -128,7 +158,7 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
 
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
-                  night_mode, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags)
+                  night_mode, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list)
     img_bytes.seek(0)
     return img_bytes
 
@@ -155,7 +185,7 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     return img_bytes
 
 
-def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None):
+def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_dso_list=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     mirror_x = to_boolean(request.args.get('mx'), False)
@@ -163,7 +193,8 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None):
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names, flags=flags)
+    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names,
+                      flags=flags, highlights_dso_list=highlights_dso_list)
     img_bytes.seek(0)
     return img_bytes
 
@@ -199,8 +230,33 @@ def common_prepare_chart_data(form):
         mag_range_values.append(ml)
         dso_mag_range_values.append(dml)
 
+    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
+    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
 
-    return (fld_size, cur_mag_scale, cur_dso_mag_scale, mag_range_values, dso_mag_range_values)
+    disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
+    disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
+
+    gui_field_sizes=STR_GUI_FIELD_SIZES
+    gui_field_index = (form.radius.data-1)*2
+
+    chart_mx=('1' if form.mirror_x.data else '0')
+    chart_my=('1' if form.mirror_y.data else '0')
+
+    chart_flags, legend_flags = get_chart_legend_flags(form)
+
+    chart_dso_list_menu=common_chart_dso_list_menu()
+
+    return ChartControl(chart_fsz=str(fld_size),
+                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
+                         dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
+                         disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
+                         chart_nm=('1' if True else '0'),
+                         gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
+                         chart_mx=chart_mx, chart_my=chart_my,
+                         chart_mlim=str(form.maglim.data),
+                         chart_flags=chart_flags, legend_flags=legend_flags,
+                         chart_dso_list_menu=chart_dso_list_menu
+                         )
 
 
 def _get_fld_size_maglim(fld_size_index):
@@ -249,7 +305,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode,
-                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -293,7 +349,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             if dso:
                 showing_dsos.add(dso)
 
-    highlights_dso_list = _get_highlights_dso_list()
     highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
 
     if highlights_dso_list:
@@ -311,7 +366,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
-def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags=''):
+def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None,
+                      flags='', highlights_dso_list=None):
     """Create chart PDF in czsky process."""
     global free_mem_counter
     tm = time()
@@ -355,7 +411,6 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
             if dso:
                 showing_dsos.add(dso)
 
-    highlights_dso_list = _get_highlights_dso_list()
     highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
 
     if highlights_dso_list:
@@ -409,37 +464,6 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
         free_mem_counter = 0
         used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
-
-
-def _get_highlights_dso_list():
-    obj_list_id = request.args.get('olid')
-    highlight_dso_list = None
-
-    if obj_list_id:
-
-        if obj_list_id.startswith('dl'):
-            dso_list_id = int(obj_list_id[2:])
-            dso_list = DsoList.query.filter_by(id=dso_list_id).first()
-            if dso_list:
-                highlight_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items ]
-        elif current_user is not None:
-            if obj_list_id == 'wl':
-                wish_list = WishList.query.filter_by(user_id=current_user.id).first()
-                if wish_list and wish_list.user_id == current_user.id:
-                    highlight_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items ]
-            elif obj_list_id.startswith('pl'):
-                session_plan_id = int(obj_list_id[2:])
-                session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-                if session_plan and session_plan.user_id == current_user.id:
-                    highlight_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items ]
-            elif obj_list_id.startswith('ob'):
-                observation_id = int(obj_list_id[2:])
-                observation = Observation.query.filter_by(id=observation_id).first()
-                if observation and observation.user_id == current_user.id:
-                  highlight_dso_list = [ x.deepskyObject for x in observation.observation_items ]
-
-    return highlight_dso_list
-
 
 def _create_highlights(obj_ra, obj_dec, highlights_dso_list):
     highlights = []

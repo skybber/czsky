@@ -1,12 +1,15 @@
 from datetime import datetime
+import base64
 
 from flask import (
     abort,
     Blueprint,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
+    send_file,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -14,13 +17,20 @@ from flask_login import current_user, login_required
 from app import db
 from posix import wait
 
-from app.models import Constellation, DsoList, DsoListDescription, User, UserDsoDescription
+from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription
 from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.chart_generator import (
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_prepare_chart_data,
+)
 
 from .dso_list_forms import (
     SearchDsoListForm,
 )
+
+from app.main.chart.chart_forms import ChartForm
 
 main_dso_list = Blueprint('main_dso_list', __name__)
 
@@ -77,7 +87,70 @@ def dso_list_info(dso_list_id):
                 else:
                     user_descrs[dso_list_item.dso_id] = dso_list_item.deepskyObject.name
 
-    return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, dso_list_descr=dso_list_descr, dso_list_items=dso_list_items,
+    return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, type='info', dso_list_descr=dso_list_descr, dso_list_items=dso_list_items,
                            user_descrs=user_descrs, season=season, search_form=search_form)
 
 
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart', methods=['GET', 'POST'])
+def dso_list_chart(dso_list_id):
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list is None:
+        abort(404)
+
+    form  = ChartForm()
+
+    chart_control = common_prepare_chart_data(form)
+
+    dso_id = request.args.get('dso_id')
+    dso_list_item = None
+    if dso_id and dso_id.isdigit():
+        idso_id = int(dso_id)
+        dso_list_item = next((x for x in dso_list.dso_list_items if x.deepskyObject.id == idso_id), None)
+
+    if not dso_list_item:
+        dso_list_item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, item_id=1).first()
+
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
+
+    if form.ra.data is None:
+        form.ra.data = dso_list_item.deepskyObject.ra if dso_list_item else 0
+    if form.dec.data is None:
+        form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
+
+    if dso_list_item:
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='dso_list', back_id=dso_list.name, dso_id=dso_list_item.deepskyObject.name, embed='fc', allow_back='true')
+    else:
+        default_chart_iframe_url = None
+
+    return render_template('main/catalogue/dso_list_info.html', fchart_form=form, type='chart', dso_list=dso_list, dso_list_descr=dso_list_descr,
+                           chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)
+
+
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def  dso_list_chart_pos_img(dso_list_id, ra, dec):
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list is None:
+        abort(404)
+
+    dso_list = DsoList.query.filter_by(id=dso_list.id).first()
+    highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
+
+
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def dso_list_chart_legend_img(dso_list_id, ra, dec):
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list is None:
+        abort(404)
+
+    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')

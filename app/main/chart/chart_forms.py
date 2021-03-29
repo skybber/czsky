@@ -28,5 +28,4 @@ class ChartForm(FlaskForm):
     show_constell_borders = HiddenField('show_constell_borders', default='true')
     show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     show_dso = HiddenField('show_dso', default='true')
-    obj_list_id= HiddenField('obj_list_id', default=None)
 

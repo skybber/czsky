@@ -1,110 +1,161 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% block content %}
-    <div class="ui stackable grid container">
-        <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_lists_menu') }}">
-                <i class="caret left icon"></i>
-                {{ _('Deepsky Lists') }}
+{% set endpoints = [
+    ('main_dso_list.dso_list_info', _('Info'), 'info'),
+    ('main_dso_list.dso_list_chart', _('Chart'), 'chart'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_list_id=dso_list.id, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
             </a>
-            <h2 class="ui header">
-                {{ dso_list_descr.long_name }}
-            </h2>
-            <div class="ui inverted segment">
-            <div class="ui inverted fluid accordion">
-              <div class="title">
-                <i class="dropdown icon"></i>
-                {{ _('Description') }}
-              </div>
-              <div class="content markdown">
-                    {% filter extended_commonmark('') %}
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro dso_list_info(dso_list) %}
+    <div class="ui inverted segment">
+        <div class="ui inverted fluid accordion">
+          <div class="title">
+            <i class="dropdown icon"></i>
+            {{ _('Description') }}
+          </div>
+          <div class="content markdown">
+                {% filter extended_commonmark('') %}
 {{ dso_list_descr.text }}
-                    {% endfilter %}
-              </div>
-            </div>
-            </div>
-
-            <form action="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id) }}" method="post" name="search" class="ui stackable menu">
-                <div class="ui item">
-                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-                    <div class="top right aligned floating ui label">{{ _('Season') }}</div>
-                </div>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-            </form>
-
-            <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending collapsing">N</th>
-                            <th class="sorted ascending">{{ _('Name') }}</th>
-                            {% if dso_list.show_common_name %}
-                                <th class="mobile hidden">{{ _('Common name') }}</th>
-                            {% endif %}
-                            {% if dso_list.show_dso_type %}
-                                <th>{{ _('Type') }}</th>
-                            {% endif %}
-                            <th class="mobile hidden">RA</th>
-                            <th class="mobile hidden">Dec</th>
-                            <th><i class="lastfm icon"></i></th>
-                            <th class="right aligned">mag</th>
-                            {% if dso_list.show_angular_size %}
-                                <th class="right aligned mobile hidden">{{ _('Size') }}</th>
-                            {% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                    {% for item in dso_list_items %}
-                        <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.name, season=season) }}';">
-                            <td class="collapsing">
-                                <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
-                            </td>
-                            <td>{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
-                            {% if dso_list.show_common_name %}
-                            <td class="mobile hidden">
-                                {{ item.deepskyObject.common_name if item.deepskyObject.common_name else '' }}
-                            </td>
-                            {% endif %}
-                            {% if dso_list.show_dso_type %}
-                              <td>{{ item.deepskyObject.type }}</td>
-                            {% endif %}
-                            <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
-                            <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
-                            <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td class="right aligned">
-                                {{ commons.convert_mag(item.deepskyObject.mag) }}
-                            </td>
-                            {% if dso_list.show_angular_size %}
-                              <td class="right aligned mobile hidden">
-                                  {% if item.deepskyObject.major_axis %}
-                                      {% if item.deepskyObject.major_axis >= 100.0 %}
-                                        {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
-                                      {% else %}
-                                        {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
-                                      {% endif %}
-                                      {% if dso_list.show_minor_axis and item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
-                                      / {% if item.deepskyObject.minor_axis >= 100.0 %}
-                                          {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
-                                        {% else %}
-                                          {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
-                                        {% endif %}
-                                      {% endif %}
-                                  {% endif %}
-                              </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                {% endfilter %}
+          </div>
         </div>
+    </div>
+
+    <form action="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id) }}" method="post" name="search" class="ui stackable menu">
+        <div class="ui item">
+            {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+            <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+    </form>
+
+    <div style="overflow-x: scroll;">
+        <table class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th class="sorted ascending collapsing">N</th>
+                    <th class="sorted ascending">{{ _('Name') }}</th>
+                    {% if dso_list.show_common_name %}
+                        <th class="mobile hidden">{{ _('Common name') }}</th>
+                    {% endif %}
+                    {% if dso_list.show_dso_type %}
+                        <th>{{ _('Type') }}</th>
+                    {% endif %}
+                    <th class="mobile hidden">RA</th>
+                    <th class="mobile hidden">Dec</th>
+                    <th><i class="lastfm icon"></i></th>
+                    <th class="right aligned">mag</th>
+                    {% if dso_list.show_angular_size %}
+                        <th class="right aligned mobile hidden">{{ _('Size') }}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for item in dso_list_items %}
+                <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.name, season=season) }}';">
+                    <td class="collapsing">
+                        <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
+                    </td>
+                    <td>{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
+                    {% if dso_list.show_common_name %}
+                    <td class="mobile hidden">
+                        {{ item.deepskyObject.common_name if item.deepskyObject.common_name else '' }}
+                    </td>
+                    {% endif %}
+                    {% if dso_list.show_dso_type %}
+                      <td>{{ item.deepskyObject.type }}</td>
+                    {% endif %}
+                    <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
+                    <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
+                    <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                    <td class="right aligned">
+                        {{ commons.convert_mag(item.deepskyObject.mag) }}
+                    </td>
+                    {% if dso_list.show_angular_size %}
+                      <td class="right aligned mobile hidden">
+                          {% if item.deepskyObject.major_axis %}
+                              {% if item.deepskyObject.major_axis >= 100.0 %}
+                                {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                              {% else %}
+                                {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                              {% endif %}
+                              {% if dso_list.show_minor_axis and item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
+                              / {% if item.deepskyObject.minor_axis >= 100.0 %}
+                                  {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                                {% else %}
+                                  {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                                {% endif %}
+                              {% endif %}
+                          {% endif %}
+                      </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
     <script type="text/javascript">
         $('.ui.accordion')
           .accordion()
         ;
     </script>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro dso_list_chart(dso_list) %}
+    {{ fchart.fchart(url_for('main_dso_list.dso_list_chart', dso_list_id=dso_list.id, back=back, back_id=back_id),
+                     url_for('main_dso_list.dso_list_chart_pos_img', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, ),
+                     url_for('main_dso_list.dso_list_chart_legend_img', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                     None,
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, )
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_lists_menu') }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ dso_list_descr.long_name }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ dso_list_info(dso_list) }}
+            {% else %}
+                {{ dso_list_chart(dso_list) }}
+            {% endif %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
 {% endblock %}

@@ -2,6 +2,7 @@ import os
 import csv
 from datetime import datetime, timedelta
 import pytz
+import base64
 
 from werkzeug.utils import secure_filename
 
@@ -19,9 +20,11 @@ from flask import (
     Blueprint,
     current_app,
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
+    send_file,
     session,
     url_for,
 )
@@ -47,6 +50,12 @@ from app.models import (
 
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.search_utils import process_session_search, process_paginated_session_search, get_items_per_page, create_table_sort, get_catalogues_menu_items
+from app.commons.chart_generator import (
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_prepare_chart_data,
+)
+
 
 from .sessionplan_forms import (
     AddToSessionPlanForm,
@@ -55,6 +64,8 @@ from .sessionplan_forms import (
     SessionPlanEditForm,
     SessionPlanScheduleSearch,
 )
+
+from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name
 
@@ -111,7 +122,7 @@ def session_plan_info(session_plan_id):
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/planner/session_plan.html', tab='info', session_plan=session_plan, form=form, location=location)
+    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location)
 
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
@@ -143,7 +154,7 @@ def new_session_plan():
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/planner/session_plan.html', tab='info', form=form, is_new=True, location=location)
+    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/delete')
@@ -468,7 +479,7 @@ def session_plan_schedule(session_plan_id):
     if not search_form.selected_dso_name.data:
         search_form.selected_dso_name.data = 'M1'
 
-    return render_template('main/planner/session_plan.html', tab='schedule', session_plan=session_plan,
+    return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
@@ -557,4 +568,65 @@ def _wrap2array(ar):
         return ar
     except TypeError:
         return [ar]
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart', methods=['GET', 'POST'])
+def session_plan_chart(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+
+    form  = ChartForm()
+
+    chart_control = common_prepare_chart_data(form)
+
+    dso_id = request.args.get('dso_id')
+    session_plan_item = None
+    if dso_id and dso_id.isdigit():
+        idso_id = int(dso_id)
+        session_plan_item = next((x for x in session_plan.session_plan_items if x.deepskyObject.id == idso_id), None)
+
+    if not session_plan_item:
+        session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
+
+    if form.ra.data is None:
+        form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
+    if form.dec.data is None:
+        form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
+
+    if session_plan_item:
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.deepskyObject.name, embed='fc', allow_back='true')
+    else:
+        default_chart_iframe_url = None
+
+    return render_template('main/planner/session_plan.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url)
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def  session_plan_chart_pos_img(session_plan_id, ra, dec):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+
+    highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    if visible_objects is not None:
+        img = base64.b64encode(img_bytes.read()).decode()
+        return jsonify(img=img, img_map=visible_objects)
+    else:
+        return send_file(img_bytes, mimetype='image/png')
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def session_plan_chart_legend_img(session_plan_id, ra, dec):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None:
+        abort(404)
+
+    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')
 
