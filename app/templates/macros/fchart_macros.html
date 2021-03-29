@@ -131,7 +131,7 @@
                               </div>
                           </div>
                       {% endif %}
-                  {% elif dso_list_menu and chart_dso_list_menu.dso_lists %}
+                  {% elif dso_list_menu and chart_control.chart_dso_list_menu.dso_lists %}
                       {% for dsol in dso_list_menu.dso_lists %}
                           <div class="item" onclick="callDsoListUrl('{{ url_for('main_dso_list.dso_list_chart', dso_list_id=dsol.id) }}')">{{ dsol.long_name }}</div>
                       {% endfor %}
