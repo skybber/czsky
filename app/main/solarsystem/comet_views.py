@@ -196,7 +196,7 @@ def comet_info(comet_id):
         else:
             t = ts.utc(d1.year, d1.month, d1.day)
             comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
-            enc_trajectory = None
+            trajectory_b64 = None
 
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
