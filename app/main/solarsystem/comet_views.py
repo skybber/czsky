@@ -182,11 +182,9 @@ def comet_info(comet_id):
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         trajectory_b64 = None
     else:
-        comet_ra_ang = None
-        comet_dec_ang = None
         d1 = date(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = date(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
-        t = ts.utc(d1.year, d1.month, d1.day)
+        t = ts.now()
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         if d1 != d2:
             trajectory = []
