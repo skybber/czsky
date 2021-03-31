@@ -59,7 +59,7 @@ class ChartControl:
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
                  chart_nm=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
-                 chart_dso_list_menu=None):
+                 chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None):
         self.chart_fsz = chart_fsz
         self.mag_scale = mag_scale
         self.mag_ranges = mag_ranges
@@ -80,6 +80,9 @@ class ChartControl:
         self.chart_flags = chart_flags
         self.legend_flags = legend_flags
         self.chart_dso_list_menu = chart_dso_list_menu
+        self.has_date_from_to = has_date_from_to
+        self.date_from=date_from
+        self.date_to=date_to
 
 
 def _load_used_catalogs():
@@ -140,7 +143,7 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.dso_dynamic_brightness = False
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -158,7 +161,8 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
 
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
-                  night_mode, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list)
+                  night_mode, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
+                  trajectory=trajectory)
     img_bytes.seek(0)
     return img_bytes
 
@@ -246,6 +250,10 @@ def common_prepare_chart_data(form):
 
     chart_dso_list_menu=common_chart_dso_list_menu()
 
+    has_date_from_to = hasattr(form, 'date_from') and hasattr(form, 'date_to')
+    date_from = form.date_from.data if has_date_from_to else None
+    date_to = form.date_to.data if has_date_from_to else None
+
     return ChartControl(chart_fsz=str(fld_size),
                          mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                          dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
@@ -255,7 +263,10 @@ def common_prepare_chart_data(form):
                          chart_mx=chart_mx, chart_my=chart_my,
                          chart_mlim=str(form.maglim.data),
                          chart_flags=chart_flags, legend_flags=legend_flags,
-                         chart_dso_list_menu=chart_dso_list_menu
+                         chart_dso_list_menu=chart_dso_list_menu,
+                         has_date_from_to=has_date_from_to,
+                         date_from=date_from,
+                         date_to=date_to,
                          )
 
 
@@ -305,7 +316,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode,
-                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None):
+                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, trajectory=None):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -357,7 +368,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             if dso:
                 showing_dsos.add(dso)
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects)
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects, trajectory=trajectory)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:

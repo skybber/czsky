@@ -27,24 +27,12 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+from app.main.chart.chart_forms import ChartForm
+
 class SearchCometForm(FlaskForm):
     q = StringField('Search')
     items_per_page = IntegerField(lazy_gettext('Items per page'))
 
-class CometFindChartForm(FlaskForm):
-    radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])
-    maglim = IntegerField(lazy_gettext('Limit mag'), default=7)
-    dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
-    ra = HiddenField('ra')
-    dec = HiddenField('dec')
-    mirror_x = BooleanField(lazy_gettext('Mirror X'), default=False)
-    mirror_y = BooleanField(lazy_gettext('Mirror Y'), default=False)
-    fullscreen = HiddenField('fullscreen')
-    splitview = HiddenField('splitview')
-    show_telrad = HiddenField('show_telrad', default='false')
-    show_constell_shapes = HiddenField('show_constell_shapes', default='true')
-    show_constell_borders = HiddenField('show_constell_borders', default='true')
-    show_dso = HiddenField('show_dso', default='true')
-    show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
-    from_date = DateField(lazy_gettext('From Date'), id='fromdate', format = '%d/%m/%Y', default = datetime.today)
-    to_date = DateField(lazy_gettext('To Date'), id='todate', format = '%d/%m/%Y', default = datetime.today)
+class CometFindChartForm(ChartForm):
+    date_from = DateField(lazy_gettext('From'), id='datefrom', format = '%d/%m/%Y', default = datetime.today)
+    date_to = DateField(lazy_gettext('To'), id='dateto', format = '%d/%m/%Y', default = datetime.today)
