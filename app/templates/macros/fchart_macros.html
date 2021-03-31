@@ -21,17 +21,17 @@
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100">
-              <div class="ui calendar" id="datefrom">
+              <div class="ui calendar" id="date_from">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
-                      <input id="idatefrom" name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
+                      <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
                               value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
                   </div>
               </div>
-              <div class="ui calendar" id="dateto">
+              <div class="ui calendar" id="date_to">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
-                      <input id="idateto" name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
+                      <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
                               value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
                   </div>
               </div>
@@ -362,8 +362,9 @@
         event.stopPropagation();
     });
 
-    $('#datefrom').calendar({
+    $('#date_from').calendar({
         type: 'date',
+        monthFirst: false,
         formatter: {
             date: function (date, settings) {
             if (!date) return '';
@@ -378,8 +379,9 @@
         }
     });
 
-    $('#dateto').calendar({
+    $('#date_to').calendar({
         type: 'date',
+        monthFirst: false,
         formatter: {
             date: function (date, settings) {
             if (!date) return '';

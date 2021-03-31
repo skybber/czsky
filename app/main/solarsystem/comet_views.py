@@ -186,14 +186,12 @@ def comet_info(comet_id):
         comet_dec_ang = None
         d1 = date(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = date(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
-        # d1 = datetime.today + timedelta(days=-15)
-        # d2 = datetime.today + timedelta(days=-15)
         if d1 != d2:
             trajectory = []
             while d1<=d2:
                 t = ts.utc(d1.year, d1.month, d1.day)
-                ra1, dec1, distance = earth.at(t).observe(c).radec()
-                trajectory.append((ra1.radians, dec1.radians, ''))
+                ra, dec, distance = earth.at(t).observe(c).radec()
+                trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
                 d1 += timedelta(days=1)
             t = ts.utc(d1.year, d1.month, d1.day)
             comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
