@@ -172,9 +172,15 @@ def comet_info(comet_id):
 
     c = sun + mpc.comet_orbit(comet, ts, GM_SUN)
 
-    if form.date_from.data is None or form.date_to.data is None or form.date_from.data > form.date_to.data:
+    if not form.date_from.data or not form.date_to.data:
+        today = datetime.today()
+        form.date_from.data = today
+        form.date_to.data = today
+
+    if (form.date_from.data is None) or (form.date_to.data is None) or form.date_from.data >= form.date_to.data:
         t = ts.now()
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
+        trajectory_b64 = None
     else:
         comet_ra_ang = None
         comet_dec_ang = None
@@ -227,6 +233,7 @@ def comet_chart_pos_img(comet_id, ra, dec):
         trajectory = json.loads(trajectory_json)
     else:
         trajectory = None
+
     img_bytes = common_chart_pos_img(comet_ra, comet_dec, ra, dec, visible_objects=visible_objects, trajectory=trajectory)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
