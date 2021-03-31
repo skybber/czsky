@@ -1,16 +1,25 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% block content %}
+{% set endpoints = [
+    ('main_observed.observed_list_info', _('Info'), 'info'),
+    ('main_observed.observed_list_chart', _('Chart'), 'chart'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro observed_list_info(observed_list) %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_observation.observations') }}">
-                <i class="caret left icon"></i>
-                {{ _('Observations') }}
-            </a>
-            <h2 class="ui header" style="margin-top:0.5em">
-                {{ _('List of observed objects') }}
-            </h2>
 
             {% set flashes = {
                 'error':   get_flashed_messages(category_filter=['form-error']),
@@ -22,7 +31,7 @@
 
             <div class="ui menu">
                 <div class="ui item" style="margin-right:25px">
-                    {{ f.begin_form(add_form, flashes, action=url_for('main_observation.observed_list_item_add')) }}
+                    {{ f.begin_form(add_form, flashes, action=url_for('main_observed.observed_list_item_add')) }}
                     <div class="ui action input">
                         <input type="text" name="{{ add_form.dso_name.name }}" placeholder="Add dso...">
                         <button class="ui icon button">
@@ -39,7 +48,7 @@
                 </div>
                 <div class="right menu">
                     <div class="ui item">
-                        <form id="fmdownload" method="post" action="{{ url_for('main_observation.observed_list_download') }}">
+                        <form id="fmdownload" method="post" action="{{ url_for('main_observed.observed_list_download') }}">
                             <button class="ui icon button"data-content="Add users to your feed">
                                 <i class="download icon"></i>
                             </button>
@@ -47,7 +56,7 @@
                         </form>
                     </div>
                     <div class="ui item">
-                        <form id="fmupload" method="post" action="{{ url_for('main_observation.observed_list_upload') }}" enctype="multipart/form-data">
+                        <form id="fmupload" method="post" action="{{ url_for('main_observed.observed_list_upload') }}" enctype="multipart/form-data">
                             <label for="file" class="ui icon button">
                                 <i class="upload icon"></i>
                             </label>
@@ -79,7 +88,7 @@
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
                             <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_observation.observed_list_item_delete', item_id=item.id) }}">
+                                <a class="ui icon mini button" href="{{ url_for('main_observed.observed_list_item_delete', item_id=item.id) }}">
                                     <i class="trash alternate icon"></i>
                                 </a>
                             </td>
@@ -114,7 +123,7 @@
       </div>
       <div class="actions">
         <div class="ui negative cancel button">{{ _('No') }}</div>
-        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observation.observed_list_delete') }}">
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observed.observed_list_delete') }}">
             {{ _('Yes') }}
             <i class="checkmark icon"></i>
         </a>
@@ -155,4 +164,45 @@
                 .modal('show');
         });
     </script>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro observed_list_chart(observed_list) %}
+    {{ fchart.fchart(url_for('main_observed.observed_list_chart', back=back, back_id=back_id),
+                     url_for('main_observed.observed_list_chart_pos_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, ),
+                     url_for('main_observed.observed_list_chart_legend_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                     None,
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url)
+    }}
+{% endmacro %}
+
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_observation.observations') }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('List of observed objects') }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ observed_list_info(observed_list) }}
+            {% else %}
+                {{ observed_list_chart(observed_list) }}
+            {% endif %}
+        </div>
+    </div>
+
 {% endblock %}

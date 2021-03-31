@@ -105,6 +105,8 @@ def create_app(config):
     app.register_blueprint(main_location)
     from .main.observation import main_observation as main_observation
     app.register_blueprint(main_observation)
+    from .main.observation import main_observed as main_observed
+    app.register_blueprint(main_observed)
     from .main.skyquality import main_sqm as main_sqm
     app.register_blueprint(main_sqm)
     from .main.skyquality import main_skyquality as main_skyquality
