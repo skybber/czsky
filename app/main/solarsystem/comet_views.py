@@ -202,10 +202,8 @@ def comet_info(comet_id):
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
 
-    if form.ra.data is None:
-        form.ra.data = comet_ra
-    if form.dec.data is None:
-        form.dec.data = comet_dec
+    form.ra.data = comet_ra
+    form.dec.data = comet_dec
 
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64)
