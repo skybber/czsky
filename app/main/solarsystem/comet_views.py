@@ -175,7 +175,7 @@ def comet_info(comet_id):
     if not form.date_from.data or not form.date_to.data:
         today = datetime.today()
         form.date_from.data = today
-        form.date_to.data = today
+        form.date_to.data = today + timedelta(days=7)
 
     if (form.date_from.data is None) or (form.date_to.data is None) or form.date_from.data >= form.date_to.data:
         t = ts.now()
