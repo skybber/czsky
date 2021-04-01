@@ -21,7 +21,7 @@
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100">
-              <div class="ui calendar" id="date_from">
+              <div class="ui mini calendar" id="date_from">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
                       <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
@@ -357,7 +357,7 @@
     $('.search').keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart" + getFullscreenSplitViewUrlPart());
+            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart" + getFullscreenSplitViewUrlPart("&"));
         }
         event.stopPropagation();
     });
