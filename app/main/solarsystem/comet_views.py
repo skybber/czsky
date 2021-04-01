@@ -80,8 +80,8 @@ def _create_comet_brighness_file(all_comets, fname):
                 dist_earth = earth.at(t).observe(comet).distance().au
                 dist_sun = sun.at(t).observe(comet).distance().au
                 if (dist_earth<10.0):
-                    m = row['magnitude_H'] + 5.0*np.log10(dist_earth) + 2.5*row['magnitude_G']*np.log10(dist_sun)
-                    print('Comet: {} de={} ds={} m={} g={}'.format(row['designation'], dist_earth, dist_sun, m, row['magnitude_G']), flush=True)
+                    m = row['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*row['magnitude_k']*np.log10(dist_sun)
+                    print('Comet: {} de={} ds={} m={} g={}'.format(row['designation'], dist_earth, dist_sun, m, row['magnitude_k']), flush=True)
             except Exception:
                 pass
             f.write(row['comet_id'] + ' ' + str(m) + '\n')
@@ -108,7 +108,7 @@ def _get_all_comets():
 
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
 
-        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) > all_comets_expiration) and not creation_running:
+        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) < all_comets_expiration) and not creation_running:
             all_comets.loc[:,'mag'] = 22.0
             creation_running = True
             thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
