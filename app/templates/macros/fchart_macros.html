@@ -21,14 +21,14 @@
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100;">
-              <div class="ui calendar" id="date_from" data-inverted=""  data-tooltip="{{ _('Date From')}}" data-position="bottom center" data-variation="tiny basic">
+              <div class="ui calendar mobile hidden" id="date_from" data-inverted=""  data-tooltip="{{ _('Date From')}}" data-position="left center" data-variation="tiny basic">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
                       <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text" style="width:140px"
                               value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
                   </div>
               </div>
-              <div class="ui calendar" id="date_to" data-inverted=""  data-tooltip="{{ _('Date To')}}" data-position="bottom center" data-variation="tiny basic">
+              <div class="ui calendar mobile hidden" id="date_to" data-inverted=""  data-tooltip="{{ _('Date To')}}" data-position="left center" data-variation="tiny basic">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
                       <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text" style="width:140px"
@@ -386,6 +386,7 @@
     $('#date_from').calendar({
         type: 'date',
         monthFirst: false,
+        endCalendar: $('#date_to'),
         formatter: {
             date: function (date, settings) {
             if (!date) return '';
@@ -395,14 +396,12 @@
             return day + '/' + month + '/' + year;
             }
         },
-        onChange: function () {
-            $(this).closest('form').submit();
-        }
     });
 
     $('#date_to').calendar({
         type: 'date',
         monthFirst: false,
+        startCalendar: $('#date_from'),
         formatter: {
             date: function (date, settings) {
             if (!date) return '';
