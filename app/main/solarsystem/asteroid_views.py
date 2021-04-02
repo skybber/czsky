@@ -59,6 +59,30 @@ def _get_all_asteroids():
             all_asteroids['asteroid_id'] = all_asteroids['designation_packed']
     return all_asteroids
 
+def _get_apparent_magnitude_HG( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
+    beta = math.acos( \
+                        ( body_sun_distanceAU * body_sun_distanceAU + \
+                          body_earth_distanceAU * body_earth_distanceAU - \
+                          earth_sun_distanceAU * earth_sun_distanceAU ) / \
+                        ( 2 * body_sun_distanceAU * body_earth_distanceAU ) \
+                    )
+
+    psi_t = math.exp( math.log( math.tan( beta / 2.0 ) ) * 0.63 )
+    Psi_1 = math.exp( -3.33 * psi_t )
+    psi_t = math.exp( math.log( math.tan( beta / 2.0 ) ) * 1.22 )
+    Psi_2 = math.exp( -1.87 * psi_t )
+
+    # Have found a combination of G_slope, Psi_1 and Psi_2 can lead to a negative value in the log calculation.
+    try:
+        apparentMagnitude = H_absolute_magnitude + \
+                            5.0 * math.log10( body_sun_distanceAU * body_earth_distanceAU ) - \
+                            2.5 * math.log10( ( 1 - G_slope ) * Psi_1 + G_slope * Psi_2 )
+
+    except:
+        apparentMagnitude = None
+
+    return apparentMagnitude
+
 @main_asteroid.route('/asteroids', methods=['GET', 'POST'])
 def asteroids():
     """View asteroids."""
@@ -80,13 +104,32 @@ def asteroids():
         search_expr = search_form.q.data.replace('"','')
         asteroids = asteroids.query('designation.str.contains("{}")'.format(search_expr))
 
+    magnitudes = {}
+
     if len(asteroids) > 0:
         asteroids_for_render = asteroids.iloc[offset : offset + per_page]
+
+        ts = load.timescale(builtin=True)
+        eph = load('de421.bsp')
+        sun, earth = eph['sun'], eph['earth']
+        t = ts.now()
+
+        ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
+
+        for index, asteroid in asteroids_for_render.iterrows():
+            body = sun + mpc.mpcorb_orbit( asteroid, ts, GM_SUN )
+            ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
+            ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
+
+            apparent_magnitude = _get_apparent_magnitude_HG(asteroid[ "magnitude_H" ], asteroid[ "magnitude_G" ], earth_body_distance.au, sun_body_distance.au, earth_sun_distance.au )
+            if apparent_magnitude:
+                magnitudes[asteroid['asteroid_id']] = '{:.2f}'.format(apparent_magnitude)
+
     else:
         asteroids_for_render = asteroids
 
     pagination = Pagination(page=page, total=len(asteroids), search=False, record_name='asteroids', css_framework='semantic', not_passed_args='back')
-    return render_template('main/solarsystem/asteroids.html', asteroids=asteroids_for_render, pagination=pagination, search_form=search_form)
+    return render_template('main/solarsystem/asteroids.html', asteroids=asteroids_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
 
 def _find_asteroid(asteroid_id):
     all_asteroids = _get_all_asteroids()

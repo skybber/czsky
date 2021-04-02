@@ -39,7 +39,7 @@
                         {% for index, row in asteroids.iterrows() %}
                             <tr onclick="window.location.href = '{{ url_for('main_asteroid.asteroid_info', asteroid_id=row['asteroid_id']) }}';">
                                 <td>{{ row['designation'] }}</td>
-                                <td></td>
+                                <td>{{ magnitudes.get(row['asteroid_id'], '') }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
