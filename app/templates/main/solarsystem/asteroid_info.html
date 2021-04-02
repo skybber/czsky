@@ -1,0 +1,72 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_asteroid.asteroid_info', 'Info', 'info')
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, asteroid_id=asteroid['asteroid_id']) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# --- Find Chart --- #}
+{% macro asteroid_info() %}
+    {{ fchart.fchart(url_for('main_asteroid.asteroid_info', asteroid_id=asteroid.asteroid_id, back=back, back_id=back_id),
+                     url_for('main_asteroid.asteroid_chart_pos_img', asteroid_id=asteroid.asteroid_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, trajectory=trajectory),
+                     url_for('main_asteroid.asteroid_chart_legend_img', asteroid_id=asteroid.asteroid_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                     None,
+                     fchart_form, )
+    }}
+{% endmacro %}
+
+{# --- Catalogue Data --- #}
+{% macro asteroid_catalogue_data() %}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if back == 'observation' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon"></i>
+                        </a>
+                    {% else %}
+                        <a class="ui basic compact button" href="{{ url_for('main_asteroid.asteroids') }}">
+                            <i class="caret left icon"></i>
+                            <i class="list icon"></i>
+                        </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ asteroid['designation'] }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ asteroid_info() }}
+            {% else %}
+                {{ asteroid_info() }}
+                {# {{ asteroid_catalogue_data() }} #}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

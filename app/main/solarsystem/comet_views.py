@@ -47,8 +47,6 @@ from app.commons.utils import to_float
 
 main_comet = Blueprint('main_comet', __name__)
 
-ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
-
 all_comets_expiration = datetime.now() + timedelta(days=1)
 all_comets = None
 creation_running = False

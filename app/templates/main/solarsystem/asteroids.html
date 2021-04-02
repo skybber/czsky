@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/common_macros.html' as commons %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer column">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_solarsystem.solarsystem_menu') }}">
+                <i class="caret left icon"></i>
+                {{ _('Solar System') }}
+            </a>
+            <h2 class="ui header" style="margin-top:0.5em">
+                {{ _('Minor planets') }}
+            </h2>
+
+            <form action="{{ url_for('main_asteroid.asteroids') }}" method="post" name="search">
+                <div class="ui menu">
+                    <div class="ui right search item">
+                        <div class="ui action input">
+                            {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                            <button class="ui icon button">
+                                <i class="search icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                {# Use overflow-x: scroll so that mobile views don't freak out
+                 # when the table is too wide #}
+                <div style="overflow-x: scroll;width: 100%">
+                    <table class="ui searchable sortable unstackable selectable celled table">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Name') }}</th>
+                                <th>{{ _('Brightness') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for index, row in asteroids.iterrows() %}
+                            <tr onclick="window.location.href = '{{ url_for('main_asteroid.asteroid_info', asteroid_id=row['asteroid_id']) }}';">
+                                <td>{{ row['designation'] }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

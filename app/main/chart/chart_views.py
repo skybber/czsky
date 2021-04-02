@@ -58,8 +58,6 @@ from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_wi
 
 main_chart = Blueprint('main_chart', __name__)
 
-ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
-
 @main_chart.route('/chart', methods=['GET', 'POST'])
 def chart():
     """View a chart."""

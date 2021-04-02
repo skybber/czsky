@@ -13,6 +13,8 @@
                     {{ _('Solar system') }}
             </h2>
             <div class="ui two column stackable grid">
+                {{ dash.dashboard_option(_('Minor planets'), 'main_asteroid.asteroids',
+                                    description=_('Show asteroids'), icon='meteor icon') }}
                 {{ dash.dashboard_option(_('Comets'), 'main_comet.comets',
                                     description=_('Show comets'), icon='meteor icon') }}
             </div>
