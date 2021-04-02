@@ -1,5 +1,7 @@
 import re
 import math
+import base64
+import urllib.parse
 
 from flask import (
     abort,
@@ -67,6 +69,17 @@ def global_search():
     res = _search_star(query)
     if res:
         return res
+
+    back_url_enc = request.args.get('back_url')
+    if back_url_enc:
+        back_url_b64 = urllib.parse.unquote(back_url_enc)
+        back_url = base64.b64decode(back_url_b64).decode('utf-8')
+        session['show_not_found'] = True
+        if request.args.get('fullscreen'):
+            back_url += '&fullscreen=true'
+        if request.args.get('splitview'):
+            back_url += '&splitview=true'
+        return redirect(back_url)
 
     abort(404)
 

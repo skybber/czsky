@@ -1,6 +1,7 @@
 import subprocess
 import os
 import sys
+import base64
 from math import pi
 from time import time
 from io import BytesIO
@@ -59,7 +60,8 @@ class ChartControl:
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
                  chart_nm=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
-                 chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None):
+                 chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
+                 show_not_found=None):
         self.chart_fsz = chart_fsz
         self.mag_scale = mag_scale
         self.mag_ranges = mag_ranges
@@ -83,6 +85,8 @@ class ChartControl:
         self.has_date_from_to = has_date_from_to
         self.date_from=date_from
         self.date_to=date_to
+        self.back_search_url_b64 = back_search_url_b64
+        self.show_not_found = show_not_found
 
 
 def _load_used_catalogs():
@@ -253,6 +257,8 @@ def common_prepare_chart_data(form):
     has_date_from_to = hasattr(form, 'date_from') and hasattr(form, 'date_to')
     date_from = form.date_from.data if has_date_from_to else None
     date_to = form.date_to.data if has_date_from_to else None
+    back_search_url_b64 = base64.b64encode(request.full_path.encode()).decode('utf-8')
+    show_not_found = session.pop('show_not_found', None)
 
     return ChartControl(chart_fsz=str(fld_size),
                          mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
@@ -265,8 +271,9 @@ def common_prepare_chart_data(form):
                          chart_flags=chart_flags, legend_flags=legend_flags,
                          chart_dso_list_menu=chart_dso_list_menu,
                          has_date_from_to=has_date_from_to,
-                         date_from=date_from,
-                         date_to=date_to,
+                         date_from=date_from, date_to=date_to,
+                         back_search_url_b64 = back_search_url_b64,
+                         show_not_found=show_not_found
                          )
 
 

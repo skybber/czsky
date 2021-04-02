@@ -196,6 +196,26 @@
 
 </div>
 
+{% if chart_control.show_not_found %}
+    <div class="ui tiny modal notFoundModal" style="z-index:10000;">
+        <div class="header">{{ _('Object not found') }}</div>
+        <div class="content">
+            <p>{{ _('Specified object was not found.') }}</p>
+        </div>
+        <div class="actions">
+            <a class="ui right labeled icon approve button" href="#" onclick="$('.ui.modal.notFoundModal').modal('hide')">
+               {{ _('Close') }}
+               <i class="checkmark icon"></i>
+          </a>
+        </div>
+    </div>
+<style>
+.modals.page {
+  z-index: 10000 !important;
+}
+</style>
+{% endif %}
+
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
 
 <script type="text/javascript">
@@ -357,7 +377,8 @@
     $('.search').keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart" + getFullscreenSplitViewUrlPart("&"));
+            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart" + getFullscreenSplitViewUrlPart("&") +
+                    "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}'));
         }
         event.stopPropagation();
     });
@@ -422,6 +443,10 @@
 
     window.onload = function() {
         fchart.onWindowLoad();
+{% if chart_control.show_not_found %}
+        $('.ui.modal.notFoundModal')
+            .modal('show');
+{% endif %}
     }
 
 </script>
