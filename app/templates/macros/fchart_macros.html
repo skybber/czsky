@@ -24,14 +24,14 @@
               <div class="ui calendar" id="date_from" data-inverted=""  data-tooltip="{{ _('Date From')}}" data-position="bottom center" data-variation="tiny basic">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
-                      <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
+                      <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text" style="width:140px"
                               value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
                   </div>
               </div>
               <div class="ui calendar" id="date_to" data-inverted=""  data-tooltip="{{ _('Date To')}}" data-position="bottom center" data-variation="tiny basic">
                   <div class="ui input left icon">
                       <i class="calendar icon"></i>
-                      <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
+                      <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text" style="width:140px"
                               value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
                   </div>
               </div>
