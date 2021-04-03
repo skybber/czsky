@@ -20,7 +20,7 @@
                         {% for news in news_list %}
                         <div class="item">
                             <div class="content">
-                                <a class="ui header">{{ news.title }}</a>
+                                <div class="ui header">{{ news.title }}</div>
                                 <div class="description">
                                     <p class="markdown" style="clear:both;">
                                     {% filter extended_commonmark('M1') %}
