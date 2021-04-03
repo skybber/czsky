@@ -147,4 +147,4 @@ def news_delete(news_id):
         abort(404)
     db.session.delete(news)
     flash('News was deleted', 'form-success')
-    return redirect(url_for('main_news.news'))
+    return redirect(url_for('main_news.news_list'))
