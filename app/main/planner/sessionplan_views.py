@@ -91,7 +91,7 @@ def _check_session_plan(session_plan):
     if current_user.is_anonymous:
         if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
             abort(404)
-    elif current_user.is_anonymous or session_plan.user_id != current_user.id:
+    elif session_plan.user_id != current_user.id:
         abort(404)
 
 

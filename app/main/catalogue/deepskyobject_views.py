@@ -577,16 +577,20 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject.denormalized_name() if next_item else None,
                     )
     elif back == 'session_plan':
-        if current_user.is_authenticated:
-            session_plan = SessionPlan.query.filter_by(id=back_id).first()
-            if session_plan.user_id == current_user.id:
-                prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
-                return (prev_item.deepskyObject if prev_item else None,
-                        prev_item.deepskyObject.denormalized_name() if prev_item else None,
-                        next_item.deepskyObject if next_item else None,
-                        next_item.deepskyObject.denormalized_name() if next_item else None,
-                        )
-        pass # TODO
+        allow_view_session_plan = True
+        session_plan = SessionPlan.query.filter_by(id=back_id).first()
+        if current_user.is_anonymous:
+            if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+                allow_view_session_plan = False
+        elif session_plan.user_id != current_user.id:
+            allow_view_session_plan = False
+        if allow_view_session_plan:
+            prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
+            return (prev_item.deepskyObject if prev_item else None,
+                    prev_item.deepskyObject.denormalized_name() if prev_item else None,
+                    next_item.deepskyObject if next_item else None,
+                    next_item.deepskyObject.denormalized_name() if next_item else None,
+                    )
     elif back == 'dso_list' and not (back_id is None):
         dso_list = DsoList.query.filter_by(name=back_id).first()
         if dso_list:

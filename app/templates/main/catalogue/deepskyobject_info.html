@@ -366,36 +366,39 @@
         </div>
     </div>
     <script type="text/javascript">
-    {% if embed == 'fc' %}
-        {% if back == 'observation' %}
-            {% set top_prev_url =  url_for('main_observation.observation_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% set top_next_url = url_for('main_observation.observation_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-        {% elif back == 'wishlist' %}
-            {% set top_prev_url =  url_for('main_wishlist.wish_list_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% set top_next_url = url_for('main_wishlist.wish_list_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-        {% elif back == 'dso_list' %}
-            {% set top_prev_url =  url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% set top_next_url = url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-        {% elif back == 'session_plan' %}
-            {% set top_prev_url =  url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% set top_next_url = url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-        {% else %}
-            {% set top_prev_url =  url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% set top_next_url = url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
+        {% if embed == 'fc' %}
+            {% if back == 'observation' %}
+                {% set top_prev_url =  url_for('main_observation.observation_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_observation.observation_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+            {% elif back == 'wishlist' %}
+                {% set top_prev_url =  url_for('main_wishlist.wish_list_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_wishlist.wish_list_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+            {% elif back == 'dso_list' %}
+                {% set top_prev_url =  url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+            {% elif back == 'session_plan' %}
+                {% set top_prev_url =  url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+            {% else %}
+                {% set top_prev_url =  url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
+            {% endif %}
+
+            {% if prev_dso %}
+                $('#bprev' ).click(function() {
+                    parent.window.location.href = "{{ top_prev_url | safe }}";
+                    return true;
+                });
+            {% endif %}
+            {% if next_dso %}
+                $('#bnext' ).click(function() {
+                    parent.window.location.href = "{{ top_next_url | safe }}";
+                    return false;
+                });
+            {% endif %}
         {% endif %}
-
-        $('#bprev' ).click(function() {
-            parent.window.location.href = "{{ top_prev_url | safe }}";
-            return true;
-        });
-        $('#bnext' ).click(function() {
-            parent.window.location.href = "{{ top_next_url | safe }}";
-            return false;
-        });
-    {% endif %}
         $('.ui.rating')
-        .rating();
-
+            .rating();
     </script>
     <style>
 {% if type == 'surveys' %}
