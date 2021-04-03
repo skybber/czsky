@@ -18,6 +18,7 @@
 
 {% macro news_info(news) %}
     <table class="ui compact definition table">
+        <tr><td>Title row</td><td>{{ news.title_row }}</td></tr>
         <tr><td>Description</td><td>{{ news.text }}</td></tr>
         <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ news.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
     </table>

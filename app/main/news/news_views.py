@@ -98,6 +98,7 @@ def new_news():
         db.session.add(news)
         db.session.commit()
         flash('News successfully created', 'form-success')
+        return redirect(url_for('main_news.news_edit', news_id=news.id))
     return render_template('main/news/news_edit.html', form=form, is_new=True, countries=countries)
 
 
