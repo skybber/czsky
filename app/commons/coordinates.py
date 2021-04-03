@@ -72,10 +72,11 @@ def lonlat_check(form, field):
 
 
 def radec_check(form, field):
-    try:
-        ra, dec = parse_radec(field.data)
-    except ValueError:
-        raise ValidationError('Invalid coordinate format.')
+    if field.data:
+        try:
+            ra, dec = parse_radec(field.data)
+        except ValueError:
+            raise ValidationError('Invalid coordinate format.')
 
 
 def parse_radec(str_radec):

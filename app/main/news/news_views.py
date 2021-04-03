@@ -110,10 +110,11 @@ def news_edit(news_id):
     form = NewsEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            ra, dec = parse_radec(form.radec.data)
             news.title = form.title.data
-            news.ra = ra
-            news.dec = dec
+            if form.radec.data:
+                news.ra, news.dec = parse_radec(form.radec.data)
+            else:
+                news.ra, news.dec = (None, None)
             news.title_row = form.title_row.data
             news.text = form.text.data
             news.rating = form.rating.data

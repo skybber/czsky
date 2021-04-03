@@ -6,8 +6,8 @@ class News(db.Model):
     __tablename__ = 'news'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(128), nullable=False, index=True)
-    ra = db.Column(db.Float, index=True)
-    dec = db.Column(db.Float, index=True)
+    ra = db.Column(db.Float)
+    dec = db.Column(db.Float)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=True)
     deepskyObject = db.relationship("DeepskyObject")
     title_row = db.Column(db.Text)
