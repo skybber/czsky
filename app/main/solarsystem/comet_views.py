@@ -41,6 +41,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
+    get_trajectory_time_delta,
 )
 
 from app.commons.utils import to_float
@@ -186,12 +187,13 @@ def comet_info(comet_id):
         t = ts.now()
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         if d1 != d2:
+            dt = get_trajectory_time_delta(d1, d2)
             trajectory = []
             while d1<=d2:
                 t = ts.utc(d1.year, d1.month, d1.day)
                 ra, dec, distance = earth.at(t).observe(c).radec()
                 trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
-                d1 += timedelta(days=1)
+                d1 += dt
             t = ts.utc(d1.year, d1.month, d1.day)
             trajectory_json = json.dumps(trajectory)
             trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))

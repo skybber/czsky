@@ -5,6 +5,7 @@ import base64
 from math import pi
 from time import time
 from io import BytesIO
+from datetime import date, datetime, timedelta
 
 from flask import (
     request,
@@ -551,3 +552,12 @@ def common_chart_dso_list_menu():
         observations = None
 
     return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observations)
+
+
+def get_trajectory_time_delta(d1, d2):
+    delta = d2 - d1
+    if delta.days > 90:
+        return timedelta(days=30)
+    if delta.days > 30:
+        return timedelta(days=7)
+    return timedelta(days=1)
