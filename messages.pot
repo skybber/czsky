@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-03 21:03+0200\n"
+"POT-Creation-Date: 2021-04-04 00:48+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -519,7 +519,7 @@ msgstr ""
 
 #: app/templates/main/index.html:52
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan.html:52
+#: app/templates/main/planner/session_plan.html:58
 #: app/templates/main/planner/session_plan_edit.html:13
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
@@ -644,6 +644,8 @@ msgstr ""
 #: app/templates/main/chart/chart.html:29
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
+#: app/templates/main/planner/session_plan.html:53
+#: app/templates/main/planner/session_plan.html:70
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
@@ -891,7 +893,7 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: app/templates/main/planner/session_plan.html:55
+#: app/templates/main/planner/session_plan.html:62
 #: app/templates/main/planner/session_plan_edit.html:24
 msgid "Add New Session Plan"
 msgstr ""
@@ -1098,6 +1100,9 @@ msgid "Add new news"
 msgstr ""
 
 #: app/templates/main/userdata/userdata_menu.html:24
+msgid "Show all news"
+msgstr ""
+
 #: app/templates/main/userdata/userdata_menu.html:27
 msgid "Store/restore data from git repository"
 msgstr ""
