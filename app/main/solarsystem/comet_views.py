@@ -187,6 +187,9 @@ def comet_info(comet_id):
         t = ts.now()
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         if d1 != d2:
+            time_delta = d2 - d1
+            if time_delta.days > 365:
+                d2 = d1 + timedelta(days=365)
             dt = get_trajectory_time_delta(d1, d2)
             trajectory = []
             while d1<=d2:
