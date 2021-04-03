@@ -47,10 +47,17 @@
         <div class="column" style="flex: 1">
     {% endif %}
             {% if is_new %}
-                <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
-                    <i class="caret left icon"></i>
-                    {{ _('Planner') }}
-                </a>
+                {% if is_anonymous %}
+                    <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Dashboard') }}
+                    </a>
+                {% else %}
+                    <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Planner') }}
+                    </a>
+                {% endif %}
                 <h2 class="ui header">
                     {{ _('Add New Session Plan') }}
                 </h2>
@@ -60,7 +67,7 @@
                         {% if session_plan.is_anonymous %}
                             <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
                                 <i class="caret left icon"></i>
-                                <i class="lastfm icon mobile hidden"></i>
+                                {{ _('Dashboard') }}
                             </a>
                         {% else %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plans') }}">

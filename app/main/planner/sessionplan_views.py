@@ -173,7 +173,7 @@ def new_session_plan():
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location)
+    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location, is_anonymous=current_user.is_anonymous)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/delete')
