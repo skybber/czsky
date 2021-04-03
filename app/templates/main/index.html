@@ -22,11 +22,7 @@
                             <div class="content">
                                 <div class="ui header">{{ news.title }}</div>
                                 <div class="description">
-                                    <p class="markdown" style="clear:both;">
-                                    {% filter extended_commonmark('M1') %}
-{{ news.title_row  | safe }}
-                                    {% endfilter %}
-                                    </p>
+                                    <p>{{ news.title_row  | safe }}</p>
                                 </div>
                             </div>
                         </div>
