@@ -57,10 +57,17 @@
             {% else %}
                 <div>
                     <div class="ui huge breadcrumb">
-                        <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plans') }}">
-                            <i class="caret left icon"></i>
-                            <i class="lastfm icon mobile hidden"></i>
-                        </a>
+                        {% if session_plan.is_anonymous %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon mobile hidden"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plans') }}">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon mobile hidden"></i>
+                            </a>
+                        {% endif %}
                         <div class="divider"> / </div>
                         <div class="active section">
                             {{ session_plan.for_date.strftime('%Y-%m-%d') }}
