@@ -68,8 +68,12 @@ class Config:
     RQ_DEFAULT_DB = 0
 
     USER_DATA_DIR = os.environ.get('USER_DATA_DIR')
+
     EDITOR_USER_NAME_CS = os.environ.get('EDITOR_USER_NAME_CS')
     EDITOR_USER_NAME_EN = os.environ.get('EDITOR_USER_NAME_EN')
+
+    ANONYMOUS_USER_NAME = os.environ.get('ANONYMOUS_USER_NAME')
+
     DEFAULT_IMG_DIR = os.environ.get('DEFAULT_IMG_DIR')
 
     LANGUAGES = ['en', 'cs']

@@ -25,8 +25,13 @@ def to_boolean(value, default):
     return default
 
 
+def get_anonymous_user():
+    return User.query.filter_by(user_name=current_app.config.get('ANONYMOUS_USER_NAME')).first()
+
+
 def get_cs_editor_user():
     return User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
+
 
 def get_lang_and_editor_user_from_request():
     # supported_languages = ["cs", "en"]

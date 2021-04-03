@@ -219,6 +219,22 @@ def add_editor_user():
         db.session.add(user)
         db.session.commit()
 
+@manager.command
+def add_anonymous_user():
+    user_email = 'anonymous@test.test'
+    if User.query.filter_by(email=user_email).first() is None:
+        role = Role.query.filter_by(name='User').first()
+        user = User(
+            user_name='anonymous',
+            full_name='Anonymous user',
+            password='nologin',
+            confirmed=True,
+            email=user_email,
+            role=role,
+            )
+        db.session.add(user)
+        db.session.commit()
+
 # TODO: remove
 @manager.command
 def tmp_normalize_glahn_img():

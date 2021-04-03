@@ -1,8 +1,8 @@
 import os
 import csv
 from datetime import datetime, timedelta
-import pytz
 import base64
+import pytz
 
 from werkzeug.utils import secure_filename
 
@@ -33,19 +33,11 @@ from flask_login import current_user, login_required
 from app import db
 
 from app.models import (
-    Catalogue,
-    Constellation,
     DeepskyObject,
     DsoList,
-    DsoListItem,
     Location,
-    ObservedList,
-    ObservedListItem,
     SessionPlan,
     SessionPlanItem,
-    User,
-    WishList,
-    WishListItem,
 )
 
 from app.commons.pagination import Pagination, get_page_parameter
@@ -68,6 +60,9 @@ from .sessionplan_forms import (
 from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name
+from app.commons.utils import get_anonymous_user
+
+from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
@@ -89,24 +84,35 @@ def session_plans():
     return render_template('main/planner/session_plans.html', session_plans=session_plans, search_form=search_form)
 
 
+def _check_session_plan(session_plan):
+    if session_plan is None:
+        abort(404)
+
+    if current_user.is_anonymous:
+        if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+            abort(404)
+    elif current_user.is_anonymous or session_plan.user_id != current_user.id:
+        abort(404)
+
+
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/info', methods=['GET', 'POST'])
-@login_required
 def session_plan_info(session_plan_id):
     """View a session plan info."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+
+    _check_session_plan(session_plan)
 
     form = SessionPlanEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
+
+            user = get_anonymous_user() if current_user.is_anonymous else current_user
+
             session_plan.title = form.title.data
             session_plan.for_date = form.for_date.data
             session_plan.location_id = form.location_id.data
             session_plan.notes = form.notes.data
-            session_plan.update_by = current_user.id
+            session_plan.update_by = user.id
             session_plan.update_date = datetime.now()
             db.session.add(session_plan)
             db.session.commit()
@@ -126,28 +132,41 @@ def session_plan_info(session_plan_id):
 
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
-@login_required
 def new_session_plan():
     """Create new session plan"""
     form = SessionPlanNewForm()
     if request.method == 'POST' and form.validate_on_submit():
 
-        new_session_plan = SessionPlan(
-            user_id = current_user.id,
-            title = form.title.data,
-            for_date = form.for_date.data,
-            location_id = form.location_id.data,
-            notes = form.notes.data,
-            create_by = current_user.id,
-            update_by = current_user.id,
-            create_date = datetime.now(),
-            update_date = datetime.now(),
-            )
+        new_session_plan = None
+        if current_user.is_anonymous:
+            if session.get('session_plan_id'):
+                new_session_plan = SessionPlan.query.filter_by(id=session.get('session_plan_id')).first()
 
-        db.session.add(new_session_plan)
-        db.session.commit()
+        if not new_session_plan:
+            user = get_anonymous_user() if current_user.is_anonymous else current_user
+            new_session_plan = SessionPlan(
+                user_id = user.id,
+                title = form.title.data,
+                for_date = form.for_date.data,
+                location_id = form.location_id.data,
+                notes = form.notes.data,
+                is_anonymous = current_user.is_anonymous,
+                create_by = user.id,
+                update_by = user.id,
+                create_date = datetime.now(),
+                update_date = datetime.now(),
+                )
 
-        flash('Session plan successfully created', 'form-success')
+            db.session.add(new_session_plan)
+            db.session.commit()
+
+            if current_user.is_anonymous:
+                session['session_plan_id'] = new_session_plan.id
+
+            flash('Session plan successfully created', 'form-success')
+        else:
+            flash('Session plan already exists', 'form-success')
+
         return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=new_session_plan.id))
 
     location = None
@@ -158,29 +177,23 @@ def new_session_plan():
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/delete')
-@login_required
 def session_plan_delete(session_plan_id):
     """Request deletion of a observation."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan)
+
     db.session.delete(session_plan)
     db.session.commit()
+
     flash('Session plan was deleted', 'form-success')
     return redirect(url_for('main_sessionplan.session_plans'))
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/clear')
-@login_required
 def session_plan_clear(session_plan_id):
     """Request deletion of a observation."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan)
 
     SessionPlanItem.query.filter_by(session_plan_id=session_plan_id).delete()
     db.session.commit()
@@ -190,14 +203,10 @@ def session_plan_clear(session_plan_id):
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/item-add', methods=['GET', 'POST'])
-@login_required
 def session_plan_item_add(session_plan_id):
     """Add item to session plan."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan)
 
     deepsky_object = None
     form = AddToSessionPlanForm()
@@ -211,14 +220,15 @@ def session_plan_item_add(session_plan_id):
 
     if deepsky_object:
         if not session_plan.find_dso_by_id(deepsky_object.id):
-            new_item = session_plan.create_new_session_plan_item(deepsky_object.id, current_user.id)
+            user = get_anonymous_user() if current_user.is_anonymous else current_user
+            new_item = session_plan.create_new_session_plan_item(deepsky_object.id, user.id)
             db.session.add(new_item)
             db.session.commit()
             flash('Object was added to session plan.', 'form-success')
         else:
             flash('Object is already on session plan.', 'form-info')
 
-        _reorder_by_merid_time(session_plan)
+        reorder_by_merid_time(session_plan)
     else:
         flash('Deepsky object not found.', 'form-error')
 
@@ -226,37 +236,13 @@ def session_plan_item_add(session_plan_id):
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
 
 
-def _reorder_by_merid_time(session_plan):
-    loc = session_plan.location
-    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
-    observation_time = Time(session_plan.for_date)
-    tz_info = pytz.timezone('Europe/Prague')
-
-    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
-
-    spi = session_plan.session_plan_items
-    merid_time_list = _merid_time(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi])
-    session_plan_compound_list = [ (spi[i], merid_time_list[i]) for i in range(len(spi))]
-    session_plan_compound_list.sort(key=lambda x: x[1])
-    i = 1
-    for item in session_plan_compound_list:
-        session_plan_item = item[0]
-        session_plan_item.order = i
-        i += 1
-        db.session.add(session_plan_item)
-    db.session.commit()
-
-
 @main_sessionplan.route('/session-plan-item/<int:item_id>/delete')
-@login_required
 def session_plan_item_delete(item_id):
     """Remove item from session plan."""
     session_plan_item = SessionPlanItem.query.filter_by(id=item_id).first()
-
     if session_plan_item is None:
         abort(404)
-    if session_plan_item.session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan_item.session_plan)
 
     session_plan_id = session_plan_item.session_plan_id
     db.session.delete(session_plan_item)
@@ -268,13 +254,9 @@ def session_plan_item_delete(item_id):
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/upload', methods=['POST'])
-@login_required
 def session_plan_upload(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan)
 
     if 'file' not in request.files:
         flash('No file part', 'form-error')
@@ -302,7 +284,8 @@ def session_plan_upload(session_plan_id):
                 if dso and not dso.id in existing_ids:
 
                     if not session_plan.find_dso_by_id(dso.id):
-                        new_item = session_plan.create_new_session_plan_item(dso.id, current_user.id)
+                        user = get_anonymous_user() if current_user.is_anonymous else current_user
+                        new_item = session_plan.create_new_session_plan_item(dso.id, user.id)
                         db.session.add(new_item)
                     existing_ids.add(dso.id)
         db.session.commit()
@@ -314,14 +297,10 @@ def session_plan_upload(session_plan_id):
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/schedule', methods=['GET', 'POST'])
-@login_required
 def session_plan_schedule(session_plan_id):
     """View a session plan schedule."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
-    if session_plan.user_id != current_user.id:
-        abort(404)
+    _check_session_plan(session_plan)
 
     search_form = SessionPlanScheduleSearch()
 
@@ -346,6 +325,9 @@ def session_plan_schedule(session_plan_id):
     if not ret:
         return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, page=page, sortby=sort_by))
 
+    add_form = AddToSessionPlanForm()
+    add_form.session_plan_id.data = session_plan.id
+
     per_page = get_items_per_page(search_form.items_per_page)
 
     offset = (page - 1) * per_page
@@ -360,77 +342,10 @@ def session_plan_schedule(session_plan_id):
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
 
-    if search_form.obj_source.data is None or search_form.obj_source.data == 'WL':
-        wishlist_subquery = db.session.query(WishListItem.dso_id) \
-            .join(WishListItem.wish_list) \
-            .filter(WishList.user_id==current_user.id)
-
-        dso_query = DeepskyObject.query \
-            .filter(DeepskyObject.id.in_(wishlist_subquery))
-
-    elif search_form.obj_source.data.startswith('DL_'):
-        dso_list_id = int(search_form.obj_source.data[3:])
-
-        dsolist_subquery = db.session.query(DsoListItem.dso_id) \
-            .join(DsoListItem.dso_list) \
-            .filter(DsoList.id==dso_list_id)
-
-        dso_query = DeepskyObject.query \
-            .filter(DeepskyObject.id.in_(dsolist_subquery))
-    else:
-        dso_query = DeepskyObject.query
-        cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.obj_source.data)
-        if cat_id:
-            dso_query = dso_query.filter_by(catalogue_id=cat_id)
-
-    scheduled_subquery = db.session.query(SessionPlanItem.dso_id) \
-        .filter(SessionPlanItem.session_plan_id==session_plan.id)
-
-    # Subtract already scheduled dsos
-    dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
-
-    # Subtract observed dsos
-    if search_form.not_observed.data:
-        observed_subquery = db.session.query(ObservedListItem.dso_id) \
-            .join(ObservedListItem.observed_list) \
-            .filter(ObservedList.user_id==current_user.id)
-        dso_query = dso_query.filter(DeepskyObject.id.notin_(observed_subquery))
-
-
-    # filter by type
-    if search_form.dso_type.data and search_form.dso_type.data != 'All':
-        dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
-
-    # filter by magnitude limit
-    if search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
-        dso_query = dso_query.filter(DeepskyObject.mag<search_form.maglim.data)
-
-    order_by_field = None
-    if sort_by:
-        desc = sort_by[0] == '-'
-        sort_by_name = sort_by[1:] if desc else sort_by
-        order_by_field = sort_def.get(sort_by_name)
-        if order_by_field and desc:
-            order_by_field = order_by_field.desc()
-
-    if order_by_field is None:
-        order_by_field = DeepskyObject.id
-
-    all_count = dso_query.count()
-
-    if all_count > 500:
-        selection_list = dso_query.order_by(order_by_field).limit(per_page).offset(offset).all().copy()
-        use_time_filter = False
-    else:
-        selection_list = dso_query.order_by(order_by_field).all().copy()
-        use_time_filter = True
-
-    add_form = AddToSessionPlanForm()
-    add_form.session_plan_id.data = session_plan.id
 
     loc = session_plan.location
-
     loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+
     observation_time = Time(session_plan.for_date)
     tz_info = pytz.timezone('Europe/Prague')
     observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
@@ -438,41 +353,9 @@ def session_plan_schedule(session_plan_id):
     time_from = _setup_search_from(search_form, observer, observation_time, tz_info)
     time_to = _setup_search_to(search_form, observer, observation_time, time_from, tz_info)
 
-    # filter by rise-set time
-    if use_time_filter:
-        time_filtered_list = []
-        selection_rms_list = _rise_merid_set_up(time_from, time_to, observer, [ (x.ra, x.dec) for x in selection_list])
-        for i in range(len(selection_rms_list)):
-            rise_t, merid_t, set_t, is_up = selection_rms_list[i]
-            if is_up or rise_t < time_to or set_t>time_from:
-                time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
-
-        # filter by altitude
-        if len(time_filtered_list) > 0 and search_form.min_altitude.data > 0:
-            constraints = [AltitudeConstraint(search_form.min_altitude.data*u.deg)]
-            targets = []
-            for item in time_filtered_list:
-                dso = item[0]
-                target = FixedTarget(coord=SkyCoord(ra=dso.ra * u.rad, dec=dso.dec * u.rad), name=dso.name)
-                targets.append(target)
-            time_range = Time([time_from, time_to])
-            observable_list = is_observable(constraints, observer, targets, time_range=time_range)
-            time_filtered_list = [ time_filtered_list[i] for i in range(len(time_filtered_list)) if observable_list[i] ]
-
-        all_count = len(time_filtered_list)
-        if offset>=all_count:
-            offset = 0
-            page = 1
-        selection_compound_list = time_filtered_list[offset:offset+per_page]
-    else:
-        selection_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
-        selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
-
-    # create session plan list
-    spi = session_plan.session_plan_items.copy()
-    spi.sort(key=lambda x: x.order)
-    session_plan_rms_list = _rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi], tz_info)
-    session_plan_compound_list = [ (spi[i], *session_plan_rms_list[i]) for i in range(len(spi))]
+    selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, search_form, observer, observation_time, time_from, time_to, tz_info,
+                                                              page, offset, per_page, sort_by, mag_scale)
+    session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info)
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
@@ -518,63 +401,10 @@ def _combine_date_and_time(date_part, time_part, tz_info):
     return datetime.combine(date_part.to_datetime().date(), datetime.strptime(time_part, '%H:%M').time(), tz_info)
 
 
-def _rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
-    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = _wrap2array(observer.target_rise_time(time_from, coords, which='next', n_grid_points=10)) if len(coords) > 0 else []
-    merid_list = _wrap2array(observer.target_meridian_transit_time(time_from, coords, which='next', n_grid_points=10))  if len(coords) > 0 else []
-    set_list = _wrap2array(observer.target_set_time(time_to, coords, which='previous', n_grid_points=10)) if len(coords) > 0 else []
-    up_list = _wrap2array(observer.target_is_up(time_from, coords)) if len(coords) > 0 else []
-
-    return [(rise_list[i], merid_list[i], set_list[i], up_list[i]) for i in range(len(rise_list))]
-
-
-def _rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
-    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = _ar_to_HM_format(observer.target_rise_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
-    merid_list = _ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info)  if len(coords) > 0 else []
-    set_list = _ar_to_HM_format(observer.target_set_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
-
-    return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
-
-
-def _merid_time(t, observer, ra_dec_list):
-    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    merid_list = observer.target_meridian_transit_time(t, coords, n_grid_points=10) if len(coords) > 0 else []
-    return _wrap2array(merid_list)
-
-
-def _to_HM_format(t, tz_info):
-    try:
-        return t.to_datetime(tz_info).strftime('%H:%M')
-    except ValueError:
-        return ''
-
-
-def _ar_to_HM_format(tm, tz_info):
-    ret = []
-    tm = _wrap2array(tm)
-
-    for t in tm:
-        try:
-            ret.append(t.to_datetime(tz_info).strftime('%H:%M'))
-        except ValueError:
-            ret.append('')
-    return ret
-
-
-def _wrap2array(ar):
-    try:
-        it = iter(ar)
-        return ar
-    except TypeError:
-        return [ar]
-
-
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart', methods=['GET', 'POST'])
 def session_plan_chart(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
+    _check_session_plan(session_plan)
 
     form  = ChartForm()
 
@@ -606,8 +436,7 @@ def session_plan_chart(session_plan_id):
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def  session_plan_chart_pos_img(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
+    _check_session_plan(session_plan)
 
     highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
 
@@ -624,8 +453,7 @@ def  session_plan_chart_pos_img(session_plan_id, ra, dec):
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def session_plan_chart_legend_img(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    if session_plan is None:
-        abort(404)
+    _check_session_plan(session_plan)
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')

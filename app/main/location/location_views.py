@@ -173,7 +173,6 @@ def location_delete(location_id):
     return redirect(url_for('main_location.locations'))
 
 @main_location.route('/location-autocomplete', methods=['GET'])
-@login_required
 def location_autocomplete():
     search = request.args.get('q')
     locations = Location.query.filter(Location.name.like('%' + search + '%'))

@@ -16,7 +16,9 @@
             <span class="text">{{ _('Choose Source') }}</span>
             <i class="dropdown icon"></i>
             <div class="menu">
-                <div class="item" data-value="WL">{{ _('Wish List') }}</div>
+                {% if not session_plan.is_anonymous %}
+                    <div class="item" data-value="WL">{{ _('Wish List') }}</div>
+                {% endif %}
                 <div class="item">
                     <i class="dropdown icon"></i>
                     <span class="text">{{ _('DSO List')}}</span>
@@ -78,10 +80,12 @@
         <input type="text" placeholder="Time" id="{{ search_form.time_to.name }}" name="{{ search_form.time_to.name }}" value="{{ search_form.time_to.data }}">
       </div>
     </div>
-    <div id="not_observed" class="ui inverted checkbox item">
-      <input type="checkbox" id="not_observed_data" name="{{ search_form.not_observed.name }}" {{ 'checked=checked' if search_form.not_observed.data else '' | safe  }}>
-      <label>{{_('Not observed')}}</label>
-    </div>
+    {% if not session_plan.is_anonymous %}
+        <div id="not_observed" class="ui inverted checkbox item">
+          <input type="checkbox" id="not_observed_data" name="{{ search_form.not_observed.name }}" {{ 'checked=checked' if search_form.not_observed.data else '' | safe  }}>
+          <label>{{_('Not observed')}}</label>
+        </div>
+    {% endif %}
 {{ f.end_form(search_form) }}
 
 

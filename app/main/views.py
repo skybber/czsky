@@ -28,16 +28,19 @@ main = Blueprint('main', __name__)
 def index():
     return render_template('main/index.html', is_anonymous=current_user.is_anonymous)
 
+
 @main.route('/about')
 def about():
     editable_html_obj = EditableHTML.get_editable_html('about')
     return render_template(
         'main/about.html', editable_html_obj=editable_html_obj)
 
+
 @main.route('/swtheme')
 def switch_theme():
     session['themered'] = not session.get('themered', False)
     return redirect(request.referrer)
+
 
 @main.route('/search')
 def global_search():
@@ -83,8 +86,8 @@ def global_search():
 
     abort(404)
 
-def _search_by_ra_dec(query):
 
+def _search_by_ra_dec(query):
     r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)?[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
     m = r_radec.match(query)
     if m is not None:
