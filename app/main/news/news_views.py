@@ -78,7 +78,10 @@ def new_news():
         abort(404)
     form = NewsNewForm()
     if request.method == 'POST' and form.validate_on_submit():
-        ra, dec = parse_radec(form.radec.data)
+        if form.radec.data:
+            ra, dec = parse_radec(form.radec.data)
+        else:
+            ra, dec = (None, None)
         news = News(
             title = form.title.data,
             ra = ra,
