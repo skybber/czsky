@@ -30,7 +30,7 @@ from flask_babel import lazy_gettext
 from app.commons.coordinates import radec_check
 
 class NewsMixin():
-    title = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
+    title = StringField(lazy_gettext('Title'), validators=[Length(max=128)])
     title_row = StringField(lazy_gettext('Title row'), validators=[Length(max=128)])
     radec = StringField(lazy_gettext('Coordinates'), validators=[Length(max=256), radec_check])
     text = TextAreaField(lazy_gettext('text'))
