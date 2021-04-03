@@ -44,7 +44,7 @@
                                     description=_('View solar system'), icon='sun icon') }}
                 {% if is_anonymous %}
                     {{ dash.dashboard_option(_('Session Plan'), 'main_planner.anonymous_planner_menu',
-                                        description=_('Session plan'), icon='tasks icon') }}
+                                        description=_('Session plan'), icon='tasks icon', extra_class='mobile hidden') }}
                 {% endif %}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option(_('Observer'), 'main_observation.observation_menu',
