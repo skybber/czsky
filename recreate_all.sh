@@ -18,6 +18,9 @@ confirm() {
 
 ./manage.py recreate_db
 ./manage.py setup_prod
+./manage.py add_test_user
+./manage.py add_editor_user
+./manage.py add_anonymous_user
 ./manage.py initialize_catalogues
 ./manage.py add_help_users
 ./manage.py import_dso_list
