@@ -1,0 +1,1 @@
+from .news_views import main_news

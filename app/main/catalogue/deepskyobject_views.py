@@ -123,7 +123,7 @@ def deepskyobjects():
     if order_by_field is None:
         order_by_field = DeepskyObject.id
 
-    deepskyobjects_for_render = deepskyobjects.order_by(order_by_field).limit(per_page).offset(offset)
+    deepskyobjects_for_render = deepskyobjects.order_by(order_by_field).limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 

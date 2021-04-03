@@ -1,5 +1,10 @@
+import re
+import math
 from lat_lon_parser import parse as lonlat_parse
 from wtforms.validators import ValidationError
+from skyfield.units import Angle
+
+r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
 
 def geoc_to_string(geoc, format_str):
     '''
@@ -38,22 +43,18 @@ def latlon_to_string(lat_lon):
     return geoc_to_string(lat_lon.lat, format_str) + ', ' + geoc_to_string(lat_lon.lon, format_str)
 
 
-def ra_to_float(ra):
-    """Convert right ascension to float."""
-    return 0.0
-
-def dec_to_float(ra):
-    """Convert declination to float."""
-    return 0.0
 
 def mapy_cz_url(lon, lat):
     return 'https://www.mapy.cz/zakladni?x=' + str(lon) + '&y=' + str(lat) + '&z=17'
 
+
 def google_url(lon, lat):
     return 'https://www.google.com/maps/place/' + str(lat) + ',' + str(lon)
 
+
 def open_street_map_url(lon, lat):
     return 'https://www.openstreetmap.org/?mlat=' + str(lat) + '&mlon=' + str(lon) + '&zoom=12'
+
 
 def parse_lonlat(coords):
     longLat = coords.split(',')
@@ -62,8 +63,44 @@ def parse_lonlat(coords):
     else:
         raise ValueError('Invalid coordinate format {}'.format(coords))
 
+
 def lonlat_check(form, field):
     try:
         parse_lonlat(field.data)
     except ValueError:
         raise ValidationError('Invalid coordinate format.')
+
+
+def radec_check(form, field):
+    try:
+        ra, dec = parse_radec(field.data)
+    except ValueError:
+        raise ValidationError('Invalid coordinate format.')
+
+
+def parse_radec(str_radec):
+    global r_radec
+    m = r_radec.match(str_radec)
+    if m is not None:
+        ra = math.pi * (int(m.group(1))/12 + int(m.group(2))/(12*60) + float(m.group(3))/(12*60*60))
+        print(m, flush=True)
+        dec_base = int(m.group(5))/180
+        if dec_base > 0:
+            multipl = 1.0
+        elif dec_base < 0:
+            multipl = -1.0
+        else:
+            multipl = 0.0
+        dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
+        return ra, dec
+    raise ValueError('Invalid ra-dec format {}'.format(str_radec))
+
+
+def radec_to_string_short(ra, dec):
+    if ra is not None and dec is not None:
+        sgn, d, m, s = Angle(radians=dec).signed_dms(warn=False)
+        sign = '-' if sgn < 0.0 else '+'
+        str_dec = '%s%02d:%02d:%02d' % (sign, d, m, s)
+        str_ra = '%02d:%02d:%02d' % Angle(radians=ra).hms(warn=False)
+        return str_ra + ' ' + str_dec
+    return ''

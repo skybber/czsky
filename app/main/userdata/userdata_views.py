@@ -24,18 +24,22 @@ main_userdata = Blueprint('main_userdata', __name__)
 @main_userdata.route('/userdata-menu', methods=['GET'])
 @login_required
 def userdata_menu():
-    return render_template('main/userdata/userdata_menu.html')
+    can_edit_news = current_user.is_editor()
+    return render_template('main/userdata/userdata_menu.html', can_edit_news=can_edit_news)
+
 
 @main_userdata.route('/data-store-personal', methods=['GET'])
 @login_required
 def data_store_personal():
     return _render_data_store(current_user.git_repository, 'repo_personal')
 
+
 @main_userdata.route('/data-store-content', methods=['GET'])
 @login_required
 @editor_required
 def data_store_content():
     return _render_data_store(current_user.git_content_repository, 'repo_content')
+
 
 def _render_data_store(git_repository, subtype):
     save_form = GitSaveForm()
@@ -50,6 +54,7 @@ def _render_data_store(git_repository, subtype):
                                 git_save=git_save,
                                 git_load=git_load,
                                 subtype=subtype,)
+
 
 @main_userdata.route('/git-save', methods=['POST'])
 @login_required
@@ -72,6 +77,7 @@ def git_save():
                     flash('Storing content data to Git repository failed.' + str(e), 'form-error')
     return redirect(url_for('main_userdata.data_store_content', git_save='1'))
 
+
 @main_userdata.route('/git-load', methods=['GET'])
 @login_required
 def git_load():
@@ -92,9 +98,11 @@ def git_load():
                 flash('Loading content data from Git repository failed.' + str(e), 'form-success')
     return redirect(url_for('main_userdata.data_store_content', git_load='1'))
 
+
 def _do_load_public_content_data_from_git(app, user_name):
     with app.app_context():
         load_public_content_data_from_git(user_name)
+
 
 def _is_git_enabled(subtype):
     if subtype == 'repo_content':
@@ -103,10 +111,12 @@ def _is_git_enabled(subtype):
         return _is_git_personal_enabled();
     return False
 
+
 def _is_git_personal_enabled():
     return current_user.git_repository and \
              current_user.git_ssh_public_key and \
              current_user.git_ssh_private_key
+
 
 def _is_git_content_enabled():
     if not current_user.is_editor():

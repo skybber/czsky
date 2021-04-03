@@ -1,0 +1,109 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if is_new %}
+                <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
+                    <i class="caret left icon"></i>
+                    {{ _('Settings') }}
+                </a>
+            {% else %}
+              <a class="ui basic compact button" href="{{ url_for('main_news.news_info', news_id=news.id) }}">
+                  <i class="caret left icon"></i>
+                {{ _('News Info') }}
+              </a>
+            {% endif %}
+
+            <h2 class="ui header">
+                {% if is_new %}
+                    {{ _('Add New News') }}
+                {% else %}
+                    {{ _('Edit News') }}
+                {% endif %}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                {{ f.render_form_field(form.title) }}
+                {{ f.render_form_field(form.title_row) }}
+                {{ f.render_form_field(form.is_released) }}
+
+                <div class="two fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.radec) }}
+                    </div>
+                    <div class="field">
+                        {{ f.render_form_field(form.rating) }}
+                    </div>
+                </div>
+
+                {{ f.render_form_field(form.text) }}
+
+                <div class="two fields">
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                    {% if not is_new %}
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete News') }}</a>
+                    {% endif %}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    {% if not is_new %}
+        <div class="ui tiny modal deleteModal">
+          <div class="header">{{ _('Delete News') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete news?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_news.news_delete', news_id=news.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        $('.ui.rating').rating({
+            maxRating: 5,
+            onRate: function (rating) {
+                $('#rating').val(rating);
+            }
+        });
+        var descrMDE = new EasyMDE({element: document.getElementById('descr'),
+            minHeight: "200px",
+            spellChecker: false,
+            status : false,
+	    });
+
+        {% if not is_new %}
+            $('.ui.modal.deleteModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdelete').click(function() {
+                $('.ui.modal.deleteModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
+{% endblock %}

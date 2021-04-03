@@ -9,6 +9,7 @@ from .deepskyobject import *
 from .dsolist import *
 from .location import *
 from .miscellaneous import *
+from .news import *
 from .observation import *
 from .observedlist import *
 from .planner import *

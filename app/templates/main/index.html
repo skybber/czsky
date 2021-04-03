@@ -5,8 +5,38 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <h2 class="ui header">
-            </h2>
+
+            {% if news_list %}
+            <div class="ui padded segment">
+                <div class="ui stackable relaxed grid">
+                    <h3 class="ui two wide column header">
+                        <i class="rss icon"></i>
+                        <div class="content">
+                            {{ _('News') }}
+                        </div>
+                    </h3>
+                    <div class="ui fourteen wide column">
+                    <div class="ui items">
+                        {% for news in news_list %}
+                        <div class="item">
+                            <div class="content">
+                                <a class="ui header">{{ news.title }}</a>
+                                <div class="description">
+                                    <p class="markdown" style="clear:both;">
+                                    {% filter extended_commonmark('M1') %}
+{{ news.title_row  | safe }}
+                                    {% endfilter %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Constellations'), 'main_constellation.constellations',
                                     description=_('View constellations'), icon='lastfm icon') }}

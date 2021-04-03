@@ -17,6 +17,12 @@
                                     description=_('Add new location'), icon='users icon') }}
                 {{ dash.dashboard_option(_('Locations'), 'main_location.locations',
                                     description=_('View all locations'), icon='users icon') }}
+                {% if can_edit_news %}
+                    {{ dash.dashboard_option(_('Add news'), 'main_news.new_news',
+                                        description=_('Add new news'), icon='rss icon') }}
+                    {{ dash.dashboard_option(_('News list'), 'main_news.news_list',
+                                        description=_('Store/restore data from git repository'), icon='rss icon') }}
+                {% endif %}
                 {{ dash.dashboard_option(_('Git repository'), 'main_userdata.data_store_personal',
                                     description=_('Store/restore data from git repository'), icon='git icon') }}
             </div>

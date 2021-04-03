@@ -53,7 +53,7 @@ def locations():
     locations = Location.query.filter(or_(and_(Location.is_public==True,Location.is_for_observation==True), Location.user_id==current_user.id))
     if search_form.q.data:
         locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
-    locations_for_render = locations.limit(per_page).offset(offset)
+    locations_for_render = locations.limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, total=locations.count(), search=False, record_name='locations', css_framework='semantic', not_passed_args='back')
 

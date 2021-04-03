@@ -17,7 +17,8 @@ from flask_login import current_user, login_required
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
 from app.commons.utils import get_lang_and_editor_user_from_request
-from app.models import Constellation, DeepskyObject, Star, UserStarDescription, EditableHTML
+from app.commons.coordinates import parse_radec
+from app.models import Constellation, DeepskyObject, News, Star, UserStarDescription, EditableHTML
 
 from sqlalchemy import func
 
@@ -26,7 +27,8 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('main/index.html', is_anonymous=current_user.is_anonymous)
+    news_list = News.query.filter_by(is_released=True).order_by(News.id.desc()).limit(3).all()
+    return render_template('main/index.html', is_anonymous=current_user.is_anonymous, news_list=news_list)
 
 
 @main.route('/about')
@@ -88,19 +90,12 @@ def global_search():
 
 
 def _search_by_ra_dec(query):
-    r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]?([+-]?\d\d)?[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
-    m = r_radec.match(query)
-    if m is not None:
-        ra = math.pi * (int(m.group(1))/12 + int(m.group(2))/(12*60) + float(m.group(3))/(12*60*60))
-        dec_base = int(m.group(5))/180
-        if dec_base > 0:
-            multipl = 1.0
-        elif dec_base < 0:
-            multipl = -1.0
-        else:
-            multipl = 0.0
-        dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
-        return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=request.args.get('embed')))
+    try:
+        ra, dec = parse_radec(query)
+        if ra is not None and dec is not None:
+            return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=request.args.get('embed')))
+    except ValueError:
+        pass
 
 
 def _search_constellation(query):

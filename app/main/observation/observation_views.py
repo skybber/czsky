@@ -56,7 +56,7 @@ def observations():
     observations = Observation.query.filter_by(user_id=current_user.id)
     search = False
 
-    observations_for_render = observations.limit(per_page).offset(offset)
+    observations_for_render = observations.limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, total=observations.count(), search=search, record_name='observations', css_framework='semantic')
     return render_template('main/observation/observations.html', observations=observations_for_render, pagination=pagination)

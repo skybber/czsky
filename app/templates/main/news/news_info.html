@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set endpoints = [
+    ('main_news.news_info', 'News', 'news'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, news_id=news.id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro news_info(news) %}
+    <table class="ui compact definition table">
+        <tr><td>Description</td><td>{{ news.text }}</td></tr>
+        <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ news.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
+    </table>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_news.news_list', back=1) }}">
+                <i class="caret left icon"></i>
+                {{ _('News') }}
+            </a>
+            <h2 class="ui header">
+                {{ news.title }}
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_news.news_edit', news_id=news.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </h2>
+            {{ navigation(endpoints) }}
+
+            {{ news_info(news) }}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}
