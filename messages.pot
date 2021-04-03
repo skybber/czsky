@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-03 12:51+0200\n"
+"POT-Creation-Date: 2021-04-03 21:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Generated-By: Babel 2.9.0\n"
 
 #: app/main/catalogue/deepskyobject_forms.py:59 app/main/forms.py:35
-#: app/main/location/location_forms.py:50
+#: app/main/location/location_forms.py:50 app/main/news/news_forms.py:48
 #: app/main/planner/sessionplan_forms.py:52
 #: app/main/planner/sessionplan_forms.py:65
 #: app/main/solarsystem/asteroid_forms.py:34
@@ -29,7 +29,7 @@ msgid "Items per page"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:32
-#: app/main/location/location_forms.py:49
+#: app/main/location/location_forms.py:49 app/main/news/news_forms.py:47
 #: app/main/planner/sessionplan_forms.py:35
 #: app/main/planner/sessionplan_forms.py:53
 msgid "Search"
@@ -132,9 +132,10 @@ msgid "References"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:70
-#: app/main/location/location_forms.py:37
+#: app/main/location/location_forms.py:37 app/main/news/news_forms.py:37
 #: app/main/observation/observation_forms.py:71
 #: app/templates/main/location/locations.html:44
+#: app/templates/main/news/news_list.html:41
 #: app/templates/main/observation/observations.html:42
 msgid "Rating"
 msgstr ""
@@ -200,6 +201,40 @@ msgstr ""
 msgid "Update location"
 msgstr ""
 
+#: app/main/news/news_forms.py:33 app/main/observation/observation_forms.py:68
+#: app/main/planner/sessionplan_forms.py:38
+#: app/templates/main/news/news_list.html:40
+#: app/templates/main/observation/observations.html:40
+msgid "Title"
+msgstr ""
+
+#: app/main/news/news_forms.py:34
+msgid "Title row"
+msgstr ""
+
+#: app/main/news/news_forms.py:35
+#: app/templates/main/location/location_info.html:26
+#: app/templates/main/location/locations.html:41
+msgid "Coordinates"
+msgstr ""
+
+#: app/main/news/news_forms.py:36
+msgid "text"
+msgstr ""
+
+#: app/main/news/news_forms.py:38
+msgid "Is released"
+msgstr ""
+
+#: app/main/news/news_forms.py:41
+#: app/templates/main/userdata/userdata_menu.html:21
+msgid "Add news"
+msgstr ""
+
+#: app/main/news/news_forms.py:44
+msgid "Update news"
+msgstr ""
+
 #: app/main/observation/observation_forms.py:43
 msgid "DSO list optionally with comment. (e.g. M3,M5:nice globulars!)"
 msgstr ""
@@ -211,12 +246,6 @@ msgstr ""
 #: app/main/observation/observation_forms.py:53
 #: app/main/observation/observation_forms.py:63
 msgid "Value expected."
-msgstr ""
-
-#: app/main/observation/observation_forms.py:68
-#: app/main/planner/sessionplan_forms.py:38
-#: app/templates/main/observation/observations.html:40
-msgid "Title"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:69
@@ -322,7 +351,7 @@ msgid "Confirm Deletion"
 msgstr ""
 
 #: app/main/usersettings/usersettings_forms.py:32
-#: app/templates/main/userdata/userdata_menu.html:20
+#: app/templates/main/userdata/userdata_menu.html:26
 msgid "Git repository"
 msgstr ""
 
@@ -429,62 +458,66 @@ msgstr ""
 msgid "Night mode"
 msgstr ""
 
+#: app/templates/main/index.html:15 app/templates/main/news/news_info.html:32
+msgid "News"
+msgstr ""
+
 #: app/templates/main/catalogue/constellations.html:11
-#: app/templates/main/index.html:11
+#: app/templates/main/index.html:37
 msgid "Constellations"
 msgstr ""
 
-#: app/templates/main/index.html:12
+#: app/templates/main/index.html:38
 msgid "View constellations"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:12
-#: app/templates/main/index.html:13
+#: app/templates/main/index.html:39
 msgid "Deepsky Objects"
 msgstr ""
 
-#: app/templates/main/index.html:14
+#: app/templates/main/index.html:40
 msgid "View deepsky objects"
 msgstr ""
 
-#: app/templates/main/index.html:15
+#: app/templates/main/index.html:41
 msgid "Deepsky Lists"
 msgstr ""
 
-#: app/templates/main/index.html:16
+#: app/templates/main/index.html:42
 msgid "View deepsky lists"
 msgstr ""
 
-#: app/templates/main/index.html:17
+#: app/templates/main/index.html:43
 #: app/templates/main/solarsystem/asteroids.html:9
 #: app/templates/main/solarsystem/comets.html:9
 msgid "Solar System"
 msgstr ""
 
-#: app/templates/main/index.html:18
+#: app/templates/main/index.html:44
 msgid "View solar system"
 msgstr ""
 
-#: app/templates/main/index.html:20
+#: app/templates/main/index.html:46
 msgid "Session Plan"
 msgstr ""
 
-#: app/templates/main/index.html:21
+#: app/templates/main/index.html:47
 msgid "Session plan"
 msgstr ""
 
-#: app/templates/main/index.html:24
+#: app/templates/main/index.html:50
 #: app/templates/main/observation/observation_edit.html:13
 #: app/templates/main/observation/observation_menu.html:13
 #: app/templates/main/observation/observations.html:9
 msgid "Observer"
 msgstr ""
 
-#: app/templates/main/index.html:25
+#: app/templates/main/index.html:51
 msgid "View observer menu"
 msgstr ""
 
-#: app/templates/main/index.html:26
+#: app/templates/main/index.html:52
 #: app/templates/main/planner/planner_menu.html:13
 #: app/templates/main/planner/session_plan.html:52
 #: app/templates/main/planner/session_plan_edit.html:13
@@ -492,7 +525,7 @@ msgstr ""
 msgid "Planner"
 msgstr ""
 
-#: app/templates/main/index.html:27
+#: app/templates/main/index.html:53
 msgid "View planner menu"
 msgstr ""
 
@@ -500,7 +533,7 @@ msgstr ""
 #: app/templates/main/catalogue/deepskyobject_info.html:14
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:8
-#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:29
+#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:55
 #: app/templates/main/observation/observation_info.html:7
 #: app/templates/main/observation/observed_list.html:7
 #: app/templates/main/planner/session_plan.html:8
@@ -508,25 +541,25 @@ msgstr ""
 msgid "Chart"
 msgstr ""
 
-#: app/templates/main/index.html:30
+#: app/templates/main/index.html:56
 msgid "View sky chart"
 msgstr ""
 
-#: app/templates/main/index.html:32
+#: app/templates/main/index.html:58
 msgid "Sky quality"
 msgstr ""
 
-#: app/templates/main/index.html:33
+#: app/templates/main/index.html:59
 msgid "View skyquality section"
 msgstr ""
 
-#: app/templates/main/index.html:34
+#: app/templates/main/index.html:60
 #: app/templates/main/userdata/data_store.html:35
 #: app/templates/main/userdata/userdata_menu.html:13
 msgid "User Data"
 msgstr ""
 
-#: app/templates/main/index.html:35
+#: app/templates/main/index.html:61
 msgid "View user data"
 msgstr ""
 
@@ -658,6 +691,8 @@ msgstr ""
 
 #: app/templates/main/location/location_edit.html:13
 #: app/templates/main/location/locations.html:10
+#: app/templates/main/news/news_edit.html:13
+#: app/templates/main/news/news_list.html:10
 msgid "Settings"
 msgstr ""
 
@@ -683,6 +718,7 @@ msgid "Are you sure you want to delete location?"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:109
+#: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:110
 #: app/templates/main/observation/observed_list.html:125
 #: app/templates/main/planner/session_plan_edit.html:96
@@ -694,6 +730,7 @@ msgid "No"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:111
+#: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:112
 #: app/templates/main/observation/observed_list.html:127
 #: app/templates/main/planner/session_plan_edit.html:98
@@ -702,11 +739,6 @@ msgstr ""
 #: app/templates/main/planner/session_plan_schedule.html:233
 #: app/templates/main/userdata/data_store.html:119
 msgid "Yes"
-msgstr ""
-
-#: app/templates/main/location/location_info.html:26
-#: app/templates/main/location/locations.html:41
-msgid "Coordinates"
 msgstr ""
 
 #: app/templates/main/location/location_info.html:52
@@ -718,6 +750,32 @@ msgstr ""
 
 #: app/templates/main/location/locations.html:42
 msgid "Links"
+msgstr ""
+
+#: app/templates/main/news/news_edit.html:18
+msgid "News Info"
+msgstr ""
+
+#: app/templates/main/news/news_edit.html:24
+msgid "Add New News"
+msgstr ""
+
+#: app/templates/main/news/news_edit.html:26
+msgid "Edit News"
+msgstr ""
+
+#: app/templates/main/news/news_edit.html:60
+#: app/templates/main/news/news_edit.html:70
+msgid "Delete News"
+msgstr ""
+
+#: app/templates/main/news/news_edit.html:72
+msgid "Are you sure you want to delete news?"
+msgstr ""
+
+#: app/templates/main/news/news_list.html:13
+#: app/templates/main/userdata/userdata_menu.html:23
+msgid "News list"
 msgstr ""
 
 #: app/templates/main/observation/observation_edit.html:18
@@ -1035,7 +1093,12 @@ msgstr ""
 msgid "View all locations"
 msgstr ""
 
-#: app/templates/main/userdata/userdata_menu.html:21
+#: app/templates/main/userdata/userdata_menu.html:22
+msgid "Add new news"
+msgstr ""
+
+#: app/templates/main/userdata/userdata_menu.html:24
+#: app/templates/main/userdata/userdata_menu.html:27
 msgid "Store/restore data from git repository"
 msgstr ""
 
