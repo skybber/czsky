@@ -421,7 +421,7 @@ msgstr "Pozorování"
 #: app/templates/macros/fchart_macros.html:146
 #: app/templates/main/planner/session_plan_schedule.html:24
 msgid "DSO List"
-msgstr "Wishlist"
+msgstr "DSO List"
 
 #: app/templates/macros/fchart_macros.html:169
 msgid "PDF export"
