@@ -122,7 +122,7 @@
           {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, embed='pl') }}{% endmacro %}
 
           {% for item in selection_compound_list %}
-              <tr>
+              <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}">
                   <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].denormalized_name() }}</td>
                   <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].type }}</td>
                   <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].get_constellation_iau_code() }}</td>
@@ -131,7 +131,7 @@
                   <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[2] }}</td>
                   <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id) }}">
+                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
                           <i class="arrow right icon"></i>
                       </a>
                   </td>
@@ -185,7 +185,7 @@
           {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
 
           {% for item in session_plan_compound_list %}
-              <tr>
+              <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}">
                   <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.denormalized_name() }}</td>
                   <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.type }}</td>
                   <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
@@ -194,7 +194,7 @@
                   <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
                   <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id) }}">
+                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
                           <i class="trash alternate icon"></i>
                       </a>
                   </td>

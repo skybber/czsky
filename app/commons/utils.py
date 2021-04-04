@@ -9,6 +9,14 @@ from werkzeug.datastructures import LanguageAccept
 
 from app.models.user import User
 
+def to_int(value, default):
+    if value is not None:
+        try:
+            return int(value)
+        except ValueError:
+            pass
+    return default
+
 def to_float(value, default):
     if value is not None:
         try:

@@ -48,6 +48,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_pdf_img,
 )
+from app.commons.utils import to_int
 
 
 from .sessionplan_forms import (
@@ -234,7 +235,10 @@ def session_plan_item_add(session_plan_id):
         flash('Deepsky object not found.', 'form-error')
 
     session['is_backr'] = True
-    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
+
+    srow_index=request.args.get('row_index')
+
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, srow_index=srow_index))
 
 
 @main_sessionplan.route('/session-plan-item/<int:item_id>/delete')
@@ -251,7 +255,8 @@ def session_plan_item_delete(item_id):
     flash('Session plan item was deleted', 'form-success')
 
     session['is_backr'] = True
-    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
+    drow_index=request.args.get('row_index')
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, drow_index=drow_index))
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/upload', methods=['POST'])
@@ -360,14 +365,30 @@ def session_plan_schedule(session_plan_id):
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
+    selected_dso_name = None
+
+    drow_index = to_int(request.args.get('drow_index'), -1)
+    if drow_index > len(session_plan_compound_list):
+        drow_index = len(session_plan_compound_list)
+    if drow_index > 0:
+        selected_dso_name = session_plan_compound_list[drow_index-1][0].deepskyObject.name
+
+    srow_index = to_int(request.args.get('srow_index'), -1)
+    if srow_index > len(selection_compound_list):
+        srow_index = len(selection_compound_list)
+    if srow_index > 0:
+        selected_dso_name = selection_compound_list[srow_index-1][0].name
+
     if not search_form.selected_dso_name.data:
         search_form.selected_dso_name.data = 'M1'
+    if not selected_dso_name:
+        selected_dso_name = search_form.selected_dso_name.data
 
     return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
-                           selected_dso_name=search_form.selected_dso_name.data)
+                           selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index)
 
 
 def _setup_search_from(search_form, observer, observation_time, tz_info):
