@@ -171,7 +171,7 @@
                      url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, mx=chart_control.chart_mx, my=chart_control.chart_my, flags=chart_control.legend_flags),
                      url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_flags, ),
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url,)
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''))
     }}
 {% endmacro %}
 

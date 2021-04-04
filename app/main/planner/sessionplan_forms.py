@@ -48,7 +48,7 @@ class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Session Plan'))
 
-class SessionPlanScheduleSearch(FlaskForm):
+class SessionPlanScheduleFilterForm(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
     q = StringField(lazy_gettext('Search'))
     obj_source= HiddenField('obj_source', default='WL')

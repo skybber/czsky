@@ -8,11 +8,11 @@
 } %}
 
 
-{{ f.begin_form(search_form, flashes, action=url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), extra_classes='ui tiny menu') }}
+{{ f.begin_form(schedule_form, flashes, action=url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), extra_classes='ui tiny menu') }}
 
     <div class="ui item">
         <div id="objsource_dropdown" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Source') }}" data-variation="tiny basic">
-            <input type="hidden" id="obj_source" name="{{ search_form.obj_source.name }}" value="{{ search_form.obj_source.data }}">
+            <input type="hidden" id="obj_source" name="{{ schedule_form.obj_source.name }}" value="{{ schedule_form.obj_source.data }}">
             <span class="text">{{ _('Choose Source') }}</span>
             <i class="dropdown icon"></i>
             <div class="menu">
@@ -41,13 +41,13 @@
         </div>
     </div>
     <div class="ui item computer tablet only" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Type') }}" data-variation="tiny basic">
-        {{ search_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
+        {{ schedule_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
     </div>
     <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
         <div class="ui icon dropdown button">
-            <input type="hidden" id="{{ search_form.maglim.name }}" name="{{ search_form.maglim.name }}" value="{{ search_form.maglim.data }}"
+            <input type="hidden" id="{{ schedule_form.maglim.name }}" name="{{ schedule_form.maglim.name }}" value="{{ schedule_form.maglim.data }}"
                     onchange="this.form.submit()">
-            <span class="text">{{ search_form.maglim.data }}</span>
+            <span class="text">{{ schedule_form.maglim.data }}</span>
             <div class="menu">
                 <div class="item"></div>
                 {% for mag_item in range(mag_scale[0], mag_scale[1] + 1) %}
@@ -58,9 +58,9 @@
     </div>
     <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Min altitude') }}" data-variation="tiny basic">
         <div class="ui icon dropdown button">
-            <input type="hidden" id="{{ search_form.min_altitude.name }}" name="{{ search_form.min_altitude.name }}" value="{{ search_form.min_altitude.data }}"
+            <input type="hidden" id="{{ schedule_form.min_altitude.name }}" name="{{ schedule_form.min_altitude.name }}" value="{{ schedule_form.min_altitude.data }}"
                     onchange="this.form.submit()">
-            <span class="text">&gt;{{ search_form.min_altitude.data }}°</span>
+            <span class="text">&gt;{{ schedule_form.min_altitude.data }}°</span>
             <div class="menu">
                 {% for min_alt_item in min_alt_item_list %}
                     <div class="item" data-value="{{ min_alt_item }}">&gt;{{ min_alt_item }}°</div>
@@ -71,22 +71,30 @@
     <div id="time_from" class="ui calendar item" style="width: 120px" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Time from') }}" data-variation="tiny basic">
       <div class="ui input left icon">
         <i class="time icon"></i>
-        <input type="text" placeholder="Time" id="{{ search_form.time_from.name }}" name="{{ search_form.time_from.name }}" value="{{ search_form.time_from.data }}">
+        <input type="text" placeholder="Time" id="{{ schedule_form.time_from.name }}" name="{{ schedule_form.time_from.name }}" value="{{ schedule_form.time_from.data }}">
       </div>
     </div>
     <div id="time_to" class="ui calendar item" style="width: 120px" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Time to') }}" data-variation="tiny basic">
       <div class="ui input left icon">
         <i class="time icon"></i>
-        <input type="text" placeholder="Time" id="{{ search_form.time_to.name }}" name="{{ search_form.time_to.name }}" value="{{ search_form.time_to.data }}">
+        <input type="text" placeholder="Time" id="{{ schedule_form.time_to.name }}" name="{{ schedule_form.time_to.name }}" value="{{ schedule_form.time_to.data }}">
       </div>
+    </div>
+    <div class="ui icon dropdown button item" data-inverted="" data-tooltip="{{ _('Time range setup') }}" data-variation="tiny basic">
+        <i class="wrench icon"></i>
+        <div class="menu">
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_nautical_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to nautical twilight') }}</a>
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to astronomical twilight')  }}</a>
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_moonless_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to moonless astronomical twilight') }}</a>
+        </div>
     </div>
     {% if not session_plan.is_anonymous %}
         <div id="not_observed" class="ui inverted checkbox item">
-          <input type="checkbox" id="not_observed_data" name="{{ search_form.not_observed.name }}" {{ 'checked=checked' if search_form.not_observed.data else '' | safe  }}>
+          <input type="checkbox" id="not_observed_data" name="{{ schedule_form.not_observed.name }}" {{ 'checked=checked' if schedule_form.not_observed.data else '' | safe  }}>
           <label>{{_('Not observed')}}</label>
         </div>
     {% endif %}
-{{ f.end_form(search_form) }}
+{{ f.end_form(schedule_form) }}
 
 
 <div class="ui segment" style="overflow-x: scroll;">
@@ -119,7 +127,7 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].name, embed='pl') }}{% endmacro %}
+          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].name, embed='pl') }}{% endmacro %}
 
           {% for item in selection_compound_list %}
               <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}">
@@ -139,7 +147,7 @@
           {% endfor %}
           </tbody>
       </table>
-      {{ pagination.links }} {{ commons.items_per_page_as_links(search_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page)) }} {{ pagination.info }}
+      {{ pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page)) }} {{ pagination.info }}
     </div>
     <div class="column">
 
@@ -182,7 +190,7 @@
               </tr>
           </thead>
           <tbody>
-          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
+          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
 
           {% for item in session_plan_compound_list %}
               <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}">

@@ -56,7 +56,7 @@ from .sessionplan_forms import (
     SearchSessionPlanForm,
     SessionPlanNewForm,
     SessionPlanEditForm,
-    SessionPlanScheduleSearch,
+    SessionPlanScheduleFilterForm,
 )
 
 from app.main.chart.chart_forms import ChartForm
@@ -308,7 +308,7 @@ def session_plan_schedule(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
-    search_form = SessionPlanScheduleSearch()
+    schedule_form = SessionPlanScheduleFilterForm()
 
     sort_by = request.args.get('sortby')
 
@@ -317,15 +317,15 @@ def session_plan_schedule(session_plan_id):
         session['items_per_page'] = int(str_per_page)
 
     ret, page = process_paginated_session_search('planner_search_page', [
-        ('planner_dso_type', search_form.dso_type),
-        ('planner_dso_obj_source', search_form.obj_source),
-        ('planner_dso_maglim', search_form.maglim),
-        ('planner_min_altitude', search_form.min_altitude),
-        ('planner_time_from', search_form.time_from),
-        ('planner_time_to', search_form.time_to),
-        ('planner_not_observed', search_form.not_observed),
-        ('planner_selected_dso_name', search_form.selected_dso_name),
-        ('items_per_page', search_form.items_per_page)
+        ('planner_dso_type', schedule_form.dso_type),
+        ('planner_dso_obj_source', schedule_form.obj_source),
+        ('planner_dso_maglim', schedule_form.maglim),
+        ('planner_min_altitude', schedule_form.min_altitude),
+        ('planner_time_from', schedule_form.time_from),
+        ('planner_time_to', schedule_form.time_to),
+        ('planner_not_observed', schedule_form.not_observed),
+        ('planner_selected_dso_name', schedule_form.selected_dso_name),
+        ('items_per_page', schedule_form.items_per_page)
         ]);
 
     if not ret:
@@ -334,7 +334,7 @@ def session_plan_schedule(session_plan_id):
     add_form = AddToSessionPlanForm()
     add_form.session_plan_id.data = session_plan.id
 
-    per_page = get_items_per_page(search_form.items_per_page)
+    per_page = get_items_per_page(schedule_form.items_per_page)
 
     offset = (page - 1) * per_page
 
@@ -348,18 +348,13 @@ def session_plan_schedule(session_plan_id):
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
 
-
-    loc = session_plan.location
-    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+    observer, tz_info = _get_observer_tzinfo(session_plan)
 
     observation_time = Time(session_plan.for_date)
-    tz_info = pytz.timezone('Europe/Prague')
-    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
+    time_from = _setup_search_from(schedule_form, observer, observation_time, tz_info)
+    time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info)
 
-    time_from = _setup_search_from(search_form, observer, observation_time, tz_info)
-    time_to = _setup_search_to(search_form, observer, observation_time, time_from, tz_info)
-
-    selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, search_form, observer, observation_time, time_from, time_to, tz_info,
+    selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
                                                               page, offset, per_page, sort_by, mag_scale)
     session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info)
 
@@ -383,43 +378,52 @@ def session_plan_schedule(session_plan_id):
     if srow_index > 0:
         selected_dso_name = selection_compound_list[srow_index-1][0].name
 
-    if not search_form.selected_dso_name.data:
-        search_form.selected_dso_name.data = 'M1'
+    if not schedule_form.selected_dso_name.data:
+        schedule_form.selected_dso_name.data = 'M1'
     if not selected_dso_name:
-        selected_dso_name = search_form.selected_dso_name.data
+        selected_dso_name = schedule_form.selected_dso_name.data
 
     return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
-                           add_form=add_form, search_form=search_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
+                           add_form=add_form, schedule_form=schedule_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index)
 
 
-def _setup_search_from(search_form, observer, observation_time, tz_info):
+def _get_observer_tzinfo(session_plan):
+    loc = session_plan.location
+    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+
+    tz_info = pytz.timezone('Europe/Prague')
+    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
+    return observer, tz_info
+
+
+def _setup_search_from(schedule_form, observer, observation_time, tz_info):
     default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(tz_info)
-    if search_form.time_from.data:
+    if schedule_form.time_from.data:
         try:
-            field_time = _combine_date_and_time(observation_time, search_form.time_from.data, tz_info)
+            field_time = _combine_date_and_time(observation_time, schedule_form.time_from.data, tz_info)
         except ValueError:
             field_time = default_time
     else:
         field_time = default_time
-    search_form.time_from.data = field_time.time()
+    schedule_form.time_from.data = field_time.time()
     return field_time
 
 
-def _setup_search_to(search_form, observer, observation_time, time_from, tz_info):
+def _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info):
     default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(tz_info)
-    if search_form.time_to.data:
+    if schedule_form.time_to.data:
         try:
-            field_time = _combine_date_and_time(observation_time, search_form.time_to.data, tz_info)
+            field_time = _combine_date_and_time(observation_time, schedule_form.time_to.data, tz_info)
         except ValueError:
             field_time = default_time
     else:
         field_time = default_time
     if field_time < time_from:
         field_time += timedelta(days=1)
-    search_form.time_to.data = field_time.time()
+    schedule_form.time_to.data = field_time.time()
     return field_time
 
 
@@ -497,5 +501,37 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/set-nautical-twilight', methods=['GET'])
+def session_plan_set_nautical_twilight(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    # session['planner_time_from'] =
+    # session['planner_time_to'] =
+
+    session['is_backr'] = True
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
 
 
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/set-astro-twilight', methods=['GET'])
+def session_plan_set_astro_twilight(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    # session['planner_time_from'] =
+    # session['planner_time_to'] =
+
+    session['is_backr'] = True
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/set-moonless-astro-twilight', methods=['GET'])
+def session_plan_set_moonless_astro_twilight(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    # session['planner_time_from'] =
+    # session['planner_time_to'] =
+
+    session['is_backr'] = True
+    return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))

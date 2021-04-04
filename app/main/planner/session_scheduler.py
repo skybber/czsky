@@ -32,13 +32,13 @@ def create_session_plan_compound_list(session_plan, observer, observation_time, 
     return session_plan_compound_list
 
 
-def create_selection_coumpound_list(session_plan, search_form, observer, observation_time, time_from, time_to, tz_info,
+def create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
                                     page, offset, per_page, sort_by, mag_scale):
 
-    if session_plan.is_anonymous and (search_form.obj_source.data is None or search_form.obj_source.data == 'WL'):
-        search_form.obj_source.data = 'M' # set Messier
+    if session_plan.is_anonymous and (schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL'):
+        schedule_form.obj_source.data = 'M' # set Messier
 
-    if search_form.obj_source.data is None or search_form.obj_source.data == 'WL':
+    if schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL':
         wishlist_subquery = db.session.query(WishListItem.dso_id) \
             .join(WishListItem.wish_list) \
             .filter(WishList.user_id==current_user.id)
@@ -46,8 +46,8 @@ def create_selection_coumpound_list(session_plan, search_form, observer, observa
         dso_query = DeepskyObject.query \
             .filter(DeepskyObject.id.in_(wishlist_subquery))
 
-    elif search_form.obj_source.data.startswith('DL_'):
-        dso_list_id = int(search_form.obj_source.data[3:])
+    elif schedule_form.obj_source.data.startswith('DL_'):
+        dso_list_id = int(schedule_form.obj_source.data[3:])
 
         dsolist_subquery = db.session.query(DsoListItem.dso_id) \
             .join(DsoListItem.dso_list) \
@@ -57,7 +57,7 @@ def create_selection_coumpound_list(session_plan, search_form, observer, observa
             .filter(DeepskyObject.id.in_(dsolist_subquery))
     else:
         dso_query = DeepskyObject.query
-        cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.obj_source.data)
+        cat_id = Catalogue.get_catalogue_id_by_cat_code(schedule_form.obj_source.data)
         if cat_id:
             dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
@@ -68,7 +68,7 @@ def create_selection_coumpound_list(session_plan, search_form, observer, observa
     dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
 
     # Subtract observed dsos
-    if not session_plan.is_anonymous and search_form.not_observed.data:
+    if not session_plan.is_anonymous and schedule_form.not_observed.data:
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
             .filter(ObservedList.user_id==current_user.id)
@@ -76,12 +76,12 @@ def create_selection_coumpound_list(session_plan, search_form, observer, observa
 
 
     # filter by type
-    if search_form.dso_type.data and search_form.dso_type.data != 'All':
-        dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
+    if schedule_form.dso_type.data and schedule_form.dso_type.data != 'All':
+        dso_query = dso_query.filter(DeepskyObject.type==schedule_form.dso_type.data)
 
     # filter by magnitude limit
-    if search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
-        dso_query = dso_query.filter(DeepskyObject.mag<search_form.maglim.data)
+    if schedule_form.maglim.data is not None and schedule_form.maglim.data < mag_scale[1]:
+        dso_query = dso_query.filter(DeepskyObject.mag<schedule_form.maglim.data)
 
     order_by_field = None
     if sort_by:
@@ -113,8 +113,8 @@ def create_selection_coumpound_list(session_plan, search_form, observer, observa
                 time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
 
         # filter by altitude
-        if len(time_filtered_list) > 0 and search_form.min_altitude.data > 0:
-            constraints = [AltitudeConstraint(search_form.min_altitude.data*u.deg)]
+        if len(time_filtered_list) > 0 and schedule_form.min_altitude.data > 0:
+            constraints = [AltitudeConstraint(schedule_form.min_altitude.data*u.deg)]
             targets = []
             for item in time_filtered_list:
                 dso = item[0]

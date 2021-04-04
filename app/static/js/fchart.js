@@ -1,12 +1,18 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url, embed) {
 
     this.fchartDiv = fchartDiv;
 
     $(fchartDiv).addClass("fchart-container");
 
-    var url = default_chart_iframe_url;
-    if (url == '') {
-        url = searchUrl + "M1&embed=fc";
+    var url;
+
+    if (embed == '') {
+        url = default_chart_iframe_url;
+        if (url == '') {
+            url = searchUrl + "M1&embed=fc";
+        }
+    } else {
+        url='';
     }
 
     this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];

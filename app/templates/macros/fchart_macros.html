@@ -1,4 +1,4 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, chart_dso_list_menu, default_chart_iframe_url='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, chart_dso_list_menu, default_chart_iframe_url='', embed='') %}
 
 {% set is_fullscreen = True if fchart_form.fullscreen.data == 'true' else False %}
 {% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
@@ -251,7 +251,8 @@
             "{{ url_for('main.global_search') }}?q=", true,
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
-            '{{ default_chart_iframe_url }}'
+            '{{ default_chart_iframe_url }}',
+            '{{ embed }}'
     );
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
