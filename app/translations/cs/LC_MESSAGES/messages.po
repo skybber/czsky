@@ -229,11 +229,11 @@ msgstr "Publikovat"
 #: app/main/news/news_forms.py:41
 #: app/templates/main/userdata/userdata_menu.html:21
 msgid "Add news"
-msgstr "Přidat novinku"
+msgstr "Přidat aktualitu"
 
 #: app/main/news/news_forms.py:44
 msgid "Update news"
-msgstr "Aktualizovat novinku"
+msgstr "Aktualizovat aktualitu"
 
 #: app/main/observation/observation_forms.py:43
 msgid "DSO list optionally with comment. (e.g. M3,M5:nice globulars!)"
@@ -460,7 +460,7 @@ msgstr "Noční mód"
 
 #: app/templates/main/index.html:15 app/templates/main/news/news_info.html:32
 msgid "News"
-msgstr "Novinky"
+msgstr "Aktuality"
 
 #: app/templates/main/catalogue/constellations.html:11
 #: app/templates/main/index.html:37
@@ -760,11 +760,11 @@ msgstr "Novinka"
 
 #: app/templates/main/news/news_edit.html:24
 msgid "Add New News"
-msgstr "Přidat novou novinku"
+msgstr "Přidat novou aktualitu"
 
 #: app/templates/main/news/news_edit.html:26
 msgid "Edit News"
-msgstr "Upravit novinku"
+msgstr "Upravit aktualitu"
 
 #: app/templates/main/news/news_edit.html:60
 #: app/templates/main/news/news_edit.html:70
@@ -778,7 +778,7 @@ msgstr "Skutečně chcete odstranit tuto lokalitu"
 #: app/templates/main/news/news_list.html:13
 #: app/templates/main/userdata/userdata_menu.html:23
 msgid "News list"
-msgstr "Zobrazit novinky"
+msgstr "Zobrazit aktuality"
 
 #: app/templates/main/observation/observation_edit.html:18
 msgid "Observation Info"
@@ -1097,11 +1097,11 @@ msgstr "Zobrazit lokality"
 
 #: app/templates/main/userdata/userdata_menu.html:22
 msgid "Add new news"
-msgstr "Přidat novinku"
+msgstr "Přidat aktualitu"
 
 #: app/templates/main/userdata/userdata_menu.html:24
 msgid "Show all news"
-msgstr "Zobrazit novinky"
+msgstr "Zobrazit aktuality"
 
 #: app/templates/main/userdata/userdata_menu.html:27
 msgid "Store/restore data from git repository"
