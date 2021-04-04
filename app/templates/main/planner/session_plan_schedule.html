@@ -92,7 +92,7 @@
 <div class="ui segment" style="overflow-x: scroll;">
 <div class="ui two column very relaxed grid">
     <div class="column">
-      <table class="ui searchable sortable unstackable selectable celled table">
+      <table id="tblsrc" class="ui searchable sortable unstackable selectable celled table">
           <thead>
               <tr>
                   <th>
@@ -123,13 +123,13 @@
 
           {% for item in selection_compound_list %}
               <tr>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].denormalized_name() }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].type }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[0].mag }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url1(item) }}')">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].denormalized_name() }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].type }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].mag }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id) }}">
                           <i class="arrow right icon"></i>
@@ -168,7 +168,7 @@
           </div>
       </div>
 
-      <table class="ui searchable sortable unstackable selectable celled table">
+      <table id="tbldst" class="ui searchable sortable unstackable selectable celled table">
           <thead>
               <tr>
                   <th class="sorted ascending">Name</th>
@@ -186,13 +186,13 @@
 
           {% for item in session_plan_compound_list %}
               <tr>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.denormalized_name() }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.type }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.mag }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc('{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.denormalized_name() }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.type }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.mag }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id) }}">
                           <i class="trash alternate icon"></i>
@@ -243,6 +243,20 @@
 </style>
 
 <script type="text/javascript">
+function setIFrameSrc1(rowIndex, url) {
+    $('#tblsrc tr').removeClass();
+    $('#tbldst tr').removeClass();
+    $('#tblsrc tr:nth-child(' + rowIndex + ')').addClass('left marked green');
+    setIFrameSrc(url);
+}
+
+function setIFrameSrc2(rowIndex, url) {
+    $('#tblsrc tr').removeClass();
+    $('#tbldst tr').removeClass();
+    $('#tbldst tr:nth-child(' + rowIndex + ')').addClass('left marked green');
+    setIFrameSrc(url);
+}
+
 function setIFrameSrc(url) {
     $('#plIframe').attr('src', url)
 }
