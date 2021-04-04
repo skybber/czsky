@@ -41,10 +41,11 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
     {% else %}
     <div class="ui two column divided grid" style="height: 100% !important; width: 100% !important;">
-        <div class="column" style="width: 420px !important">
+        <div class="column" style="width: 430px !important">
             <iframe id="plIframe" src="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=selected_dso_name, embed='pl') }}" frameborder="0" class="planner-iframe"></iframe>
+            <!-- <div class="planner-separator"></div>  -->
         </div>
-        <div class="column" style="flex: 1">
+        <div id="pldiv" class="column" style="flex: 1">
     {% endif %}
             {% if is_new %}
                 {% if is_anonymous %}
@@ -105,5 +106,43 @@
         </div>
     </div>
     {% endif %}
+
+<script type="text/javascript">
+/*
+    $('.planner-separator').bind('mousedown',  (function(e) {
+        var md = {
+            e,
+            offsetLeft: $('.planner-separator').offset().left,
+            firstWidth:  $('#plIframe').width(),
+            secondLeft: $('#pldiv').offset().left,
+            secondWidth: $('#pldiv').width()
+        };
+
+        console.log('Down ' + md.offsetLeft + ' ' + md.firstWidth + ' ' + md.secondLeft + ' ' + md.secondWidth);
+
+        $('#plIframe').css('pointer-events', 'none');
+
+        $(document).bind('mousemove',  (function(e) {
+            var delta = {x: e.clientX - md.e.clientX,
+                         y: e.clientY - md.e.clientY};
+
+            delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
+
+            $('.planner-separator').css('left', md.offsetLeft + delta.x);
+            $('#plIframe').width(md.firstWidth + delta.x);
+            $('#pldiv').css('left', delta.x);
+            $('#pldiv').width(md.secondWidth - delta.x);
+            var computedWidth = $('#pldiv').width();
+            var computedHeight = $('#pldiv').height();
+        }).bind(this));
+
+        $(document).bind('mouseup',  (function(e) {
+            $(document).unbind('mousemove');
+            $(document).unbind('mouseup');
+            $('#plIframe').css('pointer-events', 'auto');
+        }).bind(this));
+    }).bind(this));
+ */
+</script>
 
 {% endblock %}
