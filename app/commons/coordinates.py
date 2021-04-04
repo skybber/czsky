@@ -84,15 +84,9 @@ def parse_radec(str_radec):
     m = r_radec.match(str_radec)
     if m is not None:
         ra = math.pi * (int(m.group(1))/12 + int(m.group(2))/(12*60) + float(m.group(3))/(12*60*60))
-        print(m, flush=True)
         dec_base = int(m.group(5))/180
-        if dec_base > 0:
-            multipl = 1.0
-        elif dec_base < 0:
-            multipl = -1.0
-        else:
-            multipl = 0.0
-        dec = math.pi * (dec_base + multipl * int(m.group(6))/(180*60) + multipl * float(m.group(7))/(180*60*60))
+        multipl = -1.0 if m.group(5).startswith('-') else 1.0
+        dec = math.pi * (dec_base + multipl * (int(m.group(6))/(180*60) + float(m.group(7))/(180*60*60)))
         return ra, dec
     raise ValueError('Invalid ra-dec format {}'.format(str_radec))
 
