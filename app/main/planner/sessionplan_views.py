@@ -367,13 +367,17 @@ def session_plan_schedule(session_plan_id):
 
     selected_dso_name = None
 
+    srow_index = to_int(request.args.get('srow_index'), -1)
     drow_index = to_int(request.args.get('drow_index'), -1)
+
+    if drow_index == -1 and srow_index == -1:
+        srow_index = 1
+
     if drow_index > len(session_plan_compound_list):
         drow_index = len(session_plan_compound_list)
     if drow_index > 0:
         selected_dso_name = session_plan_compound_list[drow_index-1][0].deepskyObject.name
 
-    srow_index = to_int(request.args.get('srow_index'), -1)
     if srow_index > len(selection_compound_list):
         srow_index = len(selection_compound_list)
     if srow_index > 0:
