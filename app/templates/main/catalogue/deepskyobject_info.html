@@ -8,7 +8,7 @@
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% if not embed %}
+{% if not embed or embed == 'pl' %}
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
         ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
