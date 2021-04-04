@@ -24,6 +24,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_chart_pdf_img,
 )
 
 from .dso_list_forms import (
@@ -154,3 +155,19 @@ def dso_list_chart_legend_img(dso_list_id, ra, dec):
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def dso_list_chart_pdf(dso_list_id, ra, dec):
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list is None:
+        abort(404)
+
+    dso_list = DsoList.query.filter_by(id=dso_list.id).first()
+    highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
+
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+
+    return send_file(img_bytes, mimetype='application/pdf')
+
+

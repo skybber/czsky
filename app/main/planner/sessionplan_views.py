@@ -46,6 +46,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_chart_pdf_img,
 )
 
 
@@ -457,4 +458,19 @@ def session_plan_chart_legend_img(session_plan_id, ra, dec):
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def session_plan_chart_pdf(session_plan_id, ra, dec):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+
+    return send_file(img_bytes, mimetype='application/pdf')
+
+
+
 

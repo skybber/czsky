@@ -41,6 +41,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
+    common_chart_pdf_img,
     get_trajectory_time_delta,
 )
 
@@ -237,6 +238,27 @@ def asteroid_chart_legend_img(asteroid_id, ra, dec):
 
     img_bytes = common_chart_legend_img(asteroid_ra, asteroid_dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_asteroid.route('/asteroid/<string:asteroid_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def asteroid_chart_pdf(asteroid_id, ra, dec):
+    asteroid = _find_asteroid(asteroid_id)
+    if asteroid is None:
+        abort(404)
+
+    asteroid_ra = to_float(request.args.get('obj_ra'), None)
+    asteroid_dec = to_float(request.args.get('obj_dec'), None)
+
+    trajectory_b64 = request.args.get('trajectory')
+    if trajectory_b64:
+        trajectory_json = base64.b64decode(trajectory_b64)
+        trajectory = json.loads(trajectory_json)
+    else:
+        trajectory = None
+
+    img_bytes = common_chart_pdf_img(asteroid_ra, asteroid_dec, ra, dec, trajectory=trajectory)
+
+    return send_file(img_bytes, mimetype='application/pdf')
 
 
 @main_asteroid.route('/asteroid/<string:asteroid_id>')
