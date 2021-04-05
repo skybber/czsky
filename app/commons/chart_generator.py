@@ -169,13 +169,16 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
             m = 2
         elif fac > 0.25:
             m = 4
+        elif fac > 0.2:
+            m = 5
         else:
             m = 10
 
         flt_trajectory = []
         i = 0
         while i < len(trajectory) - 1:
-            flt_trajectory.append(trajectory[i])
+            if (i + m < len(trajectory) - 1) or (i + m - len(trajectory) + 1 < m * 0.6):
+                flt_trajectory.append(trajectory[i])
             i += m
 
         flt_trajectory.append(trajectory[-1])
