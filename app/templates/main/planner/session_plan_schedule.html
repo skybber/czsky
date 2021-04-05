@@ -83,9 +83,9 @@
     <div class="ui icon dropdown button item" data-inverted="" data-tooltip="{{ _('Time range setup') }}" data-variation="tiny basic">
         <i class="wrench icon"></i>
         <div class="menu">
-            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_nautical_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to nautical twilight') }}</a>
-            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to astronomical twilight')  }}</a>
-            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_moonless_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Set time range to moonless astronomical twilight') }}</a>
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_nautical_twilight', session_plan_id=session_plan.id) }}">{{ _('Nautical twilight') }}</a>
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Astronomical twilight')  }}</a>
+            <a class="item" href="{{ url_for('main_sessionplan.session_plan_set_moonless_astro_twilight', session_plan_id=session_plan.id) }}">{{ _('Moonless astronomical twilight') }}</a>
         </div>
     </div>
     {% if not session_plan.is_anonymous %}

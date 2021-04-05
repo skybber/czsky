@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-04 00:48+0200\n"
+"POT-Creation-Date: 2021-04-05 14:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,8 +19,8 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:59 app/main/forms.py:35
 #: app/main/location/location_forms.py:50 app/main/news/news_forms.py:48
-#: app/main/planner/sessionplan_forms.py:52
-#: app/main/planner/sessionplan_forms.py:65
+#: app/main/planner/sessionplan_forms.py:54
+#: app/main/planner/sessionplan_forms.py:67
 #: app/main/solarsystem/asteroid_forms.py:34
 #: app/main/solarsystem/comet_forms.py:34
 #: app/templates/macros/common_macros.html:33
@@ -30,14 +30,14 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:32
 #: app/main/location/location_forms.py:49 app/main/news/news_forms.py:47
-#: app/main/planner/sessionplan_forms.py:35
-#: app/main/planner/sessionplan_forms.py:53
+#: app/main/planner/sessionplan_forms.py:37
+#: app/main/planner/sessionplan_forms.py:55
 msgid "Search"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:33
 #: app/main/catalogue/dso_list_forms.py:32
-#: app/main/planner/sessionplan_forms.py:79
+#: app/main/planner/sessionplan_forms.py:81
 #: app/main/planner/wishlist_forms.py:38
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/dso_list_info.html:39
@@ -47,42 +47,42 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:34
 #: app/main/catalogue/dso_list_forms.py:33
-#: app/main/planner/sessionplan_forms.py:80
+#: app/main/planner/sessionplan_forms.py:82
 #: app/main/planner/wishlist_forms.py:39
 msgid "All"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:35
 #: app/main/catalogue/dso_list_forms.py:34
-#: app/main/planner/sessionplan_forms.py:81
+#: app/main/planner/sessionplan_forms.py:83
 #: app/main/planner/wishlist_forms.py:40
 msgid "Winter"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:36
 #: app/main/catalogue/dso_list_forms.py:35
-#: app/main/planner/sessionplan_forms.py:82
+#: app/main/planner/sessionplan_forms.py:84
 #: app/main/planner/wishlist_forms.py:41
 msgid "Spring"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:37
 #: app/main/catalogue/dso_list_forms.py:36
-#: app/main/planner/sessionplan_forms.py:83
+#: app/main/planner/sessionplan_forms.py:85
 #: app/main/planner/wishlist_forms.py:42
 msgid "Summer"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:38
 #: app/main/catalogue/dso_list_forms.py:37
-#: app/main/planner/sessionplan_forms.py:84
+#: app/main/planner/sessionplan_forms.py:86
 #: app/main/planner/wishlist_forms.py:43
 msgid "Autumn"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:39
 #: app/main/catalogue/dso_list_forms.py:38
-#: app/main/planner/sessionplan_forms.py:85
+#: app/main/planner/sessionplan_forms.py:87
 #: app/main/planner/wishlist_forms.py:44
 msgid "Southern"
 msgstr ""
@@ -115,7 +115,7 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:50
 #: app/main/catalogue/deepskyobject_forms.py:58
-#: app/main/chart/chart_forms.py:18 app/main/planner/sessionplan_forms.py:63
+#: app/main/chart/chart_forms.py:18 app/main/planner/sessionplan_forms.py:65
 #: app/templates/macros/fchart_macros.html:71
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:46
@@ -156,7 +156,7 @@ msgstr ""
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:64
 #: app/templates/main/location/locations.html:40
-#: app/templates/main/planner/session_plan_schedule.html:100
+#: app/templates/main/planner/session_plan_schedule.html:108
 #: app/templates/main/planner/session_plans.html:18
 #: app/templates/main/solarsystem/asteroids.html:34
 #: app/templates/main/solarsystem/comets.html:34
@@ -170,7 +170,7 @@ msgstr ""
 #: app/main/location/location_forms.py:35
 #: app/main/observation/observation_forms.py:45
 #: app/main/observation/observation_forms.py:72
-#: app/main/planner/sessionplan_forms.py:41
+#: app/main/planner/sessionplan_forms.py:43
 #: app/templates/main/observation/observation_info.html:25
 msgid "Notes"
 msgstr ""
@@ -202,7 +202,7 @@ msgid "Update location"
 msgstr ""
 
 #: app/main/news/news_forms.py:33 app/main/observation/observation_forms.py:68
-#: app/main/planner/sessionplan_forms.py:38
+#: app/main/planner/sessionplan_forms.py:40
 #: app/templates/main/news/news_list.html:40
 #: app/templates/main/observation/observations.html:40
 msgid "Title"
@@ -249,7 +249,7 @@ msgid "Value expected."
 msgstr ""
 
 #: app/main/observation/observation_forms.py:69
-#: app/main/planner/sessionplan_forms.py:39
+#: app/main/planner/sessionplan_forms.py:41
 #: app/templates/main/observation/observation_info.html:22
 #: app/templates/main/observation/observations.html:39
 #: app/templates/main/planner/session_plans.html:20
@@ -257,7 +257,7 @@ msgid "Date"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:70
-#: app/main/planner/sessionplan_forms.py:40
+#: app/main/planner/sessionplan_forms.py:42
 #: app/templates/main/observation/observation_info.html:23
 #: app/templates/main/observation/observations.html:41
 msgid "Location"
@@ -277,25 +277,25 @@ msgstr ""
 
 #: app/main/observation/observation_forms.py:85
 #: app/main/observation/observed_forms.py:36
-#: app/main/planner/sessionplan_forms.py:73
-#: app/main/planner/sessionplan_forms.py:76
+#: app/main/planner/sessionplan_forms.py:75
+#: app/main/planner/sessionplan_forms.py:78
 #: app/main/planner/wishlist_forms.py:35
 msgid "DSO name"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:45
+#: app/main/planner/sessionplan_forms.py:47
 msgid "Add Session Plan"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:49
+#: app/main/planner/sessionplan_forms.py:51
 msgid "Update Session Plan"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:55
+#: app/main/planner/sessionplan_forms.py:57
 msgid "Object type"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:64
+#: app/main/planner/sessionplan_forms.py:66
 #: app/templates/main/planner/session_plan_schedule.html:59
 msgid "Min altitude"
 msgstr ""
@@ -519,7 +519,7 @@ msgstr ""
 
 #: app/templates/main/index.html:52
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan.html:58
+#: app/templates/main/planner/session_plan.html:59
 #: app/templates/main/planner/session_plan_edit.html:13
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
@@ -606,8 +606,8 @@ msgstr ""
 #: app/templates/main/catalogue/deepskyobjects.html:61
 #: app/templates/main/catalogue/dso_list_info.html:54
 #: app/templates/main/observation/observed_list.html:75
-#: app/templates/main/planner/session_plan_schedule.html:104
-#: app/templates/main/planner/session_plan_schedule.html:175
+#: app/templates/main/planner/session_plan_schedule.html:112
+#: app/templates/main/planner/session_plan_schedule.html:183
 #: app/templates/main/planner/wish_list.html:56
 msgid "Type"
 msgstr ""
@@ -644,8 +644,8 @@ msgstr ""
 #: app/templates/main/chart/chart.html:29
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
-#: app/templates/main/planner/session_plan.html:53
-#: app/templates/main/planner/session_plan.html:70
+#: app/templates/main/planner/session_plan.html:54
+#: app/templates/main/planner/session_plan.html:71
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
@@ -725,8 +725,8 @@ msgstr ""
 #: app/templates/main/observation/observed_list.html:125
 #: app/templates/main/planner/session_plan_edit.html:96
 #: app/templates/main/planner/session_plan_info.html:68
-#: app/templates/main/planner/session_plan_schedule.html:216
-#: app/templates/main/planner/session_plan_schedule.html:231
+#: app/templates/main/planner/session_plan_schedule.html:224
+#: app/templates/main/planner/session_plan_schedule.html:239
 #: app/templates/main/userdata/data_store.html:117
 msgid "No"
 msgstr ""
@@ -737,8 +737,8 @@ msgstr ""
 #: app/templates/main/observation/observed_list.html:127
 #: app/templates/main/planner/session_plan_edit.html:98
 #: app/templates/main/planner/session_plan_info.html:70
-#: app/templates/main/planner/session_plan_schedule.html:218
-#: app/templates/main/planner/session_plan_schedule.html:233
+#: app/templates/main/planner/session_plan_schedule.html:226
+#: app/templates/main/planner/session_plan_schedule.html:241
 #: app/templates/main/userdata/data_store.html:119
 msgid "Yes"
 msgstr ""
@@ -893,7 +893,7 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: app/templates/main/planner/session_plan.html:62
+#: app/templates/main/planner/session_plan.html:63
 #: app/templates/main/planner/session_plan_edit.html:24
 msgid "Add New Session Plan"
 msgstr ""
@@ -937,54 +937,70 @@ msgstr ""
 msgid "Time to"
 msgstr ""
 
+#: app/templates/main/planner/session_plan_schedule.html:83
+msgid "Time range setup"
+msgstr ""
+
 #: app/templates/main/planner/session_plan_schedule.html:86
+msgid "Nautical twilight"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_schedule.html:87
+msgid "Astronomical twilight"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_schedule.html:88
+msgid "Moonless astronomical twilight"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_schedule.html:94
 msgid "Not observed"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:115
-#: app/templates/main/planner/session_plan_schedule.html:178
+#: app/templates/main/planner/session_plan_schedule.html:123
+#: app/templates/main/planner/session_plan_schedule.html:186
 msgid "Rise"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:116
-#: app/templates/main/planner/session_plan_schedule.html:179
+#: app/templates/main/planner/session_plan_schedule.html:124
+#: app/templates/main/planner/session_plan_schedule.html:187
 msgid "Merid"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:117
-#: app/templates/main/planner/session_plan_schedule.html:180
+#: app/templates/main/planner/session_plan_schedule.html:125
+#: app/templates/main/planner/session_plan_schedule.html:188
 msgid "Set"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:157
+#: app/templates/main/planner/session_plan_schedule.html:165
 msgid "Clear schedule"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:162
+#: app/templates/main/planner/session_plan_schedule.html:170
 msgid "Upload plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:210
+#: app/templates/main/planner/session_plan_schedule.html:218
 msgid "Load schedule list"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:212
+#: app/templates/main/planner/session_plan_schedule.html:220
 msgid "All data from file will be added to schedule list."
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:213
+#: app/templates/main/planner/session_plan_schedule.html:221
 msgid "Are you sure you want to load schedule list?"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:225
+#: app/templates/main/planner/session_plan_schedule.html:233
 msgid "Clear schedule list"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:227
+#: app/templates/main/planner/session_plan_schedule.html:235
 msgid "All planned items will be removed."
 msgstr ""
 
-#: app/templates/main/planner/session_plan_schedule.html:228
+#: app/templates/main/planner/session_plan_schedule.html:236
 msgid "Are you sure you want to clear planned list?"
 msgstr ""
 

@@ -6,14 +6,15 @@ import pytz
 
 from werkzeug.utils import secure_filename
 
-import numpy as np
-
 from astropy.time import Time, TimeDelta
 from astropy.coordinates import EarthLocation, SkyCoord
 import astropy.units as u
 from astroplan import Observer, FixedTarget
 from astroplan import (AltitudeConstraint, AirmassConstraint, AtNightConstraint)
 from astroplan import is_observable, is_always_observable, months_observable
+
+from skyfield import almanac
+from skyfield.api import load, wgs84
 
 from flask import (
     abort,
@@ -52,6 +53,7 @@ from app.commons.utils import to_int
 
 
 from .sessionplan_forms import (
+    SCHEDULE_TIME_FORMAT,
     AddToSessionPlanForm,
     SearchSessionPlanForm,
     SessionPlanNewForm,
@@ -351,8 +353,15 @@ def session_plan_schedule(session_plan_id):
     observer, tz_info = _get_observer_tzinfo(session_plan)
 
     observation_time = Time(session_plan.for_date)
-    time_from = _setup_search_from(schedule_form, observer, observation_time, tz_info)
-    time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info)
+
+    # try astronomical twilight
+    default_t1, default_t2 = _get_twighligh_component(session_plan, 1)
+    if not default_t2 and not default_t2:
+        # try nautical twilight
+        default_t1, default_t2 = _get_twighligh_component(session_plan, 1)
+
+    time_from = _setup_search_from(schedule_form, observer, observation_time, tz_info, default_t1)
+    time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_t2)
 
     selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
                                                               page, offset, per_page, sort_by, mag_scale)
@@ -390,17 +399,20 @@ def session_plan_schedule(session_plan_id):
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index)
 
 
+def _get_session_plan_tzinfo(session_plan):
+    tz_info = pytz.timezone('Europe/Prague')
+    return tz_info
+
+
 def _get_observer_tzinfo(session_plan):
     loc = session_plan.location
     loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
-
-    tz_info = pytz.timezone('Europe/Prague')
+    tz_info = _get_session_plan_tzinfo(session_plan)
     observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
     return observer, tz_info
 
 
-def _setup_search_from(schedule_form, observer, observation_time, tz_info):
-    default_time = observer.twilight_evening_astronomical(observation_time).to_datetime(tz_info)
+def _setup_search_from(schedule_form, observer, observation_time, tz_info, default_time):
     if schedule_form.time_from.data:
         try:
             field_time = _combine_date_and_time(observation_time, schedule_form.time_from.data, tz_info)
@@ -412,8 +424,7 @@ def _setup_search_from(schedule_form, observer, observation_time, tz_info):
     return field_time
 
 
-def _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info):
-    default_time = observer.twilight_morning_astronomical(observation_time).to_datetime(tz_info)
+def _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_time):
     if schedule_form.time_to.data:
         try:
             field_time = _combine_date_and_time(observation_time, schedule_form.time_to.data, tz_info)
@@ -500,14 +511,40 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
 
     return send_file(img_bytes, mimetype='application/pdf')
 
+def _get_twighligh_component(session_plan, comp):
+    ts = load.timescale()
+    observer = wgs84.latlon(session_plan.location.latitude, session_plan.location.longitude)
+    tz_info = _get_session_plan_tzinfo(session_plan)
+    ldate1 = tz_info.localize(session_plan.for_date + timedelta(hours=12))
+    ldate2 = tz_info.localize(session_plan.for_date + timedelta(hours=36))
+    t1 = ts.from_datetime(ldate1)
+    t2 = ts.from_datetime(ldate2)
+    eph = load('de421.bsp')
+    t, y = almanac.find_discrete(t1, t2, almanac.dark_twilight_day(eph, observer))
+
+    index1 = None
+    index2 = None
+    for i in range(len(y)):
+        if y[i] == comp:
+            if index1 is None:
+                index1 = i + 1
+            elif index2 is None:
+                index2 = i
+    if index1 is None or index2 is None:
+        return None, None
+    return t[index1].astimezone(tz_info), t[index2].astimezone(tz_info)
+
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/set-nautical-twilight', methods=['GET'])
 def session_plan_set_nautical_twilight(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
-    # session['planner_time_from'] =
-    # session['planner_time_to'] =
+    t1, t2 = _get_twighligh_component(session_plan, 2)
+
+    if t1 and t2:
+        session['planner_time_from'] = t1.strftime(SCHEDULE_TIME_FORMAT)
+        session['planner_time_to'] = t2.strftime(SCHEDULE_TIME_FORMAT)
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
@@ -518,8 +555,11 @@ def session_plan_set_astro_twilight(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
-    # session['planner_time_from'] =
-    # session['planner_time_to'] =
+    t1, t2 = _get_twighligh_component(session_plan, 1)
+
+    if t1 and t2:
+        session['planner_time_from'] = t1.strftime(SCHEDULE_TIME_FORMAT)
+        session['planner_time_to'] = t2.strftime(SCHEDULE_TIME_FORMAT)
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
@@ -530,8 +570,53 @@ def session_plan_set_moonless_astro_twilight(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
-    # session['planner_time_from'] =
-    # session['planner_time_to'] =
+    t1, t2 = _get_twighligh_component(session_plan, 1)
+
+    if t1 and t2:
+        ts = load.timescale()
+        observer = wgs84.latlon(session_plan.location.latitude, session_plan.location.longitude)
+        tz_info = _get_session_plan_tzinfo(session_plan)
+        ldate_start = tz_info.localize(session_plan.for_date + timedelta(hours=0))
+        ldate_end = tz_info.localize(session_plan.for_date + timedelta(hours=48))
+        start_t = ts.from_datetime(ldate_start)
+        end_t = ts.from_datetime(ldate_end)
+        eph = load('de421.bsp')
+        f = almanac.risings_and_settings(eph, eph['Moon'], observer)
+        t, y = almanac.find_discrete(start_t, end_t, f)
+
+        if t1 and t2:
+            rise_sets = []
+            moon_rise, moon_set = None, None
+            for i in range(len(y)):
+                if y[i]:
+                    moon_rise = t[i].astimezone(tz_info)
+                else:
+                    moon_set = t[i].astimezone(tz_info)
+                    rise_sets.append((moon_rise, moon_set))
+                    moon_rise, moon_set = None, None
+            if moon_rise or moon_set:
+                rise_sets.append((moon_rise, moon_set))
+
+            for moon_rise, moon_set in rise_sets:
+                if not moon_rise:
+                    moon_rise = ldate_start
+                if not moon_set:
+                    moon_set = ldate_end
+                if moon_set < t1 or moon_rise > t2:
+                    continue
+                if moon_rise < t1 and moon_set > t2:
+                    t1, t2 = None, None
+                    break
+                if moon_rise > t1:
+                    t2 = moon_rise
+                else:
+                    t1 = moon_set
+            if t1 and t2 and t1 > t2:
+                t1, t2 = None, None
+
+    if t1 and t2:
+        session['planner_time_from'] = t1.strftime(SCHEDULE_TIME_FORMAT)
+        session['planner_time_to'] = t2.strftime(SCHEDULE_TIME_FORMAT)
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
