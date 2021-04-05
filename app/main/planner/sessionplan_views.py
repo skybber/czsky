@@ -316,7 +316,7 @@ def session_plan_schedule(session_plan_id):
     if str_per_page is not None:
         session['items_per_page'] = int(str_per_page)
 
-    ret, page = process_paginated_session_search('planner_search_page', [
+    ret, page = process_paginated_session_search('planner_page', [
         ('planner_dso_type', schedule_form.dso_type),
         ('planner_dso_obj_source', schedule_form.obj_source),
         ('planner_dso_maglim', schedule_form.maglim),
@@ -362,8 +362,8 @@ def session_plan_schedule(session_plan_id):
 
     selected_dso_name = None
 
-    srow_index = to_int(request.args.get('srow_index'), -1)
-    drow_index = to_int(request.args.get('drow_index'), -1)
+    srow_index = request.args.get('srow_index', type=int, default=-1)
+    drow_index = request.args.get('drow_index', type=int, default=-1)
 
     if drow_index == -1 and srow_index == -1:
         srow_index = 1

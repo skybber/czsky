@@ -2,7 +2,7 @@ import subprocess
 import os
 import sys
 import base64
-from math import pi
+from math import pi, sqrt
 from time import time
 from io import BytesIO
 from datetime import date, datetime, timedelta
@@ -31,6 +31,8 @@ dso_name_cache = None
 
 MAX_IMG_WIDTH = 3000
 MAX_IMG_HEIGHT = 3000
+
+A4_WIDTH = 800
 
 FIELD_SIZES = (1, 2, 5, 10, 20, 40, 100)
 
@@ -148,6 +150,37 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             config.dso_dynamic_brightness = False
 
 
+def _fld_filter_trajectory(trajectory, gui_fld_size, width):
+    if not trajectory:
+        return trajectory
+
+    dra = trajectory[-1][0] - trajectory[0][0]
+    ddec = trajectory[-1][1] - trajectory[0][1]
+    if dra != 0 or ddec != 0:
+        dd = sqrt(dra*dra + ddec*ddec) * 180.0 / pi
+        px_per_deg = width / gui_fld_size
+        ticks_per_deg = len(trajectory) / dd
+        px_per_tick = px_per_deg / ticks_per_deg
+        fac = px_per_tick / 25
+
+        if fac >= 1:
+            return trajectory
+        if fac > 0.5:
+            m = 2
+        elif fac > 0.25:
+            m = 4
+        else:
+            m = 10
+
+        flt_trajectory = []
+        i = 0
+        while i < len(trajectory) - 1:
+            flt_trajectory.append(trajectory[i])
+            i += m
+
+        flt_trajectory.append(trajectory[-1])
+        return flt_trajectory
+
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
@@ -158,6 +191,8 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
         width = MAX_IMG_WIDTH
     if height > MAX_IMG_HEIGHT:
         height = MAX_IMG_HEIGHT
+
+    trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, width)
 
     night_mode = to_boolean(request.args.get('nm'), True)
     mirror_x = to_boolean(request.args.get('mx'), False)
@@ -196,6 +231,8 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
 
 def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_dso_list=None, trajectory=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
+
+    trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
