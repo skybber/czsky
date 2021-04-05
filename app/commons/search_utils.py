@@ -67,7 +67,10 @@ def _field_data_to_serializable(fld):
 def _field_data_from_serializable(fld, val):
     if val is not None and isinstance(fld, TimeField):
         fld.data = datetime.strptime(val, fld.format).date()
-    fld.data = val
+    if val is None:
+        fld.data = fld.default
+    else:
+        fld.data = val
 
 
 def process_session_search(sess_arg_form_pairs):
