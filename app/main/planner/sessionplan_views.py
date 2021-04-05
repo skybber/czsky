@@ -466,7 +466,7 @@ def session_plan_chart(session_plan_id):
         form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
 
     if session_plan_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.deepskyObject.name, embed='fc', allow_back='true')
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.dso_id, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
 
