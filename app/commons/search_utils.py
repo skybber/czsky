@@ -42,13 +42,13 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
     if session.pop('is_backr', False):
         page = session.get(sess_page_name, 1)
         for pair in sess_arg_form_pairs: # put data from session to form on page action
-            _field_data_from_serializable(pair[1], session.get(pair[0], None))
+            _field_data_from_serializable(pair[1], session.get(pair[0], None), pair[0] in session)
     else:
         page = request.args.get(get_page_parameter(), type=int, default=None)
         if page is not None:
             session[sess_page_name] = page
             for pair in sess_arg_form_pairs: # put data from session to form on page action
-                _field_data_from_serializable(pair[1], session.get(pair[0], None))
+                _field_data_from_serializable(pair[1], session.get(pair[0], None), pair[0] in session)
 #         else:
 #             session.pop(sess_page_name, 0)
 #             for pair in sess_arg_form_pairs: # clear session on initialize GET request
@@ -64,10 +64,10 @@ def _field_data_to_serializable(fld):
     return fld.data
 
 
-def _field_data_from_serializable(fld, val):
+def _field_data_from_serializable(fld, val, set_default):
     if val is not None and isinstance(fld, TimeField):
         fld.data = datetime.strptime(val, fld.format).date()
-    if val is None:
+    if val is None and set_default:
         fld.data = fld.default
     else:
         fld.data = val
