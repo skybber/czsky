@@ -127,6 +127,8 @@ def _setup_dark_theme(config, width):
     config.grid_linewidth = 0.15
     config.star_colors = True
     config.dso_dynamic_brightness = True
+    config.dso_highlight_color = (0.1, 0.2, 0.4)
+    config.dso_highlight_linewidth = 0.3
 
 
 def _setup_red_theme(config, width):
@@ -148,6 +150,8 @@ def _setup_red_theme(config, width):
     config.grid_linewidth = 0.15
     config.star_colors = False
     config.dso_dynamic_brightness = True
+    config.dso_highlight_color = (0.4, 0.2, 0.1)
+    config.dso_highlight_linewidth = 0.3
 
 
 def _setup_light_theme(config, width):
@@ -167,6 +171,8 @@ def _setup_light_theme(config, width):
     config.grid_color = (0.7, 0.7, 0.7)
     config.grid_linewidth = 0.15
     config.dso_dynamic_brightness = False
+    config.dso_highlight_color = (0.1, 0.2, 0.4)
+    config.dso_highlight_linewidth = 0.3
 
 
 def _setup_skymap_graphics(config, fld_size, width, night_mode):
@@ -446,6 +452,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
+    highlights = _create_highlights(obj_ra, obj_dec, night_mode)
+
     showing_dsos = set()
     if dso_names:
         for dso_name in dso_names:
@@ -453,7 +461,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             if dso:
                 showing_dsos.add(dso)
 
-    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list, night_mode)
+    len1 = len(showing_dsos)
 
     if highlights_dso_list:
         for hl_dso in highlights_dso_list:
@@ -461,7 +469,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             if dso:
                 showing_dsos.add(dso)
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, visible_objects=visible_objects, trajectory=trajectory)
+    hl_showing_dsos = len(showing_dsos) - len1 > 0
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, hl_showing_dsos=hl_showing_dsos, highlights=highlights, visible_objects=visible_objects, trajectory=trajectory)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
@@ -508,14 +518,16 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
+    highlights = _create_highlights(obj_ra, obj_dec, False)
+
     showing_dsos = set()
-    if dso_names:
-        for dso_name in dso_names:
+    if highlights_dso_list:
+        for dso_name in highlights_dso_list:
             dso = _find_dso_by_name(dso_name)
             if dso:
                 showing_dsos.add(dso)
 
-    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list, False)
+    len1 = len(showing_dsos)
 
     if highlights_dso_list:
         for hl_dso in highlights_dso_list:
@@ -523,7 +535,9 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
             if dso:
                 showing_dsos.add(dso)
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, highlights=highlights, trajectory=trajectory)
+    hl_showing_dsos = len(showing_dsos) - len1 > 0
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, hl_showing_dsos=hl_showing_dsos, highlights=highlights, trajectory=trajectory)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
@@ -569,27 +583,20 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
         used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
-def _create_highlights(obj_ra, obj_dec, highlights_dso_list, night_mode):
+
+def _create_highlights(obj_ra, obj_dec, night_mode):
 
     if night_mode:
         if session.get('themered', False):
-            colors = [(0.5, 0.2, 0.0),(0.4, 0.2, 0.1)]
+            color = (0.5, 0.2, 0.0)
         else:
-            colors = [(0.0, 0.5, 0.0),(0.1, 0.2, 0.4)]
+            color = (0.0, 0.5, 0.0)
     else:
-        colors = [(0.0, 0.5, 0.0),(0.1, 0.2, 0.4)]
-
+        color = (0.0, 0.5, 0.0)
 
     highlights = []
     if not obj_ra is None and not obj_dec is None:
-        hl = fchart3.HighlightDefinition('cross', 1.3, colors[0], [['', obj_ra, obj_dec]])
-        highlights.append(hl)
-
-    if highlights_dso_list:
-        hl_data = []
-        for dso in highlights_dso_list:
-            hl_data.append([dso.name, dso.ra, dso.dec])
-        hl = fchart3.HighlightDefinition('circle', 0.8, colors[1], hl_data)
+        hl = fchart3.HighlightDefinition('cross', 1.3, color, [['', obj_ra, obj_dec]])
         highlights.append(hl)
 
     return highlights
