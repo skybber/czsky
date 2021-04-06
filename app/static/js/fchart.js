@@ -1,4 +1,4 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url, embed) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, redMode, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url, embed) {
 
     this.fchartDiv = fchartDiv;
 
@@ -54,7 +54,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, nightMode, legend
     this.obj_ra = ra;
     this.obj_dec = dec;
 
-    this.nightMode = nightMode;
+    this.redMode = redMode;
 
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
@@ -242,8 +242,8 @@ FChart.prototype.adjustCanvasSize = function() {
 FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
     this.canvas.width = Math.max(computedWidth, 1);
     this.canvas.height = Math.max(computedHeight, 1);
-    if (this.nightMode) {
-        this.ctx.fillStyle = "white";
+    if (this.redMode) {
+        this.ctx.fillStyle = "#020202";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     } else {
         this.ctx.fillStyle = "#03030D";
@@ -258,8 +258,8 @@ FChart.prototype.redrawAll = function () {
     this.canvas.height = curLegendImg.height;
     var img_width = curSkyImg.width * this.scaleFac;
     var img_height = curSkyImg.height * this.scaleFac;
-    if (this.nightMode) {
-        this.ctx.fillStyle = "white";
+    if (this.redMode) {
+        this.ctx.fillStyle = "#020202";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     } else {
         this.ctx.fillStyle = "#03030D";
@@ -510,8 +510,8 @@ FChart.prototype.onPointerMove = function (e) {
     if (this.isDragging) {
         var x = this.dx + (this.getEventLocation(e).x-this.mouseX);
         var y = this.dy + (this.getEventLocation(e).y-this.mouseY);
-        if (this.nightMode) {
-            this.ctx.fillStyle = "white";
+        if (this.redMode) {
+            this.ctx.fillStyle = "#020202";
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         } else {
             this.ctx.fillStyle = "#03030D";

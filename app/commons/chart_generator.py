@@ -61,7 +61,7 @@ class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
-                 chart_nm=None, gui_field_sizes=None, gui_field_index=None,
+                 red_mode=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None):
@@ -76,7 +76,7 @@ class ChartControl:
         self.disable_inc_mag = disable_inc_mag
         self.disable_dso_dec_mag = disable_dso_dec_mag
         self.disable_dso_inc_mag = disable_dso_inc_mag
-        self.chart_nm = chart_nm
+        self.red_mode = red_mode
         self.gui_field_sizes = gui_field_sizes
         self.gui_field_index = gui_field_index
         self.chart_mx = chart_mx
@@ -107,47 +107,90 @@ def _load_used_catalogs():
     return used_catalogs
 
 
-def _setup_skymap_graphics(config, fld_size, width, night_mode):
-        config.constellation_linewidth = 0.5
+def _setup_dark_theme(config, width):
+    config.background_color = (0.01, 0.01, 0.05)
+    config.constellation_lines_color = (0.18, 0.27, 0.3)
+    config.constellation_border_color = (0.3, 0.27, 0.07)
+    config.draw_color = (1.0, 1.0, 1.0)
+    config.label_color = (0.7, 0.7, 0.7)
+    config.dso_color = (0.6, 0.6, 0.6)
+    config.nebula_color = (0.2, 0.6, 0.2)
+    config.nebula_linewidth = 0.25
+    config.galaxy_color = (0.6, 0.2, 0.2)
+    config.star_cluster_color = (0.6, 0.6, 0.0)
+    if width and width <= 768:
+        config.grid_color = (0.18, 0.27, 0.3)
         config.constellation_linewidth = 0.3
-        config.open_cluster_linewidth = 0.3
-        config.grid_linewidth = 0.15
-        config.dso_linewidth = 0.4
-        config.legend_linewidth = 0.2
-        config.no_margin = True
-        config.font = "Roboto"
-        config.font_size = 2.8
+    else:
+        config.grid_color = (0.12, 0.18, 0.20)
+        config.constellation_linewidth = 0.2
+    config.grid_linewidth = 0.15
+    config.star_colors = True
+    config.dso_dynamic_brightness = True
 
-        if fld_size >= 40 and width and width <= 768:
-            config.show_star_labels = False
 
-        if night_mode:
-            config.background_color = (0.01, 0.01, 0.05)
-            config.constellation_lines_color = (0.18, 0.27, 0.3)
-            config.constellation_border_color = (0.3, 0.27, 0.07)
-            config.draw_color = (1.0, 1.0, 1.0)
-            config.label_color = (0.7, 0.7, 0.7)
-            config.dso_color = (0.6, 0.6, 0.6)
-            config.nebula_color = (0.2, 0.6, 0.2)
-            config.galaxy_color = (0.6, 0.2, 0.2)
-            config.star_cluster_color = (0.6, 0.6, 0.0)
-            if width and width <= 768:
-                config.grid_color = (0.18, 0.27, 0.3)
-            else:
-                config.grid_color = (0.12, 0.18, 0.20)
-            config.star_colors = True
-            config.dso_dynamic_brightness = True
+def _setup_red_theme(config, width):
+    config.background_color = (0.01, 0.01, 0.01)
+    config.constellation_lines_color = (0.37, 0.12, 0.0)
+    if width and width <= 768:
+        config.constellation_linewidth = 0.3
+    else:
+        config.constellation_linewidth = 0.2
+    config.constellation_border_color = (0.3, 0.13, 0.03)
+    config.draw_color = (1.0, 0.5, 0.5)
+    config.label_color = (0.7, 0.3, 0.3)
+    config.dso_color = (0.6, 0.15, 0.0)
+    config.nebula_color = (0.6, 0.15, 0.0)
+    config.nebula_linewidth = 0.25
+    config.galaxy_color = (0.6, 0.15, 0.0)
+    config.star_cluster_color = (0.6, 0.15, 0.0)
+    config.grid_color = (0.2, 0.06, 0.06)
+    config.grid_linewidth = 0.15
+    config.star_colors = False
+    config.dso_dynamic_brightness = True
+
+
+def _setup_light_theme(config, width):
+    config.constellation_lines_color = (0.5, 0.7, 0.8)
+    if width and width <= 768:
+        config.constellation_linewidth = 0.3
+    else:
+        config.constellation_linewidth = 0.2
+    config.constellation_border_color = (0.8, 0.7, 0.1)
+    config.draw_color = (0.0, 0.0, 0.0)
+    config.label_color = (0.2, 0.2, 0.2)
+    config.dso_color = (0.3, 0.3, 0.3)
+    config.nebula_color = (0.0, 0.3, 0.0)
+    config.nebula_linewidth = 0.25
+    config.galaxy_color = (0.3, 0.0, 0.0)
+    config.star_cluster_color = (0.3, 0.3, 0.0)
+    config.grid_color = (0.7, 0.7, 0.7)
+    config.grid_linewidth = 0.15
+    config.dso_dynamic_brightness = False
+
+
+def _setup_skymap_graphics(config, fld_size, width, night_mode):
+    config.constellation_linewidth = 0.5
+    config.constellation_linewidth = 0.3
+    config.open_cluster_linewidth = 0.3
+    config.grid_linewidth = 0.15
+    config.dso_linewidth = 0.4
+    config.legend_linewidth = 0.2
+    config.no_margin = True
+    config.font = "Roboto"
+    config.font_size = 2.8
+
+    if fld_size >= 40 and width and width <= 768:
+        config.show_star_labels = False
+
+    if night_mode:
+        if session.get('themered', False):
+            _setup_red_theme(config, width)
         else:
-            config.constellation_lines_color = (0.5, 0.7, 0.8)
-            config.constellation_border_color = (0.8, 0.7, 0.1)
-            config.draw_color = (0.0, 0.0, 0.0)
-            config.label_color = (0.2, 0.2, 0.2)
-            config.dso_color = (0.3, 0.3, 0.3)
-            config.nebula_color = (0.0, 0.3, 0.0)
-            config.galaxy_color = (0.3, 0.0, 0.0)
-            config.star_cluster_color = (0.3, 0.3, 0.0)
-            config.grid_color = (0.7, 0.7, 0.7)
-            config.dso_dynamic_brightness = False
+            _setup_dark_theme(config, width)
+    else:
+        _setup_light_theme(config, width)
+
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
@@ -183,6 +226,7 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
 
         flt_trajectory.append(trajectory[-1])
         return flt_trajectory
+
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
@@ -300,12 +344,13 @@ def common_prepare_chart_data(form):
     date_to = form.date_to.data if has_date_from_to else None
     back_search_url_b64 = base64.b64encode(request.full_path.encode()).decode('utf-8')
     show_not_found = session.pop('show_not_found', None)
+    red_mode = session.get('themered', False)
 
     return ChartControl(chart_fsz=str(fld_size),
                          mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                          dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
                          disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                         chart_nm=('1' if True else '0'),
+                         red_mode=red_mode,
                          gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
                          chart_mx=chart_mx, chart_my=chart_my,
                          chart_mlim=str(form.maglim.data),
@@ -408,7 +453,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             if dso:
                 showing_dsos.add(dso)
 
-    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
+    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list, night_mode)
 
     if highlights_dso_list:
         for hl_dso in highlights_dso_list:
@@ -470,7 +515,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
             if dso:
                 showing_dsos.add(dso)
 
-    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list)
+    highlights = _create_highlights(obj_ra, obj_dec, highlights_dso_list, False)
 
     if highlights_dso_list:
         for hl_dso in highlights_dso_list:
@@ -524,17 +569,27 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
         used_catalogs.free_mem()
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
-def _create_highlights(obj_ra, obj_dec, highlights_dso_list):
+def _create_highlights(obj_ra, obj_dec, highlights_dso_list, night_mode):
+
+    if night_mode:
+        if session.get('themered', False):
+            colors = [(0.5, 0.2, 0.0),(0.4, 0.2, 0.1)]
+        else:
+            colors = [(0.0, 0.5, 0.0),(0.1, 0.2, 0.4)]
+    else:
+        colors = [(0.0, 0.5, 0.0),(0.1, 0.2, 0.4)]
+
+
     highlights = []
     if not obj_ra is None and not obj_dec is None:
-        hl = fchart3.HighlightDefinition('cross', 1.3, (0.0, 0.5, 0.0), [['', obj_ra, obj_dec]])
+        hl = fchart3.HighlightDefinition('cross', 1.3, colors[0], [['', obj_ra, obj_dec]])
         highlights.append(hl)
 
     if highlights_dso_list:
         hl_data = []
         for dso in highlights_dso_list:
             hl_data.append([dso.name, dso.ra, dso.dec])
-        hl = fchart3.HighlightDefinition('circle', 0.8, (0.1, 0.2, 0.4), hl_data)
+        hl = fchart3.HighlightDefinition('circle', 0.8, colors[1], hl_data)
         highlights.append(hl)
 
     return highlights

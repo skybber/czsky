@@ -257,9 +257,9 @@
 {% macro constellation_chart(constellation) %}
     {{ fchart.fchart(url_for('main_constellation.constellation_chart', constellation_id=constellation.id, back=back, back_id=back_id),
                      url_for('main_constellation.constellation_chart_pos_img', constellation_id=constellation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags,),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags,),
                      url_for('main_constellation.constellation_chart_legend_img', constellation_id=constellation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                               None, fchart_form) }}
 {% endmacro %}
 

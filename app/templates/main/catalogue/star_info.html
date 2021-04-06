@@ -47,9 +47,9 @@
 {% macro star_chart(user_descr) %}
     {{ fchart.fchart(url_for('main_star.star_chart', star_id=user_descr.id, back=back, back_id=back_id),
                      url_for('main_star.star_chart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, ),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
                      url_for('main_star.star_chart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                               None, fchart_form,)
     }}
 {% endmacro %}

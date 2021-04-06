@@ -21,9 +21,9 @@
 {% macro comet_info() %}
     {{ fchart.fchart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
                      url_for('main_comet.comet_chart_pos_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, trajectory=trajectory),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
                      url_for('main_comet.comet_chart_legend_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                      url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_flags, trajectory=trajectory, ),
                      fchart_form, )

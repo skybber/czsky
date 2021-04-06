@@ -24,9 +24,9 @@
 {% macro session_plan_chart(session_plan) %}
     {{ fchart.fchart(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, back=back, back_id=back_id),
                      url_for('main_sessionplan.session_plan_chart_pos_img', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.chart_flags, ),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
                      url_for('main_sessionplan.session_plan_chart_legend_img', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', nm=chart_control.chart_nm, flags=chart_control.legend_flags),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                      url_for('main_sessionplan.session_plan_chart_pdf', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_flags, ),
                      fchart_form, default_chart_iframe_url=default_chart_iframe_url)
     }}
