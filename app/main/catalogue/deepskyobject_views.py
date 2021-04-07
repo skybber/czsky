@@ -579,11 +579,13 @@ def _get_prev_next_dso(dso):
     elif back == 'session_plan':
         allow_view_session_plan = True
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
-        if current_user.is_anonymous:
-            if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+        if not session_plan.is_public:
+            if current_user.is_anonymous:
+                if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+                     allow_view_session_plan = False
+            elif session_plan.user_id != current_user.id:
                 allow_view_session_plan = False
-        elif session_plan.user_id != current_user.id:
-            allow_view_session_plan = False
+
         if allow_view_session_plan:
             prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,
