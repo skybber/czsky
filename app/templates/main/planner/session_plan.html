@@ -2,11 +2,17 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% if not is_new %}
-{% set endpoints = [
-    ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
-    ( url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
-    ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
-] %}
+    {% if is_mine_session_plan %}
+        {% set endpoints = [
+            ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
+            ( url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
+            ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
+        ] %}
+    {% else %}
+        {% set endpoints = [
+            ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
+        ] %}
+    {% endif %}
 {% endif %}
 
 {% macro navigation(items) %}

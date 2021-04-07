@@ -88,15 +88,21 @@ def session_plans():
     return render_template('main/planner/session_plans.html', session_plans=session_plans, search_form=search_form)
 
 
-def _check_session_plan(session_plan):
+def _check_session_plan(session_plan, allow_public=False):
     if session_plan is None:
         abort(404)
 
     if current_user.is_anonymous:
         if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+            if allow_public and session_plan.is_public:
+                return False
             abort(404)
     elif session_plan.user_id != current_user.id:
+        if allow_public and session_plan.is_public:
+            return False
         abort(404)
+
+    return True
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/info', methods=['GET', 'POST'])
@@ -104,7 +110,9 @@ def session_plan_info(session_plan_id):
     """View a session plan info."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
 
-    _check_session_plan(session_plan)
+    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
+    if not is_mine_session_plan:
+        return redirect(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id))
 
     form = SessionPlanEditForm()
     if request.method == 'POST':
@@ -115,6 +123,7 @@ def session_plan_info(session_plan_id):
             session_plan.title = form.title.data
             session_plan.for_date = form.for_date.data
             session_plan.location_id = form.location_id.data
+            session_plan.is_public = form.is_public.data
             session_plan.notes = form.notes.data
             session_plan.update_by = user.id
             session_plan.update_date = datetime.now()
@@ -126,13 +135,14 @@ def session_plan_info(session_plan_id):
         form.title.data = session_plan.title
         form.for_date.data = session_plan.for_date
         form.location_id.data = session_plan.location_id
+        form.is_public.data = session_plan.is_public
         form.notes.data = session_plan.notes
 
     location = None
     if form.location_id.data:
         location = Location.query.filter_by(id=form.location_id.data).first()
 
-    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location)
+    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location, is_mine_session_plan=is_mine_session_plan)
 
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
@@ -153,6 +163,7 @@ def new_session_plan():
                 title = form.title.data,
                 for_date = form.for_date.data,
                 location_id = form.location_id.data,
+                is_public = form.is_public.data,
                 notes = form.notes.data,
                 is_anonymous = current_user.is_anonymous,
                 create_by = user.id,
@@ -308,7 +319,9 @@ def session_plan_upload(session_plan_id):
 def session_plan_schedule(session_plan_id):
     """View a session plan schedule."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan)
+    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
+    if not is_mine_session_plan:
+        return redirect(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id))
 
     schedule_form = SessionPlanScheduleFilterForm()
 
@@ -396,7 +409,8 @@ def session_plan_schedule(session_plan_id):
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, schedule_form=schedule_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
-                           selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index)
+                           selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
+                           is_mine_session_plan=is_mine_session_plan)
 
 
 def _get_session_plan_tzinfo(session_plan):
@@ -445,7 +459,7 @@ def _combine_date_and_time(date_part, time_part, tz_info):
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart', methods=['GET', 'POST'])
 def session_plan_chart(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan)
+    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
 
     form  = ChartForm()
 
@@ -471,13 +485,13 @@ def session_plan_chart(session_plan_id):
         default_chart_iframe_url = None
 
     return render_template('main/planner/session_plan.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url)
+                           default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def  session_plan_chart_pos_img(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan)
+    _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
 
@@ -494,7 +508,7 @@ def  session_plan_chart_pos_img(session_plan_id, ra, dec):
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def session_plan_chart_legend_img(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan)
+    _check_session_plan(session_plan, allow_public=True)
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
@@ -503,7 +517,7 @@ def session_plan_chart_legend_img(session_plan_id, ra, dec):
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def session_plan_chart_pdf(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan)
+    _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
 

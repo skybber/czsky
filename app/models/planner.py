@@ -19,6 +19,7 @@ class SessionPlan(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+    is_public = db.Column(db.Boolean, default=False)
 
 
     def find_dso_by_id(self, dso_id):

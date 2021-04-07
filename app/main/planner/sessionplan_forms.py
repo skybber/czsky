@@ -41,6 +41,7 @@ class SessionPlanMixin():
     for_date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
     location_id = IntegerField(lazy_gettext('Location'), validators=[InputRequired()])
     notes = TextAreaField(lazy_gettext('Notes'))
+    is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
 class SessionPlanNewForm(FlaskForm, SessionPlanMixin):
     goback = HiddenField(default='false')
