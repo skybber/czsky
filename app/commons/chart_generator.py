@@ -186,9 +186,6 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
     config.font = "Roboto"
     config.font_size = 2.8
 
-    if fld_size >= 40 and width and width <= 768:
-        config.show_star_labels = False
-
     if night_mode:
         if session.get('themered', False):
             _setup_red_theme(config, width)
@@ -196,6 +193,12 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
             _setup_dark_theme(config, width)
     else:
         _setup_light_theme(config, width)
+
+    if fld_size >= 40 and width and width <= 768:
+        config.constellation_linespace = 0
+        config.show_star_labels = False
+    else:
+        config.constellation_linespace = 2.0
 
 
 
