@@ -347,7 +347,7 @@ def deepskyobject_chart(dso_id):
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
-    chart_control = common_prepare_chart_data(form)
+    chart_control = common_prepare_chart_data(form, cancel_selection_url=url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name))
 
     if form.ra.data is None:
         form.ra.data = dso.ra
@@ -365,9 +365,12 @@ def deepskyobject_chart(dso_id):
 
     default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
+    dso_list_id = back_id if back == 'dso_list' else None
+
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url, season=season, embed=embed,
+                           dso_list_id=dso_list_id
                            )
 
 
@@ -380,7 +383,14 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     flags = request.args.get('json')
     visible_objects = [] if flags else None
 
-    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects)
+    highlights_dso_list = None
+    dso_list_id = request.args.get('dso_list_id')
+    if dso_list_id:
+        dso_list = DsoList.query.filter_by(id=dso_list_id).first()
+        if dso_list:
+            highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
+
+    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
 
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
@@ -594,7 +604,7 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject.denormalized_name() if next_item else None,
                     )
     elif back == 'dso_list' and not (back_id is None):
-        dso_list = DsoList.query.filter_by(name=back_id).first()
+        dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
             prev_item, next_item = dso_list.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,

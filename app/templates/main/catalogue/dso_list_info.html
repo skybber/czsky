@@ -65,7 +65,7 @@
             <tbody>
 
             {% for item in dso_list_items %}
-                <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.name, season=season) }}';">
+                <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.id, season=season) }}';">
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>

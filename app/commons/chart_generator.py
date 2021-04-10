@@ -10,6 +10,7 @@ from datetime import date, datetime, timedelta
 from flask import (
     request,
     session,
+    url_for,
 )
 
 import fchart3
@@ -64,7 +65,7 @@ class ChartControl:
                  theme=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
-                 show_not_found=None):
+                 show_not_found=None, cancel_selection_url=None):
         self.chart_fsz = chart_fsz
         self.mag_scale = mag_scale
         self.mag_ranges = mag_ranges
@@ -90,6 +91,7 @@ class ChartControl:
         self.date_to=date_to
         self.back_search_url_b64 = back_search_url_b64
         self.show_not_found = show_not_found
+        self.cancel_selection_url = cancel_selection_url
 
 
 def _load_used_catalogs():
@@ -298,7 +300,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     return img_bytes
 
 
-def common_prepare_chart_data(form):
+def common_prepare_chart_data(form, cancel_selection_url):
     fld_size = FIELD_SIZES[form.radius.data-1]
 
     cur_mag_scale = MAG_SCALES[form.radius.data - 1]
@@ -352,6 +354,9 @@ def common_prepare_chart_data(form):
     show_not_found = session.pop('show_not_found', None)
     theme = session.get('theme', '')
 
+    if cancel_selection_url is None:
+        cancel_selection_url = url_for('main_chart.chart')
+
     return ChartControl(chart_fsz=str(fld_size),
                          mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                          dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
@@ -365,7 +370,8 @@ def common_prepare_chart_data(form):
                          has_date_from_to=has_date_from_to,
                          date_from=date_from, date_to=date_to,
                          back_search_url_b64 = back_search_url_b64,
-                         show_not_found=show_not_found
+                         show_not_found=show_not_found,
+                         cancel_selection_url=cancel_selection_url
                          )
 
 

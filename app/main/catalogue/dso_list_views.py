@@ -120,7 +120,7 @@ def dso_list_chart(dso_list_id):
         form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
 
     if dso_list_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='dso_list', back_id=dso_list.name, dso_id=dso_list_item.deepskyObject.name, embed='fc', allow_back='true')
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='dso_list', back_id=dso_list.id, dso_id=dso_list_item.deepskyObject.name, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
 
