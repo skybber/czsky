@@ -15,7 +15,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
         url='';
     }
 
-    this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
+    this.theme = theme;
+
+    var iframe_style = "display:none;background-color:" + this.getThemeColor();
+    this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="' + iframe_style + '"></iframe>').appendTo(this.fchartDiv)[0];
     this.separator = $('<div class="fchart-separator" style="display:none"></div>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
@@ -53,8 +56,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.dec = dec;
     this.obj_ra = ra;
     this.obj_dec = dec;
-
-    this.theme = theme;
 
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
@@ -242,16 +243,8 @@ FChart.prototype.adjustCanvasSize = function() {
 FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
     this.canvas.width = Math.max(computedWidth, 1);
     this.canvas.height = Math.max(computedHeight, 1);
-    if (this.theme == 'light') {
-        this.ctx.fillStyle = "#FFFFFF";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } else if (this.theme == 'night') {
-        this.ctx.fillStyle = "#020202";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } else {
-        this.ctx.fillStyle = "#03030D";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    this.ctx.fillStyle = this.getThemeColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 }
 
 FChart.prototype.redrawAll = function () {
@@ -261,16 +254,8 @@ FChart.prototype.redrawAll = function () {
     this.canvas.height = curLegendImg.height;
     var img_width = curSkyImg.width * this.scaleFac;
     var img_height = curSkyImg.height * this.scaleFac;
-    if (this.theme == 'light') {
-        this.ctx.fillStyle = "#FFFFFF";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } else if (this.theme == 'night') {
-        this.ctx.fillStyle = "#020202";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    } else {
-        this.ctx.fillStyle = "#03030D";
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    this.ctx.fillStyle = this.getThemeColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
@@ -516,16 +501,8 @@ FChart.prototype.onPointerMove = function (e) {
     if (this.isDragging) {
         var x = this.dx + (this.getEventLocation(e).x-this.mouseX);
         var y = this.dy + (this.getEventLocation(e).y-this.mouseY);
-        if (this.theme == 'light') {
-            this.ctx.fillStyle = "#FFFFFF";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        } else if (this.theme == 'night') {
-            this.ctx.fillStyle = "#020202";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        } else {
-            this.ctx.fillStyle = "#03030D";
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        }
+        this.ctx.fillStyle = this.getThemeColor();
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         this.ctx.drawImage(curSkyImg, x, y);
@@ -701,6 +678,15 @@ FChart.prototype.setSplitViewPosition = function() {
     $(this.fchartDiv).css('width','calc(100% - ' + leftWidth + 'px)');
 }
 
+FChart.prototype.getThemeColor = function() {
+    if (this.theme == 'light') {
+        return "#FFFFFF";
+    }
+    if (this.theme == 'night') {
+        return "#020202";
+    }
+    this.ctx.fillStyle = "#03030D";
+}
 
 FChart.prototype.onFieldChange = function(callback) {
     this.onFieldChangeCallback = callback;
