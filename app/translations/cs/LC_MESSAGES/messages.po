@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-04-05 14:42+0200\n"
+"POT-Creation-Date: 2021-04-10 11:16+0200\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -19,8 +19,8 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:59 app/main/forms.py:35
 #: app/main/location/location_forms.py:50 app/main/news/news_forms.py:48
-#: app/main/planner/sessionplan_forms.py:54
-#: app/main/planner/sessionplan_forms.py:67
+#: app/main/planner/sessionplan_forms.py:55
+#: app/main/planner/sessionplan_forms.py:68
 #: app/main/solarsystem/asteroid_forms.py:34
 #: app/main/solarsystem/comet_forms.py:34
 #: app/templates/macros/common_macros.html:33
@@ -31,13 +31,13 @@ msgstr "Položek na stránku"
 #: app/main/catalogue/constellation_forms.py:32
 #: app/main/location/location_forms.py:49 app/main/news/news_forms.py:47
 #: app/main/planner/sessionplan_forms.py:37
-#: app/main/planner/sessionplan_forms.py:55
+#: app/main/planner/sessionplan_forms.py:56
 msgid "Search"
 msgstr "Hledat"
 
 #: app/main/catalogue/constellation_forms.py:33
 #: app/main/catalogue/dso_list_forms.py:32
-#: app/main/planner/sessionplan_forms.py:81
+#: app/main/planner/sessionplan_forms.py:82
 #: app/main/planner/wishlist_forms.py:38
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/dso_list_info.html:39
@@ -47,42 +47,42 @@ msgstr "Roční období"
 
 #: app/main/catalogue/constellation_forms.py:34
 #: app/main/catalogue/dso_list_forms.py:33
-#: app/main/planner/sessionplan_forms.py:82
+#: app/main/planner/sessionplan_forms.py:83
 #: app/main/planner/wishlist_forms.py:39
 msgid "All"
 msgstr "Všechna"
 
 #: app/main/catalogue/constellation_forms.py:35
 #: app/main/catalogue/dso_list_forms.py:34
-#: app/main/planner/sessionplan_forms.py:83
+#: app/main/planner/sessionplan_forms.py:84
 #: app/main/planner/wishlist_forms.py:40
 msgid "Winter"
 msgstr "zima"
 
 #: app/main/catalogue/constellation_forms.py:36
 #: app/main/catalogue/dso_list_forms.py:35
-#: app/main/planner/sessionplan_forms.py:84
+#: app/main/planner/sessionplan_forms.py:85
 #: app/main/planner/wishlist_forms.py:41
 msgid "Spring"
 msgstr "jaro"
 
 #: app/main/catalogue/constellation_forms.py:37
 #: app/main/catalogue/dso_list_forms.py:36
-#: app/main/planner/sessionplan_forms.py:85
+#: app/main/planner/sessionplan_forms.py:86
 #: app/main/planner/wishlist_forms.py:42
 msgid "Summer"
 msgstr "léto"
 
 #: app/main/catalogue/constellation_forms.py:38
 #: app/main/catalogue/dso_list_forms.py:37
-#: app/main/planner/sessionplan_forms.py:86
+#: app/main/planner/sessionplan_forms.py:87
 #: app/main/planner/wishlist_forms.py:43
 msgid "Autumn"
 msgstr "podzim"
 
 #: app/main/catalogue/constellation_forms.py:39
 #: app/main/catalogue/dso_list_forms.py:38
-#: app/main/planner/sessionplan_forms.py:87
+#: app/main/planner/sessionplan_forms.py:88
 #: app/main/planner/wishlist_forms.py:44
 msgid "Southern"
 msgstr "jižní souhvězdí"
@@ -115,7 +115,7 @@ msgstr "Zorné pole"
 
 #: app/main/catalogue/constellation_forms.py:50
 #: app/main/catalogue/deepskyobject_forms.py:58
-#: app/main/chart/chart_forms.py:18 app/main/planner/sessionplan_forms.py:65
+#: app/main/chart/chart_forms.py:18 app/main/planner/sessionplan_forms.py:66
 #: app/templates/macros/fchart_macros.html:71
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:46
@@ -277,25 +277,30 @@ msgstr "Uložit pozorování"
 
 #: app/main/observation/observation_forms.py:85
 #: app/main/observation/observed_forms.py:36
-#: app/main/planner/sessionplan_forms.py:75
-#: app/main/planner/sessionplan_forms.py:78
+#: app/main/planner/sessionplan_forms.py:76
+#: app/main/planner/sessionplan_forms.py:79
 #: app/main/planner/wishlist_forms.py:35
 msgid "DSO name"
 msgstr "Jméno DSO"
 
-#: app/main/planner/sessionplan_forms.py:47
+#: app/main/planner/sessionplan_forms.py:44
+#, fuzzy
+msgid "Plan is public"
+msgstr "Je veřejná"
+
+#: app/main/planner/sessionplan_forms.py:48
 msgid "Add Session Plan"
 msgstr "Přidat plán pozorování"
 
-#: app/main/planner/sessionplan_forms.py:51
+#: app/main/planner/sessionplan_forms.py:52
 msgid "Update Session Plan"
 msgstr "Uložit plán pozorování"
 
-#: app/main/planner/sessionplan_forms.py:57
+#: app/main/planner/sessionplan_forms.py:58
 msgid "Object type"
 msgstr "Typ Objektu"
 
-#: app/main/planner/sessionplan_forms.py:66
+#: app/main/planner/sessionplan_forms.py:67
 #: app/templates/main/planner/session_plan_schedule.html:59
 msgid "Min altitude"
 msgstr "Minimální výška"
@@ -428,7 +433,7 @@ msgid "PDF export"
 msgstr "Export do PDF"
 
 #: app/templates/macros/fchart_macros.html:177
-#: app/templates/macros/nav_macros.html:106
+#: app/templates/macros/nav_macros.html:111
 msgid "Search..."
 msgstr "Hledat"
 
@@ -448,15 +453,20 @@ msgstr "Požadovaný objekt nebyl nalezen."
 msgid "Close"
 msgstr "Zavřít"
 
-#: app/templates/macros/nav_macros.html:26
-#: app/templates/macros/nav_macros.html:39
-msgid "Dark mode"
-msgstr "Tmavý mód"
+#: app/templates/macros/nav_macros.html:69
+#: app/templates/macros/nav_macros.html:72
+msgid "Light Mode"
+msgstr "Světlý mód"
 
-#: app/templates/macros/nav_macros.html:26
-#: app/templates/macros/nav_macros.html:39
-msgid "Night mode"
+#: app/templates/macros/nav_macros.html:69
+#: app/templates/macros/nav_macros.html:73
+msgid "Night Mode"
 msgstr "Noční mód"
+
+#: app/templates/macros/nav_macros.html:69
+#: app/templates/macros/nav_macros.html:71
+msgid "Dark Mode"
+msgstr "Tmavý mód"
 
 #: app/templates/main/index.html:15 app/templates/main/news/news_info.html:32
 msgid "News"
@@ -519,7 +529,7 @@ msgstr "Zobrazit sekci pozorování"
 
 #: app/templates/main/index.html:52
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan.html:59
+#: app/templates/main/planner/session_plan.html:65
 #: app/templates/main/planner/session_plan_edit.html:13
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
@@ -536,7 +546,8 @@ msgstr "Zobrazit sekci plánováni"
 #: app/templates/main/chart/chart.html:36 app/templates/main/index.html:55
 #: app/templates/main/observation/observation_info.html:7
 #: app/templates/main/observation/observed_list.html:7
-#: app/templates/main/planner/session_plan.html:8
+#: app/templates/main/planner/session_plan.html:9
+#: app/templates/main/planner/session_plan.html:13
 #: app/templates/main/planner/wish_list.html:7
 msgid "Chart"
 msgstr "Mapa"
@@ -587,7 +598,7 @@ msgstr "Uložit a zpět"
 #: app/templates/main/catalogue/star_info.html:7
 #: app/templates/main/observation/observation_info.html:6
 #: app/templates/main/observation/observed_list.html:6
-#: app/templates/main/planner/session_plan.html:6
+#: app/templates/main/planner/session_plan.html:7
 #: app/templates/main/planner/wish_list.html:6
 msgid "Info"
 msgstr "Info"
@@ -644,8 +655,8 @@ msgstr "Popis"
 #: app/templates/main/chart/chart.html:29
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
-#: app/templates/main/planner/session_plan.html:54
-#: app/templates/main/planner/session_plan.html:71
+#: app/templates/main/planner/session_plan.html:60
+#: app/templates/main/planner/session_plan.html:77
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
@@ -723,8 +734,8 @@ msgstr "Skutečně chcete odstranit tuto lokalitu"
 #: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:110
 #: app/templates/main/observation/observed_list.html:125
-#: app/templates/main/planner/session_plan_edit.html:96
-#: app/templates/main/planner/session_plan_info.html:68
+#: app/templates/main/planner/session_plan_edit.html:104
+#: app/templates/main/planner/session_plan_info.html:76
 #: app/templates/main/planner/session_plan_schedule.html:224
 #: app/templates/main/planner/session_plan_schedule.html:239
 #: app/templates/main/userdata/data_store.html:117
@@ -735,8 +746,8 @@ msgstr "Ne"
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:112
 #: app/templates/main/observation/observed_list.html:127
-#: app/templates/main/planner/session_plan_edit.html:98
-#: app/templates/main/planner/session_plan_info.html:70
+#: app/templates/main/planner/session_plan_edit.html:106
+#: app/templates/main/planner/session_plan_info.html:78
 #: app/templates/main/planner/session_plan_schedule.html:226
 #: app/templates/main/planner/session_plan_schedule.html:241
 #: app/templates/main/userdata/data_store.html:119
@@ -889,11 +900,11 @@ msgstr "Wishlist"
 msgid "View wishlist"
 msgstr "Zobrazit wishlist"
 
-#: app/templates/main/planner/session_plan.html:7
+#: app/templates/main/planner/session_plan.html:8
 msgid "Schedule"
 msgstr "Plán"
 
-#: app/templates/main/planner/session_plan.html:63
+#: app/templates/main/planner/session_plan.html:69
 #: app/templates/main/planner/session_plan_edit.html:24
 msgid "Add New Session Plan"
 msgstr "Přidat nový plán pozorování"
@@ -902,18 +913,18 @@ msgstr "Přidat nový plán pozorování"
 msgid "Edit Session Plan"
 msgstr "Upravit plán pozorování"
 
-#: app/templates/main/planner/session_plan_edit.html:81
-#: app/templates/main/planner/session_plan_info.html:55
+#: app/templates/main/planner/session_plan_edit.html:89
+#: app/templates/main/planner/session_plan_info.html:63
 msgid "Delete Plan"
 msgstr "Odstranit plán"
 
-#: app/templates/main/planner/session_plan_edit.html:91
-#: app/templates/main/planner/session_plan_info.html:63
+#: app/templates/main/planner/session_plan_edit.html:99
+#: app/templates/main/planner/session_plan_info.html:71
 msgid "Delete Session Plan"
 msgstr "Odstranit plán pozorování"
 
-#: app/templates/main/planner/session_plan_edit.html:93
-#: app/templates/main/planner/session_plan_info.html:65
+#: app/templates/main/planner/session_plan_edit.html:101
+#: app/templates/main/planner/session_plan_info.html:73
 msgid "Are you sure you want to delete session plan?"
 msgstr "Skutečně chcete odstranit plán pozorování?"
 
