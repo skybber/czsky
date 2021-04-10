@@ -300,7 +300,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     return img_bytes
 
 
-def common_prepare_chart_data(form, cancel_selection_url):
+def common_prepare_chart_data(form, cancel_selection_url=None):
     fld_size = FIELD_SIZES[form.radius.data-1]
 
     cur_mag_scale = MAG_SCALES[form.radius.data - 1]
