@@ -41,9 +41,21 @@ def about():
         'main/about.html', editable_html_obj=editable_html_obj)
 
 
-@main.route('/swtheme')
-def switch_theme():
-    session['themered'] = not session.get('themered', False)
+@main.route('/theme_dark')
+def theme_dark():
+    session['theme'] = 'dark'
+    return redirect(request.referrer)
+
+
+@main.route('/theme_light')
+def theme_light():
+    session['theme'] = 'light'
+    return redirect(request.referrer)
+
+
+@main.route('/theme_night')
+def theme_night():
+    session['theme'] = 'night'
     return redirect(request.referrer)
 
 

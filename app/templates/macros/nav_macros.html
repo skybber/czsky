@@ -23,12 +23,8 @@
     {% set endpoints = [
       ('main.index', config.APP_NAME, 'home'),
       ('main.about', 'About', 'info'),
-      ('main.switch_theme', (session['themered'] and _('Dark mode') or _('Night mode')), 'eye')
     ]%}
     {% set user = [] %}
-    {% if current_user.is_authenticated %}
-      {% set user = ([(current_user.role.index + '.index', current_user.role.name + ' Dashboard', 'user')]) %}
-    {% endif %}
     {{ render_menu_items( endpoints +  user ) }}
 {% endmacro %}
 
@@ -36,12 +32,8 @@
     {% set endpoints = [
       ('main.index', config.APP_NAME, 'home'),
       ('main.about', 'About', 'info'),
-      ('main.switch_theme', (session['themered'] and _('Dark mode') or _('Night mode')), 'eye')
     ]%}
     {% set user = [] %}
-    {% if current_user.is_authenticated %}
-      {% set user = ([(current_user.role.index + '.index', current_user.role.name + ' Dashboard', 'user')]) %}
-    {% endif %}
     {{ render_menu_items( endpoints +  user ) }}
 {% endmacro %}
 
@@ -69,6 +61,18 @@
       ] %}
       {{ render_menu_items(endpoints) }}
     {% endif %}
+{% endmacro %}
+
+{% macro switch_theme() %}
+    <div class="ui dropdown item">
+        <i class="eye icon"></i>
+        <span class="text">Ui mode</span>
+        <div class="menu">
+          <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
+          <a href="{{ url_for('main.theme_light') }}" class="item">{{ _('Light Mode') }}</a>
+          <a href="{{ url_for('main.theme_night') }}" class="item">{{ _('Night Mode') }}</a>
+        </div>
+    </div>
 {% endmacro %}
 
 {% macro mobile_nav(current_user) %}
@@ -100,6 +104,7 @@
         <div class="ui fixed inverted black main menu">
             <div class="ui container">
                 {{ header_items(current_user) }}
+                {{ switch_theme() }}
                 <div class="right menu">
                     <div class="ui item">
                         <div class="ui small icon input">

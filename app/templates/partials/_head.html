@@ -4,7 +4,9 @@
 
 {% assets 'vendor_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% assets 'app_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
-{% if session.get('themered') %}
+{% if session.get('theme', '') == 'light' %}
+{% assets 'default_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
+{% elif session.get('theme', '') == 'night' %}
 {% assets 'red_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% else %}
 {% assets 'dark_theme_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}

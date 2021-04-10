@@ -61,7 +61,7 @@ class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
-                 red_mode=None, gui_field_sizes=None, gui_field_index=None,
+                 theme=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None):
@@ -76,7 +76,7 @@ class ChartControl:
         self.disable_inc_mag = disable_inc_mag
         self.disable_dso_dec_mag = disable_dso_dec_mag
         self.disable_dso_inc_mag = disable_dso_inc_mag
-        self.red_mode = red_mode
+        self.theme = theme
         self.gui_field_sizes = gui_field_sizes
         self.gui_field_index = gui_field_index
         self.chart_mx = chart_mx
@@ -131,7 +131,7 @@ def _setup_dark_theme(config, width):
     config.dso_highlight_linewidth = 0.3
 
 
-def _setup_red_theme(config, width):
+def _setup_night_theme(config, width):
     config.background_color = (0.01, 0.01, 0.01)
     config.constellation_lines_color = (0.37, 0.12, 0.0)
     if width and width <= 768:
@@ -175,7 +175,7 @@ def _setup_light_theme(config, width):
     config.dso_highlight_linewidth = 0.3
 
 
-def _setup_skymap_graphics(config, fld_size, width, night_mode):
+def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     config.constellation_linewidth = 0.5
     config.constellation_linewidth = 0.3
     config.open_cluster_linewidth = 0.3
@@ -186,13 +186,12 @@ def _setup_skymap_graphics(config, fld_size, width, night_mode):
     config.font = "Roboto"
     config.font_size = 2.8
 
-    if night_mode:
-        if session.get('themered', False):
-            _setup_red_theme(config, width)
-        else:
-            _setup_dark_theme(config, width)
-    else:
+    if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
+    elif session.get('theme', '') == 'night':
+        _setup_night_theme(config, width)
+    else:
+        _setup_dark_theme(config, width)
 
     if fld_size >= 40 and width and width <= 768:
         config.constellation_linespace = 0
@@ -250,14 +249,13 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, width)
 
-    night_mode = to_boolean(request.args.get('nm'), True)
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
-                  night_mode, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
+                  mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                   trajectory=trajectory)
     img_bytes.seek(0)
     return img_bytes
@@ -274,13 +272,12 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     if height > MAX_IMG_HEIGHT:
         height = MAX_IMG_HEIGHT
 
-    night_mode = to_boolean(request.args.get('nm'), True)
     mirror_x = to_boolean(request.args.get('mx'), False)
     mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, night_mode, mirror_x, mirror_y, flags=flags)
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -353,13 +350,13 @@ def common_prepare_chart_data(form):
     date_to = form.date_to.data if has_date_from_to else None
     back_search_url_b64 = base64.b64encode(request.full_path.encode()).decode('utf-8')
     show_not_found = session.pop('show_not_found', None)
-    red_mode = session.get('themered', False)
+    theme = session.get('theme', '')
 
     return ChartControl(chart_fsz=str(fld_size),
                          mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                          dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
                          disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                         red_mode=red_mode,
+                         theme=theme,
                          gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
                          chart_mx=chart_mx, chart_my=chart_my,
                          chart_mlim=str(form.maglim.data),
@@ -417,7 +414,7 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim, night_mode,
+def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
                   mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, trajectory=None):
     """Create chart in czsky process."""
     global free_mem_counter
@@ -426,7 +423,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width, night_mode)
+    _setup_skymap_graphics(config, fld_size, width)
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
@@ -455,7 +452,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    highlights = _create_highlights(obj_ra, obj_dec, night_mode)
+    highlights = _create_highlights(obj_ra, obj_dec)
 
     showing_dsos = set()
     if dso_names:
@@ -492,7 +489,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, None, False)
+    _setup_skymap_graphics(config, fld_size, None, True)
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
@@ -523,7 +520,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    highlights = _create_highlights(obj_ra, obj_dec, False)
+    highlights = _create_highlights(obj_ra, obj_dec, True)
 
     showing_dsos = set()
     if highlights_dso_list:
@@ -548,14 +545,14 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, night_mode, mirror_x=False, mirror_y=False, flags=''):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, flags=''):
     global free_mem_counter
     tm = time()
 
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width, night_mode)
+    _setup_skymap_graphics(config, fld_size, width)
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
@@ -589,13 +586,13 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 
-def _create_highlights(obj_ra, obj_dec, night_mode):
+def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
 
-    if night_mode:
-        if session.get('themered', False):
-            color = (0.5, 0.2, 0.0)
-        else:
-            color = (0.0, 0.5, 0.0)
+
+    if force_light_mode or session.get('theme', '') == 'light':
+        color = (0.0, 0.5, 0.0)
+    elif session.get('theme', '') == 'night':
+        color = (0.5, 0.2, 0.0)
     else:
         color = (0.0, 0.5, 0.0)
 
