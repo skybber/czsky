@@ -65,8 +65,8 @@ def chart():
 
     chart_control = common_prepare_chart_data(form)
 
-    ra = request.args.get('ra', None)
-    dec = request.args.get('dec', None)
+    ra = request.args.get('mra', None)
+    dec = request.args.get('mdec', None)
     if ra is not None and dec is not None:
         form.ra.data = float(ra)
         form.dec.data = float(dec)
@@ -80,13 +80,23 @@ def chart():
         if form.dec.data is None:
             form.dec.data = 0.0
 
-    return render_template('main/chart/chart.html', fchart_form=form, chart_control=chart_control,)
+    return render_template('main/chart/chart.html', fchart_form=form, chart_control=chart_control, mark_ra=ra, mark_dec=dec)
 
 @main_chart.route('/chart/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def chart_pos_img(ra, dec):
     flags = request.args.get('json')
+
+    mark_ra = request.args.get('mra', None)
+    mark_dec = request.args.get('mdec', None)
+    if mark_ra is not None and mark_dec is not None:
+        f_mark_ra = float(mark_ra)
+        f_mark_dec = float(mark_dec)
+    else:
+        f_mark_ra,f_mark_dec = None, None
+
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects)
+    img_bytes = common_chart_pos_img(f_mark_ra, f_mark_dec, ra, dec, visible_objects=visible_objects)
+
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)

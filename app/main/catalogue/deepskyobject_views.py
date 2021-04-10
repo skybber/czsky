@@ -607,5 +607,4 @@ def _get_prev_next_dso(dso):
     return (prev_dso,
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
-
             next_dso.catalog_number() if next_dso else None)

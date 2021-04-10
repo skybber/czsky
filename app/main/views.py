@@ -96,7 +96,7 @@ def _search_by_ra_dec(query):
     try:
         ra, dec = parse_radec(query)
         if ra is not None and dec is not None:
-            return redirect(url_for('main_chart.chart', ra=ra, dec=dec, embed=request.args.get('embed')))
+            return redirect(url_for('main_chart.chart', mra=ra, mdec=dec, embed=request.args.get('embed')))
     except ValueError:
         pass
 
