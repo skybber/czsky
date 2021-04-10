@@ -529,8 +529,8 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     highlights = _create_highlights(obj_ra, obj_dec, True)
 
     showing_dsos = set()
-    if highlights_dso_list:
-        for dso_name in highlights_dso_list:
+    if dso_names:
+        for dso_name in dso_names:
             dso = _find_dso_by_name(dso_name)
             if dso:
                 showing_dsos.add(dso)
