@@ -159,9 +159,9 @@ def _setup_night_theme(config, width):
 def _setup_light_theme(config, width):
     config.constellation_lines_color = (0.5, 0.7, 0.8)
     if width and width <= 768:
-        config.constellation_linewidth = 0.3
+        config.constellation_linewidth = 0.35
     else:
-        config.constellation_linewidth = 0.2
+        config.constellation_linewidth = 0.35
     config.constellation_border_color = (0.8, 0.7, 0.1)
     config.draw_color = (0.0, 0.0, 0.0)
     config.label_color = (0.2, 0.2, 0.2)
