@@ -15,9 +15,17 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
         url='';
     }
 
-    this.theme = theme;
+    var iframe_background;
+    if (theme == 'light') {
+        iframe_background = "#FFFFFF";
+    }
+    else if (theme == 'night') {
+        iframe_background = "#1c0e0e";
+    } else {
+        iframe_background = "#353945";
+    }
 
-    var iframe_style = "display:none;background-color:" + this.getThemeColor();
+    var iframe_style = "display:none;background-color:" + iframe_background;
     this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="' + iframe_style + '"></iframe>').appendTo(this.fchartDiv)[0];
     this.separator = $('<div class="fchart-separator" style="display:none"></div>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
@@ -56,6 +64,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.dec = dec;
     this.obj_ra = ra;
     this.obj_dec = dec;
+
+    this.theme = theme;
 
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
