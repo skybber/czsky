@@ -1,5 +1,6 @@
 import os
 import base64
+import urllib.parse
 
 from datetime import datetime
 
@@ -146,6 +147,7 @@ def deepskyobject_search():
 
 
 def _find_dso(dso_id):
+    dso_id = urllib.parse.unquote(dso_id)
     try:
         int_id = int(dso_id)
         dso = DeepskyObject.query.filter_by(id=int_id).first()
