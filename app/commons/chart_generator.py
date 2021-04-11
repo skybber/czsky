@@ -515,7 +515,6 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
         config.show_mag_scale_legend = True
         config.show_map_scale_legend = True
         config.show_field_border = True
-        config.fov_telrad = 'T'
 
     if dso_maglim is None:
         dso_maglim = -10
