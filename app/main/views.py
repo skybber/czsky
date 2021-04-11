@@ -131,6 +131,8 @@ def _search_constellation(query):
 def _search_dso(query):
     if query.isdigit():
         query = 'NGC' + query
+    else:
+        query = urllib.parse.unquote(query)
 
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
