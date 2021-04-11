@@ -147,11 +147,11 @@ def deepskyobject_search():
 
 
 def _find_dso(dso_id):
-    dso_id = urllib.parse.unquote(dso_id)
     try:
         int_id = int(dso_id)
         dso = DeepskyObject.query.filter_by(id=int_id).first()
     except ValueError:
+        dso_id = urllib.parse.unquote(dso_id)
         dso = DeepskyObject.query.filter_by(name=dso_id).first()
     orig_dso = dso
     if dso and dso.master_id:
