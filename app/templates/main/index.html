@@ -7,7 +7,7 @@
         <div class="twelve wide column">
 
             {% if news_list %}
-            <div class="ui padded segment">
+            <div class="ui padded segment mobile hidden">
                 <div class="ui stackable relaxed grid">
                     <h3 class="ui three wide column header" style="padding-bottom: 0px;">
                         <i class="rss icon"></i>
@@ -28,6 +28,31 @@
                         </div>
                         {% endfor %}
                     </div>
+                    </div>
+                </div>
+            </div>
+            <div class="ui segment mobile only">
+                <div class="ui inverted fluid accordion">
+                    <h3 class="title">
+                        <i class="dropdown icon"></i>
+                        <i class="rss icon"></i>
+                        {{ _('News') }}
+                    </h3>
+                    <div class="content markdown">
+                        <div class="ui thirteen wide column" style="padding-top: 0px; padding-bottom: 0px;">
+                        <div class="ui items">
+                            {% for news in news_list %}
+                            <div class="item">
+                                <div class="content">
+                                    <div class="ui header">{{ news.title }}</div>
+                                    <div class="description">
+                                        <p>{{ news.title_row  | safe }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,4 +88,9 @@
             </div>
         </div>
     </div>
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
 {% endblock %}

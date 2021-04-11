@@ -88,8 +88,11 @@ def dso_list_info(dso_list_id):
                 else:
                     user_descrs[dso_list_item.dso_id] = dso_list_item.deepskyObject.name
 
+    theme = request.args.get('theme', '')
+    inverted_accordion = theme in ['dark', 'night']
+
     return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, type='info', dso_list_descr=dso_list_descr, dso_list_items=dso_list_items,
-                           user_descrs=user_descrs, season=season, search_form=search_form)
+                           user_descrs=user_descrs, season=season, search_form=search_form, inverted_accordion=inverted_accordion)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart', methods=['GET', 'POST'])

@@ -19,8 +19,8 @@
 {% endmacro %}
 
 {% macro dso_list_info(dso_list) %}
-    <div class="ui inverted segment">
-        <div class="ui inverted fluid accordion">
+    <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+        <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
           <div class="title">
             <i class="dropdown icon"></i>
             {{ _('Description') }}
