@@ -16,6 +16,8 @@ from astroplan import is_observable, is_always_observable, months_observable
 from skyfield import almanac
 from skyfield.api import load, wgs84
 
+import icu
+
 from flask import (
     abort,
     Blueprint,
@@ -34,11 +36,13 @@ from flask_login import current_user, login_required
 from app import db
 
 from app.models import (
+    Constellation,
     DeepskyObject,
     DsoList,
     Location,
     SessionPlan,
     SessionPlanItem,
+    UserConsDescription,
 )
 
 from app.commons.pagination import Pagination, get_page_parameter
@@ -49,7 +53,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_pdf_img,
 )
-from app.commons.utils import to_int
+from app.commons.utils import to_int, get_lang_and_editor_user_from_request
 
 
 from .sessionplan_forms import (
@@ -71,6 +75,8 @@ from .session_scheduler import create_selection_coumpound_list, create_session_p
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
 min_alt_item_list = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
+
+cs_collator = icu.Collator.createInstance(icu.Locale('cs_CZ.UTF-8'))
 
 @main_sessionplan.route('/session-plans',  methods=['GET', 'POST'])
 @login_required
@@ -335,6 +341,7 @@ def session_plan_schedule(session_plan_id):
         ('planner_dso_type', schedule_form.dso_type),
         ('planner_dso_obj_source', schedule_form.obj_source),
         ('planner_dso_maglim', schedule_form.maglim),
+        ('planner_constellation_id', schedule_form.constellation_id),
         ('planner_min_altitude', schedule_form.min_altitude),
         ('planner_time_from', schedule_form.time_from),
         ('planner_time_to', schedule_form.time_to),
@@ -405,12 +412,46 @@ def session_plan_schedule(session_plan_id):
     if not selected_dso_name:
         selected_dso_name = schedule_form.selected_dso_name.data
 
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    constellations = Constellation.query
+
+    if editor_user:
+        constellation_id_names = UserConsDescription.query \
+                    .with_entities(UserConsDescription.constellation_id, UserConsDescription.common_name) \
+                    .filter_by(user_id=editor_user.id, lang_code=lang).all()
+    else:
+        constellation_id_names = []
+
+    constellation_id_names = sorted(constellation_id_names, key=lambda x: cs_collator.getSortKey(x[1]))
+
+    packed_constell_list = []
+    letter, letter_list = '', []
+    l1, l2 = None, None
+    for constel in constellation_id_names:
+        if constel[1][0] != letter:
+            if l2 and letter_list:
+                packed_constell_list.append([l1+' ... '+l2, letter_list])
+                letter_list = []
+                l1, l2 = None, None
+            letter = constel[1][0]
+            if l1 is None:
+                l1 = letter
+            else:
+                l2 = letter
+        letter_list.append(constel)
+
+    if letter_list:
+        if l2 is not None:
+            packed_constell_list.append([l1+' ... '+l2, letter_list])
+        else:
+            packed_constell_list.append([l1, letter_list])
+
     return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, schedule_form=schedule_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
-                           is_mine_session_plan=is_mine_session_plan)
+                           is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list)
 
 
 def _get_session_plan_tzinfo(session_plan):

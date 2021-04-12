@@ -55,6 +55,7 @@ class SessionPlanScheduleFilterForm(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
     q = StringField(lazy_gettext('Search'))
     obj_source= HiddenField('obj_source', default='WL')
+    constellation_id = IntegerField('Constellation', default=None)
     dso_type = SelectField(lazy_gettext('Object type'), choices=[
          ('All', 'All types'),
          ('GX', 'Galaxy'),

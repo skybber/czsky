@@ -43,6 +43,27 @@
     <div class="ui item computer tablet only" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Type') }}" data-variation="tiny basic">
         {{ schedule_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
     </div>
+    <div class="ui item">
+        <div id="constellation_dropdown" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Constellation') }}" data-variation="tiny basic">
+            <input type="hidden" id="constellation_id" name="{{ schedule_form.constellation_id.name }}" value="{{ schedule_form.constellation_id.data }}">
+            <span class="text">{{ _('Choose Constellation') }}</span>
+            <i class="dropdown icon"></i>
+            <div class="menu">
+                <div class="item" data-value="">{{ _('All') }}</div>
+                {% for letter_constell_list in packed_constell_list %}
+                    <div class="item">
+                        <i class="dropdown icon"></i>
+                        <span class="text">{{ letter_constell_list[0] }}</span>
+                        <div class="menu">
+                            {% for constell in letter_constell_list[1] %}
+                                <div class="item" data-value="{{ constell[0] }}">{{ constell[1] }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
     <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
         <div class="ui icon dropdown button">
             <input type="hidden" id="{{ schedule_form.maglim.name }}" name="{{ schedule_form.maglim.name }}" value="{{ schedule_form.maglim.data }}"
@@ -89,7 +110,7 @@
         </div>
     </div>
     {% if not session_plan.is_anonymous %}
-        <div id="not_observed" class="ui inverted checkbox item">
+        <div id="not_observed" class="ui inverted checkbox item" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
           <input type="checkbox" id="not_observed_data" name="{{ schedule_form.not_observed.name }}" {{ 'checked=checked' if schedule_form.not_observed.data else '' | safe  }}>
           <label>{{_('Not observed')}}</label>
         </div>
@@ -300,6 +321,14 @@ $(function(){
           allowCategorySelection: true,
           onChange: function (value, text, $selectedItem) {
               $('#obj_source').val(value);
+              $(this).closest('form').submit();
+          }
+    });
+    $('#constellation_dropdown')
+        .dropdown({
+          allowCategorySelection: true,
+          onChange: function (value, text, $selectedItem) {
+              $('#constellation_id').val(value);
               $(this).closest('form').submit();
           }
     });

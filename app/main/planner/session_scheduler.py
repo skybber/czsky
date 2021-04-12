@@ -83,6 +83,10 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     if schedule_form.maglim.data is not None and schedule_form.maglim.data < mag_scale[1]:
         dso_query = dso_query.filter(DeepskyObject.mag<schedule_form.maglim.data)
 
+    # filter by constellation
+    if schedule_form.constellation_id.data is not None:
+        dso_query = dso_query.filter(DeepskyObject.constellation_id==schedule_form.constellation_id.data)
+
     order_by_field = None
     if sort_by:
         desc = sort_by[0] == '-'
