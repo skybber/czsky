@@ -384,8 +384,8 @@ def session_plan_schedule(session_plan_id):
     time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_t2)
 
     selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
-                                                              page, offset, per_page, sort_by, mag_scale)
-    session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info)
+            page, offset, per_page, sort_by, mag_scale, sort_def)
+    session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def)
 
     pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 

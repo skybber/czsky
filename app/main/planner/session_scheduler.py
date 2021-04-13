@@ -22,7 +22,7 @@ from app.models import (
     WishListItem,
 )
 
-def create_session_plan_compound_list(session_plan, observer, observation_time, tz_info):
+def create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def):
     # create session plan list
     spi = session_plan.session_plan_items.copy()
     spi.sort(key=lambda x: x.order)
@@ -33,7 +33,7 @@ def create_session_plan_compound_list(session_plan, observer, observation_time, 
 
 
 def create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
-                                    page, offset, per_page, sort_by, mag_scale):
+                                    page, offset, per_page, sort_by, mag_scale, sort_def):
 
     if session_plan.is_anonymous and (schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL'):
         schedule_form.obj_source.data = 'M' # set Messier
@@ -117,7 +117,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
                 time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
 
         # filter by altitude
-        if len(time_filtered_list) > 0 and schedule_form.min_altitude.data > 0:
+        if len(time_filtered_list) > 0 and schedule_form.min_altitude.data is not None and schedule_form.min_altitude.data > 0:
             constraints = [AltitudeConstraint(schedule_form.min_altitude.data*u.deg)]
             targets = []
             for item in time_filtered_list:
