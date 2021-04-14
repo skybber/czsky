@@ -9,6 +9,7 @@ from astroplan import (AltitudeConstraint, AirmassConstraint, AtNightConstraint)
 from astroplan import is_observable, is_always_observable, months_observable
 from lru import LRU
 
+from sqlalchemy import or_
 from flask_login import current_user, login_required
 
 from app.models import (
@@ -78,6 +79,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
             .join(ObservedListItem.observed_list) \
             .filter(ObservedList.user_id==current_user.id)
         dso_query = dso_query.filter(DeepskyObject.id.notin_(observed_subquery))
+        dso_query = dso_query.filter(or_(DeepskyObject.master_id.is_(None), DeepskyObject.master_id.notin_(observed_subquery)))
 
 
     # filter by type

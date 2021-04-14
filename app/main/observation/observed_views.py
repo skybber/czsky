@@ -59,7 +59,8 @@ def observed_list_item_add():
         deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
         if deepsky_object:
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-            if observed_list.append_deepsky_object(deepsky_object.id, current_user.id):
+            dso_id = deepsky_object.master_id if deepsky_object.master_id is not None else deepsky_object.id
+            if observed_list.append_deepsky_object(dso_id, current_user.id):
                 flash('Object was added to observed list.', 'form-success')
             else:
                 flash('Object is already on observed list.', 'form-info')
