@@ -115,7 +115,6 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     # filter by rise-set time
     if use_time_filter:
         key_suffix = '/' + str(observer.location.lat) + '/' + str(observer.location.lon) + '/' + observation_time.strftime('%Y-%m-%d')
-        print(key_suffix, flush=True)
         index_table = []
         i = 0
         composed_selection_rms_list = []

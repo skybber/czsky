@@ -203,6 +203,8 @@ def session_plan_delete(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
+    for item in session_plan.session_plan_items:
+        db.session.delete(item)
     db.session.delete(session_plan)
     db.session.commit()
 
