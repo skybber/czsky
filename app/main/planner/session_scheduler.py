@@ -7,6 +7,7 @@ from astropy.coordinates import EarthLocation, SkyCoord
 from astroplan import Observer, FixedTarget
 from astroplan import (AltitudeConstraint, AirmassConstraint, AtNightConstraint)
 from astroplan import is_observable, is_always_observable, months_observable
+from lru import LRU
 
 from flask_login import current_user, login_required
 
@@ -22,6 +23,8 @@ from app.models import (
     WishListItem,
 )
 
+rise_set_cache = l = LRU(10000)
+
 def create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def):
     # create session plan list
     spi = session_plan.session_plan_items.copy()
@@ -34,6 +37,8 @@ def create_session_plan_compound_list(session_plan, observer, observation_time, 
 
 def create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
                                     page, offset, per_page, sort_by, mag_scale, sort_def):
+
+    global rise_set_cache
 
     if session_plan.is_anonymous and (schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL'):
         schedule_form.obj_source.data = 'M' # set Messier
@@ -109,12 +114,38 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
 
     # filter by rise-set time
     if use_time_filter:
+        key_suffix = '/' + str(observer.location.lat) + '/' + str(observer.location.lon) + '/' + observation_time.strftime('%Y-%m-%d')
+        print(key_suffix, flush=True)
+        index_table = []
+        i = 0
+        composed_selection_rms_list = []
+        to_process_list = []
+        for x in selection_list:
+            key = str(x.id) + key_suffix
+            cached = rise_set_cache.get(key, None)
+            if cached is None:
+                index_table.append(i)
+                composed_selection_rms_list.append(None)
+                to_process_list.append((x.ra, x.dec))
+            else:
+                composed_selection_rms_list.append(cached)
+            i += 1
+
+        if to_process_list:
+            selection_rms_list = rise_merid_set_up(time_from, time_to, observer, to_process_list)
+            for i in range(len(selection_rms_list)):
+                index = index_table[i]
+                val = selection_rms_list[i]
+                composed_selection_rms_list[index] = val
+                key = str(selection_list[index].id) + key_suffix
+                rise_set_cache[key] = val
+
         time_filtered_list = []
-        selection_rms_list = rise_merid_set_up(time_from, time_to, observer, [ (x.ra, x.dec) for x in selection_list])
-        for i in range(len(selection_rms_list)):
-            rise_t, merid_t, set_t, is_up = selection_rms_list[i]
+        i = 0
+        for rise_t, merid_t, set_t, is_up in composed_selection_rms_list:
             if is_up or rise_t < time_to or set_t>time_from:
                 time_filtered_list.append((selection_list[i], _to_HM_format(rise_t, tz_info), _to_HM_format(merid_t, tz_info), _to_HM_format(set_t, tz_info)))
+            i += 1
 
         # filter by altitude
         if len(time_filtered_list) > 0 and schedule_form.min_altitude.data is not None and schedule_form.min_altitude.data > 0:
