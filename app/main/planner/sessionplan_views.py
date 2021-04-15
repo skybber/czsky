@@ -1,5 +1,6 @@
 import os
 import csv
+from io import StringIO, BytesIO
 from datetime import datetime, timedelta
 import base64
 import pytz
@@ -31,7 +32,10 @@ from flask import (
     session,
     url_for,
 )
+
 from flask_login import current_user, login_required
+
+from flask_babel import gettext
 
 from app import db
 
@@ -321,6 +325,34 @@ def session_plan_upload(session_plan_id):
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/download', methods=['POST'])
+def session_plan_download(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    observer, tz_info = _get_observer_tzinfo(session_plan)
+    observation_time = Time(session_plan.for_date)
+
+    session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, None)
+
+    buf = StringIO()
+    writer = csv.writer(buf, quoting=csv.QUOTE_NONNUMERIC, delimiter=';')
+
+    writer.writerow([gettext('Name'), gettext('Type'), gettext('Constellation'), 'RA', 'DEC', gettext('Rise'), gettext('Merid'), gettext('Set')])
+
+    for item in session_plan_compound_list:
+        dso = item[0].deepskyObject
+        name = dso.denormalized_name() + (('/' + dso.masterObject.denormalized_name()) if dso.masterObject else '')
+        writer.writerow([name, dso.type, dso.get_constellation_iau_code(), dso.ra_str_short(), dso.dec_str_short(), item[1], item[2], item[3]])
+
+    mem = BytesIO()
+    mem.write(buf.getvalue().encode('utf-8'))
+    mem.seek(0)
+    return send_file(mem, as_attachment=True,
+                     attachment_filename='sessionplan-' + session_plan.title.replace(' ', '_') + '.csv',
+                     mimetype='text/csv')
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/schedule', methods=['GET', 'POST'])
