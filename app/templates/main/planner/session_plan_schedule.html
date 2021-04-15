@@ -153,13 +153,13 @@
 
           {% for item in selection_compound_list %}
               <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}">
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].type }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[0].mag }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }}, '{{ to_dso_url1(item) }}')">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].type }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].mag }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
                           <i class="arrow right icon"></i>
@@ -222,13 +222,13 @@
 
           {% for item in session_plan_compound_list %}
               <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}">
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.denormalized_name() }}{{ master_name(item[0].deepskyObject.masterObject) }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.type }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[0].deepskyObject.mag }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }}, '{{ to_dso_url2(item) }}')">{{ item[3] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.denormalized_name() }}{{ master_name(item[0].deepskyObject.masterObject) }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.type }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.mag }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
                           <i class="trash alternate icon"></i>
@@ -279,19 +279,37 @@
 </style>
 
 <script type="text/javascript">
-function setIFrameSrc1(rowIndex, url) {
+var srcDsoUrls = [
+{% for item in selection_compound_list %}
+    '{{ to_dso_url1(item) }}',
+{% endfor %}
+];
+
+var dstDsoUrls = [
+{% for item in session_plan_compound_list %}
+    '{{ to_dso_url2(item) }}',
+{% endfor %}
+];
+
+var rowIndex1 = 1;
+var rowIndex2 = 1;
+
+function setIFrameSrc1(rowIndex) {
     $('#tblsrc tr').removeClass();
     $('#tbldst tr').removeClass();
     $('#tblsrc tr:nth-child(' + rowIndex + ')').addClass('left marked green');
-    setIFrameSrc(url);
+    rowIndex1 = rowIndex;
+    setIFrameSrc(srcDsoUrls[rowIndex-1]);
 }
 
-function setIFrameSrc2(rowIndex, url) {
+function setIFrameSrc2(rowIndex) {
     $('#tblsrc tr').removeClass();
     $('#tbldst tr').removeClass();
     $('#tbldst tr:nth-child(' + rowIndex + ')').addClass('left marked green');
-    setIFrameSrc(url);
+    rowIndex2 = rowIndex;
+    setIFrameSrc(dstDsoUrls[rowIndex-1]);
 }
+
 
 function setIFrameSrc(url) {
     $('#plIframe').attr('src', url)
@@ -357,7 +375,7 @@ $(function(){
                 $(this).closest('form').submit();
             }
         }
-    })
+    });
     $('#time_to').calendar({
         type: 'time',
         ampm: false,
@@ -371,7 +389,23 @@ $(function(){
                 $(this).closest('form').submit();
             }
         }
-    })
+    });
+    /*
+    $("#tblsrc td").on("keydown", function(e) {
+        var keyCode = (e.keyCode ? e.keyCode : e.which);
+        if (keyCode == 38) {
+            e.stopPropagation();
+        } else if (keyCode == 40) {
+            e.stopPropagation();
+        }
+    });
+    $("#tbldst td").on("keydown", function(e) {
+        var keyCode = (e.keyCode ? e.keyCode : e.which);
+        if (keyCode == 38) {
+        } else if (keyCode == 40) {
+        }
+    });
+    */
   ;
 });
 </script>
