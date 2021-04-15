@@ -31,7 +31,7 @@ from app.commons.coordinates import radec_check
 
 class NewsMixin():
     title = StringField(lazy_gettext('Title'), validators=[Length(max=128)])
-    title_row = StringField(lazy_gettext('Title row'), validators=[Length(max=128)])
+    title_row = StringField(lazy_gettext('Title row'), validators=[Length(max=1024)])
     radec = StringField(lazy_gettext('Coordinates'), validators=[Length(max=256), radec_check])
     text = TextAreaField(lazy_gettext('text'))
     rating = IntegerField(lazy_gettext('Rating'), default=5, validators=[NumberRange(min=0, max=10)])
