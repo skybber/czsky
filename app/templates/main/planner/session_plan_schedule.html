@@ -152,14 +152,14 @@
           {% macro master_name(master) %}{{ (' / ' + master.denormalized_name() ) if master else '' }}{% endmacro %}
 
           {% for item in selection_compound_list %}
-              <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}">
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].type }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[0].mag }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc1({{ loop.index }})">{{ item[3] }}</td>
+              <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}" tabindex="0">
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].type }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].mag }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[3] }}</td>
                   <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
                           <i class="arrow right icon"></i>
@@ -169,7 +169,7 @@
           {% endfor %}
           </tbody>
       </table>
-      {{ pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page)) }} {{ pagination.info }}
+      {{ pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, srow_index=1)) }} {{ pagination.info }}
     </div>
     <div class="column">
 
@@ -221,14 +221,14 @@
           {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
 
           {% for item in session_plan_compound_list %}
-              <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}">
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.denormalized_name() }}{{ master_name(item[0].deepskyObject.masterObject) }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.type }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[0].deepskyObject.mag }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrc2({{ loop.index }})">{{ item[3] }}</td>
+              <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}" tabindex="0">
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.denormalized_name() }}{{ master_name(item[0].deepskyObject.masterObject) }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.type }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.mag }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[1] }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[2] }}</td>
+                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[3] }}</td>
                    <td class="collapsing specialClass">
                       <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
                           <i class="trash alternate icon"></i>
@@ -291,22 +291,22 @@ var dstDsoUrls = [
 {% endfor %}
 ];
 
-var rowIndex1 = 1;
-var rowIndex2 = 1;
+var srcRowIndex = 1;
+var dstRowIndex = 1;
 
-function setIFrameSrc1(rowIndex) {
+function setIFrameSrcFromSrcList(rowIndex) {
     $('#tblsrc tr').removeClass();
     $('#tbldst tr').removeClass();
     $('#tblsrc tr:nth-child(' + rowIndex + ')').addClass('left marked green');
-    rowIndex1 = rowIndex;
+    srcRowIndex = rowIndex;
     setIFrameSrc(srcDsoUrls[rowIndex-1]);
 }
 
-function setIFrameSrc2(rowIndex) {
+function setIFrameSrcFromDstList(rowIndex) {
     $('#tblsrc tr').removeClass();
     $('#tbldst tr').removeClass();
     $('#tbldst tr:nth-child(' + rowIndex + ')').addClass('left marked green');
-    rowIndex2 = rowIndex;
+    dstRowIndex = rowIndex;
     setIFrameSrc(dstDsoUrls[rowIndex-1]);
 }
 
@@ -390,22 +390,33 @@ $(function(){
             }
         }
     });
-    /*
-    $("#tblsrc td").on("keydown", function(e) {
+    $("#tblsrc tr").on("keydown", function(e) {
         var keyCode = (e.keyCode ? e.keyCode : e.which);
         if (keyCode == 38) {
-            e.stopPropagation();
+            if (srcRowIndex > 1) {
+                setIFrameSrcFromSrcList(srcRowIndex-1);
+            }
+            e.preventDefault();
         } else if (keyCode == 40) {
-            e.stopPropagation();
+            if (srcRowIndex < srcDsoUrls.length) {
+                setIFrameSrcFromSrcList(srcRowIndex+1);
+            }
+            e.preventDefault();
         }
     });
-    $("#tbldst td").on("keydown", function(e) {
+    $("#tbldst tr").on("keydown", function(e) {
         var keyCode = (e.keyCode ? e.keyCode : e.which);
         if (keyCode == 38) {
+            if (dstRowIndex > 1) {
+                setIFrameSrcFromDstList(dstRowIndex-1);
+            }
         } else if (keyCode == 40) {
+            if (dstRowIndex < dstDsoUrls.length) {
+                setIFrameSrcFromDstList(dstRowIndex+1);
+            }
+            e.preventDefault();
         }
     });
-    */
   ;
 });
 </script>
