@@ -264,5 +264,10 @@ def tmp_import_constellations_positions():
 def tmp_import_bright_stars_bsc5_json_all():
     import_bright_stars_bsc5_json_all('data/bsc5-all.json')
 
+    
+@manager.command
+def tmp_import_vic():
+    import_vic('data/vic.csv')
+
 if __name__ == '__main__':
     manager.run()
