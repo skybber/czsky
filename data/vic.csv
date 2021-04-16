@@ -6,7 +6,7 @@ RA;Dec;mag;name;type;brightness;length;width;orient
 18,35.6,0;+72,23,0;079;Little Queen          ;Asterism;079;0120;0250;060
 20,55.8,0;+43,38,0;068;Mini Orion            ;Asterism;068;0400;0200;010
 14,51.0,0;-26,07,0;046;Mini Scorpion         ;Asterism;046;2200;4500;050
-23,02.2,0;+22,58,0;680;Delphinus Minor       ;Asterism;068;0800;0300;025
+23,02.2,0;+22,58,0;068;Delphinus Minor       ;Asterism;068;0800;0300;025
 03,43.4,0;+59,41,0;059;Lion Cub              ;Asterism;059;1600;0900;060
 16,28.8,0;+80,14,0;093;Mini Coathanger       ;Asterism;093;0150;0150;000
 00,10.6,0;+15,19,0;083;Mini Cross            ;Asterism;083;0200;0200;000
