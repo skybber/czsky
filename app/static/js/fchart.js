@@ -9,7 +9,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     if (embed == '') {
         url = default_chart_iframe_url;
         if (url == '') {
-            url = searchUrl + "M1&embed=fc";
+            url = searchUrl.replace('__SEARCH__', 'M1') + "&embed=fc";
         }
     } else {
         url='';
