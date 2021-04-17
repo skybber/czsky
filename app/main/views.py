@@ -137,8 +137,14 @@ def _search_dso(query):
     normalized_name = normalize_dso_name(query)
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     if dso:
-        return redirect(url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name, seltab=request.args.get('seltab'),
-                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+        return redirect(url_for('main_deepskyobject.deepskyobject_seltab',
+                                    dso_id=dso.name,
+                                    seltab=request.args.get('seltab'),
+                                    fullscreen=request.args.get('fullscreen'),
+                                    splitview=request.args.get('splitview'),
+                                    back=request.args.get('back'),
+                                    back_id=request.args.get('back_id'),
+                                    embed=request.args.get('embed')))
     return None
 
 

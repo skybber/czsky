@@ -163,20 +163,26 @@
 
 {% endmacro %}
 
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+{% if back %}
+    {% set search_url_params = 'back=' + back + (('&back_id=' + back_id) if back_id is not none else '') %}
+{% else %}
+    {% set search_url_params = '' %}
+{% endif %}
+
 {# ---  Chart --- #}
 {% macro deepskyobject_chart(dso) %}
     {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
                      url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', mx=chart_control.chart_mx, my=chart_control.chart_my, flags=chart_control.chart_flags, dso_list_id=dso_list_id),
+                              width='_WIDTH_', height='_HEIGHT_', mx=chart_control.chart_mx, my=chart_control.chart_my, flags=chart_control.chart_flags, back=back, back_id=back_id),
                      url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', mx=chart_control.chart_mx, my=chart_control.chart_my, flags=chart_control.legend_flags),
                      url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_flags, ),
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''))
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''),
+                     search_url_params=search_url_params)
     }}
 {% endmacro %}
-
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {# --- Surveys --- #}
 {% macro deepskyobject_surveys() %}

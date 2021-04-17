@@ -367,12 +367,9 @@ def deepskyobject_chart(dso_id):
 
     default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
-    dso_list_id = back_id if back == 'dso_list' else None
-
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url, season=season, embed=embed,
-                           dso_list_id=dso_list_id
                            )
 
 
@@ -386,11 +383,24 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     visible_objects = [] if flags else None
 
     highlights_dso_list = None
-    dso_list_id = request.args.get('dso_list_id')
-    if dso_list_id:
-        dso_list = DsoList.query.filter_by(id=dso_list_id).first()
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
+    if back == 'dso_list' and back_id is not None:
+        dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
             highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
+    elif back == 'wishlist' and current_user.is_authenticated:
+        wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+        highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+    elif back == 'session_plan':
+        session_plan = SessionPlan.query.filter_by(id=back_id).first()
+        if allow_view_session_plan(session_plan):
+            highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+    elif back == 'observed_list' and current_user.is_authenticated:
+        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+        highlights_dso_list = [ x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items ]
 
     img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
 
@@ -591,14 +601,8 @@ def _get_prev_next_dso(dso):
     elif back == 'session_plan':
         allow_view_session_plan = True
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
-        if not session_plan.is_public:
-            if current_user.is_anonymous:
-                if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
-                     allow_view_session_plan = False
-            elif session_plan.user_id != current_user.id:
-                allow_view_session_plan = False
 
-        if allow_view_session_plan:
+        if allow_view_session_plan(session_plan):
             prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
             return (prev_item.deepskyObject if prev_item else None,
                     prev_item.deepskyObject.denormalized_name() if prev_item else None,
@@ -620,3 +624,12 @@ def _get_prev_next_dso(dso):
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
             next_dso.catalog_number() if next_dso else None)
+
+def allow_view_session_plan(session_plan):
+    if not session_plan.is_public:
+        if current_user.is_anonymous:
+            if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+                 return False
+        elif session_plan.user_id != current_user.id:
+            return False
+    return True
