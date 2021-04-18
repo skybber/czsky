@@ -331,6 +331,11 @@ FChart.prototype.doReloadImage = function() {
                 this.dsoRegions = data.img_map;
                 this.activateImageOnLoad();
                 this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
+                var queryParams = new URLSearchParams(window.location.search);
+                queryParams.set('ra', this.ra.toString());
+                queryParams.set('dec', this.dec.toString());
+                queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
+                history.replaceState(null, null, "?" + queryParams.toString());
             }
         }.bind(this));
     } else {

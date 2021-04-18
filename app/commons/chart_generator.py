@@ -300,6 +300,15 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     return img_bytes
 
 
+def common_radius_to_index(radius):
+    gui_fld_size = to_float(radius, FIELD_SIZES[-1])
+
+    for i in range(len(FIELD_SIZES)-1, -1, -1):
+        if gui_fld_size >= FIELD_SIZES[i]:
+            return i + 1
+    return len(FIELD_SIZES);
+
+
 def common_prepare_chart_data(form, cancel_selection_url=None):
     fld_size = FIELD_SIZES[form.radius.data-1]
 
