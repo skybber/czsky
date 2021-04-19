@@ -599,7 +599,6 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject.denormalized_name() if next_item else None,
                     )
     elif back == 'session_plan':
-        allow_view_session_plan = True
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
 
         if allow_view_session_plan(session_plan):
