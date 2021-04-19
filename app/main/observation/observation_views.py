@@ -34,6 +34,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.main.chart.chart_forms import ChartForm
@@ -153,8 +154,6 @@ def observation_chart(observation_id):
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     dso_id = request.args.get('dso_id')
     observation_item = None
     if dso_id and dso_id.isdigit():
@@ -164,15 +163,17 @@ def observation_chart(observation_id):
     if not observation_item:
         observation_item = ObservationItem.query.filter_by(observation_id=observation.id).first()
 
-    if form.ra.data is None:
-        form.ra.data = observation_item.deepskyObject.ra if observation_item else 0
-    if form.dec.data is None:
-        form.dec.data = observation_item.deepskyObject.dec if observation_item else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = observation_item.deepskyObject.ra if observation_item else 0
+            form.dec.data = observation_item.deepskyObject.dec if observation_item else 0
 
     if observation_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observation', back_id=observation.id, dso_id=observation_item.deepskyObject.name, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
+
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/observation/observation_info.html', fchart_form=form, type='chart', observation=observation, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url,)

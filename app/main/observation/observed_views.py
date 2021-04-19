@@ -33,6 +33,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.main.chart.chart_forms import ChartForm
@@ -96,6 +97,7 @@ def observed_list_delete():
     flash('Observed list deleted', 'form-success')
     return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form)
 
+
 @main_observed.route('/observed-list-upload', methods=['POST'])
 @login_required
 def observed_list_upload():
@@ -135,6 +137,7 @@ def observed_list_upload():
 
     return redirect(url_for('main_observed.observed_list'))
 
+
 @main_observed.route('/observed-list-download', methods=['POST'])
 @login_required
 def observed_list_download():
@@ -160,8 +163,6 @@ def observed_list_chart():
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     dso_id = request.args.get('dso_id')
 
     observed_list_item = None
@@ -172,10 +173,12 @@ def observed_list_chart():
     if not observed_list_item:
         observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
 
-    if form.ra.data is None:
-        form.ra.data = observed_list_item.deepskyObject.ra if observed_list_item else 0
-    if form.dec.data is None:
-        form.dec.data = observed_list_item.deepskyObject.dec if observed_list_item else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = observed_list_item.deepskyObject.ra if observed_list_item else 0
+            form.dec.data = observed_list_item.deepskyObject.dec if observed_list_item else 0
+
+    chart_control = common_prepare_chart_data(form)
 
     if observed_list_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observedlist', dso_id=observed_list_item.deepskyObject.name, embed='fc', allow_back='true')

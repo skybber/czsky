@@ -25,6 +25,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
+    common_ra_dec_fsz_from_request,
 )
 
 from .dso_list_forms import (
@@ -103,8 +104,6 @@ def dso_list_chart(dso_list_id):
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     dso_id = request.args.get('dso_id')
     dso_list_item = None
     if dso_id and dso_id.isdigit():
@@ -117,15 +116,17 @@ def dso_list_chart(dso_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request()
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
-    if form.ra.data is None:
-        form.ra.data = dso_list_item.deepskyObject.ra if dso_list_item else 0
-    if form.dec.data is None:
-        form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = dso_list_item.deepskyObject.ra if dso_list_item else 0
+            form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
 
     if dso_list_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='dso_list', back_id=dso_list.id, dso_id=dso_list_item.deepskyObject.name, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
+
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/catalogue/dso_list_info.html', fchart_form=form, type='chart', dso_list=dso_list, dso_list_descr=dso_list_descr,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)

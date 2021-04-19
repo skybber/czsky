@@ -26,7 +26,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
+    common_ra_dec_fsz_from_request,
 )
 
 from .constellation_forms import (
@@ -204,12 +204,12 @@ def constellation_chart(constellation_id):
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = constellation.label_ra
+            form.dec.data = constellation.label_dec
 
-    if form.ra.data is None:
-        form.ra.data = constellation.label_ra
-    if form.dec.data is None:
-        form.dec.data = constellation.label_dec
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation, chart_control=chart_control, )
 

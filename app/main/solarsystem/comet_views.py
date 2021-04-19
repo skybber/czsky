@@ -43,6 +43,7 @@ from app.commons.chart_generator import (
     common_chart_dso_list_menu,
     common_chart_pdf_img,
     get_trajectory_time_delta,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.commons.utils import to_float
@@ -165,8 +166,6 @@ def comet_info(comet_id):
 
     form  = CometFindChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -207,8 +206,11 @@ def comet_info(comet_id):
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
 
-    form.ra.data = comet_ra
-    form.dec.data = comet_dec
+    if not common_ra_dec_fsz_from_request(form):
+        form.ra.data = comet_ra
+        form.dec.data = comet_dec
+
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64)

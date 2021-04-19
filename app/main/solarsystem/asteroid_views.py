@@ -40,9 +40,9 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
     common_chart_pdf_img,
     get_trajectory_time_delta,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.commons.utils import to_float
@@ -148,8 +148,6 @@ def asteroid_info(asteroid_id):
 
     form  = AsteroidFindChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -194,8 +192,11 @@ def asteroid_info(asteroid_id):
     asteroid_ra = asteroid_ra_ang.radians
     asteroid_dec = asteroid_dec_ang.radians
 
-    form.ra.data = asteroid_ra
-    form.dec.data = asteroid_dec
+    if not common_ra_dec_fsz_from_request(form):
+        form.ra.data = asteroid_ra
+        form.dec.data = asteroid_dec
+
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/solarsystem/asteroid_info.html', fchart_form=form, type='info', asteroid=asteroid, asteroid_ra=asteroid_ra, asteroid_dec=asteroid_dec,
                            chart_control=chart_control, trajectory=trajectory_b64)

@@ -52,7 +52,7 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_chart_dso_list_menu,
-    common_radius_to_index,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
@@ -69,23 +69,15 @@ def chart():
     if ra is not None and dec is not None:
         form.ra.data = float(ra)
         form.dec.data = float(dec)
-    else:
-        ra = request.args.get('ra', None)
-        dec = request.args.get('dec', None)
-        fsz = request.args.get('fsz', None)
-        if ra and dec and fsz:
-            form.ra.data = float(ra)
-            form.dec.data = float(dec)
-            form.radius.data = common_radius_to_index(fsz)
-        else:
-            if form.ra.data is None:
-                day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
-                day_now = datetime.now().timetuple().tm_yday
-                form.ra.data = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
-                if form.ra.data > 2 * np.pi:
-                    form.ra.data -= 2 * np.pi
-            if form.dec.data is None:
-                form.dec.data = 0.0
+    elif not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None:
+            day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
+            day_now = datetime.now().timetuple().tm_yday
+            form.ra.data = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
+            if form.ra.data > 2 * np.pi:
+                form.ra.data -= 2 * np.pi
+        if form.dec.data is None:
+            form.dec.data = 0.0
 
     chart_control = common_prepare_chart_data(form)
 

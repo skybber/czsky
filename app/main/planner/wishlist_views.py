@@ -37,6 +37,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_ra_dec_fsz_from_request,
 )
 
 from .wishlist_forms import (
@@ -130,8 +131,6 @@ def wish_list_chart():
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     dso_id = request.args.get('dso_id')
 
     wish_list_item = None
@@ -142,10 +141,12 @@ def wish_list_chart():
     if not wish_list_item:
         wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
 
-    if form.ra.data is None:
-        form.ra.data = wish_list_item.deepskyObject.ra if wish_list_item else 0
-    if form.dec.data is None:
-        form.dec.data = wish_list_item.deepskyObject.dec if wish_list_item else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = wish_list_item.deepskyObject.ra if wish_list_item else 0
+            form.dec.data = wish_list_item.deepskyObject.dec if wish_list_item else 0
+
+    chart_control = common_prepare_chart_data(form)
 
     if wish_list_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='wishlist', dso_id=wish_list_item.deepskyObject.name, embed='fc', allow_back='true')

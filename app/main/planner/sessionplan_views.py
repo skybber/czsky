@@ -56,6 +56,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
+    common_ra_dec_fsz_from_request,
 )
 from app.commons.utils import to_int, get_lang_and_editor_user_from_request
 
@@ -538,8 +539,6 @@ def session_plan_chart(session_plan_id):
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
-
     dso_id = request.args.get('dso_id')
     session_plan_item = None
     if dso_id and dso_id.isdigit():
@@ -549,15 +548,17 @@ def session_plan_chart(session_plan_id):
     if not session_plan_item:
         session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
 
-    if form.ra.data is None:
-        form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
-    if form.dec.data is None:
-        form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
+            form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
 
     if session_plan_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.dso_id, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
+
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/planner/session_plan.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan)

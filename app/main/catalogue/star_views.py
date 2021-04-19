@@ -26,7 +26,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request
@@ -78,12 +78,12 @@ def star_chart(star_id):
 
     form  = ChartForm()
 
-    chart_control = common_prepare_chart_data(form)
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = star.ra
+            form.dec.data = star.dec
 
-    if form.ra.data is None:
-        form.ra.data = star.ra
-    if form.dec.data is None:
-        form.dec.data = star.dec
+    chart_control = common_prepare_chart_data(form)
 
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control, )
 

@@ -53,7 +53,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
+    common_ra_dec_fsz_from_request,
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
@@ -349,12 +349,12 @@ def deepskyobject_chart(dso_id):
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
-    chart_control = common_prepare_chart_data(form, cancel_selection_url=url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name))
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = dso.ra
+            form.dec.data = dso.dec
 
-    if form.ra.data is None:
-        form.ra.data = dso.ra
-    if form.dec.data is None:
-        form.dec.data = dso.dec
+    chart_control = common_prepare_chart_data(form, cancel_selection_url=url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name))
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
