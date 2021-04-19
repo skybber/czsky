@@ -635,11 +635,13 @@ FChart.prototype.isInSplitView = function() {
 }
 
 FChart.prototype.toggleFullscreen = function() {
+    var queryParams = new URLSearchParams(window.location.search);
     if (this.isInSplitView()) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
         $(".fchart-iframe").hide();
         $(".fchart-separator").hide();
         this.onSplitViewChangeCallback.call(this, false);
+        queryParams.delete('split_view');
     }
 
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -653,15 +655,25 @@ FChart.prototype.toggleFullscreen = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
 
+    if (this.isInFullScreen()) {
+        queryParams.set('fullscreen', 'true');
+    } else {
+        queryParams.delete('fullscreen');
+    }
+
+    history.replaceState(null, null, "?" + queryParams.toString());
+
     if (this.onFullscreenChangeCallback  != undefined) {
         this.onFullscreenChangeCallback.call(this, this.isInFullScreen());
     }
 }
 
 FChart.prototype.toggleSplitView = function() {
+    var queryParams = new URLSearchParams(window.location.search);
     if (this.isInFullScreen()) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
         this.onFullscreenChangeCallback.call(this, false);
+        queryParams.delete('fullscreen');
     }
 
     $(this.fchartDiv).toggleClass('fchart-splitview');
@@ -681,6 +693,19 @@ FChart.prototype.toggleSplitView = function() {
     this.adjustCanvasSize();
     this.reloadLegendImage();
     this.forceReloadImage();
+
+    queryParams.set('ra', this.ra.toString());
+    queryParams.set('dec', this.dec.toString());
+    queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
+    history.replaceState(null, null, "?" + queryParams.toString());
+
+    if (this.isInSplitView()) {
+        queryParams.set('split_view', 'true');
+    } else {
+        queryParams.delete('split_view');
+    }
+
+    history.replaceState(null, null, "?" + queryParams.toString());
 
     if (this.onSplitViewChangeCallback  != undefined) {
         this.onSplitViewChangeCallback.call(this, this.isInSplitView());
