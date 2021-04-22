@@ -171,3 +171,4 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.comments .comment .author{color:#dbdbdb}
 .ui.comments .comment .metadata{color:#848080}
 .ui.comments .comment .text{color:#be9e9e}
+.ui.active.toggle.button{background-color: #7d3434 !important}
