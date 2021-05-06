@@ -137,7 +137,7 @@ def comets():
     offset = (page - 1) * per_page
     comets = _get_all_comets()
 
-    comets = comets[comets['mag'] < 17.0].sort_values(by=['mag'])
+    comets = comets[comets['mag'] < 20.0].sort_values(by=['mag'])
 
     if search_form.q.data:
         search_expr = search_form.q.data.replace('"','')
