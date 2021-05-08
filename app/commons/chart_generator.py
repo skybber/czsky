@@ -195,7 +195,7 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     else:
         _setup_dark_theme(config, width)
 
-    if fld_size >= 40 and width and width <= 768:
+    if fld_size >= 60 or (fld_size >= 40 and width and width <= 768):
         config.constellation_linespace = 0
         config.show_star_labels = False
     else:
