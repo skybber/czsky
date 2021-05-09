@@ -121,7 +121,7 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
                      url_for('main_dso_list.dso_list_chart_legend_img', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
-                     url_for('main_dso_list.dso_list_chart_pdf', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_flags, ),
+                     url_for('main_dso_list.dso_list_chart_pdf', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, ),
                      fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id) )
     }}
 {% endmacro %}

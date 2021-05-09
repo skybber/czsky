@@ -63,7 +63,7 @@ class ChartControl:
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
                  theme=None, gui_field_sizes=None, gui_field_index=None,
-                 chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None,
+                 chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None, cancel_selection_url=None):
         self.chart_fsz = chart_fsz
@@ -85,6 +85,7 @@ class ChartControl:
         self.chart_mlim = chart_mlim
         self.chart_flags = chart_flags
         self.legend_flags = legend_flags
+        self.chart_pdf_flags = chart_pdf_flags
         self.chart_dso_list_menu = chart_dso_list_menu
         self.has_date_from_to = has_date_from_to
         self.date_from=date_from
@@ -383,7 +384,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                          gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
                          chart_mx=chart_mx, chart_my=chart_my,
                          chart_mlim=str(form.maglim.data),
-                         chart_flags=chart_flags, legend_flags=legend_flags,
+                         chart_flags=chart_flags, legend_flags=legend_flags, chart_pdf_flags=(chart_flags + legend_flags),
                          chart_dso_list_menu=chart_dso_list_menu,
                          has_date_from_to=has_date_from_to,
                          date_from=date_from, date_to=date_to,
