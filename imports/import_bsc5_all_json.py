@@ -27,7 +27,12 @@ def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
 
     if sRA and sDEC:
         ra = float(sRA[0:2])*np.pi/12.0 + float(sRA[4:6])*np.pi/(12.0*60.0) + float(sRA[8:12])*np.pi/(12*60.0*60)
-        dec = (float(sDEC[0:3])*np.pi/180.0 + float(sDEC[5:7])*np.pi/(180.0*60) + float(sDEC[9:11])*np.pi/(180.0*60*60))
+        dec = float(sDEC[0:3])*np.pi/180.0
+        if dec > 0:
+            dec += float(sDEC[5:7])*np.pi/(180.0*60) + float(sDEC[9:11])*np.pi/(180.0*60*60)
+        else:
+            dec -= float(sDEC[5:7])*np.pi/(180.0*60) + float(sDEC[9:11])*np.pi/(180.0*60*60)
+
     else:
         ra = None
         dec = None
