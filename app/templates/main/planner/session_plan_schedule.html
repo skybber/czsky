@@ -125,20 +125,20 @@
           <thead>
               <tr>
                   <th>
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['name'].sort) }}" style="color: inherit;">
-                          {{ _('Name') }} {{ table_sort['name'].icon | safe }}
+                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['name'].sort) }}" style="color: inherit;">
+                          {{ _('Name') }} {{ src_table_sort['name'].icon | safe }}
                       </a>
                   </th>
 
                   <th>{{ _('Type') }}</th>
                   <th class="right aligned collapsing">
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
-                          <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
+                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['constellation'].sort) }}" style="color: inherit;">
+                          <i class="lastfm icon"></i> {{ src_table_sort['constellation'].icon | safe }}
                       </a>
                   </th>
                   <th>
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, sortby=table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
-                          mag {{ table_sort['mag'].icon | safe }}
+                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, scr_sortby=src_table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
+                          mag {{ src_table_sort['mag'].icon | safe }}
                       </a>
                   </th>
                   <th>{{ _('Rise') }}</th>
@@ -169,7 +169,7 @@
           {% endfor %}
           </tbody>
       </table>
-      {{ pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=pagination.page, srow_index=1)) }} {{ pagination.info }}
+      {{ src_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, srow_index=1)) }} {{ src_pagination.info }}
     </div>
     <div class="column">
 
@@ -238,6 +238,7 @@
           {% endfor %}
           </tbody>
       </table>
+      {{ dst_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=dst_pagination.page, srow_index=1)) }} {{ dst_pagination.info }}
     </div>
   </div>
 </div>

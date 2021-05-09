@@ -366,7 +366,7 @@ def session_plan_schedule(session_plan_id):
 
     schedule_form = SessionPlanScheduleFilterForm()
 
-    sort_by = request.args.get('sortby')
+    src_sort_by = request.args.get('src_sortby')
 
     str_per_page = request.args.get('per_page', None)
     if str_per_page is not None:
@@ -386,7 +386,7 @@ def session_plan_schedule(session_plan_id):
         ]);
 
     if not ret:
-        return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, page=page, sortby=sort_by))
+        return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, page=page, sortby=src_sort_by))
 
     add_form = AddToSessionPlanForm()
     add_form.session_plan_id.data = session_plan.id
@@ -403,7 +403,7 @@ def session_plan_schedule(session_plan_id):
                  'mag': DeepskyObject.mag,
     }
 
-    table_sort = create_table_sort(sort_by, sort_def.keys())
+    src_table_sort = create_table_sort(src_sort_by, sort_def.keys())
 
     observer, tz_info = _get_observer_tzinfo(session_plan)
 
@@ -419,10 +419,25 @@ def session_plan_schedule(session_plan_id):
     time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_t2)
 
     selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
-            page, offset, per_page, sort_by, mag_scale, sort_def)
+            page, offset, per_page, src_sort_by, mag_scale, sort_def)
+
+    src_pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+
     session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def)
 
-    pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+    dst_page = request.args.get('dst_page', type=int, default=session.get('planner_dst_page', 1))
+
+    last_dst_page = (len(session_plan_compound_list) - 1) // per_page + 1
+    if dst_page >= last_dst_page:
+        dst_page =  last_dst_page
+
+    session['planner_dst_page'] = dst_page
+
+    dst_offset = (dst_page - 1) * per_page
+
+    session_plan_compound_list_for_render = session_plan_compound_list[dst_offset:dst_offset + per_page]
+
+    dst_pagination = Pagination(dst_page=dst_page, page_parameter='dst_page', total=len(session_plan_compound_list), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     selected_dso_name = None
 
@@ -432,15 +447,15 @@ def session_plan_schedule(session_plan_id):
     if drow_index == -1 and srow_index == -1:
         srow_index = 1
 
-    if drow_index > len(session_plan_compound_list):
-        drow_index = len(session_plan_compound_list)
-    if drow_index > 0:
-        selected_dso_name = session_plan_compound_list[drow_index-1][0].deepskyObject.name
-
     if srow_index > len(selection_compound_list):
         srow_index = len(selection_compound_list)
     if srow_index > 0:
         selected_dso_name = selection_compound_list[srow_index-1][0].name
+
+    if drow_index > len(session_plan_compound_list_for_render):
+        drow_index = len(session_plan_compound_list_for_render)
+    if drow_index > 0:
+        selected_dso_name = session_plan_compound_list_for_render[drow_index-1][0].deepskyObject.name
 
     if not schedule_form.selected_dso_name.data:
         schedule_form.selected_dso_name.data = 'M1'
@@ -448,7 +463,6 @@ def session_plan_schedule(session_plan_id):
         selected_dso_name = schedule_form.selected_dso_name.data
 
     lang, editor_user = get_lang_and_editor_user_from_request()
-    constellations = Constellation.query
 
     if editor_user:
         constellation_id_names = UserConsDescription.query \
@@ -482,9 +496,10 @@ def session_plan_schedule(session_plan_id):
             packed_constell_list.append([l1, letter_list])
 
     return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
-                           selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list,
+                           selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list_for_render,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
-                           add_form=add_form, schedule_form=schedule_form, pagination=pagination,table_sort=table_sort, min_alt_item_list=min_alt_item_list,
+                           add_form=add_form, schedule_form=schedule_form, min_alt_item_list=min_alt_item_list,
+                           src_pagination=src_pagination, src_table_sort=src_table_sort, dst_pagination=dst_pagination,
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
                            is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list)
 

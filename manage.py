@@ -244,27 +244,10 @@ def tmp_normalize_glahn_img():
     normalize_glahn_img('app/static/webassets-external/users/glahn.src', 'app/static/webassets-external/users/glahn/img/dso/')
 
 @manager.command
-def tmp_import_gottlieb():
-    add_help_user('s.gottlieb', 's.gottlieb')
-    import_gottlieb('data/gottlieb')
-
-@manager.command
-def tmp_import_glahn_local_group():
-    import_glahn_local_group('data/dsolist/LocalGroup.csv')
-
-@manager.command
-def tmp_import_abell_pn():
-    import_abell_pn('data/dsolist/AbellPN.csv')
-
-@manager.command
-def tmp_import_constellations_positions():
-    import_constellations_positions('data/constlabel.cla')
-
-@manager.command
 def tmp_import_bright_stars_bsc5_json_all():
     import_bright_stars_bsc5_json_all('data/bsc5-all.json')
 
-    
+
 @manager.command
 def tmp_import_vic():
     import_vic('data/vic.csv')
