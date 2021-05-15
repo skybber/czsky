@@ -641,7 +641,7 @@ FChart.prototype.toggleFullscreen = function() {
         $(".fchart-iframe").hide();
         $(".fchart-separator").hide();
         this.onSplitViewChangeCallback.call(this, false);
-        queryParams.delete('split_view');
+        queryParams.delete('splitview');
     }
 
     $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -700,9 +700,9 @@ FChart.prototype.toggleSplitView = function() {
     history.replaceState(null, null, "?" + queryParams.toString());
 
     if (this.isInSplitView()) {
-        queryParams.set('split_view', 'true');
+        queryParams.set('splitview', 'true');
     } else {
-        queryParams.delete('split_view');
+        queryParams.delete('splitview');
     }
 
     history.replaceState(null, null, "?" + queryParams.toString());
