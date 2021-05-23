@@ -20,7 +20,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import User, Permission, Star, UserStarDescription
+from app.models import Constellation, User, Permission, Star, StarList, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -48,7 +48,16 @@ def star_info(star_id):
     if star is None:
         abort(404)
 
-    return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None, editable=False)
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
+
+    prev_star, next_star = _get_prev_next_star(star)
+
+    return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None, prev_star=prev_star, next_star=next_star,
+                           editable=False, embed=embed, season=season, )
 
 @main_star.route('/star/<int:star_descr_id>/descr-info')
 def star_descr_info(star_descr_id):
@@ -58,8 +67,21 @@ def star_descr_info(star_descr_id):
     if user_descr is None:
         abort(404)
 
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
+
     editable=current_user.is_editor()
-    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, editable=editable)
+
+    if user_descr.star is not None:
+        prev_star, next_star = _get_prev_next_star(user_descr.star)
+    else:
+        prev_star, next_star = (None, None)
+
+    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, prev_star=prev_star, next_star=next_star,
+                           editable=editable, embed=embed, season=season, )
 
 @main_star.route('/star/<int:star_id>/catalogue-data')
 def star_catalogue_data(star_id):
@@ -68,7 +90,16 @@ def star_catalogue_data(star_id):
     if star is None:
         abort(404)
 
-    return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None)
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
+
+    prev_star, next_star = _get_prev_next_star(star)
+
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None,
+                           embed=embed, prev_star=prev_star, next_star=next_star, season=season, )
 
 @main_star.route('/star/<int:star_descr_id>/descr-catalogue-data')
 def star_descr_catalogue_data(star_descr_id):
@@ -78,7 +109,19 @@ def star_descr_catalogue_data(star_descr_id):
     if user_descr is None:
         abort(404)
 
-    return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr)
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
+
+    if user_descr.star is not None:
+        prev_star, next_star = _get_prev_next_star(user_descr.star)
+    else:
+        prev_star, next_star = (None, None)
+
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
+                           prev_star=prev_star, next_star=next_star, embed=embed, season=season, )
 
 @main_star.route('/star/<int:star_id>/chart', methods=['GET', 'POST'])
 def star_chart(star_id):
@@ -86,6 +129,12 @@ def star_chart(star_id):
     star = Star.query.filter_by(id=star_id).first()
     if not star:
         abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
 
     form  = ChartForm()
 
@@ -96,7 +145,10 @@ def star_chart(star_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control, )
+    prev_star, next_star = _get_prev_next_star(star)
+
+    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control,
+                           prev_star=prev_star, next_star=next_star, embed=embed, season=season, )
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
@@ -111,6 +163,12 @@ def star_descr_chart(star_descr_id):
     if not star:
         abort(404)
 
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'info'
+
+    season = request.args.get('season')
+
     form  = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
@@ -120,7 +178,13 @@ def star_descr_chart(star_descr_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control, )
+    if user_descr.star is not None:
+        prev_star, next_star = _get_prev_next_star(user_descr.star)
+    else:
+        prev_star, next_star = (None, None)
+
+    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
+                           prev_star=prev_star, next_star=next_star, embed=embed, season=season, )
 
 @main_star.route('/star/<string:star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def star_chart_pos_img(star_id, ra, dec):
@@ -189,3 +253,34 @@ def star_edit(star_id):
         return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='star' + str(star_id)))
 
     return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr)
+
+def _get_season_constell_ids():
+    season = request.args.get('season', None)
+    if season is not None:
+        constell_ids = set()
+        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
+            constell_ids.add(constell_id[0])
+        return constell_ids
+    return None
+
+
+def _get_prev_next_star(star):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
+    if back == 'observation':
+        pass # TODO
+    elif back == 'wishlist':
+        pass # TODO
+    elif back == 'observed_list':
+        pass # TODO
+    elif back == 'session_plan':
+        pass # TODO
+    elif back == 'star_list' and not (back_id is None):
+        star_list = StarList.query.filter_by(id=back_id).first()
+        if star_list:
+            prev_item, next_item = star_list.get_prev_next_item(star.id, _get_season_constell_ids())
+            return (prev_item.star if prev_item else None, next_item.star if next_item else None,)
+
+    return (None, None)
+

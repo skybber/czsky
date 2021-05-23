@@ -38,6 +38,7 @@ class StarList(db.Model):
                 return prev_item, next_item
         return None, None
 
+
 class StarListDescription(db.Model):
     __tablename__ = 'star_list_descriptions'
     id = db.Column(db.Integer, primary_key=True)
