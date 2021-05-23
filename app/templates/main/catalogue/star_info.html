@@ -127,14 +127,22 @@
 
                 {% if next_star and embed != 'pl' %}
                     <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_star.star_chart', star_id=next_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
-                        HD{{ next_star.hd }}
+                        {% if next_star.var_id %}
+                            {{ next_star.var_id }}
+                        {% elif next_star.hd is not none %}
+                            HD{{ next_star.hd }}
+                        {% endif %}
                         <i class="caret right icon"></i>
                     </a>
                 {% endif %}
                 {% if prev_star and embed != 'pl' %}
                     <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_star.star_chart', star_id=prev_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
                         <i class="caret left icon"></i>
-                        HD{{ prev_star.hd }}
+                        {% if prev_star.var_id %}
+                            {{ prev_star.var_id }}
+                        {% elif prev_star.hd is not none %}
+                            HD{{ prev_star.hd }}
+                        {% endif %}
                     </a>
                 {% endif %}
 
