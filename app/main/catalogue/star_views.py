@@ -25,6 +25,7 @@ from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
+    common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
 )
@@ -146,6 +147,16 @@ def star_chart_legend_img(star_id, ra, dec):
     img_bytes = common_chart_legend_img(star.ra, star.dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
+
+@main_star.route('/star/<string:star_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def star_chart_pdf(star_id, ra, dec):
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    img_bytes = common_chart_pdf_img(star.ra, star.dec, ra, dec)
+
+    return send_file(img_bytes, mimetype='application/pdf')
 
 @main_star.route('/star/<int:star_id>/edit', methods=['GET', 'POST'])
 @login_required
