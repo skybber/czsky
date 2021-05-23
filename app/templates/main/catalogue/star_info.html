@@ -2,16 +2,23 @@
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% if user_descr.star %}
-{% set endpoints = [
-    ('main_star.star_info', _('Info'), 'info'),
-    ('main_star.star_chart', _('Chart'), 'info'),
-    ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
-] %}
+{% if user_descr %}
+    {% if user_descr.star %}
+    {% set endpoints = [
+        ('main_star.star_descr_info', _('Info'), 'info'),
+        ('main_star.star_descr_chart', _('Chart'), 'info'),
+        ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
+    ] %}
+    {% else %}
+    {% set endpoints = [
+        ('main_star.star_descr_info', 'Info', 'info'),
+    ] %}
+    {% endif %}
 {% else %}
-{% set endpoints = [
-    ('main_star.star_info', 'Info', 'info'),
-] %}
+    {% set endpoints = [
+        ('main_star.star_chart', _('Chart'), 'info'),
+        ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
+    ] %}
 {% endif %}
 
 {% set back = request.args.get('back') %}
@@ -19,11 +26,19 @@
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_id=user_descr.id, back=back, back_id=back_id) }}">
-                {{ pupup_text }}
-            </a>
-        {% endfor %}
+        {% if user_descr is not none %}
+            {% for route, pupup_text, icon in items %}
+                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
+                    {{ pupup_text }}
+                </a>
+            {% endfor %}
+        {% else %}
+            {% for route, pupup_text, icon in items %}
+                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_id=star.id, back=back, back_id=back_id) }}">
+                    {{ pupup_text }}
+                </a>
+            {% endfor %}
+        {% endif %}
     </div>
 {% endmacro %}
 
@@ -44,11 +59,11 @@
 {% endmacro %}
 
 {# --- Chart --- #}
-{% macro star_chart(user_descr) %}
-    {{ fchart.fchart(url_for('main_star.star_chart', star_id=user_descr.id, back=back, back_id=back_id),
-                     url_for('main_star.star_chart_pos_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+{% macro star_chart(star) %}
+    {{ fchart.fchart(url_for('main_star.star_chart', star_id=star.id, back=back, back_id=back_id),
+                     url_for('main_star.star_chart_pos_img', star_id=star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
-                     url_for('main_star.star_chart_legend_img', star_id=user_descr.star_id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                     url_for('main_star.star_chart_legend_img', star_id=star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                               None, fchart_form,)
     }}
@@ -83,7 +98,12 @@
                             <i class="caret left icon"></i>
                             <i class="eye icon"></i>
                         </a>
-                    {% elif back_id is not none %}
+                    {% elif back=='star_list' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_star_list.star_list_info', star_list_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="tasks icon mobile hidden"></i>
+                        </a>
+                    {% elif back_id is not none and user_descr is not none %}
                         <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ user_descr.id }}">
                             <i class="caret left icon"></i>
                             <i class="lastfm icon"></i>
@@ -91,18 +111,34 @@
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ user_descr.common_name }}
+                        {% if user_descr is not none %}
+                            {{ user_descr.common_name }}
+                        {% else %}
+                            {% if star.var_id %}
+                                {{ star.var_id }}
+                            {% else %}
+                                HD{{ star.hd }}
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
             {{ navigation(endpoints) }}
-            {% if type == 'info' %}
+            {% if type == 'info' and user_descr is not none %}
                 {{ star_user_info(user_descr) }}
             {% elif type == 'chart' %}
-                {{ star_chart(user_descr) }}
+                {% if user_descr is not none %}
+                    {{ star_chart(user_descr.star) }}
+                {% else %}
+                    {{ star_chart(star) }}
+                {% endif %}
             {% else %}
-                {{ star_catalogue_data(user_descr.star) }}
+                {% if user_descr is not none %}
+                    {{ star_catalogue_data(user_descr.star) }}
+                {% else %}
+                    {{ star_catalogue_data(star) }}
+                {% endif %}
             {% endif %}
         </div>
     </div>

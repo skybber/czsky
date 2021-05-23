@@ -100,14 +100,16 @@ def import_herschel400(herschel400_data_file):
                 if dso is None:
                     print('Not found: {}'.format(object_name))
                     continue
-                item = DsoListItem(
-                    dso_list_id=dso_list.id,
-                    dso_id = dso.id,
-                    item_id = row_id,
-                    create_by=editor_user.id,
-                    create_date=datetime.now(),
-                )
-                db.session.add(item)
+                item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, dso_id=dso.id).first()
+                if not item:
+                    item = DsoListItem(
+                        dso_list_id=dso_list.id,
+                        dso_id = dso.id,
+                        item_id = row_id,
+                        create_by=editor_user.id,
+                        create_date=datetime.now(),
+                    )
+                    db.session.add(item)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))
@@ -174,14 +176,16 @@ def import_caldwell(caldwell_data_file):
                     print('Not found: {}'.format(object_name))
                     continue
 
-                item = DsoListItem(
-                    dso_list_id=dso_list.id,
-                    dso_id = dso.id,
-                    item_id = int(row['ID']),
-                    create_by=editor_user.id,
-                    create_date=datetime.now(),
-                )
-                db.session.add(item)
+                item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, dso_id=dso.id).first()
+                if not item:
+                    item = DsoListItem(
+                        dso_list_id=dso_list.id,
+                        dso_id = dso.id,
+                        item_id = int(row['ID']),
+                        create_by=editor_user.id,
+                        create_date=datetime.now(),
+                    )
+                    db.session.add(item)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))
@@ -249,14 +253,16 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     print('Not found: {}'.format(object_name))
                     continue
 
-                item = DsoListItem(
-                    dso_list_id=dso_list.id,
-                    dso_id = dso.id,
-                    item_id = row_id,
-                    create_by=editor_user.id,
-                    create_date=datetime.now(),
-                )
-                db.session.add(item)
+                item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, dso_id=dso.id).first()
+                if not item:
+                    item = DsoListItem(
+                        dso_list_id=dso_list.id,
+                        dso_id = dso.id,
+                        item_id = row_id,
+                        create_by=editor_user.id,
+                        create_date=datetime.now(),
+                    )
+                    db.session.add(item)
             db.session.commit()
         except KeyError as err:
             print('\nKey error: {}'.format(err))

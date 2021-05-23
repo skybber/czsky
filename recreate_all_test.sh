@@ -24,3 +24,4 @@ confirm() {
 ./manage.py initialize_catalogues
 ./manage.py add_help_users
 ./manage.py import_dso_list
+./manage.py import_star_list

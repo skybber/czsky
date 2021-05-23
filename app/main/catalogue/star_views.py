@@ -43,32 +43,66 @@ from app.main.chart.chart_forms import ChartForm
 @main_star.route('/star/<int:star_id>/info')
 def star_info(star_id):
     """View a star info."""
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None, editable=False)
+
+@main_star.route('/star/<int:star_descr_id>/descr-info')
+def star_descr_info(star_descr_id):
+    """View a star description info."""
     lang, editor_user = get_lang_and_editor_user_from_request()
-    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
+    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
     editable=current_user.is_editor()
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, editable=editable)
 
-
-@main_star.route('/star/<int:star_id>')
-@main_star.route('/star/<int:star_id>/catalogue_data')
+@main_star.route('/star/<int:star_id>/catalogue-data')
 def star_catalogue_data(star_id):
-    """View a deepsky object info."""
+    """View a star catalogue data."""
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None)
+
+@main_star.route('/star/<int:star_descr_id>/descr-catalogue-data')
+def star_descr_catalogue_data(star_descr_id):
+    """View a star catalogue data."""
     lang, editor_user = get_lang_and_editor_user_from_request()
-    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
+    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
     return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr)
 
-
 @main_star.route('/star/<int:star_id>/chart', methods=['GET', 'POST'])
 def star_chart(star_id):
-    """View a star  findchart."""
+    """View a star findchart."""
+    star = Star.query.filter_by(id=star_id).first()
+    if not star:
+        abort(404)
+
+    form  = ChartForm()
+
+    if not common_ra_dec_fsz_from_request(form):
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = star.ra
+            form.dec.data = star.dec
+
+    chart_control = common_prepare_chart_data(form)
+
+    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control, )
+
+
+@main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
+def star_descr_chart(star_descr_id):
+    """View a star findchart."""
     lang, editor_user = get_lang_and_editor_user_from_request()
-    user_descr = UserStarDescription.query.filter_by(id=star_id, user_id=editor_user.id, lang_code=lang).first()
+    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
 
@@ -86,7 +120,6 @@ def star_chart(star_id):
     chart_control = common_prepare_chart_data(form)
 
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control, )
-
 
 @main_star.route('/star/<string:star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def star_chart_pos_img(star_id, ra, dec):

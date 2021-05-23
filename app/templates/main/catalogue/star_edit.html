@@ -13,7 +13,7 @@
                     {{ _('Constellation') }}
                 </a>
             {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_star.star_info', star_id=user_descr.id, back=back, back_id=back_id) }}">
+                <a class="ui basic compact button" href="{{ url_for('main_star.star_descr_info', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
                     <i class="caret left icon"></i>
                     {{ _('Back To Star') }}
                 </a>
@@ -40,7 +40,7 @@
                     <button class="ui button bupdateback">{{ _('Update and back')}}</button>
                     {{ f.render_form_field(form.submit_button) }}
                 </div>
-                
+
             {{ f.end_form() }}
         </div>
   </div>

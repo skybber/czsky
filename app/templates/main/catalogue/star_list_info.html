@@ -1,0 +1,127 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_star_list.star_list_info', _('Info'), 'info'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_list_id=star_list.id, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro star_list_info(star_list) %}
+    <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+        <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+          <div class="title">
+            <i class="dropdown icon"></i>
+            {{ _('Description') }}
+          </div>
+          <div class="content markdown">
+                {% filter extended_commonmark('') %}
+{{ star_list_descr.text }}
+                {% endfilter %}
+          </div>
+        </div>
+    </div>
+
+    <form action="{{ url_for('main_star_list.star_list_info', star_list_id=star_list.id) }}" method="post" name="search" class="ui stackable menu">
+        <div class="ui item">
+            {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+            <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+    </form>
+
+    <div style="overflow-x: scroll;">
+        <table class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th class="sorted ascending collapsing">N</th>
+                    <th class="sorted ascending">HD</th>
+                    <th class="sorted ascending">Var ID</th>
+                    <th class="mobile hidden">RA</th>
+                    <th class="mobile hidden">Dec</th>
+                    <th><i class="lastfm icon"></i></th>
+                    <th class="right aligned">mag</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for item in star_list_items %}
+                <tr onclick="window.location.href='{{ url_for('main_star.star_chart', star_id=item.star.id, back='star_list', back_id=star_list.id, season=season) }}';">
+                    <td class="collapsing">
+                        <p id="star{{ item.star_id }}">{{ item.item_id }}</p>
+                    </td>
+                    <td>{{ item.star.hd if item.star.hd is not none else '' }}</td>
+                    <td>{{ item.star.var_id }}</td>
+                    <td class="mobile hidden">{{ item.star.ra_str_short() }}</td>
+                    <td class="mobile hidden">{{ item.star.dec_str_short() }}</td>
+                    <td>{{ item.star.get_constellation_iau_code() }}</td>
+                    <td class="right aligned">
+                        {{ commons.convert_mag(item.star.mag) }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro star_list_chart(star_list) %}
+    {{ fchart.fchart(url_for('main_star_list.star_list_chart', star_list_id=star_list.id, back=back, back_id=back_id),
+                     url_for('main_star_list.star_list_chart_pos_img', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                     url_for('main_star_list.star_list_chart_legend_img', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
+                     url_for('main_star_list.star_list_chart_pdf', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, ),
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=star_list&back_id={}'.format(star_list.id) )
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_lists_menu') }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ star_list_descr.long_name }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ star_list_info(star_list) }}
+            {% else %}
+                {{ star_list_chart(star_list) }}
+            {% endif %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

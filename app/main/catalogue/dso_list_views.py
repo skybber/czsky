@@ -17,7 +17,7 @@ from flask_login import current_user, login_required
 from app import db
 from posix import wait
 
-from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription
+from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription, StarList
 from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
@@ -46,8 +46,9 @@ def _find_dso_list(dso_list_id):
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
     dso_lists = DsoList.query.all()
+    star_lists = StarList.query.all()
     lang, editor_user = get_lang_and_editor_user_from_request()
-    return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, lang_code=lang)
+    return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists, lang_code=lang)
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>', methods=['GET','POST'])
 @main_dso_list.route('/dso-list/<string:dso_list_id>/info', methods=['GET','POST'])

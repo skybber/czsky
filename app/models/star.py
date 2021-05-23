@@ -23,6 +23,8 @@ class Star(db.Model):
     ra = db.Column(db.Float)
     dec = db.Column(db.Float)
     mag = db.Column(db.Float)                                               # Visual magnitude code
+    mag_max = db.Column(db.Float)                                           # variable max mag
+    mag_min = db.Column(db.Float)                                           # variable min mag
     bv = db.Column(db.Float)                                                # B-V color in the UBV system
     sp_type = db.Column(db.String(20))                                      # Spectral type
     dmag = db.Column(db.Float)                                              # Magnitude difference of double, or brightest multiple
@@ -54,6 +56,10 @@ class Star(db.Model):
             return '%s%02d:%02d:%02d' % (sign, d, m, s)
         return 'nan'
 
+    def get_constellation_iau_code(self):
+        if self.constellation:
+            return self.constellation.iau_code
+        return ''
 
 class UserStarDescription(db.Model):
     __tablename__ = 'user_star_descriptions'
