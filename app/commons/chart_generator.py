@@ -114,6 +114,7 @@ def _setup_dark_theme(config, width):
     config.background_color = (0.01, 0.01, 0.05)
     config.constellation_lines_color = (0.18, 0.27, 0.3)
     config.constellation_border_color = (0.3, 0.27, 0.07)
+    config.constellation_hl_border_color = (0.6, 0.5, 0.14)
     config.draw_color = (1.0, 1.0, 1.0)
     config.label_color = (0.7, 0.7, 0.7)
     config.dso_color = (0.6, 0.6, 0.6)
@@ -142,6 +143,7 @@ def _setup_night_theme(config, width):
     else:
         config.constellation_linewidth = 0.2
     config.constellation_border_color = (0.3, 0.13, 0.03)
+    config.constellation_hl_border_color = (0.6, 0.26, 0.06)
     config.draw_color = (1.0, 0.5, 0.5)
     config.label_color = (0.7, 0.3, 0.3)
     config.dso_color = (0.6, 0.15, 0.0)
@@ -163,6 +165,7 @@ def _setup_light_theme(config, width):
         config.constellation_linewidth = 0.35
     else:
         config.constellation_linewidth = 0.35
+    config.constellation_hl_border_color = (0.4, 0.4, 0.4)
     config.constellation_border_color = (0.8, 0.7, 0.1)
     config.draw_color = (0.0, 0.0, 0.0)
     config.label_color = (0.2, 0.2, 0.2)
@@ -239,7 +242,7 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         return flt_trajectory
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None, hl_constellation=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -259,7 +262,7 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
                   mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
-                  trajectory=trajectory)
+                  trajectory=trajectory, hl_constellation=hl_constellation)
     img_bytes.seek(0)
     return img_bytes
 
@@ -440,7 +443,8 @@ def _check_in_mag_interval(mag, mag_interval):
 
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
-                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, trajectory=None):
+                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
+                  trajectory=None, hl_constellation=None):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -496,7 +500,13 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     hl_showing_dsos = len(showing_dsos) - len1 > 0
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, hl_showing_dsos=hl_showing_dsos, highlights=highlights, visible_objects=visible_objects, trajectory=trajectory)
+    engine.make_map(used_catalogs,
+                    showing_dsos=showing_dsos,
+                    hl_showing_dsos=hl_showing_dsos,
+                    highlights=highlights,
+                    visible_objects=visible_objects,
+                    trajectory=trajectory,
+                    hl_constellation=hl_constellation)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
