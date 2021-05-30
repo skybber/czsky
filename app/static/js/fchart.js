@@ -109,7 +109,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
         this.reloadLegendImage();
-        this.forceReloadImage();
+        this.reloadImage();
     }).bind(this), false);
 
     $(this.canvas).bind('click', this.onClick.bind(this));
