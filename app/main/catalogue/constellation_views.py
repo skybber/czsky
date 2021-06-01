@@ -255,6 +255,18 @@ def constellation_edit(constellation_id):
     goback = False
     if editor_user:
         user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang).first()
+        if user_descr is None:
+            user_descr = UserConsDescription(
+                constellation_id = constellation_id,
+                user_id = editor_user.id,
+                common_name = '',
+                text = '',
+                lang_code = lang,
+                create_by = current_user.id,
+                update_by = current_user.id,
+                create_date = datetime.now(),
+                update_date = datetime.now(),
+                )
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
             form.text.data = user_descr.text

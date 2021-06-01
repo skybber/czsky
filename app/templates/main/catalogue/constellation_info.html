@@ -107,7 +107,15 @@
                 </div>
             {% else %}
                 <table class="ui compact definition table">
-                    <tr><td>{{ _('IAU code') }}</td><td>{{ constellation.iau_code }}</td></tr>
+                    <tr>
+                        <td>{{ _('IAU code') }}</td><td>{{ constellation.iau_code }}
+                            {% if editable %}
+                                <a class="ui icon right floated mini button mobile hidden" href="{{ url_for('main_constellation.constellation_edit', constellation_id=constellation.id) }}">
+                                    <i class="caret edit icon"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
                     <tr><td>{{ _('Name') }}</td><td>{{ constellation.name }}</td></tr>
                     <tr><td>{{ _('Image') }}</td><td><img src="{{ constellation.image }}"/></td></tr>
                     <tr><td>{{ _('Description') }}</td><td>{{ constellation.descr }}</td></tr>
