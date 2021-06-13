@@ -20,7 +20,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Constellation, User, Permission, Star, StarList, UserStarDescription
+from app.models import Constellation, Star, StarList, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,

@@ -19,3 +19,6 @@ class News(db.Model):
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10))
+
+    def has_position(self):
+        return (self.ra is not None) and (self.dec is not None)

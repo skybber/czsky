@@ -20,7 +20,15 @@
                         {% for news in news_list %}
                         <div class="item">
                             <div class="content">
-                                <div class="ui header">{{ news.title }}</div>
+                                <div class="ui header">
+                                    {% if news.has_position() %}
+                                        <a href="{{ url_for('main_news.news_chart', news_id=news.id) }}">
+                                            {{ news.title }}
+                                        </a>
+                                    {% else %}
+                                        {{ news.title }}
+                                    {% endif %}
+                                </div>
                                 <div class="description">
                                     <p>{{ news.title_row  | safe }}</p>
                                 </div>

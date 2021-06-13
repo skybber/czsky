@@ -1,9 +1,17 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_news.news_info', 'News', 'news'),
-] %}
+{% if news.has_position() %}
+  {% set endpoints = [
+      ('main_news.news_info', _('Info'), 'info'),
+      ('main_news.news_chart', _('Chart'), 'info'),
+  ] %}
+{% else %}
+  {% set endpoints = [
+      ('main_news.news_info', _('Info'), 'info'),
+  ] %}
+{% endif %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -18,10 +26,21 @@
 
 {% macro news_info(news) %}
     <table class="ui compact definition table">
-        <tr><td>Title row</td><td>{{ news.title_row }}</td></tr>
-        <tr><td>Description</td><td>{{ news.text }}</td></tr>
-        <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ news.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
+        <tr><td>Title row</td><td>{{ news.title_row | safe }}</td></tr>
+        <tr><td>Description</td><td>{{ news.text | safe }}</td></tr>
+        <tr><td>Rating</td><td><div class="ui rating" data-icon="news" data-rating="{{ news.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
     </table>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro news_chart(news) %}
+    {{ fchart.fchart(url_for('main_news.news_chart', news_id=news.id, back=back, back_id=back_id),
+                     url_for('main_news.news_chart_pos_img', news_id=news.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                     url_for('main_news.news_chart_legend_img', news_id=news.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, ),
+                     url_for('main_news.news_chart_pdf', news_id=news.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              flags=chart_control.chart_pdf_flags, ),
+                              fchart_form,)
+    }}
 {% endmacro %}
 
 {% block content %}
@@ -41,7 +60,11 @@
             </h2>
             {{ navigation(endpoints) }}
 
-            {{ news_info(news) }}
+            {% if type == 'info' %}
+                {{ news_info(news) }}
+            {% else %}
+                {{ news_chart(news) }}
+            {% endif %}
         </div>
     </div>
 
