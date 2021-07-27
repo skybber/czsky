@@ -49,7 +49,7 @@ def login():
     return render_template('account/login.html', form=form)
 
 
-@account.route('/register', methods=['GET', 'POST'])
+# @account.route('/register', methods=['GET', 'POST'])
 def register():
     """Register a new user, and send them a confirmation email."""
     form = RegistrationForm()
