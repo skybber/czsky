@@ -156,20 +156,30 @@ def observation_chart(observation_id):
 
     dso_id = request.args.get('dso_id')
     observation_item = None
+    dso = None
+
     if dso_id and dso_id.isdigit():
         idso_id = int(dso_id)
-        observation_item = next((x for x in observation.observation_items if x.deepskyObject.id == idso_id), None)
+        for oitem in observation.observation_items:
+            for oitem_dso in oitem.deepsky_objects:
+                if oitem_dso.id == idso_id:
+                    observation_item = oitem
+                    dso = oitem_dso
+                    break
+            if observation_item is not None:
+                break
 
     if not observation_item:
         observation_item = ObservationItem.query.filter_by(observation_id=observation.id).first()
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
-            form.ra.data = observation_item.deepskyObject.ra if observation_item else 0
-            form.dec.data = observation_item.deepskyObject.dec if observation_item else 0
+            dso = observation_item.deepsky_objects[0] if observation_item and observation_item.deepsky_objects else None
+            form.ra.data = dso.ra if dso else 0
+            form.dec.data = dso.dec if dso else 0
 
     if observation_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observation', back_id=observation.id, dso_id=observation_item.deepskyObject.name, embed='fc', allow_back='true')
+        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observation', back_id=observation.id, dso_id=dso.name, embed='fc', allow_back='true')
     else:
         default_chart_iframe_url = None
 
@@ -185,7 +195,11 @@ def  observation_chart_pos_img(observation_id, ra, dec):
     if observation is None:
         abort(404)
 
-    highlights_dso_list = [ x.deepskyObject for x in observation.observation_items if observation ]
+    highlights_dso_list = []
+
+    for oitem in observation.observation_items:
+        for oitem_dso in oitem.deepsky_objects:
+            highlights_dso_list.append(oitem_dso)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
