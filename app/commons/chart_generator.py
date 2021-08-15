@@ -548,7 +548,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(pdf_fobj, 180, 267, format='pdf')
+    artist = fchart3.CairoDrawing(pdf_fobj, 267, 180, format='pdf', landscape=True)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
