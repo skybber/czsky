@@ -22,11 +22,27 @@ class Observation(db.Model):
     update_date = db.Column(db.DateTime, default=datetime.now())
     sqm_records = db.relationship('SqmFullRecord', backref='observation', lazy=True)
     observation_items = db.relationship('ObservationItem', backref='observation', lazy=True)
+    is_public = db.Column(db.Boolean, default=False)
 
     def rating_to_int(self, m):
         if not self.rating:
             return 0
         return int(round(self.rating * m / 10))
+
+    def get_prev_next_item(self, dso_id):
+        prev_dso = None
+        next_dso = None
+        find_next = False
+        for item in self.observation_items:
+            for dso in item.deepsky_objects:
+                if dso.id == dso_id:
+                    find_next = True
+                elif not find_next:
+                    prev_dso = dso
+                else:
+                    next_dso = dso
+                    return prev_dso, next_dso
+        return prev_dso, next_dso
 
 dso_observation_item_association_table = db.Table('observation_item_dsos', db.Model.metadata,
     db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),

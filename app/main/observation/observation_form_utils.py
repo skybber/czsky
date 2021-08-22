@@ -81,6 +81,7 @@ def update_from_basic_form(form, observation):
     observation.update_by = current_user.id
     observation.update_date = datetime.now()
     observation.observation_items.clear()
+    observation.is_public = form.is_public.data
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
@@ -115,6 +116,7 @@ def update_from_advanced_form(form, observation):
         observation.date = updated_observation.date,
         observation.rating = updated_observation.rating
         observation.notes = updated_observation.notes
+        observation.is_public = updated_observation.is_public
         observation.omd_content = updated_observation.omd_content
         observation.update_by = current_user.id
         observation.update_date = datetime.now(),

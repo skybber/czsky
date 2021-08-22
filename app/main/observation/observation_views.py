@@ -62,17 +62,27 @@ def observations():
     pagination = Pagination(page=page, total=observations.count(), search=search, record_name='observations', css_framework='semantic')
     return render_template('main/observation/observations.html', observations=observations_for_render, pagination=pagination)
 
+def _check_observation(observation, allow_public=False):
+    if observation is None:
+        abort(404)
+    if current_user.is_anonymous:
+        if observation.is_public:
+            return False
+        abort(404)
+    elif observation.user_id != current_user.id:
+        if allow_public and observation.is_public:
+            return False
+        abort(404)
+
+    return True
+
 @main_observation.route('/observation/<int:observation_id>', methods=['GET'])
 @main_observation.route('/observation/<int:observation_id>/info', methods=['GET'])
-@login_required
 def observation_info(observation_id):
     """View a observation info."""
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
-    return render_template('main/observation/observation_info.html', observation=observation, type='info')
+    is_mine_observation = _check_observation(observation, allow_public=True)
+    return render_template('main/observation/observation_info.html', observation=observation, type='info', is_mine_observation=is_mine_observation)
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])
 @login_required
@@ -97,10 +107,8 @@ def new_observation():
 def observation_edit(observation_id):
     """Update observation"""
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
+    _check_observation(observation)
+
     form = ObservationEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -119,6 +127,7 @@ def observation_edit(observation_id):
         form.rating.data = observation.rating
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content
+        form.is_public.data = observation.is_public
         for oi in observation.observation_items:
             oif = form.items.append_entry()
             oif.deepsky_object_id_list.data = oi.txt_deepsky_objects
@@ -136,10 +145,7 @@ def observation_edit(observation_id):
 def observation_delete(observation_id):
     """Request deletion of a observation."""
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
-    if observation.user_id != current_user.id:
-        abort(404)
+    _check_observation(observation)
     db.session.delete(observation)
     db.session.commit()
     flash('Observation was deleted', 'form-success')
@@ -149,8 +155,7 @@ def observation_delete(observation_id):
 @main_observation.route('/observation/<int:observation_id>/chart', methods=['GET', 'POST'])
 def observation_chart(observation_id):
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
+    is_mine_observation = _check_observation(observation, allow_public=True)
 
     form  = ChartForm()
 
@@ -198,8 +203,7 @@ def observation_chart(observation_id):
 @main_observation.route('/observation/<int:observation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def  observation_chart_pos_img(observation_id, ra, dec):
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
+    is_mine_observation = _check_observation(observation, allow_public=True)
 
     highlights_dso_list = []
 
@@ -220,8 +224,7 @@ def  observation_chart_pos_img(observation_id, ra, dec):
 @main_observation.route('/observation/<int:observation_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def observation_chart_legend_img(observation_id, ra, dec):
     observation = Observation.query.filter_by(id=observation_id).first()
-    if observation is None:
-        abort(404)
+    is_mine_observation = _check_observation(observation, allow_public=True)
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')

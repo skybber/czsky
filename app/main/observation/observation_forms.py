@@ -72,6 +72,7 @@ class ObservationMixin():
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'), default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
     advmode = HiddenField('Advanced Mode', default='false')
+    is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
 class ObservationNewForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')

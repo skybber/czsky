@@ -82,7 +82,10 @@
                         <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
                         {{ form.rating() }}
                     </div>
+
                 </div>
+
+                {{ f.render_form_field(form.is_public) }}
 
                 {{ f.render_form_field(form.notes) }}
 
