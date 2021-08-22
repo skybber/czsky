@@ -17,7 +17,7 @@ from flask_login import current_user, login_required
 from app import db
 from posix import wait
 
-from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription, StarList
+from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription, StarList, ObservedList, ObservedListItem
 from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
@@ -79,6 +79,12 @@ def dso_list_info(dso_list_id):
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
     dso_list_items = []
+    observed = set()
+    if not current_user.is_anonymous:
+        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+        for item in observed_list.observed_list_items:
+            observed.add(item.deepskyObject.id)
+
     user_descrs = {} if dso_list.show_descr_name else None
     for dso_list_item in dso_list.dso_list_items:
         if constell_ids is None or dso_list_item.deepskyObject.constellation_id in constell_ids:
@@ -94,7 +100,7 @@ def dso_list_info(dso_list_id):
     inverted_accordion = theme in ['dark', 'night']
 
     return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, type='info', dso_list_descr=dso_list_descr, dso_list_items=dso_list_items,
-                           user_descrs=user_descrs, season=season, search_form=search_form, inverted_accordion=inverted_accordion)
+                           user_descrs=user_descrs, season=season, search_form=search_form, inverted_accordion=inverted_accordion, observed=observed)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart', methods=['GET', 'POST'])

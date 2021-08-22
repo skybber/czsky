@@ -135,7 +135,7 @@ def observed_list_upload():
         os.remove(path)
         flash('Observed list updated.', 'form-success')
 
-    return redirect(url_for('main_observed.observed_list'))
+    return redirect(url_for('main_observed.observed_list_info'))
 
 
 @main_observed.route('/observed-list-download', methods=['POST'])

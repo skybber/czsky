@@ -80,6 +80,9 @@
                                     </a>
                                 </th>
                                 <th class="right aligned collapsing mobile hidden">Ø</th>
+                                {% if observed %}
+                                <th class="collapsing mobile hidden"></th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -107,6 +110,13 @@
                                         {% endif %}
                                     {% endif %}
                                 </td>
+                                {% if observed %}
+                                <td class="collapsing mobile hidden">
+                                    {% if d.id in observed %}
+                                        <i class="eye icon"></i>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                         </tbody>

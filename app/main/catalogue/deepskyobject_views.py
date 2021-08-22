@@ -126,10 +126,16 @@ def deepskyobjects():
 
     deepskyobjects_for_render = deepskyobjects.order_by(order_by_field).limit(per_page).offset(offset).all()
 
+    observed = set()
+    if not current_user.is_anonymous:
+        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+        for item in observed_list.observed_list_items:
+            observed.add(item.deepskyObject.id)
+
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
-                           pagination=pagination, search_form=search_form, table_sort=table_sort)
+                           pagination=pagination, search_form=search_form, table_sort=table_sort, observed=observed)
 
 
 @main_deepskyobject.route('/deepskyobject/search')

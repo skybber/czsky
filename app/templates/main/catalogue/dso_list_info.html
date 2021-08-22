@@ -46,6 +46,9 @@
             <thead>
                 <tr>
                     <th class="sorted ascending collapsing">N</th>
+                    {% if observed %}
+                    <th class="collapsing mobile hidden"></th>
+                    {% endif %}
                     <th class="sorted ascending">{{ _('Name') }}</th>
                     {% if dso_list.show_common_name %}
                         <th class="mobile hidden">{{ _('Common name') }}</th>
@@ -69,6 +72,13 @@
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>
+                    {% if observed %}
+                    <td class="collapsing mobile hidden">
+                        {% if item.deepskyObject.id in observed %}
+                            <i class="eye icon"></i>
+                        {% endif %}
+                    </td>
+                    {% endif %}
                     <td>{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
                     {% if dso_list.show_common_name %}
                     <td class="mobile hidden">
