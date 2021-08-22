@@ -30,10 +30,11 @@ class Observation(db.Model):
         return int(round(self.rating * m / 10))
 
     def get_prev_next_item(self, dso_id):
+        observation_list = sorted(self.observation_items, key=lambda x: x.id)
         prev_dso = None
         next_dso = None
         find_next = False
-        for item in self.observation_items:
+        for item in observation_list:
             for dso in item.deepsky_objects:
                 if dso.id == dso_id:
                     find_next = True
