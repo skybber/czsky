@@ -168,13 +168,19 @@ def observation_chart(observation_id):
                     break
             if observation_item is not None:
                 break
+    elif observation.observation_items:
+        for oitem in observation.observation_items:
+            for oitem_dso in oitem.deepsky_objects:
+                observation_item = oitem
+                dso = oitem_dso
+                break
+            if observation_item is not None:
+                break
 
-    if not observation_item:
-        observation_item = ObservationItem.query.filter_by(observation_id=observation.id).first()
-
-    if not common_ra_dec_fsz_from_request(form):
+    if observation_item and not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
-            dso = observation_item.deepsky_objects[0] if observation_item and observation_item.deepsky_objects else None
+            if not dso:
+                dso = observation_item.deepsky_objects[0] if observation_item and observation_item.deepsky_objects else None
             form.ra.data = dso.ra if dso else 0
             form.dec.data = dso.dec if dso else 0
 
