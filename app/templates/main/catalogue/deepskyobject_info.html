@@ -374,8 +374,8 @@
     <script type="text/javascript">
         {% if embed == 'fc' %}
             {% if back == 'observation' %}
-                {% set top_prev_url =  url_for('main_observation.observation_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_observation.observation_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_prev_url =  url_for('main_observation.observation_chart', observation_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
+                {% set top_next_url = url_for('main_observation.observation_chart', observation_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
             {% elif back == 'wishlist' %}
                 {% set top_prev_url =  url_for('main_wishlist.wish_list_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
                 {% set top_next_url = url_for('main_wishlist.wish_list_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
