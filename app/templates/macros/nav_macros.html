@@ -68,7 +68,7 @@
 
 {% macro switch_theme() %}
     <div class="ui dropdown item">
-        <i class="eye icon"></i>
+        <i class="low vision icon"></i>
         <span class="text">{{ _('Light Mode') if session.get('theme')=='light' else (_('Night Mode') if session.get('theme')=='night' else _('Dark Mode'))}}</span>
         <div class="menu">
           <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
@@ -80,7 +80,7 @@
 
 {% macro switch_theme_mobile() %}
     <div class="ui dropdown item">
-        <i class="eye icon"></i>
+        <i class="low vision icon"></i>
         <div class="menu">
           <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
           <a href="{{ url_for('main.theme_light') }}" class="item">{{ _('Light Mode') }}</a>
