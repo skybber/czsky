@@ -133,6 +133,7 @@ def _setup_dark_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
+    config.light_mode = False
 
 
 def _setup_night_theme(config, width):
@@ -157,6 +158,7 @@ def _setup_night_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.4, 0.2, 0.1)
     config.dso_highlight_linewidth = 0.3
+    config.light_mode = False
 
 
 def _setup_light_theme(config, width):
@@ -179,6 +181,7 @@ def _setup_light_theme(config, width):
     config.dso_dynamic_brightness = False
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
+    config.light_mode = True
 
 
 def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
