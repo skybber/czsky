@@ -191,7 +191,7 @@ def _search_star(query):
         usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
         if usd:
             if request.args.get('fromchart') is not None:
-                return redirect(url_for('main_star.star_descr_chart', star_id=usd.id,
+                return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
                                     fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
             else:
                 return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
