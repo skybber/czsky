@@ -435,7 +435,7 @@ def chart_pdf(dso_id, ra, dec):
     if dso is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(dso.ra, dso.dec, ra, dec)
+    img_bytes = common_chart_pdf_img(dso.ra, dso.dec, ra, dec, dso_names=[dso.name])
 
     return send_file(img_bytes, mimetype='application/pdf')
 
