@@ -430,8 +430,12 @@ def session_plan_schedule(session_plan_id):
     last_dst_page = (len(session_plan_compound_list) - 1) // per_page + 1
     if dst_page >= last_dst_page:
         dst_page =  last_dst_page
+    if dst_page < 1:
+        dst_page = 1
 
     session['planner_dst_page'] = dst_page
+
+    print('Dst {}'.format(last_dst_page), flush=True)
 
     dst_offset = (dst_page - 1) * per_page
 
