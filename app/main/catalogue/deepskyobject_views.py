@@ -616,13 +616,17 @@ def _get_prev_next_dso(dso):
         dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
             prev_item, next_item = dso_list.get_prev_next_item(dso.id, _get_season_constell_ids())
-            has_item = True
+            return (prev_item.deepskyObject if prev_item else None,
+                    prev_item.item_id if prev_item else None,
+                    next_item.deepskyObject if next_item else None,
+                    next_item.item_id if next_item else None,
+                    )
 
     if has_item:
         return (prev_item.deepskyObject if prev_item else None,
-                prev_item.item_id if prev_item else None,
+                prev_item.deepskyObject.denormalized_name() if prev_item else None,
                 next_item.deepskyObject if next_item else None,
-                next_item.item_id if next_item else None,
+                next_item.deepskyObject.denormalized_name() if next_item else None,
                 )
 
     prev_dso, next_dso = dso.get_prev_next_dso()
