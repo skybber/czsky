@@ -435,8 +435,6 @@ def session_plan_schedule(session_plan_id):
 
     session['planner_dst_page'] = dst_page
 
-    print('Dst {}'.format(last_dst_page), flush=True)
-
     dst_offset = (dst_page - 1) * per_page
 
     session_plan_compound_list_for_render = session_plan_compound_list[dst_offset:dst_offset + per_page]
