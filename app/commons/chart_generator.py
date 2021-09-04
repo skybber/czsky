@@ -300,9 +300,11 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
+    landscape = request.args.get('landscape', 'true') == 'true'
+
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, dso_names=dso_names,
-                      flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory)
+    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y,
+                      landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory)
     img_bytes.seek(0)
     return img_bytes
 
@@ -518,7 +520,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
-def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, show_legend=True, dso_names=None,
+def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, landscape=True, show_legend=True, dso_names=None,
                       flags='', highlights_dso_list=None, trajectory=None):
     """Create chart PDF in czsky process."""
     global free_mem_counter
@@ -551,7 +553,10 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(pdf_fobj, 267, 180, format='pdf', landscape=True)
+    if landscape:
+        artist = fchart3.CairoDrawing(pdf_fobj, 267, 180, format='pdf', landscape=landscape)
+    else:
+        artist = fchart3.CairoDrawing(pdf_fobj, 180, 267, format='pdf', landscape=landscape)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
