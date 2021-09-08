@@ -29,7 +29,11 @@ def scrap_sq_location(skyquality_location_id):
 
         print('-------- Scrapping location:' + str(skyquality_location_id))
 
-        name = soup.select_one('.location__title').text.strip()
+        loc_title_node = soup.select_one('.location__title')
+        if loc_title_node is None:
+            print('  location_title not found. location_id=' + str(skyquality_location_id))
+            return None
+        name = loc_title_node.text.strip()
         indx = name.find(' — detail lokality')
         if indx >= 0:
             name = name[:indx]
@@ -183,13 +187,21 @@ def do_import_skyquality_locations(skyquality_db_name, delete_old):
     max_loc = cur.execute("SELECT max(location_id) FROM locations").fetchone()
     skyquality_location_id = max_loc[0] + 1 if max_loc[0] else 1
 
+    try_forward = 50
     while True:
         sq_location = scrap_sq_location(skyquality_location_id)
 
         if sq_location is None:
-            print('SkyQuality location_id=' + str(skyquality_location_id) + ' does not exist.')
-            print('Import finished.')
-            return
+            try_forward -= 1
+            if try_forward == 0:
+                print('SkyQuality location_id=' + str(skyquality_location_id) + ' does not exist.')
+                print('Import finished.')
+                return
+            else:
+                skyquality_location_id += 1
+                continue
+        else:
+            try_forward = 50
 
         loc = convert_sqlocation2location(sq_location, user_skyquality)
 
