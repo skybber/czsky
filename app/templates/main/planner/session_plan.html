@@ -10,6 +10,7 @@
         ] %}
     {% else %}
         {% set endpoints = [
+            ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id, splitview='true'), _('Info'), 'info'),
             ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
         ] %}
     {% endif %}
@@ -25,6 +26,36 @@
         {% endfor %}
     </div>
 {% endmacro %}
+
+{% macro session_plan_overview(session_plan) %}
+    <table class="ui compact definition table">
+        <tr><td class="two wide">{{ _('Title') }}</td><td>{{ session_plan.title }}</td></tr>
+        <tr><td class="two wide">{{ _('Date') }}</td><td>{{ session_plan.for_date.strftime('%Y-%m-%d') }}</td></tr>
+        <tr><td class="two wide">{{ _('Location') }}</td><td>{{ session_plan.location.name if session_plan.location else '' }}</td></tr>
+        <tr>
+            <td class="two wide">{{ _('Notes') }}</td>
+            <td>
+                {% filter extended_commonmark('') %}
+{{ session_plan.notes }}
+                {% endfilter %}
+            </td>
+        </tr>
+    </table>
+    <table class="ui compact definition2c table">
+        {% for item in session_plan.session_plan_items | sort(attribute='order') %}
+        <tr>
+            <td><b><a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}">{{ item.deepskyObject.name | safe }}</a></b></td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endmacro %}
+
 
 {# --- Chart --- #}
 {% macro session_plan_chart(session_plan) %}
@@ -46,7 +77,8 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
     {% else %}
-    <div class="ui two column divided grid" style="height: 100% !important; width: 100% !important;">
+    <d
+    iv class="ui two column divided grid" style="height: 100% !important; width: 100% !important;">
         <div class="column" style="width: 430px !important">
             <iframe id="plIframe" src="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=selected_dso_name, embed='pl') }}" frameborder="0" class="planner-iframe"></iframe>
             <!-- <div class="planner-separator"></div>  -->
@@ -71,7 +103,7 @@
             {% else %}
                 <div>
                     <div class="ui huge breadcrumb">
-                        {% if session_plan.is_anonymous %}
+                        {% if session_plan.is_anonymous or not is_mine_session_plan %}
                             <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
                                 <i class="caret left icon"></i>
                                 {{ _('Dashboard') }}
@@ -100,6 +132,8 @@
 
             {% if type == 'info' %}
                 {% include '/main/planner/session_plan_info.html' %}
+            {% elif type == 'overview' %}
+                {{ session_plan_overview(session_plan) }}
             {% elif type == 'schedule' %}
                 {% include '/main/planner/session_plan_schedule.html' %}
             {% elif type == 'chart' %}

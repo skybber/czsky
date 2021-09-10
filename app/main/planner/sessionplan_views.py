@@ -123,7 +123,7 @@ def session_plan_info(session_plan_id):
 
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     if not is_mine_session_plan:
-        return redirect(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id))
+        return redirect(url_for('main_sessionplan.session_plan_overview', session_plan_id=session_plan.id))
 
     form = SessionPlanEditForm()
     if request.method == 'POST':
@@ -155,6 +155,13 @@ def session_plan_info(session_plan_id):
 
     return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location, is_mine_session_plan=is_mine_session_plan)
 
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])
+def session_plan_overview(session_plan_id):
+    """View a session plan info in readn only mode."""
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
+    return render_template('main/planner/session_plan.html', type='overview', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan)
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
 def new_session_plan():
@@ -362,7 +369,7 @@ def session_plan_schedule(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     if not is_mine_session_plan:
-        return redirect(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id))
+        return redirect(url_for('main_sessionplan.session_plan_overview', session_plan_id=session_plan.id))
 
     schedule_form = SessionPlanScheduleFilterForm()
 
