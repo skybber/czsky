@@ -2,22 +2,19 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% if not is_new %}
-    {% if is_mine_session_plan %}
-        {% set endpoints = [
-            ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
-            ( url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
-            ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
-        ] %}
-    {% else %}
-        {% set endpoints = [
-            ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
-            ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id), _('Chart'), 'chart'),
-        ] %}
-    {% endif %}
+    {% set edit_endpoints = [
+        ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
+        ( url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
+        ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
+    ] %}
+    {% set overview_endpoints = [
+        ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
+        ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id), _('Chart'), 'chart'),
+    ] %}
 {% endif %}
 
-{% macro navigation(items) %}
-    <div class="ui icon secondary pointing menu">
+{% macro navigation(items, ext_css) %}
+    <div class="ui icon secondary pointing menu {{ ext_css }}">
         {% for url, pupup_text, icon in items %}
             {% set href = url %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
@@ -48,12 +45,6 @@
         </tr>
     {% endfor %}
     </table>
-
-    <script type="text/javascript">
-        $('.ui.rating')
-        .rating();
-    </script>
-
 {% endmacro %}
 
 
@@ -111,7 +102,7 @@
                         {% else %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plans') }}">
                                 <i class="caret left icon"></i>
-                                <i class="lastfm icon mobile hidden"></i>
+                                <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% endif %}
                         <div class="divider"> / </div>
@@ -127,7 +118,12 @@
             {% endif %}
 
             {% if not is_new %}
-                {{ navigation(endpoints) }}
+                {% if is_mine_session_plan %}
+                    {{ navigation(edit_endpoints, 'computer tablet only') }}
+                    {{ navigation(overview_endpoints, 'mobile only') }}
+                {% else %}
+                    {{ navigation(overview_endpoints, '') }}
+                {% endif %}
             {% endif %}
 
             {% if type == 'info' %}

@@ -11,12 +11,12 @@
                 {{ _('Session Plans') }}
             </h2>
 
-            <div style="overflow-x: scroll;">
+            <div style="overflow-x: scroll;" class="computer tablet only">
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
                             <th class="sorted ascending">{{ _('Name') }}</th>
-                            <th>{{ _('constellation') }}</th>
+                            <th>{{ _('Location') }}</th>
                             <th>{{ _('Date') }}</th>
                         </tr>
                     </thead>
@@ -24,13 +24,35 @@
                     {% for p in session_plans | sort(attribute='title') %}
                         <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=p.id) }}';">
                             <td>{{ p.title }}</td>
-                            <td>{{ p.location.title }}</td>
+                            <td>{{ p.location.name }}</td>
                             <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <div style="overflow-x: scroll;" class="mobile only">
+                <table class="ui searchable sortable unstackable selectable celled table mobile only">
+                    <thead>
+                        <tr>
+                            <th class="sorted ascending">{{ _('Name') }}</th>
+                            <th>{{ _('Location') }}</th>
+                            <th>{{ _('Date') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in session_plans | sort(attribute='title') %}
+                        <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_info', session_plan_id=p.id) }}';">
+                            <td>{{ p.title }}</td>
+                            <td>{{ p.location.name }}</td>
+                            <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     </div>
 
