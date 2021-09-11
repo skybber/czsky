@@ -70,18 +70,34 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_observation.observations') }}">
-                <i class="caret left icon"></i>
-                {{ _('Observations') }}
-            </a>
-            <h2 class="ui header">
-                {{ observation.title }}
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if not is_mine_observation %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                            <i class="caret left icon"></i>
+                            {{ _('Dashboard') }}
+                        </a>
+                    {% else %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_observation.observations') }}">
+                            <i class="caret left icon"></i>
+                            <i class="tasks icon mobile hidden"></i>
+                        </a>
+                    {% endif %}
+                    <div class="divider"> / </div>
+                    <div class="active section">
+                        {{ observation.date.strftime('%Y-%m-%d') }}
+                    </div>
+                    <div class="divider"> &#x2604 </div>
+                    <div class="active section">
+                        {{ observation.title if observation.title else observation.txt_location_name }}
+                    </div>
+                </div>
                 {% if is_mine_observation %}
                 <a class="ui icon right floated mini button" href="{{ url_for('main_observation.observation_edit', observation_id=observation.id) }}">
                     <i class="caret edit icon"></i>
                 </a>
                 {% endif %}
-            </h2>
+            </div>
 
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
