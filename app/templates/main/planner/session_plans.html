@@ -15,17 +15,17 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">{{ _('Name') }}</th>
-                            <th>{{ _('Location') }}</th>
                             <th>{{ _('Date') }}</th>
+                            <th class="sorted ascending">{{ _('Title') }}</th>
+                            <th>{{ _('Location') }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for p in session_plans | sort(attribute='title') %}
+                    {% for p in session_plans | sort(attribute='for_date') %}
                         <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=p.id) }}';">
-                            <td>{{ p.title }}</td>
-                            <td>{{ p.location.name }}</td>
                             <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ p.title[:64] }}</td>
+                            <td>{{ p.location.name }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -36,17 +36,17 @@
                 <table class="ui searchable sortable unstackable selectable celled table mobile only">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">{{ _('Name') }}</th>
-                            <th>{{ _('Location') }}</th>
                             <th>{{ _('Date') }}</th>
+                            <th class="sorted ascending">{{ _('Title') }}</th>
+                            <th>{{ _('Location') }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {% for p in session_plans | sort(attribute='title') %}
+                    {% for p in session_plans | sort(attribute='for_date') %}
                         <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_overview', session_plan_id=p.id) }}';">
+                            <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ p.title }}</td>
                             <td>{{ p.location.name }}</td>
-                            <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
