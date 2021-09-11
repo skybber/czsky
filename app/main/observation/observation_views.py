@@ -197,7 +197,7 @@ def observation_chart(observation_id):
     chart_control = common_prepare_chart_data(form)
 
     return render_template('main/observation/observation_info.html', fchart_form=form, type='chart', observation=observation, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url,)
+                           default_chart_iframe_url=default_chart_iframe_url,is_mine_observation=is_mine_observation)
 
 
 @main_observation.route('/observation/<int:observation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
