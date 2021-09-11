@@ -54,7 +54,7 @@ def observations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    observations = Observation.query.filter_by(user_id=current_user.id)
+    observations = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.date.desc())
     search = False
 
     observations_for_render = observations.limit(per_page).offset(offset).all()

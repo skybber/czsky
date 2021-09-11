@@ -96,6 +96,8 @@ def session_plans():
     if search_form.q.data:
         session_plans = session_plans.filter(SessionPlan.title.like('%' + search_form.q.data + '%'))
 
+    session_plans = session_plans.order_by(SessionPlan.for_date.desc())
+
     return render_template('main/planner/session_plans.html', session_plans=session_plans, search_form=search_form)
 
 

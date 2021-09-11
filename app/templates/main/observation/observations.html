@@ -24,7 +24,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for o in observations | sort(attribute='date') %}
+                    {% for o in observations %}
                         <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
                             <td>{{ o.date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ o.title[:64] }}</td>
