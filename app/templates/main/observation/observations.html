@@ -12,25 +12,6 @@
                 {{ _('Observations') }}
             </h2>
 
-            {% set flashes = {
-                'error':   get_flashed_messages(category_filter=['form-error']),
-                'info':    get_flashed_messages(category_filter=['form-info']),
-                'success': get_flashed_messages(category_filter=['form-success'])
-            } %}
-
-            {{ f.display_standard_flashes(flashes) }}
-
-            <div class="ui menu">
-                <div class="ui right search item">
-                    <div class="ui transparent icon input">
-                        <input id="search-dsos" type="text" placeholder="{{ _('Search deepsky objects…') }}">
-                        <i class="search icon"></i>
-                    </div>
-                </div>
-            </div>
-
-            {# Use overflow-x: scroll so that mobile views don't freak out
-             # when the table is too wide #}
             <div style="overflow-x: scroll;">
                 {{ pagination.info }}
                 <table class="ui searchable sortable unstackable selectable celled table">
@@ -39,7 +20,7 @@
                             <th>{{ _('Date') }}</th>
                             <th>{{ _('Title') }}</th>
                             <th>{{ _('Location') }}</th>
-                            <th>{{ _('Rating') }}</th>
+                            <th class="mobile hidden">{{ _('Rating') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -48,7 +29,7 @@
                             <td>{{ o.date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ o.title[:64] }}</td>
                             <td>{{ o.location.name if o.location else '' }}</td>
-                            <td><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
+                            <td class="mobile hidden"><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -58,7 +39,7 @@
         </div>
     </div>
     <script type="text/javascript">
-        $(function() () {
+        $(function()  {
             $('#search-dsos').keyup(function () {
                 var searchText = $(this).val();
                 if (searchText.length > 0) {

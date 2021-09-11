@@ -8,7 +8,7 @@
         ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, splitview='true'), _('Chart'), 'chart'),
     ] %}
     {% set overview_endpoints = [
-        ( url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
+        ( url_for('main_sessionplan.session_plan_overview', session_plan_id=session_plan.id), _('Info'), 'overview'),
         ( url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id), _('Chart'), 'chart'),
     ] %}
 {% endif %}

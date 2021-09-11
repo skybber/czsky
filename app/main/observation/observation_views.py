@@ -124,7 +124,7 @@ def observation_edit(observation_id):
         form.title.data = observation.title
         form.date.data = observation.date
         form.location_id.data = observation.location_id
-        form.rating.data = observation.rating
+        form.rating.data = observation.rating // 2
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content
         form.is_public.data = observation.is_public
