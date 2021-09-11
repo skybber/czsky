@@ -84,10 +84,10 @@
                         </a>
                     {% endif %}
                     <div class="divider"> / </div>
-                    <div class="active section">
+                    <div class="active section mobile hidden">
                         {{ observation.date.strftime('%Y-%m-%d') }}
                     </div>
-                    <div class="divider"> &#x2604 </div>
+                    <div class="divider mobile hidden"> &#x2604 </div>
                     <div class="active section">
                         {{ observation.title if observation.title else observation.txt_location_name }}
                     </div>

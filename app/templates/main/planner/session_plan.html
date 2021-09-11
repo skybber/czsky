@@ -106,12 +106,12 @@
                             </a>
                         {% endif %}
                         <div class="divider"> / </div>
-                        <div class="active section">
+                        <div class="active section mobile hidden">
                             {{ session_plan.for_date.strftime('%Y-%m-%d') }}
                         </div>
-                        <div class="divider"> &#x2604 </div>
+                        <div class="divider mobile hidden"> &#x2604 </div>
                         <div class="active section">
-                            {{ session_plan.location.name if session_plan.location else session_plan.txt_location_name }}
+                            {{ session_plan.title if session_plan.title else session_plan.txt_location_name }}
                         </div>
                     </div>
                 </div>
