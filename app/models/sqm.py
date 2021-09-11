@@ -3,7 +3,6 @@ from sqlalchemy import Index
 
 from .. import db
 from skyfield.units import Angle
-from .catalogue import Catalogue
 
 BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC', 'NGC', 'HCG')
 

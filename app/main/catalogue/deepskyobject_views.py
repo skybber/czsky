@@ -129,9 +129,8 @@ def deepskyobjects():
 
     observed = set()
     if not current_user.is_anonymous:
-        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-        for item in observed_list.observed_list_items:
-            observed.add(item.deepskyObject.id)
+        for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
+            observed.add(dso.id)
 
     pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 

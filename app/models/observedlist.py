@@ -2,6 +2,10 @@ from datetime import datetime
 
 from .. import db
 
+from sqlalchemy import or_
+
+from .deepskyobject import DeepskyObject
+
 class ObservedList(db.Model):
     __tablename__ = 'observed_lists'
     id = db.Column(db.Integer, primary_key=True)
@@ -61,6 +65,16 @@ class ObservedList(db.Model):
             db.session.add(observed_list)
             db.session.commit()
         return observed_list
+
+    @staticmethod
+    def get_observed_dsos_by_user_id(user_id):
+        observed_list = ObservedList.query.filter_by(user_id=user_id).first()
+
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedListItem.observed_list) \
+            .filter(ObservedList.id==observed_list.id, ObservedList.user_id==user_id)
+
+        return DeepskyObject.query.filter(or_(DeepskyObject.id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery))).all()
 
 class ObservedListItem(db.Model):
     __tablename__ = 'observed_list_items'
