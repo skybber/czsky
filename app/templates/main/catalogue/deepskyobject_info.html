@@ -215,6 +215,15 @@
                           &#9728;{{ commons.convert_mag(dso.mag) }}mag
                       </div>
                   {% endif %}
+                  {% if dso.major_axis %}
+                      <div class="ui label" style="float:right;">
+                          Ø {{ commons.convert_dso_size(dso.major_axis, dso.minor_axis) }}
+                      </div>
+                  {% endif %}
+
+                  {% if current_user.is_authenticated %}
+                      {{ commons.wish_observed_list_toolbar(dso.id, wish_list, observed_list, float='right') }}
+                  {% endif %}
                   <div class="ui label" style="float:right;">
                       <i class="info icon"></i>{{ dso.type }}
                   </div>
