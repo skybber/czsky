@@ -47,7 +47,8 @@ def observed_list_info():
     """View observed list."""
     add_form = AddToObservedListForm()
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-    return render_template('main/observation/observed_list.html', observed_list=observed_list, type='info', add_form=add_form)
+    observed_list_items = enumerate(observed_list.observed_list_items)
+    return render_template('main/observation/observed_list.html', observed_list=observed_list, type='info', add_form=add_form, observed_list_items=observed_list_items)
 
 
 @main_observed.route('/observed-list-item-add', methods=['POST'])
@@ -95,7 +96,8 @@ def observed_list_delete():
     ObservedListItem.query.filter_by(observed_list_id=observed_list.id).delete()
     db.session.commit()
     flash('Observed list deleted', 'form-success')
-    return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form)
+    observed_list_items = enumerate(observed_list.observed_list_items)
+    return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form, observed_list_items=observed_list_items)
 
 
 @main_observed.route('/observed-list-upload', methods=['POST'])
@@ -186,7 +188,7 @@ def observed_list_chart():
         default_chart_iframe_url = None
 
     return render_template('main/observation/observed_list.html', fchart_form=form, type='chart', observed_list=observed_list, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url, )
+                           default_chart_iframe_url=default_chart_iframe_url,)
 
 
 @main_observed.route('/observed-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

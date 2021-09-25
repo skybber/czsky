@@ -71,6 +71,7 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
+                            <th class="sorted ascending collapsing">N</th>
                             <th class="sorted ascending">Name</th>
                             <th>{{ _('Type') }}</th>
                             <th>{{ _('Constellation') }}</th>
@@ -81,8 +82,9 @@
                     <tbody>
                     {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='observed_list') }}{% endmacro %}
 
-                    {% for item in observed_list.observed_list_items %}
+                    {% for i, item in observed_list_items %}
                         <tr>
+                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ i + 1 }}</p></td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.deepskyObject.denormalized_name() }}</p></td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
                             <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
