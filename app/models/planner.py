@@ -12,6 +12,7 @@ class SessionPlan(db.Model):
     notes = db.Column(db.Text)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
     location = db.relationship("Location")
+    location_position = db.Column(db.String(256))
     for_date = db.Column(db.DateTime, default=datetime.now())
     is_anonymous = db.Column(db.Boolean, default=False)
     session_plan_items = db.relationship('SessionPlanItem', backref='session_plan', lazy=True)

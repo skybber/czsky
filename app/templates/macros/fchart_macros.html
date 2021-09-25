@@ -121,7 +121,7 @@
                               <div class="right menu">
                                   {% for spl in dso_list_menu.session_plans %}
                                       <div class="item" onclick="callDsoListUrl('{{ url_for('main_sessionplan.session_plan_chart', session_plan_id=spl.id) }}')">
-                                        {{ spl.for_date.strftime('%Y-%m-%d') }} {{ spl.location.name if spl.location else spl.txt_location_name }}
+                                        {{ spl.for_date.strftime('%Y-%m-%d') }} {{ spl.location.name if spl.location else spl.location_position }}
                                       </div>
                                   {% endfor %}
                               </div>
@@ -134,7 +134,7 @@
                               <div class="right menu">
                                   {% for obs in dso_list_menu.observations %}
                                       <div class="item" onclick="callDsoListUrl('{{ url_for('main_observation.observation_chart', observation_id=obs.id) }}')">
-                                        {{ obs.date.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.txt_location_name }}
+                                        {{ obs.date.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.location_position }}
                                       </div>
                                   {% endfor %}
                               </div>

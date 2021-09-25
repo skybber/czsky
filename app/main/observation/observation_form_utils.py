@@ -12,11 +12,18 @@ from .observation_parser import parse_observation
 from app.commons.dso_utils import normalize_dso_name
 
 def create_from_basic_form(form):
+    location_position = None
+    location_id = None
+    if isinstance(form.location.data, int) or form.location.data.isdigit():
+        location_id = int(form.location.data)
+    else:
+        location_position = form.location.data
     observation = Observation(
         user_id = current_user.id,
         title = form.title.data,
         date = form.date.data,
-        location_id = form.location_id.data,
+        location_id = location_id,
+        location_position = location_position,
         rating = form.rating.data,
         notes = form.notes.data,
         create_by = current_user.id,
@@ -72,10 +79,18 @@ def create_from_advanced_form(form):
 
 
 def update_from_basic_form(form, observation):
+    location_position = None
+    location_id = None
+    if isinstance(form.location.data, int) or form.location.data.isdigit():
+        location_id = int(form.location.data)
+    else:
+        location_position = form.location.data
+
     observation.user_id = current_user.id
     observation.title = form.title.data
     observation.date = form.date.data
-    observation.location_id = form.location_id.data
+    observation.location_id = location_id
+    observation.location_position = location_position
     observation.rating = int(form.rating.data) * 2
     observation.notes = form.notes.data
     observation.update_by = current_user.id

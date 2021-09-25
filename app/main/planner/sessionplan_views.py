@@ -74,6 +74,7 @@ from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.utils import get_anonymous_user
+from app.commons.coordinates import parse_lonlat
 
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 
@@ -133,9 +134,12 @@ def session_plan_info(session_plan_id):
 
             user = get_anonymous_user() if current_user.is_anonymous else current_user
 
+            location_id, location_position = _get_location_data_from_form(form)
+
             session_plan.title = form.title.data
             session_plan.for_date = form.for_date.data
-            session_plan.location_id = form.location_id.data
+            session_plan.location_id = location_id
+            session_plan.location_position = location_position
             session_plan.is_public = form.is_public.data
             session_plan.notes = form.notes.data
             session_plan.update_by = user.id
@@ -147,15 +151,14 @@ def session_plan_info(session_plan_id):
     else:
         form.title.data = session_plan.title
         form.for_date.data = session_plan.for_date
-        form.location_id.data = session_plan.location_id
+        form.location.data = session_plan.location_id if session_plan.location_id is not None else session_plan.location_position
         form.is_public.data = session_plan.is_public
         form.notes.data = session_plan.notes
 
-    location = None
-    if form.location_id.data:
-        location = Location.query.filter_by(id=form.location_id.data).first()
+    location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location, is_mine_session_plan=is_mine_session_plan)
+    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location,
+                           location_position=location_position, is_mine_session_plan=is_mine_session_plan)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])
@@ -164,6 +167,7 @@ def session_plan_overview(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     return render_template('main/planner/session_plan.html', type='overview', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan)
+
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
 def new_session_plan():
@@ -178,11 +182,15 @@ def new_session_plan():
 
         if not new_session_plan:
             user = get_anonymous_user() if current_user.is_anonymous else current_user
+
+            location_id, location_position = _get_location_data_from_form(form)
+
             new_session_plan = SessionPlan(
                 user_id = user.id,
                 title = form.title.data,
                 for_date = form.for_date.data,
-                location_id = form.location_id.data,
+                location_id = location_id,
+                location_position = location_position,
                 is_public = form.is_public.data,
                 notes = form.notes.data,
                 is_anonymous = current_user.is_anonymous,
@@ -204,11 +212,32 @@ def new_session_plan():
 
         return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=new_session_plan.id))
 
-    location = None
-    if form.location_id.data:
-        location = Location.query.filter_by(id=form.location_id.data).first()
+    location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location, is_anonymous=current_user.is_anonymous)
+    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location,
+                           location_position=location_position, is_anonymous=current_user.is_anonymous)
+
+
+def _get_location_data_from_form(form):
+    location_position = None
+    location_id = None
+    if form.location.data and (isinstance(form.location.data, int) or form.location.data.isdigit()):
+        location_id = int(form.location.data)
+    else:
+        location_position = form.location.data
+
+    return (location_id, location_position)
+
+
+def _get_location_data2_from_form(form):
+    location_position = None
+    location = None
+    if form.location.data and (isinstance(form.location.data, int) or form.location.data.isdigit()):
+        location = Location.query.filter_by(id=int(form.location.data)).first()
+    else:
+        location_position = form.location.data
+
+    return (location, location_position)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/delete')
@@ -521,12 +550,26 @@ def _get_session_plan_tzinfo(session_plan):
 
 
 def _get_observer_tzinfo(session_plan):
-    loc = session_plan.location
-    loc_coords = EarthLocation.from_geodetic(loc.longitude*u.deg, loc.latitude*u.deg, loc.elevation*u.m if loc.elevation else 0)
+    loc_name, latitude, longitude, elevation = _get_location_info_from_session_plan(session_plan)
+    loc_coords = EarthLocation.from_geodetic(longitude*u.deg, latitude*u.deg, elevation*u.m if elevation else 0)
     tz_info = _get_session_plan_tzinfo(session_plan)
-    observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
+    observer = Observer(name=loc_name, location=loc_coords, timezone=tz_info)
     return observer, tz_info
 
+
+def _get_location_info_from_session_plan(session_plan):
+    if session_plan.location:
+        loc = session_plan.location
+        loc_name = loc.name
+        longitude = loc.longitude
+        latitude = loc.latitude
+        elevation = loc.elevation
+    else:
+        loc_name = session_plan.location_position
+        latitude, longitude = parse_lonlat(session_plan.location_position)
+        elevation = 0
+
+    return (loc_name, latitude, longitude, elevation)
 
 def _setup_search_from(schedule_form, observer, observation_time, tz_info, default_time):
     if schedule_form.time_from.data:
@@ -629,7 +672,8 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
 
 def _get_twighligh_component(session_plan, comp):
     ts = load.timescale()
-    observer = wgs84.latlon(session_plan.location.latitude, session_plan.location.longitude)
+    _, latitude, longitude, _ = _get_location_info_from_session_plan(session_plan)
+    observer = wgs84.latlon(latitude, longitude)
     tz_info = _get_session_plan_tzinfo(session_plan)
     ldate1 = tz_info.localize(session_plan.for_date + timedelta(hours=12))
     ldate2 = tz_info.localize(session_plan.for_date + timedelta(hours=36))
@@ -690,7 +734,8 @@ def session_plan_set_moonless_astro_twilight(session_plan_id):
 
     if t1 and t2:
         ts = load.timescale()
-        observer = wgs84.latlon(session_plan.location.latitude, session_plan.location.longitude)
+        _,  latitude, longitude, _ = _get_location_info_from_session_plan(session_plan)
+        observer = wgs84.latlon(latitude, longitude)
         tz_info = _get_session_plan_tzinfo(session_plan)
         ldate_start = tz_info.localize(session_plan.for_date + timedelta(hours=0))
         ldate_end = tz_info.localize(session_plan.for_date + timedelta(hours=48))

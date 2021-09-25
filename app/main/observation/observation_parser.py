@@ -76,7 +76,7 @@ def add_global_var(ctx, var, value):
         except ValueError as e:
             ctx.add_error('Invalid format for date:' + value + ' Expected yyyy-mm-dd or yyyy/mm/dd.')
     elif var == 'location':
-        ctx.observation.txt_location_name = value
+        ctx.observation.location_position = value
         # TODO: assign existing location
     elif var == 'seeing':
         pass

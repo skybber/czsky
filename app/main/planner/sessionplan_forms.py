@@ -31,6 +31,8 @@ from wtforms.widgets import (
 )
 from flask_babel import lazy_gettext
 
+from app.main.utils.validators import location_lonlat_check
+
 SCHEDULE_TIME_FORMAT = '%H:%M'
 
 class SearchSessionPlanForm(FlaskForm):
@@ -39,7 +41,7 @@ class SearchSessionPlanForm(FlaskForm):
 class SessionPlanMixin():
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
     for_date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
-    location_id = IntegerField(lazy_gettext('Location'), validators=[InputRequired()])
+    location = StringField(lazy_gettext('Location'), validators=[InputRequired(),Length(max=256), location_lonlat_check])
     notes = TextAreaField(lazy_gettext('Notes'))
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 

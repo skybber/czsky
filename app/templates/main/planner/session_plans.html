@@ -46,7 +46,7 @@
                         <tr onclick="window.location.href = '{{ url_for('main_sessionplan.session_plan_overview', session_plan_id=p.id) }}';">
                             <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ p.title }}</td>
-                            <td>{{ p.location.name }}</td>
+                            <td>{{ p.location.name if p.location else p.location_position }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -20,7 +20,7 @@
 {% macro observation_info(observation) %}
     <table class="ui compact definition table">
         <tr><td class="two wide">{{ _('Date') }}</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
-        <tr><td class="two wide">{{ _('Location') }}</td><td>{{ observation.location.name if observation.location else observation.txt_location_name }}</td></tr>
+        <tr><td class="two wide">{{ _('Location') }}</td><td>{{ observation.location.name if observation.location else observation.location_position }}</td></tr>
         <tr>
             <td class="two wide">{{ _('Notes') }}</td>
             <td>
@@ -89,7 +89,7 @@
                     </div>
                     <div class="divider mobile hidden"> &#x2604 </div>
                     <div class="active section">
-                        {{ observation.title if observation.title else observation.txt_location_name }}
+                        {{ observation.title }}
                     </div>
                 </div>
                 {% if is_mine_observation %}

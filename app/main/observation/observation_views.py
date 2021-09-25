@@ -46,6 +46,7 @@ main_observation = Blueprint('main_observation', __name__)
 def observation_menu():
     return render_template('main/observation/observation_menu.html')
 
+
 @main_observation.route('/observations', methods=['GET', 'POST'])
 @login_required
 def observations():
@@ -62,6 +63,7 @@ def observations():
     pagination = Pagination(page=page, total=observations.count(), search=search, record_name='observations', css_framework='semantic')
     return render_template('main/observation/observations.html', observations=observations_for_render, pagination=pagination)
 
+
 def _check_observation(observation, allow_public=False):
     if observation is None:
         abort(404)
@@ -76,6 +78,7 @@ def _check_observation(observation, allow_public=False):
 
     return True
 
+
 @main_observation.route('/observation/<int:observation_id>', methods=['GET'])
 @main_observation.route('/observation/<int:observation_id>/info', methods=['GET'])
 def observation_info(observation_id):
@@ -83,6 +86,7 @@ def observation_info(observation_id):
     observation = Observation.query.filter_by(id=observation_id).first()
     is_mine_observation = _check_observation(observation, allow_public=True)
     return render_template('main/observation/observation_info.html', observation=observation, type='info', is_mine_observation=is_mine_observation)
+
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])
 @login_required
@@ -97,10 +101,10 @@ def new_observation():
         if new_observation_id:
             return redirect(url_for('main_observation.observation_edit', observation_id=new_observation_id))
 
-    location = None
-    if form.location_id.data:
-        location = Location.query.filter_by(id=form.location_id.data).first()
-    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=location)
+    location, location_position = _get_location_data2_from_form(form)
+
+    return render_template('main/observation/observation_edit.html', form=form, is_new=True, location=location, location_position=location_position)
+
 
 @main_observation.route('/observation/<int:observation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -123,7 +127,7 @@ def observation_edit(observation_id):
     else:
         form.title.data = observation.title
         form.date.data = observation.date
-        form.location_id.data = observation.location_id
+        form.location.data = observation.location_id if observation.location_id is not None else observation.location_position
         form.rating.data = observation.rating // 2
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content
@@ -134,11 +138,21 @@ def observation_edit(observation_id):
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
 
-    location = None
-    if form.location_id.data:
-        location = Location.query.filter_by(id=form.location_id.data).first()
+    location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation, location=location)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation, location=location, location_position=location_position)
+
+
+def _get_location_data2_from_form(form):
+    location_position = None
+    location = None
+    if form.location.data and (isinstance(form.location.data, int) or form.location.data.isdigit()):
+        location = Location.query.filter_by(id=int(form.location.data)).first()
+    else:
+        location_position = form.location.data
+
+    return (location, location_position)
+
 
 @main_observation.route('/observation/<int:observation_id>/delete')
 @login_required

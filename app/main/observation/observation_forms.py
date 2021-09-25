@@ -31,6 +31,8 @@ from flask_babel import lazy_gettext
 from app.models import DeepskyObject
 from app.commons.dso_utils import normalize_dso_name
 
+from app.main.utils.validators import location_lonlat_check
+
 DEFAULT_OBSERVATION_CONTENT = '''
 ## NGC891:T(21:30):
 Observation item1 notes
@@ -67,7 +69,7 @@ class ObservationMixin():
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
     date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
-    location_id = IntegerField(lazy_gettext('Location'), validators=[InputRequired()])
+    location = StringField(lazy_gettext('Location'), validators=[InputRequired(),Length(max=256), location_lonlat_check])
     rating = HiddenField(lazy_gettext('Rating'), default=0)
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'), default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
