@@ -100,7 +100,10 @@ def _load_used_catalogs():
     if used_catalogs is None:
         data_dir = os.path.join(fchart3.get_catalogs_dir())
         usno_nomad_file = os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat')
-        used_catalogs = fchart3.UsedCatalogs(data_dir, usno_nomad_file,
+        extra_data_dir = os.path.join(os.getcwd(), 'data/')
+        used_catalogs = fchart3.UsedCatalogs(data_dir,
+                                             extra_data_dir,
+                                             usno_nomad_file=usno_nomad_file,
                                              limiting_magnitude_deepsky = 100.0,
                                              force_asterisms = False,
                                              force_unknown = False,
