@@ -13,6 +13,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from sqlalchemy.orm import subqueryload
 
 from app import db
 from posix import wait
@@ -36,12 +37,28 @@ from app.main.chart.chart_forms import ChartForm
 
 main_dso_list = Blueprint('main_dso_list', __name__)
 
+
+highlights_dso_list_cache = { }
+
 def _find_dso_list(dso_list_id):
     try:
         int_id = int(dso_list_id)
         return DsoList.query.filter_by(id=int_id).first()
     except ValueError:
         return DsoList.query.filter_by(name=dso_list_id).first()
+
+def _find_highlights_dso_list(dso_list_id):
+    ret = highlights_dso_list_cache.get(dso_list_id)
+    if not ret:
+        dso_list = _find_dso_list(dso_list_id)
+        if dso_list:
+            ret = []
+            for item in dso_list.dso_list_items:
+                dso = item.deepskyObject
+                db.session.expunge(dso)
+                ret.append(dso)
+            highlights_dso_list_cache[dso_list_id] = ret
+    return ret
 
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
@@ -140,12 +157,9 @@ def dso_list_chart(dso_list_id):
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def  dso_list_chart_pos_img(dso_list_id, ra, dec):
-    dso_list = _find_dso_list(dso_list_id)
-    if dso_list is None:
+    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
+    if highlights_dso_list is None:
         abort(404)
-
-    dso_list = DsoList.query.filter_by(id=dso_list.id).first()
-    highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
@@ -159,8 +173,8 @@ def  dso_list_chart_pos_img(dso_list_id, ra, dec):
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def dso_list_chart_legend_img(dso_list_id, ra, dec):
-    dso_list = _find_dso_list(dso_list_id)
-    if dso_list is None:
+    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
+    if highlights_dso_list is None:
         abort(404)
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
@@ -169,12 +183,9 @@ def dso_list_chart_legend_img(dso_list_id, ra, dec):
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def dso_list_chart_pdf(dso_list_id, ra, dec):
-    dso_list = _find_dso_list(dso_list_id)
-    if dso_list is None:
+    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
+    if highlights_dso_list is None:
         abort(404)
-
-    dso_list = DsoList.query.filter_by(id=dso_list.id).first()
-    highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
 
