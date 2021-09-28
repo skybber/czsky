@@ -186,7 +186,7 @@ def _setup_light_theme(config, width):
     config.dso_dynamic_brightness = False
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.93, 0.93, 0.96)
+    config.milky_way_color = (0.92, 0.93, 0.94)
     config.light_mode = True
 
 
