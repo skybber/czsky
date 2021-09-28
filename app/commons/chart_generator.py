@@ -136,7 +136,7 @@ def _setup_dark_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.04, 0.04, 0.075)
+    config.milky_way_color = (0.06, 0.06, 0.1)
     config.light_mode = False
 
 
@@ -162,7 +162,7 @@ def _setup_night_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.4, 0.2, 0.1)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.06, 0.01, 0.01)
+    config.milky_way_color = (0.1, 0.02, 0.02)
     config.light_mode = False
 
 
@@ -214,6 +214,8 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     else:
         config.constellation_linespace = 2.0
 
+    if fld_size <= 10:
+        config.show_milky_way = False
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
@@ -550,6 +552,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     config.show_deepsky = 'D' in flags
     config.show_equatorial_grid = 'E' in flags
     config.fov_telrad = 'T' in flags
+    config.show_milky_way = False
 
     if show_legend:
         config.show_mag_scale_legend = True
