@@ -95,13 +95,10 @@ def dso_list_info(dso_list_id):
 
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
-    dso_list_items = []
-    observed = set()
-    if not current_user.is_anonymous:
-        for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
-            observed.add(dso.id)
+    observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
 
     user_descrs = {} if dso_list.show_descr_name else None
+    dso_list_items = []
     for dso_list_item in dso_list.dso_list_items:
         if constell_ids is None or dso_list_item.deepskyObject.constellation_id in constell_ids:
             dso_list_items.append(dso_list_item)

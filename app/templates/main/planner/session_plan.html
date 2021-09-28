@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/common_macros.html' as commons %}
 
 {% if not is_new %}
     {% set edit_endpoints = [
@@ -37,11 +38,55 @@
             </td>
         </tr>
     </table>
-    <table class="ui compact definition2c table">
-        {% for item in session_plan.session_plan_items | sort(attribute='order') %}
-        <tr>
-            <td><b><a href="{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}">{{ item.deepskyObject.name | safe }}</a></b></td>
-        </tr>
+    <table class="ui searchable sortable unstackable selectable celled table">
+        <thead>
+            <tr>
+                <th class="sorted ascending">{{ _('Name') }}</th>
+                <th>{{ _('Type') }}</th>
+                <th class="mobile hidden">RA</th>
+                <th class="mobile hidden">Dec</th>
+                <th><i class="lastfm icon"></i></th>
+                <th class="right aligned">mag</th>
+                <th class="right aligned mobile hidden">{{ _('Size') }}</th>
+                {% if observed %}
+                <th class="collapsing mobile hidden"></th>
+                {% endif %}
+            </tr>
+        </thead>
+        {% for item in session_plan.session_plan_items %}
+        <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}';">
+            <td>{{ item.deepskyObject.denormalized_name() }}</td>
+            <td>{{ item.deepskyObject.type }}</td>
+            <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
+            <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
+            <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+            <td class="right aligned">
+                {{ commons.convert_mag(item.deepskyObject.mag) }}
+            </td>
+            <td class="right aligned mobile hidden">
+                {% if item.deepskyObject.major_axis %}
+                    {% if item.deepskyObject.major_axis >= 100.0 %}
+                      {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                    {% else %}
+                      {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                    {% endif %}
+                    {% if item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
+                    / {% if item.deepskyObject.minor_axis >= 100.0 %}
+                        {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                      {% else %}
+                        {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                      {% endif %}
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% if observed %}
+            <td class="collapsing mobile hidden">
+                {% if item.deepskyObject.id in observed %}
+                    <i class="eye icon"></i>
+                {% endif %}
+            </td>
+            {% endif %}
+      </tr>
     {% endfor %}
     </table>
 {% endmacro %}
