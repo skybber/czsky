@@ -136,7 +136,7 @@ def _setup_dark_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.06, 0.06, 0.1)
+    config.milky_way_color = (0.04, 0.04, 0.07)
     config.light_mode = False
 
 
@@ -216,6 +216,14 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
 
     if fld_size <= 10:
         config.show_milky_way = False
+    elif config.show_milky_way:
+        sup_coef = (fld_size - 10) / (70-10)
+        bg_r, bg_g, bg_b = config.background_color[0], config.background_color[1], config.background_color[2]
+        if sup_coef>1:
+            sup_coef = 1
+        config.milky_way_color = (bg_r + (config.milky_way_color[0]-bg_r) * sup_coef,
+                                  bg_g + (config.milky_way_color[1]-bg_g) * sup_coef,
+                                  bg_b + (config.milky_way_color[2]-bg_b) * sup_coef)
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
@@ -638,8 +646,6 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
 
 def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
-
-
     if force_light_mode or session.get('theme', '') == 'light':
         color = (0.0, 0.5, 0.0)
     elif session.get('theme', '') == 'night':
