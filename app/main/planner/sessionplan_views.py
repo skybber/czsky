@@ -44,6 +44,7 @@ from app.models import (
     DeepskyObject,
     DsoList,
     Location,
+    ObservedList,
     SessionPlan,
     SessionPlanItem,
     UserConsDescription,
