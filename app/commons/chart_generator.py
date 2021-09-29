@@ -29,6 +29,7 @@ from app.models import (
 
 used_catalogs = None
 dso_name_cache = None
+dso_hide_filter = None
 
 MAX_IMG_WIDTH = 3000
 MAX_IMG_HEIGHT = 3000
@@ -111,6 +112,19 @@ def _load_used_catalogs():
         global dso_name_cache
         dso_name_cache = {}
     return used_catalogs
+
+
+def _get_dso_hide_filter():
+    global dso_hide_filter
+    if not dso_hide_filter:
+        dso_hide_filter = []
+        with open(os.path.join(os.getcwd(), 'data/dso_hide_filter.csv'), 'r') as ifile:
+            lines   = ifile.readlines()
+            for line in lines:
+                dso = _find_dso_by_name(line.strip())
+                if dso:
+                    dso_hide_filter.append(dso)
+    return dso_hide_filter
 
 
 def _setup_dark_theme(config, width):
@@ -528,9 +542,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
                     showing_dsos=showing_dsos,
                     hl_showing_dsos=hl_showing_dsos,
                     highlights=highlights,
-                    visible_objects=visible_objects,
+                    dso_hide_filter=_get_dso_hide_filter(),
                     trajectory=trajectory,
-                    hl_constellation=hl_constellation)
+                    hl_constellation=hl_constellation,
+                    visible_objects=visible_objects)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
@@ -538,6 +553,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         used_catalogs.free_mem()
 
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
+
 
 def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, landscape=True, show_legend=True, dso_names=None,
                       flags='', highlights_dso_list=None, trajectory=None):
@@ -601,10 +617,12 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     hl_showing_dsos = len(showing_dsos) - len1 > 0
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, hl_showing_dsos=hl_showing_dsos, highlights=highlights, trajectory=trajectory)
+    dso_hide_filter = _get_dso_hide_filter()
+
+    engine.make_map(used_catalogs, showing_dsos=showing_dsos, hl_showing_dsos=hl_showing_dsos, highlights=highlights,
+                    dso_hide_filter=dso_hide_filter, trajectory=trajectory)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
-
 
 
 def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, flags=''):
