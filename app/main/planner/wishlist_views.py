@@ -34,6 +34,7 @@ from app.models import (
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.search_utils import process_session_search, process_paginated_session_search, get_items_per_page, create_table_sort, get_catalogues_menu_items
 from app.commons.chart_generator import (
+    common_chart_pdf_img,
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
@@ -185,3 +186,20 @@ def wish_list_chart_legend_img(ra, dec):
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_wishlist.route('/wish-list/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def wish_list_chart_pdf(ra, dec):
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    if wish_list is None:
+        abort(404)
+
+    highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+
+    return send_file(img_bytes, mimetype='application/pdf')
+
+
