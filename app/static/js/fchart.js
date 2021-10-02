@@ -92,8 +92,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.moveStep = undefined;
     this.moveX = 0;
     this.moveY = 0;
-    this.cumulativeMoveX = 0;
-    this.cumulativeMoveY = 0;
+    this.cumulatedMoveX = 0;
+    this.cumulatedMoveY = 0;
     this.backwardMove = false;
     this.dsoRegions = undefined;
 
@@ -345,8 +345,8 @@ FChart.prototype.doReloadImage = function() {
 }
 
 FChart.prototype.activateImageOnLoad = function() {
-    var cumulX = this.cumulativeMoveX;
-    var cumulY = this.cumulativeMoveY;
+    var cumulX = this.cumulatedMoveX;
+    var cumulY = this.cumulatedMoveY;
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = null;
         var old = this.skyImg.active;
@@ -363,9 +363,9 @@ FChart.prototype.activateImageOnLoad = function() {
                     this.redrawAll();
                 }
             } else {
-                this.cumulativeMoveX -= cumulX;
-                this.cumulativeMoveY -= cumulY;
-                if (this.cumulativeMoveY == 0 && this.cumulativeMoveY == 0) {
+                this.cumulatedMoveX -= cumulX;
+                this.cumulatedMoveY -= cumulY;
+                if (this.cumulatedMoveY == 0 && this.cumulatedMoveY == 0) {
                     this.backwardMove = true;
                 }
             }
@@ -463,15 +463,15 @@ FChart.prototype.onPointerUp = function(e) {
 }
 
 FChart.prototype.moveXY = function(mx, my) {
-    this.cumulativeMoveX = this.moveX;
-    this.cumulativeMoveY = this.moveY;
-    this.totalMoveX = this.MOVE_DIST * mx;
-    this.totalMoveY = this.MOVE_DIST * my;
-    this.dx += this.totalMoveX;
-    this.dy += this.totalMoveY;
+    this.cumulatedMoveX = this.moveX;
+    this.cumulatedMoveY = this.moveY;
+    this.moveDX = this.MOVE_DIST * mx;
+    this.moveDY = this.MOVE_DIST * my;
+    this.dx += this.moveDX;
+    this.dy += this.moveDY;
     this.moveEnd();
-    this.dx -= this.totalMoveX;
-    this.dy -= this.totalMoveY;
+    this.dx -= this.moveDX;
+    this.dy -= this.moveDY;
 
     this.reloadImage();
 
@@ -538,11 +538,11 @@ FChart.prototype.nextMovePosition = function() {
     if (this.moveStep < this.MAX_MOVE_STEPS) {
         this.moveStep ++;
         if (this.backwardMove) {
-            this.moveX = this.cumulativeMoveX + this.totalMoveX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
-            this.moveY = this.cumulativeMoveY + this.totalMoveY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulatedMoveX + this.moveDX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveY = this.cumulatedMoveY + this.moveDY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
         } else {
-            this.moveX = this.cumulativeMoveX + this.totalMoveX * this.moveStep / this.MAX_MOVE_STEPS;
-            this.moveY = this.cumulativeMoveY + this.totalMoveY * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulatedMoveX + this.moveDX * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveY = this.cumulatedMoveY + this.moveDY * this.moveStep / this.MAX_MOVE_STEPS;
         }
     }
 }
