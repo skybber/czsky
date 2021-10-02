@@ -94,6 +94,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.moveY = 0;
     this.cumulatedMoveX = 0;
     this.cumulatedMoveY = 0;
+    this.renderOnTimeOutDepth = 0;
     this.backwardMove = false;
     this.dsoRegions = undefined;
 
@@ -295,9 +296,11 @@ FChart.prototype.reloadImage = function() {
     if (this.reloadingImgCnt == 0) {
         this.reloadingImgCnt = 1;
         this.doReloadImage();
+        return true
     } else {
-        this.reloadingImgCnt = 2;
+        // this.reloadingImgCnt = 2;
     }
+    return false;
 }
 
 FChart.prototype.forceReloadImage = function() {
@@ -534,7 +537,22 @@ FChart.prototype.moveFunc = function() {
     if (this.smoothMoveStep == this.MAX_SMOOTH_MOVE_STEPS) {
         clearInterval(this.moveInterval);
         this.moveInterval = undefined;
+        this.renderOnTimeOut();
+
     }
+}
+
+FChart.prototype.renderOnTimeOut = function() {
+    setTimeout((function() {
+        if (this.moveInterval === undefined) {
+            if (!this.reloadImage() && this.renderOnTimeOutDepth<5) {
+                this.renderOnTimeOutDepth ++;
+                this.renderOnTimeOut();
+            } else {
+                this.renderOnTimeOutDepth = 0;
+            }
+        }
+    }).bind(this), this.MOVE_INTERVAL/2);
 }
 
 FChart.prototype.nextMovePosition = function() {
