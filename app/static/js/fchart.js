@@ -57,7 +57,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.MAX_ZOOM_STEPS = 10;
 
     this.MOVE_INTERVAL = 200;
-    this.MAX_MOVE_STEPS = 10;
+    this.MAX_SMOOTH_MOVE_STEPS = 10;
     this.MOVE_DIST = 80;
 
     this.ra = ra;
@@ -89,7 +89,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.zoomStep = undefined;
 
     this.moveInterval = undefined;
-    this.moveStep = undefined;
+    this.smoothMoveStep = undefined;
     this.moveX = 0;
     this.moveY = 0;
     this.cumulatedMoveX = 0;
@@ -320,6 +320,9 @@ FChart.prototype.formatUrl = function(inpUrl) {
 FChart.prototype.doReloadImage = function() {
     var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
 
+    var cumulX = this.cumulatedMoveX;
+    var cumulY = this.cumulatedMoveY;
+
     if (this.jsonLoad) {
         // this.skyImgBuf[this.skyImg.background].src = url;
         this.reqInProcess ++;
@@ -329,7 +332,7 @@ FChart.prototype.doReloadImage = function() {
             this.reqInProcess --;
             if (this.reqInProcess == 0) {
                 this.dsoRegions = data.img_map;
-                this.activateImageOnLoad();
+                this.activateImageOnLoad(cumulX, cumulY);
                 this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
                 var queryParams = new URLSearchParams(window.location.search);
                 queryParams.set('ra', this.ra.toString());
@@ -339,14 +342,12 @@ FChart.prototype.doReloadImage = function() {
             }
         }.bind(this));
     } else {
-        activateImageOnLoad();
+        activateImageOnLoad(cumulX, cumulY);
         this.skyImgBuf[this.skyImg.background].src = url;
     }
 }
 
-FChart.prototype.activateImageOnLoad = function() {
-    var cumulX = this.cumulatedMoveX;
-    var cumulY = this.cumulatedMoveY;
+FChart.prototype.activateImageOnLoad = function(cumulX, cumulY) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = null;
         var old = this.skyImg.active;
@@ -356,17 +357,19 @@ FChart.prototype.activateImageOnLoad = function() {
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
             this.cumulativeScaleFac = 1.0;
+            this.cumulatedMoveX -= cumulX;
+            this.cumulatedMoveY -= cumulY;
             if (this.moveInterval === undefined) {
-                this.moveX = 0;
-                this.moveY = 0;
-                if (this.reloadingImgCnt <= 1) {
+                this.moveX = this.cumulatedMoveX;
+                this.moveY = this.cumulatedMoveY;
+                //if (this.reloadingImgCnt <= 1) {
                     this.redrawAll();
-                }
+                //}
             } else {
-                this.cumulatedMoveX -= cumulX;
-                this.cumulatedMoveY -= cumulY;
                 if (this.cumulatedMoveY == 0 && this.cumulatedMoveY == 0) {
                     this.backwardMove = true;
+                } else {
+                    this.backwardMove = false;
                 }
             }
         } else {
@@ -476,9 +479,9 @@ FChart.prototype.moveXY = function(mx, my) {
     this.reloadImage();
 
     var t = this;
-    this.moveStep = 0;
+    this.smoothMoveStep = 0;
     this.backwardMove = false;
-    this.moveInterval = setInterval(function(){t.moveFunc();}, this.MOVE_INTERVAL/this.MAX_MOVE_STEPS);
+    this.moveInterval = setInterval(function(){t.moveFunc();}, this.MOVE_INTERVAL/this.MAX_SMOOTH_MOVE_STEPS);
     this.nextMovePosition();
     this.redrawAll();
 }
@@ -528,21 +531,21 @@ FChart.prototype.onPointerMove = function (e) {
 FChart.prototype.moveFunc = function() {
     this.nextMovePosition();
     this.redrawAll();
-    if (this.moveStep == this.MAX_MOVE_STEPS) {
+    if (this.smoothMoveStep == this.MAX_SMOOTH_MOVE_STEPS) {
         clearInterval(this.moveInterval);
         this.moveInterval = undefined;
     }
 }
 
 FChart.prototype.nextMovePosition = function() {
-    if (this.moveStep < this.MAX_MOVE_STEPS) {
-        this.moveStep ++;
+    if (this.smoothMoveStep < this.MAX_SMOOTH_MOVE_STEPS) {
+        this.smoothMoveStep ++;
         if (this.backwardMove) {
-            this.moveX = this.cumulatedMoveX + this.moveDX * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
-            this.moveY = this.cumulatedMoveY + this.moveDY * (this.moveStep-this.MAX_MOVE_STEPS) / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulatedMoveX + this.moveDX * (this.smoothMoveStep-this.MAX_SMOOTH_MOVE_STEPS) / this.MAX_SMOOTH_MOVE_STEPS;
+            this.moveY = this.cumulatedMoveY + this.moveDY * (this.smoothMoveStep-this.MAX_SMOOTH_MOVE_STEPS) / this.MAX_SMOOTH_MOVE_STEPS;
         } else {
-            this.moveX = this.cumulatedMoveX + this.moveDX * this.moveStep / this.MAX_MOVE_STEPS;
-            this.moveY = this.cumulatedMoveY + this.moveDY * this.moveStep / this.MAX_MOVE_STEPS;
+            this.moveX = this.cumulatedMoveX + this.moveDX * this.smoothMoveStep / this.MAX_SMOOTH_MOVE_STEPS;
+            this.moveY = this.cumulatedMoveY + this.moveDY * this.smoothMoveStep / this.MAX_SMOOTH_MOVE_STEPS;
         }
     }
 }
