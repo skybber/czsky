@@ -94,8 +94,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.moveY = 0;
     this.cumulatedMoveX = 0;
     this.cumulatedMoveY = 0;
-    this.renderOnTimeOutDepth = 0;
+    this.renderOnTimeOutFromKbdMoveDepth = 0;
     this.backwardMove = false;
+    this.isMoveReload = false;
+    this.moveOldImgX = 0;
+    this.moveOldImgY = 0;
+    this.moseMoveTimeout = false;
     this.dsoRegions = undefined;
 
     if (fullScreen) {
@@ -378,6 +382,11 @@ FChart.prototype.activateImageOnLoad = function(cumulX, cumulY) {
         } else {
             this.backwardScale = true;
         }
+        if (this.isMoveReload) {
+            this.isMoveReload = false;
+            this.moveOldImgX -= this.storeMoveOldImgX;
+            this.moveOldImgY -= this.storeMoveOldImgY;
+        }
         this.reloadingImgCnt --;
         if (this.reloadingImgCnt > 0) {
             this.doReloadImage();
@@ -459,10 +468,15 @@ FChart.prototype.onPointerUp = function(e) {
         this.dx += this.getEventLocation(e).x - this.mouseX;
         this.dy += this.getEventLocation(e).y - this.mouseY;
         if (this.dx != 0 || this.dy != 0) {
+            this.renderOnTimeOutFromMouseMove();
+            /*
             this.moveEnd();
             this.reloadImage();
             this.dx = 0;
             this.dy = 0;
+            this.moveOldImgX = 0;
+            this.moveOldImgY = 0;
+            */
         }
         this.isDragging = false
     }
@@ -520,14 +534,55 @@ FChart.prototype.onPointerMove = function (e) {
         this.canvas.style.cursor = "default"
     }
     if (this.isDragging) {
-        var x = this.dx + (this.getEventLocation(e).x-this.mouseX);
-        var y = this.dy + (this.getEventLocation(e).y-this.mouseY);
+
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        var ddx = (this.getEventLocation(e).x-this.mouseX);
+        var ddy = (this.getEventLocation(e).y-this.mouseY);
+        this.mouseX = this.getEventLocation(e).x;
+        this.mouseY = this.getEventLocation(e).y;
+
+        this.moveOldImgX += ddx;
+        this.moveOldImgY += ddy;
+
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
-        this.ctx.drawImage(curSkyImg, x, y);
+        this.ctx.drawImage(curSkyImg, this.moveOldImgX, this.moveOldImgY);
         this.ctx.drawImage(curLegendImg, 0, 0);
+
+        this.dx += ddx;
+        this.dy += ddy;
+
+        this.renderOnTimeOutFromMouseMove();
+    }
+}
+
+FChart.prototype.renderOnTimeOutFromMouseMove = function() {
+    if (!this.moseMoveTimeout) {
+        this.moseMoveTimeout = true;
+        // console.log('Timeout called');
+        setTimeout((function() {
+            // console.log('Timeout start');
+            this.moseMoveTimeout = false;
+            var oldRa = this.ra;
+            var oldDec = this.dec;
+            this.moveEnd();
+            if (this.reloadImage()) {
+                this.isMoveReload = true;
+                this.dx = 0;
+                this.dy = 0;
+                this.storeMoveOldImgX = this.moveOldImgX;
+                this.storeMoveOldImgY = this.moveOldImgY;
+            } else {
+                // revert ra/dec
+                this.ra = oldRa;
+                this.dec = oldDec;
+                $('#ra').val(this.ra);
+                $('#dec').val(this.dec);
+                this.renderOnTimeOutFromMouseMove();
+            }
+        }).bind(this), this.MOVE_INTERVAL/4);
     }
 }
 
@@ -537,19 +592,19 @@ FChart.prototype.moveFunc = function() {
     if (this.smoothMoveStep == this.MAX_SMOOTH_MOVE_STEPS) {
         clearInterval(this.moveInterval);
         this.moveInterval = undefined;
-        this.renderOnTimeOut();
+        this.renderOnTimeOutFromKbdMove();
 
     }
 }
 
-FChart.prototype.renderOnTimeOut = function() {
+FChart.prototype.renderOnTimeOutFromKbdMove = function() {
     setTimeout((function() {
         if (this.moveInterval === undefined) {
-            if (!this.reloadImage() && this.renderOnTimeOutDepth<5) {
-                this.renderOnTimeOutDepth ++;
-                this.renderOnTimeOut();
+            if (!this.reloadImage() && this.renderOnTimeOutFromKbdMoveDepth<5) {
+                this.renderOnTimeOutFromKbdMoveDepth ++;
+                this.renderOnTimeOutFromKbdMove();
             } else {
-                this.renderOnTimeOutDepth = 0;
+                this.renderOnTimeOutFromKbdMoveDepth = 0;
             }
         }
     }).bind(this), this.MOVE_INTERVAL/2);
