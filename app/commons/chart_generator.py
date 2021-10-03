@@ -48,7 +48,6 @@ GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
-# DEFAULT_MAG = [15, 12, 11, (8, 11), (6, 9), (6, 8), 6, 6, 5]
 MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
 DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (5, 9)]
 
@@ -376,9 +375,11 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if request.args.get('fullscreen', 'false') == 'true':
             form.fullscreen.data = 'true'
 
-
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
+
+    if request.method == 'POST':
+        _actualize_all_pref_maglim(form.maglim.data, form.radius.data - 1)
 
     form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
     session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
@@ -433,6 +434,22 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                          show_not_found=show_not_found,
                          cancel_selection_url=cancel_selection_url
                          )
+
+
+def _actualize_all_pref_maglim(cur_maglim, magscale_index):
+    mag_interval = MAG_SCALES[magscale_index]
+    cur_index = cur_maglim - mag_interval[0]
+    max_index = mag_interval[1] - mag_interval[0]
+
+    for i in range(len(MAG_SCALES)):
+        if i == len(MAG_SCALES)-1:
+            # max field level can be just actualized only manually
+            continue
+        if i == magscale_index:
+            continue
+        mag_interval = MAG_SCALES[i]
+        pref_mag = mag_interval[0] + int(cur_index * (mag_interval[1]-mag_interval[0]) / max_index)
+        session['pref_maglim'  + str(FIELD_SIZES[i])] = pref_mag
 
 
 def _get_fld_size_maglim(fld_size_index):
