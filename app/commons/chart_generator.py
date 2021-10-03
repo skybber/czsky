@@ -49,7 +49,7 @@ GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
 MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (6, 11), (5, 9)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
 
 
 from .utils import to_float, to_boolean
@@ -379,10 +379,13 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
 
     if request.method == 'POST':
-        _actualize_all_pref_maglim(form.maglim.data, form.radius.data - 1)
+        _actualize_stars_pref_maglims(form.maglim.data, form.radius.data - 1)
 
     form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
     session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
+
+    if request.method == 'POST':
+        _actualize_dso_pref_maglims(form.dso_maglim.data, form.radius.data - 1)
 
     mag_range_values = []
     dso_mag_range_values = []
@@ -436,7 +439,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                          )
 
 
-def _actualize_all_pref_maglim(cur_maglim, magscale_index):
+def _actualize_stars_pref_maglims(cur_maglim, magscale_index):
     mag_interval = MAG_SCALES[magscale_index]
     cur_index = cur_maglim - mag_interval[0]
     max_index = mag_interval[1] - mag_interval[0]
@@ -450,6 +453,18 @@ def _actualize_all_pref_maglim(cur_maglim, magscale_index):
         mag_interval = MAG_SCALES[i]
         pref_mag = mag_interval[0] + int(cur_index * (mag_interval[1]-mag_interval[0]) / max_index)
         session['pref_maglim'  + str(FIELD_SIZES[i])] = pref_mag
+
+
+def _actualize_dso_pref_maglims(cur_maglim, magscale_index):
+    for i in range(magscale_index+1, len(DSO_MAG_SCALES)):
+        dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
+        if dso_maglim > cur_maglim:
+            session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
+
+    for i in range(0, magscale_index):
+        dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
+        if dso_maglim < cur_maglim:
+            session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
 
 
 def _get_fld_size_maglim(fld_size_index):
