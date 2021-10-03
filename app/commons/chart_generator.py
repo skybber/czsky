@@ -458,12 +458,12 @@ def _actualize_stars_pref_maglims(cur_maglim, magscale_index):
 def _actualize_dso_pref_maglims(cur_maglim, magscale_index):
     for i in range(magscale_index+1, len(DSO_MAG_SCALES)):
         dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
-        if dso_maglim > cur_maglim:
+        if dso_maglim is not None and dso_maglim > cur_maglim:
             session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
 
     for i in range(0, magscale_index):
         dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
-        if dso_maglim < cur_maglim:
+        if dso_maglim is not None and dso_maglim < cur_maglim:
             session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
 
 
@@ -480,6 +480,14 @@ def _get_fld_size_maglim(fld_size_index):
     dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
     if dso_maglim is None:
         dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1] + 1) // 2
+        for i in range(fld_size_index+1, len(DSO_MAG_SCALES)):
+            prev_dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
+            if prev_dso_maglim is not None and prev_dso_maglim > dso_maglim:
+                dso_maglim = prev_dso_maglim
+        for i in range(fld_size_index):
+            next_dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
+            if next_dso_maglim is not None and next_dso_maglim < dso_maglim:
+                dso_maglim = next_dso_maglim
 
     return (fld_size, maglim, dso_maglim)
 
