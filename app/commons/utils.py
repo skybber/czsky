@@ -1,5 +1,3 @@
-import werkzeug
-
 from flask import (
     current_app,
     request,
@@ -9,6 +7,7 @@ from werkzeug.datastructures import LanguageAccept
 
 from app.models.user import User
 
+
 def to_int(value, default):
     if value is not None:
         try:
@@ -17,6 +16,7 @@ def to_int(value, default):
             pass
     return default
 
+
 def to_float(value, default):
     if value is not None:
         try:
@@ -24,6 +24,7 @@ def to_float(value, default):
         except ValueError:
             pass
     return default
+
 
 def to_boolean(value, default):
     if value is not None:
@@ -48,6 +49,7 @@ def get_lang_and_editor_user_from_request():
     host = request.headers.get('Host')
     lang = 'en' if host and 'czsky.eu' in host else 'cs'
     return lang, User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + lang.upper())).first()
+
 
 def is_en_content():
     host = request.headers.get('Host')

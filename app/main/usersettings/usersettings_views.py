@@ -30,6 +30,7 @@ from app.commons.countries import countries
 
 main_usersettings = Blueprint('main_usersettings', __name__)
 
+
 @main_usersettings.route('/user-settings/public-profile', methods=['GET', 'POST'])
 @login_required
 def public_profile():
@@ -48,12 +49,14 @@ def public_profile():
 
     return render_template('main/usersettings/usersettings_edit.html', type='public_profile', form=form, countries=countries)
 
+
 @main_usersettings.route('/user-settings/account', methods=['GET', 'POST'])
 @login_required
 def user_account():
     form1 = PasswordForm()
     form2 = DeleteAccountForm()
     return render_template('main/usersettings/usersettings_edit.html', type='user_account', form1=form1, form2=form2)
+
 
 @main_usersettings.route('/user-settings/change_password', methods=['POST'])
 @login_required
@@ -69,6 +72,7 @@ def change_password():
         else:
             flash('Original password is invalid.', 'form-error')
     return render_template('main/usersettings/usersettings_edit.html', type='user_account', subtype='change_password', form1=form1, form2=form2)
+
 
 @main_usersettings.route('/user-settings/delete-account', methods=['POST'])
 @login_required
@@ -101,6 +105,7 @@ def git_repository():
         form2.ssh_public_key.data = current_user.git_content_ssh_public_key
     return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository')
 
+
 @main_usersettings.route('/user-settings/git-personal-repository', methods=['POST'])
 @login_required
 def git_personal_repository():
@@ -117,6 +122,7 @@ def git_personal_repository():
         db.session.commit()
         flash('Repository settings has been updated.', 'form-success')
     return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository', subtype='personal_repo_key')
+
 
 @main_usersettings.route('/user-settings/git-content-repository', methods=['POST'])
 @login_required
@@ -135,6 +141,7 @@ def git_content_repository():
             flash('Content repository settings has been updated.', 'form-success')
     return render_template('main/usersettings/usersettings_edit.html', form1=form1, form2=form2, type='git_repository', subtype='content_repo_key')
 
+
 @main_usersettings.route('/user-settings/git-ssh-key-create', methods=['GET'])
 @login_required
 def git_ssh_key_create():
@@ -145,6 +152,7 @@ def git_ssh_key_create():
     db.session.commit()
     flash('New ssh key was created.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
+
 
 @main_usersettings.route('/user-settings/git-content-ssh-key-create', methods=['GET'])
 @login_required
@@ -157,6 +165,7 @@ def git_content_ssh_key_create():
     flash('New content ssh key was created.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
 
+
 @main_usersettings.route('/user-settings/git-ssh-key-delete', methods=['GET'])
 @login_required
 def git_ssh_key_delete():
@@ -166,6 +175,7 @@ def git_ssh_key_delete():
     db.session.commit()
     flash('SSH key was deleted.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
+
 
 @main_usersettings.route('/user-settings/git-content-ssh-key-delete', methods=['GET'])
 @login_required

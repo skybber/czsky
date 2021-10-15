@@ -6,8 +6,9 @@ from skyfield.units import Angle
 
 r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]*([+-]?\d\d)[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
 
+
 def geoc_to_string(geoc, format_str):
-    '''
+    """
     Extend GeoCoord.to_string() by 's' format
     Output lat, lon coordinates as string in chosen format
     Inputs:
@@ -22,7 +23,7 @@ def geoc_to_string(geoc, format_str):
         ('N 5.8833', 'W 162.0833')
         >> palmyra.to_string('d%_%M')
         ('5_52.998', '-162_4.998')
-    '''
+    """
     format2value = {'H': geoc.get_hemisphere(),
                     'M': abs(geoc.decimal_minute),
                     'm': int(abs(geoc.minute)),
@@ -38,10 +39,10 @@ def geoc_to_string(geoc, format_str):
         coord_str = coord_str.replace('-', '')
     return coord_str
 
+
 def latlon_to_string(lat_lon):
     format_str = 'd%° %m%′ %s%" %H'
     return geoc_to_string(lat_lon.lat, format_str) + ', ' + geoc_to_string(lat_lon.lon, format_str)
-
 
 
 def mapy_cz_url(lon, lat):
@@ -59,7 +60,7 @@ def open_street_map_url(lon, lat):
 def parse_lonlat(coords):
     longLat = coords.split(',')
     if longLat and len(longLat) == 2:
-        return (lonlat_parse(longLat[0]), lonlat_parse(longLat[1]))
+        return lonlat_parse(longLat[0]), lonlat_parse(longLat[1])
     else:
         raise ValueError('Invalid coordinate format {}'.format(coords))
 

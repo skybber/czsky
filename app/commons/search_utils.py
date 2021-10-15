@@ -8,11 +8,10 @@ from wtforms.fields import (
     TimeField,
 )
 
-from flask_babel import lazy_gettext
-
 from app.commons.pagination import get_page_parameter
 
 ITEMS_PER_PAGE = 10
+
 
 def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
     if request.method == 'POST':
@@ -32,22 +31,22 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
                 session.pop(pair[0], None)
         # is backr necessary ???
         session['is_backr'] = True
-        return (False, page, ) # post/redirect using backr
+        return False, page  # post/redirect using backr
 
     if request.args.get('back', None):
         # is redirect necessary in back???
         session['is_backr'] = True
-        return (False, None, )  # redirect using backr
+        return False, None  # redirect using backr
 
     if session.pop('is_backr', False):
         page = session.get(sess_page_name, 1)
-        for pair in sess_arg_form_pairs: # put data from session to form on page action
+        for pair in sess_arg_form_pairs:  # put data from session to form on page action
             _field_data_from_serializable(pair[1], session.get(pair[0], None), pair[0] in session)
     else:
         page = request.args.get(get_page_parameter(), type=int, default=None)
         if page is not None:
             session[sess_page_name] = page
-            for pair in sess_arg_form_pairs: # put data from session to form on page action
+            for pair in sess_arg_form_pairs:  # put data from session to form on page action
                 _field_data_from_serializable(pair[1], session.get(pair[0], None), pair[0] in session)
 #         else:
 #             session.pop(sess_page_name, 0)
@@ -55,7 +54,7 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
 #                 session.pop(pair[0], None)
     if page is None:
         page = 1
-    return (True, page,)
+    return True, page
 
 
 def _field_data_to_serializable(fld):
@@ -105,6 +104,7 @@ def get_items_per_page(items_per_page):
         session['items_per_page'] = items_per_page.data
     return items_per_page.data
 
+
 def create_table_sort(current_sort_by, table_columns):
     if current_sort_by:
         if current_sort_by[0] == '-':
@@ -129,16 +129,17 @@ def create_table_sort(current_sort_by, table_columns):
         else:
             prefix = ''
             icon = ''
-        table_sort[sort_by] = { 'sort': prefix + sort_by, 'icon': icon}
+        table_sort[sort_by] = {'sort': prefix + sort_by, 'icon': icon}
     return table_sort
+
 
 def get_catalogues_menu_items():
     return [
          ('M', 'Messier'),
          ('NGC', 'NGC'),
          ('IC', 'IC'),
-         ('Abell','Abell'),
-         ('Sh2','Sharpless'),
+         ('Abell', 'Abell'),
+         ('Sh2', 'Sharpness'),
          ('HCG', 'Hickson'),
          ('B', 'Barnard'),
          ('Cr', 'Collinder'),

@@ -41,6 +41,7 @@ from app.main.chart.chart_forms import ChartForm
 
 main_observation = Blueprint('main_observation', __name__)
 
+
 @main_observation.route('/observation-menu', methods=['GET'])
 @login_required
 def observation_menu():

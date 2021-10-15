@@ -22,6 +22,7 @@ from app.models import (
 
 main_planner = Blueprint('main_planner', __name__)
 
+
 @main_planner.route('/planner-menu', methods=['GET'])
 @login_required
 def planner_menu():

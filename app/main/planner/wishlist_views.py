@@ -52,6 +52,7 @@ from app.commons.dso_utils import normalize_dso_name
 
 main_wishlist = Blueprint('main_wishlist', __name__)
 
+
 @main_wishlist.route('/wish-list', methods=['GET', 'POST'])
 @main_wishlist.route('/wish-list/info', methods=['GET', 'POST'])
 @login_required
@@ -201,5 +202,3 @@ def wish_list_chart_pdf(ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
-
-

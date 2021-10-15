@@ -42,8 +42,10 @@ from app.commons.utils import to_float
 
 main_news = Blueprint('main_news', __name__)
 
+
 def _is_editable(news):
     return news.user_id == current_user.id or current_user.is_admin() or current_user.is_editor()
+
 
 @main_news.route('/news-list', methods=['GET', 'POST'])
 @login_required
@@ -153,6 +155,7 @@ def news_chart_pdf(news_id, ra, dec):
 
     return send_file(img_bytes, mimetype='application/pdf')
 
+
 @main_news.route('/new-news', methods=['GET', 'POST'])
 @login_required
 def new_news():
@@ -219,6 +222,7 @@ def news_edit(news_id):
         form.is_released.data = news.is_released
 
     return render_template('main/news/news_edit.html', form=form, news=news, is_new=False, countries=countries)
+
 
 @main_news.route('/news/<int:news_id>/delete')
 @login_required

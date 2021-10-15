@@ -26,19 +26,23 @@ from app.commons.dso_utils import denormalize_dso_name, destructuralize_dso_name
 
 PRIVATE_KEY_PATH = 'ssh/id_git'
 
+
 def get_content_repository_path(user):
     return os.path.join(current_app.config.get('USER_DATA_DIR'), user.user_name, 'git-content-repository')
+
 
 def get_ssh_key_dir_path(user):
     return os.path.join(current_app.config.get('USER_DATA_DIR'), user.user_name, 'ssh')
 
+
 def get_ssh_private_key_path(user):
     return os.path.join(get_ssh_key_dir_path(user), 'id_git')
+
 
 def _get_git_ssh_command(user_name, ssh_private_key, from_repo):
     path = Path(os.getcwd(), current_app.config.get('USER_DATA_DIR'), user_name, PRIVATE_KEY_PATH)
     if not path.exists():
-        path.parent.mkdir(mode=0o711,parents=True, exist_ok=True)
+        path.parent.mkdir(mode=0o711, parents=True, exist_ok=True)
     private_key = ssh_private_key
     if not private_key.endswith('\n'):
         private_key += '\n'
@@ -47,10 +51,12 @@ def _get_git_ssh_command(user_name, ssh_private_key, from_repo):
     os.chmod(path, 0o400)
     return 'ssh -i ' + (('../' + PRIVATE_KEY_PATH) if from_repo else str(path))
 
+
 def _finalize_git_ssh_command(user_name):
     path = Path(current_app.config.get('USER_DATA_DIR'), user_name, 'ssh/id_git')
     if path.exists():
         path.unlink()
+
 
 def _actualize_repository(user_name, git_repository, git_ssh_private_key, repository_path):
     git_repopath = os.path.join(repository_path, '.git')
@@ -71,6 +77,7 @@ def _actualize_repository(user_name, git_repository, git_ssh_private_key, reposi
         finally:
             _finalize_git_ssh_command(user_name)
 
+
 def _id_to_range(dso_id, range):
     nth_range = int(dso_id / range)
     return str(nth_range * range) + '-' + str((nth_range+1) * range)
@@ -83,6 +90,7 @@ def _get_dso_dir(cat_name, dso_id):
             return os.path.join('NGC', _id_to_range(dso_id, 100))
         return cat_name
 
+
 def _get_user_name(user_id, user_name_cache):
     if user_id is None:
         return ''
@@ -91,6 +99,7 @@ def _get_user_name(user_id, user_name_cache):
         user_name = User.query.filter_by(id=user_id).first().user_name
         user_name_cache[user_id] = user_name
     return user_name
+
 
 def save_public_content_data_to_git(owner, commit_message):
     editor_user = User.get_editor_user()
@@ -191,10 +200,12 @@ def save_public_content_data_to_git(owner, commit_message):
     finally:
         _finalize_git_ssh_command(owner.user_name)
 
+
 def _convert_to_multiline(t):
     if not t:
         return ''
     return t.strip().replace('\r\n', '\n').replace('\n', '\\\n')
+
 
 def load_public_content_data_from_git(user_name):
     owner = User.query.filter_by(user_name=user_name).first()
@@ -300,6 +311,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             if child_udd:
                 db.session.remove(child_udd)
 
+
 def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
@@ -322,11 +334,11 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             updated_by = updated_by or owner
             text = f.read()
             uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
-                    .filter_by(lang_code=lang_code_dir) \
-                    .filter_by(aperture_class=aperture_class) \
-                    .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
-                    .filter_by(name=dso_name) \
-                    .first()
+                                                  .filter_by(lang_code=lang_code_dir) \
+                                                  .filter_by(aperture_class=aperture_class) \
+                                                  .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+                                                  .filter_by(name=dso_name) \
+                                                  .first()
             child_uad = None
             if uad and uad.deepskyObject.master_id:
                 master_dso = DeepskyObject.query.filter_by(id=uad.deepskyObject.master_id).first()
@@ -429,6 +441,7 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             ucd.update_date = updated_date
             db.session.add(ucd)
 
+
 def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     star_dir = os.path.join(repository_path, lang_code_dir, 'star')
     files = [f for f in os.listdir(star_dir) if os.path.isfile(os.path.join(star_dir, f))]
@@ -524,6 +537,7 @@ def _read_header(f):
         else:
             current_app.logger.error('Unknown header line format. Line:{}'.format(line))
 
+
 def _get_user_from_username(user_cache, user_name, default_user):
     if not user_name:
         return None
@@ -544,8 +558,10 @@ def _get_get_date_from_str(strdate):
             pass
     return datetime.now()
 
+
 def save_personal_data_to_git(owner, commit_message):
     pass
+
 
 def load_personal_data_from_git(owner):
     pass

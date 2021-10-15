@@ -27,11 +27,14 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+
 from app.main.chart.chart_forms import ChartForm
+
 
 class SearchAsteroidForm(FlaskForm):
     q = StringField('Search')
     items_per_page = IntegerField(lazy_gettext('Items per page'))
+
 
 class AsteroidFindChartForm(ChartForm):
     date_from = DateField(lazy_gettext('From'), id='datefrom', format = '%d/%m/%Y', default = None)

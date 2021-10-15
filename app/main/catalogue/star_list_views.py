@@ -36,6 +36,7 @@ from app.main.chart.chart_forms import ChartForm
 
 main_star_list = Blueprint('main_star_list', __name__)
 
+
 def _find_star_list(star_list_id):
     try:
         int_id = int(star_list_id)
@@ -43,11 +44,13 @@ def _find_star_list(star_list_id):
     except ValueError:
         return StarList.query.filter_by(name=star_list_id).first()
 
+
 @main_star_list.route('/star-lists-menu', methods=['GET'])
 def star_lists_menu():
     star_lists = StarList.query.all()
     lang, editor_user = get_lang_and_editor_user_from_request()
     return render_template('main/catalogue/star_list_menu.html', star_lists=star_lists, lang_code=lang)
+
 
 @main_star_list.route('/star-list/<string:star_list_id>', methods=['GET','POST'])
 @main_star_list.route('/star-list/<string:star_list_id>/info', methods=['GET','POST'])

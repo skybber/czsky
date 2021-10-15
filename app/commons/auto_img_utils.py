@@ -10,12 +10,14 @@ from app import db
 
 _ug_bl_dsos = None
 
+
 def get_dso_image_info(dso_name):
     dso_file_name = dso_name + '.jpg'
     img_dir_def = resolve_img_path_dir(os.path.join('dso', dso_file_name))
     if img_dir_def[0]:
         return img_dir_def[0] + 'dso/' + dso_file_name, parse_inline_link(img_dir_def[1])
     return None
+
 
 def get_dso_image_info_with_imgdir(dso_name):
     dso_file_name = dso_name + '.jpg'
@@ -48,4 +50,3 @@ def get_ug_bl_dsos():
 
         _ug_bl_dsos = ug_bl_dsos
     return _ug_bl_dsos
-

@@ -8,6 +8,7 @@ from app.commons.coordinates import parse_lonlat
 
 from app.models import Location
 
+
 def location_lonlat_check(form, field):
     if field.data.isdigit():
         location = Location.query.filter_by(id=int(field.data)).first()

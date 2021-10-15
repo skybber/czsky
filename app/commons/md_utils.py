@@ -1,5 +1,4 @@
 import re
-import os
 
 from flask import current_app
 from flask import url_for
@@ -13,6 +12,7 @@ from .img_dir_resolver import resolve_img_path_dir, parse_inline_link
 EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
 NO_EXPAND = re.compile(r'(\[.*?\]\(.*?\))|(src=".*)')
 EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
+
 
 def parse_extended_commonmark(md_text, ignore_name, ext_url_params):
     parsed_text = _expand_img_dir(md_text)
@@ -43,6 +43,7 @@ def _expand_img_dir(md_text):
     result = Markup(result.replace('$IMG_DIR', current_app.config.get('DEFAULT_IMG_DIR')))
     return result
 
+
 def _auto_links_in_md_text(md_text, ignore_name, ext_url_params):
     if not md_text:
         return md_text
@@ -55,6 +56,7 @@ def _auto_links_in_md_text(md_text, ignore_name, ext_url_params):
         prev_end = m.end()
     result += _expand_in_subtext(md_text[prev_end:], ignore_name, cache, ext_url_params)
     return result
+
 
 def _expand_in_subtext(sub_text, ignore_name, cache, ext_url_params):
     result = ''

@@ -38,6 +38,7 @@ from app.main.chart.chart_forms import ChartForm
 
 main_constellation = Blueprint('main_constellation', __name__)
 
+
 @main_constellation.route('/constellations', methods=['GET', 'POST'])
 def constellations():
     """View all constellations."""
@@ -70,6 +71,7 @@ def constellations():
 
     return render_template('main/catalogue/constellations.html', constellations=constellations, search_form=search_form, cons_names=cons_names)
 
+
 def _find_constellation(constellation_id):
     try:
         int_id = int(constellation_id)
@@ -77,6 +79,7 @@ def _find_constellation(constellation_id):
     except ValueError:
         pass
     return Constellation.query.filter_by(iau_code=constellation_id).first()
+
 
 @main_constellation.route('/constellation/<string:constellation_id>')
 @main_constellation.route('/constellation/<string:constellation_id>/info')
@@ -195,6 +198,7 @@ def constellation_info(constellation_id):
                            ug_bl_dsos=ug_bl_dsos, wish_list=wish_list, observed_list=observed_list, title_images=title_images,
                            )
 
+
 @main_constellation.route('/constellation/<string:constellation_id>/chart', methods=['GET', 'POST'])
 def constellation_chart(constellation_id):
     """View a constellation findchart."""
@@ -238,6 +242,7 @@ def constellation_chart_legend_img(constellation_id, ra, dec):
 
     img_bytes = common_chart_legend_img(constellation.label_ra, constellation.label_dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -289,11 +294,13 @@ def constellation_edit(constellation_id):
     return render_template('main/catalogue/constellation_edit.html', form=form, constellation=constellation,
                            user_descr=user_descr, author=author)
 
+
 def _create_author_entry(update_by, update_date):
     if update_by is None:
         return ('', '')
     user_name = User.query.filter_by(id=update_by).first().user_name
     return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
+
 
 @main_constellation.route('/constellation/<string:constellation_id>/stars')
 def constellation_stars(constellation_id):

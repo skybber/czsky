@@ -85,6 +85,7 @@ min_alt_item_list = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
 
 cs_collator = icu.Collator.createInstance(icu.Locale('cs_CZ.UTF-8'))
 
+
 @main_sessionplan.route('/session-plans',  methods=['GET', 'POST'])
 @login_required
 def session_plans():
@@ -228,7 +229,7 @@ def _get_location_data_from_form(form):
     else:
         location_position = form.location.data
 
-    return (location_id, location_position)
+    return location_id, location_position
 
 
 def _get_location_data2_from_form(form):
@@ -239,7 +240,7 @@ def _get_location_data2_from_form(form):
     else:
         location_position = form.location.data
 
-    return (location, location_position)
+    return location, location_position
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/delete')
@@ -302,7 +303,7 @@ def session_plan_item_add(session_plan_id):
 
     session['is_backr'] = True
 
-    srow_index=request.args.get('row_index')
+    srow_index = request.args.get('row_index')
 
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, srow_index=srow_index))
 
@@ -321,7 +322,7 @@ def session_plan_item_delete(item_id):
     flash('Session plan item was deleted', 'form-success')
 
     session['is_backr'] = True
-    drow_index=request.args.get('row_index')
+    drow_index = request.args.get('row_index')
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, drow_index=drow_index))
 
 
@@ -571,7 +572,8 @@ def _get_location_info_from_session_plan(session_plan):
         latitude, longitude = parse_lonlat(session_plan.location_position)
         elevation = 0
 
-    return (loc_name, latitude, longitude, elevation)
+    return loc_name, latitude, longitude, elevation
+
 
 def _setup_search_from(schedule_form, observer, observation_time, tz_info, default_time):
     if schedule_form.time_from.data:
@@ -608,7 +610,7 @@ def session_plan_chart(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     dso_id = request.args.get('dso_id')
     session_plan_item = None
@@ -671,6 +673,7 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
+
 
 def _get_twighligh_component(session_plan, comp):
     ts = load.timescale()

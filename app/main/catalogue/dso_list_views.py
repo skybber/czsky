@@ -40,12 +40,14 @@ main_dso_list = Blueprint('main_dso_list', __name__)
 
 highlights_dso_list_cache = { }
 
+
 def _find_dso_list(dso_list_id):
     try:
         int_id = int(dso_list_id)
         return DsoList.query.filter_by(id=int_id).first()
     except ValueError:
         return DsoList.query.filter_by(name=dso_list_id).first()
+
 
 def _find_highlights_dso_list(dso_list_id):
     ret = highlights_dso_list_cache.get(dso_list_id)
@@ -60,12 +62,14 @@ def _find_highlights_dso_list(dso_list_id):
             highlights_dso_list_cache[dso_list_id] = ret
     return ret
 
+
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
     dso_lists = DsoList.query.all()
     star_lists = StarList.query.all()
     lang, editor_user = get_lang_and_editor_user_from_request()
     return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists, lang_code=lang)
+
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>', methods=['GET','POST'])
 @main_dso_list.route('/dso-list/<string:dso_list_id>/info', methods=['GET','POST'])

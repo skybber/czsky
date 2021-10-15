@@ -23,9 +23,11 @@ from app.commons.coordinates import mapy_cz_url, google_url
 
 main_skyquality = Blueprint('main_skyquality', __name__)
 
+
 @main_skyquality.route('/skyquality', methods=['GET', 'POST'])
 def skyquality():
     return render_template('main/skyquality/skyquality.html')
+
 
 @main_skyquality.route('/skyquality-locations', methods=['GET', 'POST'])
 def skyquality_locations():
@@ -61,6 +63,7 @@ def skyquality_location_info(location_id):
     url_os_map = google_url(location.longitude, location.latitude)
     return render_template('main/skyquality/skyquality_location_info.html', location=location, type='info',
                            mapy_cz_url=url_mapy_cz, google_url=url_google, os_map_url=url_os_map)
+
 
 @main_skyquality.route('/skyquality-measurements', methods=['GET', 'POST'])
 def skyquality_measurements():

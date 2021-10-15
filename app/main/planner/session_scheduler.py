@@ -26,6 +26,7 @@ from app.models import (
 
 rise_set_cache = l = LRU(10000)
 
+
 def create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def):
     # create session plan list
     spi = session_plan.session_plan_items.copy()

@@ -24,7 +24,7 @@ GREEK_TO_LAT = {
     "χ":"chi",
     "ψ":"psi",
     "ω":"ome"
-};
+}
 
 SHORT_LAT_TO_GREEK = {
     "alp":"α",
@@ -51,7 +51,7 @@ SHORT_LAT_TO_GREEK = {
     "chi":"χ",
     "psi":"ψ",
     "ome":"ω",
-};
+}
 
 LONG_LAT_TO_GREEK = {
     "alpha":"α",
@@ -78,7 +78,7 @@ LONG_LAT_TO_GREEK = {
     "chi":"χ",
     "psi":"ψ",
     "omega":"ω",
-};
+}
 
 LONG_LAT_CZ_TO_GREEK = {
     "alfa":"α",
@@ -105,4 +105,4 @@ LONG_LAT_CZ_TO_GREEK = {
     "chi":"χ",
     "psi":"ψ",
     "omega":"ω",
-};
+}

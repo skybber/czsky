@@ -91,6 +91,7 @@ def _create_comet_brighness_file(all_comets, fname):
     all_comets['mag'] = mags
     creation_running = False
 
+
 def _get_all_comets():
     global all_comets
     global all_comets_expiration
@@ -119,6 +120,7 @@ def _get_all_comets():
             _load_comet_brightness(all_comets, fname)
 
     return all_comets
+
 
 @main_comet.route('/comets', methods=['GET', 'POST'])
 def comets():
@@ -151,10 +153,12 @@ def comets():
     pagination = Pagination(page=page, total=len(comets), search=False, record_name='comets', css_framework='semantic', not_passed_args='back')
     return render_template('main/solarsystem/comets.html', comets=comets_for_render, pagination=pagination, search_form=search_form)
 
+
 def _find_comet(comet_id):
     all_comets = _get_all_comets()
     c = all_comets.loc[all_comets['comet_id'] == comet_id]
     return c.iloc[0] if len(c)>0 else None
+
 
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
 @main_comet.route('/comet/<string:comet_id>/info', methods=['GET', 'POST'])
@@ -292,4 +296,3 @@ def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[1] < mag:
         return mag_interval[1]
     return mag
-

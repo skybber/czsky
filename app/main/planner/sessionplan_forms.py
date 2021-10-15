@@ -35,8 +35,10 @@ from app.main.utils.validators import location_lonlat_check
 
 SCHEDULE_TIME_FORMAT = '%H:%M'
 
+
 class SearchSessionPlanForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
+
 
 class SessionPlanMixin():
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
@@ -45,13 +47,16 @@ class SessionPlanMixin():
     notes = TextAreaField(lazy_gettext('Notes'))
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
+
 class SessionPlanNewForm(FlaskForm, SessionPlanMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Add Session Plan'))
 
+
 class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Session Plan'))
+
 
 class SessionPlanScheduleFilterForm(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
@@ -74,12 +79,15 @@ class SessionPlanScheduleFilterForm(FlaskForm):
     not_observed = BooleanField('Not observed', default='checked')
     selected_dso_name = HiddenField(default='M1')
 
+
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
 
+
 class AddToWishListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+
 
 class SearchWishListForm(FlaskForm):
     season = SelectField(lazy_gettext('Season'), choices=[

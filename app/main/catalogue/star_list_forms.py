@@ -28,6 +28,7 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+
 class SearchStarListForm(FlaskForm):
     season = SelectField(lazy_gettext('Season'), choices=[
          ('All', lazy_gettext('All')),

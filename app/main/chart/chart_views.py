@@ -59,6 +59,7 @@ from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_wi
 
 main_chart = Blueprint('main_chart', __name__)
 
+
 @main_chart.route('/chart', methods=['GET', 'POST'])
 def chart():
     """View a chart."""
@@ -83,6 +84,7 @@ def chart():
 
     return render_template('main/chart/chart.html', fchart_form=form, chart_control=chart_control, mark_ra=ra, mark_dec=dec)
 
+
 @main_chart.route('/chart/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def chart_pos_img(ra, dec):
     flags = request.args.get('json')
@@ -104,10 +106,12 @@ def chart_pos_img(ra, dec):
     else:
         return send_file(img_bytes, mimetype='image/png')
 
+
 @main_chart.route('/chart/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def chart_legend_img(ra, dec):
     img_bytes = common_chart_legend_img(None, None, ra, dec)
     return send_file(img_bytes, mimetype='image/png')
+
 
 @main_chart.route('/chart/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def chart_pdf(ra, dec):

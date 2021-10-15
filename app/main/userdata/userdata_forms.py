@@ -26,5 +26,6 @@ from wtforms.validators import (
     required
 )
 
+
 class GitSaveForm(FlaskForm):
     commit_message = TextAreaField('Commit message', validators=[InputRequired(),], render_kw={'rows':2})

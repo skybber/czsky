@@ -27,6 +27,7 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+
 class SearchDsoForm(FlaskForm):
     q = StringField('Search')
     catalogue = SelectField('Catalogue', choices=[
@@ -58,10 +59,12 @@ class SearchDsoForm(FlaskForm):
     maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
     items_per_page = IntegerField(lazy_gettext('Items per page'))
 
+
 class DsoApertureDescriptionForm(FlaskForm):
     aperture_class = HiddenField()
     text = TextAreaField(render_kw={'rows':3})
     is_public = BooleanField('Public')
+
 
 class DeepskyObjectEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])

@@ -41,6 +41,7 @@ Observation item1 notes
 Observation item1 notes
 '''
 
+
 class ObservationItemNewForm(FlaskForm):
     deepsky_object_id_list = StringField(lazy_gettext('DSO list optionally with comment. (e.g. M3,M5:nice globulars!)'))
     date_time = TimeField(lazy_gettext('Time'), format = '%H:%M', default = datetime.now().time())
@@ -76,13 +77,16 @@ class ObservationMixin():
     advmode = HiddenField('Advanced Mode', default='false')
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
+
 class ObservationNewForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Add Observation'))
 
+
 class ObservationEditForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')
     submitt_button = SubmitField(lazy_gettext('Update Observation'))
+
 
 class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])

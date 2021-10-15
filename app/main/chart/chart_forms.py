@@ -13,6 +13,7 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+
 class ChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=7)

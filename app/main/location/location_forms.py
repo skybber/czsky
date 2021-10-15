@@ -29,6 +29,7 @@ from flask_babel import lazy_gettext
 
 from app.commons.coordinates import lonlat_check
 
+
 class LocationMixin():
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     lonlat = StringField(lazy_gettext('Longitude'), validators=[Length(max=256), lonlat_check])
@@ -39,11 +40,14 @@ class LocationMixin():
     is_public = BooleanField(lazy_gettext('Is public'), default=True)
     country_code = StringField(lazy_gettext('Country'), validators=[InputRequired(),])
 
+
 class LocationNewForm(FlaskForm, LocationMixin):
     submit = SubmitField(lazy_gettext('Add location'))
 
+
 class LocationEditForm(FlaskForm, LocationMixin):
     submit = SubmitField(lazy_gettext('Update location'))
+
 
 class SearchLocationForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))

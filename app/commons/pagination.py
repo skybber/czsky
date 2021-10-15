@@ -244,6 +244,7 @@ def get_page_args(
     offset = (page - 1) * per_page
     return page, per_page, offset
 
+
 class Pagination(object):
     """A simple pagination extension for flask."""
 

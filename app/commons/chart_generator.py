@@ -1,31 +1,25 @@
-import subprocess
-import os
-import sys
 import base64
+import os
+from datetime import timedelta
+from io import BytesIO
 from math import pi, sqrt
 from time import time
-from io import BytesIO
-from datetime import date, datetime, timedelta
 
+import fchart3
 from flask import (
     request,
     session,
     url_for,
 )
-
-import fchart3
-
-from flask import app
 from flask_login import current_user
-
-from app import db
 
 from app.models import (
     DsoList,
     Observation,
     SessionPlan,
-    WishList,
 )
+
+from .utils import to_float, to_boolean
 
 used_catalogs = None
 dso_name_cache = None
@@ -50,9 +44,6 @@ STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
 MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
 DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
-
-
-from .utils import to_float, to_boolean
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 500
@@ -88,8 +79,8 @@ class ChartControl:
         self.chart_pdf_flags = chart_pdf_flags
         self.chart_dso_list_menu = chart_dso_list_menu
         self.has_date_from_to = has_date_from_to
-        self.date_from=date_from
-        self.date_to=date_to
+        self.date_from = date_from
+        self.date_to = date_to
         self.back_search_url_b64 = back_search_url_b64
         self.show_not_found = show_not_found
         self.cancel_selection_url = cancel_selection_url
@@ -104,10 +95,10 @@ def _load_used_catalogs():
         used_catalogs = fchart3.UsedCatalogs(data_dir,
                                              extra_data_dir,
                                              usno_nomad_file=usno_nomad_file,
-                                             limiting_magnitude_deepsky = 100.0,
-                                             force_asterisms = False,
-                                             force_unknown = False,
-                                             show_catalogs = [])
+                                             limiting_magnitude_deepsky=100.0,
+                                             force_asterisms=False,
+                                             force_unknown=False,
+                                             show_catalogs=[])
         global dso_name_cache
         dso_name_cache = {}
     return used_catalogs
@@ -118,7 +109,7 @@ def _get_dso_hide_filter():
     if not dso_hide_filter:
         dso_hide_filter = []
         with open(os.path.join(os.getcwd(), 'data/dso_hide_filter.csv'), 'r') as ifile:
-            lines   = ifile.readlines()
+            lines = ifile.readlines()
             for line in lines:
                 dso = _find_dso_by_name(line.strip())
                 if dso:
@@ -232,7 +223,7 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     elif config.show_milky_way:
         sup_coef = (fld_size - 10) / (70-10)
         bg_r, bg_g, bg_b = config.background_color[0], config.background_color[1], config.background_color[2]
-        if sup_coef>1:
+        if sup_coef > 1:
             sup_coef = 1
         if sup_coef > 0:
             config.milky_way_color = (bg_r + (config.milky_way_color[0]-bg_r) * sup_coef,
@@ -277,7 +268,8 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         return flt_trajectory
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None, trajectory=None, hl_constellation=None):
+def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
+                         trajectory=None, hl_constellation=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -295,9 +287,10 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height, maglim, dso_maglim,
-                  mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
-                  trajectory=trajectory, hl_constellation=hl_constellation)
+    _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
+                  maglim, dso_maglim, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names,
+                  flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory,
+                  hl_constellation=hl_constellation)
     img_bytes.seek(0)
     return img_bytes
 
@@ -354,7 +347,7 @@ def common_ra_dec_fsz_from_request(form):
                 form.radius.data = i+1
                 break
         else:
-            form.radius.data = len(FIELD_SIZES);
+            form.radius.data = len(FIELD_SIZES)
         return True
     return False
 
@@ -401,15 +394,15 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
     disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
 
-    gui_field_sizes=STR_GUI_FIELD_SIZES
+    gui_field_sizes = STR_GUI_FIELD_SIZES
     gui_field_index = (form.radius.data-1)*2
 
-    chart_mx=('1' if form.mirror_x.data else '0')
-    chart_my=('1' if form.mirror_y.data else '0')
+    chart_mx = ('1' if form.mirror_x.data else '0')
+    chart_my = ('1' if form.mirror_y.data else '0')
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
-    chart_dso_list_menu=common_chart_dso_list_menu()
+    chart_dso_list_menu = common_chart_dso_list_menu()
 
     has_date_from_to = hasattr(form, 'date_from') and hasattr(form, 'date_to')
     date_from = form.date_from.data if has_date_from_to else None
@@ -422,21 +415,21 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         cancel_selection_url = url_for('main_chart.chart')
 
     return ChartControl(chart_fsz=str(fld_size),
-                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
-                         dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                         disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
-                         theme=theme,
-                         gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
-                         chart_mx=chart_mx, chart_my=chart_my,
-                         chart_mlim=str(form.maglim.data),
-                         chart_flags=chart_flags, legend_flags=legend_flags, chart_pdf_flags=(chart_flags + legend_flags),
-                         chart_dso_list_menu=chart_dso_list_menu,
-                         has_date_from_to=has_date_from_to,
-                         date_from=date_from, date_to=date_to,
-                         back_search_url_b64 = back_search_url_b64,
-                         show_not_found=show_not_found,
-                         cancel_selection_url=cancel_selection_url
-                         )
+                        mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
+                        dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
+                        disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
+                        theme=theme,
+                        gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
+                        chart_mx=chart_mx, chart_my=chart_my,
+                        chart_mlim=str(form.maglim.data),
+                        chart_flags=chart_flags, legend_flags=legend_flags, chart_pdf_flags=(chart_flags + legend_flags),
+                        chart_dso_list_menu=chart_dso_list_menu,
+                        has_date_from_to=has_date_from_to,
+                        date_from=date_from, date_to=date_to,
+                        back_search_url_b64=back_search_url_b64,
+                        show_not_found=show_not_found,
+                        cancel_selection_url=cancel_selection_url
+                        )
 
 
 def _actualize_stars_pref_maglims(cur_maglim, magscale_index):
@@ -452,19 +445,19 @@ def _actualize_stars_pref_maglims(cur_maglim, magscale_index):
             continue
         mag_interval = MAG_SCALES[i]
         pref_mag = mag_interval[0] + int(cur_index * (mag_interval[1]-mag_interval[0]) / max_index)
-        session['pref_maglim'  + str(FIELD_SIZES[i])] = pref_mag
+        session['pref_maglim' + str(FIELD_SIZES[i])] = pref_mag
 
 
 def _actualize_dso_pref_maglims(cur_maglim, magscale_index):
     for i in range(magscale_index+1, len(DSO_MAG_SCALES)):
         dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
         if dso_maglim is not None and dso_maglim > cur_maglim:
-            session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
+            session['pref_dso_maglim' + str(FIELD_SIZES[i])] = cur_maglim
 
     for i in range(0, magscale_index):
         dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
         if dso_maglim is not None and dso_maglim < cur_maglim:
-            session['pref_dso_maglim'  + str(FIELD_SIZES[i])] = cur_maglim
+            session['pref_dso_maglim' + str(FIELD_SIZES[i])] = cur_maglim
 
 
 def _get_fld_size_maglim(fld_size_index):
@@ -489,7 +482,7 @@ def _get_fld_size_maglim(fld_size_index):
             if next_dso_maglim is not None and next_dso_maglim < dso_maglim:
                 dso_maglim = next_dso_maglim
 
-    return (fld_size, maglim, dso_maglim)
+    return fld_size, maglim, dso_maglim
 
 
 def _get_fld_size_mags_from_request():
@@ -509,7 +502,7 @@ def _get_fld_size_mags_from_request():
         maglim = (maglim + next_maglim) / 2
         dso_maglim = (dso_maglim + next_dso_maglim) / 2
 
-    return (gui_fld_size, maglim, dso_maglim)
+    return gui_fld_size, maglim, dso_maglim
 
 
 def _check_in_mag_interval(mag, mag_interval):
@@ -554,7 +547,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         dso_maglim = -10
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png', pixels=True if width else False)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
@@ -633,7 +626,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
         artist = fchart3.CairoDrawing(pdf_fobj, 267, 180, format='pdf', landscape=landscape)
     else:
         artist = fchart3.CairoDrawing(pdf_fobj, 180, 267, format='pdf', landscape=landscape)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
@@ -667,7 +660,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
 def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, flags=''):
     global free_mem_counter
-    tm = time()
+    # tm = time()
 
     used_catalogs = _load_used_catalogs()
 
@@ -693,7 +686,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
         dso_maglim = -10
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png', pixels=True if width else False)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars = star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
@@ -724,7 +717,7 @@ def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
 
 def _find_dso_by_name(dso_name):
     dso = dso_name_cache.get(dso_name)
-    if not dso_name in dso_name_cache:
+    if dso_name not in dso_name_cache:
         dso, cat, name = used_catalogs.lookup_dso(dso_name)
         dso_name_cache[dso_name] = dso
     else:
@@ -751,7 +744,7 @@ def get_chart_legend_flags(form):
     if form.show_equatorial_grid.data == 'true':
         chart_flags += 'E'
 
-    return (chart_flags, legend_flags)
+    return chart_flags, legend_flags
 
 
 class FChartDsoListMenu:

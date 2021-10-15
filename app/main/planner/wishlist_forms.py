@@ -31,8 +31,10 @@ from wtforms.widgets import (
 )
 from flask_babel import lazy_gettext
 
+
 class AddToWishListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+
 
 class SearchWishListForm(FlaskForm):
     season = SelectField(lazy_gettext('Season'), choices=[

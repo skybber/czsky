@@ -30,6 +30,7 @@ from app.commons.countries import countries
 
 main_location = Blueprint('main_location', __name__)
 
+
 def _is_editable(location):
     return location.user_id == current_user.id or current_user.is_admin() or current_user.is_editor()
 
@@ -59,6 +60,7 @@ def locations():
 
     return render_template('main/location/locations.html', locations=locations_for_render, pagination=pagination, search_form=search_form)
 
+
 @main_location.route('/location/<int:location_id>', methods=['GET'])
 @main_location.route('/location/<int:location_id>/info', methods=['GET'])
 @login_required
@@ -71,6 +73,7 @@ def location_info(location_id):
         abort(404)
     return render_template('main/location/location_info.html', location=location, type='info', editable=_is_editable(location))
 
+
 @main_location.route('/location/<int:location_id>/skyquality', methods=['GET'])
 @login_required
 def location_skyquality(location_id):
@@ -82,6 +85,7 @@ def location_skyquality(location_id):
         abort(404)
     return render_template('main/location/location_info.html', location=location, type='skyquality', editable=_is_editable(location))
 
+
 @main_location.route('/location/<int:location_id>/observations', methods=['GET'])
 @login_required
 def location_observations(location_id):
@@ -92,6 +96,7 @@ def location_observations(location_id):
     if not location.is_public and location.user_id != current_user.id:
         abort(404)
     return render_template('main/location/location_info.html', location=location, type='observations', editable=_is_editable(location))
+
 
 @main_location.route('/new-location', methods=['GET', 'POST'])
 @login_required
@@ -159,6 +164,7 @@ def location_edit(location_id):
 
     return render_template('main/location/location_edit.html', form=form, location=location, is_new=False, countries=countries)
 
+
 @main_location.route('/location/<int:location_id>/delete')
 @login_required
 def location_delete(location_id):
@@ -171,6 +177,7 @@ def location_delete(location_id):
     db.session.delete(location)
     flash('Location was deleted', 'form-success')
     return redirect(url_for('main_location.locations'))
+
 
 @main_location.route('/location-autocomplete', methods=['GET'])
 def location_autocomplete():

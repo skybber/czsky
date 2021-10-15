@@ -28,6 +28,7 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
+
 class SearchConstellationForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
     season = SelectField(lazy_gettext('Season'), choices=[
@@ -39,11 +40,13 @@ class SearchConstellationForm(FlaskForm):
          ('southern',lazy_gettext('Southern')),
     ], default=None)
 
+
 class ConstellationEditForm(FlaskForm):
     common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
     text = TextAreaField(lazy_gettext('Text'))
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update'))
+
 
 class ConstellationChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])

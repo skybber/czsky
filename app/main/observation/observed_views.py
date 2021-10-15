@@ -40,6 +40,7 @@ from app.main.chart.chart_forms import ChartForm
 
 main_observed = Blueprint('main_observed', __name__)
 
+
 @main_observed.route('/observed-list', methods=['GET'])
 @main_observed.route('/observed-list/info', methods=['GET', 'POST'])
 @login_required
@@ -193,7 +194,7 @@ def observed_list_chart():
 
 @main_observed.route('/observed-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
-def  observed_list_chart_pos_img(ra, dec):
+def observed_list_chart_pos_img(ra, dec):
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     if observed_list is None:
         abort(404)

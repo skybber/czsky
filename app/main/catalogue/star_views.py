@@ -40,6 +40,7 @@ from .star_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
+
 @main_star.route('/star/<int:star_id>')
 @main_star.route('/star/<int:star_id>/info')
 def star_info(star_id):
@@ -58,6 +59,7 @@ def star_info(star_id):
 
     return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None, prev_star=prev_star, next_star=next_star,
                            editable=False, embed=embed, season=season, )
+
 
 @main_star.route('/star/<int:star_descr_id>/descr-info')
 def star_descr_info(star_descr_id):
@@ -83,6 +85,7 @@ def star_descr_info(star_descr_id):
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, prev_star=prev_star, next_star=next_star,
                            editable=editable, embed=embed, season=season, )
 
+
 @main_star.route('/star/<int:star_id>/catalogue-data')
 def star_catalogue_data(star_id):
     """View a star catalogue data."""
@@ -100,6 +103,7 @@ def star_catalogue_data(star_id):
 
     return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None,
                            embed=embed, prev_star=prev_star, next_star=next_star, season=season, )
+
 
 @main_star.route('/star/<int:star_descr_id>/descr-catalogue-data')
 def star_descr_catalogue_data(star_descr_id):
@@ -122,6 +126,7 @@ def star_descr_catalogue_data(star_descr_id):
 
     return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
                            prev_star=prev_star, next_star=next_star, embed=embed, season=season, )
+
 
 @main_star.route('/star/<int:star_id>/chart', methods=['GET', 'POST'])
 def star_chart(star_id):
@@ -185,6 +190,7 @@ def star_descr_chart(star_descr_id):
 
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
                            prev_star=prev_star, next_star=next_star, embed=embed, season=season, )
+
 
 @main_star.route('/star/<string:star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def star_chart_pos_img(star_id, ra, dec):
@@ -253,6 +259,7 @@ def star_edit(star_id):
         return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='star' + str(star_id)))
 
     return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr)
+
 
 def _get_season_constell_ids():
     season = request.args.get('season', None)

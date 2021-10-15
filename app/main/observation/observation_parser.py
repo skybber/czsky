@@ -9,8 +9,10 @@ from app.commons import normalize_dso_name
 
 OBS_ITEM_HEADER = r'## (.*)'
 
+
 class ParseException(Exception):
     pass
+
 
 class ParserContext(object):
     def __init__(self, lines):
@@ -35,12 +37,14 @@ class ParserContext(object):
     def add_warn(self, msg):
         self.error_warn.append(self.format_msg(msg))
 
+
 def _read_empty_lines(ctx):
     while not ctx.is_end():
         line = ctx.get_line()
         if len(line) > 0:
             return
         ctx.next_line();
+
 
 def _read_line(ctx, expected=None, expected_descr = None, mandatory=False):
     if ctx.is_end():
@@ -53,6 +57,7 @@ def _read_line(ctx, expected=None, expected_descr = None, mandatory=False):
     if match:
         ctx.next_line()
     return match
+
 
 def _read_until(ctx, expected):
     txt = ''

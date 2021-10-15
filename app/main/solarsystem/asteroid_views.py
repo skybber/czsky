@@ -51,6 +51,7 @@ main_asteroid = Blueprint('main_asteroid', __name__)
 
 all_asteroids = None
 
+
 def _get_all_asteroids():
     global all_asteroids
     if all_asteroids is None:
@@ -60,6 +61,7 @@ def _get_all_asteroids():
             all_asteroids = all_asteroids[~bad_orbits]
             all_asteroids['asteroid_id'] = all_asteroids['designation_packed']
     return all_asteroids
+
 
 def _get_apparent_magnitude_HG( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
     beta = math.acos( \
@@ -84,6 +86,7 @@ def _get_apparent_magnitude_HG( H_absolute_magnitude, G_slope, body_earth_distan
         apparentMagnitude = None
 
     return apparentMagnitude
+
 
 @main_asteroid.route('/asteroids', methods=['GET', 'POST'])
 def asteroids():
@@ -133,10 +136,12 @@ def asteroids():
     pagination = Pagination(page=page, total=len(asteroids), search=False, record_name='asteroids', css_framework='semantic', not_passed_args='back')
     return render_template('main/solarsystem/asteroids.html', asteroids=asteroids_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
 
+
 def _find_asteroid(asteroid_id):
     all_asteroids = _get_all_asteroids()
     c = all_asteroids.loc[all_asteroids['asteroid_id'] == asteroid_id]
     return c.iloc[0] if len(c)>0 else None
+
 
 @main_asteroid.route('/asteroid/<string:asteroid_id>', methods=['GET', 'POST'])
 @main_asteroid.route('/asteroid/<string:asteroid_id>/info', methods=['GET', 'POST'])

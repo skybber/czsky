@@ -65,6 +65,7 @@ ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
 
 DSO_TABLE_COLUMNS = [ 'name', 'type', 'ra', 'dec', 'constellation', 'mag', 'size' ]
 
+
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""
@@ -570,6 +571,7 @@ def _do_redirect(url, dso):
     splitview = request.args.get('splitview')
     return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
+
 def _get_season_constell_ids():
     season = request.args.get('season', None)
     if season is not None:
@@ -633,6 +635,7 @@ def _get_prev_next_dso(dso):
             prev_dso.catalog_number() if prev_dso else None,
             next_dso,
             next_dso.catalog_number() if next_dso else None)
+
 
 def _allow_view_session_plan(session_plan):
     if not session_plan.is_public:

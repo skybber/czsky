@@ -11,6 +11,7 @@ from app.models import DeepskyObject, Observation, ObservationItem
 from .observation_parser import parse_observation
 from app.commons.dso_utils import normalize_dso_name
 
+
 def create_from_basic_form(form):
     location_position = None
     location_id = None
@@ -57,6 +58,7 @@ def create_from_basic_form(form):
     db.session.commit()
     flash('Observation successfully created', 'form-success')
     return observation.id
+
 
 def create_from_advanced_form(form):
     observation, warn_msgs, error_msgs = parse_observation(form.omd_content.data)
@@ -123,6 +125,7 @@ def update_from_basic_form(form, observation):
     db.session.commit()
     flash('Observation successfully updated', 'form-success')
 
+
 def update_from_advanced_form(form, observation):
     updated_observation, warn_msgs, error_msgs = parse_observation(form.omd_content.data)
     if updated_observation:
@@ -145,4 +148,3 @@ def update_from_advanced_form(form, observation):
     else:
         for error in error_msgs:
             flash(error, 'form-error')
-
