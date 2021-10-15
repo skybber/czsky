@@ -1,0 +1,73 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_planet.planet_info', 'Info', 'info')
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, planet_name=planet['name']) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# --- Find Chart --- #}
+{% macro planet_info() %}
+    {{ fchart.fchart(url_for('main_planet.planet_info', planet_name=planet.name, back=back, back_id=back_id),
+                     url_for('main_planet.planet_chart_pos_img', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
+                     url_for('main_planet.planet_chart_legend_img', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
+                     url_for('main_planet.planet_chart_pdf', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              flags=chart_control.chart_pdf_flags, trajectory=trajectory, ),
+                     fchart_form, )
+    }}
+{% endmacro %}
+
+{# --- Catalogue Data --- #}
+{% macro planet_catalogue_data() %}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if back == 'observation' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon"></i>
+                        </a>
+                    {% else %}
+                        <a class="ui basic compact button" href="{{ url_for('main_planet.planets') }}">
+                            <i class="caret left icon"></i>
+                            <i class="list icon"></i>
+                        </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ planet.name.capitalize() }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ planet_info() }}
+            {% else %}
+                {{ planet_info() }}
+                {# {{ planet_catalogue_data() }} #}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/common_macros.html' as commons %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer column">
+            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_solarsystem.solarsystem_menu') }}">
+                <i class="caret left icon"></i>
+                {{ _('Solar System') }}
+            </a>
+            <h2 class="ui header" style="margin-top:0.5em">
+                {{ _('Planets') }}
+            </h2>
+
+            {# Use overflow-x: scroll so that mobile views don't freak out
+             # when the table is too wide #}
+            <div style="overflow-x: scroll;width: 100%">
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th class="collapsing"></th>
+                            <th>{{ _('Name') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for index, planet in planets_enumerate %}
+                        <tr onclick="window.location.href = '{{ url_for('main_planet.planet_info', planet_name=planet.name) }}';">
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ planet.name.capitalize() }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+      </div>
+  </div>
+{% endblock %}

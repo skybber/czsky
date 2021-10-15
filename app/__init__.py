@@ -131,6 +131,8 @@ def create_app(config):
     app.register_blueprint(main_comet)
     from .main.solarsystem import main_asteroid as main_asteroid
     app.register_blueprint(main_asteroid)
+    from .main.solarsystem import main_planet as main_planet
+    app.register_blueprint(main_planet)
     from .main.chart import main_chart as main_chart
     app.register_blueprint(main_chart)
     from .main.news import main_news as main_news
