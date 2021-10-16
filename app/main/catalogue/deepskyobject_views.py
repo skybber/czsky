@@ -88,22 +88,22 @@ def deepskyobjects():
 
     offset = (page - 1) * per_page
 
-    deepskyobjects = DeepskyObject.query
+    dso_query = DeepskyObject.query
     if search_form.q.data:
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
+        dso_query = dso_query.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
 
     mag_scale = (8, 16)
 
     if search_form.dso_type.data and search_form.dso_type.data != 'All':
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.type==search_form.dso_type.data)
+        dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
 
     if search_form.catalogue.data and search_form.catalogue.data != 'All':
         cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
         if cat_id:
-            deepskyobjects = deepskyobjects.filter_by(catalogue_id=cat_id)
+            dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
     if not search_form.q.data and search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
-        deepskyobjects = deepskyobjects.filter(DeepskyObject.mag<search_form.maglim.data)
+        dso_query = dso_query.filter(DeepskyObject.mag<search_form.maglim.data)
 
     sort_def = { 'name': DeepskyObject.name,
                  'type': DeepskyObject.type,
@@ -126,16 +126,16 @@ def deepskyobjects():
     if order_by_field is None:
         order_by_field = DeepskyObject.id
 
-    deepskyobjects_for_render = deepskyobjects.order_by(order_by_field).limit(per_page).offset(offset).all()
+    shown_dsos = dso_query.order_by(order_by_field).limit(per_page).offset(offset).all()
 
     observed = set()
     if not current_user.is_anonymous:
         for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
             observed.add(dso.id)
 
-    pagination = Pagination(page=page, total=deepskyobjects.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, total=dso_query.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
-    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=deepskyobjects_for_render, mag_scale=mag_scale,
+    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=shown_dsos, mag_scale=mag_scale,
                            pagination=pagination, search_form=search_form, table_sort=table_sort, observed=observed)
 
 
@@ -276,13 +276,13 @@ def deepskyobject_info(dso_id):
     if current_user.is_authenticated:
         wish_item = WishListItem.query.filter(WishListItem.dso_id.in_((dso.id, orig_dso.id))) \
             .join(WishList) \
-            .filter(WishList.user_id==current_user.id) \
+            .filter(WishList.user_id == current_user.id) \
             .first()
         wish_list = [wish_item.dso_id] if wish_item is not None else []
 
         observed_item = ObservedListItem.query.filter(ObservedListItem.dso_id.in_((dso.id, orig_dso.id))) \
             .join(ObservedList) \
-            .filter(ObservedList.user_id==current_user.id) \
+            .filter(ObservedList.user_id == current_user.id) \
             .first()
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
@@ -312,8 +312,8 @@ def deepskyobject_surveys(dso_id):
         session['dso_embed_seltab'] = 'surveys'
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, field_size=field_size,
-                           season=season, embed=embed,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
+                           field_size=field_size, season=season, embed=embed,
                            )
 
 
@@ -347,7 +347,7 @@ def deepskyobject_catalogue_data(dso_id):
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart', methods=['GET', 'POST'])
 def deepskyobject_chart(dso_id):
-    """View a deepsky object fchart."""
+    """View a deepsky object chart."""
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
@@ -550,9 +550,9 @@ def deepskyobject_edit(dso_id):
 
 def _create_author_entry(update_by, update_date):
     if update_by is None:
-        return ('', '')
+        return '', ''
     user_name = User.query.filter_by(id=update_by).first().user_name
-    return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
+    return user_name, update_date.strftime("%Y-%m-%d %H:%M")
 
 
 def _filter_apert_descriptions(all_user_apert_descrs):
@@ -641,7 +641,7 @@ def _allow_view_session_plan(session_plan):
     if not session_plan.is_public:
         if current_user.is_anonymous:
             if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
-                 return False
+                return False
         elif session_plan.user_id != current_user.id:
             return False
     return True
