@@ -48,6 +48,7 @@ DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 1
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 500
 
+FORCE_SHOWING_DSOS = ['NGC 1909', 'IC443']
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -560,6 +561,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             dso = _find_dso_by_name(dso_name)
             if dso:
                 showing_dsos.add(dso)
+    for dso_name in FORCE_SHOWING_DSOS:
+        dso = _find_dso_by_name(dso_name)
+        if dso:
+            showing_dsos.add(dso)
 
     len1 = len(showing_dsos)
 
