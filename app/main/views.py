@@ -149,6 +149,34 @@ def _search_dso(query):
 
 
 def _search_star(query):
+    star = _search_by_bayer_flamsteed(query)
+
+    if not star:
+        _search_star_from_catalog(query)
+    if not star:
+        # try to search by var ID
+        star = Star.query.filter(Star.var_id.ilike(query)).first()
+    if not star:
+        # try to search by common star name
+        star = Star.query.filter_by(common_name=query.lower().capitalize()).first()
+
+    if star:
+        lang, editor_user = get_lang_and_editor_user_from_request()
+        usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
+        if usd:
+            if request.args.get('fromchart') is not None:
+                return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
+                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+            else:
+                return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
+        else:
+            print('Chart to {} {}'.format(star.ra, star.dec))
+            return redirect(url_for('main_chart.chart', mra=star.ra, mdec=star.dec, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+
+    return None
+
+
+def _search_by_bayer_flamsteed(query):
     star = None
     if query[:1] in GREEK_TO_LAT and len(query) > 1:
         bayer = query[:1]
@@ -174,6 +202,9 @@ def _search_star(query):
                     star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
                 elif star_name.isdigit():
                     star = Star.query.filter_by(flamsteed=int(star_name), constellation_id=constell.id).first()
+            else:
+                if words[0].upper() in ['HD', 'HR', 'SAO']:
+                    star = _search_star_by_catalog(words[0], words[1])
         elif len(words) == 1 and query[0].isdigit():
             i = 1
             while i < len(query) and query[i].isdigit():
@@ -182,23 +213,27 @@ def _search_star(query):
                 constell = _get_constell(query[i:])
                 if constell:
                     star = Star.query.filter_by(flamsteed=int(query[:i]), constellation_id=constell.id).first()
+    return star
 
-    if not star:
-        star = Star.query.filter_by(common_name=query.lower().capitalize()).first()
 
-    if star:
-        lang, editor_user = get_lang_and_editor_user_from_request()
-        usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
-        if usd:
-            if request.args.get('fromchart') is not None:
-                return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
-                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-            else:
-                return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
-        else:
-            return redirect(url_for('main_chart.chart', ra=star.ra, dec=star.dec, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-
-    return None
+def _search_star_from_catalog(query):
+    star = None
+    for i, letter in enumerate(query, 0):
+        if letter.isdigit():
+            break
+    if i > 0 and i < len(query)-1:
+        cat = query[:i].strip()
+        sid = query[i:].strip()
+        print("cat {} sid {}".format(cat, sid), flush=True)
+        if cat and sid.isdigit():
+            cat = cat.upper()
+            if cat == 'HR':
+                star = Star.query.filter_by(hr=int(sid)).first()
+            if not not star and cat == 'HD':
+                star = Star.query.filter_by(hd=int(sid)).first()
+            if not star and cat == 'SAO':
+                star = Star.query.filter_by(sao=int(sid)).first()
+    return star
 
 
 def _get_constell(costell_code):
