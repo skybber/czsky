@@ -50,6 +50,8 @@ NO_FREE_MEM_CYCLES = 500
 
 FORCE_SHOWING_DSOS = ['NGC 1909', 'IC443']
 
+PICKER_RADIUS = 4.0
+
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
@@ -538,6 +540,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_constellation_borders = 'B' in flags
     config.show_deepsky = 'D' in flags
     config.show_equatorial_grid = 'E' in flags
+    config.show_picker = False # do not show picker, only activate it
+    config.picker_radius = PICKER_RADIUS
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -682,6 +686,8 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.show_map_scale_legend = True
     config.show_field_border = True
     config.show_equatorial_grid = True
+    config.show_picker = True
+    config.picker_radius = PICKER_RADIUS
 
     config.fov_telrad = 'T' in flags
 
