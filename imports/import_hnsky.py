@@ -124,7 +124,6 @@ def import_hnsky(hnsky_dso_file):
                 except (ValueError, TypeError):
                     pass
                 
-
             obj_types = items[4].split('/')
 
             obj_type = obj_types[0].strip()
@@ -139,13 +138,13 @@ def import_hnsky(hnsky_dso_file):
             indx2 = items[4].find(']')
             obj_subtype = items[4][indx1+1:indx2] if indx1<indx2 else None
 
-            # remove uncertainity flag
+            # remove uncertainty flag
             if obj_type.endswith('?') and len(obj_type) > 1:
                 obj_type = obj_type[:-1]
                 
             obj_type = dso_type_map.get(obj_type, None)
 
-            if obj_type == None:
+            if obj_type is None:
                 print('No type {}'.format(obj_types[0].strip()))
                 print(line)
                 continue
@@ -194,7 +193,7 @@ def import_hnsky(hnsky_dso_file):
                     if name.startswith('PK_'):
                         name = 'PK' + _denormalize_pk_name(name[3:])
                         
-                    if (name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC')):
+                    if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
                         if name.endswith('A'):
                             name = name[:-1]
                         elif name.endswith('-1') or name.endswith('_1'):
@@ -229,7 +228,7 @@ def import_hnsky(hnsky_dso_file):
 
                         cat_prio =  cat_priorities.get(cat.code, 1000)
 
-                        if (not master_cat_prio is None) and cat_prio < master_cat_prio:
+                        if (master_cat_prio is not None) and cat_prio < master_cat_prio:
                             child_dsos.append(master_dso)
                             master_dso = dso
                             master_cat_prio = cat_prio
@@ -262,7 +261,6 @@ def import_hnsky(hnsky_dso_file):
             pos = int(log(len(dso_list), 10)) + 1
             # add 0 before dso ID (in catalog)
             dso_list.sort(key=lambda x: (('0' * (pos - (len(x.name) - ccl))) + x.name[ccl:]) if len(x.name) - ccl <  pos else x.name[ccl:])
-        
         
         line_cnt = 1
 

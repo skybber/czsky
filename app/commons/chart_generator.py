@@ -580,6 +580,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     hl_showing_dsos = len(showing_dsos) - len1 > 0
 
+    picked_object = []
+
     engine.make_map(used_catalogs,
                     showing_dsos=showing_dsos,
                     hl_showing_dsos=hl_showing_dsos,
@@ -587,7 +589,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
                     dso_hide_filter=_get_dso_hide_filter(),
                     trajectory=trajectory,
                     hl_constellation=hl_constellation,
-                    visible_objects=visible_objects)
+                    visible_objects=visible_objects,
+                    picked_object=picked_object)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:

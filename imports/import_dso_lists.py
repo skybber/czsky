@@ -10,6 +10,7 @@ from app.models.deepskyobject import DeepskyObject
 
 from .import_utils import progress
 
+
 def _load_descriptions(dirname, base_name, dso_list, editor_user):
     result = []
     descr_files = [f for f in sorted(glob.glob(dirname + '/' + base_name + '_*.md'))]
@@ -46,7 +47,6 @@ def _load_descriptions(dirname, base_name, dso_list, editor_user):
 
 
 def import_herschel400(herschel400_data_file):
-
     row_count = sum(1 for line in open(herschel400_data_file)) - 1
 
     with open(herschel400_data_file) as csvfile:
@@ -272,27 +272,35 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
             db.session.rollback()
         print('') # finish on new line
 
+
 def import_superthin_gx(superthingx_data_file):
     _do_import_simple_csv(superthingx_data_file, 'thin-glx', 'Superthin Galaxies', show_common_name=False)
+
 
 def import_holmberg(holmberg_data_file):
     _do_import_simple_csv(holmberg_data_file, 'holberg-glx', 'Galaxies from Holmberg catalog', show_common_name=False)
 
+
 def import_abell_pn(abell_pn_data_file):
     _do_import_simple_csv(abell_pn_data_file, 'abell-pn', 'Abell Catalog of Planetary Nebulae', show_common_name=False, show_minor_axis=False)
+
 
 def import_vic_list(vic_data_file):
     _do_import_simple_csv(vic_data_file, 'vic-aster', 'VIC list of asterism', show_angular_size=False, show_descr_name=True)
 
+
 def import_rosse(rosse_data_file):
     _do_import_simple_csv(rosse_data_file, 'rosse-spirals', 'Rosse Spirals', show_dso_type=True)
+
 
 def import_glahn_pns(glahn_pn_data_file):
     _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetary nebulas of northern hemisphere', show_minor_axis=False)
 
+
 def import_glahn_palomar_gc(glahn_palomar_gc_data_file):
     _do_import_simple_csv(
         glahn_palomar_gc_data_file, 'palomar-gc', 'Palomar globular clusters', show_common_name=False, show_minor_axis=False)
+
 
 def import_glahn_local_group(glahn_local_group_data_file):
     _do_import_simple_csv(
