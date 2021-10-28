@@ -341,7 +341,7 @@ FChart.prototype.doReloadImage = function() {
             if (this.reqInProcess == 0) {
                 this.dsoRegions = data.img_map;
                 this.activateImageOnLoad(cumulX, cumulY);
-                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/svg+xml;base64,' + data.img;
                 var queryParams = new URLSearchParams(window.location.search);
                 queryParams.set('ra', this.ra.toString());
                 queryParams.set('dec', this.dec.toString());
