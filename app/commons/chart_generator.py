@@ -206,7 +206,7 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     config.legend_linewidth = 0.2
     config.no_margin = True
     config.font = "Roboto"
-    config.font_size = 2.8
+    config.font_size = 3.0
 
     if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
