@@ -39,6 +39,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.reqInProcess = 0;
 
     this.isDragging = false;
+    this.draggingStart = false;
     this.mouseX = 0;
     this.mouseY = 0;
     this.initialDistance = undefined;
@@ -458,7 +459,8 @@ FChart.prototype.onClick = function(e) {
 }
 
 FChart.prototype.onPointerDown = function(e) {
-    this.isDragging = true
+    this.isDragging = true;
+    this.draggingStart = true;
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
 }
@@ -504,7 +506,6 @@ FChart.prototype.moveXY = function(mx, my) {
 }
 
 FChart.prototype.moveEnd = function() {
-
     this.fldSize = this.fieldSizes[this.fldSizeIndex];
 
     var wh = Math.max(this.canvas.width, this.canvas.height);
@@ -523,7 +524,6 @@ FChart.prototype.moveEnd = function() {
 
     $('#ra').val(this.ra);
     $('#dec').val(this.dec);
-
 }
 
 FChart.prototype.onPointerMove = function (e) {
@@ -534,7 +534,6 @@ FChart.prototype.onPointerMove = function (e) {
         this.canvas.style.cursor = "default"
     }
     if (this.isDragging) {
-
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -560,10 +559,11 @@ FChart.prototype.onPointerMove = function (e) {
 
 FChart.prototype.renderOnTimeOutFromMouseMove = function() {
     if (!this.moseMoveTimeout) {
+        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
+        this.draggingStart = false;
         this.moseMoveTimeout = true;
-        // console.log('Timeout called');
+
         setTimeout((function() {
-            // console.log('Timeout start');
             this.moseMoveTimeout = false;
             var oldRa = this.ra;
             var oldDec = this.dec;
@@ -582,7 +582,7 @@ FChart.prototype.renderOnTimeOutFromMouseMove = function() {
                 $('#dec').val(this.dec);
                 this.renderOnTimeOutFromMouseMove();
             }
-        }).bind(this), this.MOVE_INTERVAL/4);
+        }).bind(this), timeout);
     }
 }
 
@@ -815,4 +815,3 @@ FChart.prototype.onFullscreenChange = function(callback) {
 FChart.prototype.onSplitViewChange = function(callback) {
     this.onSplitViewChangeCallback = callback;
 };
-
