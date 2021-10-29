@@ -268,8 +268,8 @@ FChart.prototype.redrawAll = function () {
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
-    var img_width = this.canvas.width * this.scaleFac;
-    var img_height = this.canvas.height * this.scaleFac;
+    var img_width = curSkyImg.width * this.scaleFac;
+    var img_height = curSkyImg.height * this.scaleFac;
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
@@ -341,7 +341,7 @@ FChart.prototype.doReloadImage = function() {
             if (this.reqInProcess == 0) {
                 this.dsoRegions = data.img_map;
                 this.activateImageOnLoad(cumulX, cumulY);
-                this.skyImgBuf[this.skyImg.background].src = 'data:image/svg+xml;base64,' + data.img;
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
                 var queryParams = new URLSearchParams(window.location.search);
                 queryParams.set('ra', this.ra.toString());
                 queryParams.set('dec', this.dec.toString());
@@ -547,11 +547,7 @@ FChart.prototype.onPointerMove = function (e) {
 
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
-
-        var img_width = this.canvas.width;
-        var img_height = this.canvas.height;
-
-        this.ctx.drawImage(curSkyImg, this.moveOldImgX, this.moveOldImgY, img_width, img_height);
+        this.ctx.drawImage(curSkyImg, this.moveOldImgX, this.moveOldImgY);
         this.ctx.drawImage(curLegendImg, 0, 0);
 
         this.dx += ddx;
@@ -563,7 +559,7 @@ FChart.prototype.onPointerMove = function (e) {
 
 FChart.prototype.renderOnTimeOutFromMouseMove = function() {
     if (!this.moseMoveTimeout) {
-        var timeout = this.draggingStart ? this.MOVE_INTERVAL/4 : 20;
+        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
         this.draggingStart = false;
         this.moseMoveTimeout = true;
 
