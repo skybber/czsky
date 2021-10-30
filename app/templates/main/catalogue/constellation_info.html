@@ -130,6 +130,11 @@
                         <div class="ui label" style="float:left;">
                             <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
                         </div>
+                        <div class="mobile hidden" style="float:left">
+                            <div class="ui label" style="float:left;">
+                                &#8982; {{ user_dso_descr.deepskyObject.ra_str_short() }}/{{ user_dso_descr.deepskyObject.dec_str_short() }}
+                            </div>
+                        </div>
                         <div class="ui label" style="float:left;">
                             &#9728;{{ commons.convert_mag(user_dso_descr.deepskyObject.mag) }}mag
                         </div>
@@ -191,6 +196,11 @@
                     <div id="dso-toolbar" style="float:right;">
                         <div class="ui label" style="float:left;">
                             <i class="info icon"></i>{{ ug_bl_dso.dso.type }}
+                        </div>
+                        <div class="mobile hidden" style="float:left">
+                            <div class="ui label" style="float:left;">
+                                &#8982; {{ ug_bl_dso.dso.ra_str_short() }}/{{ ug_bl_dso.dso.dec_str_short() }}
+                            </div>
                         </div>
                         <div class="ui label" style="float:left;">
                             &#9728;{{ commons.convert_mag(ug_bl_dso.dso.mag) }}mag

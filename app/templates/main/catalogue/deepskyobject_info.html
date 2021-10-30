@@ -72,6 +72,11 @@
                 <div class="ui label" style="float:left;">
                     <i class="info icon"></i>{{ dso.type }}
                 </div>
+                <div class="mobile hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        &#8982; {{ dso.ra_str_short() }}/{{ dso.dec_str_short() }}
+                    </div>
+                </div>
                 <div class="ui label" style="float:left;">
                     &#9728;{{ commons.convert_mag(dso.mag) }}mag
                 </div>
