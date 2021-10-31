@@ -145,6 +145,7 @@ def _setup_dark_theme(config, width):
     config.dso_highlight_linewidth = 0.3
     config.milky_way_color = (0.05, 0.07, 0.1)
     config.light_mode = False
+    config.picker_color = (0.5, 0.5, 0.0)
 
 
 def _setup_night_theme(config, width):
@@ -171,6 +172,7 @@ def _setup_night_theme(config, width):
     config.dso_highlight_linewidth = 0.3
     config.milky_way_color = (0.1, 0.02, 0.02)
     config.light_mode = False
+    config.picker_color = (0.5, 0.1, 0.0)
 
 
 def _setup_light_theme(config, width):
@@ -195,6 +197,7 @@ def _setup_light_theme(config, width):
     config.dso_highlight_linewidth = 0.3
     config.milky_way_color = (0.92, 0.93, 0.94)
     config.light_mode = True
+    config.picker_color = (0.2, 0.2, 0.0)
 
 
 def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
