@@ -105,7 +105,7 @@
                                         </button>
                                     </div>
                                     {% if item.deepsky_object_id_list.errors %}
-                                        <div class="ui red pointing label">
+                                        <div class="ui red pointing label itemerror">
                                             {{ item.deepsky_object_id_list.errors[0] | safe }}
                                         </div>
                                     {% endif %}
@@ -186,7 +186,7 @@
             minHeight: "200px",
             spellChecker: false,
             status : false,
-	    });
+        });
 
         var contentMDE = new EasyMDE({element: document.getElementById('omd_content'),
             minHeight: "300px",
@@ -195,6 +195,9 @@
         });
 
         $(function() {
+            if ($('.itemerror').length > 0) {
+                $('.itemerror')[0].scrollIntoView({block:'center'});
+            }
 
             $('.bupdateback' ).click(function() {
                 $('#goback').val('true');
