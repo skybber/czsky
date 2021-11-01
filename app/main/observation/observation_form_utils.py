@@ -93,6 +93,7 @@ def update_from_basic_form(form, observation):
     observation.date = form.date.data
     observation.location_id = location_id
     observation.location_position = location_position
+    observation.sqm = form.sqm.data
     observation.rating = int(form.rating.data) * 2
     observation.notes = form.notes.data
     observation.update_by = current_user.id

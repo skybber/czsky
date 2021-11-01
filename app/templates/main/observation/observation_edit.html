@@ -46,7 +46,7 @@
 
                 {{ f.render_form_field(form.title) }}
 
-                <div class="three fields">
+                <div class="four fields">
                     <div class="field">
                         <label for="odate">{{ form.date.label }}</label>
                         <div class="ui calendar" id="odate">
@@ -76,11 +76,14 @@
                     </div>
 
                     <div class="field">
+                        {{ f.render_form_field(form.sqm) }}
+                    </div>
+
+                    <div class="field">
                         {{ form.rating.label }}
                         <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
                         {{ form.rating() }}
                     </div>
-
                 </div>
 
                 {{ f.render_form_field(form.is_public) }}

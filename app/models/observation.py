@@ -13,6 +13,7 @@ class Observation(db.Model):
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
     location = db.relationship("Location")
     location_position = db.Column(db.String(256))
+    sqm = db.Column(db.Float)
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
     omd_content = db.Column(db.Text)

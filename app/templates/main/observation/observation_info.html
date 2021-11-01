@@ -21,6 +21,7 @@
     <table class="ui compact definition table">
         <tr><td class="two wide">{{ _('Date') }}</td><td>{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
         <tr><td class="two wide">{{ _('Location') }}</td><td>{{ observation.location.name if observation.location else observation.location_position }}</td></tr>
+        <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observation.sqm) if observation.sqm else '' }}</td></tr>
         <tr>
             <td class="two wide">{{ _('Notes') }}</td>
             <td>
