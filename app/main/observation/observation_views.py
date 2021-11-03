@@ -130,6 +130,8 @@ def observation_edit(observation_id):
         form.date.data = observation.date
         form.location.data = observation.location_id if observation.location_id is not None else observation.location_position
         form.sqm.data = observation.sqm
+        form.seeing.data = observation.seeing
+        form.transparency.data = observation.transparency
         form.rating.data = observation.rating // 2
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content

@@ -1,4 +1,5 @@
 from datetime import datetime
+from flask_babel import gettext
 
 from .. import db
 
@@ -14,6 +15,8 @@ class Observation(db.Model):
     location = db.relationship("Location")
     location_position = db.Column(db.String(256))
     sqm = db.Column(db.Float)
+    seeing = db.Column(db.String(16))
+    transparency = db.Column(db.String(16))
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
     omd_content = db.Column(db.Text)
@@ -45,6 +48,12 @@ class Observation(db.Model):
                     next_dso = dso
                     return prev_dso, next_dso
         return prev_dso, next_dso
+
+    def loc_seeing(self):
+        return gettext(self.seeing) if self.seeing else ''
+
+    def loc_transparency(self):
+        return gettext(self.transparency) if self.seeing else ''
 
 dso_observation_item_association_table = db.Table('observation_item_dsos', db.Model.metadata,
     db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),

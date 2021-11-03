@@ -173,3 +173,4 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.comments .comment .text{color:#be9e9e}
 .ui.active.toggle.button{background-color: #7d3434 !important}
 .ui.definition.table > tbody > tr > td:first-child {color:#624b4b!important}
+.ui.definition.table tr td.definition {color:#624b4b!important}

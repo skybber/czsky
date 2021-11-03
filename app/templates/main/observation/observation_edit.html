@@ -46,7 +46,7 @@
 
                 {{ f.render_form_field(form.title) }}
 
-                <div class="four fields">
+                <div class="three fields">
                     <div class="field">
                         <label for="odate">{{ form.date.label }}</label>
                         <div class="ui calendar" id="odate">
@@ -62,7 +62,6 @@
                             </div>
                         {% endif %}
                     </div>
-
                     <div class="field">
                         {{ form.location.label }}
                         <select name="{{ form.location.name }}" class="ui search selection dropdown dlocation">
@@ -76,14 +75,26 @@
                     </div>
 
                     <div class="field">
-                        {{ f.render_form_field(form.sqm) }}
-                    </div>
-
-                    <div class="field">
                         {{ form.rating.label }}
                         <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
                         {{ form.rating() }}
                     </div>
+
+                </div>
+
+                <div class="three fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.sqm) }}
+                    </div>
+
+                    <div class="field">
+                        {{ f.render_form_field(form.seeing) }}
+                    </div>
+
+                    <div class="field">
+                        {{ f.render_form_field(form.transparency) }}
+                    </div>
+
                 </div>
 
                 {{ f.render_form_field(form.is_public) }}

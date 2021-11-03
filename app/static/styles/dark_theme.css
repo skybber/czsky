@@ -173,4 +173,4 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#505667!important;col
 .ui.comments .comment .text{color:#9e9e9e}
 .ui.active.toggle.button { background-color: #006000 !important; }
 .ui.definition.table > tbody > tr > td:first-child {color:#a5a5a5!important}
-
+.ui.definition.table tr td.definition { color:#a5a5a5!important }
