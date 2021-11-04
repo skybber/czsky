@@ -1,9 +1,61 @@
+import sqlalchemy
 from datetime import datetime
-from flask_babel import gettext
+from flask_babel import lazy_pgettext
+from enum import Enum
 
 from .. import db
 
 from app.commons.observation_utils import deepsky_objects_to_html, astro_text_to_html
+from app.commons.form_utils import FormEnum
+
+
+class Seeing(FormEnum):
+        TERRIBLE = 'TERRIBLE'
+        VERYBAD = 'VERYBAD'
+        BAD = 'BAD'
+        AVERAGE = 'AVERAGE'
+        GOOD = 'GOOD'
+        EXCELLENT = 'EXCELENT'
+
+        def loc_text(self):
+            if self == Seeing.TERRIBLE:
+                return lazy_pgettext('seeing', 'Terrible')
+            if self == Seeing.VERYBAD:
+                return lazy_pgettext('seeing', 'Very bad')
+            if self == Seeing.BAD:
+                return lazy_pgettext('seeing', 'Bad')
+            if self == Seeing.AVERAGE:
+                return lazy_pgettext('seeing', 'Average')
+            if self == Seeing.GOOD:
+                return lazy_pgettext('seeing', 'Good')
+            if self == Seeing.EXCELLENT:
+                return lazy_pgettext('seeing', 'Excellent')
+            return ''
+
+
+class Transparency(FormEnum):
+        UNUSUAL = 'UNUSUAL'
+        VERYBAD = 'VERYBAD'
+        BAD = 'BAD'
+        AVERAGE = 'AVERAGE'
+        GOOD = 'GOOD'
+        EXCELLENT = 'EXCELENT'
+
+        def loc_text(self):
+            if self == Transparency.UNUSUAL:
+                return lazy_pgettext('transparency', 'Unusual')
+            if self == Transparency.VERYBAD:
+                return lazy_pgettext('transparency', 'Very bad')
+            if self == Transparency.BAD:
+                return lazy_pgettext('transparency', 'Bad')
+            if self == Transparency.AVERAGE:
+                return lazy_pgettext('transparency', 'Average')
+            if self == Transparency.GOOD:
+                return lazy_pgettext('transparency', 'Good')
+            if self == Transparency.EXCELLENT:
+                return lazy_pgettext('transparency', 'Excellent')
+            return ''
+
 
 class Observation(db.Model):
     __tablename__ = 'observations'
@@ -15,8 +67,8 @@ class Observation(db.Model):
     location = db.relationship("Location")
     location_position = db.Column(db.String(256))
     sqm = db.Column(db.Float)
-    seeing = db.Column(db.String(16))
-    transparency = db.Column(db.String(16))
+    seeing = db.Column(sqlalchemy.Enum(Seeing))
+    transparency = db.Column(sqlalchemy.Enum(Transparency))
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
     omd_content = db.Column(db.Text)
@@ -50,15 +102,17 @@ class Observation(db.Model):
         return prev_dso, next_dso
 
     def loc_seeing(self):
-        return gettext(self.seeing) if self.seeing else ''
+        return self.seeing.loc_text() if self.seeing else ''
 
     def loc_transparency(self):
-        return gettext(self.transparency) if self.seeing else ''
+        return self.transparency.loc_text() if self.transparency else ''
+
 
 dso_observation_item_association_table = db.Table('observation_item_dsos', db.Model.metadata,
     db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),
     db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
 )
+
 
 class ObservationItem(db.Model):
     __tablename__ = 'observation_items'

@@ -28,7 +28,7 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
-from app.models import DeepskyObject
+from app.models import Seeing, Transparency, DeepskyObject
 from app.commons.dso_utils import normalize_dso_name
 
 from app.main.utils.validators import location_lonlat_check
@@ -44,25 +44,11 @@ Observation item1 notes
 
 class ObservationItemNewForm(FlaskForm):
     deepsky_object_id_list = StringField(lazy_gettext('DSO list optionally with comment. (e.g. M3,M5:nice globulars!)'))
-    date_time = TimeField(lazy_gettext('Time'), format = '%H:%M', default = datetime.now().time())
+    date_time = TimeField(lazy_gettext('Time'), format='%H:%M', default=datetime.now().time())
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
-    seeing = SelectField(lazy_gettext('Seeing'), choices=[
-        ('horrible', lazy_gettext('Horrible')),
-        ('verybad', lazy_gettext('Very bad')),
-        ('bad', lazy_gettext('Bad')),
-        ('average', lazy_gettext('Average')),
-        ('good', lazy_gettext('Good')),
-        ('excellent', lazy_gettext('Excelent')),
-    ], default='average')
-    transparency = SelectField(lazy_gettext('Transparency'), choices=[
-        ('unusual', lazy_gettext('Unusual')),
-        ('verybad', lazy_gettext('Very bad')),
-        ('bad', lazy_gettext('Bad')),
-        ('average', lazy_gettext('Average')),
-        ('good', lazy_gettext('Good')),
-        ('excellent', lazy_gettext('Excelent')),
-    ], default='average')
-    notes = TextAreaField(lazy_gettext('Notes'), render_kw={'rows':2})
+    seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
+    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce, default=Transparency.AVERAGE)
+    notes = TextAreaField(lazy_gettext('Notes'), render_kw={'rows': 2})
 
     def validate_deepsky_object_id_list(form, field):
         if field.id != 'items-0-deepsky_object_id_list':
@@ -86,25 +72,11 @@ class ObservationItemNewForm(FlaskForm):
 class ObservationMixin():
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
-    date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
-    location = StringField(lazy_gettext('Location'), validators=[InputRequired(),Length(max=256), location_lonlat_check])
+    date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today, validators=[InputRequired(),])
+    location = StringField(lazy_gettext('Location'), validators=[InputRequired(), Length(max=256), location_lonlat_check])
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
-    seeing = SelectField(lazy_gettext('Seeing'), choices=[
-        ('horrible', lazy_gettext('Horrible')),
-        ('verybad', lazy_gettext('Very bad')),
-        ('bad', lazy_gettext('Bad')),
-        ('average', lazy_gettext('Average')),
-        ('good', lazy_gettext('Good')),
-        ('excellent', lazy_gettext('Excelent')),
-    ], default='average')
-    transparency = SelectField(lazy_gettext('Transparency'), choices=[
-        ('unusual', lazy_gettext('Unusual')),
-        ('verybad', lazy_gettext('Very bad')),
-        ('bad', lazy_gettext('Bad')),
-        ('average', lazy_gettext('Average')),
-        ('good', lazy_gettext('Good')),
-        ('excellent', lazy_gettext('Excelent')),
-    ], default='average')
+    seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
+    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce, default=Transparency.AVERAGE)
     rating = HiddenField(lazy_gettext('Rating'), default=0)
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'), default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))

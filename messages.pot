@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-03 20:25+0100\n"
+"POT-Creation-Date: 2021-11-04 20:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -142,7 +142,7 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:73
 #: app/main/location/location_forms.py:38 app/main/news/news_forms.py:38
-#: app/main/observation/observation_forms.py:108
+#: app/main/observation/observation_forms.py:80
 #: app/templates/main/location/locations.html:44
 #: app/templates/main/news/news_list.html:41
 #: app/templates/main/observation/observations.html:24
@@ -180,10 +180,10 @@ msgid "Longitude"
 msgstr ""
 
 #: app/main/location/location_forms.py:36
-#: app/main/observation/observation_forms.py:65
-#: app/main/observation/observation_forms.py:109
+#: app/main/observation/observation_forms.py:51
+#: app/main/observation/observation_forms.py:81
 #: app/main/planner/sessionplan_forms.py:47
-#: app/templates/main/observation/observation_info.html:31
+#: app/templates/main/observation/observation_info.html:30
 #: app/templates/main/planner/session_plan.html:33
 msgid "Notes"
 msgstr ""
@@ -214,7 +214,7 @@ msgstr ""
 msgid "Update location"
 msgstr ""
 
-#: app/main/news/news_forms.py:34 app/main/observation/observation_forms.py:88
+#: app/main/news/news_forms.py:34 app/main/observation/observation_forms.py:74
 #: app/main/planner/sessionplan_forms.py:44
 #: app/templates/main/news/news_list.html:40
 #: app/templates/main/observation/observations.html:21
@@ -260,75 +260,30 @@ msgid "Time"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:48
-#: app/main/observation/observation_forms.py:91
-#: app/templates/main/observation/observation_info.html:26
+#: app/main/observation/observation_forms.py:77
+#: app/templates/main/observation/observation_info.html:25
 #: app/templates/main/observation/observations.html:23
 msgid "Sqm"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:49
-#: app/main/observation/observation_forms.py:92
-#: app/templates/main/observation/observation_info.html:27
+#: app/main/observation/observation_forms.py:78
+#: app/templates/main/observation/observation_info.html:26
 msgid "Seeing"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:50
-#: app/main/observation/observation_forms.py:93
-msgid "Horrible"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:51
-#: app/main/observation/observation_forms.py:59
-#: app/main/observation/observation_forms.py:94
-#: app/main/observation/observation_forms.py:102
-msgid "Very bad"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:52
-#: app/main/observation/observation_forms.py:60
-#: app/main/observation/observation_forms.py:95
-#: app/main/observation/observation_forms.py:103
-msgid "Bad"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:53
-#: app/main/observation/observation_forms.py:61
-#: app/main/observation/observation_forms.py:96
-#: app/main/observation/observation_forms.py:104
-msgid "Average"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:54
-#: app/main/observation/observation_forms.py:62
-#: app/main/observation/observation_forms.py:97
-#: app/main/observation/observation_forms.py:105
-msgid "Good"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:55
-#: app/main/observation/observation_forms.py:63
-#: app/main/observation/observation_forms.py:98
-#: app/main/observation/observation_forms.py:106
-msgid "Excelent"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:57
-#: app/main/observation/observation_forms.py:100
-#: app/templates/main/observation/observation_info.html:28
+#: app/main/observation/observation_forms.py:79
+#: app/templates/main/observation/observation_info.html:27
 msgid "Transparency"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:58
-#: app/main/observation/observation_forms.py:101
-msgid "Unusual"
-msgstr ""
-
-#: app/main/observation/observation_forms.py:73
-#: app/main/observation/observation_forms.py:83
+#: app/main/observation/observation_forms.py:59
+#: app/main/observation/observation_forms.py:69
 msgid "Value expected."
 msgstr ""
 
-#: app/main/observation/observation_forms.py:89
+#: app/main/observation/observation_forms.py:75
 #: app/main/planner/sessionplan_forms.py:45
 #: app/templates/main/observation/observation_info.html:22
 #: app/templates/main/observation/observations.html:20
@@ -338,7 +293,7 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:90
+#: app/main/observation/observation_forms.py:76
 #: app/main/planner/sessionplan_forms.py:46
 #: app/templates/main/observation/observation_info.html:23
 #: app/templates/main/observation/observations.html:22
@@ -348,24 +303,24 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:110
+#: app/main/observation/observation_forms.py:82
 msgid "OMD Content"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:112
+#: app/main/observation/observation_forms.py:84
 #: app/main/planner/sessionplan_forms.py:48
 msgid "Plan is public"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:117
+#: app/main/observation/observation_forms.py:89
 msgid "Add Observation"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:122
+#: app/main/observation/observation_forms.py:94
 msgid "Update Observation"
 msgstr ""
 
-#: app/main/observation/observation_forms.py:126
+#: app/main/observation/observation_forms.py:98
 #: app/main/observation/observed_forms.py:36
 #: app/main/planner/sessionplan_forms.py:85
 #: app/main/planner/sessionplan_forms.py:89
@@ -498,6 +453,66 @@ msgstr ""
 
 #: app/main/usersettings/usersettings_forms.py:42
 msgid "Content git repository"
+msgstr ""
+
+#: app/models/observation.py:22
+msgctxt "seeing"
+msgid "Terrible"
+msgstr ""
+
+#: app/models/observation.py:24
+msgctxt "seeing"
+msgid "Very bad"
+msgstr ""
+
+#: app/models/observation.py:26
+msgctxt "seeing"
+msgid "Bad"
+msgstr ""
+
+#: app/models/observation.py:28
+msgctxt "seeing"
+msgid "Average"
+msgstr ""
+
+#: app/models/observation.py:30
+msgctxt "seeing"
+msgid "Good"
+msgstr ""
+
+#: app/models/observation.py:32
+msgctxt "seeing"
+msgid "Excellent"
+msgstr ""
+
+#: app/models/observation.py:46
+msgctxt "transparency"
+msgid "Unusual"
+msgstr ""
+
+#: app/models/observation.py:48
+msgctxt "transparency"
+msgid "Very bad"
+msgstr ""
+
+#: app/models/observation.py:50
+msgctxt "transparency"
+msgid "Bad"
+msgstr ""
+
+#: app/models/observation.py:52
+msgctxt "transparency"
+msgid "Average"
+msgstr ""
+
+#: app/models/observation.py:54
+msgctxt "transparency"
+msgid "Good"
+msgstr ""
+
+#: app/models/observation.py:56
+msgctxt "transparency"
+msgid "Excellent"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:24
@@ -771,7 +786,7 @@ msgstr ""
 #: app/templates/main/catalogue/deepskyobjects.html:9
 #: app/templates/main/catalogue/dso_list_menu.html:8
 #: app/templates/main/chart/chart.html:29
-#: app/templates/main/observation/observation_info.html:83
+#: app/templates/main/observation/observation_info.html:82
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan.html:127

@@ -44,6 +44,7 @@ login_manager.login_view = 'account.login'
 
 UPLOAD_FOLDER = 'uploads'
 
+
 def create_app(config):
     app = Flask(__name__)
     config_name = config
@@ -148,6 +149,7 @@ def create_app(config):
     cm = Commonmark(app)
 
     return app
+
 
 @babel.localeselector
 def get_locale():
