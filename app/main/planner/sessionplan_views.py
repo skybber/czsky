@@ -143,6 +143,7 @@ def session_plan_info(session_plan_id):
             session_plan.location_id = location_id
             session_plan.location_position = location_position
             session_plan.is_public = form.is_public.data
+            session_plan.is_archived = form.is_archived.data
             session_plan.notes = form.notes.data
             session_plan.update_by = user.id
             session_plan.update_date = datetime.now()
@@ -155,6 +156,7 @@ def session_plan_info(session_plan_id):
         form.for_date.data = session_plan.for_date
         form.location.data = session_plan.location_id if session_plan.location_id is not None else session_plan.location_position
         form.is_public.data = session_plan.is_public
+        form.is_archived.data = session_plan.is_archived
         form.notes.data = session_plan.notes
 
     location, location_position = _get_location_data2_from_form(form)
@@ -189,18 +191,19 @@ def new_session_plan():
             location_id, location_position = _get_location_data_from_form(form)
 
             new_session_plan = SessionPlan(
-                user_id = user.id,
-                title = form.title.data,
-                for_date = form.for_date.data,
-                location_id = location_id,
-                location_position = location_position,
-                is_public = form.is_public.data,
-                notes = form.notes.data,
-                is_anonymous = current_user.is_anonymous,
-                create_by = user.id,
-                update_by = user.id,
-                create_date = datetime.now(),
-                update_date = datetime.now(),
+                user_id=user.id,
+                title=form.title.data,
+                for_date=form.for_date.data,
+                location_id=location_id,
+                location_position=location_position,
+                is_public=form.is_public.data,
+                is_archived=form.is_archived.data,
+                notes=form.notes.data,
+                is_anonymous=current_user.is_anonymous,
+                create_by=user.id,
+                update_by=user.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
                 )
 
             db.session.add(new_session_plan)

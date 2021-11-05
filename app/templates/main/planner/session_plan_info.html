@@ -44,10 +44,13 @@
     </div>
 
     <div class="two fields">
-        <div class="field">
-            {{ f.render_form_field(form.is_public) }}
+        <div class="ui checkbox field">
+            <input type="checkbox" id="is_public" name="{{ form.is_public.name }}" {{ 'checked=checked' if form.is_public.data else '' | safe  }} class="hidden">
+            {{ form.is_public.label }}
         </div>
-        <div>
+        <div class="ui checkbox field">
+            <input type="checkbox" id="is_archived" name="{{ form.is_archived.name }}" {{ 'checked=checked' if form.is_archived.data else '' | safe  }} class="hidden">
+            {{ form.is_archived.label }}
         </div>
     </div>
 

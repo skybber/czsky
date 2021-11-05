@@ -46,6 +46,7 @@ class SessionPlanMixin():
     location = StringField(lazy_gettext('Location'), validators=[InputRequired(),Length(max=256), location_lonlat_check])
     notes = TextAreaField(lazy_gettext('Notes'))
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
+    is_archived = BooleanField(lazy_gettext('Plan is archived'), default=False)
 
 
 class SessionPlanNewForm(FlaskForm, SessionPlanMixin):

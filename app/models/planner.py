@@ -4,6 +4,7 @@ from .. import db
 
 DEFAULT_ORDER = 100000
 
+
 class SessionPlan(db.Model):
     __tablename__ = 'session_plans'
     id = db.Column(db.Integer, primary_key=True)
@@ -15,13 +16,13 @@ class SessionPlan(db.Model):
     location_position = db.Column(db.String(256))
     for_date = db.Column(db.DateTime, default=datetime.now())
     is_anonymous = db.Column(db.Boolean, default=False)
+    is_public = db.Column(db.Boolean, default=False)
+    is_archived = db.Column(db.Boolean, default=False)
     session_plan_items = db.relationship('SessionPlanItem', backref='session_plan', lazy=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
-    is_public = db.Column(db.Boolean, default=False)
-
 
     def find_dso_by_id(self, dso_id):
         for item in self.session_plan_items:
@@ -29,20 +30,18 @@ class SessionPlan(db.Model):
                 return item
         return None
 
-
     def create_new_session_plan_item(self, dso_id, user_id):
         max = db.session.query(db.func.max(SessionPlanItem.order)).filter_by(session_plan_id=self.id).scalar()
         if not max:
             max = 0
         new_item = SessionPlanItem(
-            session_plan_id = self.id,
-            dso_id = dso_id,
-            order = max + 1,
-            create_date = datetime.now(),
-            update_date = datetime.now(),
+            session_plan_id=self.id,
+            dso_id=dso_id,
+            order=max + 1,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
             )
         return new_item
-
 
     def get_prev_next_item(self, dso_id, constell_ids):
         sorted_list = sorted(self.session_plan_items, key=lambda x: x.id)
