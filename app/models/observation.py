@@ -78,7 +78,7 @@ class Observation(db.Model):
     update_date = db.Column(db.DateTime, default=datetime.now())
     sqm_records = db.relationship('SqmFullRecord', backref='observation', lazy=True)
     observation_items = db.relationship('ObservationItem', backref='observation', lazy=True)
-    is_public = db.Column(db.Boolean, default=False)
+    is_public = db.Column(db.Boolean, default=False, nullable=False)
 
     def rating_to_int(self, m):
         if not self.rating:
