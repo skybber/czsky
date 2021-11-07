@@ -43,7 +43,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     global rise_set_cache
 
     if session_plan.is_anonymous and (schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL'):
-        schedule_form.obj_source.data = 'M' # set Messier
+        schedule_form.obj_source.data = 'M'  # set Messier
 
     if schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL':
         wishlist_subquery = db.session.query(WishListItem.dso_id) \

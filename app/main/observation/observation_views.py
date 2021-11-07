@@ -24,9 +24,12 @@ from app import db
 from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
+    ObservationRunPlanForm,
 )
 
-from app.models import Observation, Location, ObservedList, ObservedListItem, Seeing, Transparency
+from app.models import Observation, Location, ObservedList, ObservedListItem, Seeing, Transparency, SessionPlan, \
+                       ObservationPlanRun
+
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from .observation_form_utils import *
@@ -121,10 +124,8 @@ def observation_edit(observation_id):
                 update_from_advanced_form(form, observation)
             else:
                 update_from_basic_form(form, observation)
-
             if form.goback.data == 'true':
                 return redirect(url_for('main_observation.observation_info', observation_id=observation.id))
-
     else:
         form.title.data = observation.title
         form.date.data = observation.date
@@ -144,7 +145,8 @@ def observation_edit(observation_id):
 
     location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation, location=location, location_position=location_position)
+    return render_template('main/observation/observation_edit.html', form=form, is_new=False, observation=observation,
+                           location=location, location_position=location_position)
 
 
 def _get_location_data2_from_form(form):
@@ -155,7 +157,7 @@ def _get_location_data2_from_form(form):
     else:
         location_position = form.location.data
 
-    return (location, location_position)
+    return location, location_position
 
 
 @main_observation.route('/observation/<int:observation_id>/delete')
@@ -175,7 +177,7 @@ def observation_chart(observation_id):
     observation = Observation.query.filter_by(id=observation_id).first()
     is_mine_observation = _check_observation(observation, allow_public=True)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     dso_id = request.args.get('dso_id')
     observation_item = None
@@ -215,7 +217,7 @@ def observation_chart(observation_id):
     chart_control = common_prepare_chart_data(form)
 
     return render_template('main/observation/observation_info.html', fchart_form=form, type='chart', observation=observation, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url,is_mine_observation=is_mine_observation)
+                           default_chart_iframe_url=default_chart_iframe_url, is_mine_observation=is_mine_observation)
 
 
 @main_observation.route('/observation/<int:observation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -247,3 +249,47 @@ def observation_chart_legend_img(observation_id, ra, dec):
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
+
+@main_observation.route('/observation/<int:observation_id>/run-plan', methods=['GET', 'POST'])
+def observation_run_plan(observation_id):
+    observation = Observation.query.filter_by(id=observation_id).first()
+    is_mine_observation = _check_observation(observation, False)
+    if not is_mine_observation:
+        abort(404)
+
+    form = ObservationRunPlanForm()
+
+    if request.method == 'POST':
+        print(form.session_plan.data, flush=True)
+        if form.validate_on_submit():
+            pass
+    else:
+        form.session_plan.data = None
+
+    session_plan_id = int(form.session_plan.data) if form.session_plan.data else None
+    observation_plan_run = None
+
+    if session_plan_id is not None:
+        session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+        if session_plan.user_id != current_user.id:
+            abort(404)
+        observation_plan_run = ObservationPlanRun.query.filter_by(observation_id=observation_id, session_plan_id=session_plan_id) \
+                                                 .first()
+
+    available_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+                                         .order_by(SessionPlan.for_date.desc())
+
+    return render_template('main/observation/observation_info.html', observation=observation, type='run_plan',
+                           run_plan_form=form, is_mine_observation=True, available_session_plans=available_session_plans,
+                           observation_plan_run=observation_plan_run)
+
+
+@main_observation.route('/observation/<int:observation_id>/<int:session_plan_id>/run-plan-execute', methods=['GET'])
+def observation_run_plan_execute(observation_id, session_plan_id):
+    observation = Observation.query.filter_by(id=observation_id).first()
+    is_mine_observation = _check_observation(observation, False)
+    if not is_mine_observation:
+        abort(404)
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if session_plan is None or session_plan.user_id != current_user.id:
+        abort(404)

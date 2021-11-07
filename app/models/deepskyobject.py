@@ -12,6 +12,7 @@ ALL_APERTURE_DESCRIPTIONS = ( 'Naked-eye', '<100', '100/150', '200/250', '300/35
 
 SHOWN_APERTURE_DESCRIPTIONS = ( 'Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200' )
 
+
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
     id = db.Column(db.Integer, primary_key=True)
@@ -107,6 +108,7 @@ class DeepskyObject(db.Model):
                 DeepskyObject._browsing_catalogue_map[catalogue.id] = catalogue
         return DeepskyObject._browsing_catalogue_map
 
+
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'
     id = db.Column(db.Integer, primary_key=True)
@@ -126,6 +128,7 @@ class UserDsoDescription(db.Model):
 
     def rating_to_int(self, m):
         return int(round(self.rating * m / 10)) if self.rating else m//2
+
 
 class UserDsoApertureDescription(db.Model):
     __tablename__ = 'user_dso_aperture_descriptions'

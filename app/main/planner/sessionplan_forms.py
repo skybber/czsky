@@ -40,10 +40,10 @@ class SearchSessionPlanForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
 
 
-class SessionPlanMixin():
-    title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
-    for_date = DateField(lazy_gettext('Date'), id='odate', format = '%d/%m/%Y', default = datetime.today, validators=[InputRequired(),])
-    location = StringField(lazy_gettext('Location'), validators=[InputRequired(),Length(max=256), location_lonlat_check])
+class SessionPlanMixin:
+    title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
+    for_date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today, validators=[InputRequired(), ])
+    location = StringField(lazy_gettext('Location'), validators=[InputRequired(), Length(max=256), location_lonlat_check])
     notes = TextAreaField(lazy_gettext('Notes'))
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
     is_archived = BooleanField(lazy_gettext('Plan is archived'), default=False)
@@ -62,7 +62,7 @@ class SessionPlanEditForm(FlaskForm, SessionPlanMixin):
 class SessionPlanScheduleFilterForm(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
     q = StringField(lazy_gettext('Search'))
-    obj_source= HiddenField('obj_source', default='WL')
+    obj_source = HiddenField('obj_source', default='WL')
     constellation_id = IntegerField('Constellation', default=None)
     dso_type = SelectField(lazy_gettext('Object type'), choices=[
          ('All', 'All types'),
@@ -96,6 +96,6 @@ class SearchWishListForm(FlaskForm):
          ('winter', lazy_gettext('Winter')),
          ('spring', lazy_gettext('Spring')),
          ('summer', lazy_gettext('Summer')),
-         ('autumn',lazy_gettext('Autumn')),
-         ('southern',lazy_gettext('Southern')),
+         ('autumn', lazy_gettext('Autumn')),
+         ('southern', lazy_gettext('Southern')),
     ], default='')

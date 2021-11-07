@@ -69,7 +69,7 @@ class ObservationItemNewForm(FlaskForm):
                 raise ValidationError(lazy_gettext('Value expected.'))
 
 
-class ObservationMixin():
+class ObservationMixin:
     items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
     date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today, validators=[InputRequired(),])
@@ -96,3 +96,7 @@ class ObservationEditForm(FlaskForm, ObservationMixin):
 
 class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+
+
+class ObservationRunPlanForm(FlaskForm):
+    session_plan = HiddenField('session_plan')

@@ -95,7 +95,7 @@ def deepskyobjects():
     mag_scale = (8, 16)
 
     if search_form.dso_type.data and search_form.dso_type.data != 'All':
-        dso_query = dso_query.filter(DeepskyObject.type==search_form.dso_type.data)
+        dso_query = dso_query.filter(DeepskyObject.type == search_form.dso_type.data)
 
     if search_form.catalogue.data and search_form.catalogue.data != 'All':
         cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)

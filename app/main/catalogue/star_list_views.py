@@ -124,7 +124,7 @@ def star_list_chart(star_list_id):
 
 
 @main_star_list.route('/star-list/<string:star_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def  star_list_chart_pos_img(star_list_id, ra, dec):
+def star_list_chart_pos_img(star_list_id, ra, dec):
     star_list = _find_star_list(star_list_id)
     if star_list is None:
         abort(404)

@@ -2,10 +2,22 @@
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
+{% set edit_endpoints = [
+    ('main_observation.observation_info', _('Info'), 'info'),
+    ('main_observation.observation_chart', _('Chart'), 'info'),
+    ('main_observation.observation_run_plan', _('Run plan'), 'info'),
+] %}
+
+{% set overview_endpoints = [
     ('main_observation.observation_info', _('Info'), 'info'),
     ('main_observation.observation_chart', _('Chart'), 'info'),
 ] %}
+
+{% set flashes = {
+    'error':   get_flashed_messages(category_filter=['form-error']),
+    'info':    get_flashed_messages(category_filter=['form-info']),
+    'success': get_flashed_messages(category_filter=['form-success'])
+} %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -46,7 +58,7 @@
                 {% endfilter %}
             </td>
         </tr>
-    {% endfor %}
+        {% endfor %}
     </table>
 
     <script type="text/javascript">
@@ -70,6 +82,64 @@
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
+
+{% macro observation_run_plan(observation) %}
+    {{ f.begin_form(run_plan_form, flashes, action=url_for('main_observation.observation_run_plan', observation_id=observation.id), extra_classes='ui menu') }}
+        <div class="ui item">
+            <div id="session_plans_dropdown" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Session plans') }}" data-variation="basic">
+                <input type="hidden" id="session_plan" name="{{ run_plan_form.session_plan.name }}" value="{{ run_plan_form.session_plan.data }}">
+                <span class="text">{{ _('Choose current session plan') }}</span>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    {% for session_plan in available_session_plans %}
+                        <div class="item" data-value="{{ session_plan.id }}">{{ session_plan.title }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="ui item">
+{% if run_plan_form.session_plan.data %}
+    {% set run_plan_url = url_for('main_observation.observation_run_plan_execute', observation_id=observation.id, session_plan_id=run_plan_form.session_plan.data) %}
+{% else %}
+    {% set run_plan_url = '#' %}
+{% endif %}
+            <a class="ui right labeled icon positive {% if run_plan_url=='#'%}disabled {% endif %}button" href="{{ run_plan_url }}">
+                <i class="play icon"></i>
+                {{ _('Run plan') }}
+            </a>
+        </div>
+    {{ f.end_form(run_plan_form) }}
+
+    {% if observation_plan_run  %}
+        <table class="ui compact definition2c table">
+            {% for item in observation_plan_run.observation_plan_run_items | sort(attribute='date_time') %}
+            <tr>
+                <td class="two wide"><b>{{ item.deepskyObject.name | safe }}</b></td>
+                <td class="one wide">{{ item.date_time.strftime('%H:%M') }}</td>
+                <td>
+                    {% filter extended_commonmark('') %}
+{{ item.notes }}
+                    {% endfilter %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+<script type="text/javascript">
+$(function(){
+    $('#session_plans_dropdown')
+        .dropdown({
+          allowCategorySelection: true,
+          onChange: function (value, text, $selectedItem) {
+              $('#session_plan').val(value);
+              $(this).closest('form').submit();
+          }
+    });
+});
+</script>
+
+{% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -103,11 +173,18 @@
                 {% endif %}
             </div>
 
-            {{ navigation(endpoints) }}
+            {% if is_mine_observation %}
+                {{ navigation(edit_endpoints) }}
+            {% else %}
+                {{ navigation(overview_endpoints) }}
+            {% endif %}
+
             {% if type == 'info' %}
                 {{ observation_info(observation) }}
             {% elif type == 'chart' %}
                 {{ observation_chart(observation) }}
+            {% elif type == 'run_plan' %}
+                {{ observation_run_plan(observation) }}
             {% endif %}
         </div>
     </div>

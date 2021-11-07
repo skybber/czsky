@@ -20,26 +20,26 @@ def create_from_basic_form(form):
     else:
         location_position = form.location.data
     observation = Observation(
-        user_id = current_user.id,
-        title = form.title.data,
-        date = form.date.data,
-        location_id = location_id,
-        location_position = location_position,
-        rating = form.rating.data,
-        notes = form.notes.data,
-        create_by = current_user.id,
-        update_by = current_user.id,
-        create_date = datetime.now(),
-        update_date = datetime.now()
+        user_id=current_user.id,
+        title=form.title.data,
+        date=form.date.data,
+        location_id=location_id,
+        location_position=location_position,
+        rating=form.rating.data,
+        notes=form.notes.data,
+        create_by=current_user.id,
+        update_by=current_user.id,
+        create_date=datetime.now(),
+        update_date=datetime.now()
         )
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
         item = ObservationItem(
-            observation_id = observation.id,
-            date_time = item_time,
-            txt_deepsky_objects = item_form.deepsky_object_id_list.data,
-            notes = item_form.notes.data
+            observation_id=observation.id,
+            date_time=item_time,
+            txt_deepsky_objects=item_form.deepsky_object_id_list.data,
+            notes=item_form.notes.data
             )
         observation.observation_items.append(item)
 
@@ -88,6 +88,11 @@ def update_from_basic_form(form, observation):
     else:
         location_position = form.location.data
 
+    if observation.id is not None:
+        for item in observation.observation_items:
+            db.session.delete(item)
+        observation.observation_items.clear()
+
     observation.user_id = current_user.id
     observation.title = form.title.data
     observation.date = form.date.data
@@ -106,10 +111,10 @@ def update_from_basic_form(form, observation):
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
         item = ObservationItem(
-            observation_id = observation.id,
-            date_time = item_time,
-            txt_deepsky_objects = item_form.deepsky_object_id_list.data,
-            notes = item_form.notes.data
+            observation_id=observation.id,
+            date_time=item_time,
+            txt_deepsky_objects=item_form.deepsky_object_id_list.data,
+            notes=item_form.notes.data
             )
         observation.observation_items.append(item)
 

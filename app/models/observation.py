@@ -117,7 +117,7 @@ dso_observation_item_association_table = db.Table('observation_item_dsos', db.Mo
 class ObservationItem(db.Model):
     __tablename__ = 'observation_items'
     id = db.Column(db.Integer, primary_key=True)
-    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'))
+    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
     txt_deepsky_objects = db.Column(db.Text)
     notes = db.Column(db.Text)
@@ -134,3 +134,21 @@ class ObservationItem(db.Model):
         else:
             text = self.notes
         return astro_text_to_html(self.observation_id, text)
+
+
+class ObservationPlanRun(db.Model):
+    __tablename__ = 'observation_plan_runs'
+    id = db.Column(db.Integer, primary_key=True)
+    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
+    session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
+    observation_plan_run_items = db.relationship('ObservationPlanRunItem', backref='observation_plan_run', lazy=True)
+
+
+class ObservationPlanRunItem(db.Model):
+    __tablename__ = 'observation_plan_run_items'
+    id = db.Column(db.Integer, primary_key=True)
+    observation_plan_run_id = db.Column(db.Integer, db.ForeignKey('observation_plan_runs.id'), nullable=False)
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
+    deepskyObject = db.relationship("DeepskyObject")
+    date_time = db.Column(db.DateTime, nullable=False)
+    notes = db.Column(db.Text)
