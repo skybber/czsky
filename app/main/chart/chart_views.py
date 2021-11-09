@@ -95,7 +95,7 @@ def chart_pos_img(ra, dec):
         f_mark_ra = float(mark_ra)
         f_mark_dec = float(mark_dec)
     else:
-        f_mark_ra,f_mark_dec = None, None
+        f_mark_ra, f_mark_dec = None, None
 
     visible_objects = [] if flags else None
     img_bytes = common_chart_pos_img(f_mark_ra, f_mark_dec, ra, dec, visible_objects=visible_objects)
@@ -117,5 +117,3 @@ def chart_legend_img(ra, dec):
 def chart_pdf(ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec)
     return send_file(img_bytes, mimetype='application/pdf')
-
-

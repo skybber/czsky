@@ -397,17 +397,23 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     if back == 'dso_list' and back_id is not None:
         dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
-            highlights_dso_list = [ x.deepskyObject for x in dso_list.dso_list_items if dso_list ]
+            highlights_dso_list = [x.deepskyObject for x in dso_list.dso_list_items if dso_list]
     elif back == 'wishlist' and current_user.is_authenticated:
         wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-        highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+        highlights_dso_list = [x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items]
     elif back == 'session_plan':
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
         if _allow_view_session_plan(session_plan):
-            highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+            highlights_dso_list = [x.deepskyObject for x in session_plan.session_plan_items if session_plan]
     elif back == 'observed_list' and current_user.is_authenticated:
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-        highlights_dso_list = [ x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items ]
+        highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
+    elif back == 'running_plan' and back_id is not None:
+        running_plan_id = session.get('running_plan_id', None)
+        if running_plan_id:
+            session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
+            if _allow_view_session_plan(session_plan):
+                highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
 
     img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
 
@@ -622,6 +628,13 @@ def _get_prev_next_dso(dso):
                     next_item.deepskyObject if next_item else None,
                     next_item.item_id if next_item else None,
                     )
+    elif back == 'running_plan':
+        running_plan_id = session.get('running_plan_id', None)
+        if running_plan_id:
+            session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
+            if session_plan and _allow_view_session_plan(session_plan):
+                prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
+                has_item = True
 
     if has_item:
         return (prev_item.deepskyObject if prev_item else None,

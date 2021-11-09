@@ -141,6 +141,7 @@ class ObservationPlanRun(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
+    session_plan = db.relationship("SessionPlan")
     observation_plan_run_items = db.relationship('ObservationPlanRunItem', backref='observation_plan_run', lazy=True)
 
 

@@ -110,7 +110,7 @@
         </div>
     {{ f.end_form(run_plan_form) }}
 
-    {% if observation_plan_run  %}
+    {% if observation_plan_run and observation_plan_run.observation_plan_run_items|length > 0  %}
         <table class="ui compact definition2c table">
             {% for item in observation_plan_run.observation_plan_run_items | sort(attribute='date_time') %}
             <tr>
@@ -124,6 +124,9 @@
             </tr>
             {% endfor %}
         </table>
+    {% endif %}
+    {% if not observation_plan_run or observation_plan_run.observation_plan_run_items|length == 0  %}
+        <div class="ui segment">{{ _('No object has been observed from this plan yet.')}}</div>
     {% endif %}
 
 <script type="text/javascript">

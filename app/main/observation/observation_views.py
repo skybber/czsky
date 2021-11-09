@@ -15,6 +15,7 @@ from flask import (
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -259,25 +260,37 @@ def observation_run_plan(observation_id):
 
     form = ObservationRunPlanForm()
 
+    session_plan_id = None
     if request.method == 'POST':
-        print(form.session_plan.data, flush=True)
         if form.validate_on_submit():
-            pass
+            session_plan_id = form.session_plan.data
     else:
-        form.session_plan.data = None
+        session_plan_id = form.session_plan.data
+        if session_plan_id is None:
+            running_plan_id = session.get('running_plan_id', None)
+            if running_plan_id is not None:
+                observation_plan_run = ObservationPlanRun.query.filter_by(id=int(running_plan_id)).first()
+                if observation_plan_run and \
+                        not observation_plan_run.session_plan.is_archived and \
+                        observation_plan_run.session_plan.user_id == current_user.id:
+                    session_plan_id = observation_plan_run.session_plan.id
+                else:
+                    session.pop('running_plan_id')
 
-    session_plan_id = int(form.session_plan.data) if form.session_plan.data else None
     observation_plan_run = None
 
     if session_plan_id is not None:
         session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-        if session_plan.user_id != current_user.id:
-            abort(404)
-        observation_plan_run = ObservationPlanRun.query.filter_by(observation_id=observation_id, session_plan_id=session_plan_id) \
-                                                 .first()
+        if session_plan.user_id == current_user.id:
+            observation_plan_run = ObservationPlanRun.query.filter_by(observation_id=observation_id, session_plan_id=session_plan_id) \
+                                                     .first()
+            form.session_plan.data = session_plan_id
+        else:
+            session.pop('running_plan_id')
+            form.session_plan.data = None
 
     available_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
-                                         .order_by(SessionPlan.for_date.desc())
+        .order_by(SessionPlan.for_date.desc())
 
     return render_template('main/observation/observation_info.html', observation=observation, type='run_plan',
                            run_plan_form=form, is_mine_observation=True, available_session_plans=available_session_plans,
@@ -293,3 +306,22 @@ def observation_run_plan_execute(observation_id, session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     if session_plan is None or session_plan.user_id != current_user.id:
         abort(404)
+
+    observation_plan_run = ObservationPlanRun.query.filter_by(observation_id=observation_id, session_plan_id=session_plan_id) \
+        .first()
+
+    if observation_plan_run is None:
+        observation_plan_run = ObservationPlanRun(
+            observation_id=observation_id,
+            session_plan_id=session_plan_id
+        )
+        db.session.add(observation_plan_run)
+        db.session.commit()
+
+    session['running_plan_id'] = observation_plan_run.id
+
+    if len(session_plan.session_plan_items) and session_plan.session_plan_items[0].deepskyObject is not None:
+        dso_name = session_plan.session_plan_items[0].deepskyObject.name
+    else:
+        dso_name = 'M1'  # fallback
+    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_name, back='running_plan'))
