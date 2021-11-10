@@ -28,8 +28,16 @@ from .observation_forms import (
     ObservationRunPlanForm,
 )
 
-from app.models import Observation, Location, ObservedList, ObservedListItem, Seeing, Transparency, SessionPlan, \
-                       ObservationPlanRun
+from app.models import (
+    Observation,
+    Location,
+    ObservedList,
+    ObservedListItem,
+    ObservationPlanRun,
+    Seeing,
+    SessionPlan,
+    Transparency,
+)
 
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
@@ -297,6 +305,14 @@ def observation_run_plan(observation_id):
                            observation_plan_run=observation_plan_run)
 
 
+@main_observation.route('/observation/<int:observation_plan_run_id>/run-plan-redirect', methods=['GET'])
+def observation_run_plan_redirect(observation_plan_run_id):
+    observation_plan_run = ObservationPlanRun.query.filter_by(id=observation_plan_run_id).first()
+    if not observation_plan_run:
+        abort(404)
+    return redirect(url_for('main_observation.observation_run_plan', observation_id=observation_plan_run.observation_id))
+
+
 @main_observation.route('/observation/<int:observation_id>/<int:session_plan_id>/run-plan-execute', methods=['GET'])
 def observation_run_plan_execute(observation_id, session_plan_id):
     observation = Observation.query.filter_by(id=observation_id).first()
@@ -324,4 +340,4 @@ def observation_run_plan_execute(observation_id, session_plan_id):
         dso_name = session_plan.session_plan_items[0].deepskyObject.name
     else:
         dso_name = 'M1'  # fallback
-    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_name, back='running_plan'))
+    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_name, back='running_plan', back_id=observation_plan_run.id))

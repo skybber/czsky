@@ -29,6 +29,7 @@ from app.models import (
     Observation,
     ObservedList,
     ObservedListItem,
+    ObservationPlanRun,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
     User,
@@ -414,11 +415,10 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
         highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
     elif back == 'running_plan' and back_id is not None:
-        running_plan_id = session.get('running_plan_id', None)
-        if running_plan_id:
-            session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
-            if _allow_view_session_plan(session_plan):
-                highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+        observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+        if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
+            if _allow_view_session_plan(observation_plan_run.session_plan):
+                highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
 
     img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
 
@@ -634,9 +634,9 @@ def _get_prev_next_dso(dso):
                     next_item.item_id if next_item else None,
                     )
     elif back == 'running_plan':
-        session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
-        if session_plan and _allow_view_session_plan(session_plan):
-            prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
+        observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+        if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
+            prev_item, next_item = observation_plan_run.session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
             has_item = True
 
     if has_item:

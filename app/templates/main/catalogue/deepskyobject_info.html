@@ -341,6 +341,11 @@
                               <i class="caret left icon"></i>
                               <i class="tasks icon mobile hidden"></i>
                           </a>
+                      {% elif back == 'running_plan' %}
+                          <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_run_plan_redirect', observation_plan_run_id=back_id) }}#dso{{dso.id}}">
+                              <i class="caret left icon"></i>
+                              <i class="tasks icon mobile hidden"></i>
+                          </a>
                       {% else %}
                           <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
                               <i class="caret left icon"></i>
