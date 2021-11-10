@@ -1,0 +1,23 @@
+{% import 'macros/dashboard_macros.html' as dash %}
+
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                <i class="caret left icon"></i>
+                {{ _('Dashboard') }}
+            </a>
+            <h2 class="ui header">
+                    {{ _('Deepsky') }}
+            </h2>
+            <div class="ui two column stackable grid">
+                {{ dash.dashboard_option(_('Deepsky Object Catalogues'), 'main_deepskyobject.deepskyobjects',
+                                    description=_('Search deepsky objects'), icon='star icon') }}
+                {{ dash.dashboard_option(_('Deepsky Lists'), 'main_dso_list.dso_lists_menu',
+                                    description=_('View deepsky lists'), icon='star icon') }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
