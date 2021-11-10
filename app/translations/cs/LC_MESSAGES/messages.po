@@ -916,7 +916,7 @@ msgstr "Uložit a zpět"
 #: app/templates/main/observation/observation_info.html:8
 #: app/templates/main/observation/observation_info.html:108
 msgid "Run plan"
-msgstr "Vykonat plán pozorování"
+msgstr "Spustit plán"
 
 #: app/templates/main/observation/observation_info.html:91
 msgid "Choose current session plan"
