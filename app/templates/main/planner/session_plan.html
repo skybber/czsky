@@ -25,7 +25,7 @@
 {% endmacro %}
 
 {% macro session_plan_overview(session_plan) %}
-    <table class="ui compact definition table">
+    <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Title') }}</td><td>{{ session_plan.title }}</td></tr>
         <tr><td class="two wide">{{ _('Date') }}</td><td>{{ session_plan.for_date.strftime('%Y-%m-%d') }}</td></tr>
         <tr><td class="two wide">{{ _('Location') }}</td><td>{{ session_plan.location.name if session_plan.location else '' }}</td></tr>

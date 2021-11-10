@@ -30,7 +30,7 @@
 {% endmacro %}
 
 {% macro observation_info(observation) %}
-    <table class="ui compact definition table">
+    <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Date') }}</td><td colspan="5">{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
         <tr><td class="two wide">{{ _('Location') }}</td><td colspan="5">{{ observation.location.name if observation.location else observation.location_position }}</td></tr>
         <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>

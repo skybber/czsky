@@ -69,10 +69,8 @@
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Constellations'), 'main_constellation.constellations',
                                     description=_('View constellations'), icon='lastfm icon') }}
-                {{ dash.dashboard_option(_('Deepsky Objects'), 'main_deepskyobject.deepskyobjects',
+                {{ dash.dashboard_option(_('Deepsky'), 'main_deepskyobject.dso_menu',
                                     description=_('View deepsky objects'), icon='star icon') }}
-                {{ dash.dashboard_option(_('Deepsky Lists'), 'main_dso_list.dso_lists_menu',
-                                    description=_('View deepsky lists'), icon='star icon') }}
                 {{ dash.dashboard_option(_('Solar System'), 'main_solarsystem.solarsystem_menu',
                                     description=_('View solar system'), icon='sun icon') }}
                 {% if is_anonymous %}

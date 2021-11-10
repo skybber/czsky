@@ -66,6 +66,11 @@ ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
 DSO_TABLE_COLUMNS = [ 'name', 'type', 'ra', 'dec', 'constellation', 'mag', 'size' ]
 
 
+@main_deepskyobject.route('/dso-menu', methods=['GET'])
+def dso_menu():
+    return render_template('main/catalogue/dso_menu.html')
+
+
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""
@@ -629,12 +634,10 @@ def _get_prev_next_dso(dso):
                     next_item.item_id if next_item else None,
                     )
     elif back == 'running_plan':
-        running_plan_id = session.get('running_plan_id', None)
-        if running_plan_id:
-            session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
-            if session_plan and _allow_view_session_plan(session_plan):
-                prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
-                has_item = True
+        session_plan = SessionPlan.query.filter_by(id=int(running_plan_id)).first()
+        if session_plan and _allow_view_session_plan(session_plan):
+            prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
+            has_item = True
 
     if has_item:
         return (prev_item.deepskyObject if prev_item else None,

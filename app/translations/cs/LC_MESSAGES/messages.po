@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-04 20:29+0100\n"
+"POT-Creation-Date: 2021-11-10 18:39+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -19,8 +19,8 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:60 app/main/forms.py:35
 #: app/main/location/location_forms.py:54 app/main/news/news_forms.py:52
-#: app/main/planner/sessionplan_forms.py:62
-#: app/main/planner/sessionplan_forms.py:76
+#: app/main/planner/sessionplan_forms.py:63
+#: app/main/planner/sessionplan_forms.py:77
 #: app/main/solarsystem/asteroid_forms.py:36
 #: app/main/solarsystem/comet_forms.py:35
 #: app/templates/macros/common_macros.html:33
@@ -31,14 +31,14 @@ msgstr "Položek na stránku"
 #: app/main/catalogue/constellation_forms.py:33
 #: app/main/location/location_forms.py:53 app/main/news/news_forms.py:51
 #: app/main/planner/sessionplan_forms.py:40
-#: app/main/planner/sessionplan_forms.py:63
+#: app/main/planner/sessionplan_forms.py:64
 msgid "Search"
 msgstr "Hledat"
 
 #: app/main/catalogue/constellation_forms.py:34
 #: app/main/catalogue/dso_list_forms.py:33
 #: app/main/catalogue/star_list_forms.py:33
-#: app/main/planner/sessionplan_forms.py:93
+#: app/main/planner/sessionplan_forms.py:94
 #: app/main/planner/wishlist_forms.py:40
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/dso_list_info.html:39
@@ -50,7 +50,7 @@ msgstr "Roční období"
 #: app/main/catalogue/constellation_forms.py:35
 #: app/main/catalogue/dso_list_forms.py:34
 #: app/main/catalogue/star_list_forms.py:34
-#: app/main/planner/sessionplan_forms.py:94
+#: app/main/planner/sessionplan_forms.py:95
 #: app/main/planner/wishlist_forms.py:41
 #: app/templates/main/planner/session_plan_schedule.html:52
 msgid "All"
@@ -59,7 +59,7 @@ msgstr "Všechna"
 #: app/main/catalogue/constellation_forms.py:36
 #: app/main/catalogue/dso_list_forms.py:35
 #: app/main/catalogue/star_list_forms.py:35
-#: app/main/planner/sessionplan_forms.py:95
+#: app/main/planner/sessionplan_forms.py:96
 #: app/main/planner/wishlist_forms.py:42
 msgid "Winter"
 msgstr "zima"
@@ -67,7 +67,7 @@ msgstr "zima"
 #: app/main/catalogue/constellation_forms.py:37
 #: app/main/catalogue/dso_list_forms.py:36
 #: app/main/catalogue/star_list_forms.py:36
-#: app/main/planner/sessionplan_forms.py:96
+#: app/main/planner/sessionplan_forms.py:97
 #: app/main/planner/wishlist_forms.py:43
 msgid "Spring"
 msgstr "jaro"
@@ -75,7 +75,7 @@ msgstr "jaro"
 #: app/main/catalogue/constellation_forms.py:38
 #: app/main/catalogue/dso_list_forms.py:37
 #: app/main/catalogue/star_list_forms.py:37
-#: app/main/planner/sessionplan_forms.py:97
+#: app/main/planner/sessionplan_forms.py:98
 #: app/main/planner/wishlist_forms.py:44
 msgid "Summer"
 msgstr "léto"
@@ -83,7 +83,7 @@ msgstr "léto"
 #: app/main/catalogue/constellation_forms.py:39
 #: app/main/catalogue/dso_list_forms.py:38
 #: app/main/catalogue/star_list_forms.py:38
-#: app/main/planner/sessionplan_forms.py:98
+#: app/main/planner/sessionplan_forms.py:99
 #: app/main/planner/wishlist_forms.py:45
 msgid "Autumn"
 msgstr "podzim"
@@ -91,7 +91,7 @@ msgstr "podzim"
 #: app/main/catalogue/constellation_forms.py:40
 #: app/main/catalogue/dso_list_forms.py:39
 #: app/main/catalogue/star_list_forms.py:39
-#: app/main/planner/sessionplan_forms.py:99
+#: app/main/planner/sessionplan_forms.py:100
 #: app/main/planner/wishlist_forms.py:46
 msgid "Southern"
 msgstr "jižní souhvězdí"
@@ -124,7 +124,7 @@ msgstr "Zorné pole"
 
 #: app/main/catalogue/constellation_forms.py:53
 #: app/main/catalogue/deepskyobject_forms.py:59
-#: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:74
+#: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:75
 #: app/templates/macros/fchart_macros.html:71
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -158,7 +158,7 @@ msgid "Mirror Y"
 msgstr "Otočit-Y"
 
 #: app/main/location/location_forms.py:34
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_info.html:119
 #: app/templates/main/catalogue/constellations.html:36
 #: app/templates/main/catalogue/deepskyobject_info.html:263
@@ -183,7 +183,7 @@ msgstr "Poloha"
 #: app/main/observation/observation_forms.py:51
 #: app/main/observation/observation_forms.py:81
 #: app/main/planner/sessionplan_forms.py:47
-#: app/templates/main/observation/observation_info.html:30
+#: app/templates/main/observation/observation_info.html:42
 #: app/templates/main/planner/session_plan.html:33
 msgid "Notes"
 msgstr "Poznámky"
@@ -261,20 +261,20 @@ msgstr "Čas"
 
 #: app/main/observation/observation_forms.py:48
 #: app/main/observation/observation_forms.py:77
-#: app/templates/main/observation/observation_info.html:25
+#: app/templates/main/observation/observation_info.html:37
 #: app/templates/main/observation/observations.html:23
 msgid "Sqm"
 msgstr "Sqm"
 
 #: app/main/observation/observation_forms.py:49
 #: app/main/observation/observation_forms.py:78
-#: app/templates/main/observation/observation_info.html:26
+#: app/templates/main/observation/observation_info.html:38
 msgid "Seeing"
 msgstr "Seeing"
 
 #: app/main/observation/observation_forms.py:50
 #: app/main/observation/observation_forms.py:79
-#: app/templates/main/observation/observation_info.html:27
+#: app/templates/main/observation/observation_info.html:39
 msgid "Transparency"
 msgstr "Průzračnost"
 
@@ -285,7 +285,7 @@ msgstr "Hodnota je vyžadována."
 
 #: app/main/observation/observation_forms.py:75
 #: app/main/planner/sessionplan_forms.py:45
-#: app/templates/main/observation/observation_info.html:22
+#: app/templates/main/observation/observation_info.html:34
 #: app/templates/main/observation/observations.html:20
 #: app/templates/main/planner/session_plan.html:30
 #: app/templates/main/planner/session_plans.html:18
@@ -295,7 +295,7 @@ msgstr "Datum"
 
 #: app/main/observation/observation_forms.py:76
 #: app/main/planner/sessionplan_forms.py:46
-#: app/templates/main/observation/observation_info.html:23
+#: app/templates/main/observation/observation_info.html:35
 #: app/templates/main/observation/observations.html:22
 #: app/templates/main/planner/session_plan.html:31
 #: app/templates/main/planner/session_plans.html:20
@@ -322,30 +322,34 @@ msgstr "Uložit pozorování"
 
 #: app/main/observation/observation_forms.py:98
 #: app/main/observation/observed_forms.py:36
-#: app/main/planner/sessionplan_forms.py:85
-#: app/main/planner/sessionplan_forms.py:89
+#: app/main/planner/sessionplan_forms.py:86
+#: app/main/planner/sessionplan_forms.py:90
 #: app/main/planner/wishlist_forms.py:36
 msgid "DSO name"
 msgstr "Jméno DSO"
 
-#: app/main/planner/sessionplan_forms.py:53
+#: app/main/planner/sessionplan_forms.py:49
+msgid "Plan is archived"
+msgstr ""
+
+#: app/main/planner/sessionplan_forms.py:54
 msgid "Add Session Plan"
 msgstr "Přidat plán pozorování"
 
-#: app/main/planner/sessionplan_forms.py:58
+#: app/main/planner/sessionplan_forms.py:59
 msgid "Update Session Plan"
 msgstr "Uložit plán pozorování"
 
-#: app/main/planner/sessionplan_forms.py:66
+#: app/main/planner/sessionplan_forms.py:67
 msgid "Object type"
 msgstr "Typ Objektu"
 
-#: app/main/planner/sessionplan_forms.py:75
+#: app/main/planner/sessionplan_forms.py:76
 #: app/templates/main/planner/session_plan_schedule.html:80
 msgid "Min altitude"
 msgstr "Minimální výška"
 
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:346
 #: app/templates/main/catalogue/deepskyobject_info.html:264
@@ -359,7 +363,7 @@ msgstr "Minimální výška"
 msgid "Type"
 msgstr "Typ"
 
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
 #: app/templates/main/catalogue/deepskyobject_info.html:267
@@ -371,19 +375,19 @@ msgstr "Typ"
 msgid "Constellation"
 msgstr "Souhvězdí"
 
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/planner/session_plan_schedule.html:144
 #: app/templates/main/planner/session_plan_schedule.html:214
 msgid "Rise"
 msgstr "Východ"
 
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/planner/session_plan_schedule.html:145
 #: app/templates/main/planner/session_plan_schedule.html:215
 msgid "Merid"
 msgstr "Merid."
 
-#: app/main/planner/sessionplan_views.py:385
+#: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/planner/session_plan_schedule.html:146
 #: app/templates/main/planner/session_plan_schedule.html:216
 msgid "Set"
@@ -455,66 +459,6 @@ msgstr "Veřejný klíč"
 msgid "Content git repository"
 msgstr "Git repozitář pro společný obsah"
 
-#: app/models/observation.py:22
-msgctxt "seeing"
-msgid "Terrible"
-msgstr "Vyjímečně špatný"
-
-#: app/models/observation.py:24
-msgctxt "seeing"
-msgid "Very bad"
-msgstr "Velmi špatný"
-
-#: app/models/observation.py:26
-msgctxt "seeing"
-msgid "Bad"
-msgstr "Špatný"
-
-#: app/models/observation.py:28
-msgctxt "seeing"
-msgid "Average"
-msgstr "Průměrný"
-
-#: app/models/observation.py:30
-msgctxt "seeing"
-msgid "Good"
-msgstr "Dobrý"
-
-#: app/models/observation.py:32
-msgctxt "seeing"
-msgid "Excellent"
-msgstr "Výborný"
-
-#: app/models/observation.py:46
-msgctxt "transparency"
-msgid "Unusual"
-msgstr "Neobvyklá"
-
-#: app/models/observation.py:48
-msgctxt "transparency"
-msgid "Very bad"
-msgstr "Velmi špatná"
-
-#: app/models/observation.py:50
-msgctxt "transparency"
-msgid "Bad"
-msgstr "Špatná"
-
-#: app/models/observation.py:52
-msgctxt "transparency"
-msgid "Average"
-msgstr "Průměrná"
-
-#: app/models/observation.py:54
-msgctxt "transparency"
-msgid "Good"
-msgstr "Dobrá"
-
-#: app/models/observation.py:56
-msgctxt "transparency"
-msgid "Excellent"
-msgstr "Výborná"
-
 #: app/templates/macros/fchart_macros.html:24
 msgid "Date From"
 msgstr "Čas od"
@@ -558,6 +502,7 @@ msgid "Wish List"
 msgstr "Wishlist"
 
 #: app/templates/macros/fchart_macros.html:120
+#: app/templates/main/observation/observation_info.html:89
 msgid "Session plans"
 msgstr "Plány pozorování"
 
@@ -629,61 +574,55 @@ msgstr "Souhvězdí"
 msgid "View constellations"
 msgstr "Zobrazit souhvězdí"
 
-#: app/templates/main/catalogue/deepskyobjects.html:12
+#: app/templates/main/catalogue/deepskyobjects.html:9
+#: app/templates/main/catalogue/dso_list_menu.html:8
+#: app/templates/main/catalogue/dso_menu.html:13
 #: app/templates/main/index.html:72
-msgid "Deepsky Objects"
-msgstr "Deepsky objekty"
+msgid "Deepsky"
+msgstr "Deepsky"
 
 #: app/templates/main/index.html:73
 msgid "View deepsky objects"
 msgstr "Zobrazit deepsky objekty"
 
 #: app/templates/main/index.html:74
-msgid "Deepsky Lists"
-msgstr "Deepsky seznamy"
-
-#: app/templates/main/index.html:75
-msgid "View deepsky lists"
-msgstr "Zobrazit sekci seznamy deepsky"
-
-#: app/templates/main/index.html:76
 #: app/templates/main/solarsystem/asteroids.html:9
 #: app/templates/main/solarsystem/comets.html:9
 #: app/templates/main/solarsystem/planets.html:9
 msgid "Solar System"
 msgstr "Sluneční soustava"
 
-#: app/templates/main/index.html:77
+#: app/templates/main/index.html:75
 msgid "View solar system"
 msgstr "Zobrazit sluneční soustavu"
 
-#: app/templates/main/index.html:79
+#: app/templates/main/index.html:77
 msgid "Session Plan"
 msgstr "Plán pozorování"
 
-#: app/templates/main/index.html:80
+#: app/templates/main/index.html:78
 msgid "Session plan"
 msgstr "Plán pozorování"
 
-#: app/templates/main/index.html:83
+#: app/templates/main/index.html:81
 #: app/templates/main/observation/observation_edit.html:13
 #: app/templates/main/observation/observation_menu.html:13
 #: app/templates/main/observation/observations.html:9
 msgid "Observer"
 msgstr "Pozorování"
 
-#: app/templates/main/index.html:84
+#: app/templates/main/index.html:82
 msgid "View observer menu"
 msgstr "Zobrazit sekci pozorování"
 
-#: app/templates/main/index.html:85
+#: app/templates/main/index.html:83
 #: app/templates/main/planner/planner_menu.html:13
 #: app/templates/main/planner/session_plan.html:132
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
 msgstr "Plánování"
 
-#: app/templates/main/index.html:86
+#: app/templates/main/index.html:84
 msgid "View planner menu"
 msgstr "Zobrazit sekci plánováni"
 
@@ -692,9 +631,10 @@ msgstr "Zobrazit sekci plánováni"
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:9
 #: app/templates/main/catalogue/star_info.html:19
-#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:88
+#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:86
 #: app/templates/main/news/news_info.html:8
 #: app/templates/main/observation/observation_info.html:7
+#: app/templates/main/observation/observation_info.html:13
 #: app/templates/main/observation/observed_list.html:7
 #: app/templates/main/planner/session_plan.html:9
 #: app/templates/main/planner/session_plan.html:13
@@ -702,25 +642,25 @@ msgstr "Zobrazit sekci plánováni"
 msgid "Chart"
 msgstr "Mapa"
 
-#: app/templates/main/index.html:89
+#: app/templates/main/index.html:87
 msgid "View sky chart"
 msgstr "Zobrazit hvězdnou mapu"
 
-#: app/templates/main/index.html:91
+#: app/templates/main/index.html:89
 msgid "Sky quality"
 msgstr ""
 
-#: app/templates/main/index.html:92
+#: app/templates/main/index.html:90
 msgid "View skyquality section"
 msgstr ""
 
-#: app/templates/main/index.html:93
+#: app/templates/main/index.html:91
 #: app/templates/main/userdata/data_store.html:35
 #: app/templates/main/userdata/userdata_menu.html:13
 msgid "User Data"
 msgstr "Data a nastavení"
 
-#: app/templates/main/index.html:94
+#: app/templates/main/index.html:92
 msgid "View user data"
 msgstr "Zobrazit sekci moje data a nastavení"
 
@@ -740,6 +680,7 @@ msgstr "Uložit a zpět"
 #: app/templates/main/news/news_info.html:7
 #: app/templates/main/news/news_info.html:12
 #: app/templates/main/observation/observation_info.html:6
+#: app/templates/main/observation/observation_info.html:12
 #: app/templates/main/observation/observed_list.html:6
 #: app/templates/main/planner/session_plan.html:7
 #: app/templates/main/planner/session_plan.html:12
@@ -783,10 +724,9 @@ msgid "Description"
 msgstr "Popis"
 
 #: app/templates/main/catalogue/constellations.html:8
-#: app/templates/main/catalogue/deepskyobjects.html:9
-#: app/templates/main/catalogue/dso_list_menu.html:8
+#: app/templates/main/catalogue/dso_menu.html:10
 #: app/templates/main/chart/chart.html:29
-#: app/templates/main/observation/observation_info.html:82
+#: app/templates/main/observation/observation_info.html:155
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan.html:127
@@ -811,6 +751,10 @@ msgstr "Katalog"
 msgid "Other names"
 msgstr "Další názvy"
 
+#: app/templates/main/catalogue/deepskyobjects.html:12
+msgid "Deepsky Objects"
+msgstr "Deepsky objekty"
+
 #: app/templates/main/catalogue/deepskyobjects.html:23
 #: app/templates/main/planner/session_plan_schedule.html:43
 msgid "Object Type"
@@ -824,6 +768,22 @@ msgstr "Velikost"
 #: app/templates/main/catalogue/dso_list_menu.html:11
 msgid "Deepsky Object Lists"
 msgstr "Seznamy deepsky objektů"
+
+#: app/templates/main/catalogue/dso_menu.html:16
+msgid "Deepsky Object Catalogues"
+msgstr "Katalogy deepsky objektů"
+
+#: app/templates/main/catalogue/dso_menu.html:17
+msgid "Search deepsky objects"
+msgstr "Zobrazit sekci vyhledávání deepsky objektů"
+
+#: app/templates/main/catalogue/dso_menu.html:18
+msgid "Deepsky Lists"
+msgstr "Deepsky seznamy"
+
+#: app/templates/main/catalogue/dso_menu.html:19
+msgid "View deepsky lists"
+msgstr "Zobrazit sekci deepsky seznamy"
 
 #: app/templates/main/catalogue/star_edit.html:18
 msgid "Back To Star"
@@ -870,7 +830,7 @@ msgstr "Skutečně chcete odstranit tuto lokalitu"
 #: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:112
 #: app/templates/main/observation/observed_list.html:127
-#: app/templates/main/planner/session_plan_info.html:74
+#: app/templates/main/planner/session_plan_info.html:77
 #: app/templates/main/planner/session_plan_schedule.html:253
 #: app/templates/main/planner/session_plan_schedule.html:268
 #: app/templates/main/userdata/data_store.html:117
@@ -881,7 +841,7 @@ msgstr "Ne"
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:114
 #: app/templates/main/observation/observed_list.html:129
-#: app/templates/main/planner/session_plan_info.html:76
+#: app/templates/main/planner/session_plan_info.html:79
 #: app/templates/main/planner/session_plan_schedule.html:255
 #: app/templates/main/planner/session_plan_schedule.html:270
 #: app/templates/main/userdata/data_store.html:119
@@ -952,6 +912,19 @@ msgstr "Položky"
 #: app/templates/main/observation/observation_edit.html:160
 msgid "Update and go back"
 msgstr "Uložit a zpět"
+
+#: app/templates/main/observation/observation_info.html:8
+#: app/templates/main/observation/observation_info.html:108
+msgid "Run plan"
+msgstr "Vykonat plán pozorování"
+
+#: app/templates/main/observation/observation_info.html:91
+msgid "Choose current session plan"
+msgstr "Vybrat plán pozorování"
+
+#: app/templates/main/observation/observation_info.html:129
+msgid "No object has been observed from this plan yet."
+msgstr "Z plánu ještě nebyl pozorován žádný objekt."
 
 #: app/templates/main/observation/observation_menu.html:16
 msgid "Add observation"
@@ -1042,15 +1015,15 @@ msgstr "Plán"
 msgid "Add New Session Plan"
 msgstr "Přidat nový plán pozorování"
 
-#: app/templates/main/planner/session_plan_info.html:61
+#: app/templates/main/planner/session_plan_info.html:64
 msgid "Delete Plan"
 msgstr "Odstranit plán"
 
-#: app/templates/main/planner/session_plan_info.html:69
+#: app/templates/main/planner/session_plan_info.html:72
 msgid "Delete Session Plan"
 msgstr "Odstranit plán pozorování"
 
-#: app/templates/main/planner/session_plan_info.html:71
+#: app/templates/main/planner/session_plan_info.html:74
 msgid "Are you sure you want to delete session plan?"
 msgstr "Skutečně chcete odstranit plán pozorování?"
 
@@ -1262,97 +1235,142 @@ msgstr "Zobrazit aktuality"
 msgid "Store/restore data from git repository"
 msgstr "Synchronizace s git repozitáři"
 
-#~ msgid "Advanced Mode"
-#~ msgstr "Pokročilý mód"
+msgid "Deepsky Objects Search"
+msgstr "Vyhledávání deepsky objektů"
 
-#~ msgid "View settings"
-#~ msgstr "Zobrazit nastavení"
+msgid "Advanced Mode"
+msgstr "Pokročilý mód"
 
-#~ msgid "Tile"
-#~ msgstr "Nadpis"
+msgid "View settings"
+msgstr "Zobrazit nastavení"
 
-#~ msgid "DSO id"
-#~ msgstr "DSO id"
+msgid "Tile"
+msgstr "Nadpis"
 
-#~ msgid "Observation"
-#~ msgstr "Pozorování"
+msgid "DSO id"
+msgstr "DSO id"
 
-#~ msgid "DSO list"
-#~ msgstr "DSO"
+msgid "Observation"
+msgstr "Pozorování"
 
-#~ msgid "Are you sure you want to delete Session Plan?"
-#~ msgstr "Skutečně chcete odstranit tento plán pozorování?"
+msgid "DSO list"
+msgstr "DSO"
 
-#~ msgid "Find chart"
-#~ msgstr "Vyhledávací mapka"
+msgid "Are you sure you want to delete Session Plan?"
+msgstr "Skutečně chcete odstranit tento plán pozorování?"
 
-#~ msgid "Catalogue"
-#~ msgstr "Katalog"
+msgid "Find chart"
+msgstr "Vyhledávací mapka"
 
-#~ msgid "Survey"
-#~ msgstr "Přehlídka"
+msgid "Catalogue"
+msgstr "Katalog"
 
-#~ msgid "Sky quality"
-#~ msgstr "Sky quality"
+msgid "Survey"
+msgstr "Přehlídka"
 
-#~ msgid "View skyquality section"
-#~ msgstr "Zobrazit sekci sky quality"
+msgid "Field Size"
+msgstr "Zorné pole"
 
-#~ msgid "Field Size"
-#~ msgstr "Zorné pole"
+msgid "From date"
+msgstr "Datum od"
 
-#~ msgid "From date"
-#~ msgstr "Datum od"
+msgid "To date"
+msgstr "datum do"
 
-#~ msgid "To date"
-#~ msgstr "datum do"
+msgid "Galaxy"
+msgstr "Galaxie"
 
-#~ msgid "Galaxy"
-#~ msgstr "Galaxie"
+msgid "Globular Cluster"
+msgstr "Kulová hvězdokupa"
 
-#~ msgid "Globular Cluster"
-#~ msgstr "Kulová hvězdokupa"
+msgid "Open Cluster"
+msgstr "Otevřená hvězdokupa"
 
-#~ msgid "Open Cluster"
-#~ msgstr "Otevřená hvězdokupa"
+msgid "Planetary Nebula"
+msgstr "Planetární mlhovina"
 
-#~ msgid "Planetary Nebula"
-#~ msgstr "Planetární mlhovina"
+msgid "Bright Nebula"
+msgstr "Jasná mlhovina"
 
-#~ msgid "Bright Nebula"
-#~ msgstr "Jasná mlhovina"
+msgid "Dark Nebula"
+msgstr "Tmavá mlhovina"
 
-#~ msgid "Dark Nebula"
-#~ msgstr "Tmavá mlhovina"
+msgid "Galaxy Cluster"
+msgstr "Kupa galaxií"
 
-#~ msgid "Galaxy Cluster"
-#~ msgstr "Kupa galaxií"
+msgid "Part Of"
+msgstr "Část"
 
-#~ msgid "Part Of"
-#~ msgstr "Část"
+msgid "Number"
+msgstr "Číslo"
 
-#~ msgid "Number"
-#~ msgstr "Číslo"
+msgid "From Date"
+msgstr "Datum od"
 
-#~ msgid "From Date"
-#~ msgstr "Datum od"
+msgid "To Date"
+msgstr "Datum do"
 
-#~ msgid "To Date"
-#~ msgstr "Datum do"
+msgid "Show minor planets"
+msgstr "Zobrazit planetky"
 
-#~ msgid "Show minor planets"
-#~ msgstr "Zobrazit planetky"
+msgid "Search deepsky objects…"
+msgstr "Hledat deepsky objekty..."
 
-#~ msgid "Search deepsky objects…"
-#~ msgstr "Hledat deepsky objekty..."
+msgid "Edit Session Plan"
+msgstr "Upravit plán pozorování"
 
-#~ msgid "Edit Session Plan"
-#~ msgstr "Upravit plán pozorování"
+msgid "constellation"
+msgstr "souhvězdí"
 
-#~ msgid "constellation"
-#~ msgstr "souhvězdí"
+msgctxt "transparency"
+msgid "Terrible"
+msgstr "Strašná"
 
-#~ msgctxt "transparency"
-#~ msgid "Terrible"
-#~ msgstr "Strašná"
+msgctxt "seeing"
+msgid "Terrible"
+msgstr "Vyjímečně špatný"
+
+msgctxt "seeing"
+msgid "Very bad"
+msgstr "Velmi špatný"
+
+msgctxt "seeing"
+msgid "Bad"
+msgstr "Špatný"
+
+msgctxt "seeing"
+msgid "Average"
+msgstr "Průměrný"
+
+msgctxt "seeing"
+msgid "Good"
+msgstr "Dobrý"
+
+msgctxt "seeing"
+msgid "Excellent"
+msgstr "Výborný"
+
+msgctxt "transparency"
+msgid "Unusual"
+msgstr "Neobvyklá"
+
+msgctxt "transparency"
+msgid "Very bad"
+msgstr "Velmi špatná"
+
+msgctxt "transparency"
+msgid "Bad"
+msgstr "Špatná"
+
+msgctxt "transparency"
+msgid "Average"
+msgstr "Průměrná"
+
+msgctxt "transparency"
+msgid "Good"
+msgstr "Dobrá"
+
+msgctxt "transparency"
+msgid "Excellent"
+msgstr "Výborná"
 
