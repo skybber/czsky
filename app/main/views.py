@@ -16,7 +16,7 @@ from flask_login import current_user, login_required
 
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
-from app.commons.utils import get_lang_and_editor_user_from_request, is_en_content
+from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
 from app.commons.coordinates import parse_radec
 from app.models import Constellation, DeepskyObject, News, Star, UserStarDescription, EditableHTML
 
@@ -27,10 +27,8 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    if is_en_content():
-        news_list = []
-    else:
-        news_list = News.query.filter_by(is_released=True).order_by(News.id.desc()).limit(3).all()
+    lang_code = get_site_lang_code()
+    news_list = News.query.filter_by(is_released=True, lang_code=lang_code).order_by(News.id.desc()).limit(3).all()
     return render_template('main/index.html', is_anonymous=current_user.is_anonymous, news_list=news_list)
 
 

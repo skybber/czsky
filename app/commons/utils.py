@@ -51,6 +51,6 @@ def get_lang_and_editor_user_from_request():
     return lang, User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + lang.upper())).first()
 
 
-def is_en_content():
+def get_site_lang_code():
     host = request.headers.get('Host')
-    return True if host and 'czsky.eu' in host else False
+    return 'en' if host and 'czsky.eu' in host else 'cs'

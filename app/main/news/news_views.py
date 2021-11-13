@@ -20,6 +20,7 @@ from app import db
 from app.models import News
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
+from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec, radec_to_string_short
 
 from .news_forms import (
@@ -63,7 +64,7 @@ def news_list():
 
     offset = (page - 1) * per_page
 
-    news = News.query
+    news = News.query.filter(News.lang_code == get_site_lang_code())
     if search_form.q.data:
         news = news.filter(News.name.like('%' + search_form.q.data + '%'))
     news_for_render = news.order_by(News.id.desc()).limit(per_page).offset(offset).all()
@@ -97,7 +98,7 @@ def news_chart(news_id):
     if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
@@ -168,17 +169,18 @@ def new_news():
         else:
             ra, dec = (None, None)
         news = News(
-            title = form.title.data,
-            ra = ra,
-            dec = dec,
-            title_row = form.title_row.data,
-            text = form.text.data,
-            rating = form.rating.data,
-            is_released = form.is_released.data,
-            create_by = current_user.id,
-            update_by = current_user.id,
-            create_date = datetime.now(),
-            update_date = datetime.now()
+            lang_code=get_site_lang_code(),
+            title=form.title.data,
+            ra=ra,
+            dec=dec,
+            title_row=form.title_row.data,
+            text=form.text.data,
+            rating=form.rating.data,
+            is_released=form.is_released.data,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
             )
         db.session.add(news)
         db.session.commit()
@@ -204,6 +206,7 @@ def news_edit(news_id):
                 news.ra, news.dec = parse_radec(form.radec.data)
             else:
                 news.ra, news.dec = (None, None)
+            news.lang_code = get_site_lang_code()
             news.title_row = form.title_row.data
             news.text = form.text.data
             news.rating = form.rating.data
