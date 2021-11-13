@@ -74,3 +74,7 @@ class DeepskyObjectEditForm(FlaskForm):
     aperture_descr_items = FieldList(FormField(DsoApertureDescriptionForm))
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update'))
+
+
+class DeepskyObjectEditObservationLog(FlaskForm):
+    notes = StringField(lazy_gettext('NOtes'))
