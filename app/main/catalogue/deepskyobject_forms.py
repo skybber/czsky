@@ -77,4 +77,4 @@ class DeepskyObjectEditForm(FlaskForm):
 
 
 class DeepskyObjectEditObservationLog(FlaskForm):
-    notes = StringField(lazy_gettext('NOtes'))
+    notes = StringField(lazy_gettext('Notes'))

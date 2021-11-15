@@ -30,6 +30,7 @@ from app.models import (
     ObservedList,
     ObservedListItem,
     ObservationPlanRun,
+    ObservationPlanRunItem,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
     User,
@@ -45,6 +46,7 @@ from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
+    DeepskyObjectEditObservationLog,
     SearchDsoForm,
 )
 
@@ -495,14 +497,14 @@ def deepskyobject_edit(dso_id):
                     break
             else:
                 ad = UserDsoApertureDescription(
-                    dso_id = dso_id,
-                    user_id = editor_user.id,
-                    rating = 1,
-                    lang_code = lang,
-                    aperture_class = aperture_class,
-                    text = '',
-                    create_by = current_user.id,
-                    create_date = datetime.now(),
+                    dso_id=dso_id,
+                    user_id=editor_user.id,
+                    rating=1,
+                    lang_code=lang,
+                    aperture_class=aperture_class,
+                    text='',
+                    create_by=current_user.id,
+                    create_date=datetime.now(),
                 )
                 user_apert_descriptions.append(ad)
 
@@ -557,6 +559,40 @@ def deepskyobject_edit(dso_id):
         return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors, is_new=False)
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/observation-log', methods=['GET', 'POST'])
+def deepskyobject_observation_log(dso_id):
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+    if observation_plan_run is None or observation_plan_run.session_plan.user_id!=current_user.id:
+        abort(404)
+
+    form = DeepskyObjectEditObservationLog()
+
+    run_item = None
+    for ri in observation_plan_run.observation_plan_run_items:
+        if ri.dso_id == dso.id:
+            run_item = ri
+            break
+    else:
+        run_item = ObservationPlanRunItem(
+            observation_plan_run_id=observation_plan_run.id,
+            dso_id=dso.id,
+            date_time=datetime.now(),
+            notes=''
+        )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            run_item.notes = form.notes.data
+            db.session.add(run_item)
+            db.session.commit()
+    return render_template('main/catalogue/deepskyobject_observation_log.html', form=form, dso=dso)
 
 
 def _create_author_entry(update_by, update_date):

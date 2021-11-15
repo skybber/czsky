@@ -6,7 +6,7 @@ from .. import db
 class News(db.Model):
     __tablename__ = 'news'
     id = db.Column(db.Integer, primary_key=True)
-    lang_code = db.Column(db.String(6))
+    lang_code = db.Column(db.String(6), nullable=False)
     title = db.Column(db.String(128), nullable=False)
     ra = db.Column(db.Float)
     dec = db.Column(db.Float)

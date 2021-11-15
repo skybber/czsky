@@ -23,8 +23,12 @@
 
 {% macro wish_observed_list_toolbar(dso_id, wish_list, observed_list, float='left') %}
     <div class="ui icon label" style="float:{{ float }};">
-        <a id="switch_wishlist_{{ dso_id }}" class="icon detail"><i class="heart {{ '' if dso_id in wish_list else 'outline black' }} icon"></i></a>
-        <a id="switch_observed_{{ dso_id }}" class="icon detail"><i class="eye {{ '' if dso_id in observed_list else 'slash outline black' }} icon"></i></a>
+        <a id="switch_wishlist_{{ dso_id }}" class="icon detail" data-tooltip="{{ _('Add to wishlist') }}" data-variation="mini" data-inverted="">
+            <i class="heart {{ '' if dso_id in wish_list else 'outline black' }} icon"></i>
+        </a>
+        <a id="switch_observed_{{ dso_id }}" class="icon detail"  data-tooltip="{{ _('Add to observed') }}" data-variation="mini" data-inverted="">
+            <i class="eye {{ '' if dso_id in observed_list else 'slash outline black' }} icon"></i>
+        </a>
     </div>
 {% endmacro %}
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-10 18:39+0100\n"
+"POT-Creation-Date: 2021-11-15 19:47+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -23,8 +23,8 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:77
 #: app/main/solarsystem/asteroid_forms.py:36
 #: app/main/solarsystem/comet_forms.py:35
-#: app/templates/macros/common_macros.html:33
-#: app/templates/macros/common_macros.html:52
+#: app/templates/macros/common_macros.html:37
+#: app/templates/macros/common_macros.html:56
 msgid "Items per page"
 msgstr "Položek na stránku"
 
@@ -148,6 +148,10 @@ msgstr "Reference"
 #: app/templates/main/observation/observations.html:24
 msgid "Rating"
 msgstr "Hodnocení"
+
+#: app/main/catalogue/DEEPSKYOBJECT_FORMS.PY:80
+msgid "Notes"
+msgstr "Poznámky"
 
 #: app/main/chart/chart_forms.py:21
 msgid "Mirror X"
@@ -459,6 +463,14 @@ msgstr "Veřejný klíč"
 msgid "Content git repository"
 msgstr "Git repozitář pro společný obsah"
 
+#: app/templates/macros/common_macros.html:26
+msgid "Add to wishlist"
+msgstr "přidat na wishlist"
+
+#: app/templates/macros/common_macros.html:29
+msgid "Add to observed"
+msgstr "Přidat do pozorovaných"
+
 #: app/templates/macros/fchart_macros.html:24
 msgid "Date From"
 msgstr "Čas od"
@@ -502,7 +514,7 @@ msgid "Wish List"
 msgstr "Wishlist"
 
 #: app/templates/macros/fchart_macros.html:120
-#: app/templates/main/observation/observation_info.html:89
+#: app/templates/main/observation/observation_info.html:88
 msgid "Session plans"
 msgstr "Plány pozorování"
 
@@ -726,7 +738,7 @@ msgstr "Popis"
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/dso_menu.html:10
 #: app/templates/main/chart/chart.html:29
-#: app/templates/main/observation/observation_info.html:155
+#: app/templates/main/observation/observation_info.html:154
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan.html:127
@@ -914,15 +926,15 @@ msgid "Update and go back"
 msgstr "Uložit a zpět"
 
 #: app/templates/main/observation/observation_info.html:8
-#: app/templates/main/observation/observation_info.html:108
+#: app/templates/main/observation/observation_info.html:107
 msgid "Run plan"
 msgstr "Spustit plán"
 
-#: app/templates/main/observation/observation_info.html:91
+#: app/templates/main/observation/observation_info.html:90
 msgid "Choose current session plan"
 msgstr "Vybrat plán pozorování"
 
-#: app/templates/main/observation/observation_info.html:129
+#: app/templates/main/observation/observation_info.html:128
 msgid "No object has been observed from this plan yet."
 msgstr "Z plánu ještě nebyl pozorován žádný objekt."
 

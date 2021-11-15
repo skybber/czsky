@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-10 18:39+0100\n"
+"POT-Creation-Date: 2021-11-15 19:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,8 +23,8 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:77
 #: app/main/solarsystem/asteroid_forms.py:36
 #: app/main/solarsystem/comet_forms.py:35
-#: app/templates/macros/common_macros.html:33
-#: app/templates/macros/common_macros.html:52
+#: app/templates/macros/common_macros.html:37
+#: app/templates/macros/common_macros.html:56
 msgid "Items per page"
 msgstr ""
 
@@ -147,6 +147,10 @@ msgstr ""
 #: app/templates/main/news/news_list.html:41
 #: app/templates/main/observation/observations.html:24
 msgid "Rating"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:80
+msgid "NOtes"
 msgstr ""
 
 #: app/main/chart/chart_forms.py:21
@@ -459,6 +463,14 @@ msgstr ""
 msgid "Content git repository"
 msgstr ""
 
+#: app/templates/macros/common_macros.html:26
+msgid "Add to wishlist"
+msgstr ""
+
+#: app/templates/macros/common_macros.html:29
+msgid "Add to observed"
+msgstr ""
+
 #: app/templates/macros/fchart_macros.html:24
 msgid "Date From"
 msgstr ""
@@ -502,7 +514,7 @@ msgid "Wish List"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:120
-#: app/templates/main/observation/observation_info.html:89
+#: app/templates/main/observation/observation_info.html:88
 msgid "Session plans"
 msgstr ""
 
@@ -726,7 +738,7 @@ msgstr ""
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/dso_menu.html:10
 #: app/templates/main/chart/chart.html:29
-#: app/templates/main/observation/observation_info.html:155
+#: app/templates/main/observation/observation_info.html:154
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan.html:127
@@ -914,15 +926,15 @@ msgid "Update and go back"
 msgstr ""
 
 #: app/templates/main/observation/observation_info.html:8
-#: app/templates/main/observation/observation_info.html:108
+#: app/templates/main/observation/observation_info.html:107
 msgid "Run plan"
 msgstr ""
 
-#: app/templates/main/observation/observation_info.html:91
+#: app/templates/main/observation/observation_info.html:90
 msgid "Choose current session plan"
 msgstr ""
 
-#: app/templates/main/observation/observation_info.html:129
+#: app/templates/main/observation/observation_info.html:128
 msgid "No object has been observed from this plan yet."
 msgstr ""
 
