@@ -616,7 +616,7 @@ def _do_redirect(url, dso):
     embed = request.args.get('embed', None)
     fullscreen = request.args.get('fullscreen')
     splitview = request.args.get('splitview')
-    return redirect(url_for(url, dso_id=dso.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
+    return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
 
 def _get_season_constell_ids():
