@@ -87,7 +87,7 @@ def deepskyobjects():
         ('dso_catal', search_form.catalogue),
         ('dso_maglim', search_form.maglim),
         ('items_per_page', search_form.items_per_page)
-         ])
+    ])
 
     if not ret:
         return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))

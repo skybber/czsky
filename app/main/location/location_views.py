@@ -42,6 +42,7 @@ def locations():
 
     ret, page = process_paginated_session_search('location_search_page', [
         ('location_search', search_form.q),
+        ('items_per_page', search_form.items_per_page)
     ])
 
     per_page = get_items_per_page(search_form.items_per_page)
@@ -51,7 +52,7 @@ def locations():
 
     offset = (page - 1) * per_page
 
-    locations = Location.query.filter(or_(and_(Location.is_public==True,Location.is_for_observation==True), Location.user_id==current_user.id))
+    locations = Location.query.filter(or_(and_(Location.is_public==True, Location.is_for_observation==True), Location.user_id==current_user.id))
     if search_form.q.data:
         locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
     locations_for_render = locations.limit(per_page).offset(offset).all()
