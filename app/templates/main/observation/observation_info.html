@@ -113,7 +113,9 @@
         <table class="ui compact definition2c table">
             {% for item in observation_plan_run.observation_plan_run_items | sort(attribute='date_time') %}
             <tr>
-                <td class="two wide"><b>{{ item.deepskyObject.name | safe }}</b></td>
+                <td class="two wide">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}">{{ item.deepskyObject.name | safe }} </a>
+                </td>
                 <td class="one wide">{{ item.date_time.strftime('%H:%M') }}</td>
                 <td>
                     {% filter extended_commonmark('') %}

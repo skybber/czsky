@@ -336,54 +336,59 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                  {% if not embed %}
-                      {% if back == 'constellation' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="lastfm icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'observation' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="eye icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'wishlist' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="heart icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'observed_list' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="heart icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'session_plan' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=back_id) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="tasks icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'dso_list' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="tasks icon mobile hidden"></i>
-                          </a>
-                      {% elif back == 'running_plan' %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_run_plan_redirect', observation_plan_run_id=back_id) }}#dso{{dso.id}}">
-                              <i class="caret left icon"></i>
-                              <i class="tasks icon mobile hidden"></i>
-                          </a>
-                      {% else %}
-                          <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
-                              <i class="caret left icon"></i>
-                              <i class="list icon"></i>
-                          </a>
-                      {% endif %}
-                      <div class="divider"> / </div>
-                  {% endif %}
-                <div class="active section">
-                    {{ dso.denormalized_name() }}
+                    {% if not embed %}
+                        {% if back == 'constellation' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'observation' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="eye icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'wishlist' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="heart icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'observed_list' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="heart icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'session_plan' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=back_id) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'dso_list' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'running_plan' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_run_plan_redirect', observation_plan_run_id=back_id) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
+                        {% endif %}
+                        <div class="divider"> / </div>
+                    {% endif %}
+                    {% if back == 'running_plan' %}
+                        <div class="section" data-tooltip="{{ _('Observation recording') }}" data-variation="mini" data-inverted="">
+                            <i class="microphone red icon"></i>
+                        </div>
+                    {% endif %}
+                    <div class="active section">
+                        {{ dso.denormalized_name() }}
+                    </div>
                 </div>
-            </div>
 
             {% if next_dso and embed != 'pl' %}
                 <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
