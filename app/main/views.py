@@ -19,6 +19,7 @@ from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREE
 from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
 from app.commons.coordinates import parse_radec
 from app.models import Constellation, DeepskyObject, News, Star, UserStarDescription, EditableHTML
+from app.main.solarsystem.comet_views import get_all_comets
 
 from sqlalchemy import func
 
@@ -83,8 +84,13 @@ def global_search():
     if res:
         return res
 
-    # 3. Search Star
+    # 4. Search Star
     res = _search_star(query)
+    if res:
+        return res
+
+    # 5. Search comet
+    res = _search_comet(query)
     if res:
         return res
 
@@ -114,7 +120,7 @@ def _search_by_ra_dec(query):
 def _search_constellation(query):
     constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
     if not constellation:
-            constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
+        constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
 
     if constellation:
         if request.args.get('fromchart') is not None:
@@ -232,6 +238,16 @@ def _search_star_from_catalog(query):
             if not star and cat == 'SAO':
                 star = Star.query.filter_by(sao=int(sid)).first()
     return star
+
+
+def _search_comet(query):
+    if len(query) > 5:
+        search_expr = query.replace('"', '')
+        all_comets = get_all_comets()
+        comets = all_comets.query('designation.str.contains("{}")'.format(search_expr))
+        if len(comets) >= 1:
+            return redirect(url_for('main_comet.comet_info', comet_id=comets.iloc[0]['comet_id']))
+    return None
 
 
 def _get_constell(costell_code):

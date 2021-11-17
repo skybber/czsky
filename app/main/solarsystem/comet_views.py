@@ -92,7 +92,7 @@ def _create_comet_brighness_file(all_comets, fname):
     creation_running = False
 
 
-def _get_all_comets():
+def get_all_comets():
     global all_comets
     global all_comets_expiration
     global creation_running
@@ -137,16 +137,15 @@ def comets():
         return redirect(url_for('main_comet.comets'))
 
     offset = (page - 1) * per_page
-    comets = _get_all_comets()
-
+    comets = get_all_comets()
     comets = comets[comets['mag'] < 20.0].sort_values(by=['mag'])
 
     if search_form.q.data:
-        search_expr = search_form.q.data.replace('"','')
+        search_expr = search_form.q.data.replace('"', '')
         comets = comets.query('designation.str.contains("{}")'.format(search_expr))
 
     if len(comets) > 0:
-        comets_for_render = comets.iloc[offset : offset + per_page]
+        comets_for_render = comets.iloc[offset:offset + per_page]
     else:
         comets_for_render = comets
 
@@ -155,9 +154,9 @@ def comets():
 
 
 def _find_comet(comet_id):
-    all_comets = _get_all_comets()
+    all_comets = get_all_comets()
     c = all_comets.loc[all_comets['comet_id'] == comet_id]
-    return c.iloc[0] if len(c)>0 else None
+    return c.iloc[0] if len(c) > 0 else None
 
 
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
