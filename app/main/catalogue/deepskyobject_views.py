@@ -46,7 +46,7 @@ from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
-    DeepskyObjectEditObservationLog,
+    DeepskyObjectObservationLog,
     SearchDsoForm,
 )
 
@@ -236,6 +236,11 @@ def deepskyobject_seltab(dso_id):
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
+
+    back = request.args.get('back')
+    if back == 'running_plan':
+        return _do_redirect('main_deepskyobject.deepskyobject_observation_log', dso)
+
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
 
@@ -273,6 +278,7 @@ def deepskyobject_info(dso_id):
                 title_img = image_info[0]
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+
     editable=current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
@@ -360,7 +366,7 @@ def deepskyobject_chart(dso_id):
     if dso is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
 
@@ -380,7 +386,13 @@ def deepskyobject_chart(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'chart'
 
-    default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
+    back = request.args.get('back')
+    if back == 'running_plan':
+        iframe_endpoit = 'main_deepskyobject.deepskyobject_observation_log'
+    else:
+        iframe_endpoit = 'main_deepskyobject.deepskyobject_info'
+
+    default_chart_iframe_url = url_for(iframe_endpoit, back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
@@ -569,10 +581,10 @@ def deepskyobject_observation_log(dso_id):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
-    if observation_plan_run is None or observation_plan_run.session_plan.user_id!=current_user.id:
+    if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
         abort(404)
 
-    form = DeepskyObjectEditObservationLog()
+    form = DeepskyObjectObservationLog()
 
     run_item = None
     for ri in observation_plan_run.observation_plan_run_items:
@@ -592,7 +604,19 @@ def deepskyobject_observation_log(dso_id):
             run_item.notes = form.notes.data
             db.session.add(run_item)
             db.session.commit()
-    return render_template('main/catalogue/deepskyobject_observation_log.html', form=form, dso=dso)
+    else:
+        form.notes.data = run_item.notes
+
+    embed = request.args.get('embed')
+    if embed:
+        session['dso_embed_seltab'] = 'obs_log'
+
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+
+    return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
+                           embed=embed,
+                           )
 
 
 def _create_author_entry(update_by, update_date):
@@ -621,12 +645,13 @@ def _do_redirect(url, dso):
 
 def _get_season_constell_ids():
     season = request.args.get('season', None)
+    constell_ids = None
     if season is not None:
-        constell_ids = set()
         for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
+            if constell_ids is None:
+                constell_ids = set()
             constell_ids.add(constell_id[0])
-        return constell_ids
-    return None
+    return constell_ids
 
 
 def _get_prev_next_dso(dso):

@@ -76,5 +76,6 @@ class DeepskyObjectEditForm(FlaskForm):
     submit_button = SubmitField(lazy_gettext('Update'))
 
 
-class DeepskyObjectEditObservationLog(FlaskForm):
-    notes = StringField(lazy_gettext('Notes'))
+class DeepskyObjectObservationLog(FlaskForm):
+    notes = TextAreaField(lazy_gettext('Notes'))
+    submit = SubmitField(lazy_gettext('Update'))

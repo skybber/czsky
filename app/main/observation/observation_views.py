@@ -340,4 +340,4 @@ def observation_run_plan_execute(observation_id, session_plan_id):
         dso_name = session_plan.session_plan_items[0].deepskyObject.name
     else:
         dso_name = 'M1'  # fallback
-    return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso_name, back='running_plan', back_id=observation_plan_run.id))
+    return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_name, back='running_plan', back_id=observation_plan_run.id))
