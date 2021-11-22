@@ -192,24 +192,15 @@ def observation_chart(observation_id):
     observation_item = None
     dso = None
 
-    if dso_id and dso_id.isdigit():
-        idso_id = int(dso_id)
-        for oitem in observation.observation_items:
-            for oitem_dso in oitem.deepsky_objects:
-                if oitem_dso.id == idso_id:
-                    observation_item = oitem
-                    dso = oitem_dso
-                    break
-            if observation_item is not None:
-                break
-    elif observation.observation_items:
-        for oitem in observation.observation_items:
-            for oitem_dso in oitem.deepsky_objects:
+    idso_id = int(dso_id) if dso_id and dso_id.isdigit() else None
+    for oitem in observation.observation_items:
+        for oitem_dso in oitem.deepsky_objects:
+            if idso_id is None or oitem_dso.id == idso_id:
                 observation_item = oitem
                 dso = oitem_dso
                 break
-            if observation_item is not None:
-                break
+        if observation_item is not None:
+            break
 
     if observation_item and not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
@@ -230,15 +221,14 @@ def observation_chart(observation_id):
 
 
 @main_observation.route('/observation/<int:observation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def  observation_chart_pos_img(observation_id, ra, dec):
+def observation_chart_pos_img(observation_id, ra, dec):
     observation = Observation.query.filter_by(id=observation_id).first()
     is_mine_observation = _check_observation(observation, allow_public=True)
 
     highlights_dso_list = []
 
     for oitem in observation.observation_items:
-        for oitem_dso in oitem.deepsky_objects:
-            highlights_dso_list.append(oitem_dso)
+        highlights_dso_list.extend(oitem.deepsky_objects)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None

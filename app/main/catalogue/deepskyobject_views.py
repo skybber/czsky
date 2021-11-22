@@ -425,6 +425,12 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
         if _allow_view_session_plan(session_plan):
             highlights_dso_list = [x.deepskyObject for x in session_plan.session_plan_items if session_plan]
+    elif back == 'observation':
+        observation = Observation.query.filter_by(id=back_id).first()
+        if observation and (observation.is_public or observation.user_id == current_user.id):
+            highlights_dso_list = []
+            for oitem in observation.observation_items:
+                highlights_dso_list.extend(oitem.deepsky_objects)
     elif back == 'observed_list' and current_user.is_authenticated:
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
         highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
@@ -663,7 +669,7 @@ def _get_prev_next_dso(dso):
 
     if back == 'observation':
         observation = Observation.query.filter_by(id=back_id).first()
-        if observation.is_public or observation.user_id != current_user.id:
+        if observation and (observation.is_public or observation.user_id == current_user.id):
             prev_item, next_item = observation.get_prev_next_item(dso.id)
             return (prev_item,
                     prev_item.denormalized_name() if prev_item else None,
@@ -715,6 +721,8 @@ def _get_prev_next_dso(dso):
 
 
 def _allow_view_session_plan(session_plan):
+    if not session_plan:
+        return False
     if not session_plan.is_public:
         if current_user.is_anonymous:
             if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:

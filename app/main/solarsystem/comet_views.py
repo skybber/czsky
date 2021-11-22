@@ -80,7 +80,7 @@ def _create_comet_brighness_file(all_comets, fname):
                 comet = sun + mpc.comet_orbit(row, ts, GM_SUN)
                 dist_earth = earth.at(t).observe(comet).distance().au
                 dist_sun = sun.at(t).observe(comet).distance().au
-                if (dist_earth<10.0):
+                if dist_earth < 10.0:
                     m = row['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*row['magnitude_k']*np.log10(dist_sun)
                     print('Comet: {} de={} ds={} m={} g={}'.format(row['designation'], dist_earth, dist_sun, m, row['magnitude_k']), flush=True)
             except Exception:
@@ -167,7 +167,7 @@ def comet_info(comet_id):
     if comet is None:
         abort(404)
 
-    form  = CometFindChartForm()
+    form = CometFindChartForm()
 
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -195,7 +195,7 @@ def comet_info(comet_id):
                 d2 = d1 + timedelta(days=365)
             dt = get_trajectory_time_delta(d1, d2)
             trajectory = []
-            while d1<=d2:
+            while d1 <= d2:
                 t = ts.utc(d1.year, d1.month, d1.day)
                 ra, dec, distance = earth.at(t).observe(c).radec()
                 trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
