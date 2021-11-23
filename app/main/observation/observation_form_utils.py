@@ -93,8 +93,7 @@ def update_from_basic_form(form, observation):
 
     if observation.id is not None:
         for item in observation.observation_items:
-            for dso in item.deepsky_objects:
-                item.deepsky_objects.remove(dso)
+            item.deepsky_objects = []
             db.session.delete(item)
         observation.observation_items.clear()
 
