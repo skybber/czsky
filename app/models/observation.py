@@ -142,14 +142,5 @@ class ObservationPlanRun(db.Model):
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
     session_plan = db.relationship("SessionPlan")
-    observation_plan_run_items = db.relationship('ObservationPlanRunItem', backref='observation_plan_run', lazy=True)
+    observation = db.relationship("Observation")
 
-
-class ObservationPlanRunItem(db.Model):
-    __tablename__ = 'observation_plan_run_items'
-    id = db.Column(db.Integer, primary_key=True)
-    observation_plan_run_id = db.Column(db.Integer, db.ForeignKey('observation_plan_runs.id'), nullable=False)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
-    deepskyObject = db.relationship("DeepskyObject")
-    date_time = db.Column(db.DateTime, nullable=False)
-    notes = db.Column(db.Text)

@@ -25,12 +25,12 @@ from app.models import (
     Catalogue,
     Constellation,
     DeepskyObject,
+    ObservationItem,
     DsoList,
     Observation,
     ObservedList,
     ObservedListItem,
     ObservationPlanRun,
-    ObservationPlanRunItem,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
     User,
@@ -437,8 +437,7 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     elif back == 'running_plan' and back_id is not None:
         observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
-            if _allow_view_session_plan(observation_plan_run.session_plan):
-                highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
+            highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
 
     img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
 
@@ -592,26 +591,33 @@ def deepskyobject_observation_log(dso_id):
 
     form = DeepskyObjectObservationLog()
 
-    run_item = None
-    for ri in observation_plan_run.observation_plan_run_items:
-        if ri.dso_id == dso.id:
-            run_item = ri
+    observation_item = None
+    for oi in observation_plan_run.observation.observation_items:
+        for oi_dso in oi.deepsky_objects:
+            if oi_dso.id == dso.id:
+                observation_item = oi
+                break
+        if observation_item is not None:
             break
-    else:
-        run_item = ObservationPlanRunItem(
-            observation_plan_run_id=observation_plan_run.id,
-            dso_id=dso.id,
+
+    if observation_item is None:
+        observation_item = ObservationItem(
+            observation_id=observation_plan_run.observation.id,
             date_time=datetime.now(),
+            txt_deepsky_objects=dso.name + ':' + form.notes.data if form.notes.data else '',
             notes=''
         )
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            run_item.notes = form.notes.data
-            db.session.add(run_item)
+            observation_item.txt_deepsky_objects = dso.name + ':' + form.notes.data
+            db.session.add(observation_item)
             db.session.commit()
     else:
-        form.notes.data = run_item.notes
+        form.notes.data = ''
+        deepsky_notes = observation_item.txt_deepsky_objects
+        if ':' in deepsky_notes:
+            form.notes.data = deepsky_notes[deepsky_notes.rindex(':')+1:]
 
     embed = request.args.get('embed')
     if embed:
