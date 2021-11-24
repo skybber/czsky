@@ -120,20 +120,15 @@ class ObservationItem(db.Model):
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
     txt_deepsky_objects = db.Column(db.Text)
+    header_notes = db.Column(db.Text)
     notes = db.Column(db.Text)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_item_association_table)
 
     def deepsky_objects_to_html(self):
-        dso_list = self.txt_deepsky_objects.split(':')[0]
-        return deepsky_objects_to_html(self.observation_id, dso_list)
+        return deepsky_objects_to_html(self.observation_id, self.deepsky_objects)
 
-    def notes_to_html(self):
-        descr = self.txt_deepsky_objects.split(':')
-        if len(descr) > 1 and descr[1]:
-            text = descr[1]
-        else:
-            text = self.notes
-        return astro_text_to_html(self.observation_id, text)
+    def header_notes_to_html(self):
+        return astro_text_to_html(self.observation_id, self.header_notes)
 
 
 class ObservationPlanRun(db.Model):
@@ -143,4 +138,3 @@ class ObservationPlanRun(db.Model):
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
     session_plan = db.relationship("SessionPlan")
     observation = db.relationship("Observation")
-

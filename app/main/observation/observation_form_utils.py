@@ -12,6 +12,14 @@ from .observation_parser import parse_observation
 from app.commons.dso_utils import normalize_dso_name
 
 
+def _parse_compound_notes(comp_notes):
+    if ':' in comp_notes:
+        comp_dso, notes = comp_notes.split(':', 1)
+        return comp_dso.split(','), notes
+    else:
+        return (), comp_notes
+
+
 def create_from_basic_form(form):
     location_position = None
     location_id = None
@@ -38,18 +46,16 @@ def create_from_basic_form(form):
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
+        dsos, header_notes = _parse_compound_notes(item_form.comp_header_notes.data)
         item = ObservationItem(
             observation_id=observation.id,
             date_time=item_time,
-            txt_deepsky_objects=item_form.deepsky_object_id_list.data,
+            header_notes=header_notes,
             notes=item_form.notes.data
             )
         observation.observation_items.append(item)
 
-        dsos = item.txt_deepsky_objects
-        if ':' in dsos:
-            dsos = dsos[:dsos.index(':')]
-        for dso_name in dsos.split(','):
+        for dso_name in dsos:
             dso_name = normalize_dso_name(dso_name)
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
             if dso:
@@ -114,18 +120,16 @@ def update_from_basic_form(form, observation):
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
+        dsos, header_notes = _parse_compound_notes(item_form.comp_header_notes.data)
         item = ObservationItem(
             observation_id=observation.id,
             date_time=item_time,
-            txt_deepsky_objects=item_form.deepsky_object_id_list.data,
+            header_notes=header_notes,
             notes=item_form.notes.data
             )
         observation.observation_items.append(item)
 
-        dsos = item.txt_deepsky_objects
-        if ':' in dsos:
-            dsos = dsos[:dsos.index(':')]
-        for dso_name in dsos.split(','):
+        for dso_name in dsos:
             dso_name = normalize_dso_name(dso_name)
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
             if dso:

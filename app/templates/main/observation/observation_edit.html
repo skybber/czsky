@@ -113,16 +113,16 @@
                         <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
                             <div class="two fields">
                                 <div class="fourteen wide field">
-                                    <label>{{ item.deepsky_object_id_list.label }}</label>
+                                    <label>{{ item.comp_header_notes.label }}</label>
                                     <div class="ui action input">
-                                        {{ item.deepsky_object_id_list() }}
+                                        {{ item.comp_header_notes() }}
                                         <button id="item-{{loop.index0}}-addnote" class="ui icon button" type="button" data-toggle="fieldset-addnote">
                                             <i class="pen icon"></i>
                                         </button>
                                     </div>
-                                    {% if item.deepsky_object_id_list.errors %}
+                                    {% if item.comp_header_notes.errors %}
                                         <div class="ui red pointing label itemerror">
-                                            {{ item.deepsky_object_id_list.errors[0] | safe }}
+                                            {{ item.comp_header_notes.errors[0] | safe }}
                                         </div>
                                     {% endif %}
                                 </div>

@@ -5,13 +5,8 @@ from flask import url_for
 
 def deepsky_objects_to_html(observation_id, dsos):
     formatted_dsos = []
-    for dso_name in dsos.split(','):
-        dso_name = normalize_dso_name(dso_name)
-        dso = DeepskyObject.query.filter_by(name=dso_name).first()
-        if dso:
-            formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back='observation', back_id=observation_id) + '">' + dso.denormalized_name() + '</a>')
-        else:
-            formatted_dsos.append(dso)
+    for dso in dsos:
+        formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back='observation', back_id=observation_id) + '">' + dso.denormalized_name() + '</a>')
     return ','.join(formatted_dsos)
 
 

@@ -6,7 +6,6 @@ from dateutil import parser as date_parser
 from app.models import Observation, ObservationItem, DeepskyObject
 from app.commons import normalize_dso_name
 
-
 OBS_ITEM_HEADER = r'## (.*)'
 
 
@@ -25,15 +24,20 @@ class ParserContext(object):
 
     def get_line(self):
         return self.lines[self.index]
+
     def next_line(self):
         if self.index < len(self.lines):
             self.index += 1
+
     def is_end(self):
         return self.index == len(self.lines)
+
     def format_msg(self, msg):
         return 'line:' + str(self.index + 1) + ':' + msg
+
     def add_error(self, msg):
         self.error_msgs.append(self.format_msg(msg))
+
     def add_warn(self, msg):
         self.error_warn.append(self.format_msg(msg))
 
@@ -68,11 +72,13 @@ def _read_until(ctx, expected):
         ctx.next_line()
     return txt
 
+
 def _read_line_gen(ctx, expected):
     m = _read_line(ctx, expected)
     while m:
         yield m
         m = _read_line(ctx, expected)
+
 
 def add_global_var(ctx, var, value):
     if var == 'date':
@@ -92,19 +98,23 @@ def add_global_var(ctx, var, value):
 
     pass
 
+
 def _read_observation_title(ctx):
     _read_empty_lines(ctx)
     m = _read_line(ctx, expected=r'# (.*)', mandatory=True)
     ctx.observation.title = m.group(1)
+
 
 def _read_header(ctx):
     _read_empty_lines(ctx)
     for m in _read_line_gen(ctx, expected=r'(\w+)\s*:\s*(.*)\s*'):
         add_global_var(ctx, m.group(1), m.group(2))
 
+
 def _read_observation(ctx):
     _read_empty_lines(ctx)
     ctx.observation.notes = _read_until(ctx, expected=OBS_ITEM_HEADER)
+
 
 def _parse_time(ctx, stime):
     m = re.match(r'\s*T\((\d\d?:\d\d)\)\s*:?\s*', stime)
@@ -114,6 +124,7 @@ def _parse_time(ctx, stime):
     if not ctx.observation.date:
         return None
     return datetime.combine(ctx.observation.date, datetime.strptime(m.group(1),"%H:%M").time())
+
 
 def _parse_observation_item_header(ctx, txt):
     parts = txt.split(':', 1)
@@ -129,12 +140,13 @@ def _parse_observation_item_header(ctx, txt):
         date_time = None
     return norm_names, date_time
 
+
 def _read_observation_item(ctx):
     m = _read_line(ctx, expected=OBS_ITEM_HEADER)
     if m:
         deepsky_objects, date_time = _parse_observation_item_header(ctx, m.group(1))
         notes = _read_until(ctx, expected=OBS_ITEM_HEADER)
-        observation_item = ObservationItem(date_time=date_time, txt_deepsky_objects=','.join(deepsky_objects), notes=notes)
+        observation_item = ObservationItem(date_time=date_time, header_notes='', notes=notes)
         ctx.observation.observation_items.append(observation_item)
         for dso_name in deepsky_objects:
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
@@ -144,6 +156,7 @@ def _read_observation_item(ctx):
                 ctx.add_warn('Deepsky object \'' + dso_name + '\' not found')
         return True
     return False
+
 
 def parse_observation(text):
     ctx = ParserContext(list(map(str.strip, text.strip().splitlines())))
@@ -157,4 +170,4 @@ def parse_observation(text):
         ctx.add_error(e.message)
     if len(ctx.error_msgs) > 0:
         ctx.observation = None
-    return (ctx.observation, ctx.warn_msgs, ctx.error_msgs)
+    return ctx.observation, ctx.warn_msgs, ctx.error_msgs

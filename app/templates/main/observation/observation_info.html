@@ -53,7 +53,7 @@
             <td class="two wide"><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}
-{{ item.notes_to_html() }}
+{{ item.header_notes_to_html() }}
                 {% endfilter %}
             </td>
         </tr>

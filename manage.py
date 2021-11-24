@@ -8,7 +8,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User
+from app.models import Role, User, ObservationItem
 from config import Config
 
 from imports.import_catalogues import import_catalogues
@@ -38,8 +38,10 @@ with app.app_context():
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 
+
 manager.add_command('shell', Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
+
 
 @manager.command
 def test():
@@ -59,6 +61,7 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
+
 
 @manager.option(
     '-n',
@@ -131,6 +134,7 @@ def format():
     print('Running {}'.format(yapf))
     subprocess.call(yapf, shell=True)
 
+
 @manager.command
 def initialize_catalogues():
     """
@@ -143,6 +147,7 @@ def initialize_catalogues():
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     import_constellations_positions('data/constlabel.cla')
+
 
 @manager.command
 def import_dso_list():
@@ -157,9 +162,11 @@ def import_dso_list():
     import_glahn_palomar_gc('data/dsolist/PalomarGC.csv')
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
 
+
 @manager.command
 def import_star_list():
     import_carbon_stars('data/starlist/CarbonStars.txt')
+
 
 @manager.command
 def import_new_skyquality_locations():
@@ -168,12 +175,14 @@ def import_new_skyquality_locations():
     """
     do_import_skyquality_locations('data/skyquality.sqlite', False)
 
+
 @manager.command
 def import_all_skyquality_locations():
     """
     Import all skyquality locations
     """
     do_import_skyquality_locations('data/skyquality.sqlite', True)
+
 
 @manager.command
 def add_test_user():
@@ -188,11 +197,13 @@ def add_test_user():
         db.session.add(user)
         db.session.commit()
 
+
 @manager.command
 def add_help_users():
     add_help_user('8mag', '8mag')
     add_help_user('s.gottlieb', 's.gottlieb')
     add_help_user('skyquality', 'skyquality')
+
 
 def add_help_user(user_name, user_email):
     if User.query.filter_by(email=user_email).first() is None:
@@ -205,6 +216,7 @@ def add_help_user(user_name, user_email):
             is_hidden=True)
         db.session.add(user)
         db.session.commit()
+
 
 @manager.command
 def add_editor_user():
@@ -222,6 +234,7 @@ def add_editor_user():
         db.session.add(user)
         db.session.commit()
 
+
 @manager.command
 def add_anonymous_user():
     user_email = 'anonymous@test.test'
@@ -238,9 +251,19 @@ def add_anonymous_user():
         db.session.add(user)
         db.session.commit()
 
+
 @manager.command
-def tmp_import_carbon_stars():
-    import_carbon_stars('data/starlist/CarbonStars.txt')
+def tmp_trans_observation_item():
+    for item in ObservationItem.query.all():
+        t = item.txt_deepsky_objects
+        if ':' in t:
+            t = t[t.index(':') + 1:]
+        else:
+            t = ''
+        item.header_notes = t
+        db.session.add(item)
+    db.session.commit()
+
 
 if __name__ == '__main__':
     manager.run()

@@ -148,7 +148,10 @@ def observation_edit(observation_id):
         form.is_public.data = observation.is_public
         for oi in observation.observation_items:
             oif = form.items.append_entry()
-            oif.deepsky_object_id_list.data = oi.txt_deepsky_objects
+            comp_dsos = ','.join([dso.name for dso in oi.deepsky_objects])
+            if comp_dsos:
+                comp_dsos += ':'
+            oif.comp_header_notes.data = comp_dsos + oi.header_notes
             oif.date_time.data = oi.date_time
             oif.notes.data = oi.notes
 
