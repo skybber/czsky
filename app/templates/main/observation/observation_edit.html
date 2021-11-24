@@ -24,11 +24,13 @@
                 {% else %}
                     {{ _('Edit Observation') }}
                 {% endif %}
+                <!--
                 <div class="ui right floated buttons">
                   <button class="ui button active mode-basic">{{ _('Basic') }}</button>
                   <div class="or"></div>
                   <button class="ui button mode-advanced">{{ _('Advanced') }}</button>
                 </div>
+                -->
             </h2>
 
             {% set flashes = {
@@ -256,6 +258,7 @@
                 }
             });
 
+            /*
             $('.ui.buttons .button').click(function() {
                 $(this).addClass('active').siblings().removeClass('active');
                 if ($(this).hasClass('mode-basic')) {
@@ -268,6 +271,7 @@
                     $('#advmode').attr('value', 'true')
                 }
             });
+            */
 
             $('.ui.dropdown.dlocation').dropdown({
                 allowAdditions: true,
