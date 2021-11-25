@@ -47,6 +47,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
+    common_set_initial_ra_dec,
 )
 
 from app.main.chart.chart_forms import ChartForm
@@ -208,12 +209,15 @@ def observation_chart(observation_id):
         if observation_item is not None:
             break
 
-    if observation_item and not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
-            if not dso:
-                dso = observation_item.deepsky_objects[0] if observation_item and observation_item.deepsky_objects else None
-            form.ra.data = dso.ra if dso else 0
-            form.dec.data = dso.dec if dso else 0
+    if not common_ra_dec_fsz_from_request(form):
+        if observation_item:
+            if form.ra.data is None or form.dec.data is None:
+                if not dso:
+                    dso = observation_item.deepsky_objects[0] if observation_item and observation_item.deepsky_objects else None
+                form.ra.data = dso.ra if dso else 0
+                form.dec.data = dso.dec if dso else 0
+        else:
+            common_set_initial_ra_dec(form)
 
     if observation_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observation', back_id=observation.id, dso_id=dso.name, embed='fc', allow_back='true')

@@ -53,6 +53,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_dso_list_menu,
     common_ra_dec_fsz_from_request,
+    common_set_initial_ra_dec,
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
@@ -71,14 +72,7 @@ def chart():
         form.ra.data = float(ra)
         form.dec.data = float(dec)
     elif not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None:
-            day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
-            day_now = datetime.now().timetuple().tm_yday
-            form.ra.data = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
-            if form.ra.data > 2 * np.pi:
-                form.ra.data -= 2 * np.pi
-        if form.dec.data is None:
-            form.dec.data = 0.0
+        common_set_initial_ra_dec(form)
 
     chart_control = common_prepare_chart_data(form)
 

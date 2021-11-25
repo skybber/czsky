@@ -1,9 +1,11 @@
 import base64
 import os
 from datetime import timedelta
+from datetime import datetime
 from io import BytesIO
 from math import pi, sqrt
 from time import time
+import numpy as np
 
 import fchart3
 from flask import (
@@ -790,3 +792,16 @@ def get_trajectory_time_delta(d1, d2):
     if delta.days > 30:
         return timedelta(days=7)
     return timedelta(days=1)
+
+
+def common_set_initial_ra_dec(form):
+    day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
+    day_now = datetime.now().timetuple().tm_yday
+    ra = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
+    if ra > 2 * np.pi:
+        ra -= 2 * np.pi
+    dec = 0.0
+    if form.ra.data is None:
+        form.ra.data = ra
+    if form.dec.data is None:
+        form.dec.data = dec

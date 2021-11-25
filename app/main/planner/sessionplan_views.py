@@ -58,6 +58,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_fsz_from_request,
+    common_set_initial_ra_dec,
 )
 from app.commons.utils import to_int, get_lang_and_editor_user_from_request
 
@@ -625,9 +626,13 @@ def session_plan_chart(session_plan_id):
         session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
-            form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
-            form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
+        if session_plan_item:
+            if form.ra.data is None or form.dec.data is None:
+                form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
+                form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
+        else:
+            common_set_initial_ra_dec(form)
+
 
     if session_plan_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.dso_id, embed='fc', allow_back='true')
