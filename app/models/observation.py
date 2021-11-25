@@ -119,6 +119,7 @@ class ObservationItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
+    # obsolete
     txt_deepsky_objects = db.Column(db.Text)
     header_notes = db.Column(db.Text)
     notes = db.Column(db.Text)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 19:47+0100\n"
+"POT-Creation-Date: 2021-11-25 18:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,7 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:48
 #: app/main/catalogue/deepskyobject_forms.py:76
+#: app/main/catalogue/deepskyobject_forms.py:81
 #: app/main/catalogue/star_forms.py:35
 #: app/main/usersettings/usersettings_forms.py:20
 #: app/main/usersettings/usersettings_forms.py:38
@@ -150,7 +151,13 @@ msgid "Rating"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:80
-msgid "NOtes"
+#: app/main/location/location_forms.py:36
+#: app/main/observation/observation_forms.py:51
+#: app/main/observation/observation_forms.py:81
+#: app/main/planner/sessionplan_forms.py:47
+#: app/templates/main/observation/observation_info.html:42
+#: app/templates/main/planner/session_plan.html:33
+msgid "Notes"
 msgstr ""
 
 #: app/main/chart/chart_forms.py:21
@@ -165,7 +172,7 @@ msgstr ""
 #: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_info.html:119
 #: app/templates/main/catalogue/constellations.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:263
+#: app/templates/main/catalogue/deepskyobject_info.html:267
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:81
@@ -181,15 +188,6 @@ msgstr ""
 
 #: app/main/location/location_forms.py:35
 msgid "Longitude"
-msgstr ""
-
-#: app/main/location/location_forms.py:36
-#: app/main/observation/observation_forms.py:51
-#: app/main/observation/observation_forms.py:81
-#: app/main/planner/sessionplan_forms.py:47
-#: app/templates/main/observation/observation_info.html:42
-#: app/templates/main/planner/session_plan.html:33
-msgid "Notes"
 msgstr ""
 
 #: app/main/location/location_forms.py:37
@@ -356,7 +354,7 @@ msgstr ""
 #: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:346
-#: app/templates/main/catalogue/deepskyobject_info.html:264
+#: app/templates/main/catalogue/deepskyobject_info.html:268
 #: app/templates/main/catalogue/deepskyobjects.html:61
 #: app/templates/main/catalogue/dso_list_info.html:57
 #: app/templates/main/observation/observed_list.html:76
@@ -370,7 +368,7 @@ msgstr ""
 #: app/main/planner/sessionplan_views.py:388
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
-#: app/templates/main/catalogue/deepskyobject_info.html:267
+#: app/templates/main/catalogue/deepskyobject_info.html:271
 #: app/templates/main/catalogue/star_edit.html:13
 #: app/templates/main/catalogue/star_info.html:82
 #: app/templates/main/observation/observed_list.html:77
@@ -608,23 +606,32 @@ msgstr ""
 msgid "View solar system"
 msgstr ""
 
+#: app/templates/main/catalogue/constellation_info.html:8
+#: app/templates/main/catalogue/deepskyobject_info.html:19
+#: app/templates/main/catalogue/dso_list_info.html:8
+#: app/templates/main/catalogue/star_info.html:9
+#: app/templates/main/catalogue/star_info.html:19
+#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:76
+#: app/templates/main/news/news_info.html:8
+#: app/templates/main/observation/observation_info.html:7
+#: app/templates/main/observation/observation_info.html:13
+#: app/templates/main/observation/observed_list.html:7
+#: app/templates/main/planner/session_plan.html:9
+#: app/templates/main/planner/session_plan.html:13
+#: app/templates/main/planner/wish_list.html:7
+msgid "Chart"
+msgstr ""
+
 #: app/templates/main/index.html:77
+msgid "View sky chart"
+msgstr ""
+
+#: app/templates/main/index.html:79
 msgid "Session Plan"
 msgstr ""
 
-#: app/templates/main/index.html:78
+#: app/templates/main/index.html:80
 msgid "Session plan"
-msgstr ""
-
-#: app/templates/main/index.html:81
-#: app/templates/main/observation/observation_edit.html:13
-#: app/templates/main/observation/observation_menu.html:13
-#: app/templates/main/observation/observations.html:9
-msgid "Observer"
-msgstr ""
-
-#: app/templates/main/index.html:82
-msgid "View observer menu"
 msgstr ""
 
 #: app/templates/main/index.html:83
@@ -638,32 +645,15 @@ msgstr ""
 msgid "View planner menu"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:8
-#: app/templates/main/catalogue/deepskyobject_info.html:14
-#: app/templates/main/catalogue/dso_list_info.html:8
-#: app/templates/main/catalogue/star_info.html:9
-#: app/templates/main/catalogue/star_info.html:19
-#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:86
-#: app/templates/main/news/news_info.html:8
-#: app/templates/main/observation/observation_info.html:7
-#: app/templates/main/observation/observation_info.html:13
-#: app/templates/main/observation/observed_list.html:7
-#: app/templates/main/planner/session_plan.html:9
-#: app/templates/main/planner/session_plan.html:13
-#: app/templates/main/planner/wish_list.html:7
-msgid "Chart"
+#: app/templates/main/index.html:85
+#: app/templates/main/observation/observation_edit.html:13
+#: app/templates/main/observation/observation_menu.html:13
+#: app/templates/main/observation/observations.html:9
+msgid "Observer"
 msgstr ""
 
-#: app/templates/main/index.html:87
-msgid "View sky chart"
-msgstr ""
-
-#: app/templates/main/index.html:89
-msgid "Sky quality"
-msgstr ""
-
-#: app/templates/main/index.html:90
-msgid "View skyquality section"
+#: app/templates/main/index.html:86
+msgid "View observer menu"
 msgstr ""
 
 #: app/templates/main/index.html:91
@@ -684,8 +674,8 @@ msgid "Update and back"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:7
-#: app/templates/main/catalogue/deepskyobject_info.html:13
-#: app/templates/main/catalogue/deepskyobject_info.html:20
+#: app/templates/main/catalogue/deepskyobject_info.html:18
+#: app/templates/main/catalogue/deepskyobject_info.html:25
 #: app/templates/main/catalogue/dso_list_info.html:7
 #: app/templates/main/catalogue/star_info.html:8
 #: app/templates/main/catalogue/star_list_info.html:7
@@ -709,13 +699,13 @@ msgid "DSO"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:265
+#: app/templates/main/catalogue/deepskyobject_info.html:269
 #: app/templates/main/catalogue/dso_list_info.html:54
 msgid "Common name"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:37
-#: app/templates/main/catalogue/deepskyobject_info.html:268
+#: app/templates/main/catalogue/deepskyobject_info.html:272
 msgid "descr"
 msgstr ""
 
@@ -738,7 +728,7 @@ msgstr ""
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/dso_menu.html:10
 #: app/templates/main/chart/chart.html:29
-#: app/templates/main/observation/observation_info.html:154
+#: app/templates/main/observation/observation_info.html:156
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan.html:127
@@ -748,19 +738,27 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:15
-#: app/templates/main/catalogue/deepskyobject_info.html:21
+#: app/templates/main/catalogue/deepskyobject_info.html:14
+msgid "Log"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:20
+#: app/templates/main/catalogue/deepskyobject_info.html:26
 msgid "Surveys"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:16
-#: app/templates/main/catalogue/deepskyobject_info.html:22
+#: app/templates/main/catalogue/deepskyobject_info.html:21
+#: app/templates/main/catalogue/deepskyobject_info.html:27
 #: app/templates/main/catalogue/deepskyobjects.html:19
 msgid "Catalog"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:266
+#: app/templates/main/catalogue/deepskyobject_info.html:270
 msgid "Other names"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:384
+msgid "Observation recording"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:12
@@ -898,7 +896,7 @@ msgid "News list"
 msgstr ""
 
 #: app/templates/main/observation/observation_edit.html:18
-msgid "Observation Info"
+msgid "Leave editing"
 msgstr ""
 
 #: app/templates/main/observation/observation_edit.html:23
@@ -909,19 +907,19 @@ msgstr ""
 msgid "Edit Observation"
 msgstr ""
 
-#: app/templates/main/observation/observation_edit.html:28
+#: app/templates/main/observation/observation_edit.html:29
 msgid "Basic"
 msgstr ""
 
-#: app/templates/main/observation/observation_edit.html:30
+#: app/templates/main/observation/observation_edit.html:31
 msgid "Advanced"
 msgstr ""
 
-#: app/templates/main/observation/observation_edit.html:108
+#: app/templates/main/observation/observation_edit.html:110
 msgid "Items"
 msgstr ""
 
-#: app/templates/main/observation/observation_edit.html:160
+#: app/templates/main/observation/observation_edit.html:162
 msgid "Update and go back"
 msgstr ""
 
@@ -934,7 +932,7 @@ msgstr ""
 msgid "Choose current session plan"
 msgstr ""
 
-#: app/templates/main/observation/observation_info.html:128
+#: app/templates/main/observation/observation_info.html:130
 msgid "No object has been observed from this plan yet."
 msgstr ""
 
