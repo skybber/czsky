@@ -65,7 +65,7 @@
 
       <div class="ui right horizontally fitted tablet mobile only item" style="z-index:100">
           <div class="ui buttons">
-              <button id="bshow-telrad2" class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}}"
+              <button class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
                       data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="bullseye icon"></i>
               </button>
@@ -476,7 +476,6 @@
             res = prefix + res.substring(1);
         }
         return res
-
     }
 
     function callDsoListUrl(url) {
