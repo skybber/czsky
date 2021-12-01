@@ -1,6 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/common_macros.html' as commons %}
 
 {% set edit_endpoints = [
     ('main_observation.observation_info', _('Info'), 'info'),
@@ -29,6 +30,7 @@
     </div>
 {% endmacro %}
 
+{# --- Observation Info --- #}
 {% macro observation_info(observation) %}
     <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Date') }}</td><td colspan="5">{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
@@ -82,6 +84,7 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
+{# --- Observation Run Plan --- #}
 {% macro observation_run_plan(observation) %}
     {{ f.begin_form(run_plan_form, flashes, action=url_for('main_observation.observation_run_plan', observation_id=observation.id), extra_classes='ui menu') }}
         <div class="ui item">
@@ -109,25 +112,83 @@
         </div>
     {{ f.end_form(run_plan_form) }}
 
-    {% if observation_plan_run and observation_plan_run.observation_plan_run_items|length > 0  %}
-        <table class="ui compact definition2c table">
-            {% for item in observation_plan_run.observation_plan_run_items | sort(attribute='date_time') %}
+    {% if not_observed_plan_items|length > 0  %}
+    <h4 class="ui header">
+      <i class="eye slash icon"></i>
+      <div class="content">{{ _('Not observed') }}</div>
+    </h4>
+    <table class="ui searchable sortable unstackable selectable celled table">
+        <thead>
             <tr>
-                <td class="two wide">
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}">{{ item.deepskyObject.name | safe }} </a>
-                </td>
-                <td class="one wide">{{ item.date_time.strftime('%H:%M') }}</td>
-                <td>
-                    {% filter extended_commonmark('') %}
-{{ item.notes }}
-                    {% endfilter %}
-                </td>
+                <th class="sorted ascending">{{ _('Name') }}</th>
+                <th>{{ _('Type') }}</th>
+                <th class="mobile hidden">RA</th>
+                <th class="mobile hidden">Dec</th>
+                <th><i class="lastfm icon"></i></th>
+                <th class="right aligned">mag</th>
+                <th class="right aligned mobile hidden">{{ _('Size') }}</th>
+                {% if observed %}
+                <th class="collapsing mobile hidden"></th>
+                {% endif %}
             </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
-    {% if not observation_plan_run or observation_plan_run.observation_plan_run_items|length == 0  %}
+        </thead>
+        {% for item in not_observed_plan_items %}
+        <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}';">
+            <td>{{ item.deepskyObject.denormalized_name() }}</td>
+            <td>{{ item.deepskyObject.type }}</td>
+            <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
+            <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
+            <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+            <td class="right aligned">
+                {{ commons.convert_mag(item.deepskyObject.mag) }}
+            </td>
+            <td class="right aligned mobile hidden">
+                {% if item.deepskyObject.major_axis %}
+                    {% if item.deepskyObject.major_axis >= 100.0 %}
+                      {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                    {% else %}
+                      {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                    {% endif %}
+                    {% if item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
+                    / {% if item.deepskyObject.minor_axis >= 100.0 %}
+                        {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                      {% else %}
+                        {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                      {% endif %}
+                    {% endif %}
+                {% endif %}
+            </td>
+            {% if observed %}
+            <td class="collapsing mobile hidden">
+                {% if item.deepskyObject.id in observed %}
+                    <i class="eye icon"></i>
+                {% endif %}
+            </td>
+            {% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+    {% else %}
         <div class="ui segment">{{ _('No object has been observed from this plan yet.')}}</div>
+    {% endif %}
+
+    {% if observed_items|length > 0  %}
+    <h4 class="ui header">
+      <i class="eye icon"></i>
+      <div class="content">{{ _('Observed') }}</div>
+    </h4>
+    <table class="ui compact definition2 unstackable table">
+        {% for item in observed_items %}
+        <tr>
+            <td class="two wide"><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
+            <td>
+                {% filter extended_commonmark('') %}
+{{ item.header_notes_to_html() }}
+                {% endfilter %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
     {% endif %}
 
 <script type="text/javascript">

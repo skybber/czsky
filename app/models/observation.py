@@ -139,3 +139,4 @@ class ObservationPlanRun(db.Model):
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
     session_plan = db.relationship("SessionPlan")
     observation = db.relationship("Observation")
+    session_plan = db.relationship("SessionPlan")

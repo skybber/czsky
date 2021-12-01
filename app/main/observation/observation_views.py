@@ -285,7 +285,15 @@ def observation_run_plan(observation_id):
                 else:
                     session.pop('running_plan_id')
 
+    available_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+        .order_by(SessionPlan.for_date.desc())
+
     observation_plan_run = None
+
+    observed_items = []
+    not_observed_plan_items = []
+
+    session_plan = None
 
     if session_plan_id is not None:
         session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
@@ -297,11 +305,23 @@ def observation_run_plan(observation_id):
             session.pop('running_plan_id')
             form.session_plan.data = None
 
-    available_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
-        .order_by(SessionPlan.for_date.desc())
+    if session_plan:
+        for plan_item in session_plan.session_plan_items:
+            observed = False
+            for obs_item in observation.observation_items:
+                for dso in obs_item.deepsky_objects:
+                    if dso.id == plan_item.dso_id:
+                        observed_items.append(obs_item)
+                        observed = True
+                        break
+                if observed:
+                    break
+            if not observed:
+                not_observed_plan_items.append(plan_item)
 
     return render_template('main/observation/observation_info.html', observation=observation, type='run_plan',
                            run_plan_form=form, is_mine_observation=True, available_session_plans=available_session_plans,
+                           observed_items=observed_items, not_observed_plan_items=not_observed_plan_items,
                            observation_plan_run=observation_plan_run)
 
 
