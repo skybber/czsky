@@ -47,7 +47,7 @@
         <div class="ui blue segment" style="display: inline-block">
             <div class="markdown">
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_id=user_descr.id, back=back, back_id=back_id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}

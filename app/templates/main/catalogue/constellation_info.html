@@ -99,7 +99,7 @@
                             {% else %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_descr_info', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
                             {% endif %}
-{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
                             {% endfilter %}
                         {% endfor %}
                         </div>
@@ -290,7 +290,7 @@
                     {% for user_star_descr in star_descriptions %}
                         {% filter extended_commonmark('') %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_descr_info', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
-{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
+{% if editable %} ([edit]({{ url_for('main_star.star_edit', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})){% endif %}
                         {% endfilter %}
                     {% endfor %}
                     </div>

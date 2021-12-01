@@ -283,8 +283,9 @@ def constellation_edit(constellation_id):
             db.session.add(user_descr)
             db.session.commit()
             flash('Constellation successfully updated', 'form-success')
-            if form.goback.data == 'true':
-                goback = True
+            if form.goback.data != 'true':
+                return redirect(url_for('main_constellation.constellation_edit', constellation_id=constellation_id))
+            goback = True
 
     if goback:
         return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
