@@ -133,7 +133,11 @@
             </tr>
         </thead>
         {% for item in not_observed_plan_items %}
+        {% if observation_plan_run is not none %}
         <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}';">
+        {% else %}
+        <tr>
+        {% endif %}
             <td>{{ item.deepskyObject.denormalized_name() }}</td>
             <td>{{ item.deepskyObject.type }}</td>
             <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
