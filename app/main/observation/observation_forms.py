@@ -43,15 +43,14 @@ Observation item1 notes
 
 
 class ObservationItemNewForm(FlaskForm):
-    comp_header_notes = StringField(lazy_gettext('DSO list optionally with comment. (e.g. M3,M5:nice globulars!)'))
+    comp_notes = TextAreaField(lazy_gettext('DSO list with comment. (e.g. M3,M5:nice globulars!)'), render_kw={'rows': 2})
     date_time = TimeField(lazy_gettext('Time'), format='%H:%M', default=datetime.now().time())
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
     transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce, default=Transparency.AVERAGE)
-    notes = TextAreaField(lazy_gettext('Notes'), render_kw={'rows': 2})
 
-    def validate_comp_header_notes(form, field):
-        if field.id != 'items-0-comp_header_notes':
+    def validate_comp_notes(form, field):
+        if field.id != 'items-0-comp_notes':
             dsos = field.data
             if ':' in dsos:
                 dsos = dsos[:dsos.index(':')]

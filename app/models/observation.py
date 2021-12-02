@@ -128,8 +128,8 @@ class ObservationItem(db.Model):
     def deepsky_objects_to_html(self):
         return deepsky_objects_to_html(self.observation_id, self.deepsky_objects)
 
-    def header_notes_to_html(self):
-        return astro_text_to_html(self.observation_id, self.header_notes)
+    def notes_to_html(self):
+        return astro_text_to_html(self.observation_id, self.notes)
 
 
 class ObservationPlanRun(db.Model):

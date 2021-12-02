@@ -255,12 +255,7 @@ def add_anonymous_user():
 @manager.command
 def tmp_trans_observation_item():
     for item in ObservationItem.query.all():
-        t = item.txt_deepsky_objects
-        if ':' in t:
-            t = t[t.index(':') + 1:]
-        else:
-            t = ''
-        item.header_notes = t
+        item.notes = item.header_notes
         db.session.add(item)
     db.session.commit()
 

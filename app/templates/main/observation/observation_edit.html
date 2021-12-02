@@ -113,16 +113,13 @@
                         <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
                             <div class="two fields">
                                 <div class="fourteen wide field">
-                                    <label>{{ item.comp_header_notes.label }}</label>
+                                    <label>{{ item.comp_notes.label }}</label>
                                     <div class="ui action input">
-                                        {{ item.comp_header_notes() }}
-                                        <button id="item-{{loop.index0}}-addnote" class="ui icon button" type="button" data-toggle="fieldset-addnote">
-                                            <i class="pen icon"></i>
-                                        </button>
+                                        {{ item.comp_notes() }}
                                     </div>
-                                    {% if item.comp_header_notes.errors %}
+                                    {% if item.comp_notes.errors %}
                                         <div class="ui red pointing label itemerror">
-                                            {{ item.comp_header_notes.errors[0] | safe }}
+                                            {{ item.comp_notes.errors[0] | safe }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -147,7 +144,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            {{ f.render_form_field(item.notes, extra_classes='observation-notes initially-hidden edit-advanced') }}
                         </div>
                     {% endfor %}
                     <div class="ui segment">
@@ -330,14 +326,6 @@
                     recalcLabelsVisibility();
                 });
 
-                $this.find("button[data-toggle=fieldset-addnote]").click(function() {
-                    var elem_id = $(this).attr("id");
-                    var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1'));
-                    $("#items-" + elem_num + "-notes")
-                        .closest("[data-toggle=fieldset-entry]")
-                        .find(".observation-notes")
-                        .toggle();
-                });
             });
         });
 

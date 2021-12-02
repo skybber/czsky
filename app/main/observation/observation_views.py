@@ -152,9 +152,8 @@ def observation_edit(observation_id):
             comp_dsos = ','.join([dso.name for dso in oi.deepsky_objects])
             if comp_dsos:
                 comp_dsos += ':'
-            oif.comp_header_notes.data = comp_dsos + oi.header_notes
+            oif.comp_notes.data = comp_dsos + oi.notes
             oif.date_time.data = oi.date_time
-            oif.notes.data = oi.notes
 
     location, location_position = _get_location_data2_from_form(form)
 
@@ -311,7 +310,7 @@ def observation_run_plan(observation_id):
             for obs_item in observation.observation_items:
                 for dso in obs_item.deepsky_objects:
                     if dso.id == plan_item.dso_id:
-                        observed_items.append(obs_item)
+                        observed_items.append((plan_item, obs_item))
                         observed = True
                         break
                 if observed:

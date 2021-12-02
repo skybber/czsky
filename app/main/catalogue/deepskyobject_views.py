@@ -602,18 +602,17 @@ def deepskyobject_observation_log(dso_id):
         observation_item = ObservationItem(
             observation_id=observation_plan_run.observation.id,
             date_time=datetime.now(),
-            header_notes=form.notes.data if form.notes.data else '',
-            notes=''
+            notes=form.notes.data if form.notes.data else '',
         )
         observation_item.deepsky_objects.append(dso)
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            observation_item.header_notes = form.notes.data
+            observation_item.notes = form.notes.data
             db.session.add(observation_item)
             db.session.commit()
     else:
-        form.notes.data = observation_item.header_notes
+        form.notes.data = observation_item.notes
 
     embed = request.args.get('embed')
     if embed:

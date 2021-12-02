@@ -46,12 +46,11 @@ def create_from_basic_form(form):
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
-        dsos, header_notes = _parse_compound_notes(item_form.comp_header_notes.data)
+        dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
         item = ObservationItem(
             observation_id=observation.id,
             date_time=item_time,
-            header_notes=header_notes,
-            notes=item_form.notes.data
+            notes=notes,
             )
         observation.observation_items.append(item)
 
@@ -120,12 +119,11 @@ def update_from_basic_form(form, observation):
 
     for item_form in form.items[1:]:
         item_time = datetime.combine(observation.date, item_form.date_time.data)
-        dsos, header_notes = _parse_compound_notes(item_form.comp_header_notes.data)
+        dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
         item = ObservationItem(
             observation_id=observation.id,
             date_time=item_time,
-            header_notes=header_notes,
-            notes=item_form.notes.data
+            notes=notes
             )
         observation.observation_items.append(item)
 

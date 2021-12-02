@@ -146,7 +146,7 @@ def _read_observation_item(ctx):
     if m:
         deepsky_objects, date_time = _parse_observation_item_header(ctx, m.group(1))
         notes = _read_until(ctx, expected=OBS_ITEM_HEADER)
-        observation_item = ObservationItem(date_time=date_time, header_notes='', notes=notes)
+        observation_item = ObservationItem(date_time=date_time, notes=notes)
         ctx.observation.observation_items.append(observation_item)
         for dso_name in deepsky_objects:
             dso = DeepskyObject.query.filter_by(name=dso_name).first()
