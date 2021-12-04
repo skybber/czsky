@@ -326,9 +326,27 @@
             {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                 {{ field(class='positive ui button') }}
             {% endfor %}
+            {% if not is_new_observation_log %}
+                <a id="bdeleteobservlog" class="negative ui button" href="#">{{ _('Delete Log') }}</a>
+            {% endif %}
         </div>
 
     {{ f.end_form() }}
+    {% if not is_new_observation_log %}
+        <div class="ui tiny modal deleteObservationLogModal">
+          <div class="header">{{ _('Delete Log') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete this observation log?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_deepskyobject.deepskyobject_observation_log_delete', dso_id=dso.id, back=back, back_id=back_id ) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
 {% endmacro %}
 
 {% block content %}
@@ -454,6 +472,17 @@
                     return false;
                 });
             {% endif %}
+        {% endif %}
+        {% if not is_new_observation_log %}
+            $('.ui.modal.deleteObservationLogModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdeleteobservlog').click(function() {
+                $('.ui.modal.deleteObservationLogModal')
+                    .modal('show');
+            });
         {% endif %}
         $('.ui.rating')
             .rating();

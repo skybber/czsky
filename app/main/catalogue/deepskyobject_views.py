@@ -582,6 +582,8 @@ def deepskyobject_observation_log(dso_id):
     if dso is None:
         abort(404)
     back = request.args.get('back')
+    if back != 'running_plan':
+        abort(404)
     back_id = request.args.get('back_id')
     observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
@@ -598,7 +600,9 @@ def deepskyobject_observation_log(dso_id):
         if observation_item is not None:
             break
 
-    if observation_item is None:
+    is_new_observation_log = observation_item is None
+
+    if is_new_observation_log:
         observation_item = ObservationItem(
             observation_id=observation_plan_run.observation.id,
             date_time=datetime.now(),
@@ -611,6 +615,8 @@ def deepskyobject_observation_log(dso_id):
             observation_item.notes = form.notes.data
             db.session.add(observation_item)
             db.session.commit()
+            flash('Observation log successfully updated', 'form-success')
+            return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id))
     else:
         form.notes.data = observation_item.notes
 
@@ -622,8 +628,38 @@ def deepskyobject_observation_log(dso_id):
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           embed=embed,
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id
                            )
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/observation-log-delete', methods=['GET', 'POST'])
+def deepskyobject_observation_log_delete(dso_id):
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    back = request.args.get('back')
+    if back != 'running_plan':
+        abort(404)
+    back_id = request.args.get('back_id')
+    observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+    if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
+        abort(404)
+
+    observation_item = None
+    for oi in observation_plan_run.observation.observation_items:
+        for oi_dso in oi.deepsky_objects:
+            if oi_dso.id == dso.id:
+                observation_item = oi
+                break
+        if observation_item is not None:
+            break
+
+    if observation_item is not None:
+        db.session.delete(observation_item)
+        db.session.commit()
+
+    flash('Observation log deleted.', 'form-success')
+    return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id))
 
 
 def _create_author_entry(update_by, update_date):

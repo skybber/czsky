@@ -161,7 +161,7 @@
                         {{ field(class='positive ui button') }}
                     {% endfor %}
                     {% if not is_new %}
-                        <a id="bdelete" class="negative ui button" href="#">Delete Observation</a>
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observation') }}</a>
                     {% endif %}
                 </div>
 
@@ -171,14 +171,14 @@
 
     {% if not is_new %}
         <div class="ui tiny modal deleteModal">
-          <div class="header">Delete Observation</div>
+          <div class="header">{{ _('Delete Observation') }}</div>
           <div class="content">
-            <p>Are you sure you want to delete observation?</p>
+            <p>{{ _('Are you sure you want to delete observation?') }}</p>
           </div>
           <div class="actions">
             <div class="ui negative cancel button">No</div>
             <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observation.observation_delete', observation_id=observation.id) }}">
-                Yes
+                {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>
           </div>

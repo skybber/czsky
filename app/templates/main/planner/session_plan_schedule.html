@@ -112,7 +112,7 @@
     {% if not session_plan.is_anonymous %}
         <div id="not_observed" class="ui inverted checkbox item" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
           <input type="checkbox" id="not_observed_data" name="{{ schedule_form.not_observed.name }}" {{ 'checked=checked' if schedule_form.not_observed.data else '' | safe  }}>
-          <label>{{_('Not observed')}}</label>
+          <label>{{_('Unobserved objects')}}</label>
         </div>
     {% endif %}
 {{ f.end_form(schedule_form) }}
