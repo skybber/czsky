@@ -2,6 +2,7 @@ from flask import render_template
 
 from app.main.views import main
 
+
 @main.app_errorhandler(403)
 def forbidden(_):
     return render_template('errors/403.html'), 403
@@ -15,3 +16,8 @@ def page_not_found(_):
 @main.app_errorhandler(500)
 def internal_server_error(_):
     return render_template('errors/500.html'), 500
+
+
+@main.route('/object-not-found')
+def object_not_found():
+    return render_template('errors/object_not_found.html')

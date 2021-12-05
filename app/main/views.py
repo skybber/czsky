@@ -105,7 +105,7 @@ def global_search():
             back_url += '&splitview=true'
         return redirect(back_url)
 
-    abort(404)
+    return redirect(url_for('main.object_not_found'))
 
 
 def _search_by_ra_dec(query):
