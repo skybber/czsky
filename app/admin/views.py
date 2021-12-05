@@ -208,6 +208,7 @@ def update_editor_contents():
 
     return 'OK', 200
 
+
 @admin.route('/user/<int:user_id>/login_as_start', methods=['GET'])
 @login_required
 @admin_required
@@ -216,6 +217,7 @@ def login_as_start(user_id):
     if user is None:
         abort(404)
     return render_template('admin/manage_user.html', user=user)
+
 
 @admin.route('/user/<int:user_id>/login_as', methods=['GET'])
 @login_required

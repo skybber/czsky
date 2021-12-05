@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import current_app
 from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -5,6 +7,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .. import db, login_manager
+
 
 class Permission:
     GENERAL = 0x01
@@ -56,6 +59,8 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(265), index=True)
     email = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    last_login_date = db.Column(db.DateTime)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     lang_code = db.Column(db.String(2))
     country_code = db.Column(db.String(2))

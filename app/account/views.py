@@ -1,4 +1,4 @@
-import os
+from datetime import datetime
 
 from flask import (
     Blueprint,
@@ -42,6 +42,9 @@ def login():
         if user is not None and not user.is_hidden and user.password_hash is not None and \
                 user.verify_password(form.password.data):
             login_user(user, form.remember_me.data)
+            user.last_login_date = datetime.now()
+            db.session.add(user)
+            db.session.commit()
             flash('You are now logged in. Welcome back!', 'success')
             return redirect(request.args.get('next') or url_for('main.index'))
         else:
@@ -154,6 +157,7 @@ def change_password():
             flash('Original password is invalid.', 'form-error')
     return render_template('account/manage.html', form=form)
 
+
 @account.route('/manage/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email_request():
@@ -191,6 +195,7 @@ def change_email(token):
     else:
         flash('The confirmation link is invalid or has expired.', 'error')
     return redirect(url_for('main.index'))
+
 
 @account.route('/confirm-account')
 @login_required
