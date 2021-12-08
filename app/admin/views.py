@@ -18,6 +18,7 @@ from flask_rq import get_queue
 
 from app import db
 from app.admin.forms import (
+    DisableUserForm,
     ChangeAccountTypeForm,
     ChangeUserEmailForm,
     InviteUserForm,
@@ -157,6 +158,35 @@ def change_account_type(user_id):
         db.session.commit()
         flash('Role for user {} successfully changed to {}.'.format(
             user.full_name, user.role.name), 'form-success')
+
+    return render_template('admin/manage_user.html', user=user, form=form)
+
+
+@admin.route(
+    '/user/<int:user_id>/disable-user', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def disable_user(user_id):
+    """Disable user"""
+    if current_user.id == user_id:
+        flash('You cannot disable your own account. Please ask '
+              'another administrator to do this.', 'error')
+        return redirect(url_for('admin.user_info', user_id=user_id))
+
+    user = User.query.get(user_id)
+    if user is None:
+        abort(404)
+    form = DisableUserForm()
+    if request.method == 'GET':
+        form.is_disabled.data = user.is_disabled
+    elif form.validate_on_submit():
+        user.is_disabled = form.is_disabled.data
+        db.session.add(user)
+        db.session.commit()
+        if user.is_disabled:
+            flash('User {} was disabled.'.format(user.full_name), 'form-success')
+        else:
+            flash('User {} was enabled.'.format(user.full_name), 'form-success')
 
     return render_template('admin/manage_user.html', user=user, form=form)
 

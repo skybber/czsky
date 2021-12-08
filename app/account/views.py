@@ -39,16 +39,27 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and not user.is_hidden and user.password_hash is not None and \
-                user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            user.last_login_date = datetime.now()
-            db.session.add(user)
-            db.session.commit()
-            flash('You are now logged in. Welcome back!', 'success')
-            return redirect(request.args.get('next') or url_for('main.index'))
+        inval_email_or_password = False
+        if user is not None:
+            if not user.is_hidden and user.password_hash is not None and \
+                    user.verify_password(form.password.data):
+                if not user.is_disabled:
+                    login_user(user, form.remember_me.data)
+                    user.last_login_date = datetime.now()
+                    db.session.add(user)
+                    db.session.commit()
+                    flash('You are now logged in. Welcome back!', 'success')
+                    return redirect(request.args.get('next') or url_for('main.index'))
+                else:
+                    flash('User was disabled, please contact administrator.', 'form-error')
+            else:
+                inval_email_or_password = True
         else:
+            inval_email_or_password = True
+
+        if inval_email_or_password:
             flash('Invalid email or password.', 'form-error')
+
     return render_template('account/login.html', form=form)
 
 

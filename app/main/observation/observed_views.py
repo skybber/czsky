@@ -147,7 +147,7 @@ def observed_list_download():
     buf = StringIO()
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     for observed_item in observed_list.observed_list_items:
-        if not observed_item.dso_id is None:
+        if observed_item.dso_id is not None:
             buf.write(observed_item.deepskyObject.name + '\n')
     mem = BytesIO()
     mem.write(buf.getvalue().encode('utf-8'))

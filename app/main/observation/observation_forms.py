@@ -43,11 +43,13 @@ Observation item1 notes
 
 
 class ObservationItemNewForm(FlaskForm):
-    comp_notes = TextAreaField(lazy_gettext('DSO list with comment. (e.g. M3,M5:nice globulars!)'), render_kw={'rows': 2})
+    comp_notes = TextAreaField(lazy_gettext('DSO list with comment. (e.g. M3,M5:nice globulars!)'),
+                               render_kw={'rows': 2})
     date_time = TimeField(lazy_gettext('Time'), format='%H:%M', default=datetime.now().time())
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
-    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce, default=Transparency.AVERAGE)
+    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce,
+                               default=Transparency.AVERAGE)
 
     def validate_comp_notes(form, field):
         if field.id != 'items-0-comp_notes':
@@ -69,16 +71,20 @@ class ObservationItemNewForm(FlaskForm):
 
 
 class ObservationMixin:
-    items = FieldList(FormField(ObservationItemNewForm), min_entries = 1)
-    title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256),])
-    date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today, validators=[InputRequired(),])
-    location = StringField(lazy_gettext('Location'), validators=[InputRequired(), Length(max=256), location_lonlat_check])
+    items = FieldList(FormField(ObservationItemNewForm), min_entries=1)
+    title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
+    date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today,
+                     validators=[InputRequired(), ])
+    location = StringField(lazy_gettext('Location'),
+                           validators=[InputRequired(), Length(max=256), location_lonlat_check])
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
-    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce, default=Transparency.AVERAGE)
+    transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce,
+                               default=Transparency.AVERAGE)
     rating = HiddenField(lazy_gettext('Rating'), default=0)
     notes = TextAreaField(lazy_gettext('Notes'))
-    omd_content = TextAreaField(lazy_gettext('OMD Content'), default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
+    omd_content = TextAreaField(lazy_gettext('OMD Content'),
+                                default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
     advmode = HiddenField('Advanced Mode', default='false')
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
@@ -94,7 +100,7 @@ class ObservationEditForm(FlaskForm, ObservationMixin):
 
 
 class AddToObservedListForm(FlaskForm):
-    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(), ])
 
 
 class ObservationRunPlanForm(FlaskForm):

@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
 from wtforms.fields import (
+    BooleanField,
     PasswordField,
     StringField,
     SubmitField,
@@ -14,8 +15,16 @@ from wtforms.validators import (
     Length,
 )
 
+from flask_babel import lazy_gettext
+
 from app import db
 from app.models import Role, User
+
+
+class DisableUserForm(FlaskForm):
+    is_disabled = BooleanField(lazy_gettext('User login disabled.'), default=False)
+    submit = SubmitField('Update')
+
 
 class ChangeUserEmailForm(FlaskForm):
     email = EmailField(

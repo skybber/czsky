@@ -82,6 +82,10 @@ class User(UserMixin, db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first()
 
+    @property
+    def is_active(self):
+        return not self.is_disabled
+
     def can(self, permissions):
         return self.role is not None and \
             (self.role.permissions & permissions) == permissions
@@ -105,7 +109,6 @@ class User(UserMixin, db.Model):
 
     def generate_confirmation_token(self, expiration=604800):
         """Generate a confirmation token to email a new user."""
-
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
         return s.dumps({'confirm': self.id})
 
