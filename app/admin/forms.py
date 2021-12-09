@@ -53,12 +53,12 @@ class InviteUserForm(FlaskForm):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Role).order_by('permissions'))
-#     first_name = StringField(
-#         'First name', validators=[InputRequired(),
-#                                   Length(1, 64)])
-#     last_name = StringField(
-#         'Last name', validators=[InputRequired(),
-#                                  Length(1, 64)])
+    user_name = StringField(
+        'User name', validators=[InputRequired(),
+                                 Length(1, 64)])
+    full_name = StringField(
+        'Full name', validators=[InputRequired(),
+                                 Length(1, 256)])
     email = EmailField(
         'Email', validators=[InputRequired(),
                              Length(1, 64),
