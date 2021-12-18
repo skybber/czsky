@@ -266,7 +266,7 @@ def deepskyobject_info(dso_id):
                         .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                         .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         for apdescr in user_apert_descrs:
-            if not apdescr.aperture_class in [cl[0] for cl in apert_descriptions] and apdescr.text:
+            if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 if apdescr.aperture_class == '<100':
                     apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
                 else:

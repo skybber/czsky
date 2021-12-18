@@ -120,10 +120,10 @@ def constellation_info(constellation_id):
             existing = set(dsod.dso_id for dsod in all_cs_dso_descriptions)
             all_dso_descriptions = []
             available_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
-                    .join(UserDsoDescription.deepskyObject, aliased=True) \
-                    .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
-                    .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
-                    .all()
+                .join(UserDsoDescription.deepskyObject, aliased=True) \
+                .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type!='AST') \
+                .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
+                .all()
 
             available_dso_descriptions_map = {}
 
@@ -149,7 +149,7 @@ def constellation_info(constellation_id):
         dso_descriptions = []
         title_images = {}
         for dsod in all_dso_descriptions:
-            if not dsod.dso_id in existing:
+            if dsod.dso_id not in existing:
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
             if not dsod.text or not dsod.text.startswith('![<]($IMG_DIR/'):
@@ -158,17 +158,17 @@ def constellation_info(constellation_id):
                     title_images[dsod.dso_id] = image_info[0]
 
         dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
-                .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
-                .filter_by(constellation_id=constellation.id) \
-                .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
-                .all()
+            .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+            .filter_by(constellation_id=constellation.id) \
+            .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
+            .all()
 
         aperture_descr_map = {}
         for apdescr in dso_apert_descriptions:
-            if not apdescr.dso_id in aperture_descr_map:
+            if apdescr.dso_id not in aperture_descr_map:
                 aperture_descr_map[apdescr.dso_id] = []
             dsoapd = aperture_descr_map[apdescr.dso_id]
-            if not apdescr.aperture_class in [cl[0] for cl in dsoapd]:
+            if apdescr.aperture_class not in [cl[0] for cl in dsoapd] and apdescr.text:
                 if apdescr.aperture_class == '<100':
                     dsoapd.insert(0, (apdescr.aperture_class, apdescr.text))
                 else:
@@ -177,11 +177,11 @@ def constellation_info(constellation_id):
         ug_bl_dsos = []
         constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
         for dso_id in constell_ug_bl_dsos:
-            if not dso_id in existing:
+            if dso_id not in existing:
                 dso = constell_ug_bl_dsos[dso_id]
-                if not dso.master_id in existing:
+                if dso.master_id not in existing:
                     dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
-                    ug_bl_dsos.append({ 'dso': dso, 'img_info': dso_image_info })
+                    ug_bl_dsos.append({'dso': dso, 'img_info': dso_image_info})
 
         ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
     editable=current_user.is_editor()
@@ -189,8 +189,8 @@ def constellation_info(constellation_id):
     wish_list = None
     observed_list = None
     if current_user.is_authenticated:
-        wish_list = [ item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items ]
-        observed_list = [ item.dso_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items ]
+        wish_list = [item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items]
+        observed_list = [item.dso_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items]
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
@@ -206,7 +206,7 @@ def constellation_chart(constellation_id):
     if constellation is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
@@ -262,15 +262,15 @@ def constellation_edit(constellation_id):
         user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang).first()
         if user_descr is None:
             user_descr = UserConsDescription(
-                constellation_id = constellation_id,
-                user_id = editor_user.id,
-                common_name = '',
-                text = '',
-                lang_code = lang,
-                create_by = current_user.id,
-                update_by = current_user.id,
-                create_date = datetime.now(),
-                update_date = datetime.now(),
+                constellation_id=constellation_id,
+                user_id=editor_user.id,
+                common_name='',
+                text='',
+                lang_code=lang,
+                create_by=current_user.id,
+                update_by=current_user.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
                 )
         if request.method == 'GET':
             form.common_name.data = user_descr.common_name
@@ -298,9 +298,9 @@ def constellation_edit(constellation_id):
 
 def _create_author_entry(update_by, update_date):
     if update_by is None:
-        return ('', '')
+        return '', ''
     user_name = User.query.filter_by(id=update_by).first().user_name
-    return (user_name, update_date.strftime("%Y-%m-%d %H:%M"))
+    return user_name, update_date.strftime("%Y-%m-%d %H:%M")
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/stars')
@@ -310,26 +310,26 @@ def constellation_stars(constellation_id):
     if constellation is None:
         abort(404)
     star_descriptions = None
-    editable=current_user.is_editor()
+    editable = current_user.is_editor()
     lang, editor_user = get_lang_and_editor_user_from_request()
 
     aster_descriptions = None
     if editor_user:
-        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code = lang)\
-                .filter_by(constellation_id=constellation.id) \
-                .all()
+        star_descriptions = UserStarDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
+            .filter_by(constellation_id=constellation.id) \
+            .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
         all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
-                .join(UserDsoDescription.deepskyObject, aliased=True) \
-                .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type=='AST') \
-                .order_by(UserDsoDescription.rating.desc()) \
-                .all()
+            .join(UserDsoDescription.deepskyObject, aliased=True) \
+            .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type=='AST') \
+            .order_by(UserDsoDescription.rating.desc()) \
+            .all()
 
         existing = set()
         aster_descriptions = []
         for dsod in all_aster_descriptions:
-            if not dsod.dso_id in existing:
+            if dsod.dso_id not in existing:
                 existing.add(dsod.dso_id)
                 aster_descriptions.append(dsod)
 
@@ -348,5 +348,3 @@ def constellation_deepskyobjects(constellation_id):
 
 def _sort_star_descr(star_descriptions):
     return sorted(star_descriptions, key=lambda a: a.star.mag if a.star and a.star.mag else 100.0)
-
-
