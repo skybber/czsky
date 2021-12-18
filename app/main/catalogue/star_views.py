@@ -228,6 +228,7 @@ def star_chart_pdf(star_id, ra, dec):
 
     return send_file(img_bytes, mimetype='application/pdf')
 
+
 @main_star.route('/star/<int:star_descr_id>/edit', methods=['GET', 'POST'])
 @login_required
 def star_edit(star_descr_id):
@@ -251,6 +252,10 @@ def star_edit(star_descr_id):
         flash('Star description successfully updated', 'form-success')
         if form.goback.data != 'true':
             return redirect(url_for('main_star.star_edit', star_descr_id=star_descr_id))
+        back = request.args.get('back')
+        back_id = request.args.get('back_id')
+        if back == 'constellation':
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='star' + str(user_descr.id)))
         return redirect(url_for('main_star.star_descr_info', star_descr_id=star_descr_id))
 
     return render_template('main/catalogue/star_edit.html', form=form, user_descr=user_descr)

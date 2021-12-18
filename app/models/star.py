@@ -61,6 +61,7 @@ class Star(db.Model):
             return self.constellation.iau_code
         return ''
 
+
 class UserStarDescription(db.Model):
     __tablename__ = 'user_star_descriptions'
     id = db.Column(db.Integer, primary_key=True)
