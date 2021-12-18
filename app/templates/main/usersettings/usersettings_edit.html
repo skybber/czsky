@@ -38,7 +38,7 @@
                 <div class="ui dropdown labeled icon button">
                   <input type="hidden" id="{{ form.default_country_code.name }}" name="{{ form.default_country_code.name }}" value="{{ form.default_country_code.data }}">
                   <i class="world icon"></i>
-                  <span class="text">Select Country</span>
+                  <span class="text">{{ _('Select Country') }}</span>
                   <div class="menu">
                     <div class="ui icon search input">
                       <i class="search icon"></i>
@@ -73,7 +73,7 @@
         {{ f.display_standard_flashes(flashes) }}
     {% endif %}
 
-    <h4 class="ui top attached block header segment">Password</h4>
+    <h4 class="ui top attached block header segment">{{ _('Password') }}</h4>
     <div class="ui attached segment">
         {{ f.begin_form(form1, flashes, action=url_for('main_usersettings.change_password')) }}
                 <div class="field {% if form1.current_password.errors %}error{% endif %}">
@@ -110,15 +110,14 @@
     {% if subtype == 'delete_account' %}
         {{ f.display_standard_flashes(flashes) }}
     {% endif %}
-    <h4 class="ui top attached block header segment">Delete Your Account</h4>
+    <h4 class="ui top attached block header segment">{{ _('Delete Your Account') }}</h4>
     <div class="ui attached segment">
         <h3 class="ui red block header">
             <i class="warning circle icon"></i>
             <div class="content">
-                This action is permanent
+                {{ _('This action is permanent') }}
                 <div class="sub header">
-                    Deleting a user account is not a reversible change. Any information associated
-                    with this account will be removed, and cannot be recovered.
+                    {{ _('Deleting a user account is not a reversible change. Any information associated with this account will be removed, and cannot be recovered.') }}
                 </div>
             </div>
         </h3>
@@ -161,9 +160,9 @@
     </div>
 
     <div class="ui tiny modal sshCreateModal1">
-      <div class="header">Create SSH key</div>
+      <div class="header">{{ _('Create SSH key') }}</div>
       <div class="content">
-        <p>Are you sure you want to (re)create new SSH key?</p>
+        <p>{{ _('Are you sure you want to (re)create new SSH key?') }}</p>
       </div>
       <div class="actions">
         <div class="ui negative cancel button">No</div>
@@ -175,9 +174,9 @@
     </div>
 
     <div class="ui tiny modal sshDeleteModal1">
-      <div class="header">Delete SSH key</div>
+      <div class="header">{{ _('Delete SSH key') }}</div>
       <div class="content">
-        <p>Are you sure you want to delete sshkey?</p>
+        <p>{{ _('Are you sure you want to delete sshkey?') }}</p>
       </div>
       <div class="actions">
         <div class="ui negative cancel button">No</div>
@@ -209,9 +208,9 @@
             {{ f.end_form() }}
         </div>
         <div class="ui tiny modal sshCreateModal2">
-          <div class="header">Create SSH key for content repository</div>
+          <div class="header">{{ _('Create SSH key for content repository') }}</div>
           <div class="content">
-            <p>Are you sure you want to (re)create new SSH key for content repository?</p>
+            <p>{{ _('Are you sure you want to (re)create new SSH key for content repository?') }}</p>
           </div>
           <div class="actions">
             <div class="ui negative cancel button">No</div>
@@ -223,9 +222,9 @@
         </div>
 
         <div class="ui tiny modal sshDeleteModal2">
-          <div class="header">Delete SSH key for content repository</div>
+          <div class="header">{{ _('Delete SSH key for content repository') }}</div>
           <div class="content">
-            <p>Are you sure you want to delete sshkey for content repository?</p>
+            <p>{{ _('Are you sure you want to delete sshkey for content repository?') }}</p>
           </div>
           <div class="actions">
             <div class="ui negative cancel button">No</div>

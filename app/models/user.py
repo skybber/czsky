@@ -66,6 +66,7 @@ class User(UserMixin, db.Model):
     country_code = db.Column(db.String(2))
     is_hidden = db.Column(db.Boolean, default=False)
     is_disabled = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
     git_repository = db.Column(db.String(512))
     git_ssh_public_key = db.Column(db.Text)
     git_ssh_private_key = db.Column(db.Text)
@@ -84,7 +85,7 @@ class User(UserMixin, db.Model):
 
     @property
     def is_active(self):
-        return not self.is_disabled
+        return not self.is_disabled and not self.is_deleted
 
     def can(self, permissions):
         return self.role is not None and \

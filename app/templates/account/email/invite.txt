@@ -1,16 +1,15 @@
-Dear {{ user.full_name }},
+{{ _('Dear') }} {{ user.full_name }},
 
-You are invited to join {{ config.APP_NAME }}!
+{{ _('You are invited to join') }} {{ config.APP_NAME }}!
 
-To set your password, please click on the following link:
+{{ _('To set your password, please click on the following link:') }}
 
 {{ invite_link }}
 
-Once completed, please log in as {{ user.email }} with the password you set.
+{{ _('Once completed, please log in as {} with the password you set.').format(user.email) }}
 
-Sincerely,
+{{ _('Sincerely,') }}
 
-The {{ config.APP_NAME }} Team
+{{ _('The {} Team').format(config.APP_NAME) }}
 
-Note: replies to this email address are not monitored.
-
+{{ _('Note: replies to this email address are not monitored.') }}

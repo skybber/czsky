@@ -41,7 +41,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         inval_email_or_password = False
         if user is not None:
-            if not user.is_hidden and user.password_hash is not None and \
+            if not user.is_hidden and not user.is_deleted and user.password_hash is not None and \
                     user.verify_password(form.password.data):
                 if not user.is_disabled:
                     login_user(user, form.remember_me.data)

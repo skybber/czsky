@@ -3,9 +3,9 @@
 {% import 'macros/check_password.html' as check %}
 
 {% set endpoints = [
-    ('account.manage', 'Account information'),
-    ('account.change_email_request', 'Change email address'),
-    ('account.change_password', 'Change password'),
+    ('account.manage', _('Account information')),
+    ('account.change_email_request', _('Change email address')),
+    ('account.change_password', _('Change password')),
 ] %}
 
 {% macro navigation(items) %}
@@ -21,9 +21,9 @@
 
 {% macro user_info(user) %}
     <table class="ui compact definition table">
-        <tr><td>Full name</td><td>{{ user.full_name }}</td></tr>
-        <tr><td>Email address</td><td>{{ user.email }}</td></tr>
-        <tr><td>Account type</td><td>{{ user.role.name }}</td></tr>
+        <tr><td>{{ _('Full name') }} </td><td>{{ user.full_name }}</td></tr>
+        <tr><td>{{ _('Email address') }}</td><td>{{ user.email }}</td></tr>
+        <tr><td>{{ _('Account type') }}</td><td>{{ user.role.name }}</td></tr>
     </table>
 {% endmacro %}
 
@@ -32,7 +32,7 @@
         <div class="twelve wide column">
             <h2 class="ui header">
                 Account Settings
-                <div class="sub header">Manage your account settings and change your login information.</div>
+                <div class="sub header">{{ _('Manage your account settings and change your login information.') }}</div>
             </h2>
         </div>
         <div class="stretched divided very relaxed row">

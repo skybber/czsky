@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-12-04 11:00+0100\n"
+"POT-Creation-Date: 2021-12-18 12:35+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
+
+#: app/admin/forms.py:25
+msgid "User login disabled."
+msgstr "Přistup byl odepřen"
 
 #: app/main/catalogue/deepskyobject_forms.py:60 app/main/forms.py:35
 #: app/main/location/location_forms.py:54 app/main/news/news_forms.py:52
@@ -143,7 +147,7 @@ msgstr "Reference"
 
 #: app/main/catalogue/deepskyobject_forms.py:73
 #: app/main/location/location_forms.py:38 app/main/news/news_forms.py:38
-#: app/main/observation/observation_forms.py:79
+#: app/main/observation/observation_forms.py:84
 #: app/templates/main/location/locations.html:44
 #: app/templates/main/news/news_list.html:41
 #: app/templates/main/observation/observations.html:24
@@ -152,7 +156,7 @@ msgstr "Hodnocení"
 
 #: app/main/catalogue/deepskyobject_forms.py:80
 #: app/main/location/location_forms.py:36
-#: app/main/observation/observation_forms.py:80
+#: app/main/observation/observation_forms.py:85
 #: app/main/planner/sessionplan_forms.py:47
 #: app/templates/main/observation/observation_info.html:44
 #: app/templates/main/planner/session_plan.html:33
@@ -216,7 +220,7 @@ msgstr "Přidat lokalitu"
 msgid "Update location"
 msgstr "Uložit lokalitu"
 
-#: app/main/news/news_forms.py:34 app/main/observation/observation_forms.py:73
+#: app/main/news/news_forms.py:34 app/main/observation/observation_forms.py:75
 #: app/main/planner/sessionplan_forms.py:44
 #: app/templates/main/news/news_list.html:40
 #: app/templates/main/observation/observations.html:21
@@ -257,35 +261,35 @@ msgstr "Aktualizovat aktualitu"
 msgid "DSO list with comment. (e.g. M3,M5:nice globulars!)"
 msgstr "DSO seznam s volitelným komentářem. (př. M3,M4: pěkně kulaté!)"
 
-#: app/main/observation/observation_forms.py:47
+#: app/main/observation/observation_forms.py:48
 msgid "Time"
 msgstr "Čas"
 
-#: app/main/observation/observation_forms.py:48
-#: app/main/observation/observation_forms.py:76
+#: app/main/observation/observation_forms.py:49
+#: app/main/observation/observation_forms.py:80
 #: app/templates/main/observation/observation_info.html:39
 #: app/templates/main/observation/observations.html:23
 msgid "Sqm"
 msgstr "Sqm"
 
-#: app/main/observation/observation_forms.py:49
-#: app/main/observation/observation_forms.py:77
+#: app/main/observation/observation_forms.py:50
+#: app/main/observation/observation_forms.py:81
 #: app/templates/main/observation/observation_info.html:40
 msgid "Seeing"
 msgstr "Seeing"
 
-#: app/main/observation/observation_forms.py:50
-#: app/main/observation/observation_forms.py:78
+#: app/main/observation/observation_forms.py:51
+#: app/main/observation/observation_forms.py:82
 #: app/templates/main/observation/observation_info.html:41
 msgid "Transparency"
 msgstr "Průzračnost"
 
-#: app/main/observation/observation_forms.py:58
-#: app/main/observation/observation_forms.py:68
+#: app/main/observation/observation_forms.py:60
+#: app/main/observation/observation_forms.py:70
 msgid "Value expected."
 msgstr "Hodnota je vyžadována."
 
-#: app/main/observation/observation_forms.py:74
+#: app/main/observation/observation_forms.py:76
 #: app/main/planner/sessionplan_forms.py:45
 #: app/templates/main/observation/observation_info.html:36
 #: app/templates/main/observation/observations.html:20
@@ -295,7 +299,7 @@ msgstr "Hodnota je vyžadována."
 msgid "Date"
 msgstr "Datum"
 
-#: app/main/observation/observation_forms.py:75
+#: app/main/observation/observation_forms.py:78
 #: app/main/planner/sessionplan_forms.py:46
 #: app/templates/main/observation/observation_info.html:37
 #: app/templates/main/observation/observations.html:22
@@ -305,24 +309,24 @@ msgstr "Datum"
 msgid "Location"
 msgstr "Lokalita"
 
-#: app/main/observation/observation_forms.py:81
+#: app/main/observation/observation_forms.py:86
 msgid "OMD Content"
 msgstr "OMD obsah"
 
-#: app/main/observation/observation_forms.py:83
+#: app/main/observation/observation_forms.py:89
 #: app/main/planner/sessionplan_forms.py:48
 msgid "Plan is public"
 msgstr "Je veřejný"
 
-#: app/main/observation/observation_forms.py:88
+#: app/main/observation/observation_forms.py:94
 msgid "Add Observation"
 msgstr "Přidat pozorování"
 
-#: app/main/observation/observation_forms.py:93
+#: app/main/observation/observation_forms.py:99
 msgid "Update Observation"
 msgstr "Uložit pozorování"
 
-#: app/main/observation/observation_forms.py:97
+#: app/main/observation/observation_forms.py:103
 #: app/main/observation/observed_forms.py:36
 #: app/main/planner/sessionplan_forms.py:86
 #: app/main/planner/sessionplan_forms.py:90
@@ -441,6 +445,7 @@ msgid "Update Password"
 msgstr "Uložit heslo"
 
 #: app/main/usersettings/usersettings_forms.py:31
+#: app/templates/main/usersettings/usersettings_edit.html:76
 msgid "Password"
 msgstr "Heslo"
 
@@ -461,6 +466,155 @@ msgstr "Veřejný klíč"
 #: app/main/usersettings/usersettings_forms.py:42
 msgid "Content git repository"
 msgstr "Git repozitář pro společný obsah"
+
+#: app/templates/account/join_invite.html:8
+msgid "Create your password"
+msgstr "Vytvořit heslo"
+
+#: app/templates/account/manage.html:6
+msgid "Account information"
+msgstr "Správa účtu"
+
+#: app/templates/account/manage.html:7
+msgid "Change email address"
+msgstr "Změna emailové adresy"
+
+#: app/templates/account/manage.html:8
+msgid "Change password"
+msgstr "Změnit heslo"
+
+#: app/templates/account/manage.html:24
+msgid "Full name"
+msgstr "Celé jméno"
+
+#: app/templates/account/manage.html:25
+msgid "Email address"
+msgstr "Emailová adresa"
+
+#: app/templates/account/manage.html:26
+msgid "Account type"
+msgstr "Typ účtu"
+
+#: app/templates/account/manage.html:35
+msgid "Manage your account settings and change your login information."
+msgstr "Správa nastavení účtu a změna přihlašovacích údajů."
+
+#: app/templates/account/reset_password.html:7
+msgid "Reset your password"
+msgstr "Obnovení hesla"
+
+#: app/templates/account/unconfirmed.html:8
+msgid "You need to confirm your account before continuing."
+msgstr "Před pokračováním musíte potvrdit svůj účet."
+
+#: app/templates/account/unconfirmed.html:10
+msgid ""
+"When you created an account, you should have received an email from us at"
+" {} with a link to confirm your email address."
+msgstr "Poté, co jste si vytvořili účet, měli byste od nás obdržet e-mail na adresu. {} s odkazem pro potvrzení vaší e-mailové adresy.""
+
+#: app/templates/account/unconfirmed.html:14
+msgid "I didn't receive an email!"
+msgstr "Nedostal jsem email!"
+
+#: app/templates/account/unconfirmed.html:16
+msgid "No problem! Just click the button below and we'll send you another one."
+msgstr "Žádný problém! Stačí kliknout na tlačítko níže a my vám pošleme další."
+
+#: app/templates/account/unconfirmed.html:17
+msgid "Resend confirmation email"
+msgstr "Opětovně zaslat potvrzovací email"
+
+#: app/templates/account/email/change_email.html:1
+#: app/templates/account/email/confirm.html:1
+#: app/templates/account/email/invite.html:1
+#: app/templates/account/email/reset_password.html:1
+msgid "Dear"
+msgstr "Vážený"
+
+#: app/templates/account/email/change_email.html:3
+msgid "To confirm your new email address"
+msgstr "Pro potvrzení emailové adresy"
+
+#: app/templates/account/email/change_email.html:3
+#: app/templates/account/email/confirm.html:5
+#: app/templates/account/email/invite.html:5
+#: app/templates/account/email/reset_password.html:3
+msgid "click here"
+msgstr "klikněte zde"
+
+#: app/templates/account/email/change_email.html:5
+#: app/templates/account/email/confirm.html:7
+#: app/templates/account/email/invite.html:7
+#: app/templates/account/email/reset_password.html:5
+msgid ""
+"Alternatively, you can paste the following link in your browser's address"
+" bar:"
+msgstr "Případně můžete do adresy prohlížeče vložit následující odkaz:"
+
+#: app/templates/account/email/change_email.html:9
+#: app/templates/account/email/confirm.html:11
+#: app/templates/account/email/invite.html:13
+#: app/templates/account/email/reset_password.html:11
+msgid "Sincerely,"
+msgstr "S pozdravem"
+
+#: app/templates/account/email/change_email.html:11
+#: app/templates/account/email/confirm.html:13
+#: app/templates/account/email/invite.html:15
+#: app/templates/account/email/reset_password.html:13
+msgid "The {} Team"
+msgstr "{} tým"
+
+#: app/templates/account/email/change_email.html:13
+#: app/templates/account/email/confirm.html:15
+#: app/templates/account/email/invite.html:17
+#: app/templates/account/email/reset_password.html:15
+msgid "Note: replies to this email address are not monitored."
+msgstr "Poznámka: odpovědi na tuto e-mailovou adresu nejsou monitorovány."
+
+#: app/templates/account/email/confirm.html:3
+msgid "Welcome to"
+msgstr "Vítejte v"
+
+#: app/templates/account/email/confirm.html:5
+msgid "To confirm your account, please"
+msgstr "Chcete-li potvrdit svůj účet."
+
+#: app/templates/account/email/invite.html:3
+msgid "You are invited to join"
+msgstr "Jste zváni, abyste se připojili"
+
+#: app/templates/account/email/invite.html:5
+msgid "To set your password, please"
+msgstr "Chcete-li nastavit heslo."
+
+#: app/templates/account/email/invite.html:11
+msgid "Once completed, please log in as {} with the password you set."
+msgstr "Po dokončení se přihlaste jako {} s nastaveným heslem."
+
+#: app/templates/account/email/reset_password.html:3
+msgid "To reset your password,"
+msgstr "K obnovení hesla,"
+
+#: app/templates/account/email/reset_password.html:9
+msgid "If you have not requested a password reset, simply ignore this message."
+msgstr "Pokud jste o obnovení hesla nepožádali, tuto zprávu ignorujte."
+
+#: app/templates/errors/object_not_found.html:5
+#: app/templates/macros/fchart_macros.html:245
+msgid "Object not found"
+msgstr "Objekt neby nalezen."
+
+#: app/templates/errors/object_not_found.html:7
+#: app/templates/macros/fchart_macros.html:247
+msgid "Specified object was not found."
+msgstr "Požadovaný objekt nebyl nalezen."
+
+#: app/templates/errors/object_not_found.html:11
+#: app/templates/macros/fchart_macros.html:251
+msgid "Close"
+msgstr "Zavřít"
 
 #: app/templates/macros/common_macros.html:26
 msgid "Add to wishlist"
@@ -553,18 +707,6 @@ msgstr "Hledat"
 #: app/templates/macros/fchart_macros.html:227
 msgid "Split view"
 msgstr ""
-
-#: app/templates/macros/fchart_macros.html:245
-msgid "Object not found"
-msgstr "Objekt neby nalezen."
-
-#: app/templates/macros/fchart_macros.html:247
-msgid "Specified object was not found."
-msgstr "Požadovaný objekt nebyl nalezen."
-
-#: app/templates/macros/fchart_macros.html:251
-msgid "Close"
-msgstr "Zavřít"
 
 #: app/templates/macros/nav_macros.html:72
 #: app/templates/macros/nav_macros.html:75
@@ -944,12 +1086,10 @@ msgstr "Uložit a zpět"
 
 #: app/templates/main/observation/observation_edit.html:164
 #: app/templates/main/observation/observation_edit.html:174
-#, fuzzy
 msgid "Delete Observation"
 msgstr "Smazat pozorování"
 
 #: app/templates/main/observation/observation_edit.html:176
-#, fuzzy
 msgid "Are you sure you want to delete observation?"
 msgstr "Skutečně chcete odstranit toto pozorování?"
 
@@ -1280,6 +1420,56 @@ msgstr "Zobrazit aktuality"
 msgid "Store/restore data from git repository"
 msgstr "Synchronizace s git repozitáři"
 
+#: app/templates/main/usersettings/usersettings_edit.html:41
+msgid "Select Country"
+msgstr "Vyberte zemi"
+
+#: app/templates/main/usersettings/usersettings_edit.html:113
+msgid "Delete Your Account"
+msgstr "Zrušit účet"
+
+#: app/templates/main/usersettings/usersettings_edit.html:118
+msgid "This action is permanent"
+msgstr "Tato akce je nevratná!"
+
+#: app/templates/main/usersettings/usersettings_edit.html:120
+msgid ""
+"Deleting a user account is not a reversible change. Any information "
+"associated with this account will be removed, and cannot be recovered."
+msgstr "Odstranění uživatelského účtu je nevratná akce. Veškeré informace spojené s tímto účtem budou odstraněny a nelze je obnovit."
+
+#: app/templates/main/usersettings/usersettings_edit.html:163
+msgid "Create SSH key"
+msgstr "Vytvořit SSH klíč"
+
+#: app/templates/main/usersettings/usersettings_edit.html:165
+msgid "Are you sure you want to (re)create new SSH key?"
+msgstr "Skutečně chcete vytvořit nový SSH klíč?"
+
+#: app/templates/main/usersettings/usersettings_edit.html:177
+msgid "Delete SSH key"
+msgstr "Smazat SSH klíč"
+
+#: app/templates/main/usersettings/usersettings_edit.html:179
+msgid "Are you sure you want to delete sshkey?"
+msgstr "Skutečně chcete odstranit tento SSH klíč?"
+
+#: app/templates/main/usersettings/usersettings_edit.html:211
+msgid "Create SSH key for content repository"
+msgstr "Vytvořit SSH klíč pro repozitář s obsahem CzSky."
+
+#: app/templates/main/usersettings/usersettings_edit.html:213
+msgid "Are you sure you want to (re)create new SSH key for content repository?"
+msgstr "Skutečně chcete vytvořit nový SSH klíč pro repozitář s obsahem?"
+
+#: app/templates/main/usersettings/usersettings_edit.html:225
+msgid "Delete SSH key for content repository"
+msgstr "Odstranit SSH klíč pro repozitář s obsahem"
+
+#: app/templates/main/usersettings/usersettings_edit.html:227
+msgid "Are you sure you want to delete sshkey for content repository?"
+msgstr "Skutečně chcete odstranit tento SSH klíč?"
+
 msgid "Deepsky Objects Search"
 msgstr "Vyhledávání deepsky objektů"
 
@@ -1418,4 +1608,3 @@ msgstr "Dobrá"
 msgctxt "transparency"
 msgid "Excellent"
 msgstr "Výborná"
-
