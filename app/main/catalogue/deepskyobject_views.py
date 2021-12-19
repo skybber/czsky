@@ -18,6 +18,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from sqlalchemy import func
+from sqlalchemy.sql.expression import literal
 
 from app import db
 
@@ -25,6 +26,7 @@ from app.models import (
     Catalogue,
     Constellation,
     DeepskyObject,
+    dso_observation_item_association_table,
     ObservationItem,
     DsoList,
     Observation,
@@ -234,6 +236,8 @@ def deepskyobject_seltab(dso_id):
             return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
         if seltab == 'surveys':
             return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
+        if seltab == 'observations':
+            return _do_redirect('main_deepskyobject.deepskyobject_observations', dso)
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
@@ -300,13 +304,33 @@ def deepskyobject_info(dso_id):
             .first()
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
+    has_observations = _has_dso_observations(dso, orig_dso)
     season = request.args.get('season')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
                            wish_list=wish_list, observed_list=observed_list, title_img=title_img, season=season, embed=embed,
+                           has_observations=has_observations,
                            )
+
+
+def _get_observation_items_query(dso, orig_dso):
+    query = ObservationItem.query \
+        .join(Observation) \
+        .join(dso_observation_item_association_table) \
+        .join(DeepskyObject) \
+        .filter((Observation.user_id == current_user.id) & DeepskyObject.id.in_((dso.id, orig_dso.id)))
+    return query
+
+
+def _has_dso_observations(dso, orig_dso):
+    has_observations = False
+    if current_user.is_authenticated:
+        back = request.args.get('back')
+        has_observations = (back != 'running_plan') and \
+            db.session.query(literal(True)).filter(_get_observation_items_query(dso, orig_dso).exists()).scalar()
+    return has_observations
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/surveys', methods=['GET', 'POST'])
@@ -315,6 +339,7 @@ def deepskyobject_surveys(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
+
     prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
@@ -325,9 +350,11 @@ def deepskyobject_surveys(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'surveys'
 
+    has_observations = _has_dso_observations(dso, orig_dso)
+
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           field_size=field_size, season=season, embed=embed,
+                           field_size=field_size, season=season, embed=embed, has_observations=has_observations,
                            )
 
 
@@ -338,9 +365,9 @@ def _get_survey_field_size(ang_sizes, exact_ang_size, default_size):
     return default_size
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/catalogue_data')
-def deepskyobject_catalogue_data(dso_id):
-    """View a deepsky object info."""
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/observations')
+def deepskyobject_observations(dso_id):
+    """View a deepsky object observations."""
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
@@ -353,9 +380,39 @@ def deepskyobject_catalogue_data(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'catalogue_data'
 
+    observation_items = None
+    if current_user.is_authenticated:
+        observation_items = _get_observation_items_query(dso, orig_dso).all()
+
+    if not observation_items:
+        return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
+
+    return render_template('main/catalogue/deepskyobject_info.html', type='observations', dso=dso,
+                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
+                           season=season, embed=embed, has_observations=True, observation_items=observation_items,
+                           )
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/catalogue_data')
+def deepskyobject_catalogue_data(dso_id):
+    """View a deepsky object catalog data."""
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+
+    other_names = _get_other_names(dso)
+    season = request.args.get('season')
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['dso_embed_seltab'] = 'catalogue_data'
+
+    has_observations = _has_dso_observations(dso, orig_dso)
+
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
-                           season=season, embed=embed
+                           season=season, embed=embed, has_observations=has_observations,
                            )
 
 
@@ -394,9 +451,12 @@ def deepskyobject_chart(dso_id):
 
     default_chart_iframe_url = url_for(iframe_endpoit, back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
+    has_observations = _has_dso_observations(dso, orig_dso)
+
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url, season=season, embed=embed,
+                           has_observations=has_observations,
                            )
 
 
@@ -628,7 +688,8 @@ def deepskyobject_observation_log(dso_id):
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
+                           has_observations=False
                            )
 
 

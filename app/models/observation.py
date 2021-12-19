@@ -109,9 +109,9 @@ class Observation(db.Model):
 
 
 dso_observation_item_association_table = db.Table('observation_item_dsos', db.Model.metadata,
-    db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),
-    db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
-)
+                                                  db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),
+                                                  db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
+                                                  )
 
 
 class ObservationItem(db.Model):

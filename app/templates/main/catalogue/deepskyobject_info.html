@@ -11,24 +11,24 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{% set endpoints1 = [ ('main_deepskyobject.deepskyobject_observation_log', _('Log'), 'obslog') ] if back == 'running_plan' else [] %}
+{% set endpoint_log = [ ('main_deepskyobject.deepskyobject_observation_log', _('Log'), 'obslog') ] if back == 'running_plan' else [] %}
+{% set endpoint_catalog = [ ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table') ] %}
+{% set endpoint_observations = [ ('main_deepskyobject.deepskyobject_observations', _('Observations'), 'info') ] if has_observations else [] %}
 
 {% if not embed or embed == 'pl' %}
-    {% set endpoints2 = [
+    {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
         ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
-        ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
+        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'table'),
     ] %}
 {% else %}
-    {% set endpoints2 = [
+    {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Surveys'), 'table'),
-        ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table')
+        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'table'),
     ] %}
 {% endif %}
 
-{% set endpoints = endpoints1 + endpoints2 %}
+{% set endpoints = endpoint_log + endpoints + endpoint_observations + endpoint_catalog %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -181,7 +181,7 @@
 {% endif %}
 
 {# ---  Chart --- #}
-{% macro deepskyobject_chart(dso) %}
+{% macro deepskyobject_chart() %}
     {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
                      url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', mx=chart_control.chart_mx, my=chart_control.chart_my, flags=chart_control.chart_flags, back=back, back_id=back_id),
@@ -206,6 +206,24 @@
                 {% if embed %} ,fullScreen: true {% endif %}
         });
     </script>
+{% endmacro %}
+
+{# --- Catalog Data --- #}
+{% macro deepskyobject_observations() %}
+    <table class="ui compact definition2 unstackable searchable sortable selectable table">
+        {% for item in observation_items %}
+        <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=item.observation.id) }}';">
+            <td class="two wide"><b>{{ item.observation.date.strftime('%Y-%m-%d') }}</b></td>
+            <td class="two wide"><b>{{ item.observation.location.name if item.observation.location else '' }}</b></td>
+            <td class="two wide"><b>{{ item.observation.title }}</b></td>
+            <td>
+                {% filter extended_commonmark('') %}
+{{ item.notes_to_html() }}
+                {% endfilter %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 {% endmacro %}
 
 {# --- Catalog Data --- #}
@@ -431,11 +449,13 @@
                     {{ deepskyobject_catalogue_data(True) }}
                 {% endif %}
             {% elif type == 'chart' %}
-                {{ deepskyobject_chart(dso) }}
+                {{ deepskyobject_chart() }}
             {% elif type == 'surveys' %}
                 {{ deepskyobject_surveys() }}
             {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(False) }}
+            {% elif type == 'observations' %}
+                {{ deepskyobject_observations() }}
             {% elif type == 'observation_log' %}
                 {{ deepskyobject_observation_log() }}
             {% endif %}
