@@ -545,8 +545,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_constellation_borders = 'B' in flags
     config.show_deepsky = 'D' in flags
     config.show_equatorial_grid = 'E' in flags
-    config.show_picker = False # do not show picker, only activate it
-    config.picker_radius = PICKER_RADIUS
+    config.show_picker = False  # do not show picker, only activate it
+    if 'P' in flags:
+        config.picker_radius = PICKER_RADIUS
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -691,7 +692,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.show_map_scale_legend = True
     config.show_field_border = True
     config.show_equatorial_grid = True
-    config.show_picker = True
+    config.show_picker = 'P' in flags
     config.picker_radius = PICKER_RADIUS
 
     config.fov_telrad = 'T' in flags
@@ -747,6 +748,10 @@ def get_chart_legend_flags(form):
 
     if form.show_telrad.data == 'true':
         legend_flags += 'T'
+
+    if form.show_picker.data == 'true':
+        legend_flags += 'P'
+        chart_flags += 'P'
 
     if form.show_constell_shapes.data == 'true':
         chart_flags += 'C'
