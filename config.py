@@ -2,6 +2,8 @@ import os
 import sys
 
 from raygun4py.middleware import flask as flask_raygun
+import logging
+import logging.handlers
 
 PYTHON_VERSION = sys.version_info[0]
 if PYTHON_VERSION == 3:
@@ -95,6 +97,11 @@ class DevelopmentConfig(Config):
     def init_app(cls, app):
         print('THIS APP IS IN DEBUG MODE. \
                 YOU SHOULD NOT SEE THIS IN PRODUCTION.')
+        handler = logging.handlers.RotatingFileHandler(
+            'app.log',
+            maxBytes=1024 * 1024)
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
 
 
 class TestingConfig(Config):
@@ -126,6 +133,11 @@ class ProductionConfig(Config):
         assert os.environ.get('SECRET_KEY'), 'SECRET_KEY IS NOT SET!'
 
         flask_raygun.Provider(app, app.config['RAYGUN_APIKEY']).attach()
+        handler = logging.handlers.RotatingFileHandler(
+            'app.log',
+            maxBytes=1024 * 1024)
+        handler.setLevel(logging.INFO)
+        app.logger.addHandler(handler)
 
 
 class HerokuConfig(ProductionConfig):
