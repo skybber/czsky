@@ -70,6 +70,7 @@ def register():
     if form.validate_on_submit():
         user = User(
             full_name=form.full_name.data,
+            user_name=form.email.data,
             email=form.email.data,
             password=form.password.data)
         db.session.add(user)
