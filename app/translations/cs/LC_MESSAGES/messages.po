@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-12-18 12:35+0100\n"
+"POT-Creation-Date: 2021-12-23 14:48+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -130,14 +130,14 @@ msgstr "Zorné pole"
 #: app/main/catalogue/constellation_forms.py:53
 #: app/main/catalogue/deepskyobject_forms.py:59
 #: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:75
-#: app/templates/macros/fchart_macros.html:112
+#: app/templates/macros/fchart_macros.html:123
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:67
 msgid "Limit mag"
 msgstr "Limit mag"
 
 #: app/main/catalogue/constellation_forms.py:54
-#: app/main/chart/chart_forms.py:20 app/templates/macros/fchart_macros.html:133
+#: app/main/chart/chart_forms.py:20 app/templates/macros/fchart_macros.html:144
 msgid "DSO limit mag"
 msgstr "Limitní magnituda DSO"
 
@@ -175,7 +175,7 @@ msgstr "Otočit-Y"
 #: app/main/planner/sessionplan_views.py:389
 #: app/templates/main/catalogue/constellation_info.html:119
 #: app/templates/main/catalogue/constellations.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:267
+#: app/templates/main/catalogue/deepskyobject_info.html:285
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:81
@@ -358,7 +358,7 @@ msgstr "Minimální výška"
 #: app/main/planner/sessionplan_views.py:389
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:346
-#: app/templates/main/catalogue/deepskyobject_info.html:268
+#: app/templates/main/catalogue/deepskyobject_info.html:286
 #: app/templates/main/catalogue/deepskyobjects.html:61
 #: app/templates/main/catalogue/dso_list_info.html:57
 #: app/templates/main/observation/observation_info.html:124
@@ -373,7 +373,7 @@ msgstr "Typ"
 #: app/main/planner/sessionplan_views.py:389
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
-#: app/templates/main/catalogue/deepskyobject_info.html:271
+#: app/templates/main/catalogue/deepskyobject_info.html:289
 #: app/templates/main/catalogue/star_edit.html:13
 #: app/templates/main/catalogue/star_info.html:82
 #: app/templates/main/observation/observed_list.html:77
@@ -511,7 +511,9 @@ msgstr "Před pokračováním musíte potvrdit svůj účet."
 msgid ""
 "When you created an account, you should have received an email from us at"
 " {} with a link to confirm your email address."
-msgstr "Poté, co jste si vytvořili účet, měli byste od nás obdržet e-mail na adresu. {} s odkazem pro potvrzení vaší e-mailové adresy.""
+msgstr ""
+"Poté, co jste si vytvořili účet, měli byste od nás obdržet e-mail na "
+"adresu. {} s odkazem pro potvrzení vaší e-mailové adresy.\""
 
 #: app/templates/account/unconfirmed.html:14
 msgid "I didn't receive an email!"
@@ -602,17 +604,17 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr "Pokud jste o obnovení hesla nepožádali, tuto zprávu ignorujte."
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:245
+#: app/templates/macros/fchart_macros.html:256
 msgid "Object not found"
 msgstr "Objekt neby nalezen."
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:247
+#: app/templates/macros/fchart_macros.html:258
 msgid "Specified object was not found."
 msgstr "Požadovaný objekt nebyl nalezen."
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:251
+#: app/templates/macros/fchart_macros.html:262
 msgid "Close"
 msgstr "Zavřít"
 
@@ -624,40 +626,45 @@ msgstr "přidat na wishlist"
 msgid "Add to observed"
 msgstr "Přidat do pozorovaných"
 
-#: app/templates/macros/fchart_macros.html:24
+#: app/templates/macros/fchart_macros.html:25
 msgid "Date From"
 msgstr "Čas od"
 
-#: app/templates/macros/fchart_macros.html:31
+#: app/templates/macros/fchart_macros.html:32
 msgid "Date To"
 msgstr "Čas do"
 
-#: app/templates/macros/fchart_macros.html:44
-#: app/templates/macros/fchart_macros.html:69
+#: app/templates/macros/fchart_macros.html:45
+#: app/templates/macros/fchart_macros.html:74
 msgid "Telrad"
 msgstr "Telrad"
 
-#: app/templates/macros/fchart_macros.html:48
-#: app/templates/macros/fchart_macros.html:80
+#: app/templates/macros/fchart_macros.html:49
+#: app/templates/macros/fchart_macros.html:85
+msgid "Picker"
+msgstr "Picker"
+
+#: app/templates/macros/fchart_macros.html:53
+#: app/templates/macros/fchart_macros.html:91
 msgid "Constellation lines"
 msgstr "Tvary souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:52
-#: app/templates/macros/fchart_macros.html:86
+#: app/templates/macros/fchart_macros.html:57
+#: app/templates/macros/fchart_macros.html:97
 msgid "Constellation borders"
 msgstr "Hranice souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:56
-#: app/templates/macros/fchart_macros.html:92
+#: app/templates/macros/fchart_macros.html:61
+#: app/templates/macros/fchart_macros.html:103
 msgid "Equatorial grid"
 msgstr "Rovníkové souřadnice"
 
-#: app/templates/macros/fchart_macros.html:60
-#: app/templates/macros/fchart_macros.html:98
+#: app/templates/macros/fchart_macros.html:65
+#: app/templates/macros/fchart_macros.html:109
 msgid "Deepsky objects"
 msgstr "Deepsky objekty"
 
-#: app/templates/macros/fchart_macros.html:75
+#: app/templates/macros/fchart_macros.html:80
 #: app/templates/main/location/location_edit.html:13
 #: app/templates/main/location/locations.html:10
 #: app/templates/main/news/news_edit.html:13
@@ -665,64 +672,82 @@ msgstr "Deepsky objekty"
 msgid "Settings"
 msgstr "Nastavení"
 
-#: app/templates/macros/fchart_macros.html:150
+#: app/templates/macros/fchart_macros.html:161
 msgid "Object List"
 msgstr "Seznamy objektů"
 
-#: app/templates/macros/fchart_macros.html:153
+#: app/templates/macros/fchart_macros.html:164
 msgid "None"
 msgstr "Zrušit výběr"
 
-#: app/templates/macros/fchart_macros.html:157
+#: app/templates/macros/fchart_macros.html:168
 #: app/templates/main/planner/session_plan_schedule.html:20
 #: app/templates/main/planner/wish_list.html:116
 msgid "Wish List"
 msgstr "Wishlist"
 
-#: app/templates/macros/fchart_macros.html:162
+#: app/templates/macros/fchart_macros.html:173
 #: app/templates/main/observation/observation_info.html:91
 msgid "Session plans"
 msgstr "Plány pozorování"
 
-#: app/templates/macros/fchart_macros.html:175
+#: app/templates/macros/fchart_macros.html:186
+#: app/templates/main/catalogue/deepskyobject_info.html:16
 #: app/templates/main/observation/observation_menu.html:18
 #: app/templates/main/observation/observations.html:12
 msgid "Observations"
 msgstr "Pozorování"
 
-#: app/templates/macros/fchart_macros.html:188
+#: app/templates/macros/fchart_macros.html:199
 #: app/templates/main/planner/session_plan_schedule.html:24
 msgid "DSO List"
 msgstr "DSO List"
 
-#: app/templates/macros/fchart_macros.html:210
+#: app/templates/macros/fchart_macros.html:221
 msgid "PDF export"
 msgstr "Export do PDF"
 
-#: app/templates/macros/fchart_macros.html:221
-#: app/templates/macros/nav_macros.html:126
+#: app/templates/macros/fchart_macros.html:232
+#: app/templates/macros/nav_macros.html:127
 msgid "Search..."
 msgstr "Hledat"
 
-#: app/templates/macros/fchart_macros.html:227
+#: app/templates/macros/fchart_macros.html:238
 msgid "Split view"
 msgstr ""
 
-#: app/templates/macros/nav_macros.html:72
-#: app/templates/macros/nav_macros.html:75
-#: app/templates/macros/nav_macros.html:86
+#: app/templates/macros/nav_macros.html:57
+#, fuzzy
+msgid "Your Account"
+msgstr "Správa účtu"
+
+#: app/templates/macros/nav_macros.html:58
+msgid "Log out"
+msgstr "Odhlášení"
+
+#: app/templates/macros/nav_macros.html:63
+msgid "Register"
+msgstr "Registrace"
+
+#: app/templates/macros/nav_macros.html:64
+msgid "Log In"
+msgstr "Přihlášení"
+
+#: app/templates/macros/nav_macros.html:73
+#: app/templates/macros/nav_macros.html:76
+#: app/templates/macros/nav_macros.html:87
 msgid "Light Mode"
 msgstr "Světlý mód"
 
-#: app/templates/macros/nav_macros.html:72
-#: app/templates/macros/nav_macros.html:76
-#: app/templates/macros/nav_macros.html:87
+#: app/templates/macros/nav_macros.html:73
+#: app/templates/macros/nav_macros.html:77
+#: app/templates/macros/nav_macros.html:88
 msgid "Night Mode"
 msgstr "Noční mód"
 
-#: app/templates/macros/nav_macros.html:72
-#: app/templates/macros/nav_macros.html:74
-#: app/templates/macros/nav_macros.html:85
+#: app/templates/macros/nav_macros.html:73
+#: app/templates/macros/nav_macros.html:75
+#: app/templates/macros/nav_macros.html:86
 msgid "Dark Mode"
 msgstr "Tmavý mód"
 
@@ -763,7 +788,7 @@ msgid "View solar system"
 msgstr "Zobrazit sluneční soustavu"
 
 #: app/templates/main/catalogue/constellation_info.html:8
-#: app/templates/main/catalogue/deepskyobject_info.html:19
+#: app/templates/main/catalogue/deepskyobject_info.html:21
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:9
 #: app/templates/main/catalogue/star_info.html:19
@@ -830,8 +855,8 @@ msgid "Update and back"
 msgstr "Uložit a zpět"
 
 #: app/templates/main/catalogue/constellation_info.html:7
-#: app/templates/main/catalogue/deepskyobject_info.html:18
-#: app/templates/main/catalogue/deepskyobject_info.html:25
+#: app/templates/main/catalogue/deepskyobject_info.html:20
+#: app/templates/main/catalogue/deepskyobject_info.html:26
 #: app/templates/main/catalogue/dso_list_info.html:7
 #: app/templates/main/catalogue/star_info.html:8
 #: app/templates/main/catalogue/star_list_info.html:7
@@ -855,13 +880,13 @@ msgid "DSO"
 msgstr "DSO"
 
 #: app/templates/main/catalogue/constellation_info.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:269
+#: app/templates/main/catalogue/deepskyobject_info.html:287
 #: app/templates/main/catalogue/dso_list_info.html:54
 msgid "Common name"
 msgstr "Obecné jméno"
 
 #: app/templates/main/catalogue/constellation_info.html:37
-#: app/templates/main/catalogue/deepskyobject_info.html:272
+#: app/templates/main/catalogue/deepskyobject_info.html:290
 msgid "descr"
 msgstr "popis"
 
@@ -898,31 +923,30 @@ msgstr "Dashboard"
 msgid "Log"
 msgstr "Log"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:20
-#: app/templates/main/catalogue/deepskyobject_info.html:26
-msgid "Surveys"
-msgstr "Přehlídka"
-
-#: app/templates/main/catalogue/deepskyobject_info.html:21
-#: app/templates/main/catalogue/deepskyobject_info.html:27
+#: app/templates/main/catalogue/deepskyobject_info.html:15
 #: app/templates/main/catalogue/deepskyobjects.html:19
 msgid "Catalog"
 msgstr "Katalog"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:270
+#: app/templates/main/catalogue/deepskyobject_info.html:22
+#: app/templates/main/catalogue/deepskyobject_info.html:27
+msgid "Aladin"
+msgstr "Aladin"
+
+#: app/templates/main/catalogue/deepskyobject_info.html:288
 msgid "Other names"
 msgstr "Další názvy"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:330
-#: app/templates/main/catalogue/deepskyobject_info.html:337
+#: app/templates/main/catalogue/deepskyobject_info.html:348
+#: app/templates/main/catalogue/deepskyobject_info.html:355
 msgid "Delete Log"
 msgstr "Odstranit záznam"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:339
+#: app/templates/main/catalogue/deepskyobject_info.html:357
 msgid "Are you sure you want to delete this observation log?"
 msgstr "Skutečně chcete odstranit tento záznam z pozorování?"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:344
+#: app/templates/main/catalogue/deepskyobject_info.html:362
 #: app/templates/main/location/location_edit.html:111
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observation_edit.html:181
@@ -935,7 +959,7 @@ msgstr "Skutečně chcete odstranit tento záznam z pozorování?"
 msgid "Yes"
 msgstr "Ano"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:402
+#: app/templates/main/catalogue/deepskyobject_info.html:420
 msgid "Observation recording"
 msgstr "Záznam pozorování"
 
@@ -1436,7 +1460,9 @@ msgstr "Tato akce je nevratná!"
 msgid ""
 "Deleting a user account is not a reversible change. Any information "
 "associated with this account will be removed, and cannot be recovered."
-msgstr "Odstranění uživatelského účtu je nevratná akce. Veškeré informace spojené s tímto účtem budou odstraněny a nelze je obnovit."
+msgstr ""
+"Odstranění uživatelského účtu je nevratná akce. Veškeré informace spojené"
+" s tímto účtem budou odstraněny a nelze je obnovit."
 
 #: app/templates/main/usersettings/usersettings_edit.html:163
 msgid "Create SSH key"
@@ -1469,6 +1495,9 @@ msgstr "Odstranit SSH klíč pro repozitář s obsahem"
 #: app/templates/main/usersettings/usersettings_edit.html:227
 msgid "Are you sure you want to delete sshkey for content repository?"
 msgstr "Skutečně chcete odstranit tento SSH klíč?"
+
+msgid "Surveys"
+msgstr "Přehlídka"
 
 msgid "Deepsky Objects Search"
 msgstr "Vyhledávání deepsky objektů"

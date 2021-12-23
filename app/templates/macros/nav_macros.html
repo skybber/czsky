@@ -54,14 +54,14 @@
 {% macro account_items(current_user) %}
     {% if current_user.is_authenticated %}
       {% set endpoints = [
-        ('main_usersettings.public_profile', 'Your Account', 'settings'),
-        ('account.logout', 'Log out', 'sign out')
+        ('main_usersettings.public_profile', _('Your Account'), 'settings'),
+        ('account.logout', _('Log out'), 'sign out')
       ] %}
       {{ render_menu_items(endpoints) }}
     {% else %}
       {% set endpoints = [
-        ('account.register', 'Register', 'list layout'),
-        ('account.login', 'Log In', 'sign in')
+        ('account.register', _('Register'), 'list layout'),
+        ('account.login', _('Log In'), 'sign in')
       ] %}
       {{ render_menu_items(endpoints) }}
     {% endif %}
