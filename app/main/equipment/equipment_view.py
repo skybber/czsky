@@ -77,6 +77,8 @@ def new_telescope():
     if request.method == 'POST' and form.validate_on_submit():
         telescope = Telescope(
             name=form.name.data,
+            vendor=form.vendor.data,
+            model=form.model.data,
             descr=form.descr.data,
             aperture_mm=form.aperture_mm.data,
             focal_length_mm=form.focal_length_mm.data,
@@ -109,6 +111,8 @@ def telescope_edit(telescope_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             telescope.name = form.name.data
+            telescope.vendor = form.vendor.data
+            telescope.model = form.model.data
             telescope.descr = form.descr.data
             telescope.aperture_mm = form.aperture_mm.data
             telescope.focal_length_mm = form.focal_length_mm.data
@@ -123,6 +127,8 @@ def telescope_edit(telescope_id):
             flash('Telescope successfully updated', 'form-success')
     else:
         form.name.data = telescope.name
+        form.vendor.data = telescope.vendor
+        form.model.data = telescope.model
         form.descr.data = telescope.descr
         form.aperture_mm.data = telescope.aperture_mm
         form.focal_length_mm.data = telescope.focal_length_mm
@@ -177,6 +183,8 @@ def new_eyepiece():
     if request.method == 'POST' and form.validate_on_submit():
         eyepiece = Eyepiece(
             name=form.name.data,
+            vendor=form.vendor.data,
+            model=form.model.data,
             descr=form.descr.data,
             focal_length_mm=form.focal_length_mm.data,
             fov_deg=form.fov_deg.data,
@@ -208,6 +216,8 @@ def eyepiece_edit(eyepiece_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             eyepiece.name = form.name.data
+            eyepiece.vendor = form.vendor.data
+            eyepiece.model = form.model.data
             eyepiece.descr = form.descr.data
             eyepiece.focal_length_mm = form.focal_length_mm.data
             eyepiece.fov_deg = form.fov_deg.data
@@ -221,6 +231,8 @@ def eyepiece_edit(eyepiece_id):
             flash('Eyepiece successfully updated', 'form-success')
     else:
         form.name.data = eyepiece.name
+        form.vendor.data = eyepiece.vendor
+        form.model.data = eyepiece.model
         form.descr.data = eyepiece.descr
         form.focal_length_mm.data = eyepiece.focal_length_mm
         form.fov_deg.data = eyepiece.fov_deg
@@ -274,6 +286,8 @@ def new_filter():
     if request.method == 'POST' and form.validate_on_submit():
         filter = Filter(
             name=form.name.data,
+            vendor=form.vendor.data,
+            model=form.model.data,
             descr=form.descr.data,
             filter_type=form.filter_type.data,
             diameter_inch=form.diameter_inch.data,
@@ -304,6 +318,8 @@ def filter_edit(filter_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             filter.name = form.name.data
+            filter.vendor = form.vendor.data
+            filter.model = form.model.data
             filter.descr = form.descr.data
             filter.filter_type = form.filter_type.data
             filter.diameter_inch = form.diameter_inch.data
@@ -316,6 +332,8 @@ def filter_edit(filter_id):
             flash('Filter successfully updated', 'form-success')
     else:
         form.name.data = filter.name
+        form.vendor.data = filter.vendor
+        form.model.data = filter.model
         form.descr.data = filter.descr
         form.filter_type.data = filter.filter_type
         form.diameter_inch.data = filter.diameter_inch

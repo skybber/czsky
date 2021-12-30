@@ -38,6 +38,14 @@
             {{ f.begin_form(form, flashes) }}
 
                 {{ f.render_form_field(form.name) }}
+                <div class="two fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.vendor) }}
+                    </div>
+                    <div class="field">
+                        {{ f.render_form_field(form.model) }}
+                    </div>
+                </div>
                 <div class="three fields">
                     <div class="field">
                         {{ f.render_form_field(form.focal_length_mm) }}

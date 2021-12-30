@@ -10,6 +10,7 @@ from app.commons.form_utils import FormEnum
 class TelescopeType(FormEnum):
     REFRACTOR = 'REFRACTOR'
     REFLECTOR = 'REFLECTOR'
+    BINOCULAR = 'BINOCULAR'
     OTHER = 'OTHER'
 
     def loc_text(self):
@@ -17,6 +18,8 @@ class TelescopeType(FormEnum):
             return lazy_pgettext('telescope_type', 'Refractor')
         if self == TelescopeType.REFLECTOR:
             return lazy_pgettext('telescope_type', 'Reflector')
+        if self == TelescopeType.BINOCULAR:
+            return lazy_pgettext('telescope_type', 'Binocular')
         if self == TelescopeType.OTHER:
             return lazy_pgettext('telescope_type', 'Other')
         return ''
@@ -27,6 +30,8 @@ class Telescope(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     name = db.Column(db.String(128), nullable=False, index=True)
+    model = db.Column(db.String(128), nullable=True, index=True)
+    vendor = db.Column(db.String(128), nullable=True, index=True)
     descr = db.Column(db.Text)
     telescope_type = db.Column(sqlalchemy.Enum(TelescopeType))
     aperture_mm = db.Column(db.Integer)
@@ -45,6 +50,8 @@ class Eyepiece(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     name = db.Column(db.String(128), nullable=False, index=True)
+    model = db.Column(db.String(128), nullable=True, index=True)
+    vendor = db.Column(db.String(128), nullable=True, index=True)
     descr = db.Column(db.Text)
     focal_length_mm = db.Column(db.Float, nullable=False)
     fov_deg = db.Column(db.Integer, nullable=False)
@@ -62,6 +69,13 @@ class FilterType(FormEnum):
     OIII = 'OIII'
     CLS = 'CLS'
     HBETA = 'HBETA'
+    HALPHA = 'HALPHA'
+    COLOR = 'COLOR'
+    NEUTRAL = 'NEUTRAL'
+    CORRECTIVE = 'CORRECTIVE'
+    SOLAR = 'SOLAR'
+    BROAD_BAND = 'BROAD_BAND'
+    NARROW_BAND = 'NARROW_BAND'
     OTHER = 'OTHER'
 
     def loc_text(self):
@@ -73,6 +87,20 @@ class FilterType(FormEnum):
             return lazy_pgettext('filter_type', 'CLS')
         if self == FilterType.HBETA:
             return lazy_pgettext('filter_type', 'H-Beta')
+        if self == FilterType.HALPHA:
+            return lazy_pgettext('filter_type', 'H-Alpha')
+        if self == FilterType.COLOR:
+            return lazy_pgettext('filter_type', 'Color')
+        if self == FilterType.NEUTRAL:
+            return lazy_pgettext('filter_type', 'Neutral')
+        if self == FilterType.CORRECTIVE:
+            return lazy_pgettext('filter_type', 'Corrective')
+        if self == FilterType.SOLAR:
+            return lazy_pgettext('filter_type', 'Solar')
+        if self == FilterType.BROAD_BAND:
+            return lazy_pgettext('filter_type', 'Broad Band')
+        if self == FilterType.NARROW_BAND:
+            return lazy_pgettext('filter_type', 'Narrow Band')
         if self == FilterType.OTHER:
             return lazy_pgettext('filter_type', 'Other')
         return ''
@@ -83,6 +111,8 @@ class Filter(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     name = db.Column(db.String(128), nullable=False, index=True)
+    model = db.Column(db.String(128), nullable=True, index=True)
+    vendor = db.Column(db.String(128), nullable=True, index=True)
     descr = db.Column(db.Text)
     filter_type = db.Column(sqlalchemy.Enum(FilterType))
     diameter_inch = db.Column(db.Float, nullable=False)
