@@ -52,7 +52,7 @@ def equipment_menu():
 @main_equipment.route('/telescopes', methods=['GET', 'POST'])
 @login_required
 def telescopes():
-    telescopes = Telescope.query.filter_by(is_deleted=False).all()
+    telescopes = Telescope.query.filter_by(user_id=current_user.id, is_deleted=False).all()
     return render_template('main/equipment/telescopes.html', telescopes=telescopes)
 
 
@@ -152,7 +152,7 @@ def telescope_delete(telescope_id):
 @main_equipment.route('/eyepieces', methods=['GET', 'POST'])
 @login_required
 def eyepieces():
-    eyepieces = Eyepiece.query.filter_by(is_deleted=False).all()
+    eyepieces = Eyepiece.query.filter_by(user_id=current_user.id, is_deleted=False).all()
     return render_template('main/equipment/eyepieces.html', eyepieces=eyepieces)
 
 
@@ -249,7 +249,7 @@ def eyepiece_delete(eyepiece_id):
 @main_equipment.route('/filters', methods=['GET', 'POST'])
 @login_required
 def filters():
-    filters = Filter.query.filter_by(is_deleted=False).all()
+    filters = Filter.query.filter_by(user_id=current_user.id, is_deleted=False).all()
     return render_template('main/equipment/filters.html', filters=filters)
 
 
