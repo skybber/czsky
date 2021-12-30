@@ -17,5 +17,6 @@ from .sqm import *
 from .skylist import *
 from .star import *
 from .starlist import *
+from .equipment import *
 from .user import *
 from .wishlist import *

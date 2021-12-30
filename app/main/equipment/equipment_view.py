@@ -1,0 +1,339 @@
+from datetime import datetime
+
+from flask import (
+    abort,
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+from flask_login import current_user, login_required
+from sqlalchemy import or_, and_
+
+from app import db
+
+from app.models import Telescope, Eyepiece, Filter
+
+from .equipment_forms import (
+    TelescopeNewForm,
+    TelescopeEditForm,
+    EyepieceNewForm,
+    EyepieceEditForm,
+    FilterNewForm,
+    FilterEditForm,
+)
+
+from app.commons.countries import countries
+
+main_equipment = Blueprint('main_equipment', __name__)
+
+
+def _is_telescope_editable(telescope):
+    return telescope.user_id == current_user.id
+
+
+def _is_eyepiece_editable(eyepiece):
+    return eyepiece.user_id == current_user.id
+
+
+def _is_filter_editable(filter):
+    return filter.user_id == current_user.id
+
+
+@main_equipment.route('/equipment-menu', methods=['GET'])
+@login_required
+def equipment_menu():
+    return render_template('main/equipment/equipment_menu.html')
+
+
+@main_equipment.route('/telescopes', methods=['GET', 'POST'])
+@login_required
+def telescopes():
+    telescopes = Telescope.query.filter_by(is_deleted=False).all()
+    return render_template('main/equipment/telescopes.html', telescopes=telescopes)
+
+
+@main_equipment.route('/telescope/<int:telescope_id>', methods=['GET'])
+@main_equipment.route('/telescope/<int:telescope_id>/info', methods=['GET'])
+@login_required
+def telescope_info(telescope_id):
+    """View a telescope info."""
+    telescope = Telescope.query.filter_by(id=telescope_id, is_deleted=False).first()
+    if telescope is None:
+        abort(404)
+    if telescope.user_id != current_user.id:
+        abort(404)
+    return render_template('main/equipment/telescope_info.html', telescope=telescope, editable=_is_telescope_editable(telescope))
+
+
+@main_equipment.route('/new-telescope', methods=['GET', 'POST'])
+@login_required
+def new_telescope():
+    """New telescope"""
+    form = TelescopeNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        telescope = Telescope(
+            name=form.name.data,
+            descr=form.descr.data,
+            aperture_mm=form.aperture_mm.data,
+            focal_length_mm=form.focal_length_mm.data,
+            telescope_type=form.telescope_type.data,
+            is_default=form.is_default.data,
+            is_active=True,
+            is_deleted=False,
+            user_id=current_user.id,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
+        )
+        db.session.add(telescope)
+        db.session.commit()
+        flash('Telescope successfully created', 'form-success')
+    return render_template('main/equipment/telescope_edit.html', form=form, is_new=True)
+
+
+@main_equipment.route('/telescope/<int:telescope_id>/edit', methods=['GET', 'POST'])
+@login_required
+def telescope_edit(telescope_id):
+    """Update telescope"""
+    telescope = Telescope.query.filter_by(id=telescope_id, is_deleted=False).first()
+    if telescope is None:
+        abort(404)
+    if not _is_telescope_editable(telescope):
+        abort(404)
+    form = TelescopeEditForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            telescope.name = form.name.data
+            telescope.descr = form.descr.data
+            telescope.aperture_mm = form.aperture_mm.data
+            telescope.focal_length_mm = form.focal_length_mm.data
+            telescope.telescope_type = form.telescope_type.data
+            telescope.is_default = form.is_default.data
+            telescope.is_active = form.is_active.data
+            telescope.is_deleted = False
+            telescope.update_by = current_user.id
+            telescope.update_date = datetime.now()
+            db.session.add(telescope)
+            db.session.commit()
+            flash('Telescope successfully updated', 'form-success')
+    else:
+        form.name.data = telescope.name
+        form.descr.data = telescope.descr
+        form.aperture_mm.data = telescope.aperture_mm
+        form.focal_length_mm.data = telescope.focal_length_mm
+        form.telescope_type.data = telescope.telescope_type
+        form.is_default.data = telescope.is_default
+        form.is_active.data = telescope.is_active
+
+    return render_template('main/equipment/telescope_edit.html', form=form, telescope=telescope, is_new=False)
+
+
+@main_equipment.route('/telescope/<int:telescope_id>/delete')
+@login_required
+def telescope_delete(telescope_id):
+    """Request deletion of telescope."""
+    telescope = Telescope.query.filter_by(id=telescope_id, is_deleted=False).first()
+    if telescope is None:
+        abort(404)
+    if not _is_telescope_editable(telescope):
+        abort(404)
+    telescope.is_deleted = True
+    db.session.add(telescope)
+    db.session.commit()
+    flash('Telescope was deleted', 'form-success')
+    return redirect(url_for('main_equipment.telescopes'))
+
+
+@main_equipment.route('/eyepieces', methods=['GET', 'POST'])
+@login_required
+def eyepieces():
+    eyepieces = Eyepiece.query.filter_by(is_deleted=False).all()
+    return render_template('main/equipment/eyepieces.html', eyepieces=eyepieces)
+
+
+@main_equipment.route('/eyepiece/<int:eyepiece_id>', methods=['GET'])
+@main_equipment.route('/eyepiece/<int:eyepiece_id>/info', methods=['GET'])
+@login_required
+def eyepiece_info(eyepiece_id):
+    """View a eyepiece info."""
+    eyepiece = Eyepiece.query.filter_by(id=eyepiece_id, is_deleted=False).first()
+    if eyepiece is None:
+        abort(404)
+    if eyepiece.user_id != current_user.id:
+        abort(404)
+    return render_template('main/equipment/eyepiece_info.html', eyepiece=eyepiece, editable=_is_eyepiece_editable(eyepiece))
+
+
+@main_equipment.route('/new-eyepiece', methods=['GET', 'POST'])
+@login_required
+def new_eyepiece():
+    """New eyepiece"""
+    form = EyepieceNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        eyepiece = Eyepiece(
+            name=form.name.data,
+            descr=form.descr.data,
+            focal_length_mm=form.focal_length_mm.data,
+            fov_deg=form.fov_deg.data,
+            diameter_inch=form.diameter_inch.data,
+            is_active=True,
+            is_deleted=False,
+            user_id=current_user.id,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
+        )
+        db.session.add(eyepiece)
+        db.session.commit()
+        flash('Eyepiece successfully created', 'form-success')
+    return render_template('main/equipment/eyepiece_edit.html', form=form, is_new=True)
+
+
+@main_equipment.route('/eyepiece/<int:eyepiece_id>/edit', methods=['GET', 'POST'])
+@login_required
+def eyepiece_edit(eyepiece_id):
+    """Update eyepiece"""
+    eyepiece = Eyepiece.query.filter_by(id=eyepiece_id, is_deleted=False).first()
+    if eyepiece is None:
+        abort(404)
+    if not _is_eyepiece_editable(eyepiece):
+        abort(404)
+    form = EyepieceEditForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            eyepiece.name = form.name.data
+            eyepiece.descr = form.descr.data
+            eyepiece.focal_length_mm = form.focal_length_mm.data
+            eyepiece.fov_deg = form.fov_deg.data
+            eyepiece.is_active = form.is_active.data
+            eyepiece.is_deleted = False
+            eyepiece.update_by = current_user.id
+            eyepiece.update_date = datetime.now()
+            db.session.add(eyepiece)
+            db.session.commit()
+            flash('Eyepiece successfully updated', 'form-success')
+    else:
+        form.name.data = eyepiece.name
+        form.descr.data = eyepiece.descr
+        form.focal_length_mm.data = eyepiece.focal_length_mm
+        form.fov_deg.data = eyepiece.fov_deg
+        form.is_active.data = eyepiece.is_active
+
+    return render_template('main/equipment/eyepiece_edit.html', form=form, eyepiece=eyepiece, is_new=False)
+
+
+@main_equipment.route('/eyepiece/<int:eyepiece_id>/delete')
+@login_required
+def eyepiece_delete(eyepiece_id):
+    """Request deletion of eyepiece."""
+    eyepiece = Eyepiece.query.filter_by(id=eyepiece_id, is_deleted=False).first()
+    if eyepiece is None:
+        abort(404)
+    if not _is_eyepiece_editable(eyepiece):
+        abort(404)
+    eyepiece.is_deleted = True
+    db.session.add(eyepiece)
+    db.session.commit()
+    flash('Eyepiece was deleted', 'form-success')
+    return redirect(url_for('main_equipment.eyepieces'))
+
+
+@main_equipment.route('/filters', methods=['GET', 'POST'])
+@login_required
+def filters():
+    filters = Filter.query.filter_by(is_deleted=False).all()
+    return render_template('main/equipment/filters.html', filters=filters)
+
+
+@main_equipment.route('/filter/<int:filter_id>', methods=['GET'])
+@main_equipment.route('/filter/<int:filter_id>/info', methods=['GET'])
+@login_required
+def filter_info(filter_id):
+    """View a filter info."""
+    filter = Filter.query.filter_by(id=filter_id, is_deleted=False).first()
+    if filter is None:
+        abort(404)
+    if filter.user_id != current_user.id:
+        abort(404)
+    return render_template('main/equipment/filter_info.html', filter=filter, editable=_is_filter_editable(filter))
+
+
+@main_equipment.route('/new-filter', methods=['GET', 'POST'])
+@login_required
+def new_filter():
+    """New filter"""
+    form = FilterNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        filter = Filter(
+            name=form.name.data,
+            descr=form.descr.data,
+            filter_type=form.filter_type.data,
+            diameter_inch=form.diameter_inch.data,
+            is_active=True,
+            is_deleted=False,
+            user_id=current_user.id,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
+        )
+        db.session.add(filter)
+        db.session.commit()
+        flash('Filter successfully created', 'form-success')
+    return render_template('main/equipment/filter_edit.html', form=form, is_new=True)
+
+
+@main_equipment.route('/filter/<int:filter_id>/edit', methods=['GET', 'POST'])
+@login_required
+def filter_edit(filter_id):
+    """Update filter"""
+    filter = Filter.query.filter_by(id=filter_id, is_deleted=False).first()
+    if filter is None:
+        abort(404)
+    if not _is_filter_editable(filter):
+        abort(404)
+    form = FilterEditForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            filter.name = form.name.data
+            filter.descr = form.descr.data
+            filter.filter_type = form.filter_type.data
+            filter.diameter_inch = form.diameter_inch.data
+            filter.is_active = form.is_active.data
+            filter.is_deleted = False
+            filter.update_by = current_user.id
+            filter.update_date = datetime.now()
+            db.session.add(filter)
+            db.session.commit()
+            flash('Filter successfully updated', 'form-success')
+    else:
+        form.name.data = filter.name
+        form.descr.data = filter.descr
+        form.filter_type.data = filter.filter_type
+        form.diameter_inch.data = filter.diameter_inch
+        form.is_active.data = filter.is_active
+
+    return render_template('main/equipment/filter_edit.html', form=form, filter=filter, is_new=False)
+
+
+@main_equipment.route('/filter/<int:filter_id>/delete')
+@login_required
+def filter_delete(filter_id):
+    """Request deletion of filter."""
+    filter = Filter.query.filter_by(id=filter_id, is_deleted=False).first()
+    if filter is None:
+        abort(404)
+    if not _is_filter_editable(filter):
+        abort(404)
+    filter.is_deleted = True
+    db.session.add(filter)
+    db.session.commit()
+    flash('Filter was deleted', 'form-success')
+    return redirect(url_for('main_equipment.filters'))
+

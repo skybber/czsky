@@ -1,0 +1,49 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_equipment.eyepieces', back=1) }}">
+                <i class="caret left icon"></i>
+                {{ _('Eyepieces') }}
+            </a>
+            <h2 class="ui header">
+                {{ eyepiece.name }}
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </h2>
+
+            <table class="ui compact definition table">
+                <tr><td>{{ _('Name') }}</td><td>{{ eyepiece.name }}</td></tr>
+                <tr><td>{{ _('Description') }}</td><td>{{ eyepiece.descr }}</td></tr>
+                <tr><td>{{ _('Focal length (mm)') }}</td><td>{{ eyepiece.focal_length_mm }} mm</td></tr>
+                <tr><td>{{ _('FOV (deg)') }}</td><td>{{ eyepiece.fov_deg }} mm</td></tr>
+                <tr><td>{{ _('Diameter (inch)') }}</td><td>{{ eyepiece.diameter_inch }}"</td></tr>
+                <tr><td>{{ _('Is default') }}</td>
+                    <td>
+                        <div class="ui checkbox">
+                          <input type="checkbox" checked="{{ 'checked' if eyepiece.is_default else ''}}">
+                        </div>
+                    </td>
+                </tr>
+                <tr><td>{{ _('Is active') }}</td>
+                    <td>
+                        <div class="ui checkbox">
+                          <input type="checkbox" checked="{{ 'checked' if eyepiece.is_active else ''}}">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

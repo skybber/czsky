@@ -13,13 +13,11 @@
                     {{ _('User Data') }}
             </h2>
             <div class="ui two column stackable grid">
-                {{ dash.dashboard_option(_('Add location'), 'main_location.new_location',
-                                    description=_('Add new location'), icon='users icon') }}
+                {{ dash.dashboard_option(_('Equipment'), 'main_equipment.equipment_menu',
+                                    description=_('Your equipment'), icon='toolbox icon') }}
                 {{ dash.dashboard_option(_('Locations'), 'main_location.locations',
-                                    description=_('View all locations'), icon='users icon') }}
+                                    description=_('View all locations'), icon='map marker alternate icon') }}
                 {% if can_edit_news %}
-                    {{ dash.dashboard_option(_('Add news'), 'main_news.new_news',
-                                        description=_('Add new news'), icon='rss icon') }}
                     {{ dash.dashboard_option(_('News list'), 'main_news.news_list',
                                         description=_('Show all news'), icon='rss icon') }}
                 {% endif %}

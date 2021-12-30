@@ -21,7 +21,7 @@
 
 {% macro location_info(location) %}
     <table class="ui compact definition table">
-        <tr><td>Name</td><td>{{ location.name }}</td></tr>
+        <tr><td>{{ _('Name') }}</td><td>{{ location.name }}</td></tr>
         <tr>
             <td>{{ _('Coordinates') }}</td>
             <td>
@@ -31,10 +31,10 @@
                 {% if url_os_map %} <a href="{{ location.url_open_street_maps() }}" target="_blank">open street map</a> {% endif %}
              </td>
         </tr>
-        <tr><td>Description</td><td>{{ location.descr }}</td></tr>
-        <tr><td>Bortle</td><td>{{ location.bortle }}</td></tr>
-        <tr><td>Rating</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
-        <tr><td>Observation place</td><td>{{ location.is_for_observation }}</td></tr>
+        <tr><td>{{ _('Description') }}</td><td>{{ location.descr }}</td></tr>
+        <tr><td>{{ _('Bortle') }}</td><td>{{ location.bortle }}</td></tr>
+        <tr><td>{{ _('Rating') }}</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
+        <tr><td>{{ _('Observation place') }}</td><td>{{ location.is_for_observation }}</td></tr>
     </table>
 {% endmacro %}
 

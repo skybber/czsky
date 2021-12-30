@@ -8,22 +8,22 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
             {% if is_new %}
-                <a class="ui basic compact button" href="{{ url_for('main_news.news_list') }}">
+                <a class="ui basic compact button" href="{{ url_for('main_equipment.filters') }}">
                     <i class="caret left icon"></i>
-                    {{ _('News') }}
+                    {{ _('Filters') }}
                 </a>
             {% else %}
-              <a class="ui basic compact button" href="{{ url_for('main_news.news_info', news_id=news.id) }}">
+              <a class="ui basic compact button" href="{{ url_for('main_equipment.filter_info', filter_id=filter.id) }}">
                   <i class="caret left icon"></i>
-                {{ _('News Info') }}
+                {{ _('Filter Info') }}
               </a>
             {% endif %}
 
             <h2 class="ui header">
                 {% if is_new %}
-                    {{ _('Add New News') }}
+                    {{ _('Add New Filter') }}
                 {% else %}
-                    {{ _('Edit News') }}
+                    {{ _('Edit Filter') }}
                 {% endif %}
             </h2>
 
@@ -37,27 +37,30 @@
 
             {{ f.begin_form(form, flashes) }}
 
-                {{ f.render_form_field(form.title) }}
-                {{ f.render_form_field(form.title_row) }}
-                {{ f.render_form_field(form.is_released) }}
-
+                {{ f.render_form_field(form.name) }}
                 <div class="two fields">
                     <div class="field">
-                        {{ f.render_form_field(form.radec) }}
+                        {{ f.render_form_field(form.filter_type) }}
                     </div>
                     <div class="field">
-                        {{ f.render_form_field(form.rating) }}
+                        {{ f.render_form_field(form.diameter_inch) }}
+                    </div>
+                </div>
+                <div class="three fields">
+                    <div class="ui checkbox field">
+                        <input type="checkbox" id="is_active" name="{{ form.is_active.name }}" {{ 'checked=checked' if form.is_active.data else '' | safe  }} class="hidden">
+                        {{ form.is_active.label }}
                     </div>
                 </div>
 
-                {{ f.render_form_field(form.text) }}
+                {{ f.render_form_field(form.descr) }}
 
                 <div class="two fields">
                     {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                         {{ field(class='positive ui button') }}
                     {% endfor %}
                     {% if not is_new %}
-                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete News') }}</a>
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Filter') }}</a>
                     {% endif %}
                 </div>
 
@@ -67,13 +70,13 @@
 
     {% if not is_new %}
         <div class="ui tiny modal deleteModal">
-          <div class="header">{{ _('Delete News') }}</div>
+          <div class="header">{{ _('Delete Filter') }}</div>
           <div class="content">
-            <p>{{ _('Are you sure you want to delete news?') }}</p>
+            <p>{{ _('Are you sure you want to delete filter?') }}</p>
           </div>
           <div class="actions">
             <div class="ui negative cancel button">{{ _('No') }}</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_news.news_delete', news_id=news.id) }}">
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_equipment.filter_delete', filter_id=filter.id) }}">
                 {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>
@@ -82,14 +85,8 @@
     {% endif %}
 
     <script type="text/javascript">
-        $('.ui.rating').rating({
-            maxRating: 5,
-            onRate: function (rating) {
-                $('#rating').val(rating);
-            }
-        });
         var descrMDE = new EasyMDE({element: document.getElementById('descr'),
-            minHeight: "200px",
+            minHeight: "80px",
             spellChecker: false,
             status : false,
 	    });

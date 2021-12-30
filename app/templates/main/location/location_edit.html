@@ -8,9 +8,9 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
             {% if is_new %}
-                <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
+                <a class="ui basic compact button" href="{{ url_for('main_location.locations') }}">
                     <i class="caret left icon"></i>
-                    {{ _('Settings') }}
+                    {{ _('Locations') }}
                 </a>
             {% else %}
               <a class="ui basic compact button" href="{{ url_for('main_location.location_info', location_id=location.id) }}">

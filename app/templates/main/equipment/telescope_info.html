@@ -1,0 +1,49 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_equipment.telescopes', back=1) }}">
+                <i class="caret left icon"></i>
+                {{ _('Telescopes') }}
+            </a>
+            <h2 class="ui header">
+                {{ telescope.name }}
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.telescope_edit', telescope_id=telescope.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </h2>
+
+            <table class="ui compact definition table">
+                <tr><td>{{ _('Name') }}</td><td>{{ telescope.name }}</td></tr>
+                <tr><td>{{ _('Description') }}</td><td>{{ telescope.descr }}</td></tr>
+                <tr><td>{{ _('Aperture (mm)') }}</td><td>{{ telescope.aperture_mm }} mm</td></tr>
+                <tr><td>{{ _('Focal length (mm)') }}</td><td>{{ telescope.focal_length_mm }} mm</td></tr>
+                <tr><td>{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() }}</td></tr>
+                <tr><td>{{ _('Is default') }}</td>
+                    <td>
+                        <div class="ui checkbox">
+                          <input type="checkbox" checked="{{ 'checked' if telescope.is_default else ''}}">
+                        </div>
+                    </td>
+                </tr>
+                <tr><td>{{ _('Is active') }}</td>
+                    <td>
+                        <div class="ui checkbox">
+                          <input type="checkbox" checked="{{ 'checked' if telescope.is_active else ''}}">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}
