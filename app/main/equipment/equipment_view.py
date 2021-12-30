@@ -82,6 +82,7 @@ def new_telescope():
             descr=form.descr.data,
             aperture_mm=form.aperture_mm.data,
             focal_length_mm=form.focal_length_mm.data,
+            fixed_magnification=form.fixed_magnification.data,
             telescope_type=form.telescope_type.data,
             is_default=form.is_default.data,
             is_active=True,
@@ -95,6 +96,7 @@ def new_telescope():
         db.session.add(telescope)
         db.session.commit()
         flash('Telescope successfully created', 'form-success')
+        return redirect(url_for('main_equipment.telescope_edit', telescope_id=telescope.id))
     return render_template('main/equipment/telescope_edit.html', form=form, is_new=True)
 
 
@@ -116,6 +118,7 @@ def telescope_edit(telescope_id):
             telescope.descr = form.descr.data
             telescope.aperture_mm = form.aperture_mm.data
             telescope.focal_length_mm = form.focal_length_mm.data
+            telescope.fixed_magnification = form.fixed_magnification.data
             telescope.telescope_type = form.telescope_type.data
             telescope.is_default = form.is_default.data
             telescope.is_active = form.is_active.data
@@ -132,6 +135,7 @@ def telescope_edit(telescope_id):
         form.descr.data = telescope.descr
         form.aperture_mm.data = telescope.aperture_mm
         form.focal_length_mm.data = telescope.focal_length_mm
+        form.fixed_magnification.data = telescope.fixed_magnification
         form.telescope_type.data = telescope.telescope_type
         form.is_default.data = telescope.is_default
         form.is_active.data = telescope.is_active
@@ -200,6 +204,7 @@ def new_eyepiece():
         db.session.add(eyepiece)
         db.session.commit()
         flash('Eyepiece successfully created', 'form-success')
+        return redirect(url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id))
     return render_template('main/equipment/eyepiece_edit.html', form=form, is_new=True)
 
 
@@ -302,6 +307,7 @@ def new_filter():
         db.session.add(filter)
         db.session.commit()
         flash('Filter successfully created', 'form-success')
+        return redirect(url_for('main_equipment.filter_edit', filter_id=filter.id))
     return render_template('main/equipment/filter_edit.html', form=form, is_new=True)
 
 

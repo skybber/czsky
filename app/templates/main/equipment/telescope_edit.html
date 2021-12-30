@@ -46,7 +46,7 @@
                         {{ f.render_form_field(form.model) }}
                     </div>
                 </div>
-                <div class="three fields">
+                <div class="four fields">
                     <div class="field">
                         {{ f.render_form_field(form.aperture_mm) }}
                     </div>
@@ -54,10 +54,13 @@
                         {{ f.render_form_field(form.focal_length_mm) }}
                     </div>
                     <div class="field">
+                        {{ f.render_form_field(form.fixed_magnification) }}
+                    </div>
+                    <div class="field">
                         {{ f.render_form_field(form.telescope_type) }}
                     </div>
                 </div>
-                <div class="three fields">
+                <div class="four fields">
                     <div class="ui checkbox field">
                         <input type="checkbox" id="is_active" name="{{ form.is_active.name }}" {{ 'checked=checked' if form.is_active.data else '' | safe  }} class="hidden">
                         {{ form.is_active.label }}

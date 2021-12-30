@@ -43,8 +43,8 @@
                             <tr onclick="window.location.href = '{{ url_for('main_equipment.telescope_info', telescope_id=t.id) }}';">
                                 <td>{{ t.name }}</td>
                                 <th>{{ t.telescope_type.loc_text() }}</th>
-                                <td>{{ t.aperture_mm }}</td>
-                                <td>{{ t.focal_length_mm }}</td>
+                                <td>{{ t.aperture_mm|string + ' mm' if t.aperture_mm else '' }}</td>
+                                <td>{{ t.focal_length_mm|string + ' mm' if t.focal_length_mm else '' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

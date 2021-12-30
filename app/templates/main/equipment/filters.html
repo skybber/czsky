@@ -40,7 +40,7 @@
                             <tr onclick="window.location.href = '{{ url_for('main_equipment.filter_info', filter_id=f.id) }}';">
                                 <td>{{ f.name }}</td>
                                 <td>{{ f.filter_type.loc_text() }}</td>
-                                <td>{{ f.diameter_inch }}</td>
+                                <td>{{ f.diameter_inch|string + '"' if f.diameter_inch else '' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

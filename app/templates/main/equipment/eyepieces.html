@@ -40,9 +40,9 @@
                         {% for e in eyepieces | sort(attribute='focal_length_mm') %}
                             <tr onclick="window.location.href = '{{ url_for('main_equipment.eyepiece_info', eyepiece_id=e.id) }}';">
                                 <td>{{ e.name }}</td>
-                                <td>{{ e.focal_length_mm }}</td>
-                                <td>{{ e.fov_deg }}</td>
-                                <td>{{ e.diameter_inch }}</td>
+                                <td>{{ e.focal_length_mm|string + ' mm' if e.focal_length_mm else '' }}</td>
+                                <td>{{ e.fov_deg|string + '°' if e.fov_deg else '' }}</td>
+                                <td>{{ e.diameter_inch|string + '"' if e.diameter_inch else '' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

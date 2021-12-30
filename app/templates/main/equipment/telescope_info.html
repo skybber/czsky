@@ -24,6 +24,7 @@
                 <tr><td class="two wide">{{ _('Description') }}</td><td>{{ telescope.descr }}</td></tr>
                 <tr><td class="two wide">{{ _('Aperture (mm)') }}</td><td>{{ telescope.aperture_mm }} mm</td></tr>
                 <tr><td class="two wide">{{ _('Focal length (mm)') }}</td><td>{{ telescope.focal_length_mm }} mm</td></tr>
+                <tr><td class="two wide">{{ _('Fixed magnification') }}</td><td>{{ telescope.fixed_magnification|string + 'x' if telescope.fixed_magnification else '' }}</td></tr>
                 <tr><td class="two wide">{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() }}</td></tr>
                 <tr>
                     <td class="two wide">{{ _('Is default') }}</td>

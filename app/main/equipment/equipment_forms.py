@@ -23,6 +23,7 @@ from wtforms.validators import (
     InputRequired,
     Length,
     NumberRange,
+    Optional,
     required
 )
 from flask_babel import lazy_gettext
@@ -41,17 +42,36 @@ class TelescopeMixin:
     descr = TextAreaField(lazy_gettext('Notes'))
     telescope_type = SelectField(lazy_gettext('Telescope Type'), choices=TelescopeType.choices(), coerce=TelescopeType.coerce, default=TelescopeType.REFRACTOR)
     aperture_mm = IntegerField(lazy_gettext('Aperture (mm)'), validators=[NumberRange(min=1, max=100000)])
-    focal_length_mm = IntegerField(lazy_gettext('Focal Length (mm)'), validators=[NumberRange(min=1, max=100000)])
+    focal_length_mm = IntegerField(lazy_gettext('Focal Length (mm)'), validators=[NumberRange(min=1, max=100000), Optional()])
+    fixed_magnification = FloatField(lazy_gettext('Fixed magnification'), validators=[NumberRange(min=0.1, max=10000.0), Optional()])
     is_default = BooleanField(lazy_gettext('Is default'), default=False)
     is_active = BooleanField(lazy_gettext('Is active'), default=True)
+
+    def validate_foc_len_fix_mag(self):
+        if self.focal_length_mm.data is None and self.fixed_magnification.data is None:
+            msg = lazy_gettext('At least one of "Focal Length" or "Fixed Magnification" must be set')
+            self.focal_length_mm.errors.append(msg)
+            self.fixed_magnification.errors.append(msg)
+            return False
+        return True
 
 
 class TelescopeNewForm(FlaskForm, TelescopeMixin):
     submit = SubmitField(lazy_gettext('Add Telescope'))
 
+    def validate(self):
+        if not super(TelescopeNewForm, self).validate():
+            return False
+        return self.validate_foc_len_fix_mag()
+
 
 class TelescopeEditForm(FlaskForm, TelescopeMixin):
     submit = SubmitField(lazy_gettext('Update Telescope'))
+
+    def validate(self):
+        if not super(TelescopeEditForm, self).validate():
+            return False
+        return self.validate_foc_len_fix_mag()
 
 
 class EyepieceMixin:
