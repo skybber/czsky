@@ -211,6 +211,7 @@ def eyepiece_edit(eyepiece_id):
             eyepiece.descr = form.descr.data
             eyepiece.focal_length_mm = form.focal_length_mm.data
             eyepiece.fov_deg = form.fov_deg.data
+            eyepiece.diameter_inch = form.diameter_inch.data
             eyepiece.is_active = form.is_active.data
             eyepiece.is_deleted = False
             eyepiece.update_by = current_user.id
@@ -223,6 +224,7 @@ def eyepiece_edit(eyepiece_id):
         form.descr.data = eyepiece.descr
         form.focal_length_mm.data = eyepiece.focal_length_mm
         form.fov_deg.data = eyepiece.fov_deg
+        form.diameter_inch.data = eyepiece.diameter_inch
         form.is_active.data = eyepiece.is_active
 
     return render_template('main/equipment/eyepiece_edit.html', form=form, eyepiece=eyepiece, is_new=False)

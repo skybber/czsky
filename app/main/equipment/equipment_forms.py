@@ -31,6 +31,8 @@ from app.commons.coordinates import lonlat_check
 
 from app.models import TelescopeType, FilterType
 
+BARREL_DIAMETERS_CHOICES = [(d, str(d) + '"') for d in [0.965, 1.25, 2, 2.7, 3, 4]]
+
 
 class TelescopeMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
@@ -55,7 +57,7 @@ class EyepieceMixin:
     descr = TextAreaField(lazy_gettext('Notes'))
     focal_length_mm = FloatField(lazy_gettext('Focal Length (mm)'), validators=[NumberRange(min=0.0, max=1000.0)])
     fov_deg = IntegerField(lazy_gettext('Field of view (deg)'), validators=[NumberRange(min=1, max=180)])
-    diameter_inch = FloatField(lazy_gettext('Diameter (inch)'), validators=[NumberRange(min=0.0, max=1000.0)])
+    diameter_inch = SelectField(lazy_gettext('Diameter (inch)'), choices=BARREL_DIAMETERS_CHOICES, coerce=float)
     is_active = BooleanField(lazy_gettext('Is active'), default=True)
 
 
@@ -71,7 +73,7 @@ class FilterMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
     filter_type = SelectField(lazy_gettext('Filter Type'), choices=FilterType.choices(), coerce=FilterType.coerce, default=FilterType.UHC)
-    diameter_inch = FloatField(lazy_gettext('Diameter (inch)'), validators=[NumberRange(min=0.0, max=1000.0)])
+    diameter_inch = SelectField(lazy_gettext('Diameter (inch)'), choices=BARREL_DIAMETERS_CHOICES, coerce=float)
     is_active = BooleanField(lazy_gettext('Is active'), default=True)
 
 
