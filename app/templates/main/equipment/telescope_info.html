@@ -17,25 +17,19 @@
                 {% endif %}
             </h2>
 
-            <table class="ui compact definition table">
-                <tr><td>{{ _('Name') }}</td><td>{{ telescope.name }}</td></tr>
-                <tr><td>{{ _('Description') }}</td><td>{{ telescope.descr }}</td></tr>
-                <tr><td>{{ _('Aperture (mm)') }}</td><td>{{ telescope.aperture_mm }} mm</td></tr>
-                <tr><td>{{ _('Focal length (mm)') }}</td><td>{{ telescope.focal_length_mm }} mm</td></tr>
-                <tr><td>{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() }}</td></tr>
-                <tr><td>{{ _('Is default') }}</td>
-                    <td>
-                        <div class="ui checkbox">
-                          <input type="checkbox" checked="{{ 'checked' if telescope.is_default else ''}}">
-                        </div>
-                    </td>
+            <table class="ui compact definition unstackable table">
+                <tr><td class="two wide">{{ _('Name') }}</td><td>{{ telescope.name }}</td></tr>
+                <tr><td class="two wide">{{ _('Description') }}</td><td>{{ telescope.descr }}</td></tr>
+                <tr><td class="two wide">{{ _('Aperture (mm)') }}</td><td>{{ telescope.aperture_mm }} mm</td></tr>
+                <tr><td class="two wide">{{ _('Focal length (mm)') }}</td><td>{{ telescope.focal_length_mm }} mm</td></tr>
+                <tr><td class="two wide">{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() }}</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Is default') }}</td>
+                    <td>{% if telescope.is_default %}<i class="green check circle outline icon"></i>{% endif %}</td>
                 </tr>
-                <tr><td>{{ _('Is active') }}</td>
-                    <td>
-                        <div class="ui checkbox">
-                          <input type="checkbox" checked="{{ 'checked' if telescope.is_active else ''}}">
-                        </div>
-                    </td>
+                <tr>
+                    <td class="two wide">{{ _('Is active') }}</td>
+                    <td>{% if telescope.is_active %}<i class="green check circle outline icon"></i>{% endif %}</td>
                 </tr>
             </table>
         </div>

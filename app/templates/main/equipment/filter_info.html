@@ -17,17 +17,14 @@
                 {% endif %}
             </h2>
 
-            <table class="ui compact definition table">
-                <tr><td>{{ _('Name') }}</td><td>{{ filter.name }}</td></tr>
-                <tr><td>{{ _('Description') }}</td><td>{{ filter.descr }}</td></tr>
-                <tr><td>{{ _('Filter type') }}</td><td>{{ filter.filter_type.loc_text() }}</td></tr>
-                <tr><td>{{ _('Diameter (inch)') }}</td><td>{{ filter.diameter_inch }}"</td></tr>
-                <tr><td>{{ _('Is active') }}</td>
-                    <td>
-                        <div class="ui checkbox">
-                          <input type="checkbox" checked="{{ 'checked' if filter.is_active else ''}}">
-                        </div>
-                    </td>
+            <table class="ui compact definition unstackable table">
+                <tr><td class="two wide">{{ _('Name') }}</td><td>{{ filter.name }}</td></tr>
+                <tr><td class="two wide">{{ _('Description') }}</td><td>{{ filter.descr }}</td></tr>
+                <tr><td class="two wide">{{ _('Filter type') }}</td><td>{{ filter.filter_type.loc_text() }}</td></tr>
+                <tr><td class="two wide">{{ _('Diameter (inch)') }}</td><td>{{ filter.diameter_inch }}"</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Is active') }}</td>
+                    <td>{% if filter.is_active %}<i class="green check circle outline icon"></i>{% endif %}</td>
                 </tr>
             </table>
 

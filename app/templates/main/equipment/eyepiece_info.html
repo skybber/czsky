@@ -17,25 +17,15 @@
                 {% endif %}
             </h2>
 
-            <table class="ui compact definition table">
-                <tr><td>{{ _('Name') }}</td><td>{{ eyepiece.name }}</td></tr>
-                <tr><td>{{ _('Description') }}</td><td>{{ eyepiece.descr }}</td></tr>
-                <tr><td>{{ _('Focal length (mm)') }}</td><td>{{ eyepiece.focal_length_mm }} mm</td></tr>
-                <tr><td>{{ _('FOV (deg)') }}</td><td>{{ eyepiece.fov_deg }} mm</td></tr>
-                <tr><td>{{ _('Diameter (inch)') }}</td><td>{{ eyepiece.diameter_inch }}"</td></tr>
-                <tr><td>{{ _('Is default') }}</td>
-                    <td>
-                        <div class="ui checkbox">
-                          <input type="checkbox" checked="{{ 'checked' if eyepiece.is_default else ''}}">
-                        </div>
-                    </td>
-                </tr>
-                <tr><td>{{ _('Is active') }}</td>
-                    <td>
-                        <div class="ui checkbox">
-                          <input type="checkbox" checked="{{ 'checked' if eyepiece.is_active else ''}}">
-                        </div>
-                    </td>
+            <table class="ui compact definition unstackable table">
+                <tr><td class="two wide">{{ _('Name') }}</td><td>{{ eyepiece.name }}</td></tr>
+                <tr><td class="two wide">{{ _('Description') }}</td><td>{{ eyepiece.descr }}</td></tr>
+                <tr><td class="two wide">{{ _('Focal length (mm)') }}</td><td>{{ eyepiece.focal_length_mm }} mm</td></tr>
+                <tr><td class="two wide">{{ _('FOV (deg)') }}</td><td>{{ eyepiece.fov_deg }} mm</td></tr>
+                <tr><td class="two wide">{{ _('Diameter (inch)') }}</td><td>{{ eyepiece.diameter_inch }}"</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Is active') }}</td>
+                    <td>{% if eyepiece.is_active %}<i class="green check circle outline icon"></i>{% endif %}</td>
                 </tr>
             </table>
         </div>
