@@ -21,7 +21,9 @@
                 <tr><td class="two wide">{{ _('Name') }}</td><td>{{ filter.name }}</td></tr>
                 <tr><td class="two wide">{{ _('Vendor') }}</td><td>{{ filter.vendor }}</td></tr>
                 <tr><td class="two wide">{{ _('Model') }}</td><td>{{ filter.model }}</td></tr>
+                {% if filter.descr %}
                 <tr><td class="two wide">{{ _('Description') }}</td><td>{{ filter.descr }}</td></tr>
+                {% endif %}
                 <tr><td class="two wide">{{ _('Filter type') }}</td><td>{{ filter.filter_type.loc_text() }}</td></tr>
                 <tr><td class="two wide">{{ _('Diameter (inch)') }}</td><td>{{ filter.diameter_inch }}"</td></tr>
                 <tr>
