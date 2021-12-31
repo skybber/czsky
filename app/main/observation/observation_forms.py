@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
-    DateField,
+    DateTimeField,
     FloatField,
     FieldList,
     FormField,
@@ -73,8 +73,10 @@ class ObservationItemNewForm(FlaskForm):
 class ObservationMixin:
     items = FieldList(FormField(ObservationItemNewForm), min_entries=1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
-    date = DateField(lazy_gettext('Date'), id='odate', format='%d/%m/%Y', default=datetime.today,
+    date_from = DateTimeField(lazy_gettext('Date From'), id='odate_from', format='%d/%m/%Y %H:%M', default=datetime.today,
                      validators=[InputRequired(), ])
+    date_to = DateTimeField(lazy_gettext('Date To'), id='odate_from', format='%d/%m/%Y %H:%M', default=datetime.today,
+                          validators=[InputRequired(), ])
     location = StringField(lazy_gettext('Location'),
                            validators=[InputRequired(), Length(max=256), location_lonlat_check])
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
@@ -88,15 +90,34 @@ class ObservationMixin:
     advmode = HiddenField('Advanced Mode', default='false')
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
+    def validate_date_from_to(self):
+        if self.date_from.data and self.date_to.data and self.date_from.data > self.date_to.data:
+            msg = lazy_gettext('Date from must be before date to.')
+            self.date_from.errors.append(msg)
+            msg = lazy_gettext('Date to must be after date from.')
+            self.date_to.errors.append(msg)
+            return False
+        return True
+
 
 class ObservationNewForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Add Observation'))
 
+    def validate(self):
+        if not super(ObservationNewForm, self).validate():
+            return False
+        return self.validate_date_from_to()
+
 
 class ObservationEditForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')
     submitt_button = SubmitField(lazy_gettext('Update Observation'))
+
+    def validate(self):
+        if not super(ObservationEditForm, self).validate():
+            return False
+        return self.validate_date_from_to()
 
 
 class AddToObservedListForm(FlaskForm):

@@ -46,21 +46,45 @@
                 <input id="goback" type="hidden" value="false">
                 <input id="advmode" type="hidden" value="false">
 
-                {{ f.render_form_field(form.title) }}
+                <div class="three fields">
+                    <div class="twelve wide field">
+                        {{ f.render_form_field(form.title) }}
+                    </div>
+                    <div class="six wide field">
+                        {{ form.rating.label }}
+                        <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
+                        {{ form.rating() }}
+                    </div>
+                </div>
 
                 <div class="three fields">
                     <div class="field">
-                        <label for="odate">{{ form.date.label }}</label>
-                        <div class="ui calendar" id="odate">
+                        <label for="odate_from">{{ form.date_from.label }}</label>
+                        <div class="ui calendar" id="odate_from">
                           <div class="ui input left icon">
                             <i class="calendar icon"></i>
-                            <input id="odate" name="{{form.date.name}}" placeholder="Date" type="text"
-                                    value="{{form.date.data.strftime('%d/%m/%Y') if form.date.data else ''}}">
+                            <input id="odate_from" name="{{form.date_from.name}}" placeholder="Date/Time" type="text"
+                                    value="{{form.date_from.data.strftime('%d/%m/%Y %H:%M') if form.date_from.data else ''}}">
                           </div>
                         </div>
-                        {% if form.date.errors %}
+                        {% if form.date_from.errors %}
                             <div class="ui red pointing label">
-                                {{ form.date.errors[0] | safe }}
+                                {{ form.date_from.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <label for="odate_to">{{ form.date_to.label }}</label>
+                        <div class="ui calendar" id="odate_to">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate_to" name="{{form.date_to.name}}" placeholder="Date/Time" type="text"
+                                    value="{{form.date_to.data.strftime('%d/%m/%Y %H:%M') if form.date_to.data else ''}}">
+                          </div>
+                        </div>
+                        {% if form.date_to.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.date_to.errors[0] | safe }}
                             </div>
                         {% endif %}
                     </div>
@@ -75,13 +99,6 @@
                             </div>
                         {% endif %}
                     </div>
-
-                    <div class="field">
-                        {{ form.rating.label }}
-                        <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
-                        {{ form.rating() }}
-                    </div>
-
                 </div>
 
                 <div class="three fields">
@@ -96,7 +113,6 @@
                     <div class="field">
                         {{ f.render_form_field(form.transparency) }}
                     </div>
-
                 </div>
 
                 {{ f.render_form_field(form.is_public) }}
@@ -217,9 +233,10 @@
                 return false;
             });
 
-            $('#odate').calendar({
-                type: 'date',
+            $('#odate_from').calendar({
+                type: 'datetime',
                 monthFirst: false,
+                ampm: false,
                 formatter: {
                     date: function (date, settings) {
                     if (!date) return '';
@@ -228,6 +245,21 @@
                     var year = date.getFullYear();
                     return day + '/' + month + '/' + year;
                     }
+                }
+            });
+
+            $('#odate_to').calendar({
+                type: 'datetime',
+                monthFirst: false,
+                ampm: false,
+                formatter: {
+                    date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                    },
                 }
             });
 

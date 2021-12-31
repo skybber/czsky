@@ -27,7 +27,7 @@
                     <tbody>
                     {% for o in observations %}
                         <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
-                            <td>{{ o.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ o.date_from.strftime('%Y-%m-%d') }}</td>
                             <td>{{ o.title[:64] }}</td>
                             <td>{{ o.location.name if o.location else o.location_position }}</td>
                             <td>{{ "%.2f"|format(o.sqm) if o.sqm else '' }}</td>

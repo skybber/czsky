@@ -8,7 +8,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User, ObservationItem
+from app.models import Role, User, Observation
 from config import Config
 
 from imports.import_catalogues import import_catalogues
@@ -253,10 +253,11 @@ def add_anonymous_user():
 
 
 @manager.command
-def tmp_trans_observation_item():
-    for item in ObservationItem.query.all():
-        item.notes = item.header_notes
-        db.session.add(item)
+def tmp_trans_observations():
+    for o in Observation.query.all():
+        o.date_from = o.date
+        o.date_to = o.date
+        db.session.add(o)
     db.session.commit()
 
 

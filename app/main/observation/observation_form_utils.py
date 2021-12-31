@@ -104,7 +104,8 @@ def update_from_basic_form(form, observation):
 
     observation.user_id = current_user.id
     observation.title = form.title.data
-    observation.date = form.date.data
+    observation.date_from = form.date_from.data
+    observation.date_to = form.date_to.data
     observation.location_id = location_id
     observation.location_position = location_position
     observation.sqm = form.sqm.data
@@ -145,7 +146,8 @@ def update_from_advanced_form(form, observation):
     if updated_observation:
         observation.user_id = current_user.id
         observation.title = updated_observation.title
-        observation.date = updated_observation.date,
+        observation.date_from = updated_observation.date_from,
+        observation.date_to = updated_observation.date_to,
         observation.rating = updated_observation.rating
         observation.notes = updated_observation.notes
         observation.is_public = updated_observation.is_public

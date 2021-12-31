@@ -33,7 +33,8 @@
 {# --- Observation Info --- #}
 {% macro observation_info(observation) %}
     <table class="ui compact definition unstackable table">
-        <tr><td class="two wide">{{ _('Date') }}</td><td colspan="5">{{ observation.date.strftime('%Y-%m-%d') }}</td></tr>
+        <tr><td class="two wide">{{ _('Date From') }}</td><td colspan="5">{{ observation.date_from.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+        <tr><td class="two wide">{{ _('Date To') }}</td><td colspan="5">{{ observation.date_to.strftime('%Y-%m-%d %H:%M') }}</td></tr>
         <tr><td class="two wide">{{ _('Location') }}</td><td colspan="5">{{ observation.location.name if observation.location else observation.location_position }}</td></tr>
         <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
         <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observation.sqm) if observation.sqm else '' }}</td></tr>
@@ -230,7 +231,7 @@ $(function(){
                     {% endif %}
                     <div class="divider"> / </div>
                     <div class="active section mobile hidden">
-                        {{ observation.date.strftime('%Y-%m-%d') }}
+                        {{ observation.date_from.strftime('%Y-%m-%d %H:%M') }}
                     </div>
                     <div class="divider mobile hidden"> &#x2604 </div>
                     <div class="active section">

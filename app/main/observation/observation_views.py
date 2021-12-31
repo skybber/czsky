@@ -69,7 +69,7 @@ def observations():
     per_page = ITEMS_PER_PAGE
     offset = (page - 1) * per_page
 
-    observations = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.date.desc())
+    observations = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.date_from.desc())
     search = False
 
     observations_for_render = observations.limit(per_page).offset(offset).all()
@@ -136,9 +136,11 @@ def observation_edit(observation_id):
                 update_from_basic_form(form, observation)
             if form.goback.data == 'true':
                 return redirect(url_for('main_observation.observation_info', observation_id=observation.id))
+            return redirect(url_for('main_observation.observation_edit', observation_id=observation.id))
     else:
         form.title.data = observation.title
-        form.date.data = observation.date
+        form.date_from.data = observation.date_from
+        form.date_to.data = observation.date_to
         form.location.data = observation.location_id if observation.location_id is not None else observation.location_position
         form.sqm.data = observation.sqm
         form.seeing.data = observation.seeing if observation.seeing else Seeing.AVERAGE

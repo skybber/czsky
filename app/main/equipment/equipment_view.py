@@ -128,6 +128,7 @@ def telescope_edit(telescope_id):
             db.session.add(telescope)
             db.session.commit()
             flash('Telescope successfully updated', 'form-success')
+            return redirect(url_for('main_equipment.telescope_edit', telescope_id=telescope.id))
     else:
         form.name.data = telescope.name
         form.vendor.data = telescope.vendor
@@ -234,6 +235,7 @@ def eyepiece_edit(eyepiece_id):
             db.session.add(eyepiece)
             db.session.commit()
             flash('Eyepiece successfully updated', 'form-success')
+            return redirect(url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id))
     else:
         form.name.data = eyepiece.name
         form.vendor.data = eyepiece.vendor
@@ -336,6 +338,7 @@ def filter_edit(filter_id):
             db.session.add(filter)
             db.session.commit()
             flash('Filter successfully updated', 'form-success')
+            return redirect(url_for('main_equipment.filter_edit', filter_id=filter.id))
     else:
         form.name.data = filter.name
         form.vendor.data = filter.vendor
