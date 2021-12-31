@@ -187,7 +187,7 @@
                               <div class="right menu">
                                   {% for obs in dso_list_menu.observations %}
                                       <div class="item" onclick="callDsoListUrl('{{ url_for('main_observation.observation_chart', observation_id=obs.id) }}')">
-                                        {{ obs.date.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.location_position }}
+                                        {{ obs.date_from.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.location_position }}
                                       </div>
                                   {% endfor %}
                               </div>

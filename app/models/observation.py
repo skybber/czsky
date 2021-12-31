@@ -62,7 +62,6 @@ class Observation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     title = db.Column(db.String(256), index=True)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.now(), index=True)
     date_from = db.Column(db.DateTime, default=datetime.now(), index=True)
     date_to = db.Column(db.DateTime, default=datetime.now(), index=True)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
