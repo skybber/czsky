@@ -8,18 +8,30 @@ from app.commons.form_utils import FormEnum
 
 
 class TelescopeType(FormEnum):
-    REFRACTOR = 'REFRACTOR'
-    REFLECTOR = 'REFLECTOR'
     BINOCULAR = 'BINOCULAR'
+    NEWTON = 'NEWTON'
+    REFRACTOR = 'REFRACTOR'
+    CASSEGRAIN = 'CASSEGR'
+    SCHMIDT_CASSEGRAIN = 'S_CASSEG'
+    MAKSUTOV = 'MAKSUTOV'
+    KUTTER = 'KUTTER'
     OTHER = 'OTHER'
 
     def loc_text(self):
-        if self == TelescopeType.REFRACTOR:
-            return lazy_pgettext('telescope_type', 'Refractor')
-        if self == TelescopeType.REFLECTOR:
-            return lazy_pgettext('telescope_type', 'Reflector')
         if self == TelescopeType.BINOCULAR:
             return lazy_pgettext('telescope_type', 'Binocular')
+        if self == TelescopeType.NEWTON:
+            return lazy_pgettext('telescope_type', 'Newton')
+        if self == TelescopeType.REFRACTOR:
+            return lazy_pgettext('telescope_type', 'Refractor')
+        if self == TelescopeType.CASSEGRAIN:
+            return lazy_pgettext('telescope_type', 'Cassegrain')
+        if self == TelescopeType.SCHMIDT_CASSEGRAIN:
+            return lazy_pgettext('telescope_type', 'Schmidt-Cassegrain')
+        if self == TelescopeType.MAKSUTOV:
+            return lazy_pgettext('telescope_type', 'Maksutov')
+        if self == TelescopeType.KUTTER:
+            return lazy_pgettext('telescope_type', 'Kutter')
         if self == TelescopeType.OTHER:
             return lazy_pgettext('telescope_type', 'Other')
         return ''
