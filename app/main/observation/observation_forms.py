@@ -4,6 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
+    DateField,
     DateTimeField,
     FloatField,
     FieldList,
@@ -73,17 +74,19 @@ class ObservationItemNewForm(FlaskForm):
 class ObservationMixin:
     items = FieldList(FormField(ObservationItemNewForm), min_entries=1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
+    rating = HiddenField(lazy_gettext('Rating'), default=0)
     date_from = DateTimeField(lazy_gettext('Date From'), id='odate_from', format='%d/%m/%Y %H:%M', default=datetime.today,
-                     validators=[InputRequired(), ])
+                              validators=[InputRequired(), ])
     date_to = DateTimeField(lazy_gettext('Date To'), id='odate_from', format='%d/%m/%Y %H:%M', default=datetime.today,
-                          validators=[InputRequired(), ])
+                            validators=[InputRequired(), ])
     location = StringField(lazy_gettext('Location'),
                            validators=[InputRequired(), Length(max=256), location_lonlat_check])
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
     transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce,
                                default=Transparency.AVERAGE)
-    rating = HiddenField(lazy_gettext('Rating'), default=0)
+    weather = StringField(lazy_gettext('Weatcher'))
+    equipment = StringField(lazy_gettext('Equipment'))
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'),
                                 default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
@@ -112,7 +115,7 @@ class ObservationNewForm(FlaskForm, ObservationMixin):
 
 class ObservationEditForm(FlaskForm, ObservationMixin):
     goback = HiddenField(default='false')
-    submitt_button = SubmitField(lazy_gettext('Update Observation'))
+    submit_button = SubmitField(lazy_gettext('Update Observation'))
 
     def validate(self):
         if not super(ObservationEditForm, self).validate():
@@ -126,3 +129,12 @@ class AddToObservedListForm(FlaskForm):
 
 class ObservationRunPlanForm(FlaskForm):
     session_plan = HiddenField('session_plan')
+
+
+class ObservationsExportForm(FlaskForm):
+    date_from = DateField(lazy_gettext('Date From'), id='odate_from', format='%d/%m/%Y', default=datetime.today,
+                          validators=[InputRequired(), ])
+    date_to = DateField(lazy_gettext('Date To'), id='odate_from', format='%d/%m/%Y', default=datetime.today,
+                        validators=[InputRequired(), ])
+    submit_button = SubmitField(lazy_gettext('Export Observation'))
+

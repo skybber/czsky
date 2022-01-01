@@ -112,6 +112,8 @@ def update_from_basic_form(form, observation):
     observation.seeing = form.seeing.data
     observation.transparency = form.transparency.data
     observation.rating = int(form.rating.data) * 2
+    observation.weather = form.weather.data
+    observation.equipment = form.equipment.data
     observation.notes = form.notes.data
     observation.update_by = current_user.id
     observation.update_date = datetime.now()
@@ -149,6 +151,8 @@ def update_from_advanced_form(form, observation):
         observation.date_from = updated_observation.date_from,
         observation.date_to = updated_observation.date_to,
         observation.rating = updated_observation.rating
+        observation.weather = updated_observation.weather
+        observation.equipment = updated_observation.equipment
         observation.notes = updated_observation.notes
         observation.is_public = updated_observation.is_public
         observation.omd_content = updated_observation.omd_content

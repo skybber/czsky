@@ -25,6 +25,7 @@ from app import db
 from .observation_forms import (
     ObservationNewForm,
     ObservationEditForm,
+    ObservationsExportForm,
     ObservationRunPlanForm,
 )
 
@@ -42,6 +43,8 @@ from app.models import (
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from .observation_form_utils import *
+from .observation_export import create_oal_observations
+
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -146,6 +149,8 @@ def observation_edit(observation_id):
         form.seeing.data = observation.seeing if observation.seeing else Seeing.AVERAGE
         form.transparency.data = observation.transparency if observation.transparency else Transparency.AVERAGE
         form.rating.data = observation.rating // 2
+        form.weather.data = observation.weather
+        form.equipment.data = observation.equipment
         form.notes.data = observation.notes
         form.omd_content.data = observation.omd_content
         form.is_public.data = observation.is_public
@@ -362,3 +367,24 @@ def observation_run_plan_execute(observation_id, session_plan_id):
     else:
         dso_name = 'M1'  # fallback
     return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_name, back='running_plan', back_id=observation_plan_run.id))
+
+
+@main_observation.route('/observations-export', methods=['GET', 'POST'])
+@login_required
+def observations_export():
+    """Export observations."""
+    form = ObservationsExportForm()
+    if request.method == 'POST':
+        buf = StringIO()
+        observations = Observation.query.filter_by(user_id=current_user.id).all()
+        oal_observations = create_oal_observations(current_user, observations)
+        oal_observations.export(buf, 0)
+        mem = BytesIO()
+        mem.write(buf.getvalue().encode('utf-8'))
+        mem.seek(0)
+        return send_file(mem, as_attachment=True,
+                         attachment_filename='observations-' + current_user.user_name + '.xml',
+                         mimetype='text/xml')
+
+    return render_template('main/observation/observations_export.html')
+

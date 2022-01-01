@@ -38,7 +38,7 @@ class Location(db.Model):
 
     def full_coordinates(self):
         pos = LatLon(self.latitude, self.longitude)
-        return str(latlon_to_string(pos)) + '(' + str(self.longitude) + ',' + str(self.latitude) + ')'
+        return str(latlon_to_string(pos)) + ' (' + str(self.longitude) + ', ' + str(self.latitude) + ')'
 
     def url_mapy_cz(self):
         return mapy_cz_url(self.longitude, self.latitude)

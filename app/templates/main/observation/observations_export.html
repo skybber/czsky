@@ -1,0 +1,48 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('List of observed objects') }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui stackable grid container">
+                <div class="fourteen wide tablet sixteen wide computer centered column">
+
+                    {% set flashes = {
+                        'error':   get_flashed_messages(category_filter=['form-error']),
+                        'warning': get_flashed_messages(category_filter=['form-warning']),
+                        'info':    get_flashed_messages(category_filter=['form-info']),
+                        'success': get_flashed_messages(category_filter=['form-success'])
+                    } %}
+                    {{ f.display_standard_flashes(flashes) }}
+
+                    <div class="ui menu">
+                        <div class="right menu">
+                            <div class="ui item">
+                                <form id="fmdownload" method="post" action="{{ url_for('main_observation.observations_export') }}">
+                                    <button class="ui icon button" data-content="{{ _('Export observations to OAL')}}">
+                                        <i class="download icon"></i>
+                                    </button>
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -25,10 +25,9 @@
         <tr>
             <td>{{ _('Coordinates') }}</td>
             <td>
-                {{ location.full_coordinates()}}
-                {% if url_cz_mapy %} <a href="{{ location.url_mapy_cz() }}" target="_blank">mapy.cz</a> {% endif %}
-                {% if url_google %} <a href="{{ location.url_google_maps() }}" target="_blank">google</a> {% endif %}
-                {% if url_os_map %} <a href="{{ location.url_open_street_maps() }}" target="_blank">open street map</a> {% endif %}
+                {{ location.full_coordinates() }}
+                <a href="{{ location.url_mapy_cz() }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
+                <a href="{{ location.url_google_maps() }}" target="_blank">google</a>
              </td>
         </tr>
         <tr><td>{{ _('Description') }}</td><td>{{ location.descr }}</td></tr>

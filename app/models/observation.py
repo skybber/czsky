@@ -127,6 +127,7 @@ class ObservationItem(db.Model):
     eyepiece_id = db.Column(db.Integer, db.ForeignKey('eyepieces.id'))
     accessories = db.Column(db.String(128))
     filter_id = db.Column(db.Integer, db.ForeignKey('filters.id'))
+    lens_id = db.Column(db.Integer, db.ForeignKey('lenses.id'))
     magnification = db.Column(db.Float)
     # obsolete
     txt_deepsky_objects = db.Column(db.Text)
