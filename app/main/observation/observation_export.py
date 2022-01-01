@@ -1,8 +1,8 @@
 from app.commons.coordinates import parse_lonlat
 
-from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType
+from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
 
-from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType
+from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType, OalsurfaceBrightnessType
 from app.commons.openastronomylog import OalobserverType, OalobserversType
 from app.commons.openastronomylog import OalsiteType, OalsitesType
 from app.commons.openastronomylog import Oalobservations, OalobservationType
@@ -104,9 +104,10 @@ def create_oal_observations(user, observations):
         for obs_item in observation.observation_items:
             for dso in obs_item.deepsky_objects:
                 obs_result = OalfindingsType(lang=user.lang_code, description=obs_item.notes)
+                oal_sky_quality = OalsurfaceBrightnessType(unit='mags-per-squarearcsec', valueOf_=observation.sqm) if observation.sqm else None
                 oal_obs = OalobservationType(id='obs_{}'.format(obs_item.id), observer='usr_{}'.format(user.id), site='site_{}'.format(observation.location_id),
                                              session='se_{}'.format(observation.id), target='_{}'.format(dso.id), begin=obs_item.date_time, end=None,
-                                             faintestStar=observation.faintest_star, sky_quality=observation.sqm, seeing=observation.seeing,
+                                             faintestStar=observation.faintest_star, sky_quality=oal_sky_quality, seeing=_get_oal_seeing(observation.seeing),
                                              scope='opt_'.format(obs_item.telescope_id) if obs_item.telescope_id else None,
                                              accessories=obs_item.accessories,
                                              eyepiece='ep_'.format(obs_item.eyepiece_id) if obs_item.eyepiece_id else None,
@@ -183,3 +184,19 @@ def _get_oal_filter_type(filter_type):
         return 'other'
     return None
 
+
+def _get_oal_seeing(seeing):
+    if seeing == Seeing.TERRIBLE:
+        return 5
+    if seeing == Seeing.VERYBAD:
+        return 5
+    if seeing == Seeing.BAD:
+        return 4
+    if seeing == Seeing.AVERAGE:
+        return 3
+    if seeing == Seeing.GOOD:
+        return 2
+    if seeing == Seeing.EXCELLENT:
+        return 1
+    return None
+    
