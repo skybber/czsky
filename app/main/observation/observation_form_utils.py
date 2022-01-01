@@ -121,7 +121,7 @@ def update_from_basic_form(form, observation):
     observation.is_public = form.is_public.data
 
     for item_form in form.items[1:]:
-        item_time = datetime.combine(observation.date, item_form.date_time.data)
+        item_time = datetime.combine(observation.date_from, item_form.date_time.data)
         dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
         item = ObservationItem(
             observation_id=observation.id,
