@@ -1,3 +1,5 @@
+from app.commons.coordinates import parse_lonlat
+
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType
 
 from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType
@@ -32,8 +34,9 @@ def create_oal_observations(user, observations):
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
                                    timezone=location.timezone, code=location.iau_code)
         else:
-            oal_site = OalsiteType(id='site_adhoc_{}'.format(observations.id), name=None,
-                                   longitude=_get_oal_angle(angleUnit.DEG, location.longitude), latitude=_get_oal_angle(angleUnit.DEG, location.latitude),
+            lon, lat = parse_lonlat(observation.location_position)
+            oal_site = OalsiteType(id='site_adhoc_{}'.format(observation.id), name=None,
+                                   longitude=_get_oal_angle(angleUnit.DEG, lon), latitude=_get_oal_angle(angleUnit.DEG, lat),
                                    elevation=None, timezone=None, code=None)
         oal_sites.add_site(oal_site)
 
@@ -41,7 +44,7 @@ def create_oal_observations(user, observations):
     oal_sessions = OalsessionsType()
     for observation in observations:
         if observation.location:
-            site_ref = 'site_{}'.format(location.id)
+            site_ref = 'site_{}'.format(observation.location.id)
         else:
             site_ref = 'site_adhoc_{}'.format(observation.id)
         oal_session = OalsessionType(id='se_{}'.format(observation.id), lang=user.lang_code,
@@ -179,3 +182,4 @@ def _get_oal_filter_type(filter_type):
     if filter_type == FilterType.OTHER:
         return 'other'
     return None
+

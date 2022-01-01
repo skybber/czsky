@@ -104,7 +104,7 @@ def location_observations(location_id):
 def new_location():
     form = LocationNewForm()
     if request.method == 'POST' and form.validate_on_submit():
-        (lon, lat) = parse_lonlat(form.lonlat.data)
+        lon, lat = parse_lonlat(form.lonlat.data)
         location = Location(
             name = form.name.data,
             longitude = lon,
@@ -126,6 +126,7 @@ def new_location():
         flash('Location successfully created', 'form-success')
     return render_template('main/location/location_edit.html', form=form, is_new=True, countries=countries)
 
+
 @main_location.route('/location/<int:location_id>/edit', methods=['GET', 'POST'])
 @login_required
 def location_edit(location_id):
@@ -138,7 +139,7 @@ def location_edit(location_id):
     form = LocationEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            (lon, lat) = parse_lonlat(form.lonlat.data)
+            lon, lat = parse_lonlat(form.lonlat.data)
             location.name = form.name.data
             location.longitute = lon
             location.latitude = lat
