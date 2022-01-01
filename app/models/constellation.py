@@ -1,6 +1,7 @@
 from datetime import datetime
 from .. import db
 
+
 class Constellation(db.Model):
     __tablename__ = 'constellations'
     id = db.Column(db.Integer, primary_key=True)

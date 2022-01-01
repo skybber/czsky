@@ -5,6 +5,7 @@ from LatLon23 import LatLon
 
 from app.commons.coordinates import *
 
+
 class Location(db.Model):
     __tablename__ = 'locations'
     id = db.Column(db.Integer, primary_key=True)
@@ -12,6 +13,8 @@ class Location(db.Model):
     longitude = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     elevation = db.Column(db.Float, default=0)
+    timezone = db.Column(db.Integer)
+    iau_code = db.Column(db.Integer)
     descr = db.Column(db.Text)
     bortle = db.Column(db.Float)
     rating = db.Column(db.Integer)

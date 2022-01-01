@@ -1,0 +1,54 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet fourteen wide computer column">
+            <a class="ui basic compact button" href="{{ url_for('main_equipment.equipment_menu') }}">
+                <i class="caret left icon"></i>
+                {{ _('Equipment') }}
+            </a>
+            <a class="ui right floated icon positive button" href="{{ url_for('main_equipment.new_lens') }}">
+                <i class="plus icon"></i>
+                {{ _('New lens') }}
+            </a>
+            <h2 class="ui header">
+                {{ _('Lenses') }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            <form action="{{ url_for('main_equipment.lenses') }}" method="post" name="search">
+                {# Use overflow-x: scroll so that mobile views don't freak out
+                 # when the table is too wide #}
+                <div style="overflow-x: scroll;">
+                    <table class="ui searchable sortable unstackable selectable celled table">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Name') }}</th>
+                                <th>{{ _('Type') }}</th>
+                                <th>{{ _('Magnification') }}</th>
+                                <th>{{ _('Diameter') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for l in lenses | sort(attribute='magnification') %}
+                            <tr onclick="window.location.href = '{{ url_for('main_equipment.lens_info', lens_id=l.id) }}';">
+                                <td>{{ l.name }}</td>
+                                <td>{{ l.lens_type.loc_text() }}</td>
+                                <td>{{ l.magnification|string + 'x' if l.magnification else '' }}</td>
+                                <td>{{ l.diameter_inch|string + '"' if l.diameter_inch else '' }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

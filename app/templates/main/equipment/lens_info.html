@@ -1,0 +1,44 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_equipment.lenses', back=1) }}">
+                <i class="caret left icon"></i>
+                {{ _('Lenses') }}
+            </a>
+            <h2 class="ui header">
+                {{ lens.name }}
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.lens_edit', lens_id=lens.id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </h2>
+
+            <table class="ui compact definition unstackable table">
+                <tr><td class="two wide">{{ _('Name') }}</td><td>{{ lens.name }}</td></tr>
+                <tr><td class="two wide">{{ _('Vendor') }}</td><td>{{ lens.vendor }}</td></tr>
+                <tr><td class="two wide">{{ _('Model') }}</td><td>{{ lens.model }}</td></tr>
+                {% if lens.descr %}
+                <tr><td class="two wide">{{ _('Description') }}</td><td>{{ lens.descr }}</td></tr>
+                {% endif %}
+                <tr><td class="two wide">{{ _('Lens type') }}</td><td>{{ lens.lens_type.loc_text() }}</td></tr>
+                <tr><td class="two wide">{{ _('Magnification') }}</td><td>{{ lens.magnification }}</td></tr>
+                <tr><td class="two wide">{{ _('Diameter (inch)') }}</td><td>{{ lens.diameter_inch }}"</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Is active') }}</td>
+                    <td>{% if lens.is_active %}<i class="green check circle outline icon"></i>{% endif %}</td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

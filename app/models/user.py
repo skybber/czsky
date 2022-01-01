@@ -172,6 +172,14 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return True
 
+    def get_first_name(self):
+        spl = self.full_name.rsplit(' ', 1)
+        return spl[0] if len(spl) > 1 else ''
+
+    def get_last_name(self):
+        spl = self.full_name.rsplit(' ', 1)
+        return spl[1] if len(spl) > 1 else spl[0]
+
     @staticmethod
     def generate_fake(count=100, **kwargs):
         """Generate a number of fake users for testing."""

@@ -15,7 +15,7 @@ from sqlalchemy import or_, and_
 
 from app import db
 
-from app.models import Telescope, Eyepiece, Filter
+from app.models import Telescope, Eyepiece, Filter, Lens
 
 from .equipment_forms import (
     TelescopeNewForm,
@@ -24,6 +24,8 @@ from .equipment_forms import (
     EyepieceEditForm,
     FilterNewForm,
     FilterEditForm,
+    LensNewForm,
+    LensEditForm,
 )
 
 from app.commons.countries import countries
@@ -41,6 +43,10 @@ def _is_eyepiece_editable(eyepiece):
 
 def _is_filter_editable(filter):
     return filter.user_id == current_user.id
+
+
+def _is_lens_editable(lens):
+    return lens.user_id == current_user.id
 
 
 @main_equipment.route('/equipment-menu', methods=['GET'])
@@ -365,4 +371,109 @@ def filter_delete(filter_id):
     db.session.commit()
     flash('Filter was deleted', 'form-success')
     return redirect(url_for('main_equipment.filters'))
+
+
+@main_equipment.route('/lenses', methods=['GET', 'POST'])
+@login_required
+def lenses():
+    lenses = Lens.query.filter_by(user_id=current_user.id, is_deleted=False).all()
+    return render_template('main/equipment/lenses.html', lenses=lenses)
+
+
+@main_equipment.route('/lens/<int:lens_id>', methods=['GET'])
+@main_equipment.route('/lens/<int:lens_id>/info', methods=['GET'])
+@login_required
+def lens_info(lens_id):
+    """View a lens info."""
+    lens = Lens.query.filter_by(id=lens_id, is_deleted=False).first()
+    if lens is None:
+        abort(404)
+    if lens.user_id != current_user.id:
+        abort(404)
+    return render_template('main/equipment/lens_info.html', lens=lens, editable=_is_lens_editable(lens))
+
+
+@main_equipment.route('/new-lens', methods=['GET', 'POST'])
+@login_required
+def new_lens():
+    """New lens"""
+    form = LensNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        lens = Lens(
+            name=form.name.data,
+            vendor=form.vendor.data,
+            model=form.model.data,
+            descr=form.descr.data,
+            lens_type=form.lens_type.data,
+            magnification=form.magnification.data,
+            diameter_inch=form.diameter_inch.data,
+            is_active=True,
+            is_deleted=False,
+            user_id=current_user.id,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
+        )
+        db.session.add(lens)
+        db.session.commit()
+        flash('Lens successfully created', 'form-success')
+        return redirect(url_for('main_equipment.lens_edit', lens_id=lens.id))
+    return render_template('main/equipment/lens_edit.html', form=form, is_new=True)
+
+
+@main_equipment.route('/lens/<int:lens_id>/edit', methods=['GET', 'POST'])
+@login_required
+def lens_edit(lens_id):
+    """Update lens"""
+    lens = Lens.query.filter_by(id=lens_id, is_deleted=False).first()
+    if lens is None:
+        abort(404)
+    if not _is_lens_editable(lens):
+        abort(404)
+    form = LensEditForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            lens.name = form.name.data
+            lens.vendor = form.vendor.data
+            lens.model = form.model.data
+            lens.descr = form.descr.data
+            lens.lens_type = form.lens_type.data
+            lens.magnification = form.magnification.data
+            lens.diameter_inch = form.diameter_inch.data
+            lens.is_active = form.is_active.data
+            lens.is_deleted = False
+            lens.update_by = current_user.id
+            lens.update_date = datetime.now()
+            db.session.add(lens)
+            db.session.commit()
+            flash('Lens successfully updated', 'form-success')
+            return redirect(url_for('main_equipment.lens_edit', lens_id=lens.id))
+    else:
+        form.name.data = lens.name
+        form.vendor.data = lens.vendor
+        form.model.data = lens.model
+        form.descr.data = lens.descr
+        form.lens_type.data = lens.lens_type
+        form.magnification.data = lens.magnification
+        form.diameter_inch.data = lens.diameter_inch
+        form.is_active.data = lens.is_active
+
+    return render_template('main/equipment/lens_edit.html', form=form, lens=lens, is_new=False)
+
+
+@main_equipment.route('/lens/<int:lens_id>/delete')
+@login_required
+def lens_delete(lens_id):
+    """Request deletion of lens."""
+    lens = Lens.query.filter_by(id=lens_id, is_deleted=False).first()
+    if lens is None:
+        abort(404)
+    if not _is_lens_editable(lens):
+        abort(404)
+    lens.is_deleted = True
+    db.session.add(lens)
+    db.session.commit()
+    flash('Lens was deleted', 'form-success')
+    return redirect(url_for('main_equipment.lenses'))
 

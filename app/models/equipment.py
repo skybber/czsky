@@ -135,3 +135,37 @@ class Filter(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+
+
+class LensType(FormEnum):
+    BARLOW = 'BARLOW'
+    COMA_CORRECTOR = 'COMA_CORR'
+    OTHER = 'OTHER'
+
+    def loc_text(self):
+        if self == LensType.BARLOW:
+            return lazy_pgettext('lens_type', 'Barlow')
+        if self == LensType.COMA_CORRECTOR:
+            return lazy_pgettext('lens_type', 'Coma Corrector')
+        if self == FilterType.OTHER:
+            return LensType('filter_type', 'Other')
+        return ''
+
+
+class Lens(db.Model):
+    __tablename__ = 'lenses'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    name = db.Column(db.String(128), nullable=False, index=True)
+    model = db.Column(db.String(128), nullable=True, index=True)
+    vendor = db.Column(db.String(128), nullable=True, index=True)
+    descr = db.Column(db.Text)
+    lens_type = db.Column(sqlalchemy.Enum(LensType))
+    magnification = db.Column(db.Float, nullable=False)
+    diameter_inch = db.Column(db.Float, nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    is_deleted = db.Column(db.Boolean, default=False)
+    create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    update_date = db.Column(db.DateTime, default=datetime.now())
