@@ -1,4 +1,4 @@
-from app.commons.coordinates import parse_lonlat
+from app.commons.coordinates import parse_latlon
 
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
 
@@ -34,7 +34,7 @@ def create_oal_observations(user, observations):
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
                                    timezone=location.timezone, code=location.iau_code)
         else:
-            lon, lat = parse_lonlat(observation.location_position)
+            lat, lon = parse_latlon(observation.location_position)
             oal_site = OalsiteType(id='site_adhoc_{}'.format(observation.id), name=None,
                                    longitude=_get_oal_angle(angleUnit.DEG, lon), latitude=_get_oal_angle(angleUnit.DEG, lat),
                                    elevation=None, timezone=None, code=None)

@@ -57,17 +57,17 @@ def open_street_map_url(lon, lat):
     return 'https://www.openstreetmap.org/?mlat=' + str(lat) + '&mlon=' + str(lon) + '&zoom=12'
 
 
-def parse_lonlat(coords):
-    longLat = coords.split(',')
-    if longLat and len(longLat) == 2:
-        return lonlat_parse(longLat[0]), lonlat_parse(longLat[1])
+def parse_latlon(coords):
+    lat_lon = coords.split(',')
+    if lat_lon and len(lat_lon) == 2:
+        return lonlat_parse(lat_lon[0]), lonlat_parse(lat_lon[1])
     else:
         raise ValueError('Invalid coordinate format {}'.format(coords))
 
 
 def lonlat_check(form, field):
     try:
-        parse_lonlat(field.data)
+        parse_latlon(field.data)
     except ValueError:
         raise ValidationError('Invalid coordinate format.')
 

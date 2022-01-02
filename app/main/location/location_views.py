@@ -18,7 +18,7 @@ from app import db
 from app.models import Location
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
-from app.commons.coordinates import parse_lonlat
+from app.commons.coordinates import parse_latlon
 
 from .location_forms import (
     LocationNewForm,
@@ -104,22 +104,22 @@ def location_observations(location_id):
 def new_location():
     form = LocationNewForm()
     if request.method == 'POST' and form.validate_on_submit():
-        lon, lat = parse_lonlat(form.lonlat.data)
+        lat, lon = parse_latlon(form.lonlat.data)
         location = Location(
-            name = form.name.data,
-            longitude = lon,
-            latitude = lat,
-            country_code = form.country_code.data,
-            descr = form.descr.data,
-            bortle = form.bortle.data,
-            rating = form.rating.data,
-            is_public = form.is_public.data,
-            is_for_observation = form.is_for_observation.data,
-            user_id = current_user.id,
-            create_by = current_user.id,
-            update_by = current_user.id,
-            create_date = datetime.now(),
-            update_date = datetime.now()
+            name=form.name.data,
+            longitude=lon,
+            latitude=lat,
+            country_code=form.country_code.data,
+            descr=form.descr.data,
+            bortle=form.bortle.data,
+            rating=form.rating.data,
+            is_public=form.is_public.data,
+            is_for_observation=form.is_for_observation.data,
+            user_id=current_user.id,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now()
             )
         db.session.add(location)
         db.session.commit()
@@ -139,7 +139,7 @@ def location_edit(location_id):
     form = LocationEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-            lon, lat = parse_lonlat(form.lonlat.data)
+            lat, lon = parse_latlon(form.lonlat.data)
             location.name = form.name.data
             location.longitute = lon
             location.latitude = lat

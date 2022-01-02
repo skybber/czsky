@@ -4,7 +4,7 @@ from lat_lon_parser import parse as lonlat_parse
 from wtforms.validators import ValidationError
 from skyfield.units import Angle
 
-from app.commons.coordinates import parse_lonlat
+from app.commons.coordinates import parse_latlon
 
 from app.models import Location
 
@@ -15,6 +15,6 @@ def location_lonlat_check(form, field):
         if location:
             return
     try:
-        parse_lonlat(field.data)
+        parse_latlon(field.data)
     except ValueError:
         raise ValidationError('Invalid coordinate format.')

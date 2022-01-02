@@ -76,7 +76,7 @@ from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.utils import get_anonymous_user
-from app.commons.coordinates import parse_lonlat
+from app.commons.coordinates import parse_latlon
 
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 
@@ -573,7 +573,7 @@ def _get_location_info_from_session_plan(session_plan):
         elevation = loc.elevation
     else:
         loc_name = session_plan.location_position
-        latitude, longitude = parse_lonlat(session_plan.location_position)
+        latitude, longitude = parse_latlon(session_plan.location_position)
         elevation = 0
 
     return loc_name, latitude, longitude, elevation

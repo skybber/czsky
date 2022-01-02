@@ -32,7 +32,7 @@ from app.commons.coordinates import lonlat_check
 
 class LocationMixin():
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
-    lonlat = StringField(lazy_gettext('Longitude'), validators=[Length(max=256), lonlat_check])
+    lonlat = StringField(lazy_gettext('Position'), validators=[Length(max=256), lonlat_check])
     descr = TextAreaField(lazy_gettext('Notes'))
     bortle = FloatField(lazy_gettext('Bortle'), validators=[NumberRange(min=0.0, max=9.0)])
     rating = IntegerField(lazy_gettext('Rating'), default=5, validators=[NumberRange(min=0, max=10)])

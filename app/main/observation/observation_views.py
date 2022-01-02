@@ -54,6 +54,7 @@ from app.commons.chart_generator import (
 )
 
 from app.main.chart.chart_forms import ChartForm
+from app.commons.coordinates import *
 
 main_observation = Blueprint('main_observation', __name__)
 
@@ -102,7 +103,15 @@ def observation_info(observation_id):
     """View a observation info."""
     observation = Observation.query.filter_by(id=observation_id).first()
     is_mine_observation = _check_observation(observation, allow_public=True)
-    return render_template('main/observation/observation_info.html', observation=observation, type='info', is_mine_observation=is_mine_observation)
+    location_position_mapy_cz_url = None
+    location_position_google_maps_url = None
+    if not observation.location_id:
+        lat, lon = parse_latlon(observation.location_position)
+        location_position_mapy_cz_url = mapy_cz_url(lon, lat)
+        location_position_google_maps_url = google_url(lon, lat)
+
+    return render_template('main/observation/observation_info.html', observation=observation, type='info', is_mine_observation=is_mine_observation,
+                           location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url)
 
 
 @main_observation.route('/new-observation', methods=['GET', 'POST'])

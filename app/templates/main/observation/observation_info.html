@@ -35,7 +35,19 @@
     <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Date From') }}</td><td colspan="5">{{ observation.date_from.strftime('%Y-%m-%d %H:%M') }}</td></tr>
         <tr><td class="two wide">{{ _('Date To') }}</td><td colspan="5">{{ observation.date_to.strftime('%Y-%m-%d %H:%M') }}</td></tr>
-        <tr><td class="two wide">{{ _('Location') }}</td><td colspan="5">{{ observation.location.name if observation.location else observation.location_position }}</td></tr>
+        <tr><td class="two wide">{{ _('Location') }}</td>
+            <td colspan="5">
+                {% if observation.location %}
+                    {{ observation.location.name }}
+                    <a href="{{ observation.location.url_mapy_cz() }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
+                    <a href="{{ observation.location.url_google_maps() }}" target="_blank">google</a>
+                {% else %}
+                    {{ observation.location_position }}
+                    <a href="{{ location_position_mapy_cz_url }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
+                    <a href="{{ location_position_google_maps_url }}" target="_blank">google</a>
+                {% endif %}
+            </td>
+        </tr>
         <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
         <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observation.sqm) if observation.sqm else '' }}</td></tr>
         <tr><td class="two wide">{{ _('Seeing') }}</td><td>{{ observation.loc_seeing() }}</td></tr>
