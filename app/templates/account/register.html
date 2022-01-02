@@ -16,6 +16,8 @@
 
             {{ f.begin_form(form, flashes) }}
 
+            {{ f.render_form_field(form.user_name) }}
+
             {{ f.render_form_field(form.full_name) }}
 
             {{ f.render_form_field(form.email) }}

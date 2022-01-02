@@ -25,9 +25,12 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
+    user_name = StringField(
+        'User Name', validators=[InputRequired(),
+                                 Length(3, 256)])
     full_name = StringField(
-        'Full name', validators=[InputRequired(),
-                                  Length(1, 256)])
+        'Full Name', validators=[InputRequired(),
+                                 Length(1, 256)])
     email = EmailField(
         'Email', validators=[InputRequired(),
                              Length(1, 64),
@@ -41,6 +44,11 @@ class RegistrationForm(FlaskForm):
     password2 = PasswordField('Confirm password', validators=[InputRequired()])
     submit = SubmitField('Register')
 
+    def validate_user_name(self, field):
+        if User.query.filter_by(user_name=field.data).first():
+            raise ValidationError('User name already registered. (Did you mean to '
+                                  '<a href="{}">log in</a> instead?)'.format(
+                                    url_for('account.login')))
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered. (Did you mean to '
