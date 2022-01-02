@@ -195,9 +195,6 @@ def observation_delete(observation_id):
     """Request deletion of a observation."""
     observation = Observation.query.filter_by(id=observation_id).first()
     _check_observation(observation)
-    for item in observation.observation_items:
-        item.deepsky_objects = []
-        db.session.delete(item)
     db.session.delete(observation)
     db.session.commit()
     flash('Observation was deleted', 'form-success')
