@@ -155,6 +155,7 @@ def observation_edit(observation_id):
         form.date_to.data = observation.date_to
         form.location.data = observation.location_id if observation.location_id is not None else observation.location_position
         form.sqm.data = observation.sqm
+        form.faintest_star.data = observation.faintest_star
         form.seeing.data = observation.seeing if observation.seeing else Seeing.AVERAGE
         form.transparency.data = observation.transparency if observation.transparency else Transparency.AVERAGE
         form.rating.data = observation.rating // 2

@@ -50,8 +50,11 @@
         </tr>
         <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
         <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observation.sqm) if observation.sqm else '' }}</td></tr>
+        <tr><td class="two wide">{{ _('Faintest Star') }}</td><td>{{ "%.2f"|format(observation.faintest_star) if observation.faintest_star else '' }}</td></tr>
         <tr><td class="two wide">{{ _('Seeing') }}</td><td>{{ observation.loc_seeing() }}</td></tr>
-        <tr><td class="two wide definition">{{ _('Transparency') }}</td><td>{{ observation.loc_transparency() }}</td></tr>
+        <tr><td class="two wide">{{ _('Transparency') }}</td><td>{{ observation.loc_transparency() }}</td></tr>
+        <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observation.weather }}</td></tr>
+        <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observation.equipment }}</td></tr>
         <tr>
         <tr>
             <td class="two wide">{{ _('Notes') }}</td>

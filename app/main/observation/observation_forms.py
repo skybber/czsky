@@ -82,10 +82,11 @@ class ObservationMixin:
     location = StringField(lazy_gettext('Location'),
                            validators=[InputRequired(), Length(max=256), location_lonlat_check])
     sqm = FloatField(lazy_gettext('Sqm'), validators=[Optional()])
+    faintest_star = FloatField(lazy_gettext('Faintest Star'), validators=[Optional()])
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
     transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce,
                                default=Transparency.AVERAGE)
-    weather = StringField(lazy_gettext('Weatcher'))
+    weather = StringField(lazy_gettext('Weather'))
     equipment = StringField(lazy_gettext('Equipment'))
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'),

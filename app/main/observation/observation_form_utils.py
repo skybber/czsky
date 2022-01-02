@@ -34,9 +34,12 @@ def create_from_basic_form(form):
         location_id=location_id,
         location_position=location_position,
         sqm=form.sqm.data,
+        faintest_star=form.faintest_star.data,
         seeing=form.seeing.data,
         transparency=form.transparency.data,
         rating=form.rating.data,
+        weather=form.weather.data,
+        equipment=form.equipment.data,
         notes=form.notes.data,
         create_by=current_user.id,
         update_by=current_user.id,
@@ -109,6 +112,7 @@ def update_from_basic_form(form, observation):
     observation.location_id = location_id
     observation.location_position = location_position
     observation.sqm = form.sqm.data
+    observation.faintest_star = form.faintest_star.data
     observation.seeing = form.seeing.data
     observation.transparency = form.transparency.data
     observation.rating = int(form.rating.data) * 2
@@ -153,6 +157,7 @@ def update_from_advanced_form(form, observation):
         observation.rating = updated_observation.rating
         observation.weather = updated_observation.weather
         observation.equipment = updated_observation.equipment
+        observation.faintest_star = updated_observation.faintest_star
         observation.notes = updated_observation.notes
         observation.is_public = updated_observation.is_public
         observation.omd_content = updated_observation.omd_content
