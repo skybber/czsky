@@ -103,19 +103,19 @@
 
                 <div class="three fields">
                     <div class="field">
+                        {{ f.render_form_field(form.sqm) }}
+                    </div>
+                    <div class="field">
                         {{ f.render_form_field(form.faintest_star) }}
                     </div>
                     <div class="field">
                         {{ f.render_form_field(form.seeing) }}
                     </div>
-                    <div class="field">
-                        {{ f.render_form_field(form.transparency) }}
-                    </div>
                 </div>
 
                 <div class="three fields">
                     <div class="field">
-                        {{ f.render_form_field(form.sqm) }}
+                        {{ f.render_form_field(form.transparency) }}
                     </div>
                     <div class="field">
                         {{ f.render_form_field(form.weather) }}
