@@ -60,12 +60,6 @@ from app.commons.coordinates import *
 main_observing_session = Blueprint('main_observing_session', __name__)
 
 
-@main_observing_session.route('/observing-session-menu', methods=['GET'])
-@login_required
-def observing_session_menu():
-    return render_template('main/observation/observing_session_menu.html')
-
-
 @main_observing_session.route('/observing-sessions', methods=['GET', 'POST'])
 @login_required
 def observing_sessions():
