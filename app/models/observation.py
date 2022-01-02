@@ -80,8 +80,8 @@ class Observation(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
-    sqm_records = db.relationship('SqmFullRecord', backref='observation', lazy=True)
-    observation_items = db.relationship('ObservationItem', backref='observation', lazy=True)
+    sqm_records = db.relationship('SqmFullRecord', backref='observation', cascade="all, delete-orphan", lazy=True)
+    observation_items = db.relationship('ObservationItem', backref='observation', cascade="all, delete-orphan", lazy=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
 
     def rating_to_int(self, m):

@@ -6,6 +6,7 @@ from skyfield.units import Angle
 
 BROWSING_CATALOGS = ('M', 'Abell', 'SH2', 'VIC', 'NGC', 'HCG')
 
+
 class SqmDevice(db.Model):
     __tablename__ = 'sqm_devices'
     id = db.Column(db.Integer, primary_key=True)
@@ -15,6 +16,7 @@ class SqmDevice(db.Model):
     name = db.Column(db.String(32))
     descr = db.Column(db.Text)
     user_id = db.Column(db.String(16))
+
 
 class SqmFullRecord(db.Model):
     __tablename__ = 'sqm_full_records'
@@ -26,6 +28,7 @@ class SqmFullRecord(db.Model):
     weather = db.Column(db.Text)
     notes = db.Column(db.Text)
     sqm_read_values = db.relationship('SqmFullRecordValue', backref='sqm_reading', lazy=True)
+
 
 class SqmFullRecordValue(db.Model):
     __tablename__ = 'sqm_full_record_values'
@@ -46,5 +49,6 @@ class SqmRecord(db.Model):
     sqm_device_id = db.Column(db.Integer, nullable=False)
     value = db.Column(db.Integer, nullable=False)           # SQM * 100
     date_time = db.Column(db.DateTime, nullable=False)
+
 
 Index('sqm_record_index', SqmRecord.sqm_device_id, SqmRecord.date_time)
