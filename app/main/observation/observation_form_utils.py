@@ -30,7 +30,8 @@ def create_from_basic_form(form):
     observation = Observation(
         user_id=current_user.id,
         title=form.title.data,
-        date=form.date.data,
+        date_from=form.date_from.data,
+        date_to=form.date_to.data,
         location_id=location_id,
         location_position=location_position,
         sqm=form.sqm.data,
