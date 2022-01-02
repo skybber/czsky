@@ -34,14 +34,6 @@ from app.commons.dso_utils import normalize_dso_name
 
 from app.main.utils.validators import location_lonlat_check
 
-DEFAULT_OBSERVATION_CONTENT = '''
-## NGC891:T(21:30):
-Observation item1 notes
-
-## NGC7008,NGC7048:T(22:30):
-Observation item1 notes
-'''
-
 
 class ObservationItemNewForm(FlaskForm):
     comp_notes = TextAreaField(lazy_gettext('DSO list with comment. (e.g. M3,M5:nice globulars!)'),
@@ -89,8 +81,6 @@ class ObservingSessionMixin:
     weather = StringField(lazy_gettext('Weather'))
     equipment = StringField(lazy_gettext('Equipment'))
     notes = TextAreaField(lazy_gettext('Notes'))
-    omd_content = TextAreaField(lazy_gettext('OMD Content'),
-                                default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
     def validate_date_from_to(self):

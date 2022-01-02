@@ -129,8 +129,6 @@
 
                 {{ f.render_form_field(form.notes) }}
 
-                {{ f.render_form_field(form.omd_content, extra_classes='observation-notes initially-hidden edit-advanced') }}
-
                 <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
                     <div class="ui blue segment">
                         <div class="ui tiny header">{{ _('Observations') }}</div>
@@ -222,12 +220,6 @@
 
         var notesMDE = new EasyMDE({element: document.getElementById('notes'),
             minHeight: "200px",
-            spellChecker: false,
-            status : false,
-        });
-
-        var contentMDE = new EasyMDE({element: document.getElementById('omd_content'),
-            minHeight: "300px",
             spellChecker: false,
             status : false,
         });

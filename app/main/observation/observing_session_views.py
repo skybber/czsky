@@ -157,7 +157,6 @@ def observing_session_edit(observing_session_id):
         form.weather.data = observing_session.weather
         form.equipment.data = observing_session.equipment
         form.notes.data = observing_session.notes
-        form.omd_content.data = observing_session.omd_content
         form.is_public.data = observing_session.is_public
         for oi in observing_session.observations:
             oif = form.items.append_entry()

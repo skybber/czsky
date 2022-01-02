@@ -75,7 +75,6 @@ class ObservingSession(db.Model):
     equipment = db.Column(db.Text)
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
-    omd_content = db.Column(db.Text)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
