@@ -23,7 +23,7 @@ class SqmFullRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sqm_device_id = db.Column(db.Integer, db.ForeignKey('sqm_devices.id'), nullable=False)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'))
-    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'))
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'))
     date = db.Column(db.DateTime)
     weather = db.Column(db.Text)
     notes = db.Column(db.Text)

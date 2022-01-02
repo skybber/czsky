@@ -57,8 +57,8 @@ class Transparency(FormEnum):
             return ''
 
 
-class Observation(db.Model):
-    __tablename__ = 'observations'
+class ObservingSession(db.Model):
+    __tablename__ = 'observing_sessions'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     title = db.Column(db.String(256), index=True)
@@ -80,8 +80,8 @@ class Observation(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
-    sqm_records = db.relationship('SqmFullRecord', backref='observation', cascade="all, delete-orphan", lazy=True)
-    observation_items = db.relationship('ObservationItem', backref='observation', cascade="all, delete-orphan", lazy=True)
+    sqm_records = db.relationship('SqmFullRecord', backref='observing_session', cascade="all, delete-orphan", lazy=True)
+    observations = db.relationship('Observation', backref='observing_session', cascade="all, delete-orphan", lazy=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
 
     def rating_to_int(self, m):
@@ -90,12 +90,12 @@ class Observation(db.Model):
         return int(round(self.rating * m / 10))
 
     def get_prev_next_item(self, dso_id):
-        observation_list = sorted(self.observation_items, key=lambda x: x.id)
+        observation_list = sorted(self.observations, key=lambda x: x.id)
         prev_dso = None
         next_dso = None
         find_next = False
-        for item in observation_list:
-            for dso in item.deepsky_objects:
+        for observation in observation_list:
+            for dso in observation.deepsky_objects:
                 if dso.id == dso_id:
                     find_next = True
                 elif not find_next:
@@ -112,16 +112,16 @@ class Observation(db.Model):
         return self.transparency.loc_text() if self.transparency else ''
 
 
-dso_observation_item_association_table = db.Table('observation_item_dsos', db.Model.metadata,
-                                                  db.Column('observation_item_id', db.Integer, db.ForeignKey('observation_items.id')),
-                                                  db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
-                                                  )
+dso_observation_association_table = db.Table('observation_dsos', db.Model.metadata,
+                                             db.Column('observation_id', db.Integer, db.ForeignKey('observations.id')),
+                                             db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
+                                             )
 
 
-class ObservationItem(db.Model):
-    __tablename__ = 'observation_items'
+class Observation(db.Model):
+    __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
-    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
     telescope_id = db.Column(db.Integer, db.ForeignKey('telescopes.id'))
     eyepiece_id = db.Column(db.Integer, db.ForeignKey('eyepieces.id'))
@@ -132,20 +132,19 @@ class ObservationItem(db.Model):
     # obsolete
     txt_deepsky_objects = db.Column(db.Text)
     notes = db.Column(db.Text)
-    deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_item_association_table)
+    deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
 
     def deepsky_objects_to_html(self):
-        return deepsky_objects_to_html(self.observation_id, self.deepsky_objects)
+        return deepsky_objects_to_html(self.observing_session_id, self.deepsky_objects)
 
     def notes_to_html(self):
-        return astro_text_to_html(self.observation_id, self.notes)
+        return astro_text_to_html(self.observing_session_id, self.notes)
 
 
-class ObservationPlanRun(db.Model):
-    __tablename__ = 'observation_plan_runs'
+class ObsSessionPlanRun(db.Model):
+    __tablename__ = 'obs_session_plan_runs'
     id = db.Column(db.Integer, primary_key=True)
-    observation_id = db.Column(db.Integer, db.ForeignKey('observations.id'), nullable=False)
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False)
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
-    session_plan = db.relationship("SessionPlan")
-    observation = db.relationship("Observation")
+    observing_session = db.relationship("ObservingSession")
     session_plan = db.relationship("SessionPlan")

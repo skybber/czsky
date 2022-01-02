@@ -4,14 +4,14 @@
 {% import 'macros/common_macros.html' as commons %}
 
 {% set edit_endpoints = [
-    ('main_observation.observation_info', _('Info'), 'info'),
-    ('main_observation.observation_chart', _('Chart'), 'info'),
-    ('main_observation.observation_run_plan', _('Run plan'), 'info'),
+    ('main_observing_session.observing_session_info', _('Info'), 'info'),
+    ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
+    ('main_observing_session.observing_session_run_plan', _('Run plan'), 'info'),
 ] %}
 
 {% set overview_endpoints = [
-    ('main_observation.observation_info', _('Info'), 'info'),
-    ('main_observation.observation_chart', _('Chart'), 'info'),
+    ('main_observing_session.observing_session_info', _('Info'), 'info'),
+    ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
 ] %}
 
 {% set flashes = {
@@ -23,55 +23,55 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, observation_id=observation.id, back=back, back_id=back_id) }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, observing_session_id=observing_session.id, back=back, back_id=back_id) }}">
                 {{ pupup_text }}
             </a>
         {% endfor %}
     </div>
 {% endmacro %}
 
-{# --- Observation Info --- #}
-{% macro observation_info(observation) %}
+{# --- Observing Session Info --- #}
+{% macro observing_session_info(observing_session) %}
     <table class="ui compact definition unstackable table">
-        <tr><td class="two wide">{{ _('Date From') }}</td><td colspan="5">{{ observation.date_from.strftime('%Y-%m-%d %H:%M') }}</td></tr>
-        <tr><td class="two wide">{{ _('Date To') }}</td><td colspan="5">{{ observation.date_to.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+        <tr><td class="two wide">{{ _('Date From') }}</td><td colspan="5">{{ observing_session.date_from.strftime('%Y-%m-%d %H:%M') }}</td></tr>
+        <tr><td class="two wide">{{ _('Date To') }}</td><td colspan="5">{{ observing_session.date_to.strftime('%Y-%m-%d %H:%M') }}</td></tr>
         <tr><td class="two wide">{{ _('Location') }}</td>
             <td colspan="5">
-                {% if observation.location %}
-                    {{ observation.location.name }}
-                    <a href="{{ observation.location.url_mapy_cz() }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
-                    <a href="{{ observation.location.url_google_maps() }}" target="_blank">google</a>
+                {% if observing_session.location %}
+                    {{ observing_session.location.name }}
+                    <a href="{{ observing_session.location.url_mapy_cz() }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
+                    <a href="{{ observing_session.location.url_google_maps() }}" target="_blank">google</a>
                 {% else %}
-                    {{ observation.location_position }}
+                    {{ observing_session.location_position }}
                     <a href="{{ location_position_mapy_cz_url }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
                     <a href="{{ location_position_google_maps_url }}" target="_blank">google</a>
                 {% endif %}
             </td>
         </tr>
-        <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observation.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
-        <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observation.sqm) if observation.sqm else '' }}</td></tr>
-        <tr><td class="two wide">{{ _('Faintest Star') }}</td><td>{{ "%.2f"|format(observation.faintest_star) if observation.faintest_star else '' }}</td></tr>
-        <tr><td class="two wide">{{ _('Seeing') }}</td><td>{{ observation.loc_seeing() }}</td></tr>
-        <tr><td class="two wide">{{ _('Transparency') }}</td><td>{{ observation.loc_transparency() }}</td></tr>
-        <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observation.weather }}</td></tr>
-        <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observation.equipment }}</td></tr>
+        <tr><td>Rating</td><td colspan="5"><div class="ui rating" data-icon="star" data-rating="{{ observing_session.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
+        <tr><td class="two wide">{{ _('Sqm') }}</td><td>{{ "%.2f"|format(observing_session.sqm) if observing_session.sqm else '' }}</td></tr>
+        <tr><td class="two wide">{{ _('Faintest Star') }}</td><td>{{ "%.2f"|format(observing_session.faintest_star) if observing_session.faintest_star else '' }}</td></tr>
+        <tr><td class="two wide">{{ _('Seeing') }}</td><td>{{ observing_session.loc_seeing() }}</td></tr>
+        <tr><td class="two wide">{{ _('Transparency') }}</td><td>{{ observing_session.loc_transparency() }}</td></tr>
+        <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observing_session.weather }}</td></tr>
+        <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observing_session.equipment }}</td></tr>
         <tr>
         <tr>
             <td class="two wide">{{ _('Notes') }}</td>
             <td colspan="5">
                 {% filter extended_commonmark('') %}
-{{ observation.notes }}
+{{ observing_session.notes }}
                 {% endfilter %}
             </td>
         </tr>
     </table>
     <table class="ui compact definition2 unstackable table">
-        {% for item in observation.observation_items | sort(attribute='date_time') %}
+        {% for o in observing_session.observations | sort(attribute='date_time') %}
         <tr>
-            <td class="two wide"><b>{{ item.deepsky_objects_to_html() | safe }}</b></td>
+            <td class="two wide"><b>{{ o.deepsky_objects_to_html() | safe }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}
-{{ item.notes_to_html() }}
+{{ o.notes_to_html() }}
                 {% endfilter %}
             </td>
         </tr>
@@ -86,23 +86,23 @@
 {% endmacro %}
 
 {# --- Chart --- #}
-{% macro observation_chart(observation) %}
-    {{ fchart.fchart(url_for('main_observation.observation_chart', observation_id=observation.id, back=back, back_id=back_id),
-                     url_for('main_observation.observation_chart_pos_img', observation_id=observation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+{% macro observing_session_chart(observing_session) %}
+    {{ fchart.fchart(url_for('main_observing_session.observing_session_chart', observing_session_id=observing_session.id, back=back, back_id=back_id),
+                     url_for('main_observing_session.observing_session_chart_pos_img', observing_session_id=observing_session.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
-                     url_for('main_observation.observation_chart_legend_img', observation_id=observation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                     url_for('main_observing_session.observing_session_chart_legend_img', observing_session_id=observing_session.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
                      None,
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observation.id))
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id))
     }}
 {% endmacro %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{# --- Observation Run Plan --- #}
-{% macro observation_run_plan(observation) %}
-    {{ f.begin_form(run_plan_form, flashes, action=url_for('main_observation.observation_run_plan', observation_id=observation.id), extra_classes='ui menu') }}
+{# --- Observing Session Run Plan --- #}
+{% macro observing_session_run_plan(observing_session) %}
+    {{ f.begin_form(run_plan_form, flashes, action=url_for('main_observing_session.observing_session_run_plan', observing_session_id=observing_session.id), extra_classes='ui menu') }}
         <div class="ui item">
             <div id="session_plans_dropdown" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Session plans') }}" data-variation="basic">
                 <input type="hidden" id="session_plan" name="{{ run_plan_form.session_plan.name }}" value="{{ run_plan_form.session_plan.data }}">
@@ -117,7 +117,7 @@
         </div>
         <div class="ui item">
 {% if run_plan_form.session_plan.data %}
-    {% set run_plan_url = url_for('main_observation.observation_run_plan_execute', observation_id=observation.id, session_plan_id=run_plan_form.session_plan.data) %}
+    {% set run_plan_url = url_for('main_observing_session.observing_session_run_plan_execute', observing_session_id=observing_session.id, session_plan_id=run_plan_form.session_plan.data) %}
 {% else %}
     {% set run_plan_url = '#' %}
 {% endif %}
@@ -149,8 +149,8 @@
             </tr>
         </thead>
         {% for item in not_observed_plan_items %}
-        {% if observation_plan_run is not none %}
-            <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}';">
+        {% if observing_session_plan_run is not none %}
+            <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}';">
         {% else %}
             <tr>
         {% endif %}
@@ -201,7 +201,7 @@
         {% for item in observed_items %}
         <tr>
             <td class="two wide">
-                <b><a href="{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item[0].deepskyObject.name, back='running_plan', back_id=observation_plan_run.id) }}">{{ item[0].deepskyObject.name}} </a></b>
+                <b><a href="{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item[0].deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}">{{ item[0].deepskyObject.name}} </a></b>
             </td>
             <td>
                 {% filter extended_commonmark('') %}
@@ -233,45 +233,45 @@ $(function(){
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                    {% if not is_mine_observation %}
+                    {% if not is_mine_observing_session %}
                         <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
                             <i class="caret left icon"></i>
                             {{ _('Dashboard') }}
                         </a>
                     {% else %}
-                        <a class="ui basic icon compact button" href="{{ url_for('main_observation.observations') }}">
+                        <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_sessions') }}">
                             <i class="caret left icon"></i>
                             <i class="tasks icon mobile hidden"></i>
                         </a>
                     {% endif %}
                     <div class="divider"> / </div>
                     <div class="active section mobile hidden">
-                        {{ observation.date_from.strftime('%Y-%m-%d') }}
+                        {{ observing_session.date_from.strftime('%Y-%m-%d') }}
                     </div>
                     <div class="divider mobile hidden"> &#x2604 </div>
                     <div class="active section">
-                        {{ observation.title }}
+                        {{ observing_session.title }}
                     </div>
                 </div>
-                {% if is_mine_observation %}
-                <a class="ui icon right floated mini button" href="{{ url_for('main_observation.observation_edit', observation_id=observation.id) }}">
+                {% if is_mine_observing_session %}
+                <a class="ui icon right floated mini button" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}">
                     <i class="caret edit icon"></i>
                 </a>
                 {% endif %}
             </div>
 
-            {% if is_mine_observation %}
+            {% if is_mine_observing_session %}
                 {{ navigation(edit_endpoints) }}
             {% else %}
                 {{ navigation(overview_endpoints) }}
             {% endif %}
 
             {% if type == 'info' %}
-                {{ observation_info(observation) }}
+                {{ observing_session_info(observing_session) }}
             {% elif type == 'chart' %}
-                {{ observation_chart(observation) }}
+                {{ observing_session_chart(observing_session) }}
             {% elif type == 'run_plan' %}
-                {{ observation_run_plan(observation) }}
+                {{ observing_session_run_plan(observing_session) }}
             {% endif %}
         </div>
     </div>

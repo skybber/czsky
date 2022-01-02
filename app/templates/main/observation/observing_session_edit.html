@@ -8,21 +8,21 @@
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
             {% if is_new %}
-              <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
+              <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_menu') }}">
                   <i class="caret left icon"></i>
                   {{ _('Observer') }}
               </a>
             {% else %}
-              <a class="ui basic compact button" href="{{ url_for('main_observation.observation_info', observation_id=observation.id) }}">
+              <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id) }}">
                   <i class="caret left icon"></i>
                 {{ _('Leave editing') }}
               </a>
             {% endif %}
             <h2 class="ui header">
                 {% if is_new %}
-                    {{ _('Add New Observation') }}
+                    {{ _('Add New Observing Session') }}
                 {% else %}
-                    {{ _('Edit Observation') }}
+                    {{ _('Edit Observing Session') }}
                 {% endif %}
                 <!--
                 <div class="ui right floated buttons">
@@ -133,7 +133,7 @@
 
                 <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
                     <div class="ui blue segment">
-                        <div class="ui tiny header">{{ _('Items') }}</div>
+                        <div class="ui tiny header">{{ _('Observations') }}</div>
                     </div>
                     {% for item in form.items %}
                         <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
@@ -187,7 +187,7 @@
                         {{ field(class='positive ui button') }}
                     {% endfor %}
                     {% if not is_new %}
-                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observation') }}</a>
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observing Session') }}</a>
                     {% endif %}
                 </div>
 
@@ -197,13 +197,13 @@
 
     {% if not is_new %}
         <div class="ui tiny modal deleteModal">
-          <div class="header">{{ _('Delete Observation') }}</div>
+          <div class="header">{{ _('Delete Observing Session') }}</div>
           <div class="content">
-            <p>{{ _('Are you sure you want to delete observation?') }}</p>
+            <p>{{ _('Are you sure you want to delete observing session?') }}</p>
           </div>
           <div class="actions">
             <div class="ui negative cancel button">No</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observation.observation_delete', observation_id=observation.id) }}">
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observing_session.observing_session_delete', observing_session_id=observing_session.id) }}">
                 {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>

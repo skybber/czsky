@@ -9,7 +9,7 @@
                {{ _('Observer') }}
             </a>
             <h2 class="ui header">
-                {{ _('Observations') }}
+                {{ _('Observing Sessions') }}
             </h2>
 
             <div style="overflow-x: scroll;">
@@ -25,13 +25,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for o in observations %}
-                        <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=o.id) }}';">
-                            <td>{{ o.date_from.strftime('%Y-%m-%d') }}</td>
-                            <td>{{ o.title[:64] }}</td>
-                            <td>{{ o.location.name if o.location else o.location_position }}</td>
-                            <td>{{ "%.2f"|format(o.sqm) if o.sqm else '' }}</td>
-                            <td class="mobile hidden"><div class="ui rating" data-icon="star" data-rating="{{ o.rating_to_int(5) }}" data-max-rating="5"></div></td>
+                    {% for os in observing_sessions %}
+                        <tr onclick="window.location.href = '{{ url_for('main_observing_session.observing_session_info', observing_session_id=os.id) }}';">
+                            <td>{{ os.date_from.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ os.title[:64] }}</td>
+                            <td>{{ os.location.name if os.location else os.location_position }}</td>
+                            <td>{{ "%.2f"|format(os.sqm) if os.sqm else '' }}</td>
+                            <td class="mobile hidden"><div class="ui rating" data-icon="star" data-rating="{{ os.rating_to_int(5) }}" data-max-rating="5"></div></td>
                         </tr>
                     {% endfor %}
                     </tbody>

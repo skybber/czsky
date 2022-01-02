@@ -252,14 +252,5 @@ def add_anonymous_user():
         db.session.commit()
 
 
-@manager.command
-def tmp_trans_observations():
-    for o in Observation.query.all():
-        o.date_from = o.date
-        o.date_to = o.date
-        db.session.add(o)
-    db.session.commit()
-
-
 if __name__ == '__main__':
     manager.run()

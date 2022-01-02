@@ -26,13 +26,13 @@ from app.models import (
     Catalogue,
     Constellation,
     DeepskyObject,
-    dso_observation_item_association_table,
-    ObservationItem,
+    dso_observation_association_table,
+    ObservingSession,
     DsoList,
     Observation,
     ObservedList,
     ObservedListItem,
-    ObservationPlanRun,
+    ObsSessionPlanRun,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
     User,
@@ -315,12 +315,12 @@ def deepskyobject_info(dso_id):
                            )
 
 
-def _get_observation_items_query(dso, orig_dso):
-    query = ObservationItem.query \
-        .join(Observation) \
-        .join(dso_observation_item_association_table) \
+def _get_observations_query(dso, orig_dso):
+    query = Observation.query \
+        .join(ObservingSession) \
+        .join(dso_observation_association_table) \
         .join(DeepskyObject) \
-        .filter((Observation.user_id == current_user.id) & DeepskyObject.id.in_((dso.id, orig_dso.id)))
+        .filter((ObservingSession.user_id == current_user.id) & DeepskyObject.id.in_((dso.id, orig_dso.id)))
     return query
 
 
@@ -329,7 +329,7 @@ def _has_dso_observations(dso, orig_dso):
     if current_user.is_authenticated:
         back = request.args.get('back')
         has_observations = (back != 'running_plan') and \
-            db.session.query(literal(True)).filter(_get_observation_items_query(dso, orig_dso).exists()).scalar()
+            db.session.query(literal(True)).filter(_get_observations_query(dso, orig_dso).exists()).scalar()
     return has_observations
 
 
@@ -380,16 +380,16 @@ def deepskyobject_observations(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'catalogue_data'
 
-    observation_items = None
+    observations = None
     if current_user.is_authenticated:
-        observation_items = _get_observation_items_query(dso, orig_dso).all()
+        observations = _get_observations_query(dso, orig_dso).all()
 
-    if not observation_items:
+    if not observations:
         return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observations', dso=dso,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
-                           season=season, embed=embed, has_observations=True, observation_items=observation_items,
+                           season=season, embed=embed, has_observations=True, observations=observations,
                            )
 
 
@@ -489,13 +489,13 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
         observation = Observation.query.filter_by(id=back_id).first()
         if observation and (observation.is_public or observation.user_id == current_user.id):
             highlights_dso_list = []
-            for oitem in observation.observation_items:
+            for oitem in observation.observations:
                 highlights_dso_list.extend(oitem.deepsky_objects)
     elif back == 'observed_list' and current_user.is_authenticated:
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
         highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
     elif back == 'running_plan' and back_id is not None:
-        observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+        observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
             highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
 
@@ -645,40 +645,40 @@ def deepskyobject_observation_log(dso_id):
     if back != 'running_plan':
         abort(404)
     back_id = request.args.get('back_id')
-    observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+    observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
         abort(404)
 
     form = DeepskyObjectObservationLog()
 
-    observation_item = None
-    for oi in observation_plan_run.observation.observation_items:
-        for oi_dso in oi.deepsky_objects:
+    observation = None
+    for o in observation_plan_run.observing_session.observations:
+        for oi_dso in o.deepsky_objects:
             if oi_dso.id == dso.id:
-                observation_item = oi
+                observation = o
                 break
-        if observation_item is not None:
+        if observation is not None:
             break
 
-    is_new_observation_log = observation_item is None
+    is_new_observation_log = observation is None
 
     if is_new_observation_log:
-        observation_item = ObservationItem(
-            observation_id=observation_plan_run.observation.id,
+        observation = Observation(
+            observing_session_id=observation_plan_run.observing_session.id,
             date_time=datetime.now(),
             notes=form.notes.data if form.notes.data else '',
         )
-        observation_item.deepsky_objects.append(dso)
+        observation.deepsky_objects.append(dso)
 
     if request.method == 'POST':
         if form.validate_on_submit():
-            observation_item.notes = form.notes.data
-            db.session.add(observation_item)
+            observation.notes = form.notes.data
+            db.session.add(observation)
             db.session.commit()
             flash('Observation log successfully updated', 'form-success')
             return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id))
     else:
-        form.notes.data = observation_item.notes
+        form.notes.data = observation.notes
 
     embed = request.args.get('embed')
     if embed:
@@ -702,21 +702,21 @@ def deepskyobject_observation_log_delete(dso_id):
     if back != 'running_plan':
         abort(404)
     back_id = request.args.get('back_id')
-    observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+    observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
         abort(404)
 
-    observation_item = None
-    for oi in observation_plan_run.observation.observation_items:
+    observation = None
+    for oi in observation_plan_run.observation.observations:
         for oi_dso in oi.deepsky_objects:
             if oi_dso.id == dso.id:
-                observation_item = oi
+                observation = oi
                 break
-        if observation_item is not None:
+        if observation is not None:
             break
 
-    if observation_item is not None:
-        db.session.delete(observation_item)
+    if observation is not None:
+        db.session.delete(observation)
         db.session.commit()
 
     flash('Observation log deleted.', 'form-success')
@@ -799,7 +799,7 @@ def _get_prev_next_dso(dso):
                     next_item.item_id if next_item else None,
                     )
     elif back == 'running_plan':
-        observation_plan_run = ObservationPlanRun.query.filter_by(id=back_id).first()
+        observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
             prev_item, next_item = observation_plan_run.session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
             has_item = True

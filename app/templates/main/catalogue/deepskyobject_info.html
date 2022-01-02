@@ -212,7 +212,7 @@
 {% macro deepskyobject_observations() %}
     <table class="ui compact definition2 unstackable searchable sortable selectable table">
         {% for item in observation_items %}
-        <tr onclick="window.location.href = '{{ url_for('main_observation.observation_info', observation_id=item.observation.id) }}';">
+        <tr onclick="window.location.href = '{{ url_for('main_observing_session.observing_session_info', observing_session_id=item.observing_session.id) }}';">
             <td class="two wide"><b>{{ item.observation.date.strftime('%Y-%m-%d') }}</b></td>
             <td class="two wide"><b>{{ item.observation.location.name if item.observation.location else '' }}</b></td>
             <td class="two wide"><b>{{ item.observation.title }}</b></td>
@@ -379,7 +379,7 @@
                                 <i class="lastfm icon mobile hidden"></i>
                             </a>
                         {% elif back == 'observation' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_info', observation_id=back_id) }}#dso{{dso.id}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}#dso{{dso.id}}">
                                 <i class="caret left icon"></i>
                                 <i class="eye icon mobile hidden"></i>
                             </a>
@@ -404,7 +404,7 @@
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% elif back == 'running_plan' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_observation.observation_run_plan_redirect', observation_plan_run_id=back_id) }}#dso{{dso.id}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}#dso{{dso.id}}">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon mobile hidden"></i>
                             </a>

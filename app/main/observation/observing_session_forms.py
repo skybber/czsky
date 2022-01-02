@@ -71,7 +71,7 @@ class ObservationItemNewForm(FlaskForm):
                 raise ValidationError(lazy_gettext('Value expected.'))
 
 
-class ObservationMixin:
+class ObservingSessionMixin:
     items = FieldList(FormField(ObservationItemNewForm), min_entries=1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
     rating = HiddenField(lazy_gettext('Rating'), default=0)
@@ -91,7 +91,6 @@ class ObservationMixin:
     notes = TextAreaField(lazy_gettext('Notes'))
     omd_content = TextAreaField(lazy_gettext('OMD Content'),
                                 default=DEFAULT_OBSERVATION_CONTENT.format(date=datetime.now().strftime('%Y-%m-%d')))
-    advmode = HiddenField('Advanced Mode', default='false')
     is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
 
     def validate_date_from_to(self):
@@ -104,22 +103,22 @@ class ObservationMixin:
         return True
 
 
-class ObservationNewForm(FlaskForm, ObservationMixin):
+class ObservingSessionNewForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Add Observation'))
 
     def validate(self):
-        if not super(ObservationNewForm, self).validate():
+        if not super(ObservingSessionNewForm, self).validate():
             return False
         return self.validate_date_from_to()
 
 
-class ObservationEditForm(FlaskForm, ObservationMixin):
+class ObservingSessionEditForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Observation'))
 
     def validate(self):
-        if not super(ObservationEditForm, self).validate():
+        if not super(ObservingSessionEditForm, self).validate():
             return False
         return self.validate_date_from_to()
 
@@ -128,11 +127,11 @@ class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(), ])
 
 
-class ObservationRunPlanForm(FlaskForm):
+class ObservationSessionRunPlanForm(FlaskForm):
     session_plan = HiddenField('session_plan')
 
 
-class ObservationsExportForm(FlaskForm):
+class ObservingSessionExportForm(FlaskForm):
     date_from = DateField(lazy_gettext('Date From'), id='odate_from', format='%d/%m/%Y', default=datetime.today,
                           validators=[InputRequired(), ])
     date_to = DateField(lazy_gettext('Date To'), id='odate_from', format='%d/%m/%Y', default=datetime.today,

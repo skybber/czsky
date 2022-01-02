@@ -17,7 +17,7 @@ from flask_login import current_user
 
 from app.models import (
     DsoList,
-    Observation,
+    ObservingSession,
     SessionPlan,
 )
 
@@ -769,11 +769,11 @@ def get_chart_legend_flags(form):
 
 
 class FChartDsoListMenu:
-    def __init__(self, dso_lists, is_wish_list, session_plans, observations):
+    def __init__(self, dso_lists, is_wish_list, session_plans, observing_sessions):
         self.dso_lists = dso_lists
         self.is_wish_list = is_wish_list
         self.session_plans = session_plans
-        self.observations = observations
+        self.observing_sessions = observing_sessions
 
 
 def common_chart_dso_list_menu():
@@ -781,13 +781,13 @@ def common_chart_dso_list_menu():
     if not current_user.is_anonymous:
         is_wish_list = True
         session_plans = SessionPlan.query.filter_by(user_id=current_user.id).all()
-        observations = Observation.query.filter_by(user_id=current_user.id).all()
+        observing_sessions = ObservingSession.query.filter_by(user_id=current_user.id).all()
     else:
         is_wish_list = False
         session_plans = None
-        observations = None
+        observing_sessions = None
 
-    return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observations)
+    return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observing_sessions)
 
 
 def get_trajectory_time_delta(d1, d2):

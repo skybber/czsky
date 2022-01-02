@@ -28,7 +28,7 @@ from .observed_forms import (
 from app.models import ObservedList, ObservedListItem
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
-from .observation_form_utils import *
+from .observing_session_form_utils import *
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,

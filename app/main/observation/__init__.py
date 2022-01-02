@@ -1,2 +1,3 @@
-from .observation_views import  main_observation
-from .observed_views import  main_observed
+from .observation_views import main_observation
+from .observing_session_views import main_observing_session
+from .observed_views import main_observed
