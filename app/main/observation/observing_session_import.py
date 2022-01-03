@@ -3,27 +3,21 @@ from sqlalchemy import and_, or_
 
 from flask_babel import lazy_gettext
 
+from app import db
+
 from app.commons.coordinates import parse_latlon
 from app.commons import normalize_dso_name
 
-from app.models import Location, Observation, DeepskyObject, User
+from app.models import Location, ObservingSession, Observation, DeepskyObject, User
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
-
-from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType, OalsurfaceBrightnessType
-from app.commons.openastronomylog import OalobserverType, OalobserversType
-from app.commons.openastronomylog import OalsiteType, OalsitesType
-from app.commons.openastronomylog import Oalobservations, OalobservationType
-from app.commons.openastronomylog import OalsessionsType, OalsessionType
-from app.commons.openastronomylog import OaltargetsType, OalobservationTargetType
-from app.commons.openastronomylog import OalscopesType, OalscopeType
-from app.commons.openastronomylog import OaleyepieceType, OaleyepiecesType
-from app.commons.openastronomylog import OallensesType, OallensType
-from app.commons.openastronomylog import OalfiltersType, OalfilterType
-from app.commons.openastronomylog import OalfindingsType
+from app.commons.openastronomylog import parse
 
 
-def import_observations(user, import_user, oal_observations):
+def import_observations(user, import_user, file):
+    log_warn = []
     log_error = []
+
+    oal_observations = parse(file)
 
     # Locations
     oal_sites = oal_observations.get_sites()
@@ -35,13 +29,14 @@ def import_observations(user, import_user, oal_observations):
             location = Location.query.find_by(name=oal_site.get_name()).first()
         if location is None:
             add_hoc_locations[oal_site.name] = (oal_site.get_latitude(), oal_site.get_longitude())
+            log_warn.append(lazy_gettext('OAL Location "{}" not found').format(oal_site.get_name()))
         else:
             found_locations[oal_site.get_id()] = location
 
     # Observations
     oal_sessions = oal_observations.get_sessions()
-    found_observations = {}
-    new_observations = {}
+    found_observing_sessions = {}
+    new_observing_sessions = {}
     for oal_session in oal_sessions:
         begin = oal_session.get_begin()
         end = oal_session.get_end()
@@ -50,15 +45,15 @@ def import_observations(user, import_user, oal_observations):
         if end and not begin:
             begin = end
 
-        observation = Observation.query.filter(user_id=user.id)\
-                                       .filter(or_(and_(Observation.date_from >= begin, Observation.date_from <= end),
-                                                   and_(Observation.date_to >= begin, Observation.date_from <= end))).first()
-        if observation:
-            found_observations[oal_session.get_id()] = observation
+        observing_session = ObservingSession.query.filter(user_id=user.id)\
+                                            .filter(or_(and_(ObservingSession.date_from >= begin, ObservingSession.date_from <= end),
+                                                        and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end))).first()
+        if observing_session:
+            found_observing_sessions[oal_session.get_id()] = observing_session
         else:
             location = found_locations.get(oal_session.get_site())
             location_position = add_hoc_locations.get(oal_session.get_site())
-            observation = Observation(
+            observing_session = ObservingSession(
                 user_id=user.id,
                 title=oal_session.id(),
                 date_from=begin,
@@ -73,12 +68,14 @@ def import_observations(user, import_user, oal_observations):
                 weather=oal_session.get_weather(),
                 equipment=oal_session.get_equipment(),
                 notes=oal_session.get_comments(),
+                create_by_import=True,
                 create_by=import_user.id,
                 update_by=import_user.id,
                 create_date=datetime.now(),
                 update_date=datetime.now()
             )
-            new_observations[oal_session.get_id()] = observation
+            new_observing_sessions[oal_session.get_id()] = observing_session
+        db.session.add(observing_session)
 
     # Targets
     oal_targets = oal_observations.get_targets()
@@ -125,106 +122,72 @@ def import_observations(user, import_user, oal_observations):
 #                                    wratten=None, schott=None)
 #         oal_filters.add_filter(oal_filter)
 
-    oal_observations = oal_observations.get_targets()
-    oal_observation_ar = []
+    oal_observations = oal_observations.get_observation()
 
-    for observation in observations:
-        for obs_item in observation.observation_items:
-            for dso in obs_item.deepsky_objects:
-                obs_result = OalfindingsType(lang=user.lang_code, description=obs_item.notes)
-                oal_sky_quality = OalsurfaceBrightnessType(unit='mags-per-squarearcsec', valueOf_=observation.sqm) if observation.sqm else None
-                oal_obs = OalobservationType(id='obs_{}'.format(obs_item.id), observer='usr_{}'.format(user.id), site='site_{}'.format(observation.location_id),
-                                             session='se_{}'.format(observation.id), target='_{}'.format(dso.id), begin=obs_item.date_time, end=None,
-                                             faintestStar=observation.faintest_star, sky_quality=oal_sky_quality, seeing=_get_oal_seeing(observation.seeing),
-                                             scope='opt_'.format(obs_item.telescope_id) if obs_item.telescope_id else None,
-                                             accessories=obs_item.accessories,
-                                             eyepiece='ep_'.format(obs_item.eyepiece_id) if obs_item.eyepiece_id else None,
-                                             lenses='le_'.format(obs_item.lens_id) if obs_item.lens_id else None,
-                                             filter='flt_'.format(obs_item.filter_id) if obs_item.filter_id else None,
-                                             magnification=obs_item.magnification,
-                                             imager=None, result=[obs_result], image=None
-                                             )
-                oal_observation_ar.append(oal_obs)
+    for oal_observation in oal_observations:
+        observing_session = found_observing_sessions.get(oal_observation.get_session())
+        is_session_new = False
+        if not observing_session:
+            observing_session = new_observing_sessions.get(oal_observation.get_session())
+            is_session_new = True
 
-    oal_observations = Oalobservations(observers=oal_observers, sites=oal_sites, sessions=oal_sessions, targets=oal_targets,
-                                       scopes=oal_scopes, eyepieces=oal_eyepieces, lenses=oal_lenses, filters=oal_filters,
-                                       images=None, observation=oal_observation_ar)
+        if not observing_session:
+            log_error.append(lazy_gettext('OAL Session "{}" not found.').format(oal_observation.get_id()))
+            continue
 
-    return oal_observations
+        observed_dso = found_dsos.get(oal_observation.get_target())
+        if not observed_dso:
+            log_error.append(lazy_gettext('OAL Target "{}" not found.').format(oal_observation.get_target()))
+            continue
 
+        observation = None
+        if not is_session_new:
+            for obs in observing_session.observations:
+                if obs.deepsky_objects:
+                    for dso in obs.deepsky_objects:
+                        if dso.name == observed_dso.name:
+                            observation = obs
+                            break
+                    if observation:
+                        break
 
-def _get_oal_angle(unit, angle):
-    return OalangleType(unit=unit, valueOf_=angle)
+        if observation:
+            log_warn.append(lazy_gettext('OAL Observation "{}" for session "{}" already exists').format(oal_observation.get_id(), oal_observation.get_session()))
+        else:
+            notes = ''
+            if oal_observation.get_result():
+                notes = oal_observation.get_result()[0].get_description()
+            observation = Observation(
+                observing_session_id=observing_session.id,
+                date_time=oal_observation.get_begin(),
+                notes=notes,
+            )
+            observing_session.observations.append(observation)
+            if is_session_new:
+                if not observing_session.sqm and oal_observation.get_skyquality():
+                    observing_session.sqm = oal_observation.get_skyquality().get_valueOf_()
+                if not observing_session.faintest_star and oal_observation.get_faintestStar():
+                    observing_session.faintest_star = oal_observation.get_faintestStar()
+                if not observing_session.seeing and oal_observation.get_seeing():
+                    observing_session.seeing = _get_seeing_from_oal_seeing(oal_observation.get_seeing())
 
+        observing_session.observations.append(observation)
 
-def _get_oal_non_neg_angle(unit, angle):
-    return OalnonNegativeAngleType(unit=unit, valueOf_=angle)
+    db.session.commit()
 
-
-def _get_oal_equ_pos(ra, dec):
-    return OalequPosType(ra=_get_oal_non_neg_angle(angleUnit.RAD, ra), dec=_get_oal_angle(angleUnit.RAD, dec))
-
-
-def _get_oal_telescope_type(telescope_type):
-    if telescope_type == TelescopeType.BINOCULAR:
-        return 'B'
-    if telescope_type == TelescopeType.NEWTON:
-        return 'N'
-    if telescope_type == TelescopeType.REFRACTOR:
-        return 'R'
-    if telescope_type == TelescopeType.CASSEGRAIN:
-        return 'C'
-    if telescope_type == TelescopeType.SCHMIDT_CASSEGRAIN:
-        return 'S'
-    if telescope_type == TelescopeType.MAKSUTOV:
-        return 'M'
-    if telescope_type == TelescopeType.KUTTER:
-        return 'K'
-    if telescope_type == TelescopeType.OTHER:
-        return None
-    return None
+    return log_warn, log_error
 
 
-def _get_oal_filter_type(filter_type):
-    if filter_type == FilterType.UHC:
-        return 'narrow band'
-    if filter_type == FilterType.OIII:
-        return 'O-III'
-    if filter_type == FilterType.CLS:
-        return 'broad band'
-    if filter_type == FilterType.HBETA:
-        return 'H-beta'
-    if filter_type == FilterType.HALPHA:
-        return 'H-alpha'
-    if filter_type == FilterType.COLOR:
-        return 'color'
-    if filter_type == FilterType.NEUTRAL:
-        return 'neutral'
-    if filter_type == FilterType.CORRECTIVE:
-        return 'corrective'
-    if filter_type == FilterType.SOLAR:
-        return 'solar'
-    if filter_type == FilterType.BROAD_BAND:
-        return 'broad band'
-    if filter_type == FilterType.NARROW_BAND:
-        return 'narrow band'
-    if filter_type == FilterType.OTHER:
-        return 'other'
-    return None
-
-
-def _get_oal_seeing(seeing):
-    if seeing == Seeing.TERRIBLE:
-        return 5
-    if seeing == Seeing.VERYBAD:
-        return 5
-    if seeing == Seeing.BAD:
-        return 4
-    if seeing == Seeing.AVERAGE:
-        return 3
-    if seeing == Seeing.GOOD:
-        return 2
-    if seeing == Seeing.EXCELLENT:
-        return 1
+def _get_seeing_from_oal_seeing(seeing):
+    if seeing == 5:
+        return Seeing.VERYBAD
+    if seeing == 4:
+        return Seeing.BAD
+    if seeing == 3:
+        return Seeing.AVERAGE
+    if seeing == 2:
+        return Seeing.GOOD
+    if seeing == 1:
+        return Seeing.EXCELLENT
     return None
 

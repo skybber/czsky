@@ -45,6 +45,7 @@ from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from .observing_session_form_utils import *
 from .observing_session_export import create_oal_observations
+from .observing_session_import import import_observations
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -383,3 +384,24 @@ def observing_sessions_export():
 
     return render_template('main/observation/observing_sessions_export.html')
 
+
+@main_observing_session.route('/observing-sessions-import', methods=['GET', 'POST'])
+@login_required
+def observing_sessions_import():
+    if 'file' not in request.files:
+        flash('No file part', 'form-error')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(request.url)
+    log_warn, log_error = [], []
+    if file:
+        filename = secure_filename(file.filename)
+        path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        with open(path) as oal_file:
+            log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
+            flash('Observations imported.', 'form-success')
+
+    return render_template('main/observation/observing_sessions_import.html', log_warn=log_warn, log_error=log_error)
