@@ -45,7 +45,7 @@ def skyquality_locations():
 
     locations_for_render = locations.limit(per_page).offset(offset).all()
 
-    pagination = Pagination(page=page, total=locations.count(), search=search, record_name='locations', css_framework='semantic')
+    pagination = Pagination(page=page, per_page=per_page, total=locations.count(), search=search, record_name='locations', css_framework='semantic')
     return render_template('main/skyquality/skyquality_locations.html', locations=locations_for_render, pagination=pagination, search_form=search_form)
 
 

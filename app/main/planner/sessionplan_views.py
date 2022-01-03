@@ -466,7 +466,8 @@ def session_plan_schedule(session_plan_id):
     selection_compound_list, page, all_count = create_selection_coumpound_list(session_plan, schedule_form, observer, observation_time, time_from, time_to, tz_info,
             page, offset, per_page, src_sort_by, mag_scale, sort_def)
 
-    src_pagination = Pagination(page=page, total=all_count, search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+    src_pagination = Pagination(page=page, per_page=per_page, total=all_count, search=False, record_name='deepskyobjects',
+                                css_framework='semantic', not_passed_args='back')
 
     session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, sort_def)
 
@@ -484,7 +485,8 @@ def session_plan_schedule(session_plan_id):
 
     session_plan_compound_list_for_render = session_plan_compound_list[dst_offset:dst_offset + per_page]
 
-    dst_pagination = Pagination(dst_page=dst_page, page_parameter='dst_page', total=len(session_plan_compound_list), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+    dst_pagination = Pagination(dst_page=dst_page, page_parameter='dst_page', total=len(session_plan_compound_list), search=False,
+                                per_page=per_page, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     selected_dso_name = None
 

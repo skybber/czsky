@@ -149,7 +149,7 @@ def comets():
     else:
         comets_for_render = comets
 
-    pagination = Pagination(page=page, total=len(comets), search=False, record_name='comets', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=len(comets), search=False, record_name='comets', css_framework='semantic', not_passed_args='back')
     return render_template('main/solarsystem/comets.html', comets=comets_for_render, pagination=pagination, search_form=search_form)
 
 

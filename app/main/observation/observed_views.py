@@ -23,11 +23,12 @@ from app import db
 
 from .observed_forms import (
     AddToObservedListForm,
+    SearchObservedForm,
 )
 
 from app.models import ObservedList, ObservedListItem
-from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
-from app.commons.pagination import Pagination, get_page_parameter
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
+from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from .observing_session_form_utils import *
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -47,9 +48,33 @@ main_observed = Blueprint('main_observed', __name__)
 def observed_list_info():
     """View observed list."""
     add_form = AddToObservedListForm()
+    search_form = SearchObservedForm()
+
+    ret, page = process_paginated_session_search('observed_search_page', [
+        ('observed_search', search_form.q),
+        ('items_per_page', search_form.items_per_page)
+    ])
+
+    per_page = get_items_per_page(search_form.items_per_page)
+
+    if not ret:
+        return redirect(url_for('main_observed.observed_list_info'))
+
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-    observed_list_items = enumerate(observed_list.observed_list_items)
-    return render_template('main/observation/observed_list.html', observed_list=observed_list, type='info', add_form=add_form, observed_list_items=observed_list_items)
+    observed_list_items = observed_list.observed_list_items
+
+    page_offset = (page - 1) * per_page
+
+    if page_offset < len(observed_list_items):
+        page_items = observed_list_items[page_offset:page_offset + per_page]
+    else:
+        page_items = []
+
+    pagination = Pagination(page=page, per_page=per_page, total=len(observed_list.observed_list_items), search=False, record_name='observed',
+                            css_framework='semantic', not_passed_args='back')
+
+    return render_template('main/observation/observed_list.html', observed_list=observed_list, type='info', add_form=add_form,
+                           search_form=search_form, observed_list_items=enumerate(page_items), page_offset=page_offset, pagination=pagination)
 
 
 @main_observed.route('/observed-list-item-add', methods=['POST'])

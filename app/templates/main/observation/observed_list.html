@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
@@ -68,36 +69,40 @@
             </div>
 
             <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending collapsing">N</th>
-                            <th class="sorted ascending">Name</th>
-                            <th>{{ _('Type') }}</th>
-                            <th>{{ _('Constellation') }}</th>
-                            <th>mag</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='observed_list') }}{% endmacro %}
+                <form action="{{ url_for('main_observed.observed_list_info') }}" method="post" name="search">
+                    <table class="ui searchable sortable unstackable selectable celled table">
+                        <thead>
+                            <tr>
+                                <th class="sorted ascending collapsing">N</th>
+                                <th class="sorted ascending">Name</th>
+                                <th>{{ _('Type') }}</th>
+                                <th>{{ _('Constellation') }}</th>
+                                <th>mag</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='observed_list') }}{% endmacro %}
 
-                    {% for i, item in observed_list_items %}
-                        <tr>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ i + 1 }}</p></td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.deepskyObject.denormalized_name() }}</p></td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                            <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
-                            <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_observed.observed_list_item_delete', item_id=item.id) }}">
-                                    <i class="trash alternate icon"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                        {% for i, item in observed_list_items %}
+                            <tr>
+                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ i + 1 + page_offset }}</p></td>
+                                <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.deepskyObject.denormalized_name() }}</p></td>
+                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
+                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
+                                <td class="collapsing specialClass">
+                                    <a class="ui icon mini button" href="{{ url_for('main_observed.observed_list_item_delete', item_id=item.id) }}">
+                                        <i class="trash alternate icon"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                </form>
             </div>
         </div>
     </div>

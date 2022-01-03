@@ -69,7 +69,7 @@ def news_list():
         news = news.filter(News.name.like('%' + search_form.q.data + '%'))
     news_for_render = news.order_by(News.id.desc()).limit(per_page).offset(offset).all()
 
-    pagination = Pagination(page=page, total=news.count(), search=False, record_name='news', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=news.count(), search=False, record_name='news', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/news/news_list.html', news=news_for_render, pagination=pagination, search_form=search_form)
 

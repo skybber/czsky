@@ -34,3 +34,8 @@ from app.commons.dso_utils import normalize_dso_name
 
 class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+
+
+class SearchObservedForm(FlaskForm):
+    q = StringField(lazy_gettext('Search'))
+    items_per_page = IntegerField(lazy_gettext('Items per page'))

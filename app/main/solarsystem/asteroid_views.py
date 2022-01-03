@@ -133,7 +133,7 @@ def asteroids():
     else:
         asteroids_for_render = asteroids
 
-    pagination = Pagination(page=page, total=len(asteroids), search=False, record_name='asteroids', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=len(asteroids), search=False, record_name='asteroids', css_framework='semantic', not_passed_args='back')
     return render_template('main/solarsystem/asteroids.html', asteroids=asteroids_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
 
 

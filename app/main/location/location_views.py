@@ -65,7 +65,7 @@ def locations():
         locations = locations.filter(Location.name.like('%' + search_form.q.data + '%'))
     locations_for_render = locations.limit(per_page).offset(offset).all()
 
-    pagination = Pagination(page=page, total=locations.count(), search=False, record_name='locations', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=locations.count(), search=False, record_name='locations', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/location/locations.html', locations=locations_for_render, pagination=pagination, search_form=search_form)
 

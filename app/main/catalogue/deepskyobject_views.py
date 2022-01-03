@@ -152,7 +152,8 @@ def deepskyobjects():
         for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
             observed.add(dso.id)
 
-    pagination = Pagination(page=page, total=dso_query.count(), search=False, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=dso_query.count(), search=False, record_name='deepskyobjects',
+                            css_framework='semantic', not_passed_args='back')
 
     return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=shown_dsos, mag_scale=mag_scale,
                            pagination=pagination, search_form=search_form, table_sort=table_sort, observed=observed)
