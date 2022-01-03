@@ -16,6 +16,7 @@ from flask_login import (
     logout_user,
 )
 from flask_rq import get_queue
+from flask_babel import gettext
 
 from app import db
 from app.account.forms import (
@@ -48,17 +49,17 @@ def login():
                     user.last_login_date = datetime.now()
                     db.session.add(user)
                     db.session.commit()
-                    flash('You are now logged in. Welcome back!', 'success')
+                    flash(gettext('You are now logged in. Welcome back!'), 'success')
                     return redirect(request.args.get('next') or url_for('main.index'))
                 else:
-                    flash('User was disabled, please contact administrator.', 'form-error')
+                    flash(gettext('User was disabled, please contact administrator.'), 'form-error')
             else:
                 inval_email_or_password = True
         else:
             inval_email_or_password = True
 
         if inval_email_or_password:
-            flash('Invalid email or password.', 'form-error')
+            flash(gettext('Invalid email or password.'), 'form-error')
 
     return render_template('account/login.html', form=form)
 
@@ -84,8 +85,7 @@ def register():
             template='account/email/confirm',
             user=user,
             confirm_link=confirm_link)
-        flash('A confirmation link has been sent to {}.'.format(user.email),
-              'warning')
+        flash(gettext('A confirmation link has been sent to {}.').format(user.email), 'warning')
         return redirect(url_for('main.index'))
     return render_template('account/register.html', form=form)
 
@@ -94,7 +94,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    flash('You have been logged out.', 'info')
+    flash(gettext('You have been logged out.'), 'info')
     return redirect(url_for('main.index'))
 
 
@@ -126,8 +126,7 @@ def reset_password_request():
                 user=user,
                 reset_link=reset_link,
                 next=request.args.get('next'))
-        flash('A password reset link has been sent to {}.'.format(
-            form.email.data), 'warning')
+        flash(gettext('A password reset link has been sent to {}.').format(form.email.data), 'warning')
         return redirect(url_for('account.login'))
     return render_template('account/reset_password.html', form=form)
 
@@ -141,14 +140,13 @@ def reset_password(token):
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is None:
-            flash('Invalid email address.', 'form-error')
+            flash(gettext('Invalid email address.'), 'form-error')
             return redirect(url_for('main.index'))
         if user.reset_password(token, form.new_password.data):
-            flash('Your password has been updated.', 'form-success')
+            flash(gettext('Your password has been updated.'), 'form-success')
             return redirect(url_for('account.login'))
         else:
-            flash('The password reset link is invalid or has expired.',
-                  'form-error')
+            flash(gettext('The password reset link is invalid or has expired.'), 'form-error')
             return redirect(url_for('main.index'))
     return render_template('account/reset_password.html', form=form)
 
@@ -163,10 +161,10 @@ def change_password():
             current_user.password = form.new_password.data
             db.session.add(current_user)
             db.session.commit()
-            flash('Your password has been updated.', 'form-success')
+            flash(gettext('Your password has been updated.'), 'form-success')
             return redirect(url_for('main.index'))
         else:
-            flash('Original password is invalid.', 'form-error')
+            flash(gettext('Original password is invalid.'), 'form-error')
     return render_template('account/manage.html', form=form)
 
 
@@ -190,11 +188,10 @@ def change_email_request():
                 # object
                 user=current_user._get_current_object(),
                 change_email_link=change_email_link)
-            flash('A confirmation link has been sent to {}.'.format(new_email),
-                  'warning')
+            flash(gettext('A confirmation link has been sent to {}.').format(new_email), 'warning')
             return redirect(url_for('main.index'))
         else:
-            flash('Invalid email or password.', 'form-error')
+            flash(gettext('Invalid email or password.'), 'form-error')
     return render_template('account/manage.html', form=form)
 
 
@@ -203,9 +200,9 @@ def change_email_request():
 def change_email(token):
     """Change existing user's email with provided token."""
     if current_user.change_email(token):
-        flash('Your email address has been updated.', 'success')
+        flash(gettext('Your email address has been updated.'), 'success')
     else:
-        flash('The confirmation link is invalid or has expired.', 'error')
+        flash(gettext('The confirmation link is invalid or has expired.'), 'error')
     return redirect(url_for('main.index'))
 
 
@@ -223,8 +220,7 @@ def confirm_request():
         # current_user is a LocalProxy, we want the underlying user object
         user=current_user._get_current_object(),
         confirm_link=confirm_link)
-    flash('A new confirmation link has been sent to {}.'.format(
-        current_user.email), 'warning')
+    flash(gettext('A new confirmation link has been sent to {}.').format(current_user.email), 'warning')
     return redirect(url_for('main.index'))
 
 
@@ -235,9 +231,9 @@ def confirm(token):
     if current_user.confirmed:
         return redirect(url_for('main.index'))
     if current_user.confirm_account(token):
-        flash('Your account has been confirmed.', 'success')
+        flash(gettext('Your account has been confirmed.'), 'success')
     else:
-        flash('The confirmation link is invalid or has expired.', 'error')
+        flash(gettext('The confirmation link is invalid or has expired.'), 'error')
     return redirect(url_for('main.index'))
 
 
@@ -248,7 +244,7 @@ def join_from_invite(user_id, token):
     a password.
     """
     if current_user is not None and current_user.is_authenticated:
-        flash('You are already logged in.', 'error')
+        flash(gettext('You are already logged in.'), 'error')
         return redirect(url_for('main.index'))
 
     new_user = User.query.get(user_id)
@@ -256,7 +252,7 @@ def join_from_invite(user_id, token):
         return redirect(404)
 
     if new_user.password_hash is not None:
-        flash('You have already joined.', 'error')
+        flash(gettext('You have already joined.'), 'error')
         return redirect(url_for('main.index'))
 
     if new_user.confirm_account(token):
@@ -265,14 +261,14 @@ def join_from_invite(user_id, token):
             new_user.password = form.password.data
             db.session.add(new_user)
             db.session.commit()
-            flash('Your password has been set. After you log in, you can '
-                  'go to the "Your Account" page to review your account '
-                  'information and settings.', 'success')
+            flash(gettext('Your password has been set. After you log in, you can '
+                          'go to the "Your Account" page to review your account '
+                          'information and settings.'), 'success')
             return redirect(url_for('account.login'))
         return render_template('account/join_invite.html', form=form)
     else:
-        flash('The confirmation link is invalid or has expired. Another '
-              'invite email with a new link has been sent to you.', 'error')
+        flash(gettext('The confirmation link is invalid or has expired. Another '
+                      'invite email with a new link has been sent to you.'), 'error')
         token = new_user.generate_confirmation_token()
         invite_link = url_for(
             'account.join_from_invite',
