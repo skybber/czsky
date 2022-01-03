@@ -76,6 +76,15 @@ def dso_menu():
     return render_template('main/catalogue/dso_menu.html')
 
 
+@main_deepskyobject.route('/all-deepskyobjects', methods=['GET', 'POST'])
+def all_deepskyobjects():
+    session.pop('dso_search', None)
+    session.pop('dso_type', None)
+    session.pop('dso_catal', None)
+    session.pop('dso_maglim', None)
+    return redirect(url_for('main_deepskyobject.deepskyobjects'))
+
+
 @main_deepskyobject.route('/deepskyobjects', methods=['GET', 'POST'])
 def deepskyobjects():
     """View deepsky objects."""

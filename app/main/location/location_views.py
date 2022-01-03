@@ -8,6 +8,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -33,6 +34,13 @@ main_location = Blueprint('main_location', __name__)
 
 def _is_editable(location):
     return location.user_id == current_user.id or current_user.is_admin() or current_user.is_editor()
+
+
+@main_location.route('/all-locations', methods=['GET', 'POST'])
+@login_required
+def all_locations():
+    session.pop('location_search', None)
+    return redirect(url_for('main_location.locations'))
 
 
 @main_location.route('/locations', methods=['GET', 'POST'])

@@ -15,7 +15,7 @@
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Equipment'), 'main_equipment.equipment_menu',
                                     description=_('Your equipment'), icon='toolbox icon') }}
-                {{ dash.dashboard_option(_('Locations'), 'main_location.locations',
+                {{ dash.dashboard_option(_('Locations'), 'main_location.all_locations',
                                     description=_('View all locations'), icon='map marker alternate icon') }}
                 {% if can_edit_news %}
                     {{ dash.dashboard_option(_('News list'), 'main_news.news_list',
