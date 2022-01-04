@@ -27,11 +27,11 @@ msgstr "Uživatel byl zneaktivněn, kontaktujte administrátora."
 
 #: app/account/views.py:62 app/account/views.py:194
 msgid "Invalid email or password."
-msgstr "Neplatný email nebo heslo"
+msgstr "Neplatný email nebo heslo."
 
 #: app/account/views.py:88 app/account/views.py:191
 msgid "A confirmation link has been sent to {}."
-msgstr "Potvrzovací odkaz byl odeslán na adresu {}"
+msgstr "Potvrzovací odkaz byl odeslán na adresu {}."
 
 #: app/account/views.py:97
 msgid "You have been logged out."
@@ -39,11 +39,11 @@ msgstr "Byl jste odhlášen."
 
 #: app/account/views.py:129
 msgid "A password reset link has been sent to {}."
-msgstr "Odkaz na obnovení hesla byl zaslán na adresu {}"
+msgstr "Odkaz na obnovení hesla byl zaslán na adresu {}."
 
 #: app/account/views.py:143
 msgid "Invalid email address."
-msgstr "Neplatná emailová adresa"
+msgstr "Neplatná emailová adresa."
 
 #: app/account/views.py:146 app/account/views.py:164
 msgid "Your password has been updated."
@@ -55,7 +55,7 @@ msgstr "Odkaz na zresetování hesla není platný nebo doba jeho platnosti vypr
 
 #: app/account/views.py:167
 msgid "Original password is invalid."
-msgstr "Původní heslo není platné"
+msgstr "Původní heslo není platné."
 
 #: app/account/views.py:203
 msgid "Your email address has been updated."
@@ -67,7 +67,7 @@ msgstr "Potvrzovací odkaz je neplatný nebo jeho platnost vypršela."
 
 #: app/account/views.py:223
 msgid "A new confirmation link has been sent to {}."
-msgstr "Nový potvrzovací odkaz byl zaslán na adresu {}"
+msgstr "Nový potvrzovací odkaz byl zaslán na adresu {}."
 
 #: app/account/views.py:234
 msgid "Your account has been confirmed."
@@ -99,7 +99,7 @@ msgstr ""
 
 #: app/admin/forms.py:25
 msgid "User login disabled."
-msgstr "Přistup byl odepřen"
+msgstr "Přistup byl odepřen."
 
 #: app/main/catalogue/deepskyobject_forms.py:60 app/main/forms.py:35
 #: app/main/location/location_forms.py:54 app/main/news/news_forms.py:52
@@ -370,7 +370,7 @@ msgstr "Zorné pole (stupňů)"
 #: app/templates/main/equipment/filter_info.html:28
 #: app/templates/main/equipment/lens_info.html:29
 msgid "Diameter (inch)"
-msgstr "Průmer (palců)"
+msgstr "Průměr (palců)"
 
 #: app/main/equipment/equipment_forms.py:89
 msgid "Add Eyepiece"
@@ -472,11 +472,11 @@ msgstr "Publikovat"
 
 #: app/main/news/news_forms.py:43 app/templates/main/news/news_list.html:14
 msgid "Add news"
-msgstr "Přidat aktualitu"
+msgstr "Přidat novinku"
 
 #: app/main/news/news_forms.py:47
 msgid "Update news"
-msgstr "Aktualizovat aktualitu"
+msgstr "Aktualizovat novinku"
 
 #: app/main/observation/observed_forms.py:36
 #: app/main/observation/observing_session_forms.py:117
@@ -545,12 +545,12 @@ msgstr "Lokalita"
 #: app/main/observation/observing_session_forms.py:77
 #: app/templates/main/observation/observing_session_info.html:53
 msgid "Faintest Star"
-msgstr ""
+msgstr "MHV"
 
 #: app/main/observation/observing_session_forms.py:81
 #: app/templates/main/observation/observing_session_info.html:56
 msgid "Weather"
-msgstr ""
+msgstr "Počasí"
 
 #: app/main/observation/observing_session_forms.py:82
 #: app/templates/main/equipment/eyepieces.html:10
@@ -560,7 +560,7 @@ msgstr ""
 #: app/templates/main/observation/observing_session_info.html:57
 #: app/templates/main/userdata/userdata_menu.html:16
 msgid "Equipment"
-msgstr ""
+msgstr "Výbava"
 
 #: app/main/observation/observing_session_forms.py:84
 #: app/main/planner/sessionplan_forms.py:48
@@ -569,11 +569,11 @@ msgstr "Je veřejný"
 
 #: app/main/observation/observing_session_forms.py:88
 msgid "Date from must be before date to."
-msgstr ""
+msgstr "Datum OD musí být po před datem DO."
 
 #: app/main/observation/observing_session_forms.py:90
 msgid "Date to must be after date from."
-msgstr ""
+msgstr "Datum DO musí být po datu OD."
 
 #: app/main/observation/observing_session_forms.py:98
 msgid "Add Observation"
@@ -601,11 +601,11 @@ msgstr "OAL Session \"{}\" nebyl nalezen."
 
 #: app/main/observation/observing_session_import.py:140
 msgid "OAL Target \"{}\" not found."
-msgstr ""
+msgstr "OAL Target \"{}\" nebyl nalezen."
 
 #: app/main/observation/observing_session_import.py:155
 msgid "OAL Observation \"{}\" for session \"{}\" already exists"
-msgstr ""
+msgstr "OAL Observation \"{}\" pro session \"{}\" již existuje."
 
 #: app/main/planner/sessionplan_forms.py:45
 #: app/templates/main/observation/observing_sessions.html:20
@@ -617,7 +617,7 @@ msgstr "Datum"
 
 #: app/main/planner/sessionplan_forms.py:49
 msgid "Plan is archived"
-msgstr ""
+msgstr "Plán je archivní"
 
 #: app/main/planner/sessionplan_forms.py:54
 msgid "Add Session Plan"
@@ -796,7 +796,7 @@ msgid ""
 "When you created an account, you should have received an email from us at"
 " {} with a link to confirm your email address."
 msgstr ""
-"Poté, co jste si vytvořili účet, měli byste od nás obdržet e-mail na "
+"Po vytvoření účtu, byste měli od nás obdržet e-mail na "
 "adresu. {} s odkazem pro potvrzení vaší e-mailové adresy.\""
 
 #: app/templates/account/unconfirmed.html:14
@@ -904,7 +904,7 @@ msgstr "Zavřít"
 
 #: app/templates/macros/common_macros.html:26
 msgid "Add to wishlist"
-msgstr "přidat na wishlist"
+msgstr "Přidat na wishlist"
 
 #: app/templates/macros/common_macros.html:29
 msgid "Add to observed"
@@ -1029,7 +1029,7 @@ msgstr "Tmavý mód"
 #: app/templates/main/news/news_edit.html:13
 #: app/templates/main/news/news_info.html:51
 msgid "News"
-msgstr "Aktuality"
+msgstr "Novinky"
 
 #: app/templates/main/catalogue/constellations.html:11
 #: app/templates/main/index.html:70
@@ -1333,7 +1333,7 @@ msgstr "Vaše filtry"
 
 #: app/templates/main/equipment/equipment_menu.html:22
 msgid "Barlow & Correctors"
-msgstr "Barrlow a korektory"
+msgstr "Barlow a korektory"
 
 #: app/templates/main/equipment/equipment_menu.html:23
 msgid "Your Barlow and Corrector"
@@ -1386,7 +1386,7 @@ msgstr "Zorné pole (stupňů)"
 
 #: app/templates/main/equipment/eyepieces.html:14
 msgid "New eyepiece"
-msgstr "Nový okulár"
+msgstr "Přidat okulár"
 
 #: app/templates/main/equipment/eyepieces.html:34
 #: app/templates/main/equipment/telescopes.html:38
@@ -1409,7 +1409,7 @@ msgstr "Informace k filtru"
 
 #: app/templates/main/equipment/filter_edit.html:24
 msgid "Add New Filter"
-msgstr "Přidat filtr"
+msgstr "Přidat nový filtr"
 
 #: app/templates/main/equipment/filter_edit.html:26
 msgid "Edit Filter"
@@ -1430,7 +1430,7 @@ msgstr "Typ filtru"
 
 #: app/templates/main/equipment/filters.html:14
 msgid "New filter"
-msgstr "Nový filtr"
+msgstr "Přidat filtr"
 
 #: app/templates/main/equipment/lens_edit.html:13
 #: app/templates/main/equipment/lens_info.html:9
@@ -1444,7 +1444,7 @@ msgstr "Informace k čočce"
 
 #: app/templates/main/equipment/lens_edit.html:24
 msgid "Add New Lens"
-msgstr "Přidat čočku"
+msgstr "Přidat novou čočku"
 
 #: app/templates/main/equipment/lens_edit.html:26
 msgid "Edit Lens"
@@ -1465,7 +1465,7 @@ msgstr "Typ čočky"
 
 #: app/templates/main/equipment/lenses.html:14
 msgid "New lens"
-msgstr "Nová čočka"
+msgstr "Přidat čočku"
 
 #: app/templates/main/equipment/telescope_edit.html:18
 msgid "Telescope Info"
@@ -1473,7 +1473,7 @@ msgstr "Informace k dalekohledu"
 
 #: app/templates/main/equipment/telescope_edit.html:24
 msgid "Add New Telescope"
-msgstr "Přidat dalekohled"
+msgstr "Přidat nový dalekohled"
 
 #: app/templates/main/equipment/telescope_edit.html:26
 msgid "Edit Telescope"
@@ -1514,11 +1514,11 @@ msgstr "Informace o lokalitě"
 
 #: app/templates/main/location/location_edit.html:24
 msgid "Add New Location"
-msgstr "Přidat lokalitu"
+msgstr "Přidat novou lokalitu"
 
 #: app/templates/main/location/location_edit.html:26
 msgid "Edit Location"
-msgstr "Editovat lokalitu"
+msgstr "Upravit lokalitu"
 
 #: app/templates/main/location/location_edit.html:94
 #: app/templates/main/location/location_edit.html:104
@@ -1543,25 +1543,25 @@ msgstr "Novinka"
 
 #: app/templates/main/news/news_edit.html:24
 msgid "Add New News"
-msgstr "Přidat novou aktualitu"
+msgstr "Přidat novou novinku"
 
 #: app/templates/main/news/news_edit.html:26
 msgid "Edit News"
-msgstr "Upravit aktualitu"
+msgstr "Upravit novinku"
 
 #: app/templates/main/news/news_edit.html:60
 #: app/templates/main/news/news_edit.html:70
 msgid "Delete News"
-msgstr "Odstranit aktualitu"
+msgstr "Odstranit novinku"
 
 #: app/templates/main/news/news_edit.html:72
 msgid "Are you sure you want to delete news?"
-msgstr "Skutečně chcete odstranit tuto lokalitu"
+msgstr "Skutečně chcete odstranit tuto novinku"
 
 #: app/templates/main/news/news_list.html:17
 #: app/templates/main/userdata/userdata_menu.html:21
 msgid "News list"
-msgstr "Zobrazit aktuality"
+msgstr "Zobrazit novinky"
 
 #: app/templates/main/observation/observation_menu.html:16
 msgid "Add observing session"
@@ -1649,7 +1649,7 @@ msgstr "Přidat nové pozorování"
 
 #: app/templates/main/observation/observing_session_edit.html:25
 msgid "Edit Observing Session"
-msgstr "Editovat pozorování"
+msgstr "Upravit pozorování"
 
 #: app/templates/main/observation/observing_session_edit.html:29
 msgid "Basic"
@@ -1946,7 +1946,7 @@ msgstr "Zobrazit lokality"
 
 #: app/templates/main/userdata/userdata_menu.html:22
 msgid "Show all news"
-msgstr "Zobrazit aktuality"
+msgstr "Zobrazit novinky"
 
 #: app/templates/main/userdata/userdata_menu.html:25
 msgid "Store/restore data from git repository"
@@ -2163,4 +2163,5 @@ msgstr "Dobrá"
 msgctxt "transparency"
 msgid "Excellent"
 msgstr "Výborná"
+
 
