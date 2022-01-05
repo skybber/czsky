@@ -129,8 +129,6 @@ class Observation(db.Model):
     filter_id = db.Column(db.Integer, db.ForeignKey('filters.id'))
     lens_id = db.Column(db.Integer, db.ForeignKey('lenses.id'))
     magnification = db.Column(db.Float)
-    # obsolete
-    txt_deepsky_objects = db.Column(db.Text)
     notes = db.Column(db.Text)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
 
