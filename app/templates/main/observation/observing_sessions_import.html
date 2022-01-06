@@ -31,9 +31,9 @@
                     <div class="ui menu">
                         <div class="right menu">
                             <div class="ui item">
-                                <form id="fmupload" method="post" action="{{ url_for('main_observing_session.observing_sessions_import') }}" enctype="multipart/form-data">
+                                <form id="fmupload" method="post" action="{{ url_for('main_observing_session.observing_sessions_import_upload') }}" enctype="multipart/form-data">
                                     <label for="file" class="ui icon button">
-                                        <i class="upload icon"></i>
+                                        <i class="download icon"></i>
                                     </label>
                                     <input type="file" id="file" name="file" class="ui file input">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
@@ -46,4 +46,15 @@
         </div>
     </div>
 
+    <style>
+        .ui.file.input {
+          top: -999999px;
+          position: absolute;
+        }
+    </style>
+    <script type="text/javascript">
+        $('#file').change(function() {
+            $("#fmupload" ).submit();
+        });
+    </script>
 {% endblock %}

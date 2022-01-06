@@ -26,9 +26,13 @@ def create_oal_observations(user, observing_sessions):
 
     # Sites
     oal_sites = OalsitesType()
+    proc_locations = set()
     for observing_session in observing_sessions:
         location = observing_session.location
         if location:
+            if location.id in proc_locations:
+                continue
+            proc_locations.add(location.id)
             oal_site = OalsiteType(id='site_{}'.format(location.id), name=location.name,
                                    longitude=_get_oal_angle(angleUnit.DEG, location.longitude), latitude=_get_oal_angle(angleUnit.DEG, location.latitude),
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
@@ -56,9 +60,13 @@ def create_oal_observations(user, observing_sessions):
 
     # Targets
     oal_targets = OaltargetsType()
+    proc_targets = set()
     for observing_session in observing_sessions:
         for observation in observing_session.observations:
             for dso in observation.deepsky_objects:
+                if dso.id in proc_targets:
+                    continue
+                proc_targets.add(dso.id)
                 oal_obs_target = OalobservationTargetType(id='_{}'.format(dso.id), datasource='CzSky', observer=None,
                                                           name=dso.name, alias=None, position=_get_oal_equ_pos(dso.ra, dso.dec),
                                                           constellation=dso.get_constellation_iau_code(),
@@ -71,7 +79,8 @@ def create_oal_observations(user, observing_sessions):
     for telescope in telescopes:
         oal_scope = OalscopeType(id='opt_{}'.format(telescope.id), model=telescope.model,
                                  type=_get_oal_telescope_type(telescope.telescope_type), vendor=telescope.vendor, aperture=telescope.aperture_mm,
-                                 lightGrasp=telescope.light_grasp, orientation=None, focalLength=telescope.focal_length_mm)
+                                 lightGrasp=telescope.light_grasp, orientation=None, focalLength=telescope.focal_length_mm,
+                                 extensiontype_="scopeType")
         oal_scopes.add_scope(oal_scope)
 
     # Eyepieces

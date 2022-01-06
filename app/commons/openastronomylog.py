@@ -102,10 +102,10 @@ def parsexmlstring_(instring, parser=None, **kwargs):
 #
 #     # File: generatedsnamespaces.py
 #
-#     GenerateDSNamespaceTypePrefixes = {
+# GenerateDSNamespaceTypePrefixes = {
 #         "ElementtypeC": "aaa:",
 #         "ElementtypeD": "bbb:",
-#     }
+# }
 #
 
 try:
@@ -5435,7 +5435,7 @@ class OalscopesType(GeneratedsSuper):
                     type_name_ = type_names_[0]
                 else:
                     type_name_ = type_names_[1]
-                class_ = globals()[type_name_]
+                class_ = globals()['Oal' + type_name_]
                 obj_ = class_.factory()
                 obj_.build(child_, gds_collector_=gds_collector_)
             else:
@@ -5914,8 +5914,8 @@ def parse(inFileName, silence=False, print_warnings=True):
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
-        rootTag = 'angleType'
-        rootClass = OalangleType
+        rootTag = 'observations'
+        rootClass = Oalobservations
     rootObj = rootClass.factory()
     rootObj.build(rootNode, gds_collector_=gds_collector)
     CapturedNsmap_, namespacedefs = get_required_ns_prefix_defs(rootNode)

@@ -1,7 +1,8 @@
 import os
-import csv
 from io import StringIO, BytesIO
 import base64
+import codecs
+from lxml import etree
 
 from werkzeug.utils import secure_filename
 
@@ -101,7 +102,7 @@ def observing_session_info(observing_session_id):
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
     location_position_mapy_cz_url = None
     location_position_google_maps_url = None
-    if not observing_session.location_id:
+    if not observing_session.location_id and observing_session.location_position:
         lat, lon = parse_latlon(observing_session.location_position)
         location_position_mapy_cz_url = mapy_cz_url(lon, lat)
         location_position_google_maps_url = google_url(lon, lat)
@@ -148,7 +149,7 @@ def observing_session_edit(observing_session_id):
         form.faintest_star.data = observing_session.faintest_star
         form.seeing.data = observing_session.seeing if observing_session.seeing else Seeing.AVERAGE
         form.transparency.data = observing_session.transparency if observing_session.transparency else Transparency.AVERAGE
-        form.rating.data = observing_session.rating // 2
+        form.rating.data = observing_session.rating // 2 if observing_session.rating is not None else 0
         form.weather.data = observing_session.weather
         form.equipment.data = observing_session.equipment
         form.notes.data = observing_session.notes
@@ -372,10 +373,12 @@ def observing_sessions_export():
     form = ObservingSessionExportForm()
     if request.method == 'POST':
         buf = StringIO()
+        buf.write('<?xml version="1.0" encoding="utf-8"?>\n')
         observing_sessions = ObservingSession.query.filter_by(user_id=current_user.id).all()
         oal_observations = create_oal_observations(current_user, observing_sessions)
         oal_observations.export(buf, 0)
         mem = BytesIO()
+        mem.write(codecs.BOM_UTF8)
         mem.write(buf.getvalue().encode('utf-8'))
         mem.seek(0)
         return send_file(mem, as_attachment=True,
@@ -388,6 +391,12 @@ def observing_sessions_export():
 @main_observing_session.route('/observing-sessions-import', methods=['GET', 'POST'])
 @login_required
 def observing_sessions_import():
+    return render_template('main/observation/observing_sessions_import.html', log_warn=[], log_error=[])
+
+
+@main_observing_session.route('/observing-sessions-import-upload', methods=['GET', 'POST'])
+@login_required
+def observing_sessions_import_upload():
     if 'file' not in request.files:
         flash('No file part', 'form-error')
         return redirect(request.url)
@@ -400,8 +409,18 @@ def observing_sessions_import():
         filename = secure_filename(file.filename)
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(path)
-        with open(path) as oal_file:
-            log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
-            flash('Observations imported.', 'form-success')
+
+        encoding = 'iso8859-1'
+
+        if encoding:
+            with codecs.open(path, 'rb', encoding=encoding) as oal_file:
+                log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
+                print(log_warn, flush=True)
+                print(log_error, flush=True)
+        else:
+            with open(path) as oal_file:
+                log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
+
+        flash('Observations imported.', 'form-success')
 
     return render_template('main/observation/observing_sessions_import.html', log_warn=log_warn, log_error=log_error)

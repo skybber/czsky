@@ -17,76 +17,81 @@ def import_observations(user, import_user, file):
     log_warn = []
     log_error = []
 
-    oal_observations = parse(file)
+    oal_observations = parse(file, silence=True)
 
     # Locations
     oal_sites = oal_observations.get_sites()
     found_locations = {}
     add_hoc_locations = {}
-    for oal_site in oal_sites:
-        location = None
-        if oal_site.get_name():
-            location = Location.query.find_by(name=oal_site.get_name()).first()
-        if location is None:
-            add_hoc_locations[oal_site.name] = (oal_site.get_latitude(), oal_site.get_longitude())
-            log_warn.append(lazy_gettext('OAL Location "{}" not found').format(oal_site.get_name()))
-        else:
-            found_locations[oal_site.get_id()] = location
+    if oal_sites and oal_sites.get_site():
+        for oal_site in oal_sites.get_site():
+            location = None
+            if oal_site.get_name():
+                location = Location.query.filter_by(name=oal_site.get_name()).first()
+            if location is None:
+                add_hoc_locations[oal_site.name] = (oal_site.get_latitude(), oal_site.get_longitude())
+                log_warn.append(lazy_gettext('OAL Location "{}" not found').format(oal_site.get_name()))
+            else:
+                found_locations[oal_site.get_id()] = location
 
     # Observations
     oal_sessions = oal_observations.get_sessions()
     found_observing_sessions = {}
     new_observing_sessions = {}
-    for oal_session in oal_sessions:
-        begin = oal_session.get_begin()
-        end = oal_session.get_end()
-        if begin and not end:
-            end = begin
-        if end and not begin:
-            begin = end
+    if oal_sessions and oal_sessions.get_session():
+        for oal_session in oal_sessions.get_session():
+            begin = oal_session.get_begin()
+            end = oal_session.get_end()
+            if begin and not end:
+                end = begin
+            if end and not begin:
+                begin = end
 
-        observing_session = ObservingSession.query.filter(user_id=user.id)\
-                                            .filter(or_(and_(ObservingSession.date_from >= begin, ObservingSession.date_from <= end),
-                                                        and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end))).first()
-        if observing_session:
-            found_observing_sessions[oal_session.get_id()] = observing_session
-        else:
-            location = found_locations.get(oal_session.get_site())
-            location_position = add_hoc_locations.get(oal_session.get_site())
-            observing_session = ObservingSession(
-                user_id=user.id,
-                title=oal_session.id(),
-                date_from=begin,
-                date_to=end,
-                location_id=location.id if location else None,
-                location_position=location_position,
-                sqm=None,
-                faintest_star=None,
-                seeing=None,
-                transparency=None,
-                rating=None,
-                weather=oal_session.get_weather(),
-                equipment=oal_session.get_equipment(),
-                notes=oal_session.get_comments(),
-                create_by_import=True,
-                create_by=import_user.id,
-                update_by=import_user.id,
-                create_date=datetime.now(),
-                update_date=datetime.now()
-            )
-            new_observing_sessions[oal_session.get_id()] = observing_session
-        db.session.add(observing_session)
+            observing_session = ObservingSession.query.filter(ObservingSession.user_id == user.id) \
+                                                .filter(or_(and_(ObservingSession.date_from >= begin, ObservingSession.date_from <= end),
+                                                            and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end))).first()
+            if observing_session:
+                found_observing_sessions[oal_session.get_id()] = observing_session
+                print('Observing session found {}'.format(oal_session.get_id()))
+            else:
+                location = found_locations.get(oal_session.get_site())
+                location_position = add_hoc_locations.get(oal_session.get_site())
+                observing_session = ObservingSession(
+                    user_id=user.id,
+                    title=oal_session.get_id(),
+                    date_from=begin,
+                    date_to=end,
+                    location_id=location.id if location else None,
+                    location_position=location_position,
+                    sqm=None,
+                    faintest_star=None,
+                    seeing=None,
+                    transparency=None,
+                    rating=None,
+                    weather=oal_session.get_weather(),
+                    equipment=oal_session.get_equipment(),
+                    notes=oal_session.get_comments(),
+                    created_by_import=True,
+                    create_by=import_user.id,
+                    update_by=import_user.id,
+                    create_date=datetime.now(),
+                    update_date=datetime.now()
+                )
+                new_observing_sessions[oal_session.get_id()] = observing_session
+                db.session.add(observing_session)
+                print('Added observing session {}'.format(oal_session.get_id()))
 
     # Targets
     oal_targets = oal_observations.get_targets()
     found_dsos = {}
-    for target in oal_targets:
-        normalized_name = normalize_dso_name(target.get_name())
-        dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-        if dso:
-            found_dsos[target.get_id()] = dso
-        else:
-            log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
+    if oal_targets and oal_targets.get_target():
+        for target in oal_targets.get_target():
+            normalized_name = normalize_dso_name(target.get_name())
+            dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+            if dso:
+                found_dsos[target.get_id()] = dso
+            else:
+                log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
 
 # #-------------------------
 #     # Scopes
@@ -125,6 +130,7 @@ def import_observations(user, import_user, file):
     oal_observations = oal_observations.get_observation()
 
     for oal_observation in oal_observations:
+        print('Reading oal_observation={}'.format(oal_observation.get_id()), flush=True)
         observing_session = found_observing_sessions.get(oal_observation.get_session())
         is_session_new = False
         if not observing_session:
@@ -162,16 +168,17 @@ def import_observations(user, import_user, file):
                 date_time=oal_observation.get_begin(),
                 notes=notes,
             )
-            observing_session.observations.append(observation)
+            observation.deepsky_objects.append(observed_dso)
             if is_session_new:
-                if not observing_session.sqm and oal_observation.get_skyquality():
-                    observing_session.sqm = oal_observation.get_skyquality().get_valueOf_()
+                if not observing_session.sqm and oal_observation.get_sky_quality():
+                    observing_session.sqm = oal_observation.get_sky_quality().get_valueOf_()
                 if not observing_session.faintest_star and oal_observation.get_faintestStar():
                     observing_session.faintest_star = oal_observation.get_faintestStar()
                 if not observing_session.seeing and oal_observation.get_seeing():
                     observing_session.seeing = _get_seeing_from_oal_seeing(oal_observation.get_seeing())
 
-        observing_session.observations.append(observation)
+            observing_session.observations.append(observation)
+            print('Added observation {}'.format(observation), flush=True)
 
     db.session.commit()
 
@@ -190,4 +197,3 @@ def _get_seeing_from_oal_seeing(seeing):
     if seeing == 1:
         return Seeing.EXCELLENT
     return None
-
