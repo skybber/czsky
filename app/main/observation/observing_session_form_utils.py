@@ -48,11 +48,12 @@ def create_from_basic_form(form):
         )
 
     for item_form in form.items[1:]:
-        item_time = datetime.combine(observing_session.date_from, item_form.date_time.data)
+        item_time = datetime.combine(observing_session.date_from, item_form.date_from.data)
         dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
         observation = Observation(
             observing_session_id=observing_session.id,
-            date_time=item_time,
+            date_from=item_time,
+            date_to=item_time,
             notes=notes,
             )
         observing_session.observations.append(observation)
@@ -105,11 +106,12 @@ def update_from_basic_form(form, observing_session):
     observing_session.is_public = form.is_public.data
 
     for item_form in form.items[1:]:
-        item_time = datetime.combine(observing_session.date_from, item_form.date_time.data)
+        item_time = datetime.combine(observing_session.date_from, item_form.date_from.data)
         dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
         observation = Observation(
             observing_session_id=observing_session.id,
-            date_time=item_time,
+            date_from=item_time,
+            date_to=item_time,
             notes=notes
             )
         observing_session.observations.append(observation)

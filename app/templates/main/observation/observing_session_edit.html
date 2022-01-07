@@ -148,22 +148,22 @@
                                     {% endif %}
                                 </div>
                                 <div class="four wide field">
-                                    <label for="otime-{{loop.index0}}-tm">{{ item.date_time.label }}</label>
+                                    <label for="otime-{{loop.index0}}-tm">{{ item.date_from.label }}</label>
                                     <div class="ui action input">
                                         <div class="ui input calendar" id="otime-{{loop.index0}}-tm">
                                           <div class="ui input left icon">
                                             <i class="calendar icon"></i>
-                                            <input id="items-{{loop.index0}}-date_time"  name="{{item.date_time.name}}" placeholder="Time"
-                                                   type="text" value="{{item.date_time.data.strftime('%H:%M') if item.date_time.data else ''}}" class="observ-time">
+                                            <input id="items-{{loop.index0}}-date_from"  name="{{item.date_from.name}}" placeholder="Time"
+                                                   type="text" value="{{item.date_from.data.strftime('%H:%M') if item.date_from.data else ''}}" class="observ-time">
                                           </div>
                                         </div>
                                         <button id="item-{{loop.index0}}-remove" class="ui icon red button" type="button" data-toggle="fieldset-remove-row">
                                             <i class="trash icon"></i>
                                         </button>
                                     </div>
-                                    {% if item.date_time.errors %}
+                                    {% if item.date_from.errors %}
                                         <div class="ui red pointing label">
-                                            {{ item.date_time.errors[0] | safe }}
+                                            {{ item.date_from.errors[0] | safe }}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -333,8 +333,8 @@
                     });
                     row.show();
                     oldrow.after(row);
-                    $('#items-' + elem_num + '-date_time').val('00:00')
-                    $('#items-' + elem_num + '-date_time').calendar({
+                    $('#items-' + elem_num + '-date_from').val('00:00')
+                    $('#items-' + elem_num + '-date_from').calendar({
                         type: 'time',
                         ampm: false,
                         popupOptions: {

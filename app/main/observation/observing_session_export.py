@@ -115,7 +115,7 @@ def create_oal_observations(user, observing_sessions):
                 obs_result = OalfindingsType(lang=user.lang_code, description=observation.notes)
                 oal_sky_quality = OalsurfaceBrightnessType(unit='mags-per-squarearcsec', valueOf_=observing_session.sqm) if observing_session.sqm else None
                 oal_obs = OalobservationType(id='obs_{}'.format(observation.id), observer='usr_{}'.format(user.id), site='site_{}'.format(observing_session.location_id),
-                                             session='se_{}'.format(observing_session.id), target='_{}'.format(dso.id), begin=observation.date_time, end=None,
+                                             session='se_{}'.format(observing_session.id), target='_{}'.format(dso.id), begin=observation.date_from, end=observation.date_to,
                                              faintestStar=observing_session.faintest_star, sky_quality=oal_sky_quality, seeing=_get_oal_seeing(observing_session.seeing),
                                              scope='opt_'.format(observation.telescope_id) if observation.telescope_id else None,
                                              accessories=observation.accessories,

@@ -66,7 +66,7 @@
         </tr>
     </table>
     <table class="ui compact definition2 unstackable table">
-        {% for o in observing_session.observations | sort(attribute='date_time') %}
+        {% for o in observing_session.observations | sort(attribute='date_from') %}
         <tr>
             <td class="two wide"><b>{{ o.deepsky_objects_to_html() | safe }}</b></td>
             <td>

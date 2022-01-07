@@ -2,6 +2,10 @@ import re
 
 from app.models.catalogue import Catalogue
 
+CATALOG_REPLACEMENTS = [
+    (re.compile(re.escape('barnard'), re.IGNORECASE), 'B')
+]
+
 CATALOG_SPECS0 = {'sh2'}
 # catalog_specs1 = {'Cannon', 'Haro', 'He', 'Hoffleit', 'Hu', 'K', 'Merrill', 'PK', 'Peimbert', 'Perek', 'Vy'}
 CATALOGS_SPEC2 = ['vdb-ha']
@@ -65,6 +69,12 @@ def split_catalog_name(dso_name):
 def get_catalog_from_dsoname(dso_name):
     catalog_code, dso_id = split_catalog_name(dso_name)
     return Catalogue.get_catalogue_by_code(catalog_code)
+
+
+def normalize_dso_name_ext(dso_name):
+    for repl_pair in CATALOG_REPLACEMENTS:
+        dso_name = repl_pair[0].sub(repl_pair[1], dso_name)
+    return normalize_dso_name(dso_name)
 
 
 def normalize_dso_name(dso_name):

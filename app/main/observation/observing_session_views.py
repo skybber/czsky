@@ -160,7 +160,7 @@ def observing_session_edit(observing_session_id):
             if comp_dsos:
                 comp_dsos += ':'
             oif.comp_notes.data = comp_dsos + oi.notes
-            oif.date_time.data = oi.date_time
+            oif.date_from.data = oi.date_from
 
     location, location_position = _get_location_data2_from_form(form)
 
@@ -410,8 +410,8 @@ def observing_sessions_import_upload():
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(path)
 
-        encoding = 'iso8859-1'
-
+        # encoding = 'iso8859-1'
+        encoding = None
         if encoding:
             with codecs.open(path, 'rb', encoding=encoding) as oal_file:
                 log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)

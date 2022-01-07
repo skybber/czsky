@@ -6,7 +6,7 @@ from flask_babel import lazy_gettext
 from app import db
 
 from app.commons.coordinates import parse_latlon
-from app.commons import normalize_dso_name
+from app.commons import normalize_dso_name_ext
 
 from app.models import Location, ObservingSession, Observation, DeepskyObject, User
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
@@ -52,7 +52,6 @@ def import_observations(user, import_user, file):
                                                             and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end))).first()
             if observing_session:
                 found_observing_sessions[oal_session.get_id()] = observing_session
-                print('Observing session found {}'.format(oal_session.get_id()))
             else:
                 location = found_locations.get(oal_session.get_site())
                 location_position = add_hoc_locations.get(oal_session.get_site())
@@ -79,14 +78,13 @@ def import_observations(user, import_user, file):
                 )
                 new_observing_sessions[oal_session.get_id()] = observing_session
                 db.session.add(observing_session)
-                print('Added observing session {}'.format(oal_session.get_id()))
 
     # Targets
     oal_targets = oal_observations.get_targets()
     found_dsos = {}
     if oal_targets and oal_targets.get_target():
         for target in oal_targets.get_target():
-            normalized_name = normalize_dso_name(target.get_name())
+            normalized_name = normalize_dso_name_ext(target.get_name())
             dso = DeepskyObject.query.filter_by(name=normalized_name).first()
             if dso:
                 found_dsos[target.get_id()] = dso
@@ -130,7 +128,6 @@ def import_observations(user, import_user, file):
     oal_observations = oal_observations.get_observation()
 
     for oal_observation in oal_observations:
-        print('Reading oal_observation={}'.format(oal_observation.get_id()), flush=True)
         observing_session = found_observing_sessions.get(oal_observation.get_session())
         is_session_new = False
         if not observing_session:
@@ -165,7 +162,8 @@ def import_observations(user, import_user, file):
                 notes = oal_observation.get_result()[0].get_description()
             observation = Observation(
                 observing_session_id=observing_session.id,
-                date_time=oal_observation.get_begin(),
+                date_from=oal_observation.get_begin(),
+                date_to=oal_observation.get_end(),
                 notes=notes,
             )
             observation.deepsky_objects.append(observed_dso)
@@ -178,7 +176,6 @@ def import_observations(user, import_user, file):
                     observing_session.seeing = _get_seeing_from_oal_seeing(oal_observation.get_seeing())
 
             observing_session.observations.append(observation)
-            print('Added observation {}'.format(observation), flush=True)
 
     db.session.commit()
 
