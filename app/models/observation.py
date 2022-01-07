@@ -122,8 +122,6 @@ class Observation(db.Model):
     __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
     observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False)
-    # obsolete
-    date_time = db.Column(db.DateTime)
     date_from = db.Column(db.DateTime, default=datetime.now(), index=True)
     date_to = db.Column(db.DateTime, default=datetime.now())
     telescope_id = db.Column(db.Integer, db.ForeignKey('telescopes.id'))
