@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-03 21:21+0100\n"
+"POT-Creation-Date: 2022-01-07 20:55+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -487,7 +487,7 @@ msgid "DSO list with comment. (e.g. M3,M5:nice globulars!)"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:41
-msgid "Time"
+msgid "Time From"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:42
@@ -583,24 +583,66 @@ msgstr ""
 msgid "Export Observation"
 msgstr ""
 
-#: app/main/observation/observing_session_import.py:32
+#: app/main/observation/observing_session_import.py:33
 msgid "OAL Location \"{}\" not found"
 msgstr ""
 
-#: app/main/observation/observing_session_import.py:89
+#: app/main/observation/observing_session_import.py:92
 msgid "DSO \"{}\" not found"
 msgstr ""
 
-#: app/main/observation/observing_session_import.py:135
+#: app/main/observation/observing_session_import.py:138
 msgid "OAL Session \"{}\" not found."
 msgstr ""
 
-#: app/main/observation/observing_session_import.py:140
+#: app/main/observation/observing_session_import.py:143
 msgid "OAL Target \"{}\" not found."
 msgstr ""
 
-#: app/main/observation/observing_session_import.py:155
+#: app/main/observation/observing_session_import.py:158
 msgid "OAL Observation \"{}\" for session \"{}\" already exists"
+msgstr ""
+
+#: app/main/observation/observing_session_views.py:431
+msgid ""
+"\n"
+"## Goal\n"
+"**OpenAstronomyLog** is a free and open XML schema definition for all "
+"kinds of astronomical observations. \n"
+"Software that supports this schema enables an observer to share "
+"observations with other observers or move observations \n"
+"among software products.\n"
+"\n"
+"## History\n"
+"The schema (formerly known as COMAST schema) was primarily developed by "
+"the \n"
+"german [\"Fachgruppe für Computerastronomie\"](http://www.vds-"
+"astro.de/fachgruppen/computerastronomie.html) (section for "
+"computerastronomy) which is a subsection of Germany's largest\n"
+"astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der "
+"Sternfreunde e.V.) \n"
+"Starting with version 2.0 the schema was renamed from COMAST (abbr. for "
+"*Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\\<OAL\\>**.\n"
+"\n"
+"## Documentation\n"
+"Please see our [wiki "
+"section](https://github.com/openastronomylog/openastronomylog/wiki) as "
+"well as the "
+"[doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc)"
+" folder\n"
+"\n"
+"## License\n"
+"The schema is released under the [APACHE Software License "
+"2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE)"
+" and is currently supported in both open source and \n"
+"commercial software. Just [download the schema "
+"archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!"
+"\n"
+"\n"
+"## Contribution\n"
+"In you want to contribute to **\\<OAL\\>** please join the "
+"[OpenAstronomyLog discussion "
+"group](https://groups.google.com/forum/#!forum/openastronomylog).\n"
 msgstr ""
 
 #: app/main/planner/sessionplan_forms.py:45
@@ -1693,12 +1735,19 @@ msgid "Observing Sessions"
 msgstr ""
 
 #: app/templates/main/observation/observing_sessions_export.html:15
-#: app/templates/main/observation/observing_sessions_import.html:15
 msgid "Export to OAL"
 msgstr ""
 
 #: app/templates/main/observation/observing_sessions_export.html:35
 msgid "Export observations to OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_sessions_import.html:15
+msgid "Import from OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_sessions_import.html:24
+msgid "About OAL"
 msgstr ""
 
 #: app/templates/main/planner/planner_menu.html:16

@@ -20,6 +20,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from flask_babel import gettext
 
 from app import db
 
@@ -384,14 +385,13 @@ def observing_sessions_export():
         return send_file(mem, as_attachment=True,
                          attachment_filename='observing_sessions-' + current_user.user_name + '.xml',
                          mimetype='text/xml')
-
-    return render_template('main/observation/observing_sessions_export.html')
+    return render_template('main/observation/observing_sessions_export.html', about_oal=_get_about_oal())
 
 
 @main_observing_session.route('/observing-sessions-import', methods=['GET', 'POST'])
 @login_required
 def observing_sessions_import():
-    return render_template('main/observation/observing_sessions_import.html', log_warn=[], log_error=[])
+    return render_template('main/observation/observing_sessions_import.html', about_oal=_get_about_oal(), log_warn=[], log_error=[])
 
 
 @main_observing_session.route('/observing-sessions-import-upload', methods=['GET', 'POST'])
@@ -423,4 +423,29 @@ def observing_sessions_import_upload():
 
         flash('Observations imported.', 'form-success')
 
-    return render_template('main/observation/observing_sessions_import.html', log_warn=log_warn, log_error=log_error)
+    return render_template('main/observation/observing_sessions_import.html', about_oal=_get_about_oal(), log_warn=log_warn, log_error=log_error)
+
+
+def _get_about_oal():
+    return gettext("""
+## Goal
+**OpenAstronomyLog** is a free and open XML schema definition for all kinds of astronomical observations. 
+Software that supports this schema enables an observer to share observations with other observers or move observations 
+among software products.
+
+## History
+The schema (formerly known as COMAST schema) was primarily developed by the 
+german ["Fachgruppe für Computerastronomie"](http://www.vds-astro.de/fachgruppen/computerastronomie.html) (section for computerastronomy) which is a subsection of Germany's largest
+astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der Sternfreunde e.V.) 
+Starting with version 2.0 the schema was renamed from COMAST (abbr. for *Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\<OAL\>**.
+
+## Documentation
+Please see our [wiki section](https://github.com/openastronomylog/openastronomylog/wiki) as well as the [doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc) folder
+
+## License
+The schema is released under the [APACHE Software License 2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE) and is currently supported in both open source and 
+commercial software. Just [download the schema archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!
+
+## Contribution
+In you want to contribute to **\<OAL\>** please join the [OpenAstronomyLog discussion group](https://groups.google.com/forum/#!forum/openastronomylog).
+""")

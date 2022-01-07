@@ -17,6 +17,20 @@
                 </div>
             </div>
 
+            <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+                <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+                  <div class="title">
+                    <i class="dropdown icon"></i>
+                    {{ _('About OAL') }}
+                  </div>
+                  <div class="content markdown">
+                {% filter extended_commonmark('') %}
+{{ about_oal }}
+                {% endfilter %}
+                  </div>
+                </div>
+            </div>
+
             <div class="ui stackable grid container">
                 <div class="fourteen wide tablet sixteen wide computer centered column">
 
@@ -44,5 +58,11 @@
             </div>
         </div>
     </div>
+
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
 
 {% endblock %}

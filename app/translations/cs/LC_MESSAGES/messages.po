@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-03 21:21+0100\n"
+"POT-Creation-Date: 2022-01-07 20:55+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -86,16 +86,16 @@ msgid ""
 "Your password has been set. After you log in, you can go to the \"Your "
 "Account\" page to review your account information and settings."
 msgstr ""
-"Vaše heslo bylo nastaveno. Po přihlášení můžete přejít do sekce \"Váš účet\" "
-"a zkontrolovat informace a nastavení svého účtu."
+"Vaše heslo bylo nastaveno. Po přihlášení můžete přejít do sekce \"Váš "
+"účet\" a zkontrolovat informace a nastavení svého účtu."
 
 #: app/account/views.py:270
 msgid ""
 "The confirmation link is invalid or has expired. Another invite email "
 "with a new link has been sent to you."
 msgstr ""
-"Potvrzovací odkaz je neplatný nebo jeho platnost vypršela. Další e-mail s pozvánkou "
-"s novým odkazem vám byl zaslán."
+"Potvrzovací odkaz je neplatný nebo jeho platnost vypršela. Další e-mail s"
+" pozvánkou s novým odkazem vám byl zaslán."
 
 #: app/admin/forms.py:25
 msgid "User login disabled."
@@ -349,7 +349,9 @@ msgstr "Je aktivní"
 
 #: app/main/equipment/equipment_forms.py:52
 msgid "At least one of \"Focal Length\" or \"Fixed Magnification\" must be set"
-msgstr "Musí být nastavena alespoň jedna z možností \"Ohnisková vzdálenost\" nebo \"Pevné zvětšení\"."
+msgstr ""
+"Musí být nastavena alespoň jedna z možností \"Ohnisková vzdálenost\" nebo"
+" \"Pevné zvětšení\"."
 
 #: app/main/equipment/equipment_forms.py:60
 msgid "Add Telescope"
@@ -491,8 +493,9 @@ msgid "DSO list with comment. (e.g. M3,M5:nice globulars!)"
 msgstr "DSO seznam s volitelným komentářem. (př. M3,M4: pěkně kulaté!)"
 
 #: app/main/observation/observing_session_forms.py:41
-msgid "Time"
-msgstr "Čas"
+#, fuzzy
+msgid "Time From"
+msgstr "Čas od"
 
 #: app/main/observation/observing_session_forms.py:42
 #: app/main/observation/observing_session_forms.py:76
@@ -587,25 +590,87 @@ msgstr "Uložit pozorování"
 msgid "Export Observation"
 msgstr "Exportovat pozorování"
 
-#: app/main/observation/observing_session_import.py:32
+#: app/main/observation/observing_session_import.py:33
 msgid "OAL Location \"{}\" not found"
 msgstr "OAL Location \"{}\" nebyla nalezena"
 
-#: app/main/observation/observing_session_import.py:89
+#: app/main/observation/observing_session_import.py:92
 msgid "DSO \"{}\" not found"
 msgstr "DSO \"{}\" nebyl nalezen"
 
-#: app/main/observation/observing_session_import.py:135
+#: app/main/observation/observing_session_import.py:138
 msgid "OAL Session \"{}\" not found."
 msgstr "OAL Session \"{}\" nebyl nalezen."
 
-#: app/main/observation/observing_session_import.py:140
+#: app/main/observation/observing_session_import.py:143
 msgid "OAL Target \"{}\" not found."
 msgstr "OAL Target \"{}\" nebyl nalezen."
 
-#: app/main/observation/observing_session_import.py:155
+#: app/main/observation/observing_session_import.py:158
 msgid "OAL Observation \"{}\" for session \"{}\" already exists"
 msgstr "OAL Observation \"{}\" pro session \"{}\" již existuje."
+
+#: app/main/observation/observing_session_views.py:431
+msgid ""
+"\n"
+"## Goal\n"
+"**OpenAstronomyLog** is a free and open XML schema definition for all "
+"kinds of astronomical observations. \n"
+"Software that supports this schema enables an observer to share "
+"observations with other observers or move observations \n"
+"among software products.\n"
+"\n"
+"## History\n"
+"The schema (formerly known as COMAST schema) was primarily developed by "
+"the \n"
+"german [\"Fachgruppe für Computerastronomie\"](http://www.vds-"
+"astro.de/fachgruppen/computerastronomie.html) (section for "
+"computerastronomy) which is a subsection of Germany's largest\n"
+"astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der "
+"Sternfreunde e.V.) \n"
+"Starting with version 2.0 the schema was renamed from COMAST (abbr. for "
+"*Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\\<OAL\\>**.\n"
+"\n"
+"## Documentation\n"
+"Please see our [wiki "
+"section](https://github.com/openastronomylog/openastronomylog/wiki) as "
+"well as the "
+"[doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc)"
+" folder\n"
+"\n"
+"## License\n"
+"The schema is released under the [APACHE Software License "
+"2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE)"
+" and is currently supported in both open source and \n"
+"commercial software. Just [download the schema "
+"archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!"
+"\n"
+"\n"
+"## Contribution\n"
+"In you want to contribute to **\\<OAL\\>** please join the "
+"[OpenAstronomyLog discussion "
+"group](https://groups.google.com/forum/#!forum/openastronomylog).\n"
+msgstr ""
+"## Cíl\n"
+"**OpenAstronomyLog** je svobodná a otevřená definice schématu XML pro všechny druhy astronomických pozorování. \n"
+"Software, který toto schéma podporuje, umožňuje pozorovateli sdílet pozorování s jinými pozorovateli nebo přesouvat pozorování \n"
+"mezi softwarovými produkty.\n"
+"\n"
+"## Historie\n"
+"Toto schéma (dříve známé jako schéma COMAST) bylo primárně vyvinuto společností \n"
+"německá ["Fachgruppe für Computerastronomie"](http://www.vds-astro.de/fachgruppen/computerastronomie.html) (sekce pro počítačovou astronomii), která je podsekcí největší německé astronomické společnosti\n"
+"astronomického svazu [VDS](http://www.vds-astro.de/) (Vereinigung der Sternfreunde e.V.). \n"
+"Počínaje verzí 2.0 bylo schéma přejmenováno z COMAST (zkratka pro *Com*puter *Ast*ronomy) na **OpenAstronomyLog** nebo **\<OAL\>**.\n"
+"\n"
+"## Dokumentace\n"
+"Podívejte se prosím do naší [wiki sekce](https://github.com/openastronomylog/openastronomylog/wiki) a také do složky [doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc).\n"
+"\n"
+"## Licence\n"
+"Schéma je uvolněno pod licencí [APACHE Software License 2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE) a v současné době je podporováno jak v open source, tak v \n"
+"komerčním softwaru. Stačí [stáhnout archiv schématu](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!\n"
+"\n"
+"## Příspěvek\n"
+"Pokud chcete přispět do **\<OAL\>**, připojte se k diskusní skupině [OpenAstronomyLog](https://groups.google.com/forum/#!forum/openastronomylog).\n"
 
 #: app/main/planner/sessionplan_forms.py:45
 #: app/templates/main/observation/observing_sessions.html:20
@@ -796,8 +861,8 @@ msgid ""
 "When you created an account, you should have received an email from us at"
 " {} with a link to confirm your email address."
 msgstr ""
-"Po vytvoření účtu, byste měli od nás obdržet e-mail na "
-"adresu. {} s odkazem pro potvrzení vaší e-mailové adresy.\""
+"Po vytvoření účtu, byste měli od nás obdržet e-mail na adresu. {} s "
+"odkazem pro potvrzení vaší e-mailové adresy.\""
 
 #: app/templates/account/unconfirmed.html:14
 msgid "I didn't receive an email!"
@@ -1699,13 +1764,20 @@ msgid "Observing Sessions"
 msgstr "Pozorování"
 
 #: app/templates/main/observation/observing_sessions_export.html:15
-#: app/templates/main/observation/observing_sessions_import.html:15
 msgid "Export to OAL"
 msgstr "Export do OAL"
 
 #: app/templates/main/observation/observing_sessions_export.html:35
 msgid "Export observations to OAL"
 msgstr "Exportovat pozorování do OAL"
+
+#: app/templates/main/observation/observing_sessions_import.html:15
+msgid "Import from OAL"
+msgstr "Import z OAL"
+
+#: app/templates/main/observation/observing_sessions_import.html:24
+msgid "About OAL"
+msgstr "Informace o OAL"
 
 #: app/templates/main/planner/planner_menu.html:16
 msgid "Create session plan"
@@ -2004,6 +2076,9 @@ msgstr "Odstranit SSH klíč pro repozitář s obsahem"
 msgid "Are you sure you want to delete sshkey for content repository?"
 msgstr "Skutečně chcete odstranit tento SSH klíč?"
 
+msgid "Time"
+msgstr "Čas"
+
 msgid "Longitude"
 msgstr "Poloha"
 
@@ -2163,5 +2238,4 @@ msgstr "Dobrá"
 msgctxt "transparency"
 msgid "Excellent"
 msgstr "Výborná"
-
 
