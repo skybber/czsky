@@ -717,7 +717,7 @@ def deepskyobject_observation_log_delete(dso_id):
         abort(404)
 
     observation = None
-    for oi in observation_plan_run.observation.observations:
+    for oi in observation_plan_run.observing_session.observations:
         for oi_dso in oi.deepsky_objects:
             if oi_dso.id == dso.id:
                 observation = oi
