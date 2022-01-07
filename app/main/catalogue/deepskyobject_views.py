@@ -496,11 +496,11 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
         if _allow_view_session_plan(session_plan):
             highlights_dso_list = [x.deepskyObject for x in session_plan.session_plan_items if session_plan]
     elif back == 'observation':
-        observation = Observation.query.filter_by(id=back_id).first()
-        if observation and (observation.is_public or observation.user_id == current_user.id):
+        observing_session = ObservingSession.query.filter_by(id=back_id).first()
+        if observing_session and (observing_session.is_public or observing_session.user_id == current_user.id):
             highlights_dso_list = []
-            for oitem in observation.observations:
-                highlights_dso_list.extend(oitem.deepsky_objects)
+            for observation in observing_session.observations:
+                highlights_dso_list.extend(observation.deepsky_objects)
     elif back == 'observed_list' and current_user.is_authenticated:
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
         highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
@@ -776,9 +776,9 @@ def _get_prev_next_dso(dso):
     next_item = None
 
     if back == 'observation':
-        observation = Observation.query.filter_by(id=back_id).first()
-        if observation and (observation.is_public or observation.user_id == current_user.id):
-            prev_item, next_item = observation.get_prev_next_item(dso.id)
+        observing_session = ObservingSession.query.filter_by(id=back_id).first()
+        if observing_session and (observing_session.is_public or observing_session.user_id == current_user.id):
+            prev_item, next_item = observing_session.get_prev_next_item(dso.id)
             return (prev_item,
                     prev_item.denormalized_name() if prev_item else None,
                     next_item,
