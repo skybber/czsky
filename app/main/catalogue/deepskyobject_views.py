@@ -673,9 +673,11 @@ def deepskyobject_observation_log(dso_id):
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
+        now = datetime.now()
         observation = Observation(
             observing_session_id=observation_plan_run.observing_session.id,
-            date_time=datetime.now(),
+            date_from=now,
+            date_to=now,
             notes=form.notes.data if form.notes.data else '',
         )
         observation.deepsky_objects.append(dso)
