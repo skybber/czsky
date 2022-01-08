@@ -17,8 +17,11 @@ from flask_login import current_user
 
 from app.models import (
     DsoList,
+    Eyepiece,
+    Lens,
     ObservingSession,
     SessionPlan,
+    Telescope,
 )
 
 from .utils import to_float, to_boolean
@@ -54,6 +57,7 @@ FORCE_SHOWING_DSOS = ['NGC 1909', 'IC443']
 
 PICKER_RADIUS = 4.0
 
+
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
@@ -61,7 +65,8 @@ class ChartControl:
                  theme=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
-                 show_not_found=None, cancel_selection_url=None):
+                 show_not_found=None, cancel_selection_url=None, equipment_telescopes=None, equipment_eyepieces=None,
+                 eyepiece_fov=None):
         self.chart_fsz = chart_fsz
         self.mag_scale = mag_scale
         self.mag_ranges = mag_ranges
@@ -89,6 +94,9 @@ class ChartControl:
         self.back_search_url_b64 = back_search_url_b64
         self.show_not_found = show_not_found
         self.cancel_selection_url = cancel_selection_url
+        self.equipment_telescopes = equipment_telescopes
+        self.equipment_eyepieces = equipment_eyepieces
+        self.eyepiece_fov = eyepiece_fov
 
 
 def _load_used_catalogs():
@@ -175,6 +183,7 @@ def _setup_night_theme(config, width):
     config.milky_way_color = (0.1, 0.02, 0.02)
     config.light_mode = False
     config.picker_color = (0.5, 0.1, 0.0)
+    config.eyepiece_color = (0.5, 0.0, 0.0)
 
 
 def _setup_light_theme(config, width):
@@ -318,8 +327,10 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
+    eyepiece_fov = to_float(request.args.get('epfov'), None)
+
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y, flags=flags)
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov, mirror_x, mirror_y,  flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -375,6 +386,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.splitview.data = 'true'
         if request.args.get('fullscreen', 'false') == 'true':
             form.fullscreen.data = 'true'
+        if request.args.get('epfov'):
+            form.eyepiece_fov.data = request.args.get('epfov')
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim'  + str(fld_size)] = form.maglim.data
@@ -411,6 +424,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
     chart_dso_list_menu = common_chart_dso_list_menu()
+    equipment_telescopes, equipment_eyepieces = common_equipment()
 
     has_date_from_to = hasattr(form, 'date_from') and hasattr(form, 'date_to')
     date_from = form.date_from.data if has_date_from_to else None
@@ -421,6 +435,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
 
     if cancel_selection_url is None:
         cancel_selection_url = url_for('main_chart.chart')
+
+    eyepiece_fov = form.eyepiece_fov.data if form.eyepiece_fov.data else ''
 
     return ChartControl(chart_fsz=str(fld_size),
                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
@@ -436,7 +452,10 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                         date_from=date_from, date_to=date_to,
                         back_search_url_b64=back_search_url_b64,
                         show_not_found=show_not_found,
-                        cancel_selection_url=cancel_selection_url
+                        cancel_selection_url=cancel_selection_url,
+                        eyepiece_fov=eyepiece_fov,
+                        equipment_telescopes=equipment_telescopes,
+                        equipment_eyepieces=equipment_eyepieces,
                         )
 
 
@@ -673,7 +692,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, flags=''):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, mirror_x=False, mirror_y=False, flags=''):
     global free_mem_counter
     # tm = time()
 
@@ -696,6 +715,8 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.picker_radius = PICKER_RADIUS
 
     config.fov_telrad = 'T' in flags
+
+    config.eyepiece_fov = eyepiece_fov
 
     config.show_flamsteed = (fld_size <= 20)
 
@@ -725,7 +746,7 @@ def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
         color = (0.0, 0.5, 0.0)
 
     highlights = []
-    if not obj_ra is None and not obj_dec is None:
+    if obj_ra is not None and obj_dec is not None:
         hl = fchart3.HighlightDefinition('cross', 1.3, color, [['', obj_ra, obj_dec]])
         highlights.append(hl)
 
@@ -788,6 +809,15 @@ def common_chart_dso_list_menu():
         observing_sessions = None
 
     return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observing_sessions)
+
+
+def common_equipment():
+    if not current_user.is_anonymous:
+        telescopes = Telescope.query.filter_by(user_id=current_user.id, is_deleted=False, is_active=True, fixed_magnification=None).all()
+        eyepieces = Eyepiece.query.filter_by(user_id=current_user.id, is_deleted=False, is_active=True).all()
+        if telescopes and eyepieces:
+            return telescopes, eyepieces
+    return None, None
 
 
 def get_trajectory_time_delta(d1, d2):

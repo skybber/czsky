@@ -58,6 +58,14 @@ class Telescope(db.Model):
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
+    def get_fov(self, eyepiece):
+        if self.focal_length_mm and \
+                eyepiece.focal_length_mm and \
+                eyepiece.focal_length_mm > 0 and \
+                eyepiece.fov_deg:
+            return eyepiece.fov_deg / (self.focal_length_mm / eyepiece.focal_length_mm)
+        return None
+
 
 class Eyepiece(db.Model):
     __tablename__ = 'eyepieces'

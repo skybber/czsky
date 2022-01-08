@@ -91,7 +91,7 @@
                      url_for('main_observing_session.observing_session_chart_pos_img', observing_session_id=observing_session.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
                      url_for('main_observing_session.observing_session_chart_legend_img', observing_session_id=observing_session.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      None,
                      fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id))
     }}

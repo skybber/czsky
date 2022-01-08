@@ -1,4 +1,4 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, chart_dso_list_menu, default_chart_iframe_url='', embed='', search_url_params='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, default_chart_iframe_url='', embed='', search_url_params='') %}
 
 {% set is_fullscreen = True if fchart_form.fullscreen.data == 'true' else False %}
 {% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
@@ -19,6 +19,7 @@
       <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
       <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
       <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
+      <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100;">
@@ -41,10 +42,63 @@
 
       <div class="ui right horizontally fitted computer only item" style="z-index:100">
           <div class="ui buttons">
-              <button class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
-                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
-                  <i class="bullseye icon"></i>
-              </button>
+              {% if chart_control.equipment_telescopes %}
+                  <div class="ui icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
+                      <i class="crosshairs icon"></i>
+                      <div class="menu">
+                          <div class="item">
+                              <button class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
+                                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
+                                  <i class="bullseye icon"></i>
+                                  {{ _('Telrad') }}
+                              </button>
+                          </div>
+                          {% if chart_control.equipment_telescopes %}
+                              <div class="item">
+                                  <div class="ui buttons">
+                                      <button class="ui icon button">
+                                          <i class="binoculars icon"></i>
+                                      </button>
+                                      <button class="ui right icon button">
+                                          <i class="dropdown icon"></i>
+                                          <span class="text">{{ _('Telescopes')}}</span>
+                                      </button>
+                                  </div>
+                                  <div class="right menu">
+                                  {% for telescope in chart_control.equipment_telescopes %}
+                                      <div class="item">
+                                          <i class="dropdown icon"></i>
+                                          <span class="text">{{ telescope.name }}</span>
+                                          <div class="right menu">
+                                          {% for eyepiece in chart_control.equipment_eyepieces %}
+                                              <div class="item" onclick="setEyepieceFov({{ telescope.get_fov(eyepiece) }})">
+                                                  {{ eyepiece.name }}
+                                              </div>
+                                          {% endfor %}
+                                          </div>
+                                      </div>
+                                  {% endfor %}
+                                  </div>
+                              </div>
+                          {% endif %}
+                          <div class="item">
+                              <button class="ui icon button" data-inverted=""  data-tooltip="{{ _('Reset FOV')}}" data-position="bottom center" data-variation="tiny basic"
+                                      onclick="unselectFov()">
+                                  <i class="toggle off icon"></i>
+                                  {{ _('Unselect') }}
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              {% else %}
+                  <div class="item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
+                              data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="bullseye icon"></i>
+                      </button>
+                  </div>
+              {% endif %}
+
               <button class="ui toggle icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker"
                     data-inverted="" data-tooltip="{{ _('Picker')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="square outline icon"></i>
@@ -359,6 +413,7 @@
     $('.btelrad').click(function(){
         $(this).toggleClass('active');
         $('#show_telrad').val($('#show_telrad').val() == 'true' ? 'false' : 'true');
+        $('#eyepiece_fov').val('');
     });
 
     $('.bpicker').click(function(){
@@ -501,6 +556,18 @@
 
     function updateChartUrls(legendUrl, chartUrl) {
         fchart.updateUrls(legendUrl, chartUrl);
+    }
+
+    function setEyepieceFov(eyepieceFov) {
+        $('#eyepiece_fov').val(eyepieceFov);
+        $('#show_telrad').val('false');
+        $('#fmchart').submit();
+    }
+
+    function unselectFov() {
+        $('#eyepiece_fov').val('');
+        $('#show_telrad').val('false');
+        $('#fmchart').submit();
     }
 
     window.onload = function() {
