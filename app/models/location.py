@@ -13,7 +13,7 @@ class Location(db.Model):
     longitude = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     elevation = db.Column(db.Float, default=0)
-    timezone = db.Column(db.Integer)
+    time_zone = db.Column(db.String(64))
     iau_code = db.Column(db.Integer)
     descr = db.Column(db.Text)
     bortle = db.Column(db.Float)

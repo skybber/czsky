@@ -123,6 +123,8 @@ def new_location():
             rating=form.rating.data,
             is_public=form.is_public.data,
             is_for_observation=form.is_for_observation.data,
+            time_zone=form.time_zone.data,
+            iau_code=form.iau_code.data,
             user_id=current_user.id,
             create_by=current_user.id,
             update_by=current_user.id,
@@ -157,6 +159,7 @@ def location_edit(location_id):
             location.rating = form.rating.data
             location.is_public = form.is_public.data
             location.is_for_observation = form.is_for_observation.data
+            location.iau_code = form.iau_code.data
             location.update_by = current_user.id
             location.update_date = datetime.now()
             db.session.add(location)
@@ -171,6 +174,8 @@ def location_edit(location_id):
         form.rating.data = location.rating
         form.is_public.data = location.is_public
         form.is_for_observation.data = location.is_for_observation
+        form.time_zone.data = location.time_zone
+        form.iau_code.data = location.iau_code
 
     return render_template('main/location/location_edit.html', form=form, location=location, is_new=False, countries=countries)
 

@@ -31,6 +31,10 @@
              </td>
         </tr>
         <tr><td>{{ _('Description') }}</td><td>{{ location.descr }}</td></tr>
+        <tr><td>{{ _('Time Zone') }}</td><td>{{ location.time_zone }}</td></tr>
+        {% if location.iau_code %}
+        <tr><td>{{ _('IAU code') }}</td><td>{{ location.iau_code }}</td></tr>
+        {% endif %}
         <tr><td>{{ _('Bortle') }}</td><td>{{ location.bortle }}</td></tr>
         <tr><td>{{ _('Rating') }}</td><td><div class="ui rating" data-icon="star" data-rating="{{ location.rating_to_int(5) }}" data-max-rating="5"></div></td></tr>
         <tr><td>{{ _('Observation place') }}</td><td>{{ location.is_for_observation }}</td></tr>

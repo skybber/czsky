@@ -68,6 +68,15 @@
 
                 <div class="two fields">
                     <div class="field">
+                        {{ f.render_form_field(form.time_zone) }}
+                    </div>
+                    <div class="field">
+                        {{ f.render_form_field(form.iau_code) }}
+                    </div>
+                </div>
+
+                <div class="two fields">
+                    <div class="field">
                         {{ f.render_form_field(form.bortle) }}
                     </div>
                     <div class="field">
