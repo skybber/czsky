@@ -36,7 +36,7 @@ def create_oal_observations(user, observing_sessions):
             oal_site = OalsiteType(id='site_{}'.format(location.id), name=location.name,
                                    longitude=_get_oal_angle(angleUnit.DEG, location.longitude), latitude=_get_oal_angle(angleUnit.DEG, location.latitude),
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
-                                   timezone=location.timezone, code=location.iau_code)
+                                   timezone=location.time_zone, code=location.iau_code)
         else:
             lat, lon = parse_latlon(observing_session.location_position)
             oal_site = OalsiteType(id='site_adhoc_{}'.format(observing_session.id), name=None,
