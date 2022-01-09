@@ -77,11 +77,11 @@
                                     description=_('View sky chart'), icon='map icon') }}
                 {% if is_anonymous %}
                     {{ dash.dashboard_option(_('Session Plan'), 'main_planner.anonymous_planner_menu',
-                                        description=_('Session plan'), icon='tasks icon', extra_class='mobile hidden') }}
+                                        description=_('Session plan'), icon='calendar alternate outline icon', extra_class='mobile hidden') }}
                 {% endif %}
                 {% if not is_anonymous %}
                     {{ dash.dashboard_option(_('Planner'), 'main_planner.planner_menu',
-                                        description=_('View planner menu'), icon='tasks icon') }}
+                                        description=_('View planner menu'), icon='calendar alternate outline icon') }}
                     {{ dash.dashboard_option(_('Observation'), 'main_observation.observation_menu',
                                         description=_('View observation menu'), icon='eye icon') }}
                 {% endif %}
