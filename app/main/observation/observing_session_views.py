@@ -1,4 +1,5 @@
 import os
+import re
 from io import StringIO, BytesIO
 import base64
 import codecs
@@ -32,9 +33,12 @@ from .observing_session_forms import (
 )
 
 from app.models import (
+    ImportHistoryRec,
+    ImportHistoryRecStatus,
+    ImportType,
+    Location,
     Observation,
     ObservingSession,
-    Location,
     ObservedList,
     ObservedListItem,
     ObsSessionPlanRun,
@@ -410,17 +414,41 @@ def observing_sessions_import_upload():
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(path)
 
-        # encoding = 'iso8859-1'
+        import_history_rec = ImportHistoryRec()
+        import_history_rec.import_type = ImportType.OBSERVATION
+        import_history_rec.status = ImportHistoryRecStatus.IMPORTED
+        import_history_rec.create_by = current_user.id
+        import_history_rec.create_date = datetime.now()
+        db.session.add(import_history_rec)
+        db.session.commit()
+
         encoding = None
+
+        with open(path, 'r', errors='replace') as f:
+            firstline = f.readline().rstrip()
+            if firstline:
+                m = re.search('encoding="(.*)"', firstline)
+                if m:
+                    encoding = m.group(1).lower()
+
         if encoding:
-            with codecs.open(path, 'rb', encoding=encoding) as oal_file:
-                log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
+            with codecs.open(path, 'r', encoding=encoding) as oal_file:
+                log_warn, log_error = oal_observations = import_observations(current_user, current_user, import_history_rec.id, oal_file)
                 print(log_warn, flush=True)
                 print(log_error, flush=True)
         else:
             with open(path) as oal_file:
-                log_warn, log_error = oal_observations = import_observations(current_user, current_user, oal_file)
+                log_warn, log_error = oal_observations = import_observations(current_user, current_user, import_history_rec.id, oal_file)
 
+        if log_warn is not None and log_error is not None:
+            log = 'Warnings:\n' + '\n'.join(log_warn) + '\nErrrors:' + '\n'.join(log_error)
+            import_history_rec.log = log
+            import_history_rec.create_date = datetime.now()
+            db.session.add(import_history_rec)
+            db.session.commit()
+        else:
+            db.session.delete(import_history_rec)
+            db.session.commit()
         flash('Observations imported.', 'form-success')
 
     return render_template('main/observation/observing_sessions_import.html', about_oal=_get_about_oal(), log_warn=log_warn, log_error=log_error)

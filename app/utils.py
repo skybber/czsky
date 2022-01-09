@@ -4,6 +4,7 @@ from wtforms.widgets import HiddenInput
 from wtforms.compat import text_type
 from app.commons.md_utils import parse_extended_commonmark
 
+
 def register_template_utils(app):
     """Register Jinja 2 helpers (called from __init__.py)."""
 
@@ -15,7 +16,6 @@ def register_template_utils(app):
     def is_hidden_field(field):
         from wtforms.fields import HiddenField
         return isinstance(field, HiddenField)
-
 
     @app.template_filter()
     def extended_commonmark(s, ignore_name, ext_url_params=''):

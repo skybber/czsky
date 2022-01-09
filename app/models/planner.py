@@ -18,6 +18,7 @@ class SessionPlan(db.Model):
     is_anonymous = db.Column(db.Boolean, default=False, nullable=False)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     is_archived = db.Column(db.Boolean, default=False, nullable=False)
+    import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     session_plan_items = db.relationship('SessionPlanItem', backref='session_plan', lazy=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))

@@ -13,7 +13,7 @@ from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterT
 from app.commons.openastronomylog import parse
 
 
-def import_observations(user, import_user, file):
+def import_observations(user, import_user, import_history_rec_id, file):
     log_warn = []
     log_error = []
 
@@ -70,7 +70,7 @@ def import_observations(user, import_user, file):
                     weather=oal_session.get_weather(),
                     equipment=oal_session.get_equipment(),
                     notes=oal_session.get_comments(),
-                    created_by_import=True,
+                    import_history_rec_id=import_history_rec_id,
                     create_by=import_user.id,
                     update_by=import_user.id,
                     create_date=datetime.now(),
@@ -165,6 +165,7 @@ def import_observations(user, import_user, file):
                 date_from=oal_observation.get_begin(),
                 date_to=oal_observation.get_end(),
                 notes=notes,
+                import_history_rec_id=import_history_rec_id,
             )
             observation.deepsky_objects.append(observed_dso)
             if is_session_new:

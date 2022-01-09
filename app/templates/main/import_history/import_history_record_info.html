@@ -1,0 +1,75 @@
+{% extends 'layouts/base.html'%}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_import_history.import_history_records', back=1) }}">
+                <i class="caret left icon"></i>
+                {{ _('Import History') }}
+            </a>
+            {% if can_delete_observations %}
+                <a id="bdelete_obs" class="ui right floated icon negative button" href="#">
+                    <i class="trash icon"></i>
+                    {{ _('Delete Imported Observations') }}
+                </a>
+            {% endif %}
+
+            <h2 class="ui header">
+                {{ import_history_rec.create_date.strftime('%Y-%m-%d') }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            <table class="ui compact definition unstackable table">
+                <tr><td class="two wide">{{ _('Create date') }}</td><td>{{ import_history_rec.create_date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="two wide">{{ _('Type') }}</td><td>{{ import_history_rec.import_type.loc_text() }}</td></tr>
+                <tr>
+                    <td class="two wide">{{ _('Log') }}</td>
+                    <td colspan="5">
+                        {% filter extended_commonmark('') %}
+{{ import_history_rec.log.replace('\n', '<br />') | safe }}
+                        {% endfilter %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    {% if can_delete_observations %}
+        <div class="ui tiny modal deleteObservationsModal">
+          <div class="header">{{ _('Delete Imported Observations') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete all imported observations by this import?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_import_history.delete_imported_observations', import_history_rec_id=import_history_rec.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        {% if can_delete_observations %}
+            $('.ui.modal.deleteObservationsModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdelete_obs').click(function() {
+                $('.ui.modal.deleteObservationsModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
+
+{% endblock %}

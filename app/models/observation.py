@@ -75,7 +75,7 @@ class ObservingSession(db.Model):
     equipment = db.Column(db.Text)
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
-    created_by_import = db.Column(db.Boolean, default=False)
+    import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
@@ -131,6 +131,7 @@ class Observation(db.Model):
     lens_id = db.Column(db.Integer, db.ForeignKey('lenses.id'))
     magnification = db.Column(db.Float)
     notes = db.Column(db.Text)
+    import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
 
     def deepsky_objects_to_html(self):

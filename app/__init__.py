@@ -142,6 +142,8 @@ def create_app(config):
     app.register_blueprint(main_news)
     from .main.equipment import main_equipment as main_equipment
     app.register_blueprint(main_equipment)
+    from .main.import_history import main_import_history as main_import_history
+    app.register_blueprint(main_import_history)
 
     from .account import account as account_blueprint
     app.register_blueprint(account_blueprint, url_prefix='/account')

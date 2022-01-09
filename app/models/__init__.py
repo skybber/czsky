@@ -7,6 +7,7 @@ from .catalogue import *
 from .constellation import *
 from .deepskyobject import *
 from .dsolist import *
+from .import_history import *
 from .location import *
 from .miscellaneous import *
 from .news import *
