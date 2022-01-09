@@ -50,6 +50,7 @@ map_names = {
     'π1 UMi': '18 UMi'
 }
 
+
 def _find_constellation(name, constellations):
     if name == 'Adromedae':
         name = 'And'
@@ -68,17 +69,16 @@ def _find_constellation(name, constellations):
             name = name[:-4]
         elif name.endswith('is'):
             name = name[:-3]
-        elif  name.endswith('ri'):
+        elif name.endswith('ri'):
             name = name[:-2]
-        elif  name.endswith('i'):
+        elif name.endswith('i'):
             name = name[:-1]
-        elif  name.endswith('ae'):
+        elif name.endswith('ae'):
             name = name[:-2]
         for constell in constellations:
             if constell.name.capitalize().startswith(name):
                 return constell
     return None
-
 
 
 def _find_max_star(stars):
@@ -99,6 +99,7 @@ def _find_star_by_digit(stars, num):
             if not after.isdigit():
                 result.append(star)
     return result
+
 
 def _resolve_star(star_name, constellations):
     star = None
@@ -175,7 +176,13 @@ def link_star_descriptions_by_bayer_flamsteed_star():
 
 def link_star_descriptions_by_var_id():
 
+    constellations = []
+
     print('Linking star descriptions by var_id ...')
+
+    for co in Constellation.query.all():
+        constellations.append(co)
+
 
     try:
         star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
@@ -185,6 +192,16 @@ def link_star_descriptions_by_var_id():
                 print('Updating {}'.format(star.var_id))
                 star_descr.star_id = star.id
                 db.session.add(star_descr)
+            else:
+                comps = star_descr.common_name.split()
+                if len(comps) == 2:
+                    constell = _find_constellation(comps[1], constellations)
+                    if constell is not None:
+                        star = Star.query.filter_by(var_id=comps[0]+' ' + constell.iau_code).first()
+                        if star:
+                            print('Updating {}'.format(star.var_id))
+                            star_descr.star_id = star.id
+                            db.session.add(star_descr)
         db.session.commit()
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))
