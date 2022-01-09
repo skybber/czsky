@@ -1,9 +1,16 @@
-{% macro dashboard_option(title, endpoint, description=None, icon=None, extra_class=None) %}
+{% macro dashboard_option(title, endpoint, description=None, icon=None, extra_class=None, extra_icon=None) %}
     <a class="column{{ ' ' + extra_class if extra_class else ''}}" href="{{ url_for(endpoint) }}">
         <div class="ui padded segment">
             <h3 class="ui header">
                 {% if icon is not none %}
-                    <i class="{{ icon }}"></i>
+                    {% if extra_icon is not none %}
+                        <i class="icons">
+                          <i class="{{ icon }}"></i>
+                          <i class="{{ extra_icon }}"></i>
+                        </i>
+                    {% else %}
+                        <i class="{{ icon }}"></i>
+                    {% endif %}
                 {% endif %}
                 <div class="content">
                     {{ title }}

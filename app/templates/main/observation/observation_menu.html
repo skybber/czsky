@@ -14,13 +14,17 @@
             </h2>
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Add observing session'), 'main_observing_session.new_observing_session',
-                                    description=_('Add new observing session'), icon='pencil icon') }}
+                                    description=_('Add new observing session'), icon='eye icon', extra_icon='corner add icon') }}
                 {{ dash.dashboard_option(_('Observing sessions'), 'main_observing_session.observing_sessions',
                                     description=_('View observing sessions'), icon='eye icon') }}
-                {{ dash.dashboard_option(_('Observations export [Experimental]'), 'main_observing_session.observing_sessions_export',
-                                    description=_('Export observing sessions to OAL'), icon='upload icon') }}
                 {{ dash.dashboard_option(_('Observed List'), 'main_observed.observed_list_info',
                                     description=_('View observed objects'), icon='binoculars icon') }}
+                {{ dash.dashboard_option(_('Observations export [Experimental]'), 'main_observing_session.observing_sessions_export',
+                                    description=_('Export observing sessions to OAL'), icon='upload icon') }}
+                {{ dash.dashboard_option(_('Observations import [Experimental]'), 'main_observing_session.observing_sessions_import',
+                                    description=_('Import observing sessions from OAL'), icon='download icon') }}
+                {{ dash.dashboard_option(_('Observations import history [Experimental]'), 'main_import_history.import_history_records',
+                                    description=_('View import history from OAL'), icon='history icon') }}
             </div>
         </div>
     </div>
