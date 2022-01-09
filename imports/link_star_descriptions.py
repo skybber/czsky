@@ -1,6 +1,8 @@
 import sys
 import re
 
+from sqlalchemy.exc import IntegrityError
+
 from app import db
 from app.models.star import Star, UserStarDescription
 from app.models.constellation import Constellation
@@ -137,10 +139,10 @@ def _resolve_star(star_name, constellations):
     return star, constell
 
 
-def link_star_descriptions():
+def link_star_descriptions_by_bayer_flamsteed_star():
     constellations = []
 
-    print('Linking star descriptions ...')
+    print('Linking star descriptions by bayer/flamsteed...')
 
     for co in Constellation.query.all():
         constellations.append(co)
@@ -163,6 +165,26 @@ def link_star_descriptions():
                 star.constellation_id = constell.id
                 db.session.add(star_descr)
                 db.session.add(star)
+        db.session.commit()
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()
+
+    print('DONE.')
+
+
+def link_star_descriptions_by_var_id():
+
+    print('Linking star descriptions by var_id ...')
+
+    try:
+        star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
+        for star_descr in star_descriptions:
+            star = Star.query.filter_by(var_id=star_descr.common_name).first()
+            if star:
+                print('Updating {}'.format(star.var_id))
+                star_descr.star_id = star.id
+                db.session.add(star_descr)
         db.session.commit()
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))

@@ -23,6 +23,7 @@ from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
+from imports.link_star_descriptions import link_star_descriptions_by_var_id
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -250,6 +251,11 @@ def add_anonymous_user():
             )
         db.session.add(user)
         db.session.commit()
+
+
+@manager.command
+def tmp_link_star_descriptions_by_var_id():
+    link_star_descriptions_by_var_id()
 
 
 if __name__ == '__main__':
