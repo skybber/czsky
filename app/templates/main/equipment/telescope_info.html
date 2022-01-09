@@ -11,7 +11,8 @@
             <h2 class="ui header">
                 {{ telescope.name }}
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.telescope_edit', telescope_id=telescope.id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.telescope_edit', telescope_id=telescope.id) }}"
+                       data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Telescope')}}" data-variation="tiny basic">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}

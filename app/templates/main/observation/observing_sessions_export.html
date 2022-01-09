@@ -12,7 +12,7 @@
                     </a>
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ _('Export to OAL') }}
+                        {{ _('Export observations to OAL') }}
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                                 <form id="fmdownload" method="post" action="{{ url_for('main_observing_session.observing_sessions_export') }}">
                                     <button class="ui icon positive button" data-content="{{ _('Export observations to OAL')}}">
                                         <i class="upload icon"></i>
-                                        {{ _('Export to OAL') }}
+                                        {{ _('Export observations to OAL') }}
                                     </button>
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
                                 </form>

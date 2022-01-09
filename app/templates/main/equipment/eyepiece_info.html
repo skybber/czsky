@@ -11,7 +11,8 @@
             <h2 class="ui header">
                 {{ eyepiece.name }}
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id) }}"
+                       data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Eyepiece')}}" data-variation="tiny basic">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}

@@ -11,7 +11,8 @@
             <h2 class="ui header">
                 {{ filter.name }}
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.filter_edit', filter_id=filter.id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_equipment.filter_edit', filter_id=filter.id) }}"
+                       data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Filter')}}" data-variation="tiny basic">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}

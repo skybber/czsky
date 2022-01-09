@@ -254,7 +254,8 @@ $(function(){
                     </div>
                 </div>
                 {% if is_mine_observing_session %}
-                <a class="ui icon right floated mini button" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}">
+                <a class="ui icon right floated mini button" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}"
+                   data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Observation')}}" data-variation="tiny basic">
                     <i class="caret edit icon"></i>
                 </a>
                 {% endif %}

@@ -57,7 +57,8 @@
             <h2 class="ui header">
                 {{ location.name }}
                 {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_location.location_edit', location_id=location.id) }}">
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_location.location_edit', location_id=location.id) }}"
+                       data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Location')}}" data-variation="tiny basic">
                         <i class="caret edit icon"></i>
                     </a>
                 {% endif %}
