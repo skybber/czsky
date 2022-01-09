@@ -50,7 +50,7 @@
                 <div class="right menu">
                     <div class="ui item">
                         <form id="fmdownload" method="post" action="{{ url_for('main_observed.observed_list_download') }}">
-                            <button class="ui icon button" data-content="{{ _('Download observed list')}}">
+                            <button class="ui icon button" data-inverted="" data-position="bottom center" data-tooltip="{{ _('Download observed list')}}" data-variation="tiny basic">
                                 <i class="download icon"></i>
                             </button>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="ui item">
                         <form id="fmupload" method="post" action="{{ url_for('main_observed.observed_list_upload') }}" enctype="multipart/form-data">
-                            <label for="file" class="ui icon button">
+                            <label for="file" class="ui icon button" data-inverted="" data-position="bottom center" data-tooltip="{{ _('Upload observed list')}}" data-variation="tiny basic">
                                 <i class="upload icon"></i>
                             </label>
                             <input type="file" id="file" name="file" class="ui file input">
