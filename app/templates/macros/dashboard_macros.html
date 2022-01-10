@@ -1,4 +1,4 @@
-{% macro dashboard_option(title, endpoint, description=None, icon=None, extra_class=None, extra_icon=None) %}
+{% macro dashboard_option(title, endpoint, description=None, icon=None, extra_class=None, extra_icon=None, theme_image=None) %}
     <a class="column{{ ' ' + extra_class if extra_class else ''}}" href="{{ url_for(endpoint) }}">
         <div class="ui padded segment">
             <h3 class="ui header">
@@ -11,6 +11,10 @@
                     {% else %}
                         <i class="{{ icon }}"></i>
                     {% endif %}
+                {% elif theme_image is not none %}
+                    <div class="ui small image">
+                      <img src="{{ theme_image + '_' + session.get('theme', 'dark') + '.png' }}">
+                    </div>
                 {% endif %}
                 <div class="content">
                     {{ title }}
