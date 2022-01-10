@@ -175,7 +175,7 @@ def _search_star(query):
                 return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
         else:
             print('Chart to {} {}'.format(star.ra, star.dec))
-            return redirect(url_for('main_chart.chart', mra=star.ra, mdec=star.dec, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+            return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
     return None
 
