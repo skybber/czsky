@@ -150,7 +150,7 @@ def session_plan_info(session_plan_id):
             session_plan.update_date = datetime.now()
             db.session.add(session_plan)
             db.session.commit()
-            flash('Session plan successfully updated', 'form-success')
+            flash(gettext('Session plan successfully updated'), 'form-success')
             return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id))
     else:
         form.title.data = session_plan.title
@@ -213,9 +213,9 @@ def new_session_plan():
             if current_user.is_anonymous:
                 session['session_plan_id'] = new_session_plan.id
 
-            flash('Session plan successfully created', 'form-success')
+            flash(gettext('Session plan successfully created'), 'form-success')
         else:
-            flash('Session plan already exists', 'form-success')
+            flash(gettext('Session plan already exists'), 'form-success')
 
         return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=new_session_plan.id))
 
@@ -258,7 +258,7 @@ def session_plan_delete(session_plan_id):
     db.session.delete(session_plan)
     db.session.commit()
 
-    flash('Session plan was deleted', 'form-success')
+    flash(gettext('Session plan was deleted'), 'form-success')
     return redirect(url_for('main_sessionplan.session_plans'))
 
 
@@ -270,7 +270,7 @@ def session_plan_clear(session_plan_id):
 
     SessionPlanItem.query.filter_by(session_plan_id=session_plan_id).delete()
     db.session.commit()
-    flash('Session items deleted', 'form-success')
+    flash(gettext('Session items deleted'), 'form-success')
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
 
@@ -297,13 +297,13 @@ def session_plan_item_add(session_plan_id):
             new_item = session_plan.create_new_session_plan_item(deepsky_object.id, user.id)
             db.session.add(new_item)
             db.session.commit()
-            flash('Object was added to session plan.', 'form-success')
+            flash(gettext('Object was added to session plan.'), 'form-success')
         else:
-            flash('Object is already on session plan.', 'form-info')
+            flash(gettext('Object is already on session plan.'), 'form-info')
 
         reorder_by_merid_time(session_plan)
     else:
-        flash('Deepsky object not found.', 'form-error')
+        flash(gettext('Deepsky object not found.'), 'form-error')
 
     session['is_backr'] = True
 
@@ -323,7 +323,7 @@ def session_plan_item_delete(item_id):
     session_plan_id = session_plan_item.session_plan_id
     db.session.delete(session_plan_item)
     db.session.commit()
-    flash('Session plan item was deleted', 'form-success')
+    flash(gettext('Session plan item was deleted'), 'form-success')
 
     session['is_backr'] = True
     drow_index = request.args.get('row_index')
@@ -336,11 +336,11 @@ def session_plan_upload(session_plan_id):
     _check_session_plan(session_plan)
 
     if 'file' not in request.files:
-        flash('No file part', 'form-error')
+        flash(gettext('No file part'), 'form-error')
         return redirect(request.url)
     file = request.files['file']
     if file.filename == '':
-        flash('No selected file')
+        flash(gettext('No file selected'))
         return redirect(request.url)
     if file:
         filename = secure_filename(file.filename)
@@ -367,7 +367,7 @@ def session_plan_upload(session_plan_id):
                     existing_ids.add(dso.id)
         db.session.commit()
         os.remove(path)
-        flash('Session plan uploaded.', 'form-success')
+        flash(gettext('Session plan uploaded.'), 'form-success')
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))

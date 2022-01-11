@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-07 20:55+0100\n"
+"POT-Creation-Date: 2022-01-11 19:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,7 +98,8 @@ msgid "User login disabled."
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:60 app/main/forms.py:35
-#: app/main/location/location_forms.py:54 app/main/news/news_forms.py:52
+#: app/main/import_history/import_history_forms.py:13
+#: app/main/location/location_forms.py:58 app/main/news/news_forms.py:52
 #: app/main/observation/observed_forms.py:41
 #: app/main/planner/sessionplan_forms.py:63
 #: app/main/planner/sessionplan_forms.py:77
@@ -110,7 +111,8 @@ msgid "Items per page"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:33
-#: app/main/location/location_forms.py:53 app/main/news/news_forms.py:51
+#: app/main/import_history/import_history_forms.py:12
+#: app/main/location/location_forms.py:57 app/main/news/news_forms.py:51
 #: app/main/observation/observed_forms.py:40
 #: app/main/planner/sessionplan_forms.py:40
 #: app/main/planner/sessionplan_forms.py:64
@@ -208,14 +210,14 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:53
 #: app/main/catalogue/deepskyobject_forms.py:59
 #: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:75
-#: app/templates/macros/fchart_macros.html:123
+#: app/templates/macros/fchart_macros.html:175
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:67
 msgid "Limit mag"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:54
-#: app/main/chart/chart_forms.py:20 app/templates/macros/fchart_macros.html:144
+#: app/main/chart/chart_forms.py:20 app/templates/macros/fchart_macros.html:196
 msgid "DSO limit mag"
 msgstr ""
 
@@ -224,9 +226,9 @@ msgid "References"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:73
-#: app/main/location/location_forms.py:38 app/main/news/news_forms.py:38
+#: app/main/location/location_forms.py:40 app/main/news/news_forms.py:38
 #: app/main/observation/observing_session_forms.py:69
-#: app/templates/main/location/location_info.html:35
+#: app/templates/main/location/location_info.html:39
 #: app/templates/main/location/locations.html:48
 #: app/templates/main/news/news_list.html:45
 #: app/templates/main/observation/observing_sessions.html:24
@@ -238,7 +240,7 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:81
 #: app/main/equipment/equipment_forms.py:100
 #: app/main/equipment/equipment_forms.py:118
-#: app/main/location/location_forms.py:36
+#: app/main/location/location_forms.py:38
 #: app/main/observation/observing_session_forms.py:83
 #: app/main/planner/sessionplan_forms.py:47
 #: app/templates/main/observation/observing_session_info.html:60
@@ -258,7 +260,7 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:78
 #: app/main/equipment/equipment_forms.py:97
 #: app/main/equipment/equipment_forms.py:115
-#: app/main/location/location_forms.py:34
+#: app/main/location/location_forms.py:36
 #: app/main/planner/sessionplan_views.py:389
 #: app/templates/main/catalogue/constellation_info.html:119
 #: app/templates/main/catalogue/constellations.html:36
@@ -266,13 +268,13 @@ msgstr ""
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/catalogue/dso_list_menu.html:18
 #: app/templates/main/catalogue/star_info.html:81
-#: app/templates/main/equipment/eyepiece_info.html:21
+#: app/templates/main/equipment/eyepiece_info.html:22
 #: app/templates/main/equipment/eyepieces.html:33
-#: app/templates/main/equipment/filter_info.html:21
+#: app/templates/main/equipment/filter_info.html:22
 #: app/templates/main/equipment/filters.html:33
-#: app/templates/main/equipment/lens_info.html:21
+#: app/templates/main/equipment/lens_info.html:22
 #: app/templates/main/equipment/lenses.html:33
-#: app/templates/main/equipment/telescope_info.html:21
+#: app/templates/main/equipment/telescope_info.html:22
 #: app/templates/main/equipment/telescopes.html:35
 #: app/templates/main/location/location_info.html:24
 #: app/templates/main/location/locations.html:44
@@ -290,10 +292,10 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:79
 #: app/main/equipment/equipment_forms.py:98
 #: app/main/equipment/equipment_forms.py:116
-#: app/templates/main/equipment/eyepiece_info.html:22
-#: app/templates/main/equipment/filter_info.html:22
-#: app/templates/main/equipment/lens_info.html:22
-#: app/templates/main/equipment/telescope_info.html:22
+#: app/templates/main/equipment/eyepiece_info.html:23
+#: app/templates/main/equipment/filter_info.html:23
+#: app/templates/main/equipment/lens_info.html:23
+#: app/templates/main/equipment/telescope_info.html:23
 msgid "Vendor"
 msgstr ""
 
@@ -301,10 +303,10 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:80
 #: app/main/equipment/equipment_forms.py:99
 #: app/main/equipment/equipment_forms.py:117
-#: app/templates/main/equipment/eyepiece_info.html:23
-#: app/templates/main/equipment/filter_info.html:23
-#: app/templates/main/equipment/lens_info.html:23
-#: app/templates/main/equipment/telescope_info.html:23
+#: app/templates/main/equipment/eyepiece_info.html:24
+#: app/templates/main/equipment/filter_info.html:24
+#: app/templates/main/equipment/lens_info.html:24
+#: app/templates/main/equipment/telescope_info.html:24
 msgid "Model"
 msgstr ""
 
@@ -313,7 +315,7 @@ msgid "Telescope Type"
 msgstr ""
 
 #: app/main/equipment/equipment_forms.py:44
-#: app/templates/main/equipment/telescope_info.html:27
+#: app/templates/main/equipment/telescope_info.html:28
 msgid "Aperture (mm)"
 msgstr ""
 
@@ -323,12 +325,12 @@ msgid "Focal Length (mm)"
 msgstr ""
 
 #: app/main/equipment/equipment_forms.py:46
-#: app/templates/main/equipment/telescope_info.html:32
+#: app/templates/main/equipment/telescope_info.html:33
 msgid "Fixed magnification"
 msgstr ""
 
 #: app/main/equipment/equipment_forms.py:47
-#: app/templates/main/equipment/telescope_info.html:36
+#: app/templates/main/equipment/telescope_info.html:37
 msgid "Is default"
 msgstr ""
 
@@ -336,10 +338,10 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:85
 #: app/main/equipment/equipment_forms.py:103
 #: app/main/equipment/equipment_forms.py:122
-#: app/templates/main/equipment/eyepiece_info.html:31
-#: app/templates/main/equipment/filter_info.html:30
-#: app/templates/main/equipment/lens_info.html:31
-#: app/templates/main/equipment/telescope_info.html:40
+#: app/templates/main/equipment/eyepiece_info.html:32
+#: app/templates/main/equipment/filter_info.html:31
+#: app/templates/main/equipment/lens_info.html:32
+#: app/templates/main/equipment/telescope_info.html:41
 msgid "Is active"
 msgstr ""
 
@@ -362,9 +364,9 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:84
 #: app/main/equipment/equipment_forms.py:102
 #: app/main/equipment/equipment_forms.py:121
-#: app/templates/main/equipment/eyepiece_info.html:29
-#: app/templates/main/equipment/filter_info.html:28
-#: app/templates/main/equipment/lens_info.html:29
+#: app/templates/main/equipment/eyepiece_info.html:30
+#: app/templates/main/equipment/filter_info.html:29
+#: app/templates/main/equipment/lens_info.html:30
 msgid "Diameter (inch)"
 msgstr ""
 
@@ -393,7 +395,7 @@ msgid "Lens Type"
 msgstr ""
 
 #: app/main/equipment/equipment_forms.py:120
-#: app/templates/main/equipment/lens_info.html:28
+#: app/templates/main/equipment/lens_info.html:29
 #: app/templates/main/equipment/lenses.html:35
 msgid "Magnification"
 msgstr ""
@@ -406,34 +408,46 @@ msgstr ""
 msgid "Update Lens"
 msgstr ""
 
-#: app/main/location/location_forms.py:35
+#: app/main/location/location_forms.py:37
 msgid "Position"
 msgstr ""
 
-#: app/main/location/location_forms.py:37
-#: app/templates/main/location/location_info.html:34
+#: app/main/location/location_forms.py:39
+#: app/templates/main/location/location_info.html:38
 #: app/templates/main/location/locations.html:47
 msgid "Bortle"
 msgstr ""
 
-#: app/main/location/location_forms.py:39
+#: app/main/location/location_forms.py:41
 msgid "Is suitable for observation"
 msgstr ""
 
-#: app/main/location/location_forms.py:40
+#: app/main/location/location_forms.py:42
 msgid "Is public"
 msgstr ""
 
-#: app/main/location/location_forms.py:41
+#: app/main/location/location_forms.py:43
 msgid "Country"
 msgstr ""
 
+#: app/main/location/location_forms.py:44
+#: app/templates/main/location/location_info.html:34
+msgid "Time Zone"
+msgstr ""
+
 #: app/main/location/location_forms.py:45
+#: app/templates/main/catalogue/constellation_info.html:111
+#: app/templates/main/catalogue/constellations.html:35
+#: app/templates/main/location/location_info.html:36
+msgid "IAU code"
+msgstr ""
+
+#: app/main/location/location_forms.py:49
 #: app/templates/main/location/locations.html:14
 msgid "Add location"
 msgstr ""
 
-#: app/main/location/location_forms.py:49
+#: app/main/location/location_forms.py:53
 msgid "Update location"
 msgstr ""
 
@@ -516,14 +530,14 @@ msgstr ""
 
 #: app/main/observation/observing_session_forms.py:70
 #: app/main/observation/observing_session_forms.py:125
-#: app/templates/macros/fchart_macros.html:25
+#: app/templates/macros/fchart_macros.html:26
 #: app/templates/main/observation/observing_session_info.html:36
 msgid "Date From"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:72
 #: app/main/observation/observing_session_forms.py:127
-#: app/templates/macros/fchart_macros.html:32
+#: app/templates/macros/fchart_macros.html:33
 #: app/templates/main/observation/observing_session_info.html:37
 msgid "Date To"
 msgstr ""
@@ -584,10 +598,12 @@ msgid "Export Observation"
 msgstr ""
 
 #: app/main/observation/observing_session_import.py:33
+#: app/main/planner/sessionplan_import.py:33
 msgid "OAL Location \"{}\" not found"
 msgstr ""
 
 #: app/main/observation/observing_session_import.py:92
+#: app/main/planner/sessionplan_import.py:75
 msgid "DSO \"{}\" not found"
 msgstr ""
 
@@ -603,7 +619,7 @@ msgstr ""
 msgid "OAL Observation \"{}\" for session \"{}\" already exists"
 msgstr ""
 
-#: app/main/observation/observing_session_views.py:431
+#: app/main/observation/observing_session_views.py:458
 msgid ""
 "\n"
 "## Goal\n"
@@ -646,6 +662,7 @@ msgid ""
 msgstr ""
 
 #: app/main/planner/sessionplan_forms.py:45
+#: app/templates/main/import_history/import_history_records.html:29
 #: app/templates/main/observation/observing_sessions.html:20
 #: app/templates/main/planner/session_plan.html:30
 #: app/templates/main/planner/session_plans.html:18
@@ -674,6 +691,54 @@ msgstr ""
 msgid "Min altitude"
 msgstr ""
 
+#: app/main/planner/sessionplan_views.py:153
+msgid "Session plan successfully updated"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:216
+msgid "Session plan successfully created"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:218
+msgid "Session plan already exists"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:261
+msgid "Session plan was deleted"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:273
+msgid "Session items deleted"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:300
+msgid "Object was added to session plan."
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:302
+msgid "Object is already on session plan."
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:306
+msgid "Deepsky object not found."
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:326
+msgid "Session plan item was deleted"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:339
+msgid "No file part"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:343
+msgid "No file selected"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:370
+msgid "Session plan uploaded."
+msgstr ""
+
 #: app/main/planner/sessionplan_views.py:389
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:346
@@ -683,6 +748,7 @@ msgstr ""
 #: app/templates/main/equipment/filters.html:34
 #: app/templates/main/equipment/lenses.html:34
 #: app/templates/main/equipment/telescopes.html:36
+#: app/templates/main/import_history/import_history_record_info.html:32
 #: app/templates/main/observation/observed_list.html:78
 #: app/templates/main/observation/observing_session_info.html:140
 #: app/templates/main/planner/session_plan.html:45
@@ -924,17 +990,17 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:256
+#: app/templates/macros/fchart_macros.html:308
 msgid "Object not found"
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:258
+#: app/templates/macros/fchart_macros.html:310
 msgid "Specified object was not found."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:262
+#: app/templates/macros/fchart_macros.html:314
 msgid "Close"
 msgstr ""
 
@@ -946,84 +1012,104 @@ msgstr ""
 msgid "Add to observed"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:45
-#: app/templates/macros/fchart_macros.html:74
-msgid "Telrad"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:49
-#: app/templates/macros/fchart_macros.html:85
-msgid "Picker"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:53
-#: app/templates/macros/fchart_macros.html:91
-msgid "Constellation lines"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:57
-#: app/templates/macros/fchart_macros.html:97
-msgid "Constellation borders"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:61
-#: app/templates/macros/fchart_macros.html:103
-msgid "Equatorial grid"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:65
-#: app/templates/macros/fchart_macros.html:109
-msgid "Deepsky objects"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:80
+#: app/templates/macros/fchart_macros.html:46
+#: app/templates/macros/fchart_macros.html:132
 #: app/templates/main/equipment/equipment_menu.html:10
 #: app/templates/main/location/locations.html:10
 #: app/templates/main/news/news_list.html:10
 msgid "Settings"
 msgstr ""
 
+#: app/templates/macros/fchart_macros.html:51
+#: app/templates/macros/fchart_macros.html:53
+#: app/templates/macros/fchart_macros.html:95
+#: app/templates/macros/fchart_macros.html:126
+msgid "Telrad"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:64
+#: app/templates/main/equipment/equipment_menu.html:16
+#: app/templates/main/equipment/telescope_edit.html:13
+#: app/templates/main/equipment/telescope_info.html:9
+#: app/templates/main/equipment/telescopes.html:17
+msgid "Telescopes"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:85
+msgid "Reset FOV"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:88
+msgid "Unselect"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:101
+#: app/templates/macros/fchart_macros.html:137
+msgid "Picker"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:105
+#: app/templates/macros/fchart_macros.html:143
+msgid "Constellation lines"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:109
+#: app/templates/macros/fchart_macros.html:149
+msgid "Constellation borders"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:113
+#: app/templates/macros/fchart_macros.html:155
+msgid "Equatorial grid"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:117
 #: app/templates/macros/fchart_macros.html:161
+msgid "Deepsky objects"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:213
 msgid "Object List"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:164
+#: app/templates/macros/fchart_macros.html:216
 msgid "None"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:168
+#: app/templates/macros/fchart_macros.html:220
 #: app/templates/main/planner/session_plan_schedule.html:20
-#: app/templates/main/planner/wish_list.html:116
+#: app/templates/main/planner/wish_list.html:117
 msgid "Wish List"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:173
+#: app/templates/macros/fchart_macros.html:225
 #: app/templates/main/observation/observing_session_info.html:107
 msgid "Session plans"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:186
+#: app/templates/macros/fchart_macros.html:238
 #: app/templates/main/catalogue/deepskyobject_info.html:16
+#: app/templates/main/import_history/import_history_records.html:10
 #: app/templates/main/observation/observing_session_edit.html:134
 #: app/templates/main/observation/observing_sessions.html:9
 msgid "Observations"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:199
+#: app/templates/macros/fchart_macros.html:251
 #: app/templates/main/planner/session_plan_schedule.html:24
 msgid "DSO List"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:221
+#: app/templates/macros/fchart_macros.html:273
 msgid "PDF export"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:232
+#: app/templates/macros/fchart_macros.html:284
 #: app/templates/macros/nav_macros.html:127
 msgid "Search..."
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:238
+#: app/templates/macros/fchart_macros.html:290
 msgid "Split view"
 msgstr ""
 
@@ -1063,7 +1149,7 @@ msgstr ""
 
 #: app/templates/main/index.html:15 app/templates/main/index.html:47
 #: app/templates/main/news/news_edit.html:13
-#: app/templates/main/news/news_info.html:51
+#: app/templates/main/news/news_info.html:52
 msgid "News"
 msgstr ""
 
@@ -1103,7 +1189,7 @@ msgstr ""
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:9
 #: app/templates/main/catalogue/star_info.html:19
-#: app/templates/main/chart/chart.html:36 app/templates/main/index.html:76
+#: app/templates/main/chart/chart.html:37 app/templates/main/index.html:76
 #: app/templates/main/news/news_info.html:8
 #: app/templates/main/observation/observed_list.html:8
 #: app/templates/main/observation/observing_session_info.html:8
@@ -1128,7 +1214,7 @@ msgstr ""
 
 #: app/templates/main/index.html:83
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan.html:132
+#: app/templates/main/planner/session_plan.html:133
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
 msgstr ""
@@ -1200,11 +1286,6 @@ msgstr ""
 msgid "descr"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:111
-#: app/templates/main/catalogue/constellations.html:35
-msgid "IAU code"
-msgstr ""
-
 #: app/templates/main/catalogue/constellation_info.html:120
 msgid "Image"
 msgstr ""
@@ -1213,28 +1294,29 @@ msgstr ""
 #: app/templates/main/catalogue/dso_list_info.html:26
 #: app/templates/main/catalogue/dso_list_menu.html:19
 #: app/templates/main/catalogue/star_list_info.html:25
-#: app/templates/main/equipment/eyepiece_info.html:25
-#: app/templates/main/equipment/filter_info.html:25
-#: app/templates/main/equipment/lens_info.html:25
-#: app/templates/main/equipment/telescope_info.html:25
+#: app/templates/main/equipment/eyepiece_info.html:26
+#: app/templates/main/equipment/filter_info.html:26
+#: app/templates/main/equipment/lens_info.html:26
+#: app/templates/main/equipment/telescope_info.html:26
 #: app/templates/main/location/location_info.html:33
 msgid "Description"
 msgstr ""
 
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/dso_menu.html:10
-#: app/templates/main/chart/chart.html:29
+#: app/templates/main/chart/chart.html:30
 #: app/templates/main/observation/observation_menu.html:10
 #: app/templates/main/observation/observing_session_info.html:239
 #: app/templates/main/planner/planner_menu.html:10
-#: app/templates/main/planner/session_plan.html:127
-#: app/templates/main/planner/session_plan.html:144
+#: app/templates/main/planner/session_plan.html:128
+#: app/templates/main/planner/session_plan.html:145
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:14
+#: app/templates/main/import_history/import_history_record_info.html:34
 msgid "Log"
 msgstr ""
 
@@ -1266,7 +1348,8 @@ msgstr ""
 #: app/templates/main/equipment/filter_edit.html:88
 #: app/templates/main/equipment/lens_edit.html:91
 #: app/templates/main/equipment/telescope_edit.html:98
-#: app/templates/main/location/location_edit.html:111
+#: app/templates/main/import_history/import_history_record_info.html:54
+#: app/templates/main/location/location_edit.html:120
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:119
 #: app/templates/main/observation/observed_list.html:134
@@ -1334,13 +1417,6 @@ msgstr ""
 msgid "Instruments"
 msgstr ""
 
-#: app/templates/main/equipment/equipment_menu.html:16
-#: app/templates/main/equipment/telescope_edit.html:13
-#: app/templates/main/equipment/telescope_info.html:9
-#: app/templates/main/equipment/telescopes.html:17
-msgid "Telescopes"
-msgstr ""
-
 #: app/templates/main/equipment/equipment_menu.html:17
 msgid "Your telescopes"
 msgstr ""
@@ -1384,6 +1460,7 @@ msgid "Add New Eyepiece"
 msgstr ""
 
 #: app/templates/main/equipment/eyepiece_edit.html:26
+#: app/templates/main/equipment/eyepiece_info.html:15
 msgid "Edit Eyepiece"
 msgstr ""
 
@@ -1400,7 +1477,8 @@ msgstr ""
 #: app/templates/main/equipment/filter_edit.html:86
 #: app/templates/main/equipment/lens_edit.html:89
 #: app/templates/main/equipment/telescope_edit.html:96
-#: app/templates/main/location/location_edit.html:109
+#: app/templates/main/import_history/import_history_record_info.html:52
+#: app/templates/main/location/location_edit.html:118
 #: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:117
 #: app/templates/main/observation/observed_list.html:132
@@ -1411,12 +1489,12 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: app/templates/main/equipment/eyepiece_info.html:27
-#: app/templates/main/equipment/telescope_info.html:29
+#: app/templates/main/equipment/eyepiece_info.html:28
+#: app/templates/main/equipment/telescope_info.html:30
 msgid "Focal length (mm)"
 msgstr ""
 
-#: app/templates/main/equipment/eyepiece_info.html:28
+#: app/templates/main/equipment/eyepiece_info.html:29
 msgid "FOV (deg)"
 msgstr ""
 
@@ -1448,6 +1526,7 @@ msgid "Add New Filter"
 msgstr ""
 
 #: app/templates/main/equipment/filter_edit.html:26
+#: app/templates/main/equipment/filter_info.html:15
 msgid "Edit Filter"
 msgstr ""
 
@@ -1460,7 +1539,7 @@ msgstr ""
 msgid "Are you sure you want to delete filter?"
 msgstr ""
 
-#: app/templates/main/equipment/filter_info.html:27
+#: app/templates/main/equipment/filter_info.html:28
 msgid "Filter type"
 msgstr ""
 
@@ -1483,6 +1562,7 @@ msgid "Add New Lens"
 msgstr ""
 
 #: app/templates/main/equipment/lens_edit.html:26
+#: app/templates/main/equipment/lens_info.html:15
 msgid "Edit Lens"
 msgstr ""
 
@@ -1495,7 +1575,7 @@ msgstr ""
 msgid "Are you sure you want to delete lens?"
 msgstr ""
 
-#: app/templates/main/equipment/lens_info.html:27
+#: app/templates/main/equipment/lens_info.html:28
 msgid "Lens type"
 msgstr ""
 
@@ -1512,6 +1592,7 @@ msgid "Add New Telescope"
 msgstr ""
 
 #: app/templates/main/equipment/telescope_edit.html:26
+#: app/templates/main/equipment/telescope_info.html:15
 msgid "Edit Telescope"
 msgstr ""
 
@@ -1524,7 +1605,7 @@ msgstr ""
 msgid "Are you sure you want to delete telescope?"
 msgstr ""
 
-#: app/templates/main/equipment/telescope_info.html:34
+#: app/templates/main/equipment/telescope_info.html:35
 msgid "Telescope type"
 msgstr ""
 
@@ -1536,8 +1617,33 @@ msgstr ""
 msgid "Aperture"
 msgstr ""
 
+#: app/templates/main/import_history/import_history_record_info.html:9
+msgid "Import History"
+msgstr ""
+
+#: app/templates/main/import_history/import_history_record_info.html:14
+#: app/templates/main/import_history/import_history_record_info.html:47
+msgid "Delete Imported Observations"
+msgstr ""
+
+#: app/templates/main/import_history/import_history_record_info.html:31
+msgid "Create date"
+msgstr ""
+
+#: app/templates/main/import_history/import_history_record_info.html:49
+msgid "Are you sure you want to delete all imported observations by this import?"
+msgstr ""
+
+#: app/templates/main/import_history/import_history_records.html:13
+msgid "Import History Record"
+msgstr ""
+
+#: app/templates/main/import_history/import_history_records.html:30
+msgid "Status"
+msgstr ""
+
 #: app/templates/main/location/location_edit.html:13
-#: app/templates/main/location/location_info.html:51
+#: app/templates/main/location/location_info.html:55
 #: app/templates/main/location/locations.html:17
 #: app/templates/main/skyquality/skyquality.html:16
 #: app/templates/main/userdata/userdata_menu.html:18
@@ -1553,19 +1659,20 @@ msgid "Add New Location"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:26
+#: app/templates/main/location/location_info.html:61
 msgid "Edit Location"
 msgstr ""
 
-#: app/templates/main/location/location_edit.html:94
-#: app/templates/main/location/location_edit.html:104
+#: app/templates/main/location/location_edit.html:103
+#: app/templates/main/location/location_edit.html:113
 msgid "Delete Location"
 msgstr ""
 
-#: app/templates/main/location/location_edit.html:106
+#: app/templates/main/location/location_edit.html:115
 msgid "Are you sure you want to delete location?"
 msgstr ""
 
-#: app/templates/main/location/location_info.html:36
+#: app/templates/main/location/location_info.html:40
 msgid "Observation place"
 msgstr ""
 
@@ -1582,6 +1689,7 @@ msgid "Add New News"
 msgstr ""
 
 #: app/templates/main/news/news_edit.html:26
+#: app/templates/main/news/news_info.html:58
 msgid "Edit News"
 msgstr ""
 
@@ -1616,27 +1724,35 @@ msgid "View observing sessions"
 msgstr ""
 
 #: app/templates/main/observation/observation_menu.html:20
-msgid "Observations export [Experimental]"
-msgstr ""
-
-#: app/templates/main/observation/observation_menu.html:21
-msgid "Export observing sessions to OAL"
-msgstr ""
-
-#: app/templates/main/observation/observation_menu.html:22
-msgid "Observations import [Experimental]"
-msgstr ""
-
-#: app/templates/main/observation/observation_menu.html:23
-msgid "Import observing sessions from OAL"
-msgstr ""
-
-#: app/templates/main/observation/observation_menu.html:24
 msgid "Observed List"
 msgstr ""
 
-#: app/templates/main/observation/observation_menu.html:25
+#: app/templates/main/observation/observation_menu.html:21
 msgid "View observed objects"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:22
+msgid "Observations export [Experimental]"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:23
+msgid "Export observing sessions to OAL"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:24
+msgid "Observations import [Experimental]"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:25
+msgid "Import observing sessions from OAL"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:26
+msgid "Observations import history [Experimental]"
+msgstr ""
+
+#: app/templates/main/observation/observation_menu.html:27
+msgid "View import history from OAL"
 msgstr ""
 
 #: app/templates/main/observation/observed_list.html:47
@@ -1645,6 +1761,10 @@ msgstr ""
 
 #: app/templates/main/observation/observed_list.html:53
 msgid "Download observed list"
+msgstr ""
+
+#: app/templates/main/observation/observed_list.html:61
+msgid "Upload observed list"
 msgstr ""
 
 #: app/templates/main/observation/observed_list.html:111
@@ -1671,7 +1791,7 @@ msgstr ""
 msgid "Are you sure you want to clear observed list?"
 msgstr ""
 
-#: app/templates/main/observation/observed_list.html:201
+#: app/templates/main/observation/observed_list.html:202
 msgid "List of observed objects"
 msgstr ""
 
@@ -1730,24 +1850,28 @@ msgstr ""
 msgid "Observed"
 msgstr ""
 
+#: app/templates/main/observation/observing_session_info.html:258
+msgid "Edit Observation"
+msgstr ""
+
 #: app/templates/main/observation/observing_sessions.html:12
 msgid "Observing Sessions"
 msgstr ""
 
 #: app/templates/main/observation/observing_sessions_export.html:15
-msgid "Export to OAL"
-msgstr ""
-
-#: app/templates/main/observation/observing_sessions_export.html:35
+#: app/templates/main/observation/observing_sessions_export.html:49
+#: app/templates/main/observation/observing_sessions_export.html:51
 msgid "Export observations to OAL"
 msgstr ""
 
-#: app/templates/main/observation/observing_sessions_import.html:15
-msgid "Import from OAL"
-msgstr ""
-
+#: app/templates/main/observation/observing_sessions_export.html:24
 #: app/templates/main/observation/observing_sessions_import.html:24
 msgid "About OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_sessions_import.html:15
+#: app/templates/main/observation/observing_sessions_import.html:51
+msgid "Import observations from OAL"
 msgstr ""
 
 #: app/templates/main/planner/planner_menu.html:16
@@ -1779,7 +1903,7 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-#: app/templates/main/planner/session_plan.html:136
+#: app/templates/main/planner/session_plan.html:137
 msgid "Add New Session Plan"
 msgstr ""
 
