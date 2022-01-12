@@ -1,0 +1,303 @@
+import re
+
+import numpy as np
+
+from app import db
+from app.models.star import Star
+from app.models.constellation import Constellation
+
+from .import_utils import progress
+
+SHORT_LAT_TO_GREEK = {
+    "alp":"α",
+    "alf":"α",
+    "bet":"β",
+    "gam":"γ",
+    "del":"δ",
+    "eps":"ε",
+    "zet":"ζ",
+    "eta":"η",
+    "the":"θ",
+    "tet":"θ",
+    "iot":"ι",
+    "kap":"κ",
+    "lam":"λ",
+    "mu":"μ",
+    "nu":"ν",
+    "xi":"ξ",
+    "omi":"ο",
+    "pi":"π",
+    "rho":"ρ",
+    "sig":"σ",
+    "tau":"τ",
+    "ups":"υ",
+    "phi":"φ",
+    "chi":"χ",
+    "psi":"ψ",
+    "ome":"ω",
+}
+
+
+class WdsDouble:
+    def __init__(self, wds_number=None, bmc_v=None, common_cat_id=None, components=None, other_designation=None,
+                 first=None, last=None, num_of_publ=None, quality_score=None, bmc_q=None,
+                 position_first=None, position_last=None, separation_first=None, separation_last=None,
+                 mag_first=None, mag_second=None, sum_mag=None, spectral_type=None, proper_motion_ra=None,
+                 proper_motion_dec=None, net_pm=None, notes=None, constell_iau= None, ra_first=None, dec_first=None):
+        self.wds_number = wds_number
+        self.bmc_v = bmc_v
+        self.common_cat_id = common_cat_id
+        self.components = components
+        self.other_designation = other_designation
+        self.first = first
+        self.last = last
+        self.num_of_publ = num_of_publ
+        self.quality_score = quality_score
+        self.bmc_q = bmc_q
+        self.position_first = position_first
+        self.position_last = position_last
+        self.separation_first = separation_first
+        self.separation_last = separation_last
+        self.mag_first = mag_first
+        self.mag_second = mag_second
+        self.sum_mag = sum_mag
+        self.spectral_type = spectral_type
+        self.proper_motion_ra = proper_motion_ra
+        self.proper_motion_dec = proper_motion_dec
+        self.net_pm = net_pm
+        self.notes = notes
+        self.constell_iau= constell_iau
+        self.ra_first = ra_first
+        self.dec_first = dec_first
+        self.ra_first = ra_first
+
+
+def _parse_bmcevoy_dbl_line(line, constellation):
+    wds_number = line[0:10].strip()
+    bmc_v = _parse_int(line[12:26])
+    common_cat_id = line[28:47].strip()
+    components = line[48:61].strip()
+    other_designation = line[62:148].strip()
+    first = _parse_int(line[150:154])
+    last = _parse_int(line[159:164])
+    num_of_publ = _parse_int(line[167:181])
+    quality_score = _parse_float(line[183:194])
+    bmc_q = _parse_int(line[196:203])
+    position_first = _parse_int(line[204:213])
+    position_last = _parse_int(line[216:222])
+    separation_first = _parse_float(line[234:242])
+    separation_last = _parse_float(line[246:252])
+    mag_first = _parse_float(line[267:277])
+    mag_second = _parse_float(line[280:290])
+    sum_mag = _parse_float(line[292:300])
+    spectral_type = line[312:336].strip()
+    proper_motion_ra = _parse_int(line[338:349])
+    proper_motion_dec = _parse_int(line[350:359])
+    net_pm = _parse_float(line[382:390])
+    notes = line[416:470].strip()
+    constell_iau= line[471:478].upper()
+    ra_first = float(line[478:486].strip())*np.pi/12.0 + float(line[487:496].strip())*np.pi/(12.0*60.0) + float(line[497:506].strip())*np.pi/(12*60.0*60)
+    dec_first = float(line[509]+'1')*(float(line[511:520].strip())*np.pi/180.0 + float(line[521:528].strip())*np.pi/(180.0*60) + float(line[529:542])*np.pi/(180.0*60*60))
+
+    return WdsDouble(
+        wds_number=wds_number,
+        bmc_v=bmc_v,
+        common_cat_id=common_cat_id,
+        components=components,
+        other_designation=other_designation,
+        first=first,
+        last=last,
+        num_of_publ=num_of_publ,
+        quality_score=quality_score,
+        bmc_q=bmc_q,
+        position_first=position_first,
+        position_last=position_last,
+        separation_first=separation_first,
+        separation_last=separation_last,
+        mag_first=mag_first,
+        mag_second=mag_second,
+        sum_mag=sum_mag,
+        spectral_type=spectral_type,
+        proper_motion_ra=proper_motion_ra,
+        proper_motion_dec=proper_motion_dec,
+        net_pm=net_pm,
+        notes=notes,
+        constell_iau= constell_iau,
+        ra_first=ra_first,
+        dec_first=dec_first,
+    )
+
+
+def _parse_sac_dbl_line(line, constell_dict):
+
+    constell = constell_dict[line[1:4].strip()]
+    name = line[5:21].strip()
+
+    ra = float(line[21:23])*np.pi/12.0 + float(line[24:28])*np.pi/(12.0*60.0)
+    dec = float(line[29]+'1')*(float(line[30:35]))*np.pi/180.0
+
+    comp = line[36:60].strip()
+    other_names = line[41:67].strip()
+
+    mag = _parse_float(line[68:72])
+    mag2 = _parse_float(line[73:77])
+    separation = _parse_float(line[78:83])
+    position_angle = _parse_int(line[84:87])
+
+    notes = line[88, 149].strip()
+
+    sao = int(line[162:168])
+
+    star = Star(
+        src_catalogu='sac_doubles',
+        hr=None,
+        bayer_flamsteed=None,
+        hd=None,
+        sao=sao,
+        fk5=None,
+        multiple=line[43:44].strip(),
+        var_id=None,
+        ra=ra,
+        dec=dec,
+        mag=mag,
+        bv=None,
+        sp_type=None,
+        dmag=mag2-mag,
+        sep=separation,
+        mult_id=comp,
+        mult_cnt=None
+    )
+    return star
+
+wds_doubles_by_common_cat_id = {}
+wds_doubles_by_other_designation = {}
+
+
+def parse_bmcevoy_dbl(filename):
+    wds_stars = []
+    sf = open(filename, 'r')
+    lines = sf.readlines()[10:]
+    sf.close()
+
+    p1 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
+    p2 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)$')
+    p3 = re.compile('^(\d+)\s+([a-zA-Z]+)$')
+    p4 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)$')
+    p5 = re.compile('^(V\d+)\s+([a-zA-Z]+)$')
+    p6 = re.compile('^([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
+    p7 = re.compile('^(\d+)\s+([a-zA-Z]+),\s*(\w+)\s+([a-zA-Z]+)$')
+
+    constell_dict = {}
+    for co in Constellation.query.all():
+        constell_dict[co.iau_code.upper()] = co.id
+
+    for line in lines:
+        wds_double = _parse_bmcevoy_dbl_line(line, constell_dict)
+        if wds_double.common_cat_id:
+            dict = wds_doubles_by_common_cat_id.get(wds_double.common_cat_id, {})
+            key =  wds_double.components if wds_double.components else '_'
+            dict[key] = wds_double
+        if wds_double.other_designation:
+            des = wds_double.other_designation
+            i1 = des.find('(')
+            while i1 >= 0:
+                i2 = des.find(')')
+                if i2 >= 0 and i2 > i1:
+                    if i2 + 1 < len(des):
+                        des = des[:i1] + des[i2+1:]
+                    else:
+                        des = des[:i1]
+                    des = des.strip()
+                    i1 = des.find('(')
+                else:
+                    break
+            m = p1.match(des)
+            if m:
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(4)] = wds_double
+                wds_doubles_by_other_designation[m.group(2).upper() + ' ' + m.group(4)] = wds_double
+            else:
+                m = p2.match(des)
+                if m:
+                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
+                    wds_doubles_by_other_designation[m.group(2).upper() + ' ' + m.group(3)] = wds_double
+                else:
+                    m = p3.match(des)
+                    if m:
+                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                    else:
+                        m = p4.match(des)
+                        if m:
+                            if m.group(1) in SHORT_LAT_TO_GREEK:
+                                gr = m.group(1)
+                                if gr == 'tet':
+                                    gr = 'the'
+                                if gr == 'alf':
+                                    gr = 'alp'
+                                wds_doubles_by_other_designation[m.group(1).upper() + ' ' + m.group(2)] = wds_double
+                            else:
+                                # var ID
+                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                        else:
+                            m = p5.match(des)
+                            if m:
+                                # var ID
+                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                            else:
+                                m = p6.match(des)
+                                if m:
+                                    if m.group(1) in SHORT_LAT_TO_GREEK:
+                                        wds_doubles_by_other_designation[m.group(1).upper() + ' ' + m.group(2) + ' ' + m.group(3)] = wds_double
+                                    else:
+                                        print('{}'.format(des))
+                                else:
+                                    m = p7.match(des)
+                                    if m:
+                                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                                        wds_doubles_by_other_designation[m.group(3) + ' ' + m.group(4)] = wds_double
+                                    else:
+                                        print('{}'.format(des))
+
+
+
+def import_sac_doubles(filename):
+    from sqlalchemy.exc import IntegrityError
+
+    stars = []
+    sf = open(filename, 'r')
+    lines = sf.readlines()
+    sf.close()
+
+    constell_dict = {}
+    for co in Constellation.query.all():
+        constell_dict[co.iau_code.upper()] = co.id
+
+    for line in lines:
+        star = _parse_sac_dbl_line(line, constell_dict)
+        if star:
+            stars.append(star)
+
+    try:
+        line_cnt = 1
+        for star in stars:
+            progress(line_cnt, len(stars), 'Importing SAc dooubles catalogue')
+            line_cnt += 1
+            db.session.add(star)
+        print('')
+        db.session.commit()
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()
+
+
+def _parse_int(val):
+    try:
+        return int(val.strip())
+    except (ValueError, TypeError):
+        return None
+
+
+def _parse_float(val):
+    try:
+        return float(val.strip())
+    except (ValueError, TypeError):
+        return None
