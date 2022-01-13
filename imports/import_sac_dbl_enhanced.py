@@ -1,6 +1,7 @@
 import re
 
 import numpy as np
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models.star import Star
@@ -37,6 +38,32 @@ SHORT_LAT_TO_GREEK = {
     "ome":"ω",
 }
 
+LONG_LAT_TO_GREEK = {
+    ("Alpha","alp"),
+    ("Beta","bet"),
+    ("Gamma","gam"),
+    ("Delta","del"),
+    ("Epsilon","eps"),
+    ("Zeta","zet"),
+    ("Eta","eta"),
+    ("Theta","the"),
+    ("Iota","iot"),
+    ("Kappa","kap"),
+    ("Lambda","lam"),
+    ("Mu","mu"),
+    ("Nu","nu"),
+    ("Xi","xi"),
+    ("Omicron","omi"),
+    ("Pi","pi"),
+    ("Rho","rho"),
+    ("Sigma","sig"),
+    ("Tau","tau"),
+    ("Upsilon","ups"),
+    ("Phi","phi"),
+    ("Chi","chi"),
+    ("Psi","psi"),
+    ("Omega","ome"),
+}
 
 class WdsDouble:
     def __init__(self, wds_number=None, bmc_v=None, common_cat_id=None, components=None, other_designation=None,
@@ -128,15 +155,131 @@ def _parse_bmcevoy_dbl_line(line, constellation):
     )
 
 
+wds_doubles_by_common_cat_id = {}
+wds_doubles_by_other_designation = {}
+
+
+def _parse_bmcevoy_dbl(filename, constell_dict):
+    wds_stars = []
+    sf = open(filename, 'r')
+    lines = sf.readlines()[10:]
+    sf.close()
+
+    p1 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
+    p2 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)$')
+    p3 = re.compile('^(\d+)\s+([a-zA-Z]+)$')
+    p4 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)$')
+    p5 = re.compile('^(V\d+)\s+([a-zA-Z]+)$')
+    p6 = re.compile('^([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
+    p7 = re.compile('^(\d+)\s+([a-zA-Z]+),\s*(\w+)\s+([a-zA-Z]+)$')
+    p8 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
+
+    for line in lines:
+        wds_double = _parse_bmcevoy_dbl_line(line, constell_dict)
+        if wds_double.common_cat_id:
+            if wds_double.common_cat_id not in wds_doubles_by_common_cat_id:
+                dict = {}
+                wds_doubles_by_common_cat_id[wds_double.common_cat_id] = dict
+            else:
+                dict = wds_doubles_by_common_cat_id[wds_double.common_cat_id]
+            key = wds_double.components if wds_double.components else '_'
+            dict[key] = wds_double
+        if wds_double.other_designation:
+            des = wds_double.other_designation
+            i1 = des.find('(')
+            while i1 >= 0:
+                i2 = des.find(')')
+                if i2 >= 0 and i2 > i1:
+                    if i2 + 1 < len(des):
+                        des = des[:i1] + des[i2+1:]
+                    else:
+                        des = des[:i1]
+                    des = des.strip()
+                    i1 = des.find('(')
+                else:
+                    break
+            m = p1.match(des)
+            if m:
+                # 9 alf 2 Lib
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(4)] = wds_double
+                gr = _fix_greek(m.group(2))
+                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3) + ' ' + m.group(4)] = wds_double
+            else:
+                m = p2.match(des)
+                if m:
+                    # 9 alf CMa
+                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
+                    gr = _fix_greek(m.group(2))
+                    wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3)] = wds_double
+                else:
+                    m = p3.match(des)
+                    if m:
+                        # 27 Tau
+                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                    else:
+                        m = p4.match(des)
+                        if m:
+                            # alf Cen
+                            if m.group(1) in SHORT_LAT_TO_GREEK:
+                                gr = _fix_greek(m.group(1))
+                                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(2)] = wds_double
+                            else:
+                                # var ID
+                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                        else:
+                            m = p5.match(des)
+                            if m:
+                                # V337 Car
+                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                            else:
+                                m = p6.match(des)
+                                if m:
+                                    # alf 1 Cru
+                                    if m.group(1) in SHORT_LAT_TO_GREEK:
+                                        gr = _fix_greek(m.group(1))
+                                        wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(2) + ' ' + m.group(3)] = wds_double
+                                    else:
+                                        pass
+                                        #print('{}'.format(des))
+                                else:
+                                    m = p7.match(des)
+                                    if m:
+                                        # 36 Oph, A Oph
+                                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                                        wds_doubles_by_other_designation[m.group(3) + ' ' + m.group(4)] = wds_double
+                                    else:
+                                        m = p8.match(des)
+                                        if m:
+                                            # 68 omi Cet, VZ Cet
+                                            wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
+                                            if m.group(2) in SHORT_LAT_TO_GREEK:
+                                                gr = _fix_greek(m.group(2))
+                                                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3)] = wds_double
+                                            else:
+                                                wds_doubles_by_other_designation[m.group(2) + ' ' + m.group(3)] = wds_double
+                                            wds_doubles_by_other_designation[m.group(4) + ' ' + m.group(5)] = wds_double
+                                        else:
+                                            pass
+                                            # print('{}'.format(des))
+
+
+def _fix_greek(gr):
+    if gr == 'tet':
+        gr = 'the'
+    if gr == 'alf':
+        gr = 'alp'
+    return gr
+
+
 def _parse_sac_dbl_line(line, constell_dict):
 
     constell = constell_dict[line[1:4].strip()]
-    name = line[5:21].strip()
+    name = line[5:20].strip()
 
     ra = float(line[21:23])*np.pi/12.0 + float(line[24:28])*np.pi/(12.0*60.0)
-    dec = float(line[29]+'1')*(float(line[30:35]))*np.pi/180.0
+    dec = float(line[29]+'1')*(float(line[30:32])*np.pi/180.0 + float(line[33:35]) * np.pi/(180.0*60.0))
 
-    comp = line[36:60].strip()
+    comp = line[36:40].strip()
     other_names = line[41:67].strip()
 
     mag = _parse_float(line[68:72])
@@ -144,9 +287,52 @@ def _parse_sac_dbl_line(line, constell_dict):
     separation = _parse_float(line[78:83])
     position_angle = _parse_int(line[84:87])
 
-    notes = line[88, 149].strip()
+    notes = line[88: 149].strip()
 
-    sao = int(line[162:168])
+    sao = _parse_int(line[162:168])
+
+    wds_double = None
+
+    while '  ' in name:
+        name = name.replace('  ', ' ')
+
+    for gr_pair in LONG_LAT_TO_GREEK:
+        if gr_pair[0] in name:
+            repl = gr_pair[1].capitalize()
+            name = name.replace(gr_pair[0], repl)
+            if name[len(repl)].isdigit() and (name[len(repl)+1] == ' '):
+                name = name[0:len(repl)] + ' ' + name[len(repl):]
+            break
+
+    name = name.replace('Burnham', 'BU')
+    name = name.replace('Dunlop', 'DUN')
+    name = name.replace('Howe', 'HWE')
+
+    if name.startswith('Roe '):
+        name = 'ROE' + name[3:]
+
+    if name.startswith('h '):
+        name = 'HJ' + name[1:]
+
+    if comp:
+        comp = comp.replace('x', ',')
+        comp = comp.replace('X', ',')
+    if name:
+        wds_double = _get_from_wds_doubles_by_common_cat_id(name, comp)
+
+        if not wds_double:
+            wds_double = wds_doubles_by_other_designation.get(name)
+
+    if not wds_double and other_names:
+        wds_double = _get_from_wds_doubles_by_common_cat_id(other_names, comp)
+        if not wds_double:
+            wds_double = wds_doubles_by_other_designation.get(other_names)
+
+    if not wds_double:
+        print('Wds not found name={} other_names={}'.format(name, other_names))
+        return None
+
+    return None
 
     star = Star(
         src_catalogu='sac_doubles',
@@ -169,107 +355,44 @@ def _parse_sac_dbl_line(line, constell_dict):
     )
     return star
 
-wds_doubles_by_common_cat_id = {}
-wds_doubles_by_other_designation = {}
+
+def _get_from_wds_doubles_by_common_cat_id(name, comp):
+    wds_double = None
+    dict = wds_doubles_by_common_cat_id.get(name)
+    if dict:
+        if comp:
+            wds_double = dict.get(comp)
+            if not wds_double:
+                print('---- Not found {} {}'.format(name, comp))
+        else:
+            if len(dict) == 1:
+                wds_double = list(dict.values())[0]
+            else:
+                wds_double = dict.get('_')
+                if not wds_double:
+                    wds_double = dict.get('AB')
+                    if not wds_double:
+                        wds_double = list(dict.values())[0]
+                        print('---- Geting first as default for name={}'.format(name))
+                    else:
+                        pass
+                        # print('---- Geting AB as default for name={}'.format(name))
+    return wds_double
 
 
-def parse_bmcevoy_dbl(filename):
-    wds_stars = []
-    sf = open(filename, 'r')
-    lines = sf.readlines()[10:]
-    sf.close()
-
-    p1 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
-    p2 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)$')
-    p3 = re.compile('^(\d+)\s+([a-zA-Z]+)$')
-    p4 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)$')
-    p5 = re.compile('^(V\d+)\s+([a-zA-Z]+)$')
-    p6 = re.compile('^([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
-    p7 = re.compile('^(\d+)\s+([a-zA-Z]+),\s*(\w+)\s+([a-zA-Z]+)$')
+def import_sac_doubles(sac_filename, bmcevoy_filename):
 
     constell_dict = {}
     for co in Constellation.query.all():
         constell_dict[co.iau_code.upper()] = co.id
 
-    for line in lines:
-        wds_double = _parse_bmcevoy_dbl_line(line, constell_dict)
-        if wds_double.common_cat_id:
-            dict = wds_doubles_by_common_cat_id.get(wds_double.common_cat_id, {})
-            key =  wds_double.components if wds_double.components else '_'
-            dict[key] = wds_double
-        if wds_double.other_designation:
-            des = wds_double.other_designation
-            i1 = des.find('(')
-            while i1 >= 0:
-                i2 = des.find(')')
-                if i2 >= 0 and i2 > i1:
-                    if i2 + 1 < len(des):
-                        des = des[:i1] + des[i2+1:]
-                    else:
-                        des = des[:i1]
-                    des = des.strip()
-                    i1 = des.find('(')
-                else:
-                    break
-            m = p1.match(des)
-            if m:
-                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(4)] = wds_double
-                wds_doubles_by_other_designation[m.group(2).upper() + ' ' + m.group(4)] = wds_double
-            else:
-                m = p2.match(des)
-                if m:
-                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
-                    wds_doubles_by_other_designation[m.group(2).upper() + ' ' + m.group(3)] = wds_double
-                else:
-                    m = p3.match(des)
-                    if m:
-                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                    else:
-                        m = p4.match(des)
-                        if m:
-                            if m.group(1) in SHORT_LAT_TO_GREEK:
-                                gr = m.group(1)
-                                if gr == 'tet':
-                                    gr = 'the'
-                                if gr == 'alf':
-                                    gr = 'alp'
-                                wds_doubles_by_other_designation[m.group(1).upper() + ' ' + m.group(2)] = wds_double
-                            else:
-                                # var ID
-                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                        else:
-                            m = p5.match(des)
-                            if m:
-                                # var ID
-                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                            else:
-                                m = p6.match(des)
-                                if m:
-                                    if m.group(1) in SHORT_LAT_TO_GREEK:
-                                        wds_doubles_by_other_designation[m.group(1).upper() + ' ' + m.group(2) + ' ' + m.group(3)] = wds_double
-                                    else:
-                                        print('{}'.format(des))
-                                else:
-                                    m = p7.match(des)
-                                    if m:
-                                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                                        wds_doubles_by_other_designation[m.group(3) + ' ' + m.group(4)] = wds_double
-                                    else:
-                                        print('{}'.format(des))
-
-
-
-def import_sac_doubles(filename):
-    from sqlalchemy.exc import IntegrityError
+    _parse_bmcevoy_dbl(bmcevoy_filename, constell_dict)
 
     stars = []
-    sf = open(filename, 'r')
-    lines = sf.readlines()
-    sf.close()
 
-    constell_dict = {}
-    for co in Constellation.query.all():
-        constell_dict[co.iau_code.upper()] = co.id
+    sf = open(sac_filename, 'r')
+    lines = sf.readlines()[1:]
+    sf.close()
 
     for line in lines:
         star = _parse_sac_dbl_line(line, constell_dict)

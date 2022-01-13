@@ -15,7 +15,7 @@ from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
-from imports.import_sac_dbl_enhanced import parse_bmcevoy_dbl
+from imports.import_sac_dbl_enhanced import import_sac_doubles
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
@@ -172,7 +172,7 @@ def import_star_list():
 
 @manager.command
 def import_doubles():
-    parse_bmcevoy_dbl('data/BruceMacEvoy_doubles.csv')
+    import_sac_doubles('data/SAC_DBL40_Fence.txt', 'data/BruceMacEvoy_doubles.csv')
 
 
 @manager.command
