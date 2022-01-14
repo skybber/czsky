@@ -4,9 +4,11 @@ from .. import db
 
 from skyfield.units import Angle
 
+
 class Star(db.Model):
     __tablename__ = 'stars'
     id = db.Column(db.Integer, primary_key=True)
+    src_catalogue = db.Column(db.String(16))
     hr = db.Column(db.Integer, unique=True, index=True)                     # Harvard Revised Number = Bright Star Number
     common_name = db.Column(db.String(40), index=True)                                  # Common name
     bayer = db.Column(db.String(5), index=True)                             # Bayer designation
@@ -17,8 +19,6 @@ class Star(db.Model):
     sao = db.Column(db.Integer, index=True)                                 # SAO Catalog Number
     fk5 = db.Column(db.Integer, unique=True)
     multiple = db.Column(db.String(1))                                      # Double or multiple-star code
-    ads = db.Column(db.String(5))                                           # Aitken's Double Star Catalog (ADS) designation
-    ads_comp = db.Column(db.String(2))                                      # ADS number components
     var_id = db.Column(db.String(9))                                        # Variable star identification
     ra = db.Column(db.Float)
     dec = db.Column(db.Float)
@@ -77,3 +77,21 @@ class UserStarDescription(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+
+
+class DoubleStar(db.Model):
+    __tablename__ = 'double_stars'
+    id = db.Column(db.Integer, primary_key=True)
+    wds_number = db.Column(db.String(10), index=True)
+    common_cat_id = db.Column(db.String(20), index=True)
+    components = db.Column(db.String(12))
+    other_designation = db.Column(db.Text)
+    pos_angle = db.Column(db.Integer)
+    separation = db.Column(db.Float)
+    mag_first = db.Column(db.Float)
+    mag_second = db.Column(db.Float)
+    spectral_type = db.Column(db.String(20))
+    constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
+    constellation = db.relationship("Constellation")
+    ra_first = db.Column(db.Float)
+    dec_first = db.Column(db.Float)

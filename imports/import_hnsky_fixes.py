@@ -13,6 +13,7 @@ from skyfield.api import position_from_radec, load_constellation_map
 
 from .import_utils import progress
 
+
 def fix_cstar_from_open_ngc(open_ngc_data_file):
     """
     Get missing cstar data from openngc
@@ -75,6 +76,7 @@ def fix_cstar_from_open_ngc(open_ngc_data_file):
             db.session.rollback()
         print('')
 
+
 def fix_dso_constellation():
     constell_dict = {}
 
@@ -97,9 +99,8 @@ def fix_dso_constellation():
         db.session.rollback()
     print('')
 
-def _parse_pn_list_line(line):
-    
 
+def _parse_pn_list_line(line):
     str_hd = line[25:31].strip()
     hd = int(str_hd) if str_hd != '' else None
 
@@ -139,8 +140,6 @@ def _parse_pn_list_line(line):
       sao = sao,
       fk5 = fk5,
       multiple = line[43:44].strip(),
-      ads = line[44:49].strip(),
-      ads_comp = line[44:51].strip(),
       var_id = line[51:60].strip(),
       ra = ra,
       dec = dec,
@@ -242,14 +241,16 @@ def check_from_pn_list(pn_list_file):
             else:
                 if new_mag < 100.0:
                     print('{},{:.2f},{:.2f}'.format(existing_dso.name, existing_mag, new_mag))
-        
+
+
 def _norm_mag(mag):
     if mag is None:
         return 100.0
     if mag > 99.9:
         return 100.0
     return mag
-    
+
+
 def _denormalize_pk_name(name):
     denorm = ''
     compress = True

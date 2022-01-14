@@ -5,6 +5,7 @@ from app.models.star import Star
 
 from .import_utils import progress
 
+
 def _parse_bsc5_line(line):
 
     str_hd = line[25:31].strip()
@@ -40,26 +41,26 @@ def _parse_bsc5_line(line):
         mag = None
 
     star = Star(
-      hr = int(line[:4].strip()),
-      bayer_flamsteed = line[4:14].strip(),
-      hd = hd,
-      sao = sao,
-      fk5 = fk5,
-      multiple = line[43:44].strip(),
-      ads = line[44:49].strip(),
-      ads_comp = line[44:51].strip(),
-      var_id = line[51:60].strip(),
-      ra = ra,
-      dec = dec,
-      mag = mag,
-      bv = bv,
-      sp_type = line[127:147].strip(),
-      dmag = dmag,
-      sep = sep,
-      mult_id = line[190:194].strip(),
-      mult_cnt = mult_cnt
+      src_catalogu='bsc',
+      hr=int(line[:4].strip()),
+      bayer_flamsteed=line[4:14].strip(),
+      hd=hd,
+      sao=sao,
+      fk5=fk5,
+      multiple=line[43:44].strip(),
+      var_id=line[51:60].strip(),
+      ra=ra,
+      dec=dec,
+      mag=mag,
+      bv=bv,
+      sp_type=line[127:147].strip(),
+      dmag=dmag,
+      sep=sep,
+      mult_id=line[190:194].strip(),
+      mult_cnt=mult_cnt
     )
     return star
+
 
 def import_bright_stars_bsc5(filename):
     from sqlalchemy.exc import IntegrityError

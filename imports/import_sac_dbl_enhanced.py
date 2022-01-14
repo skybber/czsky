@@ -4,7 +4,7 @@ import numpy as np
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.star import Star
+from app.models.star import Star, DoubleStar
 from app.models.constellation import Constellation
 
 from .import_utils import progress
@@ -38,7 +38,7 @@ SHORT_LAT_TO_GREEK = {
     "ome":"ω",
 }
 
-LONG_LAT_TO_GREEK = {
+LONG_LAT_TO_GREEK = [
     ("Alpha","alp"),
     ("Beta","bet"),
     ("Gamma","gam"),
@@ -63,7 +63,15 @@ LONG_LAT_TO_GREEK = {
     ("Chi","chi"),
     ("Psi","psi"),
     ("Omega","ome"),
+]
+
+HELP_MAP = {
+    'Alp Her': ('Alp 1,2 Her', None, None),
+    'Zet Cnc': ('STF 1196', 'Zet Cnc', 'AB'),
+    'Bet 1 Cas': ('AGC 15', 'Bet Cas', 'AB'),
+    'Eta Tau': ('STFA 8', 'Eta Tau', 'AB')
 }
+
 
 class WdsDouble:
     def __init__(self, wds_number=None, bmc_v=None, common_cat_id=None, components=None, other_designation=None,
@@ -93,10 +101,12 @@ class WdsDouble:
         self.proper_motion_dec = proper_motion_dec
         self.net_pm = net_pm
         self.notes = notes
-        self.constell_iau= constell_iau
+        self.constell_iau = constell_iau
         self.ra_first = ra_first
         self.dec_first = dec_first
         self.ra_first = ra_first
+        self.ref_count = 0
+        self.multi_dict = None
 
 
 def _parse_bmcevoy_dbl_line(line, constellation):
@@ -173,17 +183,36 @@ def _parse_bmcevoy_dbl(filename, constell_dict):
     p6 = re.compile('^([a-zA-Z]+)\s+(\d+)\s+([a-zA-Z]+)$')
     p7 = re.compile('^(\d+)\s+([a-zA-Z]+),\s*(\w+)\s+([a-zA-Z]+)$')
     p8 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
+    p9 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
 
     for line in lines:
         wds_double = _parse_bmcevoy_dbl_line(line, constell_dict)
-        if wds_double.common_cat_id:
-            if wds_double.common_cat_id not in wds_doubles_by_common_cat_id:
-                dict = {}
-                wds_doubles_by_common_cat_id[wds_double.common_cat_id] = dict
-            else:
-                dict = wds_doubles_by_common_cat_id[wds_double.common_cat_id]
-            key = wds_double.components if wds_double.components else '_'
-            dict[key] = wds_double
+
+        constellation_id = constell_dict[wds_double.constell_iau].id if wds_double.constell_iau in constell_dict else None
+
+        double_star = DoubleStar(
+            wds_number=wds_double.wds_number,
+            common_cat_id=wds_double.common_cat_id,
+            components=wds_double.components,
+            other_designation=wds_double.other_designation,
+            pos_angle=wds_double.position_last,
+            separation=wds_double.separation_last,
+            mag_first=wds_double.mag_first,
+            mag_second=wds_double.mag_second,
+            spectral_type=wds_double.spectral_type,
+            constellation_id=constellation_id,
+            ra_first=wds_double.ra_first,
+            dec_first=wds_double.dec_first,
+        )
+
+        if wds_double.common_cat_id not in wds_doubles_by_common_cat_id:
+            multi_dict = {}
+            wds_doubles_by_common_cat_id[wds_double.common_cat_id] = multi_dict
+        else:
+            multi_dict = wds_doubles_by_common_cat_id[wds_double.common_cat_id]
+        wds_double.multi_dict = multi_dict
+        key = wds_double.components if wds_double.components else '_'
+        multi_dict[key] = wds_double
         if wds_double.other_designation:
             des = wds_double.other_designation
             i1 = des.find('(')
@@ -202,65 +231,66 @@ def _parse_bmcevoy_dbl(filename, constell_dict):
             if m:
                 # 9 alf 2 Lib
                 wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(4)] = wds_double
-                gr = _fix_greek(m.group(2))
-                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3) + ' ' + m.group(4)] = wds_double
-            else:
-                m = p2.match(des)
-                if m:
-                    # 9 alf CMa
-                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
-                    gr = _fix_greek(m.group(2))
-                    wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3)] = wds_double
+                wds_doubles_by_other_designation[_fix_greek(m.group(2)) + ' ' + m.group(3) + ' ' + m.group(4)] = wds_double
+                continue
+            m = p2.match(des)
+            if m:
+                # 9 alf CMa
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
+                wds_doubles_by_other_designation[_fix_greek(m.group(2)) + ' ' + m.group(3)] = wds_double
+            m = p3.match(des)
+            if m:
+                # 27 Tau
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                continue
+            m = p4.match(des)
+            if m:
+                if m.group(1) in SHORT_LAT_TO_GREEK:
+                    wds_doubles_by_other_designation[_fix_greek(m.group(1)) + ' ' + m.group(2)] = wds_double
                 else:
-                    m = p3.match(des)
-                    if m:
-                        # 27 Tau
-                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                    else:
-                        m = p4.match(des)
-                        if m:
-                            # alf Cen
-                            if m.group(1) in SHORT_LAT_TO_GREEK:
-                                gr = _fix_greek(m.group(1))
-                                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(2)] = wds_double
-                            else:
-                                # var ID
-                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                        else:
-                            m = p5.match(des)
-                            if m:
-                                # V337 Car
-                                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                            else:
-                                m = p6.match(des)
-                                if m:
-                                    # alf 1 Cru
-                                    if m.group(1) in SHORT_LAT_TO_GREEK:
-                                        gr = _fix_greek(m.group(1))
-                                        wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(2) + ' ' + m.group(3)] = wds_double
-                                    else:
-                                        pass
-                                        #print('{}'.format(des))
-                                else:
-                                    m = p7.match(des)
-                                    if m:
-                                        # 36 Oph, A Oph
-                                        wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
-                                        wds_doubles_by_other_designation[m.group(3) + ' ' + m.group(4)] = wds_double
-                                    else:
-                                        m = p8.match(des)
-                                        if m:
-                                            # 68 omi Cet, VZ Cet
-                                            wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
-                                            if m.group(2) in SHORT_LAT_TO_GREEK:
-                                                gr = _fix_greek(m.group(2))
-                                                wds_doubles_by_other_designation[gr.capitalize() + ' ' + m.group(3)] = wds_double
-                                            else:
-                                                wds_doubles_by_other_designation[m.group(2) + ' ' + m.group(3)] = wds_double
-                                            wds_doubles_by_other_designation[m.group(4) + ' ' + m.group(5)] = wds_double
-                                        else:
-                                            pass
-                                            # print('{}'.format(des))
+                    # var ID
+                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                continue
+            m = p5.match(des)
+            if m:
+                # V337 Car
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                continue
+            m = p6.match(des)
+            if m:
+                # alf 1 Cru
+                if m.group(1) in SHORT_LAT_TO_GREEK:
+                    wds_doubles_by_other_designation[_fix_greek(m.group(1)) + ' ' + m.group(2) + ' ' + m.group(3)] = wds_double
+                else:
+                    pass
+                    #print('{}'.format(des))
+                continue
+            m = p7.match(des)
+            if m:
+                # 36 Oph, A Oph
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                wds_doubles_by_other_designation[m.group(3) + ' ' + m.group(4)] = wds_double
+                continue
+            m = p8.match(des)
+            if m:
+                # 68 omi Cet, VZ Cet
+                wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(3)] = wds_double
+                if m.group(2) in SHORT_LAT_TO_GREEK:
+                    wds_doubles_by_other_designation[_fix_greek(m.group(2)) + ' ' + m.group(3)] = wds_double
+                else:
+                    wds_doubles_by_other_designation[m.group(2) + ' ' + m.group(3)] = wds_double
+                wds_doubles_by_other_designation[m.group(4) + ' ' + m.group(5)] = wds_double
+                continue
+            m = p9.match(des)
+            if m:
+                # sig Ori, V1030 Ori
+                if m.group(1) in SHORT_LAT_TO_GREEK:
+                    wds_doubles_by_other_designation[_fix_greek(m.group(1)) + ' ' + m.group(2)] = wds_double
+                else:
+                    wds_doubles_by_other_designation[m.group(1) + ' ' + m.group(2)] = wds_double
+                wds_doubles_by_other_designation[_fix_greek(m.group(3)) + ' ' + m.group(4)] = wds_double
+                continue
+            # print('{}'.format(des))
 
 
 def _fix_greek(gr):
@@ -268,11 +298,10 @@ def _fix_greek(gr):
         gr = 'the'
     if gr == 'alf':
         gr = 'alp'
-    return gr
+    return gr.capitalize()
 
 
 def _parse_sac_dbl_line(line, constell_dict):
-
     constell = constell_dict[line[1:4].strip()]
     name = line[5:20].strip()
 
@@ -293,42 +322,36 @@ def _parse_sac_dbl_line(line, constell_dict):
 
     wds_double = None
 
-    while '  ' in name:
-        name = name.replace('  ', ' ')
-
-    for gr_pair in LONG_LAT_TO_GREEK:
-        if gr_pair[0] in name:
-            repl = gr_pair[1].capitalize()
-            name = name.replace(gr_pair[0], repl)
-            if name[len(repl)].isdigit() and (name[len(repl)+1] == ' '):
-                name = name[0:len(repl)] + ' ' + name[len(repl):]
-            break
-
-    name = name.replace('Burnham', 'BU')
-    name = name.replace('Dunlop', 'DUN')
-    name = name.replace('Howe', 'HWE')
-
-    if name.startswith('Roe '):
-        name = 'ROE' + name[3:]
-
-    if name.startswith('h '):
-        name = 'HJ' + name[1:]
+    name = _normalize_name(name)
 
     if comp:
         comp = comp.replace('x', ',')
         comp = comp.replace('X', ',')
+
+    if name in HELP_MAP:
+        name, other_names2, comp_cond = HELP_MAP[name]
+        if other_names2 and comp_cond == comp:
+            other_names = other_names2
+
     if name:
         wds_double = _get_from_wds_doubles_by_common_cat_id(name, comp)
-
+        if not wds_double and other_names:
+            other_names_parts = other_names.split(';')
+            wds_double = _get_from_wds_doubles_by_common_cat_id(_normalize_name(other_names_parts[0].strip()), comp)
+            if not wds_double and len(other_names_parts) > 1:
+                wds_double = _get_from_wds_doubles_by_common_cat_id(_normalize_name(other_names_parts[1].strip()), comp)
         if not wds_double:
-            wds_double = wds_doubles_by_other_designation.get(name)
+            wds_double = _get_from_wds_doubles_by_other_designation(name, comp)
 
     if not wds_double and other_names:
-        wds_double = _get_from_wds_doubles_by_common_cat_id(other_names, comp)
-        if not wds_double:
-            wds_double = wds_doubles_by_other_designation.get(other_names)
+        wds_double = _get_from_wds_doubles_by_other_designation(other_names, comp)
 
-    if not wds_double:
+    if wds_double:
+        if wds_double.ref_count == 1:
+            print('//// Wds multi ref name={} other_names={}'.format(name, other_names))
+            pass
+        wds_double.ref_count += 1
+    else:
         print('Wds not found name={} other_names={}'.format(name, other_names))
         return None
 
@@ -356,27 +379,75 @@ def _parse_sac_dbl_line(line, constell_dict):
     return star
 
 
+def _normalize_name(name):
+    while '  ' in name:
+        name = name.replace('  ', ' ')
+
+    for gr_pair in LONG_LAT_TO_GREEK:
+        if gr_pair[0] in name:
+            repl = gr_pair[1].capitalize()
+            name = name.replace(gr_pair[0], repl)
+            if name[len(repl)].isdigit() and (name[len(repl)+1] == ' '):
+                name = name[0:len(repl)] + ' ' + name[len(repl):]
+            break
+
+    name = name.replace('Burnham', 'BU')
+    name = name.replace('Dunlop', 'DUN')
+    name = name.replace('Howe', 'HWE')
+    name = name.replace('South', 'S')
+
+    if name.startswith('Roe '):
+        name = 'ROE' + name[3:]
+
+    if name.startswith('h '):
+        name = 'HJ' + name[1:]
+
+    if name.startswith('Sh '):
+        name = 'SHJ' + name[2:]
+
+    return name
+
+
 def _get_from_wds_doubles_by_common_cat_id(name, comp):
-    wds_double = None
-    dict = wds_doubles_by_common_cat_id.get(name)
-    if dict:
-        if comp:
-            wds_double = dict.get(comp)
-            if not wds_double:
-                print('---- Not found {} {}'.format(name, comp))
-        else:
-            if len(dict) == 1:
-                wds_double = list(dict.values())[0]
+    multi_dict = wds_doubles_by_common_cat_id.get(name)
+    if multi_dict:
+        return _lookup_multi_dict(multi_dict, name, comp)
+    return None
+
+
+def _get_from_wds_doubles_by_other_designation(name, comp):
+    name_parts = name.split(';')
+    pivot_double = wds_doubles_by_other_designation.get(name_parts[0].strip())
+    if not pivot_double and len(name_parts) > 1:
+        pivot_double = wds_doubles_by_other_designation.get(name_parts[1].strip())
+
+    if pivot_double:
+        return _lookup_multi_dict(pivot_double.multi_dict, name, comp)
+    return None
+
+
+def _lookup_multi_dict(multi_dict, name, comp):
+    if comp:
+        wds_double = multi_dict.get(comp)
+        if not wds_double:
+            if len(multi_dict) == 1:
+                wds_double = list(multi_dict.values())[0]
+                print('++++ Getting first as default for name={} comp={} keys={}'.format(name, comp, list(multi_dict.keys())))
             else:
-                wds_double = dict.get('_')
+                print('---- Not found {} {} keys={}'.format(name, comp, list(multi_dict.keys())))
+    else:
+        if len(multi_dict) == 1:
+            wds_double = list(multi_dict.values())[0]
+        else:
+            wds_double = multi_dict.get('_')
+            if not wds_double:
+                wds_double = multi_dict.get('AB')
                 if not wds_double:
-                    wds_double = dict.get('AB')
-                    if not wds_double:
-                        wds_double = list(dict.values())[0]
-                        print('---- Geting first as default for name={}'.format(name))
-                    else:
-                        pass
-                        # print('---- Geting AB as default for name={}'.format(name))
+                    wds_double = list(multi_dict.values())[0]
+                    print('++++ Getting first as default for name={}'.format(name))
+                else:
+                    pass
+                    # print('---- Geting AB as default for name={}'.format(name))
     return wds_double
 
 

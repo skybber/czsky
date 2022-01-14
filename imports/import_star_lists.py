@@ -11,6 +11,7 @@ from skyfield.api import position_from_radec, load_constellation_map
 
 from .import_utils import progress
 
+
 def _load_descriptions(dirname, base_name, star_list, editor_user):
     result = []
     descr_files = [f for f in sorted(glob.glob(dirname + '/' + base_name + '_*.md'))]
@@ -44,6 +45,7 @@ def _load_descriptions(dirname, base_name, star_list, editor_user):
             )
         result.append(star_list_descr)
     return result
+
 
 def import_carbon_stars(carbon_stars_data_file):
     sf = open(carbon_stars_data_file, 'r')
@@ -119,6 +121,7 @@ def import_carbon_stars(carbon_stars_data_file):
 
             if not star:
                 star = Star()
+                star.src_catalogue = 'carbon_stars'
 
             constellation = constellation_at(position_from_radec(ra / np.pi * 12.0, dec / np.pi * 180.0))
 
