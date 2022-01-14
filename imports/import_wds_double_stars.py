@@ -1,8 +1,9 @@
 import numpy as np
 from sqlalchemy.exc import IntegrityError
+import gzip
 
 from app import db
-from app.models.star import Star, DoubleStar
+from app.models.doublestar import DoubleStar
 from app.models.constellation import Constellation
 
 from .import_utils import progress
@@ -105,7 +106,7 @@ def import_wds_doubles(bmcevoy_filename):
     for co in Constellation.query.all():
         constell_dict[co.iau_code.upper()] = co.id
 
-    sf = open(bmcevoy_filename, 'r')
+    sf = gzip.open(bmcevoy_filename, 'rt', encoding='utf-8')
     lines = sf.readlines()[10:]
     sf.close()
 

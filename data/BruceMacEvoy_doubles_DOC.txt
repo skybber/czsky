@@ -1,0 +1,2 @@
+- Created from last spreadsheet version of WDS (used "Save as CSV in libreoffice) available at https://www.handprint.com/ASTRO/bineye2.html
+

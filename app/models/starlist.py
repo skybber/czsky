@@ -3,6 +3,7 @@ from sqlalchemy import Index
 
 from .. import db
 
+
 class StarList(db.Model):
     __tablename__ = 'star_lists'
     id = db.Column(db.Integer, primary_key=True)
@@ -62,5 +63,6 @@ class StarListItem(db.Model):
     star = db.relationship("Star")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
+
 
 Index('star_list_item_index', StarListItem.star_list_id, StarListItem.item_id)

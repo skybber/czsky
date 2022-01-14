@@ -3,6 +3,7 @@ from sqlalchemy import Index
 
 from .. import db
 
+
 class DsoList(db.Model):
     __tablename__ = 'dso_lists'
     id = db.Column(db.Integer, primary_key=True)
@@ -43,6 +44,7 @@ class DsoList(db.Model):
                 return prev_item, next_item
         return None, None
 
+
 class DsoListDescription(db.Model):
     __tablename__ = 'dso_list_descriptions'
     id = db.Column(db.Integer, primary_key=True)
@@ -66,5 +68,6 @@ class DsoListItem(db.Model):
     deepskyObject = db.relationship("DeepskyObject")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
+
 
 Index('dso_list_item_index', DsoListItem.dso_list_id, DsoListItem.item_id)

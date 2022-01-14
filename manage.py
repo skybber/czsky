@@ -15,7 +15,6 @@ from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
-from imports.import_sac_dbl_enhanced import import_sac_doubles
 from imports.import_wds_double_stars import import_wds_doubles
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.normalize_glahn_img import normalize_glahn_img
@@ -150,6 +149,7 @@ def initialize_catalogues():
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     import_constellations_positions('data/constlabel.cla')
+    import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz')
 
 
 @manager.command
@@ -169,11 +169,6 @@ def import_dso_list():
 @manager.command
 def import_star_list():
     import_carbon_stars('data/starlist/CarbonStars.txt')
-
-
-@manager.command
-def import_doubles():
-    import_wds_doubles('data/BruceMacEvoy_doubles.csv')
 
 
 @manager.command
@@ -263,6 +258,11 @@ def add_anonymous_user():
 @manager.command
 def tmp_link_star_descriptions_by_var_id():
     link_star_descriptions_by_var_id()
+
+
+@manager.command
+def tmp_import_doubles():
+    import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz')
 
 
 if __name__ == '__main__':

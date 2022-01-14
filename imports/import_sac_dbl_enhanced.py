@@ -4,7 +4,8 @@ import numpy as np
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.star import Star, DoubleStar
+from app.models.star import Star
+from app.models.doublestar import DoubleStar
 from app.models.constellation import Constellation
 
 from .import_utils import progress
@@ -189,21 +190,6 @@ def _parse_bmcevoy_dbl(filename, constell_dict):
         wds_double = _parse_bmcevoy_dbl_line(line, constell_dict)
 
         constellation_id = constell_dict[wds_double.constell_iau].id if wds_double.constell_iau in constell_dict else None
-
-        double_star = DoubleStar(
-            wds_number=wds_double.wds_number,
-            common_cat_id=wds_double.common_cat_id,
-            components=wds_double.components,
-            other_designation=wds_double.other_designation,
-            pos_angle=wds_double.position_last,
-            separation=wds_double.separation_last,
-            mag_first=wds_double.mag_first,
-            mag_second=wds_double.mag_second,
-            spectral_type=wds_double.spectral_type,
-            constellation_id=constellation_id,
-            ra_first=wds_double.ra_first,
-            dec_first=wds_double.dec_first,
-        )
 
         if wds_double.common_cat_id not in wds_doubles_by_common_cat_id:
             multi_dict = {}
