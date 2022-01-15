@@ -166,7 +166,7 @@ def _search_star(query):
     if not star:
         star = _search_by_bayer_flamsteed(query)
     if not star:
-        _search_star_from_catalog(query)
+        star = _search_star_from_catalog(query)
     if not star:
         # try to search by var ID
         star = Star.query.filter(Star.var_id.ilike(query)).first()

@@ -77,15 +77,15 @@
 {# --- Catalogue Data --- #}
 {% macro star_catalogue_data(star) %}
     {% if star is not none %}
-    <table class="ui compact definition table">
-        <tr><td>{{ _('Name') }}</td><td>{{ star.bayer_flamsteed }}</td></tr>
-        <tr><td>{{ _('Constellation') }}</td><td>{{ star.constellation.name.capitalize() if star.constellation else '' }}</td></tr>
-        <tr><td>mag</td><td>{{ star.mag }}</td></tr>
-        <tr><td>RA</td><td>{{ star.ra_str() }}</td></tr>
-        <tr><td>Dec</td><td>{{ star.dec_str() }}</td></tr>
-        <tr><td>HD</td><td>{{ star.hd }}</td></tr>
-        <tr><td>SAO</td><td>{{ star.sao }}</td></tr>
-        <tr><td>{{ _('Spectral type') }}</td><td>{{ star.sp_type }}</td></tr>
+    <table class="ui compact definition unstackable table">
+        <tr><td class="three wide">{{ _('Name') }}</td><td>{{ star.bayer_flamsteed }}</td></tr>
+        <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ star.constellation.name.capitalize() if star.constellation else '' }}</td></tr>
+        <tr><td class="three wide">mag</td><td>{{ star.mag }}</td></tr>
+        <tr><td class="three wide">RA</td><td>{{ star.ra_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ star.dec_str() }}</td></tr>
+        <tr><td class="three wide">HD</td><td>{{ star.hd }}</td></tr>
+        <tr><td class="three wide">SAO</td><td>{{ star.sao }}</td></tr>
+        <tr><td class="three wide">{{ _('Spectral type') }}</td><td>{{ star.sp_type }}</td></tr>
     </table>
     {% endif %}
 {% endmacro %}
