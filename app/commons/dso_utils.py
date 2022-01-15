@@ -28,6 +28,7 @@ CATALOGS_SPECIFICATIONS = (
     ('VIC', 2),
 )
 
+CZSKY_CHART_STAR_PREFIX = '_st_'
 
 def split_catalog_name(dso_name):
     """

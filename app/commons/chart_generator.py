@@ -768,7 +768,7 @@ def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
 def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
     highlight_def_items = []
     for pos in highlights_pos_list:
-        highlight_def_items.append([pos[0], pos[1], ''])
+        highlight_def_items.append([pos[0], pos[1], pos[2]])
     hl = fchart3.HighlightDefinition('circle', line_width, color, highlight_def_items)
     return [hl]
 

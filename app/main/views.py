@@ -14,7 +14,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import normalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, CZSKY_CHART_STAR_PREFIX
 from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
 from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
 from app.commons.coordinates import parse_radec
@@ -153,8 +153,17 @@ def _search_dso(query):
 
 
 def _search_star(query):
-    star = _search_by_bayer_flamsteed(query)
+    go_catalogue_data = False
+    if query.startswith(CZSKY_CHART_STAR_PREFIX):
+        try:
+            star_id = int(query[len(CZSKY_CHART_STAR_PREFIX):])
+            star = Star.query.filter_by(id=star_id).first()
+            go_catalogue_data = True
+        except (ValueError, TypeError):
+            pass
 
+    if not star:
+        star = _search_by_bayer_flamsteed(query)
     if not star:
         _search_star_from_catalog(query)
     if not star:
@@ -174,7 +183,8 @@ def _search_star(query):
             else:
                 return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
         else:
-            print('Chart to {} {}'.format(star.ra, star.dec))
+            if go_catalogue_data:
+                return redirect(url_for('main_star.star_catalogue_data', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
             return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
     return None
@@ -206,9 +216,6 @@ def _search_by_bayer_flamsteed(query):
                     star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
                 elif star_name.isdigit():
                     star = Star.query.filter_by(flamsteed=int(star_name), constellation_id=constell.id).first()
-            else:
-                if words[0].upper() in ['HD', 'HR', 'SAO']:
-                    star = _search_star_by_catalog(words[0], words[1])
         elif len(words) == 1 and query[0].isdigit():
             i = 1
             while i < len(query) and query[i].isdigit():
@@ -228,7 +235,6 @@ def _search_star_from_catalog(query):
     if i > 0 and i < len(query)-1:
         cat = query[:i].strip()
         sid = query[i:].strip()
-        print("cat {} sid {}".format(cat, sid), flush=True)
         if cat and sid.isdigit():
             cat = cat.upper()
             if cat == 'HR':
