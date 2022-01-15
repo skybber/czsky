@@ -286,7 +286,7 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
 
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
-                         trajectory=None, hl_constellation=None):
+                         highlights_pos_list=None, trajectory=None, hl_constellation=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
@@ -306,8 +306,8 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
                   maglim, dso_maglim, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names,
-                  flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory,
-                  hl_constellation=hl_constellation)
+                  flags=flags, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                  trajectory=trajectory, hl_constellation=hl_constellation)
     img_bytes.seek(0)
     return img_bytes
 
@@ -545,7 +545,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
                   mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
-                  trajectory=None, hl_constellation=None):
+                  highlights_pos_list=None, trajectory=None, hl_constellation=None):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -585,7 +585,12 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    highlights = _create_highlights(obj_ra, obj_dec)
+    if obj_ra is not None and obj_dec is not None:
+        highlights = _create_highlights(obj_ra, obj_dec, config.dso_highlight_linewidth*1.3)
+    elif highlights_pos_list:
+        highlights = _create_highlights_from_pos_list(highlights_pos_list, config.dso_highlight_color, config.dso_highlight_linewidth)
+    else:
+        highlights = None
 
     showing_dsos = set()
     if dso_names:
@@ -593,6 +598,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
             dso = _find_dso_by_name(dso_name)
             if dso:
                 showing_dsos.add(dso)
+
     for dso_name in FORCE_SHOWING_DSOS:
         dso = _find_dso_by_name(dso_name)
         if dso:
@@ -625,8 +631,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False, landscape=True, show_legend=True, dso_names=None,
-                      flags='', highlights_dso_list=None, trajectory=None, eyepiece_fov=None):
+def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False,
+                      landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
+                      highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
     global free_mem_counter
     tm = time()
@@ -669,7 +676,12 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    highlights = _create_highlights(obj_ra, obj_dec, True)
+    if obj_ra is not None and obj_dec is not None:
+        highlights = _create_highlights(obj_ra, obj_dec, config.dso_highlight_linewidth*1.3, True)
+    elif highlights_pos_list:
+        highlights = _create_highlights_from_pos_list(highlights_pos_list, config.dso_highlight_color, config.dso_highlight_linewidth)
+    else:
+        highlights = None
 
     showing_dsos = set()
     if dso_names:
@@ -741,7 +753,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 
-def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
+def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
     if force_light_mode or session.get('theme', '') == 'light':
         color = (0.0, 0.5, 0.0)
     elif session.get('theme', '') == 'night':
@@ -749,12 +761,16 @@ def _create_highlights(obj_ra, obj_dec, force_light_mode=False):
     else:
         color = (0.0, 0.5, 0.0)
 
-    highlights = []
-    if obj_ra is not None and obj_dec is not None:
-        hl = fchart3.HighlightDefinition('cross', 1.3, color, [['', obj_ra, obj_dec]])
-        highlights.append(hl)
+    hl = fchart3.HighlightDefinition('cross', line_width, color, [[obj_ra, obj_dec, '']])
+    return [hl]
 
-    return highlights
+
+def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
+    highlight_def_items = []
+    for pos in highlights_pos_list:
+        highlight_def_items.append([pos[0], pos[1], ''])
+    hl = fchart3.HighlightDefinition('circle', line_width, color, highlight_def_items)
+    return [hl]
 
 
 def _find_dso_by_name(dso_name):

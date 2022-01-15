@@ -35,6 +35,6 @@ class SearchStarListForm(FlaskForm):
          ('winter', lazy_gettext('Winter')),
          ('spring', lazy_gettext('Spring')),
          ('summer', lazy_gettext('Summer')),
-         ('autumn',lazy_gettext('Autumn')),
-         ('southern',lazy_gettext('Southern')),
+         ('autumn', lazy_gettext('Autumn')),
+         ('southern', lazy_gettext('Southern')),
     ], default='')

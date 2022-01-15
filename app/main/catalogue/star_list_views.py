@@ -130,11 +130,11 @@ def star_list_chart_pos_img(star_list_id, ra, dec):
         abort(404)
 
     star_list = StarList.query.filter_by(id=star_list.id).first()
-    highlights_star_list = [ x.star for x in star_list.star_list_items if star_list ]
+    highlights_pos_list = [(x.star.ra, x.star.dec) for x in star_list.star_list_items if star_list]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_star_list=highlights_star_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
