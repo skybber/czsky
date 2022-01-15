@@ -2,6 +2,8 @@ from datetime import datetime
 import os
 import base64
 
+from sqlalchemy import or_
+
 from io import BytesIO
 
 from flask import (
@@ -64,8 +66,8 @@ def double_stars():
 
     dbl_star_query = DoubleStar.query
     if search_form.q.data:
-        dbl_star_query = dbl_star_query.filter(DoubleStar.common_cat_id == search_form.q.data or
-                                               DoubleStar.wds_number == search_form.q.data)
+        dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
+                                               DoubleStar.wds_number == search_form.q.data))
 
     if not search_form.q.data and search_form.mag_first_max.data:
         dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_first_max.data)

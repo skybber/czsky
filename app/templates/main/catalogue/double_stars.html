@@ -16,15 +16,15 @@
             <form action="{{ url_for('main_double_star.double_stars') }}" method="post" name="search">
                 <div class="ui tiny menu">
                     <div class="ui input item">
-                        {{ search_form.mag_first_max() }}
+                        {{ search_form.mag_first_max(size=10) }}
                         <div class="top right aligned floating ui label">{{ _('Mag first max') }}</div>
                     </div>
                     <div class="ui input item">
-                        {{ search_form.delta_mag_min() }}
+                        {{ search_form.delta_mag_min(size=10) }}
                         <div class="top right aligned floating ui label">{{ _('Delta mag min') }}</div>
                     </div>
                     <div class="ui input item">
-                        {{ search_form.separation_min() }}
+                        {{ search_form.separation_min(size=10) }}
                         <div class="top right aligned floating ui label">{{ _('Separation min') }}</div>
                     </div>
 
@@ -43,7 +43,7 @@
                     <table class="ui searchable unstackable selectable celled table">
                         <thead>
                             <tr>
-                                <th>
+                                <th class="mobile hidden">
                                     <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['wds_number'].sort) }}" style="color: inherit;">
                                         WDS {{ table_sort['wds_number'].icon | safe }}
                                     </a>
@@ -58,7 +58,7 @@
                                         {{ _('Co.') }} {{ table_sort['components'].icon | safe }}
                                     </a>
                                 </th>
-                                <th>
+                                <th class="mobile hidden">
                                     <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['other_designation'].sort) }}" style="color: inherit;">
                                         {{ _('Other designation') }} {{ table_sort['other_designation'].icon | safe }}
                                     </a>
@@ -73,7 +73,7 @@
                                         {{ _('Mag2') }} {{ table_sort['mag_second'].icon | safe }}
                                     </a>
                                 </th>
-                                <th class="mobile hidden">
+                                <th>
                                     <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['separation'].sort) }}" style="color: inherit;">
                                         {{ _('Sep.') }} {{ table_sort['separation'].icon | safe }}
                                     </a>
@@ -103,16 +103,16 @@
                         <tbody>
                         {% for d in double_stars %}
                             <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_chart', double_star_id=d.id) }}';">
-                                <td>{{ d.wds_number }}</td>
+                                <td class="mobile hidden">{{ d.wds_number }}</td>
                                 <td>{{ d.common_cat_id }}</td>
                                 <td>{{ d.components }}</td>
-                                <td>{{ d.other_designation }}</td>
+                                <td class="mobile hidden">{{ d.other_designation }}</td>
                                 <td class="right aligned">{{ commons.convert_mag(d.mag_first) }}</td>
                                 <td class="right aligned">{{ commons.convert_mag(d.mag_second) }}</td>
                                 <td class="right aligned">{{ d.separation }}</td>
                                 <td class="mobile hidden">{{ d.ra_first_str_short() }}</td>
                                 <td class="mobile hidden">{{ d.dec_first_str_short() }}</td>
-                                <td>{{ d.spectral_type }}</td>
+                                <td class="mobile hidden">{{ d.spectral_type }}</td>
                                 <td>{{ d.get_constellation_iau_code() }}</td>
                             </tr>
                         {% endfor %}
