@@ -54,6 +54,8 @@ def double_stars():
         ('dbl_mag_max', search_form.mag_max),
         ('dbl_delta_mag_min', search_form.delta_mag_min),
         ('dbl_separation_min', search_form.separation_min),
+        ('dbl_separation_max', search_form.separation_max),
+        ('dec_min', search_form.dec_min),
         ('items_per_page', search_form.items_per_page)
     ])
 
@@ -68,11 +70,17 @@ def double_stars():
     if search_form.q.data:
         dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
                                                DoubleStar.wds_number == search_form.q.data))
-
-    if not search_form.q.data and search_form.mag_max.data:
-        dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
-    if not search_form.q.data and search_form.delta_mag_min.data:
-        dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
+    else:
+        if search_form.mag_max.data:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
+        if search_form.delta_mag_min.data:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
+        if search_form.separation_min.data:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.separation > search_form.separation_min.data)
+        if search_form.separation_max.data:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.separation < search_form.separation_max.data)
+        if search_form.dec_min.data:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.dec_first > search_form.dec_min.data)
 
     sort_def = { 'wds_number': DoubleStar.wds_number,
                  'common_cat_id': DoubleStar.common_cat_id,
