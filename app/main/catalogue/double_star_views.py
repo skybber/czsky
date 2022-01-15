@@ -1,5 +1,5 @@
 from datetime import datetime
-import os
+import numpy as np
 import base64
 
 from sqlalchemy import or_
@@ -88,7 +88,7 @@ def double_stars():
         if search_form.separation_max.data:
             dbl_star_query = dbl_star_query.filter(DoubleStar.separation < search_form.separation_max.data)
         if search_form.dec_min.data:
-            dbl_star_query = dbl_star_query.filter(DoubleStar.dec_first > search_form.dec_min.data)
+            dbl_star_query = dbl_star_query.filter(DoubleStar.dec_first > (np.pi * search_form.dec_min.data / 180.0))
 
     sort_def = { 'wds_number': DoubleStar.wds_number,
                  'common_cat_id': DoubleStar.common_cat_id,
