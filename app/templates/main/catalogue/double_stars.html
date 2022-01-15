@@ -74,6 +74,11 @@
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
+                                    <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['separation'].sort) }}" style="color: inherit;">
+                                        {{ _('Sep.') }} {{ table_sort['separation'].icon | safe }}
+                                    </a>
+                                </th>
+                                <th class="mobile hidden">
                                     <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
                                         RA {{ table_sort['ra'].icon | safe }}
                                     </a>
@@ -102,8 +107,9 @@
                                 <td>{{ d.common_cat_id }}</td>
                                 <td>{{ d.components }}</td>
                                 <td>{{ d.other_designation }}</td>
-                                <td class="right aligned collapsing">{{ commons.convert_mag(d.mag_first) }}</td>
-                                <td class="right aligned collapsing">{{ commons.convert_mag(d.mag_second) }}</td>
+                                <td class="right aligned">{{ commons.convert_mag(d.mag_first) }}</td>
+                                <td class="right aligned">{{ commons.convert_mag(d.mag_second) }}</td>
+                                <td class="right aligned">{{ d.separation }}</td>
                                 <td class="mobile hidden">{{ d.ra_first_str_short() }}</td>
                                 <td class="mobile hidden">{{ d.dec_first_str_short() }}</td>
                                 <td>{{ d.spectral_type }}</td>

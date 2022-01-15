@@ -80,6 +80,7 @@ def double_stars():
                  'dec': DoubleStar.dec_first,
                  'mag_first': DoubleStar.mag_first,
                  'mag_second': DoubleStar.mag_second,
+                 'separation': DoubleStar.separation,
                  'spectral_type': DoubleStar.spectral_type,
                  'constellation': DoubleStar.constellation_id,
                  }
