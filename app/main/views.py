@@ -154,6 +154,7 @@ def _search_dso(query):
 
 def _search_star(query):
     go_catalogue_data = False
+    star = None
     if query.startswith(CZSKY_CHART_STAR_PREFIX):
         try:
             star_id = int(query[len(CZSKY_CHART_STAR_PREFIX):])

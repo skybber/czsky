@@ -19,6 +19,7 @@ from wtforms.fields import (
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
     DataRequired,
+    Email,
     EqualTo,
     InputRequired,
     Length,
@@ -28,9 +29,12 @@ from wtforms.validators import (
 from flask_babel import lazy_gettext
 
 
-class SearchDoubleStarForm(FlaskForm):
-    q = StringField('Search')
-    mag_max = FloatField(lazy_gettext('Mag max'), default=12.0)
-    delta_mag_min = FloatField(lazy_gettext('Delta mag min'), default=0.0)
-    separation_min = FloatField(lazy_gettext('Separation min'), default=1.0)
-    items_per_page = IntegerField(lazy_gettext('Items per page'))
+class SearchDoubleStarListForm(FlaskForm):
+    season = SelectField(lazy_gettext('Season'), choices=[
+        ('All', lazy_gettext('All')),
+        ('winter', lazy_gettext('Winter')),
+        ('spring', lazy_gettext('Spring')),
+        ('summer', lazy_gettext('Summer')),
+        ('autumn',lazy_gettext('Autumn')),
+        ('southern',lazy_gettext('Southern')),
+    ], default='')
