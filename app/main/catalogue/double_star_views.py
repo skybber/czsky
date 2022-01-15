@@ -51,7 +51,7 @@ def double_stars():
 
     ret, page = process_paginated_session_search('dbl_star_search_page', [
         ('dbl_star_search', search_form.q),
-        ('dbl_mag_first_max', search_form.mag_first_max),
+        ('dbl_mag_max', search_form.mag_max),
         ('dbl_delta_mag_min', search_form.delta_mag_min),
         ('dbl_separation_min', search_form.separation_min),
         ('items_per_page', search_form.items_per_page)
@@ -69,8 +69,8 @@ def double_stars():
         dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
                                                DoubleStar.wds_number == search_form.q.data))
 
-    if not search_form.q.data and search_form.mag_first_max.data:
-        dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_first_max.data)
+    if not search_form.q.data and search_form.mag_max.data:
+        dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
     if not search_form.q.data and search_form.delta_mag_min.data:
         dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
 
@@ -184,11 +184,11 @@ def double_star_chart_legend_img(double_star_id, ra, dec):
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def double_star_chart_pdf(double_star_id, ra, dec):
-    star = DoubleStar.query.filter_by(id=double_star_id).first()
-    if star is None:
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(star.ra, star.dec, ra, dec)
+    img_bytes = common_chart_pdf_img(double_star.ra_first, double_star.dec_first, ra, dec)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

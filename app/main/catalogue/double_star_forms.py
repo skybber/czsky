@@ -30,7 +30,7 @@ from flask_babel import lazy_gettext
 
 class SearchDoubleStarForm(FlaskForm):
     q = StringField('Search')
-    mag_first_max = FloatField(lazy_gettext('Mag max'), default=10.0)
+    mag_max = FloatField(lazy_gettext('Mag max'), default=10.0)
     delta_mag_min = FloatField(lazy_gettext('Delta mag min'), default=0.0)
     separation_min = FloatField(lazy_gettext('Separation min'), default=1.0)
     items_per_page = IntegerField(lazy_gettext('Items per page'))
