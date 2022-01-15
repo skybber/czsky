@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models.star import Star
-from app.models.doublestar import DoubleStar
+from app.models.double_star import DoubleStar
 from app.models.constellation import Constellation
 
 from .import_utils import progress

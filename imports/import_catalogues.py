@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from app import db
 from app.models.catalogue import Catalogue
 
+
 def import_catalogues(data_file):
     """Initialize catagues table."""
 

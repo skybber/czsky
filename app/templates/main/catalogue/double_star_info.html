@@ -1,0 +1,107 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_double_star.double_star_chart', _('Chart'), 'info'),
+    ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+] %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_id=double_star.id, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro double_star_chart(double_star) %}
+    {{ fchart.fchart(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, back=back, back_id=back_id),
+                     url_for('main_double_star.double_star_chart_pos_img', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                     url_for('main_double_star.double_star_chart_legend_img', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_double_star.double_star_chart_pdf', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                              fchart_form,)
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{# --- Catalogue Data --- #}
+{% macro double_star_catalogue_data(double_star) %}
+    {% if double_star is not none %}
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('WDS ID') }}</td><td>{{ double_star.wds_number }}</td></tr>
+        <tr><td class="three wide">{{ _('Common catalogue ID') }}</td><td>{{ double_star.common_cat_id }}</td></tr>
+        <tr><td class="three wide">{{ _('Components') }}</td><td>{{ double_star.components }}</td></tr>
+        <tr><td class="three wide">{{ _('Other Designation') }}</td><td>{{ double_star.other_designation }}</td></tr>
+        <tr><td class="three wide">{{ _('Position angle') }}</td><td>{{ double_star.pos_angle }}</td></tr>
+        <tr><td class="three wide">{{ _('Separation') }}</td><td>{{ double_star.separation }}</td></tr>
+        <tr><td class="three wide">{{ _('Mag First') }}</td><td>{{ double_star.mag_first }}</td></tr>
+        <tr><td class="three wide">{{ _('Mag Second') }}</td><td>{{ double_star.mag_second }}</td></tr>
+        <tr><td class="three wide">{{ _('Delta mag') }}</td><td>{{ double_star.delta_mag }}</td></tr>
+        <tr><td class="three wide">{{ _('Spectral Type') }}</td><td>{{ double_star.spectral_type }}</td></tr>
+        <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ double_star.constellation.name.capitalize() if double_star.constellation else '' }}</td></tr>
+        <tr><td class="three wide">RA</td><td>{{ double_star.ra_first_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ double_star.dec_first_str() }}</td></tr>
+    </table>
+    {% endif %}
+{% endmacro %}
+
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if back=='observation' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon"></i>
+                        </a>
+                        {% else %}
+                            <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ double_star.common_cat_id }} - {{ double_star.components }}
+                    </div>
+                </div>
+
+                {% if next_dbl_star and embed != 'pl' %}
+                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.double_star_chart', double_star_id=next_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                        {{ next_dbl_star.common_cat_id }}
+                        <i class="caret right icon"></i>
+                    </a>
+                {% endif %}
+                {% if prev_dbl_star and embed != 'pl' %}
+                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_double_star.double_star_chart', double_star_id=prev_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                        <i class="caret left icon"></i>
+                        {{ prev_dbl_star.common_cat_id }}
+                    </a>
+                {% endif %}
+
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'chart' %}
+                {{ double_star_chart(double_star) }}
+            {% else %}
+                {{ double_star_catalogue_data(double_star) }}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

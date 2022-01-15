@@ -287,7 +287,7 @@ def _get_prev_next_star(star):
         star_list = StarList.query.filter_by(id=back_id).first()
         if star_list:
             prev_item, next_item = star_list.get_prev_next_item(star.id, _get_season_constell_ids())
-            return (prev_item.star if prev_item else None, next_item.star if next_item else None,)
+            return prev_item.star if prev_item else None, next_item.star if next_item else None
 
-    return (None, None)
+    return None, None
 

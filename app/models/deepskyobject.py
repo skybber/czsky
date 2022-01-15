@@ -5,6 +5,9 @@ from skyfield.units import Angle
 from .catalogue import Catalogue
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, normalize_dso_name_for_img, destructuralize_dso_name, main_component_dso_name, dso_name_to_simbad_id
+from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
+
+from .constellation import Constellation
 
 BROWSING_CATALOGS = ('M', 'Abell', 'Sh2', 'VIC', 'NGC', 'HCG', 'Pal')
 
@@ -50,28 +53,16 @@ class DeepskyObject(db.Model):
         return destructuralize_dso_name(self.name)[1]
 
     def ra_str(self):
-        if self.ra:
-            return '%02d:%02d:%04.1f' % Angle(radians=self.ra).hms(warn=False)
-        return 'nan'
+        return ra_to_str(self.ra)
 
     def dec_str(self):
-        if self.ra:
-            sgn, d, m, s = Angle(radians=self.dec).signed_dms(warn=False)
-            sign = '-' if sgn < 0.0 else '+'
-            return '%s%02d:%02d:%04.1f' % (sign, d, m, s)
-        return 'nan'
+        return dec_to_str(self.dec)
 
     def ra_str_short(self):
-        if self.ra:
-            return '%02d:%02d:%02d' % Angle(radians=self.ra).hms(warn=False)
-        return 'nan'
+        return ra_to_str_short(self.ra)
 
     def dec_str_short(self):
-        if self.ra:
-            sgn, d, m, s = Angle(radians=self.dec).signed_dms(warn=False)
-            sign = '-' if sgn < 0.0 else '+'
-            return '%s%02d:%02d:%02d' % (sign, d, m, s)
-        return 'nan'
+        return dec_to_str_short(self.dec)
 
     def get_prev_next_dso(self):
         prev_dso = None
@@ -95,8 +86,8 @@ class DeepskyObject(db.Model):
         return DeepskyObject.query.filter_by(name=dso_name).first()
 
     def get_constellation_iau_code(self):
-        if self.constellation:
-            return self.constellation.iau_code
+        if self.constellation_id:
+            return Constellation.get_id_dict().get(self.constellation_id).iau_code
         return ''
 
     @classmethod

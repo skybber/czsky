@@ -280,19 +280,19 @@
         {% endif %}
         <table>
     {% else %}
-        <table class="ui compact definition unstackable table">
+        <table class="ui compact striped definition unstackable table">
     {% endif %}
-        <tr><td>{{ _('Name') }}</td><td><a href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident={{ dso.simbad_id() }}" target="_blank">{{ dso.denormalized_name() }}</a></td></tr>
-        <tr><td>{{ _('Type') }}</td><td>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}</td></tr>
-        {% if dso.common_name %}<tr><td>{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>{% endif %}
-        {% if other_names %}<tr><td>{{ _('Other names') }}</td><td>{{ other_names }}</td></tr>{% endif %}
-        {% if full_table %}<tr><td>{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>{% endif %}
-        {% if dso.descr %}<tr><td>{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>{% endif %}
-        <tr><td>RA</td><td>{{ dso.ra_str() }}</td></tr>
-        <tr><td>Dec</td><td>{{ dso.dec_str() }}</td></tr>
+        <tr><td class="three wide">{{ _('Name') }}</td><td><a href="http://simbad.u-strasbg.fr/simbad/sim-id?Ident={{ dso.simbad_id() }}" target="_blank">{{ dso.denormalized_name() }}</a></td></tr>
+        <tr><td class="three wide">{{ _('Type') }}</td><td>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}</td></tr>
+        {% if dso.common_name %}<tr><td class="three wide">{{ _('Common name') }}</td><td>{{ dso.common_name }}</td></tr>{% endif %}
+        {% if other_names %}<tr><td class="three wide">{{ _('Other names') }}</td><td>{{ other_names }}</td></tr>{% endif %}
+        {% if full_table %}<tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ dso.constellation.name.capitalize() if dso.constellation else '' }}</td></tr>{% endif %}
+        {% if dso.descr %}<tr><td class="three wide">{{ _('descr') }}</td><td>{{ dso.descr }}</td></tr>{% endif %}
+        <tr><td class="three wide">RA</td><td>{{ dso.ra_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ dso.dec_str() }}</td></tr>
         {% if dso.major_axis %}
             <tr>
-                <td>major_axis</td>
+                <td class="three wide">major_axis</td>
                 <td>
                     {% if dso.major_axis >= 100.0 %}
                         {{ (dso.major_axis / 60.0) | round(2, 'floor') }}'
@@ -304,7 +304,7 @@
         {% endif %}
         {% if dso.minor_axis %}
             <tr>
-                <td>minor_axis</td>
+                <td class="three wide">minor_axis</td>
                 <td>
                     {% if dso.minor_axis >= 100.0 %}
                         {{ (dso.minor_axis / 60.0) | round(2, 'floor') }}'
@@ -314,16 +314,16 @@
                 </td>
             </tr>
         {% endif %}
-        {% if dso.positon_angle %}<tr><td>positon_angle</td><td>{{ dso.positon_angle }}</td></tr>{% endif %}
-        {% if dso.mag %}<tr><td>mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
-        {% if dso.surface_bright %}<tr><td>surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
-        {# {% if dso.hubble_type %}<tr><td>hubble_type</td><td>{{ dso.hubble_type }}</td></tr>{% endif %} #}
+        {% if dso.positon_angle %}<tr><td class="three wide">positon_angle</td><td>{{ dso.positon_angle }}</td></tr>{% endif %}
+        {% if dso.mag %}<tr><td>mag</td><td class="three wide">{{ dso.mag }}</td></tr>{% endif %}
+        {% if dso.surface_bright %}<tr><td class="three wide">surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
+        {# {% if dso.hubble_type %}<tr><td class="three wide">hubble_type</td><td>{{ dso.hubble_type }}</td></tr>{% endif %} #}
         {% if dso.type == 'PN' %}
-            {# {% if dso.c_star_b_mag %}<tr><td>c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>{% endif %} #}
-            {% if dso.c_star_v_mag %}<tr><td>c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>{% endif %}
+            {# {% if dso.c_star_b_mag %}<tr><td class="three wide">c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>{% endif %} #}
+            {% if dso.c_star_v_mag %}<tr><td class="three wide">c_star_v_mag</td><td>{{ dso.c_star_v_mag }}</td></tr>{% endif %}
         {% endif %}
 
-        {# <tr><td>identifiers</td><td>{{ dso.identifiers }}</td></tr> #}
+        {# <tr><td class="three wide">identifiers</td><td>{{ dso.identifiers }}</td></tr> #}
     </table>
 {% endmacro %}
 

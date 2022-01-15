@@ -100,3 +100,31 @@ def radec_to_string_short(ra, dec):
         str_ra = '%02d:%02d:%02d' % Angle(radians=ra).hms(warn=False)
         return str_ra + ' ' + str_dec
     return ''
+
+
+def ra_to_str_short(ra):
+    if ra:
+        return '%02d:%02d:%02d' % Angle(radians=ra).hms(warn=False)
+    return 'nan'
+
+
+def dec_to_str_short(dec):
+    if dec:
+        sgn, d, m, s = Angle(radians=dec).signed_dms(warn=False)
+        sign = '-' if sgn < 0.0 else '+'
+        return '%s%02d:%02d:%02d' % (sign, d, m, s)
+    return 'nan'
+
+
+def ra_to_str(ra):
+    if ra:
+        return '%02d:%02d:%04.1f' % Angle(radians=ra).hms(warn=False)
+    return 'nan'
+
+
+def dec_to_str(dec):
+    if dec:
+        sgn, d, m, s = Angle(radians=dec).signed_dms(warn=False)
+        sign = '-' if sgn < 0.0 else '+'
+        return '%s%02d:%02d:%04.1f' % (sign, d, m, s)
+    return 'nan'

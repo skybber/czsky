@@ -16,6 +16,7 @@ class Constellation(db.Model):
 
     _all = None
     _iau_dict = None
+    _id_dict = None
 
     @classmethod
     def get_all(cls):
@@ -33,6 +34,14 @@ class Constellation(db.Model):
             for co in Constellation.get_all():
                 Constellation._iau_dict[co.iau_code] = co
         return Constellation._iau_dict
+
+    @classmethod
+    def get_id_dict(cls):
+        if not Constellation._id_dict:
+            Constellation._id_dict = {}
+            for co in Constellation.get_all():
+                Constellation._id_dict[co.id] = co
+        return Constellation._id_dict
 
 
 class UserConsDescription(db.Model):
