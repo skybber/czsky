@@ -33,7 +33,12 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort
+from app.commons.search_utils import (
+    process_paginated_session_search,
+    get_items_per_page,
+    create_table_sort,
+    get_packed_constell_list,
+)
 
 from app.main.chart.chart_forms import ChartForm
 
@@ -51,6 +56,7 @@ def double_stars():
 
     ret, page = process_paginated_session_search('dbl_star_search_page', [
         ('dbl_star_search', search_form.q),
+        ('constellation_id', search_form.constellation_id),
         ('dbl_mag_max', search_form.mag_max),
         ('dbl_delta_mag_min', search_form.delta_mag_min),
         ('dbl_separation_min', search_form.separation_min),
@@ -71,6 +77,8 @@ def double_stars():
         dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
                                                DoubleStar.wds_number == search_form.q.data))
     else:
+        if search_form.constellation_id.data is not None:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.constellation_id == search_form.constellation_id.data)
         if search_form.mag_max.data:
             dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
         if search_form.delta_mag_min.data:
@@ -113,8 +121,10 @@ def double_stars():
     pagination = Pagination(page=page, per_page=per_page, total=dbl_star_query.count(), search=False, record_name='double_stars',
                             css_framework='semantic', not_passed_args='back')
 
+    packed_constell_list = get_packed_constell_list()
+
     return render_template('main/catalogue/double_stars.html', double_stars=shown_double_stars, pagination=pagination,
-                           search_form=search_form, table_sort=table_sort)
+                           search_form=search_form, table_sort=table_sort, packed_constell_list=packed_constell_list)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/catalogue-data')

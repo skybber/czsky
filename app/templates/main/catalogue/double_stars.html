@@ -15,6 +15,28 @@
 
             <form action="{{ url_for('main_double_star.double_stars') }}" method="post" name="search">
                 <div class="ui tiny menu">
+                    <div class="ui item">
+                        <div id="constellation_dropdown" class="ui dropdown">
+                            <input type="hidden" id="constellation_id" name="{{ search_form.constellation_id.name }}" value="{{ search_form.constellation_id.data }}">
+                            <span class="text">{{ _('Choose Constellation') }}</span>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <div class="item" data-value="">{{ _('All') }}</div>
+                                {% for letter_constell_list in packed_constell_list %}
+                                    <div class="item">
+                                        <i class="dropdown icon"></i>
+                                        <span class="text">{{ letter_constell_list[0] }}</span>
+                                        <div class="menu">
+                                            {% for constell in letter_constell_list[1] %}
+                                                <div class="item" data-value="{{ constell[0] }}">{{ constell[1] }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="top right aligned floating ui label">{{ _('Constellation') }}</div>
+                    </div>
                     <div class="ui input item">
                         {{ search_form.mag_max(size=8) }}
                         <div class="top right aligned floating ui label">{{ _('Mag max') }}</div>
@@ -35,7 +57,6 @@
                         {{ search_form.dec_min(size=8) }}
                         <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
                     </div>
-
                     <div class="ui right action small input item">
                         {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
                         <button class="ui small icon button">
@@ -131,4 +152,18 @@
             </form>
         </div>
     </div>
+
+    <script type="text/javascript">
+        $(function(){
+            $('#constellation_dropdown')
+                .dropdown({
+                  allowCategorySelection: true,
+                  onChange: function (value, text, $selectedItem) {
+                      $('#constellation_id').val(value);
+                      $(this).closest('form').submit();
+                  }
+            });
+        });
+    </script>
+
 {% endblock %}

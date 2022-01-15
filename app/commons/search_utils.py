@@ -1,14 +1,16 @@
+import icu
+
 from datetime import datetime
 
-from flask import (
-    request,
-    session,
-)
-from wtforms.fields import (
-    TimeField,
-)
+from flask import request, session
+from wtforms.fields import TimeField
 
 from app.commons.pagination import get_page_parameter
+from app.commons.utils import get_lang_and_editor_user_from_request
+
+from app.models import UserConsDescription
+
+cs_collator = icu.Collator.createInstance(icu.Locale('cs_CZ.UTF-8'))
 
 ITEMS_PER_PAGE = 10
 
@@ -151,3 +153,39 @@ def get_catalogues_menu_items():
          ('LDN', 'LDN'),
          ('VIC', 'Vic'),
     ]
+
+
+def get_packed_constell_list():
+    lang, editor_user = get_lang_and_editor_user_from_request()
+
+    if editor_user:
+        constellation_id_names = UserConsDescription.query \
+            .with_entities(UserConsDescription.constellation_id, UserConsDescription.common_name) \
+            .filter_by(user_id=editor_user.id, lang_code=lang).all()
+    else:
+        constellation_id_names = []
+
+    constellation_id_names = sorted(constellation_id_names, key=lambda x: cs_collator.getSortKey(x[1]))
+
+    packed_constell_list = []
+    letter, letter_list = '', []
+    l1, l2 = None, None
+    for constel in constellation_id_names:
+        if constel[1][0] != letter:
+            if l2 and letter_list:
+                packed_constell_list.append([l1+' ... '+l2, letter_list])
+                letter_list = []
+                l1, l2 = None, None
+            letter = constel[1][0]
+            if l1 is None:
+                l1 = letter
+            else:
+                l2 = letter
+        letter_list.append(constel)
+
+    if letter_list:
+        if l2 is not None:
+            packed_constell_list.append([l1+' ... '+l2, letter_list])
+        else:
+            packed_constell_list.append([l1, letter_list])
+    return packed_constell_list

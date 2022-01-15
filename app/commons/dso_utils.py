@@ -30,6 +30,7 @@ CATALOGS_SPECIFICATIONS = (
 
 CZSKY_CHART_STAR_PREFIX = '_st_'
 
+
 def split_catalog_name(dso_name):
     """
     Split dso name to pair <catalog code, ID of dso in catalog>

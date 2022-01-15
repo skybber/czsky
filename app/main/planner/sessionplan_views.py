@@ -17,8 +17,6 @@ from astroplan import is_observable, is_always_observable, months_observable
 from skyfield import almanac
 from skyfield.api import load, wgs84
 
-import icu
-
 from flask import (
     abort,
     Blueprint,
@@ -51,7 +49,16 @@ from app.models import (
 )
 
 from app.commons.pagination import Pagination, get_page_parameter
-from app.commons.search_utils import process_session_search, process_paginated_session_search, get_items_per_page, create_table_sort, get_catalogues_menu_items
+
+from app.commons.search_utils import (
+    process_session_search,
+    process_paginated_session_search,
+    get_items_per_page,
+    create_table_sort,
+    get_catalogues_menu_items,
+    get_packed_constell_list
+)
+
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -60,8 +67,6 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
     common_set_initial_ra_dec,
 )
-from app.commons.utils import to_int, get_lang_and_editor_user_from_request
-
 
 from .sessionplan_forms import (
     SCHEDULE_TIME_FORMAT,
@@ -83,8 +88,6 @@ from .session_scheduler import create_selection_coumpound_list, create_session_p
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
 min_alt_item_list = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
-
-cs_collator = icu.Collator.createInstance(icu.Locale('cs_CZ.UTF-8'))
 
 
 @main_sessionplan.route('/session-plans',  methods=['GET', 'POST'])
@@ -511,38 +514,7 @@ def session_plan_schedule(session_plan_id):
     if not selected_dso_name:
         selected_dso_name = schedule_form.selected_dso_name.data
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
-
-    if editor_user:
-        constellation_id_names = UserConsDescription.query \
-                    .with_entities(UserConsDescription.constellation_id, UserConsDescription.common_name) \
-                    .filter_by(user_id=editor_user.id, lang_code=lang).all()
-    else:
-        constellation_id_names = []
-
-    constellation_id_names = sorted(constellation_id_names, key=lambda x: cs_collator.getSortKey(x[1]))
-
-    packed_constell_list = []
-    letter, letter_list = '', []
-    l1, l2 = None, None
-    for constel in constellation_id_names:
-        if constel[1][0] != letter:
-            if l2 and letter_list:
-                packed_constell_list.append([l1+' ... '+l2, letter_list])
-                letter_list = []
-                l1, l2 = None, None
-            letter = constel[1][0]
-            if l1 is None:
-                l1 = letter
-            else:
-                l2 = letter
-        letter_list.append(constel)
-
-    if letter_list:
-        if l2 is not None:
-            packed_constell_list.append([l1+' ... '+l2, letter_list])
-        else:
-            packed_constell_list.append([l1, letter_list])
+    packed_constell_list = get_packed_constell_list()
 
     return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list_for_render,
