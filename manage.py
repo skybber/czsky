@@ -2,6 +2,12 @@
 import os
 import subprocess
 
+from flask import (
+    request,
+    current_app,
+    send_from_directory
+)
+
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 from redis import Redis
@@ -17,7 +23,6 @@ from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
 from imports.import_wds_double_stars import import_wds_doubles
 from imports.import_skyquality import do_import_skyquality_locations
-from imports.normalize_glahn_img import normalize_glahn_img
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
 from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc, import_glahn_local_group
 from imports.import_star_lists import import_carbon_stars
@@ -35,6 +40,11 @@ with app.app_context():
         migrate.init_app(app, db, render_as_batch=True)
     else:
         migrate.init_app(app, db)
+
+
+@app.route('/robots.txt')
+def static_from_root():
+    return send_from_directory(current_app.static_folder, request.path[1:])
 
 
 def make_shell_context():
