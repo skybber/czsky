@@ -1,7 +1,10 @@
 import numpy as np
 
+from sqlalchemy.exc import IntegrityError
+
 from app import db
 from app.models.constellation import Constellation
+
 
 def import_constellations_positions(filename):
     sf = open(filename, 'r')

@@ -68,11 +68,16 @@
                             <i class="caret left icon"></i>
                             <i class="eye icon"></i>
                         </a>
-                        {% else %}
-                            <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
-                                <i class="caret left icon"></i>
-                                <i class="list icon"></i>
-                            </a>
+                    {% elif back=='constellation' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
+                            <i class="caret left icon"></i>
+                            <i class="lastfm icon"></i>
+                        </a>
+                    {% else %}
+                        <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
+                            <i class="caret left icon"></i>
+                            <i class="list icon"></i>
+                        </a>
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">

@@ -13,6 +13,7 @@ from app.models.user import User
 
 GOTTLIEB_REF = 'Notes by [Steve Gottlieb](https://www.astronomy-mall.com/Adventures.In.Deep.Space/steve.ngc.htm)'
 
+
 def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
     dso = DeepskyObject.query.filter_by(name=dso_name).first()
 
@@ -34,18 +35,18 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
             udd.update_date = datetime.now()
         else:
             udd = UserDsoDescription(
-                dso_id = dso.id,
-                user_id = user_gottlieb.id,
-                rating = mag8_descr.rating if mag8_descr else 0,
-                lang_code = 'en',
-                cons_order = mag8_descr.cons_order if mag8_descr else 100000,
-                text = dso_descr,
-                references = GOTTLIEB_REF,
-                common_name = dso.common_name,
-                create_by = user_gottlieb.id,
-                update_by = user_gottlieb.id,
-                create_date = datetime.now(),
-                update_date = datetime.now(),
+                dso_id=dso.id,
+                user_id=user_gottlieb.id,
+                rating=mag8_descr.rating if mag8_descr else 0,
+                lang_code='en',
+                cons_order=mag8_descr.cons_order if mag8_descr else 100000,
+                text=dso_descr,
+                references=GOTTLIEB_REF,
+                common_name=dso.common_name,
+                create_by=user_gottlieb.id,
+                update_by=user_gottlieb.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
 
             )
         db.session.add(udd)
@@ -76,16 +77,16 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
                 uad.update_date = datetime.now()
             else:
                 uad = UserDsoApertureDescription(
-                    dso_id = dso.id,
-                    user_id = user_gottlieb.id,
-                    lang_code = 'en',
-                    aperture_class = apert_class,
-                    text = apert_descr,
-                    is_public = True,
-                    create_by = user_gottlieb.id,
-                    update_by = user_gottlieb.id,
-                    create_date = datetime.now(),
-                    update_date = datetime.now(),
+                    dso_id=dso.id,
+                    user_id=user_gottlieb.id,
+                    lang_code='en',
+                    aperture_class=apert_class,
+                    text=apert_descr,
+                    is_public=True,
+                    create_by=user_gottlieb.id,
+                    update_by=user_gottlieb.id,
+                    create_date=datetime.now(),
+                    update_date=datetime.now(),
                 )
 
             db.session.add(uad)

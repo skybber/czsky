@@ -1,11 +1,13 @@
 import csv
 
+from sqlalchemy.exc import IntegrityError
+
 from app import db
 from app.models.constellation import Constellation
 
+
 def import_constellations(data_file):
     """Initialize constellation table."""
-    from sqlalchemy.exc import IntegrityError
 
     with open(data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
@@ -22,11 +24,11 @@ def import_constellations(data_file):
             elif 'Southern' in full_season:
                 season = 'southern'
             c = Constellation(
-                iau_code = row['IAU code'],
-                name = row['Latin name / Nom latin '].lower(),
-                season = season,
-                descr = '',
-                image = row['Image']
+                iau_code=row['IAU code'],
+                name=row['Latin name / Nom latin '].lower(),
+                season=season,
+                descr='',
+                image=row['Image']
                 )
             db.session.add(c)
             try:

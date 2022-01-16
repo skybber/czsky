@@ -73,8 +73,9 @@ class UserStarDescription(db.Model):
     text = db.Column(db.Text)
     star_id = db.Column(db.Integer, db.ForeignKey('stars.id'))
     star = db.relationship("Star")
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'))
+    double_star = db.relationship("DoubleStar")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
-

@@ -10,8 +10,8 @@ from app.models.constellation import Constellation
 
 from .import_utils import progress
 
-def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
 
+def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
     hr = int(rec.get('HR')) if rec.get('HR') else None
     hd = int(rec.get('HD')) if rec.get('HD') else None
     sao = int(rec.get('SAO')) if rec.get('SAO') else None

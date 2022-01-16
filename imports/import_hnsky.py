@@ -81,7 +81,7 @@ def import_hnsky(hnsky_dso_file):
         constell_dict[co.iau_code.upper()] = co.id
 
     hnd_file = open(hnsky_dso_file, 'r', encoding='ISO-8859-1')
-    lines   = hnd_file.readlines()[2:]
+    lines = hnd_file.readlines()[2:]
     hnd_file.close()
 
     existing_dsos = {}
@@ -226,7 +226,7 @@ def import_hnsky(hnsky_dso_file):
                         dso.surface_bright = brightness
                         dso.common_name = None
 
-                        cat_prio =  cat_priorities.get(cat.code, 1000)
+                        cat_prio = cat_priorities.get(cat.code, 1000)
 
                         if (master_cat_prio is not None) and cat_prio < master_cat_prio:
                             child_dsos.append(master_dso)

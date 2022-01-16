@@ -10,6 +10,8 @@ from .constellation import Constellation
 class DoubleStar(db.Model):
     __tablename__ = 'double_stars'
     id = db.Column(db.Integer, primary_key=True)
+    star_id = db.Column(db.Integer, db.ForeignKey('stars.id'))
+    star = db.relationship("Star")
     wds_number = db.Column(db.String(10), index=True)
     common_cat_id = db.Column(db.String(20), index=True)
     components = db.Column(db.String(12))

@@ -36,7 +36,7 @@ def _load_descriptions(dirname, base_name, star_list, editor_user):
                 star_list_id=star_list.id,
                 long_name=lines[0],
                 short_descr=lines[2],
-                lang_code = lang_code,
+                lang_code=lang_code,
                 text='\n'.join(lines[4:]),
                 create_by= editor_user.id,
                 update_by=editor_user.id,
@@ -143,8 +143,8 @@ def import_carbon_stars(carbon_stars_data_file):
             if not item:
                 item = StarListItem(
                     star_list_id=star_list.id,
-                    star_id = star.id,
-                    item_id = row_id,
+                    star_id=star.id,
+                    item_id=row_id,
                     create_by=editor_user.id,
                     create_date=datetime.now(),
                 )

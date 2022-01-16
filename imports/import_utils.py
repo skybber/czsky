@@ -1,5 +1,6 @@
 import sys
 
+
 def progress(count, total, suffix=''):
     bar_len = 60
     filled_len = int(round(bar_len * count / float(total)))

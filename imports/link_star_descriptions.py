@@ -4,7 +4,7 @@ import re
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.star import Star, UserStarDescription
+from app.models import DoubleStar, Star, UserStarDescription
 from app.models.constellation import Constellation
 
 from app.commons.dso_utils import normalize_dso_name
@@ -41,12 +41,12 @@ STAR_MAP = {
 map_names = {
     'ζ a 80 UMa': 'ζ UMa',
     'α1 Cap': 'α Cap',
-    'ο2 Eri':'ο Eri',
-    '16/17 Dra':'16 Dra',
-    '36/37 Her':'36 Her',
-    '17 a 18 Sex' : '17 Sex',
-    'γ1 a γ2 Nor' : 'γ Nor',
-    'Sirrah' : 'α And',
+    'ο2 Eri': 'ο Eri',
+    '16/17 Dra': '16 Dra',
+    '36/37 Her': '36 Her',
+    '17 a 18 Sex': '17 Sex',
+    'γ1 a γ2 Nor': 'γ Nor',
+    'Sirrah': 'α And',
     'π1 UMi': '18 UMi'
 }
 
@@ -175,14 +175,12 @@ def link_star_descriptions_by_bayer_flamsteed_star():
 
 
 def link_star_descriptions_by_var_id():
-
     constellations = []
 
     print('Linking star descriptions by var_id ...')
 
     for co in Constellation.query.all():
         constellations.append(co)
-
 
     try:
         star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
@@ -202,6 +200,36 @@ def link_star_descriptions_by_var_id():
                             print('Updating {}'.format(star.var_id))
                             star_descr.star_id = star.id
                             db.session.add(star_descr)
+        db.session.commit()
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()
+
+    print('DONE.')
+
+
+def link_star_descriptions_by_double_star_id():
+    print('Linking star descriptions by double star identifier ...')
+
+    try:
+        star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
+        for star_descr in star_descriptions:
+            t = star_descr.common_name
+            if t.startswith('h') and t[1:].isdigit():
+                t = 'HJ' + t[1:]
+            if t.startswith('Herschel '):
+                t = 'HJ ' + t[9:]
+            if t.startswith('Struve '):
+                t = 'STF ' + t[7:]
+            if t.startswith('Dunlop '):
+                t = 'DUN ' + t[7:]
+            if t.startswith('Burnham '):
+                t = 'BUP ' + t[8:]
+            double_star = DoubleStar.query.filter_by(common_cat_id=t).first()
+            if double_star:
+                print('Found double star description {}'.format(t))
+                star_descr.double_star_id = double_star.id
+                db.session.add(star_descr)
         db.session.commit()
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))

@@ -96,6 +96,8 @@
                             {% filter extended_commonmark('') %}
                             {% if user_star_descr.star_id %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_descr_chart', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
+                            {% elif user_star_descr.double_star_id %}
+**[{{ user_star_descr.common_name }}]({{ url_for('main_double_star.double_star_chart', double_star_id=user_star_descr.double_star_id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
                             {% else %}
 **[{{ user_star_descr.common_name }}]({{ url_for('main_star.star_descr_info', star_descr_id=user_star_descr.id, back='constellation', back_id=constellation.iau_code) }})** - {{ user_star_descr.text -}}
                             {% endif %}

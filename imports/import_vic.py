@@ -11,11 +11,13 @@ from skyfield.api import position_from_radec, load_constellation_map
 
 from .import_utils import progress
 
+
 def vic2int(s):
     s.lstrip('0')
     if len(s) == 0:
         return 0
     return int(s)
+
 
 def import_vic(vic_data_file):
     """Import data from VIC catalog."""

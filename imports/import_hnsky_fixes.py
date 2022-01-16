@@ -5,9 +5,7 @@ import numpy as np
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.constellation import Constellation
-from app.models.catalogue import Catalogue
-from app.models.deepskyobject import DeepskyObject
+from app.models import Constellation, Star, Catalogue, DeepskyObject
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from skyfield.api import position_from_radec, load_constellation_map
 
@@ -134,22 +132,22 @@ def _parse_pn_list_line(line):
         mag = None
 
     star = Star(
-      hr = int(line[:4].strip()),
-      bayer_flamsteed = line[4:14].strip(),
-      hd = hd,
-      sao = sao,
-      fk5 = fk5,
-      multiple = line[43:44].strip(),
-      var_id = line[51:60].strip(),
-      ra = ra,
-      dec = dec,
-      mag = mag,
-      bv = bv,
-      sp_type = line[127:147].strip(),
-      dmag = dmag,
-      sep = sep,
-      mult_id = line[190:194].strip(),
-      mult_cnt = mult_cnt
+      hr=int(line[:4].strip()),
+      bayer_flamsteed=line[4:14].strip(),
+      hd=hd,
+      sao=sao,
+      fk5=fk5,
+      multiple=line[43:44].strip(),
+      var_id=line[51:60].strip(),
+      ra=ra,
+      dec=dec,
+      mag=mag,
+      bv=bv,
+      sp_type=line[127:147].strip(),
+      dmag=dmag,
+      sep=sep,
+      mult_id=line[190:194].strip(),
+      mult_cnt=mult_cnt
     )
     return star
 
@@ -206,18 +204,18 @@ def check_from_pn_list(pn_list_file):
         sub_type = line[76:83].strip()
 
         dso = DeepskyObject(
-            name = line[0:15].strip().replace(' ', ''),
-            ra = ra,
-            dec = dec,
-            constellation_id = constell_dict.get(line[105:111].strip().upper(), None),
-            catalogue_id = None,
-            major_axis = major_axis,
-            minor_axis = minor_axis,
-            positon_angle = None, 
-            mag = mag,
-            surface_bright = surface_bright,
-            c_star_b_mag = cstar_mag,
-            c_star_v_mag = cstar_mag,
+            name=line[0:15].strip().replace(' ', ''),
+            ra=ra,
+            dec=dec,
+            constellation_id=constell_dict.get(line[105:111].strip().upper(), None),
+            catalogue_id=None,
+            major_axis=major_axis,
+            minor_axis=minor_axis,
+            positon_angle=None,
+            mag=mag,
+            surface_bright=surface_bright,
+            c_star_b_mag=cstar_mag,
+            c_star_v_mag=cstar_mag,
         )
         
         existing_dso = DeepskyObject.query.filter_by(name=dso.name).first()
