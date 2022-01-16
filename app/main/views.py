@@ -14,11 +14,20 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import normalize_dso_name, CZSKY_CHART_STAR_PREFIX
+from app.commons.dso_utils import normalize_dso_name, CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_STAR_PREFIX
 from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
 from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
 from app.commons.coordinates import parse_radec
-from app.models import Constellation, DeepskyObject, News, Star, UserStarDescription, EditableHTML
+from app.models import (
+    Constellation,
+    DeepskyObject,
+    DoubleStar,
+    News,
+    Star,
+    UserStarDescription,
+    EditableHTML,
+)
+
 from app.main.solarsystem.comet_views import get_all_comets
 
 from sqlalchemy import func
@@ -69,28 +78,33 @@ def global_search():
     if not query:
         abort(404)
 
-    # 1. search by radec
-    res = _search_by_ra_dec(query)
-    if res:
-        return res
-
-    # 2. Search constellation
+    # 1. Search constellation
     res = _search_constellation(query)
     if res:
         return res
 
-    # 3. Search DSO
+    # 2. Search DSO
     res = _search_dso(query)
     if res:
         return res
 
-    # 4. Search Star
+    # 3. Search Star
     res = _search_star(query)
+    if res:
+        return res
+
+    # 4. Search Double Star
+    res = _search_double_star(query)
     if res:
         return res
 
     # 5. Search comet
     res = _search_comet(query)
+    if res:
+        return res
+
+    # 6. search by radec
+    res = _search_by_ra_dec(query)
     if res:
         return res
 
@@ -245,6 +259,31 @@ def _search_star_from_catalog(query):
             if not star and cat == 'SAO':
                 star = Star.query.filter_by(sao=int(sid)).first()
     return star
+
+
+def _search_double_star(query):
+    go_catalogue_data = False
+    double_star = None
+    if query.startswith(CZSKY_CHART_DOUBLE_STAR_PREFIX):
+        try:
+            double_star_id = int(query[len(CZSKY_CHART_DOUBLE_STAR_PREFIX):])
+            double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+            go_catalogue_data = True
+        except (ValueError, TypeError):
+            pass
+
+    if not double_star and query[0].isdigit():
+        double_star = DoubleStar.query.filter_by(wds_number=query).first()
+    if not double_star:
+        double_star = DoubleStar.query.filter_by(common_cat_id=query).first()
+
+    if double_star:
+        lang, editor_user = get_lang_and_editor_user_from_request()
+        if go_catalogue_data:
+            return redirect(url_for('main_double_star.double_star_catalogue_data', double_star_id=double_star.id, embed=request.args.get('embed')))
+        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+
+    return None
 
 
 def _search_comet(query):
