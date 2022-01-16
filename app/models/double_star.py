@@ -16,6 +16,7 @@ class DoubleStar(db.Model):
     common_cat_id = db.Column(db.String(20), index=True)
     components = db.Column(db.String(12))
     other_designation = db.Column(db.Text)
+    norm_other_designation = db.Column(db.Text)
     pos_angle = db.Column(db.Integer)
     separation = db.Column(db.Float)
     mag_first = db.Column(db.Float)

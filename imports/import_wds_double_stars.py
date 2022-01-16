@@ -313,7 +313,16 @@ p10 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+(?:\,\d+)?)\s+([a-zA-Z]+)\s*,\s*([a
 
 def _parse_other_designation(des, print_not_found):
     if not des:
-        return None, None, None
+        return None, None, None, None
+
+    bayer = None
+    flamsteed = None
+    var_id = None
+    star_name = None
+
+    m = re.search('\(([A-Z][a-z]+)\)', des)
+    if m:
+        star_name = m.group(1)
 
     i1 = des.find('(')
     while i1 >= 0:
@@ -328,38 +337,35 @@ def _parse_other_designation(des, print_not_found):
         else:
             break
 
-    bayer = None
-    flamsteed = None
-    var_id = None
     m = p1.match(des)
     if m:
         # 9 alf 2 Lib
         bayer = _fix_greek(m.group(2)) + ' ' + m.group(3) + ' ' + m.group(4)
         flamsteed = m.group(1) + ' ' + m.group(4)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p2.match(des)
     if m:
         # 9 alf CMa
         flamsteed = m.group(1) + ' ' + m.group(3)
         bayer = _fix_greek(m.group(2)) + ' ' + m.group(3)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p3.match(des)
     if m:
         # 27 Tau
         flamsteed = m.group(1) + ' ' + m.group(2)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p4.match(des)
     if m:
         if m.group(1) in SHORT_LAT_TO_GREEK:
             bayer = _fix_greek(m.group(1)) + ' ' + m.group(2)
         else:
             var_id = m.group(1) + ' ' + m.group(2)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p5.match(des)
     if m:
         # V337 Car
         var_id = m.group(1) + ' ' + m.group(2)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p6.match(des)
     if m:
         # alf 1 Cru
@@ -369,13 +375,13 @@ def _parse_other_designation(des, print_not_found):
             unresolved = m.group(1) + ' ' + m.group(2) + ' ' + m.group(3)
             if print_not_found:
                 print('# Unresolved1 {}'.format(unresolved))
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p7.match(des)
     if m:
         # 36 Oph, A Oph
         flamsteed = m.group(1) + ' ' + m.group(2)
         bayer = m.group(3) + ' ' + m.group(4)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p8.match(des)
     if m:
         # 68 omi Cet, VZ Cet
@@ -387,7 +393,7 @@ def _parse_other_designation(des, print_not_found):
             if print_not_found:
                 print('# Unresolved2 {}'.format(unresolved))
         var_id = m.group(4) + ' ' + m.group(5)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
     m = p9.match(des)
     if m:
         # sig Ori, V1030 Ori
@@ -398,7 +404,7 @@ def _parse_other_designation(des, print_not_found):
             var_id = m.group(1) + ' ' + m.group(2)
             unused = _fix_greek(m.group(3)) + ' ' + m.group(4)
             # print('####### Unused 2nd var_id={}'.format(unused))
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
 
     m = p10.match(des)
     if m:
@@ -406,11 +412,11 @@ def _parse_other_designation(des, print_not_found):
         flamsteed = m.group(1) + ' ' + m.group(4)
         bayer = _fix_greek(m.group(2)) + ' ' + m.group(3) + ' ' + m.group(4)
         var_id = m.group(5) + ' ' + m.group(6)
-        return bayer, flamsteed, var_id
+        return bayer, flamsteed, var_id, star_name
 
     if print_not_found:
         print('# UNRESOLVED3 : {}'.format(des))
-    return bayer, flamsteed, var_id
+    return bayer, flamsteed, var_id, star_name
 
 
 def import_wds_doubles(bmcevoy_filename, print_not_found=False):
@@ -457,7 +463,7 @@ def import_wds_doubles(bmcevoy_filename, print_not_found=False):
     for line in lines:
         wds_double = _parse_bmcevoy_dbl_line(line)
 
-        bayer, flamsteed, var_id = _parse_other_designation(wds_double.other_designation, print_not_found)
+        bayer, flamsteed, var_id, star_name = _parse_other_designation(wds_double.other_designation, print_not_found)
 
         star = None
 
@@ -468,7 +474,7 @@ def import_wds_doubles(bmcevoy_filename, print_not_found=False):
                 star = existing_stars.get(var_id)
             if not star and bayer:
                 star = existing_stars.get(bayer)
-            if not star:
+            if not star and print_not_found:
                 print('# Star not found bayer={} flamsteed={} var_id={}'.format(bayer, flamsteed, var_id))
 
         double_star = None
@@ -480,10 +486,21 @@ def import_wds_doubles(bmcevoy_filename, print_not_found=False):
         if not double_star:
             double_star = DoubleStar()
 
+        normalized_designation = ''
+        if bayer:
+            normalized_designation += bayer + ';'
+        if flamsteed:
+            normalized_designation += flamsteed + ';'
+        if var_id:
+            normalized_designation += var_id + ';'
+        if star_name:
+            normalized_designation += star_name + ';'
+
         double_star.wds_number = wds_double.wds_number
         double_star.common_cat_id = wds_double.common_cat_id
         double_star.components = wds_double.components
         double_star.other_designation = wds_double.other_designation
+        double_star.norm_other_designation = (';' + normalized_designation) if normalized_designation else ''
         double_star.pos_angle = wds_double.position_last
         double_star.separation = wds_double.separation_last
         double_star.mag_first = wds_double.mag_first

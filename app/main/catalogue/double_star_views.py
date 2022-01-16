@@ -75,7 +75,9 @@ def double_stars():
     dbl_star_query = DoubleStar.query
     if search_form.q.data:
         dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
-                                               DoubleStar.wds_number == search_form.q.data))
+                                               DoubleStar.wds_number == search_form.q.data,
+                                               DoubleStar.norm_other_designation.like('%;' + search_form.q.data + ';%')
+                                               ))
     else:
         if search_form.constellation_id.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.constellation_id == search_form.constellation_id.data)
