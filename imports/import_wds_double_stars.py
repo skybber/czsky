@@ -327,6 +327,7 @@ def _parse_other_designation(des, print_not_found):
             i1 = des.find('(')
         else:
             break
+
     bayer = None
     flamsteed = None
     var_id = None

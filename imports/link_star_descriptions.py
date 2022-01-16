@@ -185,13 +185,27 @@ def link_star_descriptions_by_var_id():
     try:
         star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
         for star_descr in star_descriptions:
-            star = Star.query.filter_by(var_id=star_descr.common_name).first()
+            t = star_descr.common_name
+            i1 = t.find('(')
+            while i1 >= 0:
+                i2 = t.find(')')
+                if i2 >= 0 and i2 > i1:
+                    if i2 + 1 < len(t):
+                        t = t[:i1] + t[i2+1:]
+                    else:
+                        t = t[:i1]
+                    t = t.strip()
+                    i1 = t.find('(')
+                else:
+                    break
+
+            star = Star.query.filter_by(var_id=t).first()
             if star:
                 print('Updating {}'.format(star.var_id))
                 star_descr.star_id = star.id
                 db.session.add(star_descr)
             else:
-                comps = star_descr.common_name.split()
+                comps = t.split()
                 if len(comps) == 2:
                     constell = _find_constellation(comps[1], constellations)
                     if constell is not None:
@@ -215,16 +229,40 @@ def link_star_descriptions_by_double_star_id():
         star_descriptions = UserStarDescription.query.filter_by(star_id=None).all()
         for star_descr in star_descriptions:
             t = star_descr.common_name
+            i1 = t.find('(')
+            while i1 >= 0:
+                i2 = t.find(')')
+                if i2 >= 0 and i2 > i1:
+                    if i2 + 1 < len(t):
+                        t = t[:i1] + t[i2+1:]
+                    else:
+                        t = t[:i1]
+                    t = t.strip()
+                    i1 = t.find('(')
+                else:
+                    break
             if t.startswith('h') and t[1:].isdigit():
                 t = 'HJ' + t[1:]
             if t.startswith('Herschel '):
-                t = 'HJ ' + t[9:]
+                if t == 'Herschel 84':
+                    t = 'H N 84'
+                else:
+                    t = 'HJ ' + t[9:]
             if t.startswith('Struve '):
-                t = 'STF ' + t[7:]
+                if t == 'Struve 2470/2474':
+                    t = 'STF 2470'
+                elif t in ['Struve 475']:
+                    t = 'STT ' + t[7:]
+                else:
+                    t = 'STF ' + t[7:]
             if t.startswith('Dunlop '):
                 t = 'DUN ' + t[7:]
             if t.startswith('Burnham '):
-                t = 'BUP ' + t[8:]
+                t = 'BU ' + t[8:]
+            if t.startswith('Kruger '):
+                t = 'KR ' + t[7:]
+            if t.startswith('Brisbane '):
+                t = 'BSO ' + t[9:]
             double_star = DoubleStar.query.filter_by(common_cat_id=t).first()
             if double_star:
                 print('Found double star description {}'.format(t))

@@ -2,10 +2,18 @@
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_double_star.double_star_chart', _('Chart'), 'info'),
-    ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-] %}
+{% if user_descr %}
+    {% set endpoints = [
+        ('main_double_star.double_star_info', _('Info'), 'info'),
+        ('main_double_star.double_star_chart', _('Chart'), 'info'),
+        ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_double_star.double_star_chart', _('Chart'), 'info'),
+        ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+    ] %}
+{% endif %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
@@ -17,6 +25,22 @@
                 {{ pupup_text }}
             </a>
         {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro double_star_user_info(user_descr) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+        <div class="ui blue segment" style="display: inline-block">
+            <div class="markdown">
+                {% if editable %}
+                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+                {% filter extended_commonmark('') %}
+{{ user_descr.text }}
+                {% endfilter %}
+            </div>
     </div>
 {% endmacro %}
 
@@ -81,7 +105,7 @@
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ double_star.common_cat_id }} - {{ double_star.components }}
+                        {{ double_star.common_cat_id }}{{ (' - ' + double_star.components) if double_star.components else '' }}
                     </div>
                 </div>
 
@@ -101,7 +125,10 @@
             </div>
 
             {{ navigation(endpoints) }}
-            {% if type == 'chart' %}
+
+            {% if type == 'info' and user_descr is not none %}
+                {{ double_star_user_info(user_descr) }}
+            {% elif type == 'chart' %}
                 {{ double_star_chart(double_star) }}
             {% else %}
                 {{ double_star_catalogue_data(double_star) }}

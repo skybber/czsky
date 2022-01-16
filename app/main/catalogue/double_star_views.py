@@ -22,7 +22,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Constellation, DoubleStar
+from app.models import Constellation, DoubleStar, UserStarDescription
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -127,6 +127,28 @@ def double_stars():
                            search_form=search_form, table_sort=table_sort, packed_constell_list=packed_constell_list)
 
 
+@main_double_star.route('/double-star/<int:double_star_id>/info')
+def double_star_info(double_star_id):
+    """View a double star catalogue data."""
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['double_star_embed_seltab'] = 'catalogue_data'
+
+    season = request.args.get('season')
+
+    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+
+    return render_template('main/catalogue/double_star_info.html', type='info', double_star=double_star,
+                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr)
+
+
 @main_double_star.route('/double-star/<int:double_star_id>/catalogue-data')
 def double_star_catalogue_data(double_star_id):
     """View a double star catalogue data."""
@@ -142,8 +164,11 @@ def double_star_catalogue_data(double_star_id):
 
     prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
 
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+
     return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star,
-                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, )
+                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/chart', methods=['GET', 'POST'])
@@ -170,8 +195,12 @@ def double_star_chart(double_star_id):
 
     prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
 
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+
     return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star,
-                           chart_control=chart_control, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, embed=embed, season=season, )
+                           chart_control=chart_control, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, embed=embed, season=season,
+                           user_descr=user_descr)
 
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
