@@ -14,7 +14,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User, Observation
+from app.models import Role, User, Observation, UserConsDescription
 from config import Config
 
 from imports.import_catalogues import import_catalogues
@@ -279,6 +279,13 @@ def tmp_link_star_descriptions_by_double_star_id():
 def tmp_import_doubles():
     import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz', True)
 
+
+@manager.command
+def tmp_capitalize_cons_name()
+    for ud in UserConsDescription.query.all():
+        ud.common_name = ud.common_name.capitalize()
+        db.session.add(ud)
+        db.session.commit()
 
 if __name__ == '__main__':
     manager.run()
