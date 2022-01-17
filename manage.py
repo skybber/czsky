@@ -281,7 +281,7 @@ def tmp_import_doubles():
 
 
 @manager.command
-def tmp_capitalize_cons_name()
+def tmp_capitalize_cons_name():
     for ud in UserConsDescription.query.all():
         ud.common_name = ud.common_name.capitalize()
         db.session.add(ud)
