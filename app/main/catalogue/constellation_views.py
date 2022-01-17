@@ -215,7 +215,11 @@ def constellation_chart(constellation_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation, chart_control=chart_control, )
+    lang, editor_user = get_lang_and_editor_user_from_request()
+
+    common_name = _get_constellation_common_name(constellation)
+    return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation,
+                           chart_control=chart_control, common_name=common_name, )
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -322,7 +326,7 @@ def constellation_stars(constellation_id):
 
         all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
             .join(UserDsoDescription.deepskyObject, aliased=True) \
-            .filter(DeepskyObject.constellation_id==constellation.id, DeepskyObject.type=='AST') \
+            .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type == 'AST') \
             .order_by(UserDsoDescription.rating.desc()) \
             .all()
 
@@ -333,8 +337,11 @@ def constellation_stars(constellation_id):
                 existing.add(dsod.dso_id)
                 aster_descriptions.append(dsod)
 
+    common_name = _get_constellation_common_name(constellation)
+
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='stars',
-                           star_descriptions=star_descriptions, aster_descriptions=aster_descriptions, editable=editable)
+                           star_descriptions=star_descriptions, aster_descriptions=aster_descriptions, editable=editable,
+                           common_name=common_name)
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/deepskyobjects')
@@ -343,8 +350,21 @@ def constellation_deepskyobjects(constellation_id):
     constellation = _find_constellation(constellation_id)
     if constellation is None:
         abort(404)
-    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso')
+
+    common_name = _get_constellation_common_name(constellation)
+
+    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name)
 
 
 def _sort_star_descr(star_descriptions):
     return sorted(star_descriptions, key=lambda a: a.star.mag if a.star and a.star.mag else 100.0)
+
+
+def _get_constellation_common_name(constellation):
+    lang, editor_user = get_lang_and_editor_user_from_request()
+    common_name = None
+    if editor_user:
+        ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang) \
+            .first()
+        common_name = ucd.common_name if ucd else None
+    return common_name
