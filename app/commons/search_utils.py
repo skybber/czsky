@@ -50,10 +50,15 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
             session[sess_page_name] = page
             for pair in sess_arg_form_pairs:  # put data from session to form on page action
                 _field_data_from_serializable(pair[1], session.get(pair[0], None), pair[0] in session)
-#         else:
-#             session.pop(sess_page_name, 0)
-#             for pair in sess_arg_form_pairs: # clear session on initialize GET request
-#                 session.pop(pair[0], None)
+        else:
+            for pair in sess_arg_form_pairs:
+                if pair[1].data is not None:
+                    session[pair[0]] = _field_data_to_serializable(pair[1])
+                else:
+                    session.pop(pair[0], None)
+            # session.pop(sess_page_name, 0)
+            # for pair in sess_arg_form_pairs: # clear session on initialize GET request
+            #     session.pop(pair[0], None)
     if page is None:
         page = 1
     return True, page
