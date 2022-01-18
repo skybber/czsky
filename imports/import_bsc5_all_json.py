@@ -3,6 +3,7 @@ import json
 from sqlalchemy.exc import IntegrityError
 
 import numpy as np
+from skyfield.api import load_constellation_map, position_of_radec
 
 from app import db
 from app.models.star import Star
@@ -11,7 +12,7 @@ from app.models.constellation import Constellation
 from .import_utils import progress
 
 
-def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
+def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict, constell_lookup):
     hr = int(rec.get('HR')) if rec.get('HR') else None
     hd = int(rec.get('HD')) if rec.get('HD') else None
     sao = int(rec.get('SAO')) if rec.get('SAO') else None
@@ -40,6 +41,11 @@ def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
 
     constell_id = constell_dict.get(rec.get('Constellation')) if rec.get('Constellation') else None
     star = Star.query.filter(Star.hr==hr).first()
+
+    # if ra and dec and not constell_id:
+    #     found_iau_code = constell_lookup(position_of_radec(180*ra/np.pi, 180*dec/np.pi))
+    #     if found_iau_code:
+    #         constell_id = constell_dict[found_iau_code]
 
     if not star:
         star = Star()
@@ -73,6 +79,7 @@ def _parse_bsc5_json_rec(rec, star_cnt, all_cnt, constell_dict):
 def import_bright_stars_bsc5_json_all(filename):
 
     constell_dict = {}
+    constell_lookup = load_constellation_map()
 
     for co in Constellation.query.all():
         constell_dict[co.iau_code] = co.id
@@ -83,7 +90,7 @@ def import_bright_stars_bsc5_json_all(filename):
             all_recs = json.load(f)
             for json_rec in all_recs:
                 star_cnt += 1
-                _parse_bsc5_json_rec(json_rec, star_cnt, len(all_recs), constell_dict)
+                _parse_bsc5_json_rec(json_rec, star_cnt, len(all_recs), constell_dict, constell_lookup)
         print('')
         db.session.commit()
     except IntegrityError as err:
