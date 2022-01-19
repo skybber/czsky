@@ -32,7 +32,7 @@ class Constellation(db.Model):
         if not Constellation._iau_dict:
             Constellation._iau_dict = {}
             for co in Constellation.get_all():
-                Constellation._iau_dict[co.iau_code] = co
+                Constellation._iau_dict[co.iau_code.upper()] = co
         return Constellation._iau_dict
 
     @classmethod

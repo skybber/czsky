@@ -15,7 +15,7 @@ from flask import (
 from flask_login import current_user, login_required
 
 from app.commons.dso_utils import normalize_dso_name, CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_STAR_PREFIX
-from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK
+from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
 from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
 from app.commons.coordinates import parse_radec
 from app.models import (
@@ -214,8 +214,9 @@ def _search_by_bayer_flamsteed(query):
             star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
     else:
         words = query.split()
-        if len(words) == 2:
-            constell = _get_constell(words[1])
+        if len(words) in [2, 3]:
+            constell_index = 1 if len(words) == 2 else 2
+            constell = _get_constell(words[constell_index])
             if constell:
                 star_name = words[0].lower()
                 bayer = None
@@ -228,8 +229,15 @@ def _search_by_bayer_flamsteed(query):
                 elif star_name in LONG_LAT_CZ_TO_GREEK:
                     bayer = LONG_LAT_CZ_TO_GREEK[star_name]
                 if bayer:
-                    star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
-                elif star_name.isdigit():
+                    if len(words) == 3:
+                        if words[1].isdigit():
+                            full_name = GREEK_TO_LAT[bayer] + ' ' + words[1]
+                            if full_name in SHORT_LAT_TO_GREEK_EXT:
+                                star = Star.query.filter_by(bayer=SHORT_LAT_TO_GREEK_EXT[full_name], constellation_id=constell.id).first()
+                    else:
+                        star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
+                elif len(words) == 2 and star_name.isdigit():
+
                     star = Star.query.filter_by(flamsteed=int(star_name), constellation_id=constell.id).first()
         elif len(words) == 1 and query[0].isdigit():
             i = 1
@@ -297,7 +305,7 @@ def _search_comet(query):
 
 
 def _get_constell(costell_code):
-    constell_iau_code = costell_code.strip().lower().capitalize()
+    constell_iau_code = costell_code.strip().upper()
     if constell_iau_code:
         constell = Constellation.get_iau_dict().get(constell_iau_code)
         return constell
