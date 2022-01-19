@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 19:41+0100\n"
+"POT-Creation-Date: 2022-01-19 21:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,7 +97,8 @@ msgstr ""
 msgid "User login disabled."
 msgstr ""
 
-#: app/main/catalogue/deepskyobject_forms.py:60 app/main/forms.py:35
+#: app/main/catalogue/deepskyobject_forms.py:60
+#: app/main/catalogue/double_star_forms.py:39 app/main/forms.py:35
 #: app/main/import_history/import_history_forms.py:13
 #: app/main/location/location_forms.py:58 app/main/news/news_forms.py:52
 #: app/main/observation/observed_forms.py:41
@@ -126,7 +127,7 @@ msgstr ""
 #: app/main/planner/wishlist_forms.py:40
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/dso_list_info.html:39
-#: app/templates/main/catalogue/star_list_info.html:38
+#: app/templates/main/catalogue/star_list_info.html:39
 #: app/templates/main/planner/wish_list.html:46
 msgid "Season"
 msgstr ""
@@ -136,6 +137,7 @@ msgstr ""
 #: app/main/catalogue/star_list_forms.py:34
 #: app/main/planner/sessionplan_forms.py:95
 #: app/main/planner/wishlist_forms.py:41
+#: app/templates/main/catalogue/double_stars.html:24
 #: app/templates/main/planner/session_plan_schedule.html:52
 msgid "All"
 msgstr ""
@@ -221,6 +223,23 @@ msgstr ""
 msgid "DSO limit mag"
 msgstr ""
 
+#: app/main/catalogue/deepskyobject_forms.py:33
+msgid "Catalogue"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:34
+msgid "All catalogues"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:51
+#: app/main/planner/sessionplan_forms.py:67
+msgid "Object type"
+msgstr ""
+
+#: app/main/catalogue/deepskyobject_forms.py:52
+msgid "All types"
+msgstr ""
+
 #: app/main/catalogue/deepskyobject_forms.py:72
 msgid "References"
 msgstr ""
@@ -248,6 +267,30 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+#: app/main/catalogue/double_star_forms.py:33
+#: app/templates/main/catalogue/double_stars.html:42
+msgid "Mag max"
+msgstr ""
+
+#: app/main/catalogue/double_star_forms.py:34
+#: app/templates/main/catalogue/double_stars.html:46
+msgid "Delta mag min"
+msgstr ""
+
+#: app/main/catalogue/double_star_forms.py:35
+#: app/templates/main/catalogue/double_stars.html:50
+msgid "Separation min"
+msgstr ""
+
+#: app/main/catalogue/double_star_forms.py:36
+#: app/templates/main/catalogue/double_stars.html:54
+msgid "Separation max"
+msgstr ""
+
+#: app/main/catalogue/double_star_forms.py:37
+msgid "Dec min"
+msgstr ""
+
 #: app/main/chart/chart_forms.py:21
 msgid "Mirror X"
 msgstr ""
@@ -261,8 +304,8 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:97
 #: app/main/equipment/equipment_forms.py:115
 #: app/main/location/location_forms.py:36
-#: app/main/planner/sessionplan_views.py:389
-#: app/templates/main/catalogue/constellation_info.html:119
+#: app/main/planner/sessionplan_views.py:392
+#: app/templates/main/catalogue/constellation_info.html:121
 #: app/templates/main/catalogue/constellations.html:36
 #: app/templates/main/catalogue/deepskyobject_info.html:285
 #: app/templates/main/catalogue/dso_list_info.html:52
@@ -436,7 +479,7 @@ msgid "Time Zone"
 msgstr ""
 
 #: app/main/location/location_forms.py:45
-#: app/templates/main/catalogue/constellation_info.html:111
+#: app/templates/main/catalogue/constellation_info.html:113
 #: app/templates/main/catalogue/constellations.html:35
 #: app/templates/main/location/location_info.html:36
 msgid "IAU code"
@@ -682,66 +725,62 @@ msgstr ""
 msgid "Update Session Plan"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:67
-msgid "Object type"
-msgstr ""
-
 #: app/main/planner/sessionplan_forms.py:76
 #: app/templates/main/planner/session_plan_schedule.html:80
 msgid "Min altitude"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:153
+#: app/main/planner/sessionplan_views.py:156
 msgid "Session plan successfully updated"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:216
+#: app/main/planner/sessionplan_views.py:219
 msgid "Session plan successfully created"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:218
+#: app/main/planner/sessionplan_views.py:221
 msgid "Session plan already exists"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:261
+#: app/main/planner/sessionplan_views.py:264
 msgid "Session plan was deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:273
+#: app/main/planner/sessionplan_views.py:276
 msgid "Session items deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:300
+#: app/main/planner/sessionplan_views.py:303
 msgid "Object was added to session plan."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:302
+#: app/main/planner/sessionplan_views.py:305
 msgid "Object is already on session plan."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:306
+#: app/main/planner/sessionplan_views.py:309
 msgid "Deepsky object not found."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:326
+#: app/main/planner/sessionplan_views.py:329
 msgid "Session plan item was deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:339
+#: app/main/planner/sessionplan_views.py:342
 msgid "No file part"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:343
+#: app/main/planner/sessionplan_views.py:346
 msgid "No file selected"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:370
+#: app/main/planner/sessionplan_views.py:373
 msgid "Session plan uploaded."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:389
+#: app/main/planner/sessionplan_views.py:392
 #: app/templates/main/catalogue/constellation_info.html:35
-#: app/templates/main/catalogue/constellation_info.html:346
+#: app/templates/main/catalogue/constellation_info.html:348
 #: app/templates/main/catalogue/deepskyobject_info.html:286
 #: app/templates/main/catalogue/deepskyobjects.html:61
 #: app/templates/main/catalogue/dso_list_info.html:57
@@ -758,10 +797,12 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:389
+#: app/main/planner/sessionplan_views.py:392
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
 #: app/templates/main/catalogue/deepskyobject_info.html:289
+#: app/templates/main/catalogue/double_star_info.html:77
+#: app/templates/main/catalogue/double_stars.html:38
 #: app/templates/main/catalogue/star_edit.html:13
 #: app/templates/main/catalogue/star_info.html:82
 #: app/templates/main/observation/observed_list.html:79
@@ -770,19 +811,19 @@ msgstr ""
 msgid "Constellation"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:389
+#: app/main/planner/sessionplan_views.py:392
 #: app/templates/main/planner/session_plan_schedule.html:144
 #: app/templates/main/planner/session_plan_schedule.html:214
 msgid "Rise"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:389
+#: app/main/planner/sessionplan_views.py:392
 #: app/templates/main/planner/session_plan_schedule.html:145
 #: app/templates/main/planner/session_plan_schedule.html:215
 msgid "Merid"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:389
+#: app/main/planner/sessionplan_views.py:392
 #: app/templates/main/planner/session_plan_schedule.html:146
 #: app/templates/main/planner/session_plan_schedule.html:216
 msgid "Set"
@@ -1163,6 +1204,7 @@ msgid "View constellations"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobjects.html:9
+#: app/templates/main/catalogue/double_stars.html:10
 #: app/templates/main/catalogue/dso_list_menu.html:8
 #: app/templates/main/catalogue/dso_menu.html:13
 #: app/templates/main/index.html:72
@@ -1186,9 +1228,12 @@ msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:8
 #: app/templates/main/catalogue/deepskyobject_info.html:21
+#: app/templates/main/catalogue/double_star_info.html:8
+#: app/templates/main/catalogue/double_star_info.html:13
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:9
 #: app/templates/main/catalogue/star_info.html:19
+#: app/templates/main/catalogue/star_list_info.html:8
 #: app/templates/main/chart/chart.html:37 app/templates/main/index.html:76
 #: app/templates/main/news/news_info.html:8
 #: app/templates/main/observation/observed_list.html:8
@@ -1253,6 +1298,7 @@ msgstr ""
 #: app/templates/main/catalogue/constellation_info.html:7
 #: app/templates/main/catalogue/deepskyobject_info.html:20
 #: app/templates/main/catalogue/deepskyobject_info.html:26
+#: app/templates/main/catalogue/double_star_info.html:7
 #: app/templates/main/catalogue/dso_list_info.html:7
 #: app/templates/main/catalogue/star_info.html:8
 #: app/templates/main/catalogue/star_list_info.html:7
@@ -1286,14 +1332,14 @@ msgstr ""
 msgid "descr"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:120
+#: app/templates/main/catalogue/constellation_info.html:122
 msgid "Image"
 msgstr ""
 
-#: app/templates/main/catalogue/constellation_info.html:121
+#: app/templates/main/catalogue/constellation_info.html:123
 #: app/templates/main/catalogue/dso_list_info.html:26
 #: app/templates/main/catalogue/dso_list_menu.html:19
-#: app/templates/main/catalogue/star_list_info.html:25
+#: app/templates/main/catalogue/star_list_info.html:26
 #: app/templates/main/equipment/eyepiece_info.html:26
 #: app/templates/main/equipment/filter_info.html:26
 #: app/templates/main/equipment/lens_info.html:26
@@ -1374,6 +1420,99 @@ msgstr ""
 msgid "Object Type"
 msgstr ""
 
+#: app/templates/main/catalogue/double_star_info.html:9
+#: app/templates/main/catalogue/double_star_info.html:14
+#: app/templates/main/catalogue/star_info.html:10
+#: app/templates/main/catalogue/star_info.html:20
+msgid "Catalogue data"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:67
+msgid "WDS ID"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:68
+msgid "Common catalogue ID"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:69
+msgid "Components"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:70
+msgid "Other Designation"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:71
+msgid "Position angle"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:72
+msgid "Separation"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:73
+msgid "Mag First"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:74
+msgid "Mag Second"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:75
+msgid "Delta mag"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_info.html:76
+msgid "Spectral Type"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:13
+#: app/templates/main/catalogue/dso_menu.html:20
+msgid "Double Stars"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:21
+#: app/templates/main/planner/session_plan_schedule.html:49
+msgid "Choose Constellation"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:58
+msgid "Declination min"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:65
+msgid "WDS or Cat. ID"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:82
+msgid "Catalog ID"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:87
+msgid "Co."
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:92
+msgid "Other designation"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:97
+msgid "Mag1"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:102
+msgid "Mag2"
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:107
+msgid "Sep."
+msgstr ""
+
+#: app/templates/main/catalogue/double_stars.html:122
+msgid "Spec."
+msgstr ""
+
 #: app/templates/main/catalogue/dso_list_info.html:64
 #: app/templates/main/observation/observing_session_info.html:145
 #: app/templates/main/planner/session_plan.html:50
@@ -1400,13 +1539,12 @@ msgstr ""
 msgid "View deepsky lists"
 msgstr ""
 
-#: app/templates/main/catalogue/star_edit.html:18
-msgid "Back To Star"
+#: app/templates/main/catalogue/dso_menu.html:21
+msgid "View WDS catalogue of double stars"
 msgstr ""
 
-#: app/templates/main/catalogue/star_info.html:10
-#: app/templates/main/catalogue/star_info.html:20
-msgid "Catalogue data"
+#: app/templates/main/catalogue/star_edit.html:18
+msgid "Back To Star"
 msgstr ""
 
 #: app/templates/main/catalogue/star_info.html:88
@@ -1929,10 +2067,6 @@ msgstr ""
 
 #: app/templates/main/planner/session_plan_schedule.html:33
 msgid "Catalogs"
-msgstr ""
-
-#: app/templates/main/planner/session_plan_schedule.html:49
-msgid "Choose Constellation"
 msgstr ""
 
 #: app/templates/main/planner/session_plan_schedule.html:92

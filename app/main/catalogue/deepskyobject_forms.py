@@ -30,8 +30,8 @@ from flask_babel import lazy_gettext
 
 class SearchDsoForm(FlaskForm):
     q = StringField('Search')
-    catalogue = SelectField('Catalogue', choices=[
-         ('All', 'All catalogues'),
+    catalogue = SelectField(lazy_gettext('Catalogue'), choices=[
+         ('All', lazy_gettext('All catalogues')),
          ('M', 'Messier'),
          ('NGC', 'NGC'),
          ('IC', 'IC'),
@@ -48,8 +48,8 @@ class SearchDsoForm(FlaskForm):
          ('LDN', 'LDN'),
          ('VIC', 'Vic'),
     ], default='')
-    dso_type = SelectField('Object type', choices=[
-         ('All', 'All types'),
+    dso_type = SelectField(lazy_gettext('Object type'), choices=[
+         ('All', lazy_gettext('All types')),
          ('GX', 'Galaxy'),
          ('GC', 'Globular Cluster'),
          ('OC', 'Open Cluster'),
