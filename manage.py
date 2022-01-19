@@ -281,11 +281,9 @@ def tmp_import_doubles():
 
 
 @manager.command
-def tmp_capitalize_cons_name():
-    for ud in UserConsDescription.query.all():
-        ud.common_name = ud.common_name.capitalize()
-        db.session.add(ud)
-        db.session.commit()
+def tmp_update_bsc5():
+    import_bright_stars_bsc5_json_all('data/bsc5-all.json')
+
 
 if __name__ == '__main__':
     manager.run()

@@ -1536,7 +1536,7 @@ msgstr "Katalogové ID"
 
 #: app/templates/main/catalogue/double_stars.html:87
 msgid "Co."
-msgstr "Souhv."
+msgstr "Komp."
 
 #: app/templates/main/catalogue/double_stars.html:92
 msgid "Other designation"
