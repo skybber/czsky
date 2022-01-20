@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Fri Dec 31 11:51:37 2021 by generateDS.py.
+# Generated Thu Jan 20 19:23:06 2022 by generateDS.py.
 # Python 3.10.1 (main, Dec 11 2021, 17:22:55) [GCC 11.1.0]
 #
 # Command line options:
@@ -12,10 +12,10 @@
 #   ('--no-versions', '')
 #
 # Command line arguments:
-#   oal_Base.xsd
+#   oal_All.xsd
 #
 # Command line:
-#   /home/lada/workspaces/workspace-python/czsky/venv/bin/generateDS -p "Oal" -o "openastronomylog.py" -s "openastronomylogsubs.py" --no-versions oal_Base.xsd
+#   /home/lada/workspaces/workspace-python/czsky/venv/bin/generateDS -p "Oal" -o "openastronomylog.py" -s "openastronomylogsubs.py" --no-versions oal_All.xsd
 #
 # Current working directory (os.getcwd()):
 #   openastronomylog21
@@ -102,10 +102,10 @@ def parsexmlstring_(instring, parser=None, **kwargs):
 #
 #     # File: generatedsnamespaces.py
 #
-# GenerateDSNamespaceTypePrefixes = {
+#     GenerateDSNamespaceTypePrefixes = {
 #         "ElementtypeC": "aaa:",
 #         "ElementtypeD": "bbb:",
-# }
+#     }
 #
 
 try:
@@ -1006,6 +1006,19 @@ class angleUnit(str, Enum):
     RAD='rad'
 
 
+class clusterCharacterType(str, Enum):
+    A='A'
+    B='B'
+    C='C'
+    D='D'
+    E='E'
+    F='F'
+    G='G'
+    H='H'
+    I='I'
+    X='X'
+
+
 class equinoxType(str, Enum):
     J_2000='J2000'
     B_1950='B1950'
@@ -1046,6 +1059,26 @@ class filterKind(str, Enum):
 class originType(str, Enum):
     GEO='geo'
     TOPO='topo'
+
+
+class ratingType(str, Enum):
+    _1='1'
+    _2='2'
+    _3='3'
+    _4='4'
+    _5='5'
+    _6='6'
+    _7='7'
+    _9_9='99'
+
+
+class starColorType(str, Enum):
+    WHITE='white'
+    RED='red'
+    ORANGE='orange'
+    YELLOW='yellow'
+    GREEN='green'
+    BLUE='blue'
 
 
 class surfaceBrightnessUnit(str, Enum):
@@ -1457,7 +1490,6 @@ class OalobserverAccountType(GeneratedsSuper):
 
 
 class OalobserverType(GeneratedsSuper):
-
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
@@ -2311,7 +2343,6 @@ class OalreferenceFrameType(GeneratedsSuper):
             self.equinox_nsprefix_ = child_.prefix
             # validate type equinoxType
             self.validate_equinoxType(self.equinox)
-            al
 # end class OalreferenceFrameType
 
 
@@ -2673,17 +2704,18 @@ class OalstarTargetType(OalobservationTargetType):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = OalobservationTargetType
-    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, apparentMag=None, classification=None, gds_collector_=None, **kwargs_):
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, apparentMag=None, classification=None, extensiontype_=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OalstarTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+        super(globals().get("OalstarTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, extensiontype_,  **kwargs_)
         self.apparentMag = apparentMag
         self.apparentMag_nsprefix_ = None
         self.classification = classification
         self.classification_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2707,6 +2739,8 @@ class OalstarTargetType(OalobservationTargetType):
         return self.classification
     def set_classification(self, classification):
         self.classification = classification
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
     def _hasContent(self):
         if (
             self.apparentMag is not None or
@@ -2741,6 +2775,14 @@ class OalstarTargetType(OalobservationTargetType):
             outfile.write('/>%s' % (eol_, ))
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='starTargetType'):
         super(OalstarTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='starTargetType')
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
     def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='starTargetType', fromsubclass_=False, pretty_print=True):
         super(OalstarTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         if pretty_print:
@@ -2767,6 +2809,10 @@ class OalstarTargetType(OalobservationTargetType):
             self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
         return self
     def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
         super(OalstarTargetType, self)._buildAttributes(node, attrs, already_processed)
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if nodeName_ == 'apparentMag' and child_.text:
@@ -3861,7 +3907,7 @@ class OalimagerType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
-    def __init__(self, id=None, model=None, vendor=None, remarks=None, gds_collector_=None, **kwargs_):
+    def __init__(self, id=None, model=None, vendor=None, remarks=None, extensiontype_=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -3875,6 +3921,7 @@ class OalimagerType(GeneratedsSuper):
         self.vendor_nsprefix_ = None
         self.remarks = remarks
         self.remarks_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3906,6 +3953,8 @@ class OalimagerType(GeneratedsSuper):
         return self.id
     def set_id(self, id):
         self.id = id
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
     def _hasContent(self):
         if (
             self.model is not None or
@@ -3942,6 +3991,14 @@ class OalimagerType(GeneratedsSuper):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
     def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='imagerType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3975,6 +4032,10 @@ class OalimagerType(GeneratedsSuper):
         if value is not None and 'id' not in already_processed:
             already_processed.add('id')
             self.id = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if nodeName_ == 'model':
             value_ = child_.text
@@ -4001,7 +4062,7 @@ class OalfindingsType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = None
-    def __init__(self, lang=None, description=None, gds_collector_=None, **kwargs_):
+    def __init__(self, lang=None, description=None, extensiontype_=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -4011,6 +4072,7 @@ class OalfindingsType(GeneratedsSuper):
         self.lang_nsprefix_ = None
         self.description = description
         self.description_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4034,6 +4096,8 @@ class OalfindingsType(GeneratedsSuper):
         return self.lang
     def set_lang(self, lang):
         self.lang = lang
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
     def _hasContent(self):
         if (
             self.description is not None
@@ -4068,6 +4132,14 @@ class OalfindingsType(GeneratedsSuper):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' lang=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.lang), input_name='lang')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
     def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4093,6 +4165,10 @@ class OalfindingsType(GeneratedsSuper):
         if value is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             self.lang = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
     def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
         if nodeName_ == 'description':
             value_ = child_.text
@@ -4543,7 +4619,8 @@ class OalobservationType(GeneratedsSuper):
             self.imager = value_
             self.imager_nsprefix_ = child_.prefix
         elif nodeName_ == 'result':
-            obj_ = OalfindingsType.factory(parent_object_=self)
+            class_obj_ = self.get_class_obj_(child_, OalfindingsType)
+            obj_ = class_obj_.factory(parent_object_=self)
             obj_.build(child_, gds_collector_=gds_collector_)
             self.result.append(obj_)
             obj_.original_tagname_ = 'result'
@@ -4802,6 +4879,3632 @@ class Oalobservations(GeneratedsSuper):
             self.observation.append(obj_)
             obj_.original_tagname_ = 'observation'
 # end class Oalobservations
+
+
+class OaldeepSkyMS(OalobservationTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalobservationTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, component=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyMS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+        if component is None:
+            self.component = []
+        else:
+            self.component = component
+        self.component_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyMS)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyMS.subclass:
+            return OaldeepSkyMS.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyMS(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_component(self):
+        return self.component
+    def set_component(self, component):
+        self.component = component
+    def add_component(self, value):
+        self.component.append(value)
+    def insert_component_at(self, index, value):
+        self.component.insert(index, value)
+    def replace_component_at(self, index, value):
+        self.component[index] = value
+    def _hasContent(self):
+        if (
+            self.component or
+            super(OaldeepSkyMS, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyMS', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyMS')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyMS':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyMS')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyMS', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyMS'):
+        super(OaldeepSkyMS, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyMS')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyMS', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyMS, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for component_ in self.component:
+            namespaceprefix_ = self.component_nsprefix_ + ':' if (UseCapturedNS_ and self.component_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%scomponent>%s</%scomponent>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(component_), input_name='component')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyMS, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'component':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'component')
+            value_ = self.gds_validate_string(value_, node, 'component')
+            self.component.append(value_)
+            self.component_nsprefix_ = child_.prefix
+        super(OaldeepSkyMS, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyMS
+
+
+class OaldeepSkyTargetType(OalobservationTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalobservationTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, extensiontype_,  **kwargs_)
+        self.smallDiameter = smallDiameter
+        self.smallDiameter_nsprefix_ = None
+        self.largeDiameter = largeDiameter
+        self.largeDiameter_nsprefix_ = None
+        self.visMag = visMag
+        self.validate_visMagType(self.visMag)
+        self.visMag_nsprefix_ = None
+        self.surfBr = surfBr
+        self.surfBr_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyTargetType.subclass:
+            return OaldeepSkyTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_smallDiameter(self):
+        return self.smallDiameter
+    def set_smallDiameter(self, smallDiameter):
+        self.smallDiameter = smallDiameter
+    def get_largeDiameter(self):
+        return self.largeDiameter
+    def set_largeDiameter(self, largeDiameter):
+        self.largeDiameter = largeDiameter
+    def get_visMag(self):
+        return self.visMag
+    def set_visMag(self, visMag):
+        self.visMag = visMag
+    def get_surfBr(self):
+        return self.surfBr
+    def set_surfBr(self, surfBr):
+        self.surfBr = surfBr
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def validate_visMagType(self, value):
+        result = True
+        # Validate type visMagType, a restriction on xsd:double.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, float):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (float)' % {"value": value, "lineno": lineno, })
+                return False
+            pass
+        return result
+    def _hasContent(self):
+        if (
+            self.smallDiameter is not None or
+            self.largeDiameter is not None or
+            self.visMag is not None or
+            self.surfBr is not None or
+            super(OaldeepSkyTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyTargetType'):
+        super(OaldeepSkyTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyTargetType')
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyTargetType', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.smallDiameter is not None:
+            namespaceprefix_ = self.smallDiameter_nsprefix_ + ':' if (UseCapturedNS_ and self.smallDiameter_nsprefix_) else ''
+            self.smallDiameter.export(outfile, level, namespaceprefix_, namespacedef_='', name_='smallDiameter', pretty_print=pretty_print)
+        if self.largeDiameter is not None:
+            namespaceprefix_ = self.largeDiameter_nsprefix_ + ':' if (UseCapturedNS_ and self.largeDiameter_nsprefix_) else ''
+            self.largeDiameter.export(outfile, level, namespaceprefix_, namespacedef_='', name_='largeDiameter', pretty_print=pretty_print)
+        if self.visMag is not None:
+            namespaceprefix_ = self.visMag_nsprefix_ + ':' if (UseCapturedNS_ and self.visMag_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%svisMag>%s</%svisMag>%s' % (namespaceprefix_ , self.gds_format_double(self.visMag, input_name='visMag'), namespaceprefix_ , eol_))
+        if self.surfBr is not None:
+            namespaceprefix_ = self.surfBr_nsprefix_ + ':' if (UseCapturedNS_ and self.surfBr_nsprefix_) else ''
+            self.surfBr.export(outfile, level, namespaceprefix_, namespacedef_='', name_='surfBr', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+        super(OaldeepSkyTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'smallDiameter':
+            obj_ = OalnonNegativeAngleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.smallDiameter = obj_
+            obj_.original_tagname_ = 'smallDiameter'
+        elif nodeName_ == 'largeDiameter':
+            obj_ = OalnonNegativeAngleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.largeDiameter = obj_
+            obj_.original_tagname_ = 'largeDiameter'
+        elif nodeName_ == 'visMag' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'visMag')
+            fval_ = self.gds_validate_double(fval_, node, 'visMag')
+            self.visMag = fval_
+            self.visMag_nsprefix_ = child_.prefix
+            # validate type visMagType
+            self.validate_visMagType(self.visMag)
+        elif nodeName_ == 'surfBr':
+            obj_ = OalsurfaceBrightnessType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.surfBr = obj_
+            obj_.original_tagname_ = 'surfBr'
+        super(OaldeepSkyTargetType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyTargetType
+
+
+class OaldeepSkyAS(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, pa=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyAS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyAS)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyAS.subclass:
+            return OaldeepSkyAS.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyAS(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.pa is not None or
+            super(OaldeepSkyAS, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyAS', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyAS')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyAS':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyAS')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyAS', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyAS'):
+        super(OaldeepSkyAS, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyAS')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyAS', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyAS, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyAS, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        super(OaldeepSkyAS, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyAS
+
+
+class OaldeepSkyCG(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, mag10=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyCG"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.mag10 = mag10
+        self.mag10_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyCG)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyCG.subclass:
+            return OaldeepSkyCG.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyCG(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_mag10(self):
+        return self.mag10
+    def set_mag10(self, mag10):
+        self.mag10 = mag10
+    def _hasContent(self):
+        if (
+            self.mag10 is not None or
+            super(OaldeepSkyCG, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyCG', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyCG')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyCG':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyCG')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyCG', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyCG'):
+        super(OaldeepSkyCG, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyCG')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyCG', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyCG, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.mag10 is not None:
+            namespaceprefix_ = self.mag10_nsprefix_ + ':' if (UseCapturedNS_ and self.mag10_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%smag10>%s</%smag10>%s' % (namespaceprefix_ , self.gds_format_double(self.mag10, input_name='mag10'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyCG, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'mag10' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'mag10')
+            fval_ = self.gds_validate_double(fval_, node, 'mag10')
+            self.mag10 = fval_
+            self.mag10_nsprefix_ = child_.prefix
+        super(OaldeepSkyCG, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyCG
+
+
+class OaldeepSkyDN(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, pa=None, opacity=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyDN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+        self.opacity = opacity
+        self.validate_opacityType(self.opacity)
+        self.opacity_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyDN)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyDN.subclass:
+            return OaldeepSkyDN.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyDN(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def get_opacity(self):
+        return self.opacity
+    def set_opacity(self, opacity):
+        self.opacity = opacity
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def validate_opacityType(self, value):
+        result = True
+        # Validate type opacityType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 1:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on opacityType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value > 6:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxInclusive restriction on opacityType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.pa is not None or
+            self.opacity is not None or
+            super(OaldeepSkyDN, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyDN', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyDN')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyDN':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyDN')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyDN', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyDN'):
+        super(OaldeepSkyDN, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyDN')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyDN', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyDN, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+        if self.opacity is not None:
+            namespaceprefix_ = self.opacity_nsprefix_ + ':' if (UseCapturedNS_ and self.opacity_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sopacity>%s</%sopacity>%s' % (namespaceprefix_ , self.gds_format_integer(self.opacity, input_name='opacity'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyDN, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        elif nodeName_ == 'opacity' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'opacity')
+            ival_ = self.gds_validate_integer(ival_, node, 'opacity')
+            self.opacity = ival_
+            self.opacity_nsprefix_ = child_.prefix
+            # validate type opacityType
+            self.validate_opacityType(self.opacity)
+        super(OaldeepSkyDN, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyDN
+
+
+class OaldeepSkyDS(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, separation=None, pa=None, magComp=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyDS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.separation = separation
+        self.separation_nsprefix_ = None
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+        self.magComp = magComp
+        self.magComp_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyDS)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyDS.subclass:
+            return OaldeepSkyDS.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyDS(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_separation(self):
+        return self.separation
+    def set_separation(self, separation):
+        self.separation = separation
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def get_magComp(self):
+        return self.magComp
+    def set_magComp(self, magComp):
+        self.magComp = magComp
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.separation is not None or
+            self.pa is not None or
+            self.magComp is not None or
+            super(OaldeepSkyDS, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyDS', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyDS')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyDS':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyDS')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyDS', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyDS'):
+        super(OaldeepSkyDS, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyDS')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyDS', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyDS, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.separation is not None:
+            namespaceprefix_ = self.separation_nsprefix_ + ':' if (UseCapturedNS_ and self.separation_nsprefix_) else ''
+            self.separation.export(outfile, level, namespaceprefix_, namespacedef_='', name_='separation', pretty_print=pretty_print)
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+        if self.magComp is not None:
+            namespaceprefix_ = self.magComp_nsprefix_ + ':' if (UseCapturedNS_ and self.magComp_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%smagComp>%s</%smagComp>%s' % (namespaceprefix_ , self.gds_format_double(self.magComp, input_name='magComp'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyDS, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'separation':
+            obj_ = OalnonNegativeAngleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.separation = obj_
+            obj_.original_tagname_ = 'separation'
+        elif nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        elif nodeName_ == 'magComp' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'magComp')
+            fval_ = self.gds_validate_double(fval_, node, 'magComp')
+            self.magComp = fval_
+            self.magComp_nsprefix_ = child_.prefix
+        super(OaldeepSkyDS, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyDS
+
+
+class OaldeepSkyGC(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, magStars=None, conc=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyGC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.magStars = magStars
+        self.magStars_nsprefix_ = None
+        self.conc = conc
+        self.conc_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyGC)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyGC.subclass:
+            return OaldeepSkyGC.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyGC(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_magStars(self):
+        return self.magStars
+    def set_magStars(self, magStars):
+        self.magStars = magStars
+    def get_conc(self):
+        return self.conc
+    def set_conc(self, conc):
+        self.conc = conc
+    def _hasContent(self):
+        if (
+            self.magStars is not None or
+            self.conc is not None or
+            super(OaldeepSkyGC, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGC', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyGC')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyGC':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGC')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyGC', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyGC'):
+        super(OaldeepSkyGC, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGC')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGC', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyGC, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.magStars is not None:
+            namespaceprefix_ = self.magStars_nsprefix_ + ':' if (UseCapturedNS_ and self.magStars_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%smagStars>%s</%smagStars>%s' % (namespaceprefix_ , self.gds_format_double(self.magStars, input_name='magStars'), namespaceprefix_ , eol_))
+        if self.conc is not None:
+            namespaceprefix_ = self.conc_nsprefix_ + ':' if (UseCapturedNS_ and self.conc_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sconc>%s</%sconc>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.conc), input_name='conc')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyGC, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'magStars' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'magStars')
+            fval_ = self.gds_validate_double(fval_, node, 'magStars')
+            self.magStars = fval_
+            self.magStars_nsprefix_ = child_.prefix
+        elif nodeName_ == 'conc':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'conc')
+            value_ = self.gds_validate_string(value_, node, 'conc')
+            self.conc = value_
+            self.conc_nsprefix_ = child_.prefix
+        super(OaldeepSkyGC, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyGC
+
+
+class OaldeepSkyGN(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, nebulaType=None, pa=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyGN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.nebulaType = nebulaType
+        self.nebulaType_nsprefix_ = None
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyGN)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyGN.subclass:
+            return OaldeepSkyGN.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyGN(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_nebulaType(self):
+        return self.nebulaType
+    def set_nebulaType(self, nebulaType):
+        self.nebulaType = nebulaType
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.nebulaType is not None or
+            self.pa is not None or
+            super(OaldeepSkyGN, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGN', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyGN')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyGN':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGN')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyGN', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyGN'):
+        super(OaldeepSkyGN, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGN')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGN', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyGN, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.nebulaType is not None:
+            namespaceprefix_ = self.nebulaType_nsprefix_ + ':' if (UseCapturedNS_ and self.nebulaType_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%snebulaType>%s</%snebulaType>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.nebulaType), input_name='nebulaType')), namespaceprefix_ , eol_))
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyGN, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'nebulaType':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'nebulaType')
+            value_ = self.gds_validate_string(value_, node, 'nebulaType')
+            self.nebulaType = value_
+            self.nebulaType_nsprefix_ = child_.prefix
+        elif nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        super(OaldeepSkyGN, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyGN
+
+
+class OaldeepSkyGX(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, hubbleType=None, pa=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyGX"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.hubbleType = hubbleType
+        self.hubbleType_nsprefix_ = None
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyGX)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyGX.subclass:
+            return OaldeepSkyGX.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyGX(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_hubbleType(self):
+        return self.hubbleType
+    def set_hubbleType(self, hubbleType):
+        self.hubbleType = hubbleType
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.hubbleType is not None or
+            self.pa is not None or
+            super(OaldeepSkyGX, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGX', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyGX')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyGX':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGX')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyGX', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyGX'):
+        super(OaldeepSkyGX, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyGX')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyGX', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyGX, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.hubbleType is not None:
+            namespaceprefix_ = self.hubbleType_nsprefix_ + ':' if (UseCapturedNS_ and self.hubbleType_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%shubbleType>%s</%shubbleType>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.hubbleType), input_name='hubbleType')), namespaceprefix_ , eol_))
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyGX, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'hubbleType':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'hubbleType')
+            value_ = self.gds_validate_string(value_, node, 'hubbleType')
+            self.hubbleType = value_
+            self.hubbleType_nsprefix_ = child_.prefix
+        elif nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        super(OaldeepSkyGX, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyGX
+
+
+class OaldeepSkyNA(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyNA"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyNA)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyNA.subclass:
+            return OaldeepSkyNA.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyNA(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OaldeepSkyNA, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyNA', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyNA')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyNA':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyNA')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyNA', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyNA'):
+        super(OaldeepSkyNA, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyNA')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyNA', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyNA, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyNA, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OaldeepSkyNA, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OaldeepSkyNA
+
+
+class OaldeepSkyOC(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, stars=None, brightestStar=None, class_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyOC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.stars = stars
+        self.stars_nsprefix_ = None
+        self.brightestStar = brightestStar
+        self.brightestStar_nsprefix_ = None
+        self.class_ = class_
+        self.class__nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyOC)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyOC.subclass:
+            return OaldeepSkyOC.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyOC(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_stars(self):
+        return self.stars
+    def set_stars(self, stars):
+        self.stars = stars
+    def get_brightestStar(self):
+        return self.brightestStar
+    def set_brightestStar(self, brightestStar):
+        self.brightestStar = brightestStar
+    def get_class(self):
+        return self.class_
+    def set_class(self, class_):
+        self.class_ = class_
+    def _hasContent(self):
+        if (
+            self.stars is not None or
+            self.brightestStar is not None or
+            self.class_ is not None or
+            super(OaldeepSkyOC, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyOC', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyOC')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyOC':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyOC')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyOC', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyOC'):
+        super(OaldeepSkyOC, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyOC')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyOC', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyOC, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.stars is not None:
+            namespaceprefix_ = self.stars_nsprefix_ + ':' if (UseCapturedNS_ and self.stars_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sstars>%s</%sstars>%s' % (namespaceprefix_ , self.gds_format_integer(self.stars, input_name='stars'), namespaceprefix_ , eol_))
+        if self.brightestStar is not None:
+            namespaceprefix_ = self.brightestStar_nsprefix_ + ':' if (UseCapturedNS_ and self.brightestStar_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sbrightestStar>%s</%sbrightestStar>%s' % (namespaceprefix_ , self.gds_format_double(self.brightestStar, input_name='brightestStar'), namespaceprefix_ , eol_))
+        if self.class_ is not None:
+            namespaceprefix_ = self.class__nsprefix_ + ':' if (UseCapturedNS_ and self.class__nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sclass>%s</%sclass>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.class_), input_name='class')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyOC, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'stars' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'stars')
+            if ival_ <= 0:
+                raise_parse_error(child_, 'requires positiveInteger')
+            ival_ = self.gds_validate_integer(ival_, node, 'stars')
+            self.stars = ival_
+            self.stars_nsprefix_ = child_.prefix
+        elif nodeName_ == 'brightestStar' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'brightestStar')
+            fval_ = self.gds_validate_double(fval_, node, 'brightestStar')
+            self.brightestStar = fval_
+            self.brightestStar_nsprefix_ = child_.prefix
+        elif nodeName_ == 'class':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'class')
+            value_ = self.gds_validate_string(value_, node, 'class')
+            self.class_ = value_
+            self.class_nsprefix_ = child_.prefix
+        super(OaldeepSkyOC, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyOC
+
+
+class OaldeepSkyPN(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, magStar=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyPN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.magStar = magStar
+        self.magStar_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyPN)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyPN.subclass:
+            return OaldeepSkyPN.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyPN(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_magStar(self):
+        return self.magStar
+    def set_magStar(self, magStar):
+        self.magStar = magStar
+    def _hasContent(self):
+        if (
+            self.magStar is not None or
+            super(OaldeepSkyPN, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyPN', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyPN')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyPN':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyPN')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyPN', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyPN'):
+        super(OaldeepSkyPN, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyPN')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyPN', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyPN, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.magStar is not None:
+            namespaceprefix_ = self.magStar_nsprefix_ + ':' if (UseCapturedNS_ and self.magStar_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%smagStar>%s</%smagStar>%s' % (namespaceprefix_ , self.gds_format_double(self.magStar, input_name='magStar'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyPN, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'magStar' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'magStar')
+            fval_ = self.gds_validate_double(fval_, node, 'magStar')
+            self.magStar = fval_
+            self.magStar_nsprefix_ = child_.prefix
+        super(OaldeepSkyPN, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkyPN
+
+
+class OaldeepSkyQS(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkyQS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkyQS)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkyQS.subclass:
+            return OaldeepSkyQS.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkyQS(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OaldeepSkyQS, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyQS', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkyQS')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkyQS':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyQS')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkyQS', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkyQS'):
+        super(OaldeepSkyQS, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkyQS')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkyQS', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkyQS, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkyQS, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OaldeepSkyQS, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OaldeepSkyQS
+
+
+class OaldeepSkySC(OaldeepSkyTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OaldeepSkyTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, smallDiameter=None, largeDiameter=None, visMag=None, surfBr=None, pa=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OaldeepSkySC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        self.pa = pa
+        self.validate_positionAngleType(self.pa)
+        self.pa_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OaldeepSkySC)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OaldeepSkySC.subclass:
+            return OaldeepSkySC.subclass(*args_, **kwargs_)
+        else:
+            return OaldeepSkySC(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_pa(self):
+        return self.pa
+    def set_pa(self, pa):
+        self.pa = pa
+    def validate_positionAngleType(self, value):
+        result = True
+        # Validate type positionAngleType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value >= 360:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxExclusive restriction on positionAngleType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.pa is not None or
+            super(OaldeepSkySC, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkySC', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('deepSkySC')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'deepSkySC':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkySC')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='deepSkySC', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='deepSkySC'):
+        super(OaldeepSkySC, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='deepSkySC')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='deepSkySC', fromsubclass_=False, pretty_print=True):
+        super(OaldeepSkySC, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.pa is not None:
+            namespaceprefix_ = self.pa_nsprefix_ + ':' if (UseCapturedNS_ and self.pa_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spa>%s</%spa>%s' % (namespaceprefix_ , self.gds_format_integer(self.pa, input_name='pa'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OaldeepSkySC, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'pa' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pa')
+            ival_ = self.gds_validate_integer(ival_, node, 'pa')
+            self.pa = ival_
+            self.pa_nsprefix_ = child_.prefix
+            # validate type positionAngleType
+            self.validate_positionAngleType(self.pa)
+        super(OaldeepSkySC, self)._buildChildren(child_, node, nodeName_, True)
+# end class OaldeepSkySC
+
+
+class OalfindingsDeepSkyType(OalfindingsType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalfindingsType
+    def __init__(self, lang=None, description=None, stellar=None, extended=None, resolved=None, mottled=None, smallDiameter=None, largeDiameter=None, rating=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalfindingsDeepSkyType"), self).__init__(lang, description, extensiontype_,  **kwargs_)
+        self.stellar = _cast(bool, stellar)
+        self.stellar_nsprefix_ = None
+        self.extended = _cast(bool, extended)
+        self.extended_nsprefix_ = None
+        self.resolved = _cast(bool, resolved)
+        self.resolved_nsprefix_ = None
+        self.mottled = _cast(bool, mottled)
+        self.mottled_nsprefix_ = None
+        self.smallDiameter = smallDiameter
+        self.smallDiameter_nsprefix_ = None
+        self.largeDiameter = largeDiameter
+        self.largeDiameter_nsprefix_ = None
+        self.rating = rating
+        self.validate_ratingType(self.rating)
+        self.rating_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalfindingsDeepSkyType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalfindingsDeepSkyType.subclass:
+            return OalfindingsDeepSkyType.subclass(*args_, **kwargs_)
+        else:
+            return OalfindingsDeepSkyType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_smallDiameter(self):
+        return self.smallDiameter
+    def set_smallDiameter(self, smallDiameter):
+        self.smallDiameter = smallDiameter
+    def get_largeDiameter(self):
+        return self.largeDiameter
+    def set_largeDiameter(self, largeDiameter):
+        self.largeDiameter = largeDiameter
+    def get_rating(self):
+        return self.rating
+    def set_rating(self, rating):
+        self.rating = rating
+    def get_stellar(self):
+        return self.stellar
+    def set_stellar(self, stellar):
+        self.stellar = stellar
+    def get_extended(self):
+        return self.extended
+    def set_extended(self, extended):
+        self.extended = extended
+    def get_resolved(self):
+        return self.resolved
+    def set_resolved(self, resolved):
+        self.resolved = resolved
+    def get_mottled(self):
+        return self.mottled
+    def set_mottled(self, mottled):
+        self.mottled = mottled
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def validate_ratingType(self, value):
+        result = True
+        # Validate type ratingType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = [1, 2, 3, 4, 5, 6, 7, 99]
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on ratingType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.smallDiameter is not None or
+            self.largeDiameter is not None or
+            self.rating is not None or
+            super(OalfindingsDeepSkyType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('findingsDeepSkyType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'findingsDeepSkyType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='findingsDeepSkyType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='findingsDeepSkyType'):
+        super(OalfindingsDeepSkyType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyType')
+        if self.stellar is not None and 'stellar' not in already_processed:
+            already_processed.add('stellar')
+            outfile.write(' stellar="%s"' % self.gds_format_boolean(self.stellar, input_name='stellar'))
+        if self.extended is not None and 'extended' not in already_processed:
+            already_processed.add('extended')
+            outfile.write(' extended="%s"' % self.gds_format_boolean(self.extended, input_name='extended'))
+        if self.resolved is not None and 'resolved' not in already_processed:
+            already_processed.add('resolved')
+            outfile.write(' resolved="%s"' % self.gds_format_boolean(self.resolved, input_name='resolved'))
+        if self.mottled is not None and 'mottled' not in already_processed:
+            already_processed.add('mottled')
+            outfile.write(' mottled="%s"' % self.gds_format_boolean(self.mottled, input_name='mottled'))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyType', fromsubclass_=False, pretty_print=True):
+        super(OalfindingsDeepSkyType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.smallDiameter is not None:
+            namespaceprefix_ = self.smallDiameter_nsprefix_ + ':' if (UseCapturedNS_ and self.smallDiameter_nsprefix_) else ''
+            self.smallDiameter.export(outfile, level, namespaceprefix_, namespacedef_='', name_='smallDiameter', pretty_print=pretty_print)
+        if self.largeDiameter is not None:
+            namespaceprefix_ = self.largeDiameter_nsprefix_ + ':' if (UseCapturedNS_ and self.largeDiameter_nsprefix_) else ''
+            self.largeDiameter.export(outfile, level, namespaceprefix_, namespacedef_='', name_='largeDiameter', pretty_print=pretty_print)
+        if self.rating is not None:
+            namespaceprefix_ = self.rating_nsprefix_ + ':' if (UseCapturedNS_ and self.rating_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%srating>%s</%srating>%s' % (namespaceprefix_ , self.gds_format_integer(self.rating, input_name='rating'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('stellar', node)
+        if value is not None and 'stellar' not in already_processed:
+            already_processed.add('stellar')
+            if value in ('true', '1'):
+                self.stellar = True
+            elif value in ('false', '0'):
+                self.stellar = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('extended', node)
+        if value is not None and 'extended' not in already_processed:
+            already_processed.add('extended')
+            if value in ('true', '1'):
+                self.extended = True
+            elif value in ('false', '0'):
+                self.extended = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('resolved', node)
+        if value is not None and 'resolved' not in already_processed:
+            already_processed.add('resolved')
+            if value in ('true', '1'):
+                self.resolved = True
+            elif value in ('false', '0'):
+                self.resolved = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('mottled', node)
+        if value is not None and 'mottled' not in already_processed:
+            already_processed.add('mottled')
+            if value in ('true', '1'):
+                self.mottled = True
+            elif value in ('false', '0'):
+                self.mottled = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+        super(OalfindingsDeepSkyType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'smallDiameter':
+            obj_ = OalnonNegativeAngleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.smallDiameter = obj_
+            obj_.original_tagname_ = 'smallDiameter'
+        elif nodeName_ == 'largeDiameter':
+            obj_ = OalnonNegativeAngleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.largeDiameter = obj_
+            obj_.original_tagname_ = 'largeDiameter'
+        elif nodeName_ == 'rating' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'rating')
+            ival_ = self.gds_validate_integer(ival_, node, 'rating')
+            self.rating = ival_
+            self.rating_nsprefix_ = child_.prefix
+            # validate type ratingType
+            self.validate_ratingType(self.rating)
+        super(OalfindingsDeepSkyType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalfindingsDeepSkyType
+
+
+class OalfindingsDeepSkyOCType(OalfindingsDeepSkyType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalfindingsDeepSkyType
+    def __init__(self, lang=None, description=None, stellar=None, extended=None, resolved=None, mottled=None, smallDiameter=None, largeDiameter=None, rating=None, unusualShape=None, partlyUnresolved=None, colorContrasts=None, character=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalfindingsDeepSkyOCType"), self).__init__(lang, description, stellar, extended, resolved, mottled, smallDiameter, largeDiameter, rating,  **kwargs_)
+        self.unusualShape = _cast(bool, unusualShape)
+        self.unusualShape_nsprefix_ = None
+        self.partlyUnresolved = _cast(bool, partlyUnresolved)
+        self.partlyUnresolved_nsprefix_ = None
+        self.colorContrasts = _cast(bool, colorContrasts)
+        self.colorContrasts_nsprefix_ = None
+        self.character = character
+        self.validate_clusterCharacterType(self.character)
+        self.character_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalfindingsDeepSkyOCType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalfindingsDeepSkyOCType.subclass:
+            return OalfindingsDeepSkyOCType.subclass(*args_, **kwargs_)
+        else:
+            return OalfindingsDeepSkyOCType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_character(self):
+        return self.character
+    def set_character(self, character):
+        self.character = character
+    def get_unusualShape(self):
+        return self.unusualShape
+    def set_unusualShape(self, unusualShape):
+        self.unusualShape = unusualShape
+    def get_partlyUnresolved(self):
+        return self.partlyUnresolved
+    def set_partlyUnresolved(self, partlyUnresolved):
+        self.partlyUnresolved = partlyUnresolved
+    def get_colorContrasts(self):
+        return self.colorContrasts
+    def set_colorContrasts(self, colorContrasts):
+        self.colorContrasts = colorContrasts
+    def validate_clusterCharacterType(self, value):
+        result = True
+        # Validate type clusterCharacterType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'X']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on clusterCharacterType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.character is not None or
+            super(OalfindingsDeepSkyOCType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyOCType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('findingsDeepSkyOCType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'findingsDeepSkyOCType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyOCType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='findingsDeepSkyOCType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='findingsDeepSkyOCType'):
+        super(OalfindingsDeepSkyOCType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyOCType')
+        if self.unusualShape is not None and 'unusualShape' not in already_processed:
+            already_processed.add('unusualShape')
+            outfile.write(' unusualShape="%s"' % self.gds_format_boolean(self.unusualShape, input_name='unusualShape'))
+        if self.partlyUnresolved is not None and 'partlyUnresolved' not in already_processed:
+            already_processed.add('partlyUnresolved')
+            outfile.write(' partlyUnresolved="%s"' % self.gds_format_boolean(self.partlyUnresolved, input_name='partlyUnresolved'))
+        if self.colorContrasts is not None and 'colorContrasts' not in already_processed:
+            already_processed.add('colorContrasts')
+            outfile.write(' colorContrasts="%s"' % self.gds_format_boolean(self.colorContrasts, input_name='colorContrasts'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyOCType', fromsubclass_=False, pretty_print=True):
+        super(OalfindingsDeepSkyOCType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.character is not None:
+            namespaceprefix_ = self.character_nsprefix_ + ':' if (UseCapturedNS_ and self.character_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%scharacter>%s</%scharacter>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.character), input_name='character')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('unusualShape', node)
+        if value is not None and 'unusualShape' not in already_processed:
+            already_processed.add('unusualShape')
+            if value in ('true', '1'):
+                self.unusualShape = True
+            elif value in ('false', '0'):
+                self.unusualShape = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('partlyUnresolved', node)
+        if value is not None and 'partlyUnresolved' not in already_processed:
+            already_processed.add('partlyUnresolved')
+            if value in ('true', '1'):
+                self.partlyUnresolved = True
+            elif value in ('false', '0'):
+                self.partlyUnresolved = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('colorContrasts', node)
+        if value is not None and 'colorContrasts' not in already_processed:
+            already_processed.add('colorContrasts')
+            if value in ('true', '1'):
+                self.colorContrasts = True
+            elif value in ('false', '0'):
+                self.colorContrasts = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        super(OalfindingsDeepSkyOCType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'character':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'character')
+            value_ = self.gds_validate_string(value_, node, 'character')
+            self.character = value_
+            self.character_nsprefix_ = child_.prefix
+            # validate type clusterCharacterType
+            self.validate_clusterCharacterType(self.character)
+        super(OalfindingsDeepSkyOCType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalfindingsDeepSkyOCType
+
+
+class OalfindingsDeepSkyDSType(OalfindingsDeepSkyType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalfindingsDeepSkyType
+    def __init__(self, lang=None, description=None, stellar=None, extended=None, resolved=None, mottled=None, smallDiameter=None, largeDiameter=None, rating=None, equalBrightness=None, niceSurrounding=None, colorMain=None, colorCompanion=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalfindingsDeepSkyDSType"), self).__init__(lang, description, stellar, extended, resolved, mottled, smallDiameter, largeDiameter, rating,  **kwargs_)
+        self.equalBrightness = _cast(bool, equalBrightness)
+        self.equalBrightness_nsprefix_ = None
+        self.niceSurrounding = _cast(bool, niceSurrounding)
+        self.niceSurrounding_nsprefix_ = None
+        self.colorMain = colorMain
+        self.validate_starColorType(self.colorMain)
+        self.colorMain_nsprefix_ = None
+        self.colorCompanion = colorCompanion
+        self.validate_starColorType(self.colorCompanion)
+        self.colorCompanion_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalfindingsDeepSkyDSType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalfindingsDeepSkyDSType.subclass:
+            return OalfindingsDeepSkyDSType.subclass(*args_, **kwargs_)
+        else:
+            return OalfindingsDeepSkyDSType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_colorMain(self):
+        return self.colorMain
+    def set_colorMain(self, colorMain):
+        self.colorMain = colorMain
+    def get_colorCompanion(self):
+        return self.colorCompanion
+    def set_colorCompanion(self, colorCompanion):
+        self.colorCompanion = colorCompanion
+    def get_equalBrightness(self):
+        return self.equalBrightness
+    def set_equalBrightness(self, equalBrightness):
+        self.equalBrightness = equalBrightness
+    def get_niceSurrounding(self):
+        return self.niceSurrounding
+    def set_niceSurrounding(self, niceSurrounding):
+        self.niceSurrounding = niceSurrounding
+    def validate_starColorType(self, value):
+        result = True
+        # Validate type starColorType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['white', 'red', 'orange', 'yellow', 'green', 'blue']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on starColorType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.colorMain is not None or
+            self.colorCompanion is not None or
+            super(OalfindingsDeepSkyDSType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyDSType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('findingsDeepSkyDSType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'findingsDeepSkyDSType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyDSType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='findingsDeepSkyDSType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='findingsDeepSkyDSType'):
+        super(OalfindingsDeepSkyDSType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsDeepSkyDSType')
+        if self.equalBrightness is not None and 'equalBrightness' not in already_processed:
+            already_processed.add('equalBrightness')
+            outfile.write(' equalBrightness="%s"' % self.gds_format_boolean(self.equalBrightness, input_name='equalBrightness'))
+        if self.niceSurrounding is not None and 'niceSurrounding' not in already_processed:
+            already_processed.add('niceSurrounding')
+            outfile.write(' niceSurrounding="%s"' % self.gds_format_boolean(self.niceSurrounding, input_name='niceSurrounding'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsDeepSkyDSType', fromsubclass_=False, pretty_print=True):
+        super(OalfindingsDeepSkyDSType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.colorMain is not None:
+            namespaceprefix_ = self.colorMain_nsprefix_ + ':' if (UseCapturedNS_ and self.colorMain_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%scolorMain>%s</%scolorMain>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.colorMain), input_name='colorMain')), namespaceprefix_ , eol_))
+        if self.colorCompanion is not None:
+            namespaceprefix_ = self.colorCompanion_nsprefix_ + ':' if (UseCapturedNS_ and self.colorCompanion_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%scolorCompanion>%s</%scolorCompanion>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.colorCompanion), input_name='colorCompanion')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('equalBrightness', node)
+        if value is not None and 'equalBrightness' not in already_processed:
+            already_processed.add('equalBrightness')
+            if value in ('true', '1'):
+                self.equalBrightness = True
+            elif value in ('false', '0'):
+                self.equalBrightness = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('niceSurrounding', node)
+        if value is not None and 'niceSurrounding' not in already_processed:
+            already_processed.add('niceSurrounding')
+            if value in ('true', '1'):
+                self.niceSurrounding = True
+            elif value in ('false', '0'):
+                self.niceSurrounding = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        super(OalfindingsDeepSkyDSType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'colorMain':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'colorMain')
+            value_ = self.gds_validate_string(value_, node, 'colorMain')
+            self.colorMain = value_
+            self.colorMain_nsprefix_ = child_.prefix
+            # validate type starColorType
+            self.validate_starColorType(self.colorMain)
+        elif nodeName_ == 'colorCompanion':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'colorCompanion')
+            value_ = self.gds_validate_string(value_, node, 'colorCompanion')
+            self.colorCompanion = value_
+            self.colorCompanion_nsprefix_ = child_.prefix
+            # validate type starColorType
+            self.validate_starColorType(self.colorCompanion)
+        super(OalfindingsDeepSkyDSType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalfindingsDeepSkyDSType
+
+
+class OalSolarSystemTargetType(OalobservationTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalobservationTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalSolarSystemTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, extensiontype_,  **kwargs_)
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalSolarSystemTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalSolarSystemTargetType.subclass:
+            return OalSolarSystemTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalSolarSystemTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def _hasContent(self):
+        if (
+            super(OalSolarSystemTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='SolarSystemTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('SolarSystemTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'SolarSystemTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SolarSystemTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='SolarSystemTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SolarSystemTargetType'):
+        super(OalSolarSystemTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SolarSystemTargetType')
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='SolarSystemTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalSolarSystemTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+        super(OalSolarSystemTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalSolarSystemTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalSolarSystemTargetType
+
+
+class OalCometTargetType(OalSolarSystemTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalSolarSystemTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalCometTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalCometTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalCometTargetType.subclass:
+            return OalCometTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalCometTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OalCometTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='CometTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('CometTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'CometTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CometTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='CometTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CometTargetType'):
+        super(OalCometTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CometTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='CometTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalCometTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalCometTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalCometTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalCometTargetType
+
+
+class OalMinorPlanetTargetType(OalSolarSystemTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalSolarSystemTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalMinorPlanetTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalMinorPlanetTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalMinorPlanetTargetType.subclass:
+            return OalMinorPlanetTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalMinorPlanetTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OalMinorPlanetTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='MinorPlanetTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('MinorPlanetTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'MinorPlanetTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='MinorPlanetTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='MinorPlanetTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='MinorPlanetTargetType'):
+        super(OalMinorPlanetTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='MinorPlanetTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='MinorPlanetTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalMinorPlanetTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalMinorPlanetTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalMinorPlanetTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalMinorPlanetTargetType
+
+
+class OalMoonTargetType(OalSolarSystemTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalSolarSystemTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalMoonTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalMoonTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalMoonTargetType.subclass:
+            return OalMoonTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalMoonTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OalMoonTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='MoonTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('MoonTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'MoonTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='MoonTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='MoonTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='MoonTargetType'):
+        super(OalMoonTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='MoonTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='MoonTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalMoonTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalMoonTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalMoonTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalMoonTargetType
+
+
+class OalPlanetTargetType(OalSolarSystemTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalSolarSystemTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalPlanetTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalPlanetTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalPlanetTargetType.subclass:
+            return OalPlanetTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalPlanetTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OalPlanetTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='PlanetTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('PlanetTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'PlanetTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PlanetTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='PlanetTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='PlanetTargetType'):
+        super(OalPlanetTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PlanetTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='PlanetTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalPlanetTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalPlanetTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalPlanetTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalPlanetTargetType
+
+
+class OalSunTargetType(OalSolarSystemTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalSolarSystemTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalSunTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalSunTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalSunTargetType.subclass:
+            return OalSunTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalSunTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def _hasContent(self):
+        if (
+            super(OalSunTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='SunTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('SunTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'SunTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SunTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='SunTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='SunTargetType'):
+        super(OalSunTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='SunTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='SunTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalSunTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalSunTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(OalSunTargetType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class OalSunTargetType
+
+
+class OalccdCameraType(OalimagerType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalimagerType
+    def __init__(self, id=None, model=None, vendor=None, remarks=None, pixelsX=None, pixelsY=None, pixelXSize=None, pixelYSize=None, binning=1, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalccdCameraType"), self).__init__(id, model, vendor, remarks,  **kwargs_)
+        self.pixelsX = pixelsX
+        self.pixelsX_nsprefix_ = None
+        self.pixelsY = pixelsY
+        self.pixelsY_nsprefix_ = None
+        self.pixelXSize = pixelXSize
+        self.validate_positiveDecimal(self.pixelXSize)
+        self.pixelXSize_nsprefix_ = None
+        self.pixelYSize = pixelYSize
+        self.validate_positiveDecimal(self.pixelYSize)
+        self.pixelYSize_nsprefix_ = None
+        self.binning = binning
+        self.validate_binningType(self.binning)
+        self.binning_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalccdCameraType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalccdCameraType.subclass:
+            return OalccdCameraType.subclass(*args_, **kwargs_)
+        else:
+            return OalccdCameraType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_pixelsX(self):
+        return self.pixelsX
+    def set_pixelsX(self, pixelsX):
+        self.pixelsX = pixelsX
+    def get_pixelsY(self):
+        return self.pixelsY
+    def set_pixelsY(self, pixelsY):
+        self.pixelsY = pixelsY
+    def get_pixelXSize(self):
+        return self.pixelXSize
+    def set_pixelXSize(self, pixelXSize):
+        self.pixelXSize = pixelXSize
+    def get_pixelYSize(self):
+        return self.pixelYSize
+    def set_pixelYSize(self, pixelYSize):
+        self.pixelYSize = pixelYSize
+    def get_binning(self):
+        return self.binning
+    def set_binning(self, binning):
+        self.binning = binning
+    def validate_positiveDecimal(self, value):
+        result = True
+        # Validate type positiveDecimal, a restriction on xsd:decimal.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, decimal_.Decimal):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {"value": value, "lineno": lineno, })
+                return False
+            if value <= 0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minExclusive restriction on positiveDecimal' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def validate_binningType(self, value):
+        result = True
+        # Validate type binningType, a restriction on xsd:integer.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, int):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (int)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 1:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on binningType' % {"value": value, "lineno": lineno} )
+                result = False
+            if value > 9:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd maxInclusive restriction on binningType' % {"value": value, "lineno": lineno} )
+                result = False
+        return result
+    def _hasContent(self):
+        if (
+            self.pixelsX is not None or
+            self.pixelsY is not None or
+            self.pixelXSize is not None or
+            self.pixelYSize is not None or
+            self.binning != 1 or
+            super(OalccdCameraType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='ccdCameraType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('ccdCameraType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'ccdCameraType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ccdCameraType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ccdCameraType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ccdCameraType'):
+        super(OalccdCameraType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ccdCameraType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='ccdCameraType', fromsubclass_=False, pretty_print=True):
+        super(OalccdCameraType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.pixelsX is not None:
+            namespaceprefix_ = self.pixelsX_nsprefix_ + ':' if (UseCapturedNS_ and self.pixelsX_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spixelsX>%s</%spixelsX>%s' % (namespaceprefix_ , self.gds_format_integer(self.pixelsX, input_name='pixelsX'), namespaceprefix_ , eol_))
+        if self.pixelsY is not None:
+            namespaceprefix_ = self.pixelsY_nsprefix_ + ':' if (UseCapturedNS_ and self.pixelsY_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spixelsY>%s</%spixelsY>%s' % (namespaceprefix_ , self.gds_format_integer(self.pixelsY, input_name='pixelsY'), namespaceprefix_ , eol_))
+        if self.pixelXSize is not None:
+            namespaceprefix_ = self.pixelXSize_nsprefix_ + ':' if (UseCapturedNS_ and self.pixelXSize_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spixelXSize>%s</%spixelXSize>%s' % (namespaceprefix_ , self.gds_format_decimal(self.pixelXSize, input_name='pixelXSize'), namespaceprefix_ , eol_))
+        if self.pixelYSize is not None:
+            namespaceprefix_ = self.pixelYSize_nsprefix_ + ':' if (UseCapturedNS_ and self.pixelYSize_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%spixelYSize>%s</%spixelYSize>%s' % (namespaceprefix_ , self.gds_format_decimal(self.pixelYSize, input_name='pixelYSize'), namespaceprefix_ , eol_))
+        if self.binning is not None:
+            namespaceprefix_ = self.binning_nsprefix_ + ':' if (UseCapturedNS_ and self.binning_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sbinning>%s</%sbinning>%s' % (namespaceprefix_ , self.gds_format_integer(self.binning, input_name='binning'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalccdCameraType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'pixelsX' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pixelsX')
+            if ival_ <= 0:
+                raise_parse_error(child_, 'requires positiveInteger')
+            ival_ = self.gds_validate_integer(ival_, node, 'pixelsX')
+            self.pixelsX = ival_
+            self.pixelsX_nsprefix_ = child_.prefix
+        elif nodeName_ == 'pixelsY' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'pixelsY')
+            if ival_ <= 0:
+                raise_parse_error(child_, 'requires positiveInteger')
+            ival_ = self.gds_validate_integer(ival_, node, 'pixelsY')
+            self.pixelsY = ival_
+            self.pixelsY_nsprefix_ = child_.prefix
+        elif nodeName_ == 'pixelXSize' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_decimal(sval_, node, 'pixelXSize')
+            fval_ = self.gds_validate_decimal(fval_, node, 'pixelXSize')
+            self.pixelXSize = fval_
+            self.pixelXSize_nsprefix_ = child_.prefix
+            # validate type positiveDecimal
+            self.validate_positiveDecimal(self.pixelXSize)
+        elif nodeName_ == 'pixelYSize' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_decimal(sval_, node, 'pixelYSize')
+            fval_ = self.gds_validate_decimal(fval_, node, 'pixelYSize')
+            self.pixelYSize = fval_
+            self.pixelYSize_nsprefix_ = child_.prefix
+            # validate type positiveDecimal
+            self.validate_positiveDecimal(self.pixelYSize)
+        elif nodeName_ == 'binning' and child_.text:
+            sval_ = child_.text
+            ival_ = self.gds_parse_integer(sval_, node, 'binning')
+            ival_ = self.gds_validate_integer(ival_, node, 'binning')
+            self.binning = ival_
+            self.binning_nsprefix_ = child_.prefix
+            # validate type binningType
+            self.validate_binningType(self.binning)
+        super(OalccdCameraType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalccdCameraType
+
+
+class OalvariableStarTargetType(OalstarTargetType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalstarTargetType
+    def __init__(self, id=None, datasource=None, observer=None, name=None, alias=None, position=None, constellation=None, notes=None, apparentMag=None, classification=None, type_=None, maxApparentMag=None, period=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalvariableStarTargetType"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, apparentMag, classification,  **kwargs_)
+        self.type_ = type_
+        self.type__nsprefix_ = None
+        self.maxApparentMag = maxApparentMag
+        self.maxApparentMag_nsprefix_ = None
+        self.period = period
+        self.period_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalvariableStarTargetType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalvariableStarTargetType.subclass:
+            return OalvariableStarTargetType.subclass(*args_, **kwargs_)
+        else:
+            return OalvariableStarTargetType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_type(self):
+        return self.type_
+    def set_type(self, type_):
+        self.type_ = type_
+    def get_maxApparentMag(self):
+        return self.maxApparentMag
+    def set_maxApparentMag(self, maxApparentMag):
+        self.maxApparentMag = maxApparentMag
+    def get_period(self):
+        return self.period
+    def set_period(self, period):
+        self.period = period
+    def _hasContent(self):
+        if (
+            self.type_ is not None or
+            self.maxApparentMag is not None or
+            self.period is not None or
+            super(OalvariableStarTargetType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarTargetType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('variableStarTargetType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'variableStarTargetType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='variableStarTargetType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='variableStarTargetType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='variableStarTargetType'):
+        super(OalvariableStarTargetType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='variableStarTargetType')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarTargetType', fromsubclass_=False, pretty_print=True):
+        super(OalvariableStarTargetType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.type_ is not None:
+            namespaceprefix_ = self.type__nsprefix_ + ':' if (UseCapturedNS_ and self.type__nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%stype>%s</%stype>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.type_), input_name='type')), namespaceprefix_ , eol_))
+        if self.maxApparentMag is not None:
+            namespaceprefix_ = self.maxApparentMag_nsprefix_ + ':' if (UseCapturedNS_ and self.maxApparentMag_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%smaxApparentMag>%s</%smaxApparentMag>%s' % (namespaceprefix_ , self.gds_format_double(self.maxApparentMag, input_name='maxApparentMag'), namespaceprefix_ , eol_))
+        if self.period is not None:
+            namespaceprefix_ = self.period_nsprefix_ + ':' if (UseCapturedNS_ and self.period_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%speriod>%s</%speriod>%s' % (namespaceprefix_ , self.gds_format_double(self.period, input_name='period'), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(OalvariableStarTargetType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'type':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'type')
+            value_ = self.gds_validate_string(value_, node, 'type')
+            self.type_ = value_
+            self.type_nsprefix_ = child_.prefix
+        elif nodeName_ == 'maxApparentMag' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'maxApparentMag')
+            fval_ = self.gds_validate_double(fval_, node, 'maxApparentMag')
+            self.maxApparentMag = fval_
+            self.maxApparentMag_nsprefix_ = child_.prefix
+        elif nodeName_ == 'period' and child_.text:
+            sval_ = child_.text
+            fval_ = self.gds_parse_double(sval_, node, 'period')
+            fval_ = self.gds_validate_double(fval_, node, 'period')
+            self.period = fval_
+            self.period_nsprefix_ = child_.prefix
+        super(OalvariableStarTargetType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalvariableStarTargetType
+
+
+class OalvariableStarVisMagType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, fainterThan=None, uncertain=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        self.fainterThan = _cast(bool, fainterThan)
+        self.fainterThan_nsprefix_ = None
+        self.uncertain = _cast(bool, uncertain)
+        self.uncertain_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalvariableStarVisMagType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalvariableStarVisMagType.subclass:
+            return OalvariableStarVisMagType.subclass(*args_, **kwargs_)
+        else:
+            return OalvariableStarVisMagType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_fainterThan(self):
+        return self.fainterThan
+    def set_fainterThan(self, fainterThan):
+        self.fainterThan = fainterThan
+    def get_uncertain(self):
+        return self.uncertain
+    def set_uncertain(self, uncertain):
+        self.uncertain = uncertain
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def _hasContent(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarVisMagType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('variableStarVisMagType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'variableStarVisMagType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='variableStarVisMagType')
+        if self._hasContent():
+            outfile.write('>')
+            outfile.write(self.convert_unicode(self.valueOf_))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='variableStarVisMagType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='variableStarVisMagType'):
+        if self.fainterThan is not None and 'fainterThan' not in already_processed:
+            already_processed.add('fainterThan')
+            outfile.write(' fainterThan="%s"' % self.gds_format_boolean(self.fainterThan, input_name='fainterThan'))
+        if self.uncertain is not None and 'uncertain' not in already_processed:
+            already_processed.add('uncertain')
+            outfile.write(' uncertain="%s"' % self.gds_format_boolean(self.uncertain, input_name='uncertain'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarVisMagType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('fainterThan', node)
+        if value is not None and 'fainterThan' not in already_processed:
+            already_processed.add('fainterThan')
+            if value in ('true', '1'):
+                self.fainterThan = True
+            elif value in ('false', '0'):
+                self.fainterThan = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('uncertain', node)
+        if value is not None and 'uncertain' not in already_processed:
+            already_processed.add('uncertain')
+            if value in ('true', '1'):
+                self.uncertain = True
+            elif value in ('false', '0'):
+                self.uncertain = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class OalvariableStarVisMagType
+
+
+class OalvariableStarChartIDType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, nonAAVSOchart=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        self.nonAAVSOchart = _cast(bool, nonAAVSOchart)
+        self.nonAAVSOchart_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalvariableStarChartIDType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalvariableStarChartIDType.subclass:
+            return OalvariableStarChartIDType.subclass(*args_, **kwargs_)
+        else:
+            return OalvariableStarChartIDType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_nonAAVSOchart(self):
+        return self.nonAAVSOchart
+    def set_nonAAVSOchart(self, nonAAVSOchart):
+        self.nonAAVSOchart = nonAAVSOchart
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def _hasContent(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarChartIDType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('variableStarChartIDType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'variableStarChartIDType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='variableStarChartIDType')
+        if self._hasContent():
+            outfile.write('>')
+            outfile.write(self.convert_unicode(self.valueOf_))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='variableStarChartIDType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='variableStarChartIDType'):
+        if self.nonAAVSOchart is not None and 'nonAAVSOchart' not in already_processed:
+            already_processed.add('nonAAVSOchart')
+            outfile.write(' nonAAVSOchart="%s"' % self.gds_format_boolean(self.nonAAVSOchart, input_name='nonAAVSOchart'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='variableStarChartIDType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('nonAAVSOchart', node)
+        if value is not None and 'nonAAVSOchart' not in already_processed:
+            already_processed.add('nonAAVSOchart')
+            if value in ('true', '1'):
+                self.nonAAVSOchart = True
+            elif value in ('false', '0'):
+                self.nonAAVSOchart = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class OalvariableStarChartIDType
+
+
+class OalfindingsVariableStarType(OalfindingsType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = OalfindingsType
+    def __init__(self, lang=None, description=None, brightSky=None, clouds=None, poorSeeing=None, nearHorizion=None, unusualActivity=None, outburst=None, comparismSequenceProblem=None, starIdentificationUncertain=None, faintStar=None, visMag=None, comparisonStar=None, chartID=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = None
+        super(globals().get("OalfindingsVariableStarType"), self).__init__(lang, description,  **kwargs_)
+        self.brightSky = _cast(bool, brightSky)
+        self.brightSky_nsprefix_ = None
+        self.clouds = _cast(bool, clouds)
+        self.clouds_nsprefix_ = None
+        self.poorSeeing = _cast(bool, poorSeeing)
+        self.poorSeeing_nsprefix_ = None
+        self.nearHorizion = _cast(bool, nearHorizion)
+        self.nearHorizion_nsprefix_ = None
+        self.unusualActivity = _cast(bool, unusualActivity)
+        self.unusualActivity_nsprefix_ = None
+        self.outburst = _cast(bool, outburst)
+        self.outburst_nsprefix_ = None
+        self.comparismSequenceProblem = _cast(bool, comparismSequenceProblem)
+        self.comparismSequenceProblem_nsprefix_ = None
+        self.starIdentificationUncertain = _cast(bool, starIdentificationUncertain)
+        self.starIdentificationUncertain_nsprefix_ = None
+        self.faintStar = _cast(bool, faintStar)
+        self.faintStar_nsprefix_ = None
+        self.visMag = visMag
+        self.visMag_nsprefix_ = None
+        if comparisonStar is None:
+            self.comparisonStar = []
+        else:
+            self.comparisonStar = comparisonStar
+        self.comparisonStar_nsprefix_ = None
+        self.chartID = chartID
+        self.chartID_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OalfindingsVariableStarType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OalfindingsVariableStarType.subclass:
+            return OalfindingsVariableStarType.subclass(*args_, **kwargs_)
+        else:
+            return OalfindingsVariableStarType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_visMag(self):
+        return self.visMag
+    def set_visMag(self, visMag):
+        self.visMag = visMag
+    def get_comparisonStar(self):
+        return self.comparisonStar
+    def set_comparisonStar(self, comparisonStar):
+        self.comparisonStar = comparisonStar
+    def add_comparisonStar(self, value):
+        self.comparisonStar.append(value)
+    def insert_comparisonStar_at(self, index, value):
+        self.comparisonStar.insert(index, value)
+    def replace_comparisonStar_at(self, index, value):
+        self.comparisonStar[index] = value
+    def get_chartID(self):
+        return self.chartID
+    def set_chartID(self, chartID):
+        self.chartID = chartID
+    def get_brightSky(self):
+        return self.brightSky
+    def set_brightSky(self, brightSky):
+        self.brightSky = brightSky
+    def get_clouds(self):
+        return self.clouds
+    def set_clouds(self, clouds):
+        self.clouds = clouds
+    def get_poorSeeing(self):
+        return self.poorSeeing
+    def set_poorSeeing(self, poorSeeing):
+        self.poorSeeing = poorSeeing
+    def get_nearHorizion(self):
+        return self.nearHorizion
+    def set_nearHorizion(self, nearHorizion):
+        self.nearHorizion = nearHorizion
+    def get_unusualActivity(self):
+        return self.unusualActivity
+    def set_unusualActivity(self, unusualActivity):
+        self.unusualActivity = unusualActivity
+    def get_outburst(self):
+        return self.outburst
+    def set_outburst(self, outburst):
+        self.outburst = outburst
+    def get_comparismSequenceProblem(self):
+        return self.comparismSequenceProblem
+    def set_comparismSequenceProblem(self, comparismSequenceProblem):
+        self.comparismSequenceProblem = comparismSequenceProblem
+    def get_starIdentificationUncertain(self):
+        return self.starIdentificationUncertain
+    def set_starIdentificationUncertain(self, starIdentificationUncertain):
+        self.starIdentificationUncertain = starIdentificationUncertain
+    def get_faintStar(self):
+        return self.faintStar
+    def set_faintStar(self, faintStar):
+        self.faintStar = faintStar
+    def _hasContent(self):
+        if (
+            self.visMag is not None or
+            self.comparisonStar or
+            self.chartID is not None or
+            super(OalfindingsVariableStarType, self)._hasContent()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsVariableStarType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('findingsVariableStarType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'findingsVariableStarType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsVariableStarType')
+        if self._hasContent():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='findingsVariableStarType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='findingsVariableStarType'):
+        super(OalfindingsVariableStarType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='findingsVariableStarType')
+        if self.brightSky is not None and 'brightSky' not in already_processed:
+            already_processed.add('brightSky')
+            outfile.write(' brightSky="%s"' % self.gds_format_boolean(self.brightSky, input_name='brightSky'))
+        if self.clouds is not None and 'clouds' not in already_processed:
+            already_processed.add('clouds')
+            outfile.write(' clouds="%s"' % self.gds_format_boolean(self.clouds, input_name='clouds'))
+        if self.poorSeeing is not None and 'poorSeeing' not in already_processed:
+            already_processed.add('poorSeeing')
+            outfile.write(' poorSeeing="%s"' % self.gds_format_boolean(self.poorSeeing, input_name='poorSeeing'))
+        if self.nearHorizion is not None and 'nearHorizion' not in already_processed:
+            already_processed.add('nearHorizion')
+            outfile.write(' nearHorizion="%s"' % self.gds_format_boolean(self.nearHorizion, input_name='nearHorizion'))
+        if self.unusualActivity is not None and 'unusualActivity' not in already_processed:
+            already_processed.add('unusualActivity')
+            outfile.write(' unusualActivity="%s"' % self.gds_format_boolean(self.unusualActivity, input_name='unusualActivity'))
+        if self.outburst is not None and 'outburst' not in already_processed:
+            already_processed.add('outburst')
+            outfile.write(' outburst="%s"' % self.gds_format_boolean(self.outburst, input_name='outburst'))
+        if self.comparismSequenceProblem is not None and 'comparismSequenceProblem' not in already_processed:
+            already_processed.add('comparismSequenceProblem')
+            outfile.write(' comparismSequenceProblem="%s"' % self.gds_format_boolean(self.comparismSequenceProblem, input_name='comparismSequenceProblem'))
+        if self.starIdentificationUncertain is not None and 'starIdentificationUncertain' not in already_processed:
+            already_processed.add('starIdentificationUncertain')
+            outfile.write(' starIdentificationUncertain="%s"' % self.gds_format_boolean(self.starIdentificationUncertain, input_name='starIdentificationUncertain'))
+        if self.faintStar is not None and 'faintStar' not in already_processed:
+            already_processed.add('faintStar')
+            outfile.write(' faintStar="%s"' % self.gds_format_boolean(self.faintStar, input_name='faintStar'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oal="http://groups.google.com/group/openastronomylog"', name_='findingsVariableStarType', fromsubclass_=False, pretty_print=True):
+        super(OalfindingsVariableStarType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.visMag is not None:
+            namespaceprefix_ = self.visMag_nsprefix_ + ':' if (UseCapturedNS_ and self.visMag_nsprefix_) else ''
+            self.visMag.export(outfile, level, namespaceprefix_, namespacedef_='', name_='visMag', pretty_print=pretty_print)
+        for comparisonStar_ in self.comparisonStar:
+            namespaceprefix_ = self.comparisonStar_nsprefix_ + ':' if (UseCapturedNS_ and self.comparisonStar_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%scomparisonStar>%s</%scomparisonStar>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(comparisonStar_), input_name='comparisonStar')), namespaceprefix_ , eol_))
+        if self.chartID is not None:
+            namespaceprefix_ = self.chartID_nsprefix_ + ':' if (UseCapturedNS_ and self.chartID_nsprefix_) else ''
+            self.chartID.export(outfile, level, namespaceprefix_, namespacedef_='', name_='chartID', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('brightSky', node)
+        if value is not None and 'brightSky' not in already_processed:
+            already_processed.add('brightSky')
+            if value in ('true', '1'):
+                self.brightSky = True
+            elif value in ('false', '0'):
+                self.brightSky = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('clouds', node)
+        if value is not None and 'clouds' not in already_processed:
+            already_processed.add('clouds')
+            if value in ('true', '1'):
+                self.clouds = True
+            elif value in ('false', '0'):
+                self.clouds = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('poorSeeing', node)
+        if value is not None and 'poorSeeing' not in already_processed:
+            already_processed.add('poorSeeing')
+            if value in ('true', '1'):
+                self.poorSeeing = True
+            elif value in ('false', '0'):
+                self.poorSeeing = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('nearHorizion', node)
+        if value is not None and 'nearHorizion' not in already_processed:
+            already_processed.add('nearHorizion')
+            if value in ('true', '1'):
+                self.nearHorizion = True
+            elif value in ('false', '0'):
+                self.nearHorizion = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('unusualActivity', node)
+        if value is not None and 'unusualActivity' not in already_processed:
+            already_processed.add('unusualActivity')
+            if value in ('true', '1'):
+                self.unusualActivity = True
+            elif value in ('false', '0'):
+                self.unusualActivity = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('outburst', node)
+        if value is not None and 'outburst' not in already_processed:
+            already_processed.add('outburst')
+            if value in ('true', '1'):
+                self.outburst = True
+            elif value in ('false', '0'):
+                self.outburst = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('comparismSequenceProblem', node)
+        if value is not None and 'comparismSequenceProblem' not in already_processed:
+            already_processed.add('comparismSequenceProblem')
+            if value in ('true', '1'):
+                self.comparismSequenceProblem = True
+            elif value in ('false', '0'):
+                self.comparismSequenceProblem = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('starIdentificationUncertain', node)
+        if value is not None and 'starIdentificationUncertain' not in already_processed:
+            already_processed.add('starIdentificationUncertain')
+            if value in ('true', '1'):
+                self.starIdentificationUncertain = True
+            elif value in ('false', '0'):
+                self.starIdentificationUncertain = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('faintStar', node)
+        if value is not None and 'faintStar' not in already_processed:
+            already_processed.add('faintStar')
+            if value in ('true', '1'):
+                self.faintStar = True
+            elif value in ('false', '0'):
+                self.faintStar = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        super(OalfindingsVariableStarType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'visMag':
+            obj_ = OalvariableStarVisMagType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.visMag = obj_
+            obj_.original_tagname_ = 'visMag'
+        elif nodeName_ == 'comparisonStar':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'comparisonStar')
+            value_ = self.gds_validate_string(value_, node, 'comparisonStar')
+            self.comparisonStar.append(value_)
+            self.comparisonStar_nsprefix_ = child_.prefix
+        elif nodeName_ == 'chartID':
+            obj_ = OalvariableStarChartIDType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.chartID = obj_
+            obj_.original_tagname_ = 'chartID'
+        super(OalfindingsVariableStarType, self)._buildChildren(child_, node, nodeName_, True)
+# end class OalfindingsVariableStarType
 
 
 class OalorientationType(GeneratedsSuper):
@@ -5786,8 +9489,16 @@ class OalimagersType(GeneratedsSuper):
         return self.imager
     def set_imager(self, imager):
         self.imager = imager
+    def set_imager_with_type(self, value):
+        self.imager = value
+        value.original_tagname_ = 'imager'
+        value.extensiontype_ = value.__class__.__name__
     def add_imager(self, value):
         self.imager.append(value)
+    def add_imager_with_type(self, value):
+        self.imager.append(value)
+        value.original_tagname_ = 'imager'
+        value.extensiontype_ = value.__class__.__name__
     def insert_imager_at(self, index, value):
         self.imager.insert(index, value)
     def replace_imager_at(self, index, value):
@@ -6064,95 +9775,210 @@ RenameMappings_ = {
 # and the file in which each is defined.
 # simpleTypes are marked "ST" and complexTypes "CT".
 NamespaceToDefMappings_ = {'http://groups.google.com/group/openastronomylog': [('positiveDecimal',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('angleUnit',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('positionAngleType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('surfaceBrightnessUnit',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('seeingType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('filterKind',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('filterColorType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
+                                                      'ST'),
+                                                     ('clusterCharacterType',
+                                                      'oal_All.xsd',
+                                                      'ST'),
+                                                     ('starColorType',
+                                                      'oal_All.xsd',
                                                       'ST'),
                                                      ('angleType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('nonNegativeAngleType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('surfaceBrightnessType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('observerAccountType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('observerType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('siteType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('sessionType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('referenceFrameType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('equPosType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('observationTargetType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('starTargetType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('opticsType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('scopeType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('fixedMagnificationOpticsType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('eyepieceType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('lensType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('filterType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('imagerType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('findingsType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
                                                       'CT'),
                                                      ('observationType',
-                                                      'oal_Base.xsd',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyMS',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyAS',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyCG',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyDN',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyDS',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyGC',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyGN',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyGX',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyNA',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyOC',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyPN',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkyQS',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('deepSkySC',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('findingsDeepSkyType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('findingsDeepSkyOCType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('findingsDeepSkyDSType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('SolarSystemTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('CometTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('MinorPlanetTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('MoonTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('PlanetTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('SunTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('ccdCameraType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('variableStarTargetType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('variableStarVisMagType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('variableStarChartIDType',
+                                                      'oal_All.xsd',
+                                                      'CT'),
+                                                     ('findingsVariableStarType',
+                                                      'oal_All.xsd',
                                                       'CT')]}
 
 __all__ = [
+    "OalCometTargetType",
+    "OalMinorPlanetTargetType",
+    "OalMoonTargetType",
+    "OalPlanetTargetType",
+    "OalSolarSystemTargetType",
+    "OalSunTargetType",
     "OalangleType",
+    "OalccdCameraType",
+    "OaldeepSkyAS",
+    "OaldeepSkyCG",
+    "OaldeepSkyDN",
+    "OaldeepSkyDS",
+    "OaldeepSkyGC",
+    "OaldeepSkyGN",
+    "OaldeepSkyGX",
+    "OaldeepSkyMS",
+    "OaldeepSkyNA",
+    "OaldeepSkyOC",
+    "OaldeepSkyPN",
+    "OaldeepSkyQS",
+    "OaldeepSkySC",
+    "OaldeepSkyTargetType",
     "OalequPosType",
     "OaleyepieceType",
     "OaleyepiecesType",
     "OalfilterType",
     "OalfiltersType",
+    "OalfindingsDeepSkyDSType",
+    "OalfindingsDeepSkyOCType",
+    "OalfindingsDeepSkyType",
     "OalfindingsType",
+    "OalfindingsVariableStarType",
     "OalfixedMagnificationOpticsType",
     "OalimagerType",
     "OalimagersType",
@@ -6176,5 +10002,8 @@ __all__ = [
     "OalsitesType",
     "OalstarTargetType",
     "OalsurfaceBrightnessType",
-    "OaltargetsType"
+    "OaltargetsType",
+    "OalvariableStarChartIDType",
+    "OalvariableStarTargetType",
+    "OalvariableStarVisMagType"
 ]
