@@ -1,5 +1,3 @@
-import re
-import math
 import base64
 import urllib.parse
 
@@ -14,23 +12,20 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import normalize_dso_name, CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_STAR_PREFIX
-from app.commons.greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
-from app.commons.utils import get_lang_and_editor_user_from_request, get_site_lang_code
+from app.commons.dso_utils import CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_STAR_PREFIX
+from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
+
+from app.commons.search_sky_object_utils import search_constellation, search_dso, search_star, search_comet, search_double_star
+
 from app.models import (
     Constellation,
-    DeepskyObject,
     DoubleStar,
     News,
     Star,
-    UserStarDescription,
     EditableHTML,
 )
 
-from app.main.solarsystem.comet_views import get_all_comets
-
-from sqlalchemy import func
 
 main = Blueprint('main', __name__)
 
@@ -78,30 +73,52 @@ def global_search():
     if not query:
         abort(404)
 
-    # 1. Search constellation
-    res = _search_constellation(query)
+    # 0. search by czsky chart ids
+    res = _search_chart_ids(query)
     if res:
         return res
+
+    # 1. Search constellation
+    constellation = search_constellation(query)
+    if constellation:
+        if request.args.get('fromchart') is not None:
+            return redirect(url_for('main_constellation.constellation_chart', constellation_id=constellation.iau_code,
+                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+        return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
     # 2. Search DSO
-    res = _search_dso(query)
-    if res:
-        return res
+    dso = search_dso(query)
+    if dso:
+        return redirect(url_for('main_deepskyobject.deepskyobject_seltab',
+                                dso_id=dso.name,
+                                seltab=request.args.get('seltab'),
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
+                                embed=request.args.get('embed')))
 
     # 3. Search Star
-    res = _search_star(query)
-    if res:
-        return res
+    star, usd = search_star(query)
+    if star:
+        if usd:
+            if request.args.get('fromchart') is not None:
+                return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
+                                        fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+            else:
+                return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
+        else:
+            return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
     # 4. Search Double Star
-    res = _search_double_star(query)
-    if res:
-        return res
+    double_star = search_double_star(query)
+    if double_star:
+        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
     # 5. Search comet
-    res = _search_comet(query)
-    if res:
-        return res
+    comet = search_comet(query)
+    if comet:
+        return redirect(url_for('main_comet.comet_info', comet_id=comet['comet_id']))
 
     # 6. search by radec
     res = _search_by_ra_dec(query)
@@ -131,176 +148,21 @@ def _search_by_ra_dec(query):
         pass
 
 
-def _search_constellation(query):
-    constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
-    if not constellation:
-        constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
-
-    if constellation:
-        if request.args.get('fromchart') is not None:
-            return redirect(url_for('main_constellation.constellation_chart', constellation_id=constellation.iau_code,
-                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-        else:
-            return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
-
-    return None
-
-
-def _search_dso(query):
-    if query.isdigit():
-        query = 'NGC' + query
-    else:
-        query = urllib.parse.unquote(query)
-
-    normalized_name = normalize_dso_name(query)
-    dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-    if dso:
-        return redirect(url_for('main_deepskyobject.deepskyobject_seltab',
-                                    dso_id=dso.name,
-                                    seltab=request.args.get('seltab'),
-                                    fullscreen=request.args.get('fullscreen'),
-                                    splitview=request.args.get('splitview'),
-                                    back=request.args.get('back'),
-                                    back_id=request.args.get('back_id'),
-                                    embed=request.args.get('embed')))
-    return None
-
-
-def _search_star(query):
-    go_catalogue_data = False
-    star = None
+def _search_chart_ids(query):
     if query.startswith(CZSKY_CHART_STAR_PREFIX):
         try:
             star_id = int(query[len(CZSKY_CHART_STAR_PREFIX):])
             star = Star.query.filter_by(id=star_id).first()
-            go_catalogue_data = True
+            return redirect(url_for('main_star.star_catalogue_data', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
-
-    if not star:
-        star = _search_by_bayer_flamsteed(query)
-    if not star:
-        star = _search_star_from_catalog(query)
-    if not star:
-        # try to search by var ID
-        star = Star.query.filter(Star.var_id.ilike(query)).first()
-    if not star:
-        # try to search by common star name
-        star = Star.query.filter_by(common_name=query.lower().capitalize()).first()
-
-    if star:
-        lang, editor_user = get_lang_and_editor_user_from_request()
-        usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
-        if usd:
-            if request.args.get('fromchart') is not None:
-                return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
-                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-            else:
-                return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
-        else:
-            if go_catalogue_data:
-                return redirect(url_for('main_star.star_catalogue_data', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-            return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-
-    return None
-
-
-def _search_by_bayer_flamsteed(query):
-    star = None
-    if query[:1] in GREEK_TO_LAT and len(query) > 1:
-        bayer = query[:1]
-        constell = _get_constell(query[1:])
-        if constell:
-            star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
-    else:
-        words = query.split()
-        if len(words) in [2, 3]:
-            constell_index = 1 if len(words) == 2 else 2
-            constell = _get_constell(words[constell_index])
-            if constell:
-                star_name = words[0].lower()
-                bayer = None
-                if star_name in GREEK_TO_LAT:
-                    bayer = star_name
-                elif star_name in SHORT_LAT_TO_GREEK:
-                    bayer = SHORT_LAT_TO_GREEK[star_name]
-                elif star_name in LONG_LAT_TO_GREEK:
-                    bayer = LONG_LAT_TO_GREEK[star_name]
-                elif star_name in LONG_LAT_CZ_TO_GREEK:
-                    bayer = LONG_LAT_CZ_TO_GREEK[star_name]
-                if bayer:
-                    if len(words) == 3:
-                        if words[1].isdigit():
-                            full_name = GREEK_TO_LAT[bayer] + ' ' + words[1]
-                            if full_name in SHORT_LAT_TO_GREEK_EXT:
-                                star = Star.query.filter_by(bayer=SHORT_LAT_TO_GREEK_EXT[full_name], constellation_id=constell.id).first()
-                    else:
-                        star = Star.query.filter_by(bayer=bayer, constellation_id=constell.id).first()
-                elif len(words) == 2 and star_name.isdigit():
-
-                    star = Star.query.filter_by(flamsteed=int(star_name), constellation_id=constell.id).first()
-        elif len(words) == 1 and query[0].isdigit():
-            i = 1
-            while i < len(query) and query[i].isdigit():
-                i+=1
-            if i < len(query):
-                constell = _get_constell(query[i:])
-                if constell:
-                    star = Star.query.filter_by(flamsteed=int(query[:i]), constellation_id=constell.id).first()
-    return star
-
-
-def _search_star_from_catalog(query):
-    star = None
-    for i, letter in enumerate(query, 0):
-        if letter.isdigit():
-            break
-    if i > 0 and i < len(query)-1:
-        cat = query[:i].strip()
-        sid = query[i:].strip()
-        if cat and sid.isdigit():
-            cat = cat.upper()
-            if cat == 'HR':
-                star = Star.query.filter_by(hr=int(sid)).first()
-            if not not star and cat == 'HD':
-                star = Star.query.filter_by(hd=int(sid)).first()
-            if not star and cat == 'SAO':
-                star = Star.query.filter_by(sao=int(sid)).first()
-    return star
-
-
-def _search_double_star(query):
-    go_catalogue_data = False
-    double_star = None
     if query.startswith(CZSKY_CHART_DOUBLE_STAR_PREFIX):
         try:
             double_star_id = int(query[len(CZSKY_CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-            go_catalogue_data = True
+            return redirect(url_for('main_double_star.double_star_catalogue_data', double_star_id=double_star.id, embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
-
-    if not double_star and query[0].isdigit():
-        double_star = DoubleStar.query.filter_by(wds_number=query).first()
-    if not double_star:
-        double_star = DoubleStar.query.filter_by(common_cat_id=query).first()
-
-    if double_star:
-        lang, editor_user = get_lang_and_editor_user_from_request()
-        if go_catalogue_data:
-            return redirect(url_for('main_double_star.double_star_catalogue_data', double_star_id=double_star.id, embed=request.args.get('embed')))
-        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-
-    return None
-
-
-def _search_comet(query):
-    if len(query) > 5:
-        search_expr = query.replace('"', '')
-        all_comets = get_all_comets()
-        comets = all_comets.query('designation.str.contains("{}")'.format(search_expr))
-        if len(comets) >= 1:
-            return redirect(url_for('main_comet.comet_info', comet_id=comets.iloc[0]['comet_id']))
     return None
 
 

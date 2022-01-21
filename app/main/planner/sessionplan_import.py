@@ -6,7 +6,7 @@ from flask_babel import lazy_gettext
 from app import db
 
 from app.commons.coordinates import parse_latlon
-from app.commons import normalize_dso_name_ext
+from app.commons.dso_utils import normalize_dso_name_ext
 
 from app.models import Location, SessionPlan, SessionPlanItem, DeepskyObject, User
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing

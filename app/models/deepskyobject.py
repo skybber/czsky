@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from .. import db
-from skyfield.units import Angle
 from .catalogue import Catalogue
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, normalize_dso_name_for_img, destructuralize_dso_name, main_component_dso_name, dso_name_to_simbad_id
@@ -11,9 +10,9 @@ from .constellation import Constellation
 
 BROWSING_CATALOGS = ('M', 'Abell', 'Sh2', 'VIC', 'NGC', 'HCG', 'Pal')
 
-ALL_APERTURE_DESCRIPTIONS = ( 'Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200', '110/660')
+ALL_APERTURE_DESCRIPTIONS = ('Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200', '110/660')
 
-SHOWN_APERTURE_DESCRIPTIONS = ( 'Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200' )
+SHOWN_APERTURE_DESCRIPTIONS = ('Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200')
 
 
 class DeepskyObject(db.Model):
