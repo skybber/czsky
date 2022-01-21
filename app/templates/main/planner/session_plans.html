@@ -11,6 +11,21 @@
                 {{ _('Session Plans') }}
             </h2>
 
+            <form action="{{ url_for('main_sessionplan.session_plans') }}" method="post" name="search" class="ui stackable menu">
+                <div class="ui item">
+                    {{ search_form.status(class='ui dropdown button',onchange='this.form.submit()') }}
+                    <div class="top right aligned floating ui label">{{ _('Status') }}</div>
+                </div>
+                <div class="ui right search item mobile hidden">
+                    <div class="ui action input">
+                        {{ search_form.hidden_tag() }}{{ search_form.q(size=20) }}
+                        <button class="ui icon button">
+                            <i class="search icon"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
             <div style="overflow-x: scroll;" class="computer tablet only">
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -18,6 +33,7 @@
                             <th>{{ _('Date') }}</th>
                             <th class="sorted ascending">{{ _('Title') }}</th>
                             <th>{{ _('Location') }}</th>
+                            <th class="one wide center aligned">{{ _('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -26,6 +42,9 @@
                             <td>{{ p.for_date.strftime('%Y-%m-%d') }}</td>
                             <td>{{ p.title[:64] }}</td>
                             <td>{{ p.location.name }}</td>
+                            <td class="center aligned">
+                                <i class="{{ 'trash alternate outline disabled' if p.is_archived else 'calendar check '}} icon"></i>
+                            </td>
                         </tr>
                     {% endfor %}
                     </tbody>

@@ -96,10 +96,16 @@ def session_plans():
     """View session plans."""
     search_form = SearchSessionPlanForm()
 
-    if not process_session_search([('session_plan_search', search_form.q)]):
+    if not process_session_search([('session_plan_search', search_form.q),
+                                   ('session_plan_status', search_form.status)
+                                   ]):
         return redirect(url_for('main_sessionplan.session_plans'))
 
     session_plans = SessionPlan.query.filter_by(user_id=current_user.id)
+    if search_form.status.data == 'Active':
+        session_plans = session_plans.filter_by(is_archived=False)
+    elif search_form.status.data == 'Archived':
+        session_plans = session_plans.filter_by(is_archived=True)
     if search_form.q.data:
         session_plans = session_plans.filter(SessionPlan.title.like('%' + search_form.q.data + '%'))
 

@@ -38,6 +38,11 @@ SCHEDULE_TIME_FORMAT = '%H:%M'
 
 class SearchSessionPlanForm(FlaskForm):
     q = StringField(lazy_gettext('Search'))
+    status = SelectField(lazy_gettext('Status'), choices=[
+        ('All', lazy_gettext('All')),
+        ('Active', lazy_gettext('Active')),
+        ('Archived', lazy_gettext('Archived')),
+    ], default='Active')
 
 
 class SessionPlanMixin:
