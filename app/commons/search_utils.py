@@ -55,7 +55,8 @@ def process_paginated_session_search(sess_page_name, sess_arg_form_pairs):
                 if pair[1].data is not None:
                     session[pair[0]] = _field_data_to_serializable(pair[1])
                 else:
-                    session.pop(pair[0], None)
+                    if pair[0] != 'items_per_page':
+                        session.pop(pair[0], None)
             # session.pop(sess_page_name, 0)
             # for pair in sess_arg_form_pairs: # clear session on initialize GET request
             #     session.pop(pair[0], None)
