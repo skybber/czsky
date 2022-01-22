@@ -1,0 +1,187 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if is_new %}
+                {% if is_anonymous %}
+                    <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Dashboard') }}
+                    </a>
+                {% else %}
+                    <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Planner') }}
+                    </a>
+                {% endif %}
+                <h2 class="ui header">
+                    {{ _('Add New Session Plan') }}
+                </h2>
+            {% else %}
+                {% if not is_mine_session_plan %}
+                    <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Dashboard') }}
+                    </a>
+                {% else %}
+                    <a class="ui basic compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id) }}">
+                        <i class="caret left icon"></i>
+                      {{ _('Leave editing') }}
+                    </a>
+                {% endif %}
+
+                <h2 class="ui header">
+                    {% if is_new %}
+                        {{ _('Add New Session Plan') }}
+                    {% else %}
+                        {{ _('Edit Session Plan') }}
+                    {% endif %}
+                </h2>
+            {% endif %}
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                <input id="goback" type="hidden" value="false">
+
+                {{ f.render_form_field(form.title) }}
+
+                <div class="two fields">
+                    <div class="field">
+                        <label for="odate">{{ form.for_date.label }}</label>
+                        <div class="ui calendar" id="odate">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate" name="{{form.for_date.name}}" placeholder="Date" type="text"
+                                    value="{{form.for_date.data.strftime('%d/%m/%Y') if form.for_date.data else ''}}">
+                          </div>
+                        </div>
+                        {% if form.for_date.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.for_date.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="field">
+                        {{ form.location.label }}
+                        <select name="{{ form.location.name }}" class="ui search selection dropdown dlocation">
+                            <option value="{{ location.id if location else location_position }}" selected="selected">{{ location.name if location else location_position }}</option>
+                        </select>
+                        {% if form.location.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.location.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="two fields">
+                    <div class="ui checkbox field">
+                        <input type="checkbox" id="is_public" name="{{ form.is_public.name }}" {{ 'checked=checked' if form.is_public.data else '' | safe  }} class="hidden">
+                        {{ form.is_public.label }}
+                    </div>
+                    <div class="ui checkbox field">
+                        <input type="checkbox" id="is_archived" name="{{ form.is_archived.name }}" {{ 'checked=checked' if form.is_archived.data else '' | safe  }} class="hidden">
+                        {{ form.is_archived.label }}
+                    </div>
+                </div>
+
+                {{ f.render_form_field(form.notes) }}
+
+                <div class="two fields">
+                    {% if not is_new %}
+                        <button class="ui positive button bupdateback">{{ _('Update and go back')}}</button>
+                    {% endif %}
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                    {% if not is_new %}
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Plan') }}</a>
+                    {% endif %}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    {% if not is_new %}
+        <div class="ui tiny modal deleteModal">
+          <div class="header">{{ _('Delete Session Plan') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete session plan?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_sessionplan.session_plan_delete', session_plan_id=session_plan.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        var descrMDE = new EasyMDE({element: document.getElementById('notes'),
+            minHeight: "80px",
+            spellChecker: false,
+            status : false,
+        });
+
+        $(function() {
+            $('.bupdateback' ).click(function() {
+                $('#goback').val('true');
+                $(this).closest('form').submit();
+                return false;
+            });
+
+            $('.ui.dropdown.dlocation').dropdown({
+                allowAdditions: true,
+                minCharacters : 3,
+                apiSettings: {
+                    url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
+                }
+            });
+
+            $('#odate').calendar({
+                type: 'date',
+                monthFirst: false,
+                formatter: {
+                    date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                    }
+                }
+            });
+
+
+            {% if not is_new %}
+                $('.ui.modal.deleteModal').modal({
+                    onApprove: function() {
+                        return validateModal()
+                    }
+                });
+                $('#bdelete').click(function() {
+                    $('.ui.modal.deleteModal')
+                        .modal('show');
+                });
+            {% endif %}
+        });
+    </script>
+
+{% endblock %}

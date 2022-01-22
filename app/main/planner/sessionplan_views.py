@@ -11,8 +11,6 @@ from astropy.time import Time, TimeDelta
 from astropy.coordinates import EarthLocation, SkyCoord
 import astropy.units as u
 from astroplan import Observer, FixedTarget
-from astroplan import (AltitudeConstraint, AirmassConstraint, AtNightConstraint)
-from astroplan import is_observable, is_always_observable, months_observable
 
 from skyfield import almanac
 from skyfield.api import load, wgs84
@@ -131,14 +129,68 @@ def _check_session_plan(session_plan, allow_public=False):
     return True
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/info', methods=['GET', 'POST'])
+@main_sessionplan.route('/session-plan/<int:session_plan_id>', methods=['GET'])
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])
 def session_plan_info(session_plan_id):
+    """View a session plan info."""
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
+    observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
+    return render_template('main/planner/session_plan_info.html', type='info', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan, observed=observed)
+
+
+@main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
+def new_session_plan():
+    """Create new session plan"""
+    form = SessionPlanNewForm()
+    if request.method == 'POST' and form.validate_on_submit():
+        new_session_plan = None
+        if current_user.is_anonymous:
+            if session.get('session_plan_id'):
+                new_session_plan = SessionPlan.query.filter_by(id=session.get('session_plan_id')).first()
+
+        if not new_session_plan:
+            user = get_anonymous_user() if current_user.is_anonymous else current_user
+            location_id, location_position = _get_location_data_from_form(form)
+            new_session_plan = SessionPlan(
+                user_id=user.id,
+                title=form.title.data,
+                for_date=form.for_date.data,
+                location_id=location_id,
+                location_position=location_position,
+                is_public=form.is_public.data,
+                is_archived=form.is_archived.data,
+                notes=form.notes.data,
+                is_anonymous=current_user.is_anonymous,
+                create_by=user.id,
+                update_by=user.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
+            )
+            db.session.add(new_session_plan)
+            db.session.commit()
+
+            if current_user.is_anonymous:
+                session['session_plan_id'] = new_session_plan.id
+
+            flash(gettext('Session plan successfully created'), 'form-success')
+        else:
+            flash(gettext('Session plan already exists'), 'form-success')
+        return redirect(url_for('main_sessionplan.session_plan_edit', session_plan_id=new_session_plan.id))
+
+    location, location_position = _get_location_data2_from_form(form)
+    return render_template('main/planner/session_plan_edit.html', form=form, is_new=True, location=location,
+                           location_position=location_position, is_anonymous=current_user.is_anonymous)
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/edit', methods=['GET', 'POST'])
+def session_plan_edit(session_plan_id):
     """View a session plan info."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
 
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     if not is_mine_session_plan:
-        return redirect(url_for('main_sessionplan.session_plan_overview', session_plan_id=session_plan.id))
+        return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id))
 
     form = SessionPlanEditForm()
     if request.method == 'POST':
@@ -160,7 +212,9 @@ def session_plan_info(session_plan_id):
             db.session.add(session_plan)
             db.session.commit()
             flash(gettext('Session plan successfully updated'), 'form-success')
-            return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id))
+            if form.goback.data == 'true':
+                return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id))
+            return redirect(url_for('main_sessionplan.session_plan_edit', session_plan_id=session_plan.id))
     else:
         form.title.data = session_plan.title
         form.for_date.data = session_plan.for_date
@@ -171,67 +225,8 @@ def session_plan_info(session_plan_id):
 
     location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/planner/session_plan.html', type='info', session_plan=session_plan, form=form, location=location,
-                           location_position=location_position, is_mine_session_plan=is_mine_session_plan)
-
-
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])
-def session_plan_overview(session_plan_id):
-    """View a session plan info in readn only mode."""
-    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
-    observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
-    return render_template('main/planner/session_plan.html', type='overview', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan, observed=observed)
-
-
-@main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
-def new_session_plan():
-    """Create new session plan"""
-    form = SessionPlanNewForm()
-    if request.method == 'POST' and form.validate_on_submit():
-
-        new_session_plan = None
-        if current_user.is_anonymous:
-            if session.get('session_plan_id'):
-                new_session_plan = SessionPlan.query.filter_by(id=session.get('session_plan_id')).first()
-
-        if not new_session_plan:
-            user = get_anonymous_user() if current_user.is_anonymous else current_user
-
-            location_id, location_position = _get_location_data_from_form(form)
-
-            new_session_plan = SessionPlan(
-                user_id=user.id,
-                title=form.title.data,
-                for_date=form.for_date.data,
-                location_id=location_id,
-                location_position=location_position,
-                is_public=form.is_public.data,
-                is_archived=form.is_archived.data,
-                notes=form.notes.data,
-                is_anonymous=current_user.is_anonymous,
-                create_by=user.id,
-                update_by=user.id,
-                create_date=datetime.now(),
-                update_date=datetime.now(),
-                )
-
-            db.session.add(new_session_plan)
-            db.session.commit()
-
-            if current_user.is_anonymous:
-                session['session_plan_id'] = new_session_plan.id
-
-            flash(gettext('Session plan successfully created'), 'form-success')
-        else:
-            flash(gettext('Session plan already exists'), 'form-success')
-
-        return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=new_session_plan.id))
-
-    location, location_position = _get_location_data2_from_form(form)
-
-    return render_template('main/planner/session_plan.html', type='info', form=form, is_new=True, location=location,
-                           location_position=location_position, is_anonymous=current_user.is_anonymous)
+    return render_template('main/planner/session_plan_edit.html', session_plan=session_plan, form=form, is_new=False,
+                           location=location, location_position=location_position, is_mine_session_plan=is_mine_session_plan)
 
 
 def _get_location_data_from_form(form):
@@ -273,7 +268,7 @@ def session_plan_delete(session_plan_id):
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/clear')
 def session_plan_clear(session_plan_id):
-    """Request deletion of a observation."""
+    """Request for clear of a session plan items."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
@@ -416,7 +411,7 @@ def session_plan_schedule(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     if not is_mine_session_plan:
-        return redirect(url_for('main_sessionplan.session_plan_overview', session_plan_id=session_plan.id))
+        return redirect(url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id))
 
     schedule_form = SessionPlanScheduleFilterForm()
 
@@ -522,7 +517,7 @@ def session_plan_schedule(session_plan_id):
 
     packed_constell_list = get_packed_constell_list()
 
-    return render_template('main/planner/session_plan.html', type='schedule', session_plan=session_plan,
+    return render_template('main/planner/session_plan_info.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list_for_render,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, schedule_form=schedule_form, min_alt_item_list=min_alt_item_list,
@@ -621,7 +616,7 @@ def session_plan_chart(session_plan_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/planner/session_plan.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
+    return render_template('main/planner/session_plan_info.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan)
 
 
