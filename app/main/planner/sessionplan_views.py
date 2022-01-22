@@ -130,7 +130,8 @@ def _check_session_plan(session_plan, allow_public=False):
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>', methods=['GET'])
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/overview', methods=['GET'])  # backward compatibility
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/info', methods=['GET'])
 def session_plan_info(session_plan_id):
     """View a session plan info."""
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
