@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-19 21:01+0100\n"
+"POT-Creation-Date: 2022-01-24 20:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -102,8 +102,8 @@ msgstr ""
 #: app/main/import_history/import_history_forms.py:13
 #: app/main/location/location_forms.py:58 app/main/news/news_forms.py:52
 #: app/main/observation/observed_forms.py:41
-#: app/main/planner/sessionplan_forms.py:63
-#: app/main/planner/sessionplan_forms.py:77
+#: app/main/planner/sessionplan_forms.py:68
+#: app/main/planner/sessionplan_forms.py:82
 #: app/main/solarsystem/asteroid_forms.py:36
 #: app/main/solarsystem/comet_forms.py:35
 #: app/templates/macros/common_macros.html:37
@@ -116,14 +116,14 @@ msgstr ""
 #: app/main/location/location_forms.py:57 app/main/news/news_forms.py:51
 #: app/main/observation/observed_forms.py:40
 #: app/main/planner/sessionplan_forms.py:40
-#: app/main/planner/sessionplan_forms.py:64
+#: app/main/planner/sessionplan_forms.py:69
 msgid "Search"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:34
 #: app/main/catalogue/dso_list_forms.py:33
 #: app/main/catalogue/star_list_forms.py:33
-#: app/main/planner/sessionplan_forms.py:94
+#: app/main/planner/sessionplan_forms.py:99
 #: app/main/planner/wishlist_forms.py:40
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/dso_list_info.html:39
@@ -135,7 +135,8 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:35
 #: app/main/catalogue/dso_list_forms.py:34
 #: app/main/catalogue/star_list_forms.py:34
-#: app/main/planner/sessionplan_forms.py:95
+#: app/main/planner/sessionplan_forms.py:42
+#: app/main/planner/sessionplan_forms.py:100
 #: app/main/planner/wishlist_forms.py:41
 #: app/templates/main/catalogue/double_stars.html:24
 #: app/templates/main/planner/session_plan_schedule.html:52
@@ -145,7 +146,7 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:36
 #: app/main/catalogue/dso_list_forms.py:35
 #: app/main/catalogue/star_list_forms.py:35
-#: app/main/planner/sessionplan_forms.py:96
+#: app/main/planner/sessionplan_forms.py:101
 #: app/main/planner/wishlist_forms.py:42
 msgid "Winter"
 msgstr ""
@@ -153,7 +154,7 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:37
 #: app/main/catalogue/dso_list_forms.py:36
 #: app/main/catalogue/star_list_forms.py:36
-#: app/main/planner/sessionplan_forms.py:97
+#: app/main/planner/sessionplan_forms.py:102
 #: app/main/planner/wishlist_forms.py:43
 msgid "Spring"
 msgstr ""
@@ -161,7 +162,7 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:38
 #: app/main/catalogue/dso_list_forms.py:37
 #: app/main/catalogue/star_list_forms.py:37
-#: app/main/planner/sessionplan_forms.py:98
+#: app/main/planner/sessionplan_forms.py:103
 #: app/main/planner/wishlist_forms.py:44
 msgid "Summer"
 msgstr ""
@@ -169,7 +170,7 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:39
 #: app/main/catalogue/dso_list_forms.py:38
 #: app/main/catalogue/star_list_forms.py:38
-#: app/main/planner/sessionplan_forms.py:99
+#: app/main/planner/sessionplan_forms.py:104
 #: app/main/planner/wishlist_forms.py:45
 msgid "Autumn"
 msgstr ""
@@ -177,7 +178,7 @@ msgstr ""
 #: app/main/catalogue/constellation_forms.py:40
 #: app/main/catalogue/dso_list_forms.py:39
 #: app/main/catalogue/star_list_forms.py:39
-#: app/main/planner/sessionplan_forms.py:100
+#: app/main/planner/sessionplan_forms.py:105
 #: app/main/planner/wishlist_forms.py:46
 msgid "Southern"
 msgstr ""
@@ -211,7 +212,7 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:53
 #: app/main/catalogue/deepskyobject_forms.py:59
-#: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:75
+#: app/main/chart/chart_forms.py:19 app/main/planner/sessionplan_forms.py:80
 #: app/templates/macros/fchart_macros.html:175
 #: app/templates/main/catalogue/deepskyobjects.html:37
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -232,7 +233,7 @@ msgid "All catalogues"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:51
-#: app/main/planner/sessionplan_forms.py:67
+#: app/main/planner/sessionplan_forms.py:72
 msgid "Object type"
 msgstr ""
 
@@ -261,9 +262,9 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:118
 #: app/main/location/location_forms.py:38
 #: app/main/observation/observing_session_forms.py:83
-#: app/main/planner/sessionplan_forms.py:47
+#: app/main/planner/sessionplan_forms.py:52
 #: app/templates/main/observation/observing_session_info.html:60
-#: app/templates/main/planner/session_plan.html:33
+#: app/templates/main/planner/session_plan_info.html:39
 msgid "Notes"
 msgstr ""
 
@@ -304,7 +305,7 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:97
 #: app/main/equipment/equipment_forms.py:115
 #: app/main/location/location_forms.py:36
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/catalogue/constellation_info.html:121
 #: app/templates/main/catalogue/constellations.html:36
 #: app/templates/main/catalogue/deepskyobject_info.html:285
@@ -321,8 +322,8 @@ msgstr ""
 #: app/templates/main/equipment/telescopes.html:35
 #: app/templates/main/location/location_info.html:24
 #: app/templates/main/location/locations.html:44
-#: app/templates/main/observation/observing_session_info.html:139
-#: app/templates/main/planner/session_plan.html:44
+#: app/templates/main/observation/observing_session_info.html:138
+#: app/templates/main/planner/session_plan_info.html:50
 #: app/templates/main/planner/session_plan_schedule.html:129
 #: app/templates/main/planner/session_plan_schedule.html:210
 #: app/templates/main/solarsystem/asteroids.html:34
@@ -451,6 +452,54 @@ msgstr ""
 msgid "Update Lens"
 msgstr ""
 
+#: app/main/equipment/equipment_view.py:105
+msgid "Telescope successfully created"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:137
+msgid "Telescope successfully updated"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:166
+msgid "Telescope was deleted"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:214
+msgid "Eyepiece successfully created"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:244
+msgid "Eyepiece successfully updated"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:271
+msgid "Eyepiece was deleted"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:318
+msgid "Filter successfully created"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:347
+msgid "Filter successfully updated"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:373
+msgid "Filter was deleted"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:421
+msgid "Lens successfully created"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:451
+msgid "Lens successfully updated"
+msgstr ""
+
+#: app/main/equipment/equipment_view.py:478
+msgid "Lens was deleted"
+msgstr ""
+
 #: app/main/location/location_forms.py:37
 msgid "Position"
 msgstr ""
@@ -496,12 +545,12 @@ msgstr ""
 
 #: app/main/news/news_forms.py:34
 #: app/main/observation/observing_session_forms.py:68
-#: app/main/planner/sessionplan_forms.py:44
+#: app/main/planner/sessionplan_forms.py:49
 #: app/templates/main/news/news_list.html:44
 #: app/templates/main/observation/observing_sessions.html:21
-#: app/templates/main/planner/session_plan.html:29
-#: app/templates/main/planner/session_plans.html:19
-#: app/templates/main/planner/session_plans.html:40
+#: app/templates/main/planner/session_plan_info.html:35
+#: app/templates/main/planner/session_plans.html:34
+#: app/templates/main/planner/session_plans.html:59
 msgid "Title"
 msgstr ""
 
@@ -533,10 +582,23 @@ msgstr ""
 
 #: app/main/observation/observed_forms.py:36
 #: app/main/observation/observing_session_forms.py:117
-#: app/main/planner/sessionplan_forms.py:86
-#: app/main/planner/sessionplan_forms.py:90
+#: app/main/planner/sessionplan_forms.py:91
+#: app/main/planner/sessionplan_forms.py:95
 #: app/main/planner/wishlist_forms.py:36
 msgid "DSO name"
+msgstr ""
+
+#: app/main/observation/observing_session_form_utils.py:68
+#: app/main/observation/observing_session_form_utils.py:126
+msgid "Deepsky object '{}' not found"
+msgstr ""
+
+#: app/main/observation/observing_session_form_utils.py:72
+msgid "ObservingSession successfully created"
+msgstr ""
+
+#: app/main/observation/observing_session_form_utils.py:130
+msgid "Observing session successfully updated"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:39
@@ -586,12 +648,12 @@ msgid "Date To"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:74
-#: app/main/planner/sessionplan_forms.py:46
+#: app/main/planner/sessionplan_forms.py:51
 #: app/templates/main/observation/observing_session_info.html:38
 #: app/templates/main/observation/observing_sessions.html:22
-#: app/templates/main/planner/session_plan.html:31
-#: app/templates/main/planner/session_plans.html:20
-#: app/templates/main/planner/session_plans.html:41
+#: app/templates/main/planner/session_plan_info.html:37
+#: app/templates/main/planner/session_plans.html:35
+#: app/templates/main/planner/session_plans.html:60
 msgid "Location"
 msgstr ""
 
@@ -616,7 +678,7 @@ msgid "Equipment"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:84
-#: app/main/planner/sessionplan_forms.py:48
+#: app/main/planner/sessionplan_forms.py:53
 msgid "Plan is public"
 msgstr ""
 
@@ -704,81 +766,96 @@ msgid ""
 "group](https://groups.google.com/forum/#!forum/openastronomylog).\n"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:45
+#: app/main/planner/sessionplan_forms.py:41
+#: app/templates/main/import_history/import_history_records.html:30
+#: app/templates/main/planner/session_plans.html:17
+#: app/templates/main/planner/session_plans.html:36
+msgid "Status"
+msgstr ""
+
+#: app/main/planner/sessionplan_forms.py:43
+msgid "Active"
+msgstr ""
+
+#: app/main/planner/sessionplan_forms.py:44
+msgid "Archived"
+msgstr ""
+
+#: app/main/planner/sessionplan_forms.py:50
 #: app/templates/main/import_history/import_history_records.html:29
 #: app/templates/main/observation/observing_sessions.html:20
-#: app/templates/main/planner/session_plan.html:30
-#: app/templates/main/planner/session_plans.html:18
-#: app/templates/main/planner/session_plans.html:39
+#: app/templates/main/planner/session_plan_info.html:36
+#: app/templates/main/planner/session_plans.html:33
+#: app/templates/main/planner/session_plans.html:58
 msgid "Date"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:49
+#: app/main/planner/sessionplan_forms.py:54
 msgid "Plan is archived"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:54
+#: app/main/planner/sessionplan_forms.py:59
 msgid "Add Session Plan"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:59
+#: app/main/planner/sessionplan_forms.py:64
 msgid "Update Session Plan"
 msgstr ""
 
-#: app/main/planner/sessionplan_forms.py:76
+#: app/main/planner/sessionplan_forms.py:81
 #: app/templates/main/planner/session_plan_schedule.html:80
 msgid "Min altitude"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:156
-msgid "Session plan successfully updated"
-msgstr ""
-
-#: app/main/planner/sessionplan_views.py:219
+#: app/main/planner/sessionplan_views.py:177
 msgid "Session plan successfully created"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:221
+#: app/main/planner/sessionplan_views.py:179
 msgid "Session plan already exists"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:264
+#: app/main/planner/sessionplan_views.py:215
+msgid "Session plan successfully updated"
+msgstr ""
+
+#: app/main/planner/sessionplan_views.py:266
 msgid "Session plan was deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:276
+#: app/main/planner/sessionplan_views.py:278
 msgid "Session items deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:303
+#: app/main/planner/sessionplan_views.py:305
 msgid "Object was added to session plan."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:305
+#: app/main/planner/sessionplan_views.py:307
 msgid "Object is already on session plan."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:309
+#: app/main/planner/sessionplan_views.py:311
 msgid "Deepsky object not found."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:329
+#: app/main/planner/sessionplan_views.py:331
 msgid "Session plan item was deleted"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:342
+#: app/main/planner/sessionplan_views.py:344
 msgid "No file part"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:346
+#: app/main/planner/sessionplan_views.py:348
 msgid "No file selected"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:373
+#: app/main/planner/sessionplan_views.py:375
 msgid "Session plan uploaded."
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:348
 #: app/templates/main/catalogue/deepskyobject_info.html:286
@@ -789,15 +866,15 @@ msgstr ""
 #: app/templates/main/equipment/telescopes.html:36
 #: app/templates/main/import_history/import_history_record_info.html:32
 #: app/templates/main/observation/observed_list.html:78
-#: app/templates/main/observation/observing_session_info.html:140
-#: app/templates/main/planner/session_plan.html:45
+#: app/templates/main/observation/observing_session_info.html:139
+#: app/templates/main/planner/session_plan_info.html:51
 #: app/templates/main/planner/session_plan_schedule.html:133
 #: app/templates/main/planner/session_plan_schedule.html:211
 #: app/templates/main/planner/wish_list.html:56
 msgid "Type"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
 #: app/templates/main/catalogue/deepskyobject_info.html:289
@@ -811,19 +888,19 @@ msgstr ""
 msgid "Constellation"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/planner/session_plan_schedule.html:144
 #: app/templates/main/planner/session_plan_schedule.html:214
 msgid "Rise"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/planner/session_plan_schedule.html:145
 #: app/templates/main/planner/session_plan_schedule.html:215
 msgid "Merid"
 msgstr ""
 
-#: app/main/planner/sessionplan_views.py:392
+#: app/main/planner/sessionplan_views.py:394
 #: app/templates/main/planner/session_plan_schedule.html:146
 #: app/templates/main/planner/session_plan_schedule.html:216
 msgid "Set"
@@ -1124,7 +1201,7 @@ msgid "Wish List"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:225
-#: app/templates/main/observation/observing_session_info.html:107
+#: app/templates/main/observation/observing_session_info.html:106
 msgid "Session plans"
 msgstr ""
 
@@ -1239,8 +1316,8 @@ msgstr ""
 #: app/templates/main/observation/observed_list.html:8
 #: app/templates/main/observation/observing_session_info.html:8
 #: app/templates/main/observation/observing_session_info.html:14
-#: app/templates/main/planner/session_plan.html:9
-#: app/templates/main/planner/session_plan.html:13
+#: app/templates/main/planner/session_plan_info.html:9
+#: app/templates/main/planner/session_plan_info.html:14
 #: app/templates/main/planner/wish_list.html:7
 msgid "Chart"
 msgstr ""
@@ -1259,7 +1336,7 @@ msgstr ""
 
 #: app/templates/main/index.html:83
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan.html:133
+#: app/templates/main/planner/session_plan_edit.html:19
 #: app/templates/main/planner/session_plans.html:8
 msgid "Planner"
 msgstr ""
@@ -1307,8 +1384,8 @@ msgstr ""
 #: app/templates/main/observation/observed_list.html:7
 #: app/templates/main/observation/observing_session_info.html:7
 #: app/templates/main/observation/observing_session_info.html:13
-#: app/templates/main/planner/session_plan.html:7
-#: app/templates/main/planner/session_plan.html:12
+#: app/templates/main/planner/session_plan_info.html:7
+#: app/templates/main/planner/session_plan_info.html:13
 #: app/templates/main/planner/wish_list.html:6
 msgid "Info"
 msgstr ""
@@ -1352,10 +1429,11 @@ msgstr ""
 #: app/templates/main/catalogue/dso_menu.html:10
 #: app/templates/main/chart/chart.html:30
 #: app/templates/main/observation/observation_menu.html:10
-#: app/templates/main/observation/observing_session_info.html:239
+#: app/templates/main/observation/observing_session_info.html:238
 #: app/templates/main/planner/planner_menu.html:10
-#: app/templates/main/planner/session_plan.html:128
-#: app/templates/main/planner/session_plan.html:145
+#: app/templates/main/planner/session_plan_edit.html:14
+#: app/templates/main/planner/session_plan_edit.html:29
+#: app/templates/main/planner/session_plan_info.html:134
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
@@ -1400,7 +1478,7 @@ msgstr ""
 #: app/templates/main/observation/observed_list.html:119
 #: app/templates/main/observation/observed_list.html:134
 #: app/templates/main/observation/observing_session_edit.html:205
-#: app/templates/main/planner/session_plan_info.html:79
+#: app/templates/main/planner/session_plan_edit.html:129
 #: app/templates/main/planner/session_plan_schedule.html:255
 #: app/templates/main/planner/session_plan_schedule.html:270
 #: app/templates/main/userdata/data_store.html:119
@@ -1514,8 +1592,8 @@ msgid "Spec."
 msgstr ""
 
 #: app/templates/main/catalogue/dso_list_info.html:64
-#: app/templates/main/observation/observing_session_info.html:145
-#: app/templates/main/planner/session_plan.html:50
+#: app/templates/main/observation/observing_session_info.html:144
+#: app/templates/main/planner/session_plan_info.html:56
 msgid "Size"
 msgstr ""
 
@@ -1620,7 +1698,7 @@ msgstr ""
 #: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:117
 #: app/templates/main/observation/observed_list.html:132
-#: app/templates/main/planner/session_plan_info.html:77
+#: app/templates/main/planner/session_plan_edit.html:127
 #: app/templates/main/planner/session_plan_schedule.html:253
 #: app/templates/main/planner/session_plan_schedule.html:268
 #: app/templates/main/userdata/data_store.html:117
@@ -1774,10 +1852,6 @@ msgstr ""
 
 #: app/templates/main/import_history/import_history_records.html:13
 msgid "Import History Record"
-msgstr ""
-
-#: app/templates/main/import_history/import_history_records.html:30
-msgid "Status"
 msgstr ""
 
 #: app/templates/main/location/location_edit.html:13
@@ -1934,6 +2008,7 @@ msgid "List of observed objects"
 msgstr ""
 
 #: app/templates/main/observation/observing_session_edit.html:18
+#: app/templates/main/planner/session_plan_edit.html:34
 msgid "Leave editing"
 msgstr ""
 
@@ -1954,6 +2029,7 @@ msgid "Advanced"
 msgstr ""
 
 #: app/templates/main/observation/observing_session_edit.html:182
+#: app/templates/main/planner/session_plan_edit.html:106
 msgid "Update and go back"
 msgstr ""
 
@@ -1967,28 +2043,28 @@ msgid "Are you sure you want to delete observing session?"
 msgstr ""
 
 #: app/templates/main/observation/observing_session_info.html:9
-#: app/templates/main/observation/observing_session_info.html:126
+#: app/templates/main/observation/observing_session_info.html:125
 msgid "Run plan"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:109
+#: app/templates/main/observation/observing_session_info.html:108
 msgid "Choose current session plan"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:134
+#: app/templates/main/observation/observing_session_info.html:133
 #: app/templates/main/planner/session_plan_schedule.html:115
 msgid "Unobserved objects"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:192
+#: app/templates/main/observation/observing_session_info.html:191
 msgid "No object has been observed from this plan yet."
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:198
+#: app/templates/main/observation/observing_session_info.html:197
 msgid "Observed"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:258
+#: app/templates/main/observation/observing_session_info.html:257
 msgid "Edit Observation"
 msgstr ""
 
@@ -2037,24 +2113,33 @@ msgstr ""
 msgid "View wishlist"
 msgstr ""
 
-#: app/templates/main/planner/session_plan.html:8
-msgid "Schedule"
-msgstr ""
-
-#: app/templates/main/planner/session_plan.html:137
+#: app/templates/main/planner/session_plan_edit.html:23
+#: app/templates/main/planner/session_plan_edit.html:40
 msgid "Add New Session Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_info.html:64
+#: app/templates/main/planner/session_plan_edit.html:42
+msgid "Edit Session Plan"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_edit.html:112
 msgid "Delete Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_info.html:72
+#: app/templates/main/planner/session_plan_edit.html:122
 msgid "Delete Session Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_info.html:74
+#: app/templates/main/planner/session_plan_edit.html:124
 msgid "Are you sure you want to delete session plan?"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_info.html:8
+msgid "Schedule"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_info.html:153
+msgid "Edit Session Plan Header"
 msgstr ""
 
 #: app/templates/main/planner/session_plan_schedule.html:14

@@ -4,6 +4,7 @@ from flask import (
     flash,
 )
 from flask_login import current_user
+from flask_babel import gettext
 
 from app import db
 
@@ -64,11 +65,11 @@ def create_from_basic_form(form):
             if dso:
                 observation.deepsky_objects.append(dso)
             else:
-                flash('Deepsky object \'' + dso_name + '\' not found', 'form-warning')
+                flash(gettext('Deepsky object \'{}\' not found').format(dso_name), 'form-warning')
 
     db.session.add(observing_session)
     db.session.commit()
-    flash('ObservingSession successfully created', 'form-success')
+    flash(gettext('Observing session successfully created'), 'form-success')
     return observing_session.id
 
 
@@ -122,8 +123,8 @@ def update_from_basic_form(form, observing_session):
             if dso:
                 observation.deepsky_objects.append(dso)
             else:
-                flash('Deepsky object \'' + dso_name + '\' not found', 'form-warning')
+                flash(gettext('Deepsky object \'{}\' not found').format(dso_name), 'form-warning')
 
     db.session.add(observing_session)
     db.session.commit()
-    flash('Observing session successfully updated', 'form-success')
+    flash(gettext('Observing session successfully updated'), 'form-success')

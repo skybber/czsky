@@ -11,6 +11,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from flask_babel import gettext
 from sqlalchemy import or_, and_
 
 from app import db
@@ -101,7 +102,7 @@ def new_telescope():
         )
         db.session.add(telescope)
         db.session.commit()
-        flash('Telescope successfully created', 'form-success')
+        flash(gettext('Telescope successfully created'), 'form-success')
         return redirect(url_for('main_equipment.telescope_edit', telescope_id=telescope.id))
     return render_template('main/equipment/telescope_edit.html', form=form, is_new=True)
 
@@ -133,7 +134,7 @@ def telescope_edit(telescope_id):
             telescope.update_date = datetime.now()
             db.session.add(telescope)
             db.session.commit()
-            flash('Telescope successfully updated', 'form-success')
+            flash(gettext('Telescope successfully updated'), 'form-success')
             return redirect(url_for('main_equipment.telescope_edit', telescope_id=telescope.id))
     else:
         form.name.data = telescope.name
@@ -162,7 +163,7 @@ def telescope_delete(telescope_id):
     telescope.is_deleted = True
     db.session.add(telescope)
     db.session.commit()
-    flash('Telescope was deleted', 'form-success')
+    flash(gettext('Telescope was deleted'), 'form-success')
     return redirect(url_for('main_equipment.telescopes'))
 
 
@@ -210,7 +211,7 @@ def new_eyepiece():
         )
         db.session.add(eyepiece)
         db.session.commit()
-        flash('Eyepiece successfully created', 'form-success')
+        flash(gettext('Eyepiece successfully created'), 'form-success')
         return redirect(url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id))
     return render_template('main/equipment/eyepiece_edit.html', form=form, is_new=True)
 
@@ -240,7 +241,7 @@ def eyepiece_edit(eyepiece_id):
             eyepiece.update_date = datetime.now()
             db.session.add(eyepiece)
             db.session.commit()
-            flash('Eyepiece successfully updated', 'form-success')
+            flash(gettext('Eyepiece successfully updated'), 'form-success')
             return redirect(url_for('main_equipment.eyepiece_edit', eyepiece_id=eyepiece.id))
     else:
         form.name.data = eyepiece.name
@@ -267,7 +268,7 @@ def eyepiece_delete(eyepiece_id):
     eyepiece.is_deleted = True
     db.session.add(eyepiece)
     db.session.commit()
-    flash('Eyepiece was deleted', 'form-success')
+    flash(gettext('Eyepiece was deleted'), 'form-success')
     return redirect(url_for('main_equipment.eyepieces'))
 
 
@@ -314,7 +315,7 @@ def new_filter():
         )
         db.session.add(filter)
         db.session.commit()
-        flash('Filter successfully created', 'form-success')
+        flash(gettext('Filter successfully created'), 'form-success')
         return redirect(url_for('main_equipment.filter_edit', filter_id=filter.id))
     return render_template('main/equipment/filter_edit.html', form=form, is_new=True)
 
@@ -343,7 +344,7 @@ def filter_edit(filter_id):
             filter.update_date = datetime.now()
             db.session.add(filter)
             db.session.commit()
-            flash('Filter successfully updated', 'form-success')
+            flash(gettext('Filter successfully updated'), 'form-success')
             return redirect(url_for('main_equipment.filter_edit', filter_id=filter.id))
     else:
         form.name.data = filter.name
@@ -369,7 +370,7 @@ def filter_delete(filter_id):
     filter.is_deleted = True
     db.session.add(filter)
     db.session.commit()
-    flash('Filter was deleted', 'form-success')
+    flash(gettext('Filter was deleted'), 'form-success')
     return redirect(url_for('main_equipment.filters'))
 
 
@@ -417,7 +418,7 @@ def new_lens():
         )
         db.session.add(lens)
         db.session.commit()
-        flash('Lens successfully created', 'form-success')
+        flash(gettext('Lens successfully created'), 'form-success')
         return redirect(url_for('main_equipment.lens_edit', lens_id=lens.id))
     return render_template('main/equipment/lens_edit.html', form=form, is_new=True)
 
@@ -447,7 +448,7 @@ def lens_edit(lens_id):
             lens.update_date = datetime.now()
             db.session.add(lens)
             db.session.commit()
-            flash('Lens successfully updated', 'form-success')
+            flash(gettext('Lens successfully updated'), 'form-success')
             return redirect(url_for('main_equipment.lens_edit', lens_id=lens.id))
     else:
         form.name.data = lens.name
@@ -474,6 +475,6 @@ def lens_delete(lens_id):
     lens.is_deleted = True
     db.session.add(lens)
     db.session.commit()
-    flash('Lens was deleted', 'form-success')
+    flash(gettext('Lens was deleted'), 'form-success')
     return redirect(url_for('main_equipment.lenses'))
 
