@@ -18,6 +18,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from flask_babel import gettext
 
 from app import db
 
@@ -89,11 +90,11 @@ def observed_list_item_add():
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
             dso_id = deepsky_object.master_id if deepsky_object.master_id is not None else deepsky_object.id
             if observed_list.append_deepsky_object(dso_id, current_user.id):
-                flash('Object was added to observed list.', 'form-success')
+                flash(gettext('Object was added to observed list.'), 'form-success')
             else:
-                flash('Object is already on observed list.', 'form-info')
+                flash(gettext('Object is already on observed list.'), 'form-info')
         else:
-            flash('Deepsky object not found.', 'form-error')
+            flash(gettext('Deepsky object not found.'), 'form-error')
 
     return redirect(url_for('main_observed.observed_list_info'))
 
@@ -109,7 +110,7 @@ def observed_list_item_delete(item_id):
         abort(404)
     db.session.delete(observed_list_item)
     db.session.commit()
-    flash('Observed list item was deleted', 'form-success')
+    flash(gettext('Observed list item was deleted'), 'form-success')
     return redirect(url_for('main_observed.observed_list_info'))
 
 
@@ -121,7 +122,7 @@ def observed_list_delete():
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     ObservedListItem.query.filter_by(observed_list_id=observed_list.id).delete()
     db.session.commit()
-    flash('Observed list deleted', 'form-success')
+    flash(gettext('Observed list deleted'), 'form-success')
     observed_list_items = enumerate(observed_list.observed_list_items)
     return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form, observed_list_items=observed_list_items)
 
@@ -130,11 +131,11 @@ def observed_list_delete():
 @login_required
 def observed_list_upload():
     if 'file' not in request.files:
-        flash('No file part', 'form-error')
+        flash(gettext('No file part'), 'form-error')
         return redirect(request.url)
     file = request.files['file']
     if file.filename == '':
-        flash('No selected file')
+        flash(gettext('No selected file'))
         return redirect(request.url)
     if file:
         filename = secure_filename(file.filename)
@@ -161,7 +162,7 @@ def observed_list_upload():
                     existing_ids.add(dso.id)
         db.session.commit()
         os.remove(path)
-        flash('Observed list updated.', 'form-success')
+        flash(gettext('Observed list updated.'), 'form-success')
 
     return redirect(url_for('main_observed.observed_list_info'))
 

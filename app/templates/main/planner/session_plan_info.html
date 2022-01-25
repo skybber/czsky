@@ -31,6 +31,7 @@
 {% endmacro %}
 
 {% macro session_plan_info(session_plan) %}
+    {{ f.display_standard_flashes(flashes) }}
     <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Title') }}</td><td>{{ session_plan.title }}</td></tr>
         <tr><td class="two wide">{{ _('Date') }}</td><td>{{ session_plan.for_date.strftime('%Y-%m-%d') }}</td></tr>

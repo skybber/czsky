@@ -192,7 +192,7 @@ def observing_session_delete(observing_session_id):
     _check_observing_session(observing_session)
     db.session.delete(observing_session)
     db.session.commit()
-    flash('Observation was deleted', 'form-success')
+    flash(gettext('Observation was deleted'), 'form-success')
     return redirect(url_for('main_observing_session.observing_sessions'))
 
 
@@ -402,11 +402,11 @@ def observing_sessions_import():
 @login_required
 def observing_sessions_import_upload():
     if 'file' not in request.files:
-        flash('No file part', 'form-error')
+        flash(gettext('No file part'), 'form-error')
         return redirect(request.url)
     file = request.files['file']
     if file.filename == '':
-        flash('No selected file')
+        flash(gettext('No selected file'))
         return redirect(request.url)
     log_warn, log_error = [], []
     if file:
@@ -449,7 +449,7 @@ def observing_sessions_import_upload():
         else:
             db.session.delete(import_history_rec)
             db.session.commit()
-        flash('Observations imported.', 'form-success')
+        flash(gettext('Observations imported.'), 'form-success')
 
     return render_template('main/observation/observing_sessions_import.html', about_oal=_get_about_oal(), log_warn=log_warn, log_error=log_error)
 

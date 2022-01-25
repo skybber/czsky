@@ -32,6 +32,7 @@
 
 {# --- Observing Session Info --- #}
 {% macro observing_session_info(observing_session) %}
+    {{ f.display_standard_flashes(flashes) }}
     <table class="ui compact definition unstackable table">
         <tr><td class="two wide">{{ _('Date From') }}</td><td colspan="5">{{ observing_session.date_from.strftime('%Y-%m-%d %H:%M') }}</td></tr>
         <tr><td class="two wide">{{ _('Date To') }}</td><td colspan="5">{{ observing_session.date_to.strftime('%Y-%m-%d %H:%M') }}</td></tr>

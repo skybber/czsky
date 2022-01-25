@@ -14,6 +14,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from flask_babel import gettext
 
 from app import db
 
@@ -286,7 +287,7 @@ def constellation_edit(constellation_id):
             user_descr.update_date = datetime.now()
             db.session.add(user_descr)
             db.session.commit()
-            flash('Constellation successfully updated', 'form-success')
+            flash(gettext('Constellation successfully updated'), 'form-success')
             if form.goback.data != 'true':
                 return redirect(url_for('main_constellation.constellation_edit', constellation_id=constellation_id))
             goback = True

@@ -18,8 +18,14 @@
     </div>
 {% endmacro %}
 
+{% set flashes = {
+    'error':   get_flashed_messages(category_filter=['form-error']),
+    'info':    get_flashed_messages(category_filter=['form-info']),
+    'success': get_flashed_messages(category_filter=['form-success'])
+} %}
 
 {% macro location_info(location) %}
+    {{ f.display_standard_flashes(flashes) }}
     <table class="ui compact definition table">
         <tr><td>{{ _('Name') }}</td><td>{{ location.name }}</td></tr>
         <tr>
