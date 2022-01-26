@@ -12,7 +12,7 @@
                 {{ _('Minor planets') }}
             </h2>
 
-            <form action="{{ url_for('main_asteroid.asteroids') }}" method="post" name="search">
+            <form action="{{ url_for('main_minor_planet.minor_planets') }}" method="post" name="search">
                 <div class="ui menu">
                     <div class="ui right search item">
                         <div class="ui action input">
@@ -36,10 +36,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for index, row in asteroids.iterrows() %}
-                            <tr onclick="window.location.href = '{{ url_for('main_asteroid.asteroid_info', asteroid_id=row['asteroid_id']) }}';">
+                        {% for index, row in minor_planets.iterrows() %}
+                            <tr onclick="window.location.href = '{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=row['minor_planet_id']) }}';">
                                 <td>{{ row['designation'] }}</td>
-                                <td>{{ magnitudes.get(row['asteroid_id'], '') }}</td>
+                                <td>{{ magnitudes.get(row['minor_planet_id'], '') }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

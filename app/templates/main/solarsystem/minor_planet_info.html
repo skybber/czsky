@@ -3,13 +3,13 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
-    ('main_asteroid.asteroid_info', 'Info', 'info')
+    ('main_minor_planet.minor_planet_info', 'Info', 'info')
 ] %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, asteroid_id=asteroid['asteroid_id']) %}
+            {% set href = url_for(route, minor_planet_id=minor_planet['minor_planet_id']) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
@@ -18,20 +18,20 @@
 {% endmacro %}
 
 {# --- Find Chart --- #}
-{% macro asteroid_info() %}
-    {{ fchart.fchart(url_for('main_asteroid.asteroid_info', asteroid_id=asteroid.asteroid_id, back=back, back_id=back_id),
-                     url_for('main_asteroid.asteroid_chart_pos_img', asteroid_id=asteroid.asteroid_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+{% macro minor_planet_info() %}
+    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.minor_planet_id, back=back, back_id=back_id),
+                     url_for('main_minor_planet.minor_planet_chart_pos_img', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
-                     url_for('main_asteroid.asteroid_chart_legend_img', asteroid_id=asteroid.asteroid_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_minor_planet.minor_planet_chart_legend_img', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_asteroid.asteroid_chart_pdf', asteroid_id=asteroid.asteroid_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      fchart_form, )
     }}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
-{% macro asteroid_catalogue_data() %}
+{% macro minor_planet_catalogue_data() %}
 {% endmacro %}
 
 {% set back = request.args.get('back') %}
@@ -48,24 +48,24 @@
                             <i class="eye icon"></i>
                         </a>
                     {% else %}
-                        <a class="ui basic compact button" href="{{ url_for('main_asteroid.asteroids') }}">
+                        <a class="ui basic compact button" href="{{ url_for('main_minor_planet.minor_planets') }}">
                             <i class="caret left icon"></i>
                             <i class="list icon"></i>
                         </a>
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ asteroid['designation'] }}
+                        {{ minor_planet['designation'] }}
                     </div>
                 </div>
             </div>
 
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
-                {{ asteroid_info() }}
+                {{ minor_planet_info() }}
             {% else %}
-                {{ asteroid_info() }}
-                {# {{ asteroid_catalogue_data() }} #}
+                {{ minor_planet_info() }}
+                {# {{ minor_planet_catalogue_data() }} #}
             {% endif %}
         </div>
     </div>
