@@ -103,7 +103,7 @@ def minor_planets():
     minor_planets = _get_all_minor_planets()
 
     if search_form.q.data:
-        search_expr = search_form.q.data.replace('"','')
+        search_expr = search_form.q.data.replace('"', '')
         minor_planets = minor_planets.query('designation.str.contains("{}")'.format(search_expr))
 
     magnitudes = {}

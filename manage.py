@@ -30,6 +30,7 @@ from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
 from imports.link_star_descriptions import link_star_descriptions_by_var_id, link_star_descriptions_by_double_star_id
+from imports.import_minor_planets import import_mpcorb_minor_planets
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -182,6 +183,11 @@ def import_star_list():
 
 
 @manager.command
+def import_minor_planets():
+    import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
+
+
+@manager.command
 def import_new_skyquality_locations():
     """
     Import new skyquality locations
@@ -278,11 +284,6 @@ def tmp_link_star_descriptions_by_double_star_id():
 @manager.command
 def tmp_import_doubles():
     import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz', True)
-
-
-@manager.command
-def tmp_update_bsc5():
-    import_bright_stars_bsc5_json_all('data/bsc5-all.json')
 
 
 if __name__ == '__main__':
