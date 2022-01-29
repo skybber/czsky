@@ -17,6 +17,7 @@ from .observedlist import *
 from .planner import *
 from .sqm import *
 from .skylist import *
+from .solar_system import *
 from .star import *
 from .starlist import *
 from .equipment import *

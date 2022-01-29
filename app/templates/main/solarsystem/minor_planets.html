@@ -36,10 +36,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for index, row in minor_planets.iterrows() %}
-                            <tr onclick="window.location.href = '{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=row['minor_planet_id']) }}';">
-                                <td>{{ row['designation'] }}</td>
-                                <td>{{ magnitudes.get(row['minor_planet_id'], '') }}</td>
+                        {% for mp in minor_planets %}
+                            <tr onclick="window.location.href = '{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=mp.id) }}';">
+                                <td>{{ mp.designation }}</td>
+                                <td>{{ magnitudes.get(mp.int_designation, '') }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

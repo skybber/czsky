@@ -28,6 +28,7 @@ from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
 from app import db
 
+from app.models import MinorPlanet
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 
@@ -52,7 +53,7 @@ main_minor_planet = Blueprint('main_minor_planet', __name__)
 all_minor_planets = None
 
 
-def _get_all_minor_planets():
+def _get_mpc_minor_planets():
     global all_minor_planets
     if all_minor_planets is None:
         with load.open('data/MPCORB.9999.DAT') as f:
@@ -69,10 +70,10 @@ def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distan
                         (2 * body_sun_distanceAU * body_earth_distanceAU)
                     )
 
-    psi_t = math.exp( math.log( math.tan( beta / 2.0 ) ) * 0.63 )
-    Psi_1 = math.exp( -3.33 * psi_t )
-    psi_t = math.exp( math.log( math.tan( beta / 2.0 ) ) * 1.22 )
-    Psi_2 = math.exp( -1.87 * psi_t )
+    psi_t = math.exp(math.log(math.tan(beta / 2.0)) * 0.63)
+    Psi_1 = math.exp(-3.33 * psi_t)
+    psi_t = math.exp(math.log(math.tan(beta / 2.0)) * 1.22)
+    Psi_2 = math.exp(-1.87 * psi_t)
 
     # Have found a combination of G_slope, Psi_1 and Psi_2 can lead to a negative value in the log calculation.
     try:
@@ -100,51 +101,44 @@ def minor_planets():
         return redirect(url_for('main_minor_planet.minor_planets'))
 
     offset = (page - 1) * per_page
-    minor_planets = _get_all_minor_planets()
+    minor_planet_query = MinorPlanet.query
 
     if search_form.q.data:
         search_expr = search_form.q.data.replace('"', '')
-        minor_planets = minor_planets.query('designation.str.contains("{}")'.format(search_expr))
+        minor_planet_query = minor_planet_query.filter(MinorPlanet.designation.like('%' + search_expr + '%'))
 
     magnitudes = {}
 
-    if len(minor_planets) > 0:
-        minor_planets_for_render = minor_planets.iloc[offset : offset + per_page]
+    minor_planets_for_render = minor_planet_query.order_by(MinorPlanet.int_designation).limit(per_page).offset(offset).all()
 
-        ts = load.timescale(builtin=True)
-        eph = load('de421.bsp')
-        sun, earth = eph['sun'], eph['earth']
-        t = ts.now()
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    sun, earth = eph['sun'], eph['earth']
+    t = ts.now()
 
-        ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
+    ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
 
-        for index, minor_planet in minor_planets_for_render.iterrows():
-            body = sun + mpc.mpcorb_orbit( minor_planet, ts, GM_SUN )
-            ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
-            ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
+    mpc_minor_planets = _get_mpc_minor_planets()
 
-            apparent_magnitude = _get_apparent_magnitude_hg(minor_planet[ "magnitude_H" ], minor_planet[ "magnitude_G" ], earth_body_distance.au, sun_body_distance.au, earth_sun_distance.au )
-            if apparent_magnitude:
-                magnitudes[minor_planet['minor_planet_id']] = '{:.2f}'.format(apparent_magnitude)
+    for minor_planet in minor_planets_for_render:
+        mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation]
+        body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+        ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
+        ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
 
-    else:
-        minor_planets_for_render = minor_planets
+        apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G, earth_body_distance.au, sun_body_distance.au, earth_sun_distance.au)
+        if apparent_magnitude:
+            magnitudes[minor_planet.int_designation] = '{:.2f}'.format(apparent_magnitude)
 
-    pagination = Pagination(page=page, per_page=per_page, total=len(minor_planets), search=False, record_name='minor_planets', css_framework='semantic', not_passed_args='back')
+    pagination = Pagination(page=page, per_page=per_page, total=minor_planet_query.count(), search=False, record_name='minor_planets', css_framework='semantic', not_passed_args='back')
     return render_template('main/solarsystem/minor_planets.html', minor_planets=minor_planets_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
-
-
-def _find_minor_planet(minor_planet_id):
-    all_minor_planets = _get_all_minor_planets()
-    c = all_minor_planets.loc[all_minor_planets['minor_planet_id'] == minor_planet_id]
-    return c.iloc[0] if len(c)>0 else None
 
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>', methods=['GET', 'POST'])
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
 def minor_planet_info(minor_planet_id):
     """View a minor_planet info."""
-    minor_planet = _find_minor_planet(minor_planet_id)
+    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -154,7 +148,9 @@ def minor_planet_info(minor_planet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    c = sun + mpc.mpcorb_orbit(minor_planet, ts, GM_SUN)
+    mpc_minor_planet = _get_mpc_minor_planets().iloc[minor_planet.int_designation-1]
+
+    c = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
     if not form.date_from.data or not form.date_to.data:
         today = datetime.today()
@@ -176,7 +172,7 @@ def minor_planet_info(minor_planet_id):
                 d2 = d1 + timedelta(days=365)
             dt = get_trajectory_time_delta(d1, d2)
             trajectory = []
-            while d1<=d2:
+            while d1 <= d2:
                 t = ts.utc(d1.year, d1.month, d1.day)
                 ra, dec, distance = earth.at(t).observe(c).radec()
                 trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
@@ -206,7 +202,7 @@ def minor_planet_info(minor_planet_id):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
-    minor_planet = _find_minor_planet(minor_planet_id)
+    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -232,7 +228,7 @@ def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
-    minor_planet = _find_minor_planet(minor_planet_id)
+    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -245,7 +241,7 @@ def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pdf(minor_planet_id, ra, dec):
-    minor_planet = _find_minor_planet(minor_planet_id)
+    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -268,7 +264,7 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/catalogue_data')
 def minor_planet_catalogue_data(minor_planet_id):
     """View a minor_planet catalog info."""
-    minor_planet = _find_minor_planet(minor_planet_id)
+    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet)

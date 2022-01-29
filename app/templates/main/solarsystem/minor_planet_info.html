@@ -9,7 +9,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, minor_planet_id=minor_planet['minor_planet_id']) %}
+            {% set href = url_for(route, minor_planet_id=minor_planet.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
@@ -19,12 +19,12 @@
 
 {# --- Find Chart --- #}
 {% macro minor_planet_info() %}
-    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.minor_planet_id, back=back, back_id=back_id),
-                     url_for('main_minor_planet.minor_planet_chart_pos_img', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.id, back=back, back_id=back_id),
+                     url_for('main_minor_planet.minor_planet_chart_pos_img', minor_planet_id=minor_planet.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
-                     url_for('main_minor_planet.minor_planet_chart_legend_img', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_minor_planet.minor_planet_chart_legend_img', minor_planet_id=minor_planet.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.minor_planet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      fchart_form, )
     }}
