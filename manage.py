@@ -17,6 +17,7 @@ from app import create_app, db
 from app.models import Role, User, Observation, UserConsDescription
 from config import Config
 
+from app.commons.comet_loader import *
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
@@ -188,6 +189,12 @@ def import_minor_planets():
 
 
 @manager.command
+def tmp_import_comets():
+    all_mpc_comets = load_all_mpc_comets()
+    import_update_commets(all_mpc_comets, show_progres=True)
+
+
+@manager.command
 def import_new_skyquality_locations():
     """
     Import new skyquality locations
@@ -284,6 +291,12 @@ def tmp_link_star_descriptions_by_double_star_id():
 @manager.command
 def tmp_import_doubles():
     import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz', True)
+
+
+@manager.command
+def tmp_import_comets():
+    all_mpc_comets = load_all_mpc_comets()
+    import_update_commets(all_mpc_comets, show_progres=True)
 
 
 if __name__ == '__main__':
