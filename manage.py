@@ -299,5 +299,10 @@ def tmp_import_comets():
     import_update_commets(all_mpc_comets, show_progres=True)
 
 
+@manager.command
+def tmp_import_constellations():
+    import_constellations('data/88-constellations.csv')
+
+
 if __name__ == '__main__':
     manager.run()

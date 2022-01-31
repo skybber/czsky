@@ -23,13 +23,14 @@ def import_constellations(data_file):
                 season = 'autumn'
             elif 'Southern' in full_season:
                 season = 'southern'
-            c = Constellation(
-                iau_code=row['IAU code'],
-                name=row['Latin name / Nom latin '].lower(),
-                season=season,
-                descr='',
-                image=row['Image']
-                )
+            c = Constellation.query.filter_by(iau_code=row['IAU code']).first()
+            if not c:
+                c = Constellation()
+            c.iau_code = row['IAU code']
+            c.name = row['Latin name / Nom latin '].lower()
+            c.season = season
+            c.descr = ''
+            c.image = row['Image']
             db.session.add(c)
             try:
                 db.session.commit()
