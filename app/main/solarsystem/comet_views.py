@@ -102,23 +102,22 @@ def get_all_comets():
         with load.open(mpc.COMET_URL, reload=True) as f:
             all_comets = mpc.load_comets_dataframe_slow(f)
             all_comets = (all_comets.sort_values('reference')
-                      .groupby('designation', as_index=False).last()
-                      .set_index('designation', drop=False))
+                          .groupby('designation', as_index=False).last()
+                          .set_index('designation', drop=False))
             all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])
-            all_comets['comet_id'] = all_comets['comet_id'].str.replace('/','')
+            all_comets['comet_id'] = all_comets['comet_id'].str.replace('/', '')
             all_comets['comet_id'] = all_comets['comet_id'].str.replace(' ', '')
 
         # brightness file expires after 5 days
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
 
         if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) + timedelta(days=5) < all_comets_expiration) and not creation_running:
-            all_comets.loc[:,'mag'] = 22.0
+            all_comets.loc[:, 'mag'] = 22.0
             creation_running = True
             thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
             thread.start()
         else:
             _load_comet_brightness(all_comets, fname)
-
     return all_comets
 
 

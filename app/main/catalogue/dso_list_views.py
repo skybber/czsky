@@ -66,7 +66,7 @@ def _find_highlights_dso_list(dso_list_id):
 
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
-    dso_lists = DsoList.query.all()
+    dso_lists = DsoList.query.filter_by(hidden=False).all()
     star_lists = StarList.query.all()
     lang, editor_user = get_lang_and_editor_user_from_request()
     return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists, lang_code=lang)
