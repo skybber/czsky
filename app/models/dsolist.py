@@ -14,6 +14,7 @@ class DsoList(db.Model):
     show_dso_type = db.Column(db.Boolean, default=False)
     show_angular_size = db.Column(db.Boolean, default=True)
     show_minor_axis = db.Column(db.Boolean, default=True)
+    hidden = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

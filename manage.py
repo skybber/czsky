@@ -26,6 +26,7 @@ from imports.import_wds_double_stars import import_wds_doubles
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
 from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc, import_glahn_local_group
+from imports.import_dso_lists import import_corstjens
 from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
@@ -302,6 +303,11 @@ def tmp_import_comets():
 @manager.command
 def tmp_import_constellations():
     import_constellations('data/88-constellations.csv')
+
+
+@manager.command
+def tmp_import_corstjens():
+    import_corstjens('data/dsolist/Corstjens.csv')
 
 
 if __name__ == '__main__':

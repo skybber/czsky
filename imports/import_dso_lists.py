@@ -195,7 +195,8 @@ def import_caldwell(caldwell_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False):
+
+def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -204,22 +205,26 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
             editor_user = User.get_editor_user()
             dso_list = DsoList.query.filter_by(name=dso_list_name).first()
             if dso_list:
-                dso_list.name=dso_list_name
-                dso_list.long_name=dso_list_long_name
+                for item in dso_list.dso_list_items:
+                    db.session.delete(item)
+                dso_list.dso_list_items.clear()
+                dso_list.name = dso_list_name
+                dso_list.long_name = dso_list_long_name
                 dso_list.show_common_name = show_common_name
-                dso_list.show_descr_name=show_descr_name
-                dso_list.update_by=editor_user.id
+                dso_list.show_descr_name = show_descr_name
+                dso_list.update_by = editor_user.id
                 dso_list.show_dso_type = show_dso_type
                 dso_list.show_angular_size = show_angular_size
                 dso_list.show_minor_axis = show_minor_axis
-                dso_list.create_date=datetime.now()
+                dso_list.create_date = datetime.now()
                 dso_list.dso_list_items[:] = []
                 dso_list.dso_list_descriptions[:] = []
+                dso_list.hidden = hidden
             else:
                 dso_list = DsoList(
                     name=dso_list_name,
                     long_name=dso_list_long_name,
-                    show_common_name = show_common_name,
+                    show_common_name=show_common_name,
                     show_descr_name=show_descr_name,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
@@ -227,7 +232,8 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     show_angular_size = show_angular_size,
                     show_minor_axis = show_minor_axis,
                     create_date=datetime.now(),
-                    update_date=datetime.now()
+                    update_date=datetime.now(),
+                    hidden=hidden
                 )
 
             db.session.add(dso_list)
@@ -305,3 +311,8 @@ def import_glahn_palomar_gc(glahn_palomar_gc_data_file):
 def import_glahn_local_group(glahn_local_group_data_file):
     _do_import_simple_csv(
         glahn_local_group_data_file, 'local-group', 'Local group of galaxies', show_minor_axis=False)
+
+
+def import_corstjens(corstjens_file):
+    _do_import_simple_csv(
+        corstjens_file, 'corstjens', 'Tim Corstjens images', show_minor_axis=False, hidden=True)
