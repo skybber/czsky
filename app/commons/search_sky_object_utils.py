@@ -47,7 +47,7 @@ def search_star(query):
         # try to search by common star name
         star = Star.query.filter_by(common_name=query.lower().capitalize()).first()
         if star:
-            lang, editor_user = get_lang_and_editor_user_from_request()
+            lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
             usd = UserStarDescription.query.filter_by(star_id=star.id, user_id=editor_user.id, lang_code=lang).first()
 
     return star, usd

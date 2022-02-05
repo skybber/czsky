@@ -270,7 +270,7 @@ def deepskyobject_info(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'info'
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     user_descr = None
     apert_descriptions = []
     title_img = None
@@ -549,7 +549,7 @@ def deepskyobject_edit(dso_id):
     dso = DeepskyObject.query.filter_by(id=dso_id).first()
     if dso is None:
         abort(404)
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     user_descr = None
     form = DeepskyObjectEditForm()
     if editor_user:

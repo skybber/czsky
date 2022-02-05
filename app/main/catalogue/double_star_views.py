@@ -144,7 +144,7 @@ def double_star_info(double_star_id):
 
     prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
     return render_template('main/catalogue/double_star_info.html', type='info', double_star=double_star,
@@ -166,7 +166,7 @@ def double_star_catalogue_data(double_star_id):
 
     prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
     return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star,
@@ -197,7 +197,7 @@ def double_star_chart(double_star_id):
 
     prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
     return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star,

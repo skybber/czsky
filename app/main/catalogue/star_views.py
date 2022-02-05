@@ -64,7 +64,7 @@ def star_info(star_id):
 @main_star.route('/star/<int:star_descr_id>/descr-info')
 def star_descr_info(star_descr_id):
     """View a star description info."""
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
@@ -108,7 +108,7 @@ def star_catalogue_data(star_id):
 @main_star.route('/star/<int:star_descr_id>/descr-catalogue-data')
 def star_descr_catalogue_data(star_descr_id):
     """View a star catalogue data."""
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)
@@ -159,7 +159,7 @@ def star_chart(star_id):
 @main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
 def star_descr_chart(star_descr_id):
     """View a star findchart."""
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
         abort(404)

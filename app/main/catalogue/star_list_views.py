@@ -49,7 +49,7 @@ def _find_star_list(star_list_id):
 @main_star_list.route('/star-lists-menu', methods=['GET'])
 def star_lists_menu():
     star_lists = StarList.query.all()
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     return render_template('main/catalogue/star_list_menu.html', star_lists=star_lists, lang_code=lang)
 
 
@@ -70,7 +70,7 @@ def star_list_info(star_list_id):
 
     season = request.args.get('season', None)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
 
     if season:
         constell_ids = set()
@@ -110,7 +110,7 @@ def star_list_chart(star_list_id):
     if not star_list_item:
         star_list_item = StarListItem.query.filter_by(star_list_id=star_list.id, item_id=1).first()
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     star_list_descr = StarListDescription.query.filter_by(star_list_id=star_list.id, lang_code=lang).first()
 
     if not common_ra_dec_fsz_from_request(form):

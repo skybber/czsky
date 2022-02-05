@@ -53,7 +53,7 @@ def constellations():
 
     season = request.args.get('season', None)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     constellations = Constellation.query
     if search_form.q.data:
         constellations = constellations.filter(Constellation.name.like('%' + search_form.q.data + '%'))
@@ -95,7 +95,7 @@ def constellation_info(constellation_id):
     star_descriptions = None
     title_images = None
     ug_bl_dsos = None
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     cs_editor_user = get_cs_editor_user()
 
     if editor_user:
@@ -216,7 +216,7 @@ def constellation_chart(constellation_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
 
     common_name = _get_constellation_common_name(constellation)
     return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation,
@@ -259,7 +259,7 @@ def constellation_edit(constellation_id):
     if constellation is None:
         abort(404)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = None
     form = ConstellationEditForm()
     goback = False
@@ -316,7 +316,7 @@ def constellation_stars(constellation_id):
         abort(404)
     star_descriptions = None
     editable = current_user.is_editor()
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
 
     aster_descriptions = None
     if editor_user:
@@ -362,7 +362,7 @@ def _sort_star_descr(star_descriptions):
 
 
 def _get_constellation_common_name(constellation):
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     common_name = None
     if editor_user:
         ucd = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang) \

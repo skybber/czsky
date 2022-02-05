@@ -54,6 +54,7 @@ cat_priorities = {
     'PGC' : 6,
 }
 
+
 def _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, save_master_dsos):
     for dso in dso_list:
         if save_master_dsos:

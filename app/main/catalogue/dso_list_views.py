@@ -68,7 +68,7 @@ def _find_highlights_dso_list(dso_list_id):
 def dso_lists_menu():
     dso_lists = DsoList.query.filter_by(hidden=False).all()
     star_lists = StarList.query.all()
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists, lang_code=lang)
 
 
@@ -89,7 +89,7 @@ def dso_list_info(dso_list_id):
 
     season = request.args.get('season', None)
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
 
     if season:
         constell_ids = set()
@@ -138,7 +138,7 @@ def dso_list_chart(dso_list_id):
     if not dso_list_item:
         dso_list_item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, item_id=1).first()
 
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
     if not common_ra_dec_fsz_from_request(form):

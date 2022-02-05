@@ -162,7 +162,7 @@ def get_catalogues_menu_items():
 
 
 def get_packed_constell_list():
-    lang, editor_user = get_lang_and_editor_user_from_request()
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
 
     if editor_user:
         constellation_id_names = UserConsDescription.query \
