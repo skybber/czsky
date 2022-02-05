@@ -47,7 +47,7 @@ def get_lang_and_editor_user_from_request(for_constell_descr=False):
     # lang = werkzeug.datastructures.LanguageAccept([(al[0][0:2], al[1]) for al in request.accept_languages]).best_match(supported_languages)
     # return lang, User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + lang.upper())).first()
     host = request.headers.get('Host')
-    lang = 'en' if host and 'czsky.eu' in host else 'en'
+    lang = 'en' if host and 'czsky.eu' in host else 'cs'
     editor_env_lang = lang
     if for_constell_descr:
         editor_env_lang = 'cs'
