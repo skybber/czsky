@@ -96,6 +96,7 @@ def constellation_info(constellation_id):
     title_images = None
     ug_bl_dsos = None
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+    lang_dso, editor_user_dso = get_lang_and_editor_user_from_request(for_constell_descr=False)
     cs_editor_user = get_cs_editor_user()
 
     if editor_user:
@@ -120,7 +121,7 @@ def constellation_info(constellation_id):
             # Show all objects that are in CS version plus UG-BL objects
             existing = set(dsod.dso_id for dsod in all_cs_dso_descriptions)
             all_dso_descriptions = []
-            available_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
+            available_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user_dso.id, lang_code=lang)\
                                                                  .join(UserDsoDescription.deepskyObject, aliased=True) \
                                                                  .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type != 'AST') \
                                                                  .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
@@ -158,7 +159,7 @@ def constellation_info(constellation_id):
                 if image_info is not None:
                     title_images[dsod.dso_id] = image_info[0]
 
-        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
+        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user_dso.id, lang_code=lang)\
                                                                  .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
                                                                  .filter_by(constellation_id=constellation.id) \
                                                                  .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \

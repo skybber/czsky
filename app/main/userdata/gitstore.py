@@ -224,6 +224,7 @@ def load_public_content_data_from_git(user_name):
     db.session.commit()
     current_app.logger.info('Public content data loading succeeded.')
 
+
 def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     dso_dir = os.path.join(repository_path, lang_code_dir, 'dso')
     for dso_file in Path(dso_dir).rglob('*.md'):
@@ -244,26 +245,26 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             updated_by = updated_by or owner
             text = f.read()
             udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
-                    .filter_by(lang_code=lang_code_dir) \
-                    .join(UserDsoDescription.deepskyObject, aliased=True) \
-                    .filter_by(name=dso_name) \
-                    .first()
+                                          .filter_by(lang_code=lang_code_dir) \
+                                          .join(UserDsoDescription.deepskyObject, aliased=True) \
+                                          .filter_by(name=dso_name) \
+                                          .first()
             child_udd = None
             if udd and udd.deepskyObject.master_id:
                 master_dso = DeepskyObject.query.filter_by(id=udd.deepskyObject.master_id).first()
                 master_udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
-                        .filter_by(lang_code=lang_code_dir) \
-                        .join(UserDsoDescription.deepskyObject, aliased=True) \
-                        .filter_by(name=master_dso.name) \
-                        .first()
+                                               .filter_by(lang_code=lang_code_dir) \
+                                               .join(UserDsoDescription.deepskyObject, aliased=True) \
+                                               .filter_by(name=master_dso.name) \
+                                               .first()
                 if not master_udd:
                     master_udd = UserDsoDescription(
-                        dso_id = master_dso.id,
-                        user_id = editor_user.id,
-                        lang_code = lang_code_dir,
-                        cons_order = 1,
-                        create_by = created_by.id,
-                        create_date = created_date,
+                        dso_id=master_dso.id,
+                        user_id=editor_user.id,
+                        lang_code=lang_code_dir,
+                        cons_order=1,
+                        create_by=created_by.id,
+                        create_date=created_date,
                     )
 
                     child_udd = udd
@@ -291,12 +292,12 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
                         current_app.logger.warn('Skipping child->master dso description assignment. Master dso description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
                         
                 udd = UserDsoDescription(
-                    dso_id = dso.id,
-                    user_id = editor_user.id,
-                    lang_code = lang_code_dir,
-                    cons_order = 1,
-                    create_by = created_by.id,
-                    create_date = created_date,
+                    dso_id=dso.id,
+                    user_id=editor_user.id,
+                    lang_code=lang_code_dir,
+                    cons_order=1,
+                    create_by=created_by.id,
+                    create_date=created_date,
                 )
             udd.common_name = header_map.get('name', '')
             try:
@@ -350,12 +351,12 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                         .first()
                 if not master_uad:
                     master_uad = UserDsoApertureDescription(
-                        dso_id = master_dso.id,
-                        user_id = editor_user.id,
-                        lang_code = lang_code_dir,
-                        aperture_class = aperture_class,
-                        create_by = created_by.id,
-                        create_date = created_date,
+                        dso_id=master_dso.id,
+                        user_id=editor_user.id,
+                        lang_code=lang_code_dir,
+                        aperture_class=aperture_class,
+                        create_by=created_by.id,
+                        create_date=created_date,
                     )
                     child_uad = uad
                     uad = master_uad
@@ -383,12 +384,12 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                         current_app.logger.warn('Skipping child->master aperture description assignment. Master aperture description exists. master_dso={} child_dso={}'.format(master_dso.name, dso_name))
                     
                 uad = UserDsoApertureDescription(
-                    dso_id = dso.id,
-                    user_id = editor_user.id,
-                    lang_code = lang_code_dir,
-                    aperture_class = aperture_class,
-                    create_by = created_by.id,
-                    create_date = created_date,
+                    dso_id=dso.id,
+                    user_id=editor_user.id,
+                    lang_code=lang_code_dir,
+                    aperture_class=aperture_class,
+                    create_by=created_by.id,
+                    create_date=created_date,
                 )
             try:
                 uad.rating = int(rating)
@@ -429,11 +430,11 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
                 if not constellation:
                     continue
                 ucd = UserConsDescription(
-                    constellation_id = constellation.id,
-                    user_id = editor_user.id,
-                    lang_code = lang_code_dir,
-                    create_by = created_by.id,
-                    create_date = created_date,
+                    constellation_id=constellation.id,
+                    user_id=editor_user.id,
+                    lang_code=lang_code_dir,
+                    create_by=created_by.id,
+                    create_date=created_date,
                 )
             ucd.common_name = header_map.get('name', '')
             ucd.text = text
@@ -486,11 +487,11 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
                         constellation_id = constellation.id
 
                 usd = UserStarDescription(
-                    constellation_id = constellation_id,
-                    user_id = editor_user.id,
-                    lang_code = lang_code_dir,
-                    create_by = created_by.id,
-                    create_date = created_date,
+                    constellation_id=constellation_id,
+                    user_id=editor_user.id,
+                    lang_code=lang_code_dir,
+                    create_by=created_by.id,
+                    create_date=created_date,
                 )
             if hr_id is not None:
                 star = Star.query.filter_by(hr=hr_id).first()
