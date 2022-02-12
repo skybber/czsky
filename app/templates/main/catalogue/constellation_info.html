@@ -344,7 +344,8 @@
             <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                             <tr>
-                                <th class="sorted ascending">Name</th>
+                                <th class="sorted ascending">{{ _('Name') }}</th>
+                                <th class="sorted ascending">{{ _('Alternative name') }}</th>
                                 <th>{{ _('Type') }}</th>
                                 <th class="mobile hidden">RA</th>
                                 <th class="mobile hidden">Dec</th>
@@ -355,7 +356,8 @@
                     <tbody>
                     {% for d in constellation_dsos | sort(attribute='mag') %}
                             <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) }}';">
-                                    <td>{{ d.denormalized_name() }} {{ dso_synonymas.get(d.id, '') }}</td>
+                                    <td>{{ d.denormalized_name() }}</td>
+                                    <td class="mobile hidden">{{ dso_synonymas.get(d.id, '') }}</td>
                                     <td>{{ d.type }}</td>
                                     <td class="mobile hidden">{{ d.ra_str_short() }}</td>
                                     <td class="mobile hidden">{{ d.dec_str_short() }}</td>

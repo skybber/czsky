@@ -367,7 +367,7 @@ def constellation_deepskyobjects(constellation_id):
     dso_synonymas = {}
 
     for dso_id, synonymas in dso_synonyma_arr.items():
-        dso_synonymas[dso_id] = '(' + '. '.join(dso.name for dso in synonymas) + ')'
+        dso_synonymas[dso_id] = '. '.join(dso.name for dso in synonymas)
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
                            constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas)
