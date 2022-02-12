@@ -554,25 +554,26 @@ def deepskyobject_edit(dso_id):
     form = DeepskyObjectEditForm()
     if editor_user:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
-
         authors = {}
 
+        is_new = False
         if not user_descr:
             user_descr = UserDsoDescription(
-                dso_id = dso_id,
-                user_id = editor_user.id,
-                rating = form.rating.data,
-                lang_code = lang,
-                common_name = '',
-                text = '',
-                references = '',
-                cons_order = 1,
-                create_by = current_user.id,
-                create_date = datetime.now(),
+                dso_id=dso_id,
+                user_id=editor_user.id,
+                rating=form.rating.data,
+                lang_code=lang,
+                common_name='',
+                text='',
+                references='',
+                cons_order=1,
+                create_by=current_user.id,
+                create_date=datetime.now(),
                 )
+            is_new = True
 
         all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-                    .order_by(UserDsoApertureDescription.aperture_class)
+                                                                            .order_by(UserDsoApertureDescription.aperture_class)
 
         user_apert_descriptions = []
         # create missing UserDsoApertureDescription
@@ -607,7 +608,7 @@ def deepskyobject_edit(dso_id):
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
             was_text_changed = user_descr.text != form.text.data
-            if was_text_changed or user_descr.common_name != form.common_name.data or \
+            if is_new or was_text_changed or user_descr.common_name != form.common_name.data or \
                user_descr.references != form.references.data or user_descr.rating != form.rating.data:
                 user_descr.common_name = form.common_name.data
                 user_descr.references = form.references.data
