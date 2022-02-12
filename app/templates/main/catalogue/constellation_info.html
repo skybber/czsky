@@ -353,7 +353,7 @@
                             </tr>
                     </thead>
                     <tbody>
-                    {% for d in constellation_dsos | sort(attribute='name') %}
+                    {% for d in constellation_dsos | sort(attribute='mag') %}
                             <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) }}';">
                                     <td>{{ d.denormalized_name() }} {{ dso_synonymas.get(d.id, '') }}</td>
                                     <td>{{ d.type }}</td>
