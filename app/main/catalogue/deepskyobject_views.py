@@ -573,7 +573,7 @@ def deepskyobject_edit(dso_id):
             is_new = True
 
         all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-                                                                            .order_by(UserDsoApertureDescription.aperture_class)
+                                                                           .order_by(UserDsoApertureDescription.aperture_class)
 
         user_apert_descriptions = []
         # create missing UserDsoApertureDescription
@@ -608,8 +608,21 @@ def deepskyobject_edit(dso_id):
                 adi.text.label = ad.aperture_class
         elif form.validate_on_submit():
             was_text_changed = user_descr.text != form.text.data
+            has_descr = False
+            for adi in form.aperture_descr_items:
+                for ad in user_apert_descriptions:
+                    if ad.aperture_class == adi.aperture_class.data:
+                        if adi.text.data:
+                            ad.text = adi.text.data
+                            ad.is_public = adi.is_public.data
+                            ad.update_by = current_user.id
+                            ad.update_date = datetime.now()
+                            db.session.add(ad)
+                            has_descr = True
+                        elif ad.id is not None:
+                            db.session.delete(ad)
             if is_new or was_text_changed or user_descr.common_name != form.common_name.data or \
-               user_descr.references != form.references.data or user_descr.rating != form.rating.data:
+                    user_descr.references != form.references.data or user_descr.rating != form.rating.data:
                 user_descr.common_name = form.common_name.data
                 user_descr.references = form.references.data
                 user_descr.text = form.text.data
@@ -617,16 +630,10 @@ def deepskyobject_edit(dso_id):
                 if was_text_changed:
                     user_descr.update_by = current_user.id
                     user_descr.update_date = datetime.now()
-                db.session.add(user_descr)
-            for adi in form.aperture_descr_items:
-                for ad in user_apert_descriptions:
-                    if ad.aperture_class == adi.aperture_class.data:
-                        if ad.text != adi.text.data:
-                            ad.text = adi.text.data
-                            ad.is_public = adi.is_public.data
-                            ad.update_by = current_user.id
-                            ad.update_date = datetime.now()
-                            db.session.add(ad)
+                if has_descr or user_descr.text:
+                    db.session.add(user_descr)
+                else:
+                    db.session.delete(user_descr)
             db.session.commit()
 
             flash('Deepsky object successfully updated', 'form-success')

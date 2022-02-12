@@ -1,6 +1,9 @@
+import sqlalchemy
 from datetime import datetime
 
 from .. import db
+
+from app.commons.form_utils import FormEnum
 
 DEFAULT_ORDER = 100000
 
@@ -72,15 +75,29 @@ class SessionPlan(db.Model):
                 )
             db.session.add(session_plan)
             db.session.commit()
-        return wish_list
+        return session_plan
+
+
+class SessionPlanItemType(FormEnum):
+    DSO = 'DSO'
+    DBL_STAR = 'DBL_STAR'
+    MINOR_PLANET = 'MINOR_PLANET'
+    COMET = 'COMET'
 
 
 class SessionPlanItem(db.Model):
     __tablename__ = 'session_plan_items'
     id = db.Column(db.Integer, primary_key=True)
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
+    item_type = db.Column(sqlalchemy.Enum(SessionPlanItemType))
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     deepskyObject = db.relationship("DeepskyObject")
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'))
+    doubleStar = db.relationship("DoubleStar")
+    minor_planet_id = db.Column(db.Integer, db.ForeignKey('minor_planets.id'))
+    minorPlanet = db.relationship("MinorPlanet")
+    comet_id = db.Column(db.Integer, db.ForeignKey('comets.id'))
+    comet = db.relationship("Comet")
     order = db.Column(db.Integer, default=DEFAULT_ORDER)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
