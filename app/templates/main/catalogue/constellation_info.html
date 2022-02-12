@@ -339,7 +339,7 @@
     </div>
 {% endmacro %}
 
-{% macro constellation_dsos() %}
+{% macro constellation_deepsky_objects() %}
     <div style="overflow-x: scroll;">
             <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
@@ -353,9 +353,9 @@
                             </tr>
                     </thead>
                     <tbody>
-                    {% for d in constellation.deepsky_objects | sort(attribute='name') %}
+                    {% for d in constellation_dsos | sort(attribute='name') %}
                             <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) }}';">
-                                    <td>{{ d.denormalized_name() }}</td>
+                                    <td>{{ d.denormalized_name() }} {{ dso_synonymas.get(d.id, '') }}</td>
                                     <td>{{ d.type }}</td>
                                     <td class="mobile hidden">{{ d.ra_str_short() }}</td>
                                     <td class="mobile hidden">{{ d.dec_str_short() }}</td>
@@ -408,7 +408,7 @@
             {% elif type == 'stars' %}
                 {{ constellation_stars() }}
             {% elif type == 'dso' %}
-                {{ constellation_dsos() }}
+                {{ constellation_deepsky_objects() }}
             {% endif %}
         </div>
     </div>

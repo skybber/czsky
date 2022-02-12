@@ -355,7 +355,22 @@ def constellation_deepskyobjects(constellation_id):
 
     common_name = _get_constellation_common_name(constellation)
 
-    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name)
+    constellation_dsos = []
+    dso_synonyma_arr = {}
+
+    for dso in constellation.deepsky_objects:
+        if dso.master_id is None:
+            constellation_dsos.append(dso)
+        else:
+            dso_synonyma_arr.setdefault(dso.master_id, []).append(dso)
+
+    dso_synonymas = {}
+
+    for dso_id, synonymas in dso_synonyma_arr.items():
+        dso_synonymas[dso_id] = '(' + '. '.join(dso.name for dso in synonymas) + ')'
+
+    return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
+                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas)
 
 
 def _sort_star_descr(star_descriptions):
