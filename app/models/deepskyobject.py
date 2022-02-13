@@ -102,7 +102,7 @@ class DeepskyObject(db.Model):
 class UserDsoDescription(db.Model):
     __tablename__ = 'user_dso_descriptions'
     id = db.Column(db.Integer, primary_key=True)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False, index=True)
     deepskyObject = db.relationship("DeepskyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
@@ -123,7 +123,7 @@ class UserDsoDescription(db.Model):
 class UserDsoApertureDescription(db.Model):
     __tablename__ = 'user_dso_aperture_descriptions'
     id = db.Column(db.Integer, primary_key=True)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False, index=True)
     deepskyObject = db.relationship("DeepskyObject")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     rating = db.Column(db.Integer)
