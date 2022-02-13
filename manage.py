@@ -33,6 +33,7 @@ from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
 from imports.link_star_descriptions import link_star_descriptions_by_var_id, link_star_descriptions_by_double_star_id
 from imports.import_minor_planets import import_mpcorb_minor_planets
+from imports.import_gottlieb import import_gottlieb
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -308,6 +309,11 @@ def tmp_import_constellations():
 @manager.command
 def tmp_import_corstjens():
     import_corstjens('data/dsolist/Corstjens.csv')
+
+
+@manager.command
+def tmp_import_gottlieb():
+    import_gottlieb('data/gottlieb.1')
 
 
 if __name__ == '__main__':

@@ -101,10 +101,9 @@ def import_gottlieb(gottlieb_dir):
     gottlieb_files = [f for f in listdir(gottlieb_dir) if isfile(join(gottlieb_dir, f))]
 
     try:
-
         for filename in gottlieb_files:
-            file = open(join(gottlieb_dir,filename), 'r')
-            lines   = file.readlines()
+            file = open(join(gottlieb_dir, filename), 'r')
+            lines = file.readlines()
 
             i = 0
 
@@ -135,7 +134,10 @@ def import_gottlieb(gottlieb_dir):
                     continue
 
                 if search_obj_id:
-                    pobj_id = re.match(r'(NGC|IC)\s*(\d+).*', line)
+                    if filename.startswith('UGC'):
+                        pobj_id = re.match(r'(UGC)\s*(\d+).*', line)
+                    else:
+                        pobj_id = re.match(r'(NGC|IC)\s*(\d+).*', line)
                     if pobj_id:
                         search_obj_id = False
                         dso_name = pobj_id.group(1) + pobj_id.group(2)
