@@ -35,7 +35,7 @@ from app.commons.dso_utils import normalize_dso_name
 from app.main.utils.validators import location_lonlat_check
 
 
-class ObservationNewForm(FlaskForm):
+class ObservationItemForm(FlaskForm):
     comp_notes = TextAreaField(lazy_gettext('DSO list with comment. (e.g. M3,M5:nice globulars!)'),
                                render_kw={'rows': 2})
     date_from = TimeField(lazy_gettext('Time From'), format='%H:%M', default=datetime.now().time())
@@ -57,14 +57,8 @@ class ObservationNewForm(FlaskForm):
                 if not dso:
                     raise ValidationError('DSO not found. Dso name:' + dso_name)
 
-    def validate_date_from(form, field):
-        if field.id != 'items-0-date_from':
-            if not field.data:
-                raise ValidationError(lazy_gettext('Value expected.'))
-
 
 class ObservingSessionMixin:
-    items = FieldList(FormField(ObservationNewForm), min_entries=1)
     title = StringField(lazy_gettext('Title'), validators=[InputRequired(), Length(max=256), ])
     rating = HiddenField(lazy_gettext('Rating'), default=0)
     date_from = DateTimeField(lazy_gettext('Date From'), id='odate_from', format='%d/%m/%Y %H:%M', default=datetime.today,
@@ -111,6 +105,12 @@ class ObservingSessionEditForm(FlaskForm, ObservingSessionMixin):
         if not super(ObservingSessionEditForm, self).validate():
             return False
         return self.validate_date_from_to()
+
+
+class ObservingSessionItemsEditForm(FlaskForm):
+    goback = HiddenField(default='false')
+    items = FieldList(FormField(ObservationItemForm), min_entries=1)
+    submit_button = SubmitField(lazy_gettext('Update Items'))
 
 
 class AddToObservedListForm(FlaskForm):

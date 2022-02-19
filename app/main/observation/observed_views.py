@@ -1,5 +1,6 @@
 import os
 import csv
+from datetime import datetime
 from io import StringIO, BytesIO
 import base64
 
@@ -27,10 +28,10 @@ from .observed_forms import (
     SearchObservedForm,
 )
 
-from app.models import ObservedList, ObservedListItem
+from app.models import ObservedList, ObservedListItem, DeepskyObject
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
-from .observing_session_form_utils import *
+from app.commons.dso_utils import normalize_dso_name
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -151,12 +152,12 @@ def observed_list_upload():
                     continue
                 object_name = dso_name.replace(' ', '')
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
-                if dso and not dso.id in existing_ids:
+                if dso and dso.id not in existing_ids:
                     new_item = ObservedListItem(
-                        observed_list_id = observed_list.id,
-                        dso_id = dso.id,
-                        create_date = datetime.now(),
-                        update_date = datetime.now(),
+                        observed_list_id=observed_list.id,
+                        dso_id=dso.id,
+                        create_date=datetime.now(),
+                        update_date=datetime.now(),
                         )
                     db.session.add(new_item)
                     existing_ids.add(dso.id)

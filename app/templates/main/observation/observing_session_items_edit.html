@@ -1,0 +1,178 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id) }}">
+                <i class="caret left icon"></i>
+              {{ _('Leave editing') }}
+            </a>
+            <h2 class="ui header">
+                {{ _('Edit Observing Session Items') }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+                <input id="goback" type="hidden" value="false">
+                <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+                    <div class="ui blue segment">
+                        <div class="ui tiny header">{{ _('Observations') }}</div>
+                    </div>
+                    {% for item in form.items %}
+                        <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
+                            <div class="two fields">
+                                <div class="fourteen wide field">
+                                    <label>{{ item.comp_notes.label }}</label>
+                                    <div class="ui action input">
+                                        {{ item.comp_notes() }}
+                                    </div>
+                                    {% if item.comp_notes.errors %}
+                                        <div class="ui red pointing label itemerror">
+                                            {{ item.comp_notes.errors[0] | safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="four wide field">
+                                    <label for="otime-{{loop.index0}}-tm">{{ item.date_from.label }}</label>
+                                    <div class="ui action input">
+                                        <div class="ui input calendar" id="otime-{{loop.index0}}-tm">
+                                          <div class="ui input left icon">
+                                            <i class="calendar icon"></i>
+                                            <input id="items-{{loop.index0}}-date_from"  name="{{item.date_from.name}}" placeholder="Time"
+                                                   type="text" value="{{item.date_from.data.strftime('%H:%M') if item.date_from.data else ''}}" class="observ-time">
+                                          </div>
+                                        </div>
+                                        <button id="item-{{loop.index0}}-remove" class="ui icon red button" type="button" data-toggle="fieldset-remove-row">
+                                            <i class="trash icon"></i>
+                                        </button>
+                                    </div>
+                                    {% if item.date_from.errors %}
+                                        <div class="ui red pointing label">
+                                            {{ item.date_from.errors[0] | safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="ui segment">
+                        <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
+                            <i class="plus icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="two fields">
+                    <button class="ui positive button bupdateback">{{ _('Update and go back')}}</button>
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                    <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observing Session') }}</a>
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function recalcLabelsVisibility() {
+            var rows = $("[data-toggle=fieldset-entry]");
+            if(rows.length > 1) {
+                $(rows).find("label").hide();
+                $(rows[1]).find("label").show();
+            }
+        }
+
+        $(function() {
+            if ($('.itemerror').length > 0) {
+                $('.itemerror')[0].scrollIntoView({block:'center'});
+            }
+
+            $('.bupdateback' ).click(function() {
+                $('#goback').val('true');
+                $(this).closest('form').submit();
+                return false;
+            });
+
+            $('.observ-time').calendar({
+                type: 'time',
+                ampm: false,
+                popupOptions: {
+                     observeChanges: false
+                },
+                formatter: {
+                    date: function (time, settings) {
+                    if (!date) return '';
+                    var hour = date.getHout();
+                    var minute = date.getMinute();
+                    return hout + ':' + minute;
+                    }
+                }
+            });
+
+            recalcLabelsVisibility();
+
+            $("div[data-toggle=fieldset]").each(function() {
+
+                var $this = $(this);
+
+                $this.find("button[data-toggle=fieldset-add-row]").click(function() {
+                    var target = $($(this).data("target"));
+                    console.log(target);
+                    var oldrow = target.find("[data-toggle=fieldset-entry]:last");
+                    var row = oldrow.clone(true, true);
+                    console.log(row.find(":input")[0]);
+                    var elem_id = row.find(":input")[0].id;
+                    var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
+                    row.attr('data-id', elem_num);
+                    row.find(":input").each(function() {
+                        console.log(this);
+                        var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
+                        $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
+                    });
+                    row.show();
+                    oldrow.after(row);
+                    $('#items-' + elem_num + '-date_from').val('00:00')
+                    $('#items-' + elem_num + '-date_from').calendar({
+                        type: 'time',
+                        ampm: false,
+                        popupOptions: {
+                             observeChanges: false
+                        },
+                        formatter: {
+                            date: function (time, settings) {
+                            if (!date) return '';
+                            var hour = date.getHout();
+                            var minute = date.getMinute();
+                            return hout + ':' + minute;
+                            }
+                        }
+                    });
+                    recalcLabelsVisibility();
+                });
+
+                $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
+                    if($this.find("[data-toggle=fieldset-entry]").length > 1) {
+                        var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
+                        thisRow.remove();
+                    }
+                    recalcLabelsVisibility();
+                });
+
+            });
+        });
+
+    </script>
+
+{% endblock %}

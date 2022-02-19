@@ -13,24 +13,17 @@
                     {{ _('Observation') }}
                 </a>
             {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id) }}">
-                    <i class="caret left icon"></i>
-                  {{ _('Leave editing') }}
-                </a>
+            <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id) }}">
+                <i class="caret left icon"></i>
+              {{ _('Leave editing') }}
+            </a>
             {% endif %}
             <h2 class="ui header">
                 {% if is_new %}
                     {{ _('Add New Observing Session') }}
                 {% else %}
-                    {{ _('Edit Observing Session') }}
+                {{ _('Edit Observing Session') }}
                 {% endif %}
-                <!--
-                <div class="ui right floated buttons">
-                  <button class="ui button active mode-basic">{{ _('Basic') }}</button>
-                  <div class="or"></div>
-                  <button class="ui button mode-advanced">{{ _('Advanced') }}</button>
-                </div>
-                -->
             </h2>
 
             {% set flashes = {
@@ -129,54 +122,6 @@
 
                 {{ f.render_form_field(form.notes) }}
 
-                <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-                    <div class="ui blue segment">
-                        <div class="ui tiny header">{{ _('Observations') }}</div>
-                    </div>
-                    {% for item in form.items %}
-                        <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
-                            <div class="two fields">
-                                <div class="fourteen wide field">
-                                    <label>{{ item.comp_notes.label }}</label>
-                                    <div class="ui action input">
-                                        {{ item.comp_notes() }}
-                                    </div>
-                                    {% if item.comp_notes.errors %}
-                                        <div class="ui red pointing label itemerror">
-                                            {{ item.comp_notes.errors[0] | safe }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="four wide field">
-                                    <label for="otime-{{loop.index0}}-tm">{{ item.date_from.label }}</label>
-                                    <div class="ui action input">
-                                        <div class="ui input calendar" id="otime-{{loop.index0}}-tm">
-                                          <div class="ui input left icon">
-                                            <i class="calendar icon"></i>
-                                            <input id="items-{{loop.index0}}-date_from"  name="{{item.date_from.name}}" placeholder="Time"
-                                                   type="text" value="{{item.date_from.data.strftime('%H:%M') if item.date_from.data else ''}}" class="observ-time">
-                                          </div>
-                                        </div>
-                                        <button id="item-{{loop.index0}}-remove" class="ui icon red button" type="button" data-toggle="fieldset-remove-row">
-                                            <i class="trash icon"></i>
-                                        </button>
-                                    </div>
-                                    {% if item.date_from.errors %}
-                                        <div class="ui red pointing label">
-                                            {{ item.date_from.errors[0] | safe }}
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    <div class="ui segment">
-                        <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
-                            <i class="plus icon"></i>
-                        </button>
-                    </div>
-                </div>
-
                 <div class="two fields">
                     {% if not is_new %}
                         <button class="ui positive button bupdateback">{{ _('Update and go back')}}</button>
@@ -210,14 +155,6 @@
     {% endif %}
 
     <script type="text/javascript">
-        function recalcLabelsVisibility() {
-            var rows = $("[data-toggle=fieldset-entry]");
-            if(rows.length > 1) {
-                $(rows).find("label").hide();
-                $(rows[1]).find("label").show();
-            }
-        }
-
         var notesMDE = new EasyMDE({element: document.getElementById('notes'),
             minHeight: "200px",
             spellChecker: false,
@@ -225,9 +162,6 @@
         });
 
         $(function() {
-            if ($('.itemerror').length > 0) {
-                $('.itemerror')[0].scrollIntoView({block:'center'});
-            }
 
             $('.bupdateback' ).click(function() {
                 $('#goback').val('true');
@@ -265,22 +199,6 @@
                 }
             });
 
-            $('.observ-time').calendar({
-                type: 'time',
-                ampm: false,
-                popupOptions: {
-                     observeChanges: false
-                },
-                formatter: {
-                    date: function (time, settings) {
-                    if (!date) return '';
-                    var hour = date.getHout();
-                    var minute = date.getMinute();
-                    return hout + ':' + minute;
-                    }
-                }
-            });
-
             $('.ui.rating').rating({
                 maxRating: 5,
                 onRate: function (rating) {
@@ -288,78 +206,12 @@
                 }
             });
 
-            /*
-            $('.ui.buttons .button').click(function() {
-                $(this).addClass('active').siblings().removeClass('active');
-                if ($(this).hasClass('mode-basic')) {
-                    $('.edit-advanced').hide();
-                    $('#items-fieldset').show();
-                    $('#advmode').attr('value', 'false')
-                } else {
-                    $('.edit-advanced').show();
-                    $('#items-fieldset').hide();
-                    $('#advmode').attr('value', 'true')
-                }
-            });
-            */
-
             $('.ui.dropdown.dlocation').dropdown({
                 allowAdditions: true,
                 minCharacters : 3,
                 apiSettings: {
                     url: "{{url_for('main_location.location_autocomplete')}}?q={query}"
                 }
-            });
-
-            recalcLabelsVisibility();
-
-            $("div[data-toggle=fieldset]").each(function() {
-
-                var $this = $(this);
-
-                $this.find("button[data-toggle=fieldset-add-row]").click(function() {
-                    var target = $($(this).data("target"));
-                    console.log(target);
-                    var oldrow = target.find("[data-toggle=fieldset-entry]:last");
-                    var row = oldrow.clone(true, true);
-                    console.log(row.find(":input")[0]);
-                    var elem_id = row.find(":input")[0].id;
-                    var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
-                    row.attr('data-id', elem_num);
-                    row.find(":input").each(function() {
-                        console.log(this);
-                        var id = $(this).attr('id').replace('-' + (elem_num - 1) + '-', '-' + (elem_num) + '-');
-                        $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
-                    });
-                    row.show();
-                    oldrow.after(row);
-                    $('#items-' + elem_num + '-date_from').val('00:00')
-                    $('#items-' + elem_num + '-date_from').calendar({
-                        type: 'time',
-                        ampm: false,
-                        popupOptions: {
-                             observeChanges: false
-                        },
-                        formatter: {
-                            date: function (time, settings) {
-                            if (!date) return '';
-                            var hour = date.getHout();
-                            var minute = date.getMinute();
-                            return hout + ':' + minute;
-                            }
-                        }
-                    });
-                    recalcLabelsVisibility();
-                });
-
-                $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
-                    if($this.find("[data-toggle=fieldset-entry]").length > 1) {
-                        var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
-                        thisRow.remove();
-                    }
-                    recalcLabelsVisibility();
-                });
-
             });
         });
 
