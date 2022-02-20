@@ -369,8 +369,20 @@ def constellation_deepskyobjects(constellation_id):
     for dso_id, synonymas in dso_synonyma_arr.items():
         dso_synonymas[dso_id] = '. '.join(dso.name for dso in synonymas)
 
+    cs_editor_user = get_cs_editor_user()
+
+    all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs') \
+        .join(UserDsoDescription.deepskyObject, aliased=True) \
+        .filter(DeepskyObject.constellation_id == constellation.id) \
+        .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
+        .all()
+
+    described_dsos = set()
+    for dsod in all_cs_dso_descriptions:
+        described_dsos.add(dsod.dso_id)
+
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
-                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas)
+                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas, described_dsos=described_dsos)
 
 
 def _sort_star_descr(star_descriptions):

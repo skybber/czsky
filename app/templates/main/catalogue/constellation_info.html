@@ -345,12 +345,13 @@
                     <thead>
                             <tr>
                                 <th class="sorted ascending">{{ _('Name') }}</th>
-                                <th class="sorted ascending">{{ _('Alternative name') }}</th>
+                                <th class="sorted ascending mobile hidden">{{ _('Alternative name') }}</th>
                                 <th>{{ _('Type') }}</th>
                                 <th class="mobile hidden">RA</th>
                                 <th class="mobile hidden">Dec</th>
                                 <th class="right aligned collapsing">mag</th>
                                 <th class="right aligned collapsing mobile hidden">Ø</th>
+                                <th class="center aligned collapsing mobile hidden">{{ _('Sketch')}}</th>
                             </tr>
                     </thead>
                     <tbody>
@@ -378,6 +379,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </td>
+                                    <td class="center aligned mobile hidden">{% if d.id in described_dsos %}<i class="image card icon">{% endif %}</i></td>
                             </tr>
                     {% endfor %}
                     </tbody>
