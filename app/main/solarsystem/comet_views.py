@@ -4,6 +4,7 @@ import math
 import threading
 import json
 import base64
+from io import BytesIO
 
 from datetime import date, datetime, timedelta
 
@@ -100,7 +101,14 @@ def get_all_comets():
     if all_comets is None or now > all_comets_expiration:
         all_comets_expiration = now + timedelta(days=1)
         with load.open(mpc.COMET_URL, reload=True) as f:
-            all_comets = mpc.load_comets_dataframe_slow(f)
+            # fix problem in coma in CometEls.txt
+            lines = f.readlines()
+            s = ''
+            for line in lines:
+                s += line.decode('ascii').replace(',', ' ')
+            sio = BytesIO(s.encode('ascii'))
+            # end of fix
+            all_comets = mpc.load_comets_dataframe_slow(sio)
             all_comets = (all_comets.sort_values('reference')
                           .groupby('designation', as_index=False).last()
                           .set_index('designation', drop=False))
