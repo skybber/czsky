@@ -341,49 +341,50 @@
 
 {% macro constellation_deepsky_objects() %}
     <div style="overflow-x: scroll;">
-            <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                            <tr>
-                                <th class="sorted ascending">{{ _('Name') }}</th>
-                                <th class="sorted ascending mobile hidden">{{ _('Alternative name') }}</th>
-                                <th>{{ _('Type') }}</th>
-                                <th class="mobile hidden">RA</th>
-                                <th class="mobile hidden">Dec</th>
-                                <th class="right aligned collapsing">mag</th>
-                                <th class="right aligned collapsing mobile hidden">Ø</th>
-                                <th class="center aligned collapsing mobile hidden">{{ _('Sketch')}}</th>
-                            </tr>
-                    </thead>
-                    <tbody>
-                    {% for d in constellation_dsos | sort(attribute='mag') %}
-                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) }}';">
-                                    <td>{{ d.denormalized_name() }}</td>
-                                    <td class="mobile hidden">{{ dso_synonymas.get(d.id, '') }}</td>
-                                    <td>{{ d.type }}</td>
-                                    <td class="mobile hidden">{{ d.ra_str_short() }}</td>
-                                    <td class="mobile hidden">{{ d.dec_str_short() }}</td>
-                                    <td class="right aligned collapsing">{{ d.mag if d.mag and d.mag<100.0 else '-' }}</td>
-                                    <td class="right aligned collapsing mobile hidden">
-                                        {% if d.major_axis %}
-                                            {% if d.major_axis >= 100.0 %}
-                                              {{ (d.major_axis / 60.0) | round(2, 'floor') }}'
-                                            {% else %}
-                                              {{ d.major_axis | round(2, 'floor')}}''
-                                            {% endif %}
-                                            {% if d.minor_axis %}
-                                            / {% if d.minor_axis >= 100.0 and  d.minor_axis != d.major_axis %}
-                                                {{ (d.minor_axis / 60.0) | round(2, 'floor') }}'
-                                              {% else %}
-                                                {{ d.minor_axis | round(2, 'floor')}}''
-                                              {% endif %}
-                                            {% endif %}
-                                        {% endif %}
-                                    </td>
-                                    <td class="center aligned mobile hidden">{% if d.id in described_dsos %}<i class="image card icon">{% endif %}</i></td>
-                            </tr>
-                    {% endfor %}
-                    </tbody>
-            </table>
+        <table class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th class="sorted ascending">{{ _('Name') }}</th>
+                    <th class="sorted ascending mobile hidden">{{ _('Alternative name') }}</th>
+                    <th>{{ _('Type') }}</th>
+                    <th class="mobile hidden">RA</th>
+                    <th class="mobile hidden">Dec</th>
+                    <th class="right aligned collapsing">mag</th>
+                    <th class="right aligned collapsing mobile hidden">Ø</th>
+                    <th class="center aligned collapsing mobile hidden">{{ _('Sketch')}}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for d in constellation_dsos | sort(attribute='mag') %}
+                {% set dso_url =  url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) %}
+                <tr onclick="window.location.href = '{{ dso_url }}';">
+                    <td><a href="{{ dso_url }}">{{ d.denormalized_name() }}</a></td>
+                    <td class="mobile hidden">{{ dso_synonymas.get(d.id, '') }}</td>
+                    <td>{{ d.type }}</td>
+                    <td class="mobile hidden">{{ d.ra_str_short() }}</td>
+                    <td class="mobile hidden">{{ d.dec_str_short() }}</td>
+                    <td class="right aligned collapsing">{{ d.mag if d.mag and d.mag<100.0 else '-' }}</td>
+                    <td class="right aligned collapsing mobile hidden">
+                        {% if d.major_axis %}
+                            {% if d.major_axis >= 100.0 %}
+                              {{ (d.major_axis / 60.0) | round(2, 'floor') }}'
+                            {% else %}
+                              {{ d.major_axis | round(2, 'floor')}}''
+                            {% endif %}
+                            {% if d.minor_axis %}
+                            / {% if d.minor_axis >= 100.0 and  d.minor_axis != d.major_axis %}
+                                {{ (d.minor_axis / 60.0) | round(2, 'floor') }}'
+                              {% else %}
+                                {{ d.minor_axis | round(2, 'floor')}}''
+                              {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="center aligned mobile hidden">{% if d.id in described_dsos %}<i class="image card icon">{% endif %}</i></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endmacro %}
 

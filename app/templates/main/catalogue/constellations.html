@@ -32,15 +32,16 @@
                 <table class="ui searchable sortable unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th class="sorted ascending">{{ _('IAU code') }}</th>
                             <th>{{ _('Name') }}</th>
+                            <th class="sorted ascending">{{ _('IAU code') }}</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for c in constellations | sort(attribute='name') %}
-                        <tr onclick="window.location.href = '{{ url_for('main_constellation.constellation_info', constellation_id=c.iau_code) }}';">
+                        {% set constell_url = url_for('main_constellation.constellation_info', constellation_id=c.iau_code) %}
+                        <tr onclick="window.location.href = '{{ constell_url }}';">
+                            <td><a hre="{{ constell_url }}">{{ cons_names.get(c.id, c.name.capitalize()) }} ({{ c.name.capitalize() }})</a></td>
                             <td>{{ c.iau_code }}</td>
-                            <td>{{ cons_names.get(c.id, c.name.capitalize()) }} ({{ c.name.capitalize() }})</td>
                         </tr>
                     {% endfor %}
                     </tbody>

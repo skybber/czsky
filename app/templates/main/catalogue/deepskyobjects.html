@@ -87,8 +87,9 @@
                         </thead>
                         <tbody>
                         {% for d in deepskyobjects %}
-                            <tr onclick="window.location.href = '{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name) }}';">
-                                <td>{{ d.denormalized_name() }}</td>
+                            {% set dso_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name)  %}
+                            <tr onclick="window.location.href = '{{ dso_url }}';">
+                                <td><a href="{{ dso_url }}">{{ d.denormalized_name() }}</a></td>
                                 <td>{{ d.type }}</td>
                                 <td class="mobile hidden">{{ d.ra_str_short() }}</td>
                                 <td class="mobile hidden">{{ d.dec_str_short() }}</td>

@@ -68,7 +68,8 @@
             <tbody>
 
             {% for item in dso_list_items %}
-                <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.id, season=season) }}';">
+                {% set dso_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.id, season=season) %}
+                <tr onclick="window.location.href='{{ dso_url }}';">
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>
@@ -79,7 +80,7 @@
                         {% endif %}
                     </td>
                     {% endif %}
-                    <td>{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</td>
+                    <td><a href="{{ dso_url }}">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</a></td>
                     {% if dso_list.show_common_name %}
                     <td class="mobile hidden">
                         {{ item.deepskyObject.common_name if item.deepskyObject.common_name else '' }}
