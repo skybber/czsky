@@ -182,25 +182,39 @@
               </button>
           </div>
           {{ f.end_form(add_form) }}
-          <div class="right tiny menu">
-              <div class="ui item">
-                  <button id="clear_schedule" class="ui icon negative button" data-inverted="" data-tooltip="{{ _('Clear schedule') }}" data-position="bottom center" data-variation="tiny basic">
-                      <i class="trash alternate icon"></i>
-                  </button>
-              </div>
-              <form id="fmdownload" method="post" action="{{ url_for('main_sessionplan.session_plan_download', session_plan_id=session_plan.id) }}" class="ui item">
-                  <button class="ui icon button" data-inverted="" data-tooltip="{{ _('Download plan') }}" data-position="bottom center" data-variation="tiny basic">
-                      <i class="upload icon"></i>
-                  </button>
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-              </form>
-              <form id="fmupload" method="post" action="{{ url_for('main_sessionplan.session_plan_upload', session_plan_id=session_plan.id) }}" enctype="multipart/form-data" class="ui item">
-                  <label for="file" class="ui icon button" data-inverted="" data-tooltip="{{ _('Upload plan') }}" data-position="bottom center" data-variation="tiny basic">
+          <div class="right compact menu">
+                <div class="item">
+                    <div class="ui dropdown icon button">
+                    <i class="upload icon"></i>
+                    <div class="menu">
+                        <a class="item" onclick="$('#fmdownloadCsv').submit();return false;">
+                            <form id="fmdownloadCsv" method="post" action="{{ url_for('main_sessionplan.session_plan_export_csv', session_plan_id=session_plan.id) }}">
+                                {{ _('Export CSV') }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                            </form>
+                        </a>
+                        <a class="item" onclick="$('#fmdownloadOal').submit();return false;">
+                            <form id="fmdownloadOal" method="post" action="{{ url_for('main_sessionplan.session_plan_export_oal', session_plan_id=session_plan.id) }}">
+                                {{ _('Export OAL') }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                            </form>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+              <form id="fmupload" method="post" action="{{ url_for('main_sessionplan.session_plan_import', session_plan_id=session_plan.id) }}" enctype="multipart/form-data" class="item">
+                  <label for="file" class="ui icon button" data-inverted="" data-tooltip="{{ _('Upload session plan from CSV/OAL') }}" data-position="bottom center" data-variation="tiny basic">
                       <i class="download icon"></i>
                   </label>
                   <input type="file" id="file" name="file" class="ui file input">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
               </form>
+              <div class="item">
+                  <button id="clear_schedule" class="ui icon negative button" data-inverted="" data-tooltip="{{ _('Clear schedule') }}" data-position="bottom center" data-variation="tiny basic">
+                      <i class="trash alternate icon"></i>
+                  </button>
+              </div>
           </div>
       </div>
 
@@ -213,7 +227,8 @@
                   <th>mag</th>
                   <th>{{ _('Rise') }}</th>
                   <th>{{ _('Merid') }}</th>
-                  <th>{{ _('Set') }}</th>
+                  <t
+                  h>{{ _('Set') }}</th>
                   <th></th>
               </tr>
           </thead>
@@ -244,10 +259,10 @@
 </div>
 
 <div class="ui tiny modal loadModal">
-  <div class="header">{{ _('Load schedule list') }}</div>
+  <div class="header">{{ _('Load session plan') }}</div>
   <div class="content">
-    <p>{{ _('All data from file will be added to schedule list.') }}</p>
-    <p>{{ _('Are you sure you want to load schedule list?') }}</p>
+    <p>{{ _('All data from file will be added to session plan.') }}</p>
+    <p>{{ _('Are you sure you want to import session plan?') }}</p>
   </div>
   <div class="actions">
     <div class="ui negative cancel button">{{ _('No') }}</div>
@@ -259,10 +274,10 @@
 </div>
 
 <div class="ui tiny modal deleteModal">
-  <div class="header">{{ _('Clear schedule list') }}</div>
+  <div class="header">{{ _('Clear session plan') }}</div>
   <div class="content">
     <p>{{ _('All planned items will be removed.') }}</p>
-    <p>{{ _('Are you sure you want to clear planned list?') }}</p>
+    <p>{{ _('Are you sure you want to clear session plan?') }}</p>
   </div>
   <div class="actions">
     <div class="ui negative cancel button">{{ _('No') }}</div>

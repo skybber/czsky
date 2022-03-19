@@ -1,4 +1,5 @@
 from app.commons.coordinates import parse_latlon
+
 from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_observation_target
 
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing

@@ -40,6 +40,7 @@ class SessionPlan(db.Model):
             max = 0
         new_item = SessionPlanItem(
             session_plan_id=self.id,
+            item_type=SessionPlanItemType.DSO,
             dso_id=dso_id,
             order=max + 1,
             create_date=datetime.now(),

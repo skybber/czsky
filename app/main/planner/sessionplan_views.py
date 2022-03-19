@@ -4,6 +4,7 @@ from io import StringIO, BytesIO
 from datetime import datetime, timedelta
 import base64
 import pytz
+import codecs
 
 from werkzeug.utils import secure_filename
 
@@ -82,6 +83,8 @@ from app.commons.utils import get_anonymous_user
 from app.commons.coordinates import parse_latlon
 
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
+from .sessionplan_import import import_session_plan_items
+from .sessionplan_export import create_oal_observations_from_session_plan
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
@@ -335,8 +338,8 @@ def session_plan_item_delete(item_id):
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id, drow_index=drow_index))
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/upload', methods=['POST'])
-def session_plan_upload(session_plan_id):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/import', methods=['POST'])
+def session_plan_import(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
@@ -348,38 +351,44 @@ def session_plan_upload(session_plan_id):
         flash(gettext('No file selected'))
         return redirect(request.url)
     if file:
+        is_oal = file.filename.lower().endswith('oal')
         filename = secure_filename(file.filename)
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(path)
-        with open(path) as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
-            existing_ids = set(item.dso_id for item in session_plan.session_plan_items)
+        if is_oal:
+            with open(path) as oalfile:
+                log_warn, log_error = import_session_plan_items(session_plan, oalfile)
+            db.session.commit()
+            flash(gettext('Session plan uploaded.'), 'form-success')
+        else:
+            with open(path) as csvfile:
+                reader = csv.DictReader(csvfile, delimiter=';', fieldnames=['DSO_NAME'])
+                existing_ids = set(item.dso_id for item in session_plan.session_plan_items)
 
-            for row in reader:
-                dso_name = row['DSO_NAME']
-                if dso_name == 'none':
-                    continue
+                for row in reader:
+                    dso_name = row['DSO_NAME']
+                    if dso_name == 'none':
+                        continue
 
-                dso_name = normalize_dso_name(dso_name)
-                dso = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+                    dso_name = normalize_dso_name(dso_name)
+                    dso = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
 
-                if dso and not dso.id in existing_ids:
-
-                    if not session_plan.find_dso_by_id(dso.id):
-                        user = get_anonymous_user() if current_user.is_anonymous else current_user
-                        new_item = session_plan.create_new_session_plan_item(dso.id, user.id)
-                        db.session.add(new_item)
-                    existing_ids.add(dso.id)
-        db.session.commit()
-        os.remove(path)
-        flash(gettext('Session plan uploaded.'), 'form-success')
+                    if dso and dso.id not in existing_ids:
+                        if not session_plan.find_dso_by_id(dso.id):
+                            user = get_anonymous_user() if current_user.is_anonymous else current_user
+                            new_item = session_plan.create_new_session_plan_item(dso.id, user.id)
+                            db.session.add(new_item)
+                        existing_ids.add(dso.id)
+                db.session.commit()
+                os.remove(path)
+                flash(gettext('Session plan uploaded.'), 'form-success')
 
     session['is_backr'] = True
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id))
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/download', methods=['POST'])
-def session_plan_download(session_plan_id):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/export-csv', methods=['POST'])
+def session_plan_export_csv(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan)
 
@@ -404,6 +413,25 @@ def session_plan_download(session_plan_id):
     return send_file(mem, as_attachment=True,
                      attachment_filename='sessionplan-' + session_plan.title.replace(' ', '_') + '.csv',
                      mimetype='text/csv')
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/export-oal', methods=['POST'])
+def session_plan_export_oal(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan)
+
+    buf = StringIO()
+    buf.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    oal_observations = create_oal_observations_from_session_plan(current_user, session_plan)
+    oal_observations.export(buf, 0)
+    mem = BytesIO()
+    mem.write(codecs.BOM_UTF8)
+    mem.write(buf.getvalue().encode('utf-8'))
+    mem.seek(0)
+
+    return send_file(mem, as_attachment=True,
+                     attachment_filename='sessionplan-' + session_plan.title.replace(' ', '_') + '.oal',
+                     mimetype='text/xml')
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/schedule', methods=['GET', 'POST'])

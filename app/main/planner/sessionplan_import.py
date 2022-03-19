@@ -9,11 +9,11 @@ from app.commons.coordinates import parse_latlon
 from app.commons.dso_utils import normalize_dso_name_ext
 
 from app.models import Location, SessionPlan, SessionPlanItem, DeepskyObject, User
-from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
+from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing, SessionPlanItemType
 from app.commons.openastronomylog import parse
 
 
-def import_session_plan(user, import_user, title, for_date, location_id, location_position, import_history_rec_id, file):
+def import_session_plan_items(session_plan, file):
     log_warn = []
     log_error = []
 
@@ -34,47 +34,36 @@ def import_session_plan(user, import_user, title, for_date, location_id, locatio
             else:
                 found_locations[oal_site.get_id()] = location
 
-    session_plan = SessionPlan(
-        user_id=user.id,
-        title='Imported session plan ' + title,
-        for_date=for_date,
-        location_id=location_id,
-        location_position=location_position,
-        is_public=False,
-        is_archived=False,
-        notes='',
-        is_anonymous=False,
-        import_history_rec_id=import_history_rec_id,
-        create_by=import_user.id,
-        update_by=import_user.id,
-        create_date=datetime.now(),
-        update_date=datetime.now(),
-    )
-
-    db.session.add(session_plan)
-
     # Targets
     oal_targets = oal_observations.get_targets()
-    found_dsos = {}
     item_order = 0
+    existing_dsos = {}
+    for session_plan_item in session_plan.session_plan_items:
+        if session_plan_item.deepskyObject:
+            existing_dsos[session_plan_item.deepskyObject.id] = session_plan_item.deepskyObject
+        if session_plan_item.order >= item_order:
+            item_order = session_plan_item.order + 1
+
     if oal_targets and oal_targets.get_target():
         for target in oal_targets.get_target():
             normalized_name = normalize_dso_name_ext(target.get_name())
             dso = DeepskyObject.query.filter_by(name=normalized_name).first()
             if dso:
-                found_dsos[target.get_id()] = dso
-                session_plan_item = SessionPlanItem(
-                    dso_id=dso.id,
-                    order=item_order,
-                    create_date=datetime.now(),
-                    update_date=datetime.now(),
-                )
-                session_plan.observations.append(session_plan_item)
-                item_order += 1
+                if dso.id not in existing_dsos:
+                    existing_dsos[dso.id] = dso
+                    session_plan_item = SessionPlanItem(
+                        session_plan_id=session_plan.id,
+                        item_type=SessionPlanItemType.DSO,
+                        dso_id=dso.id,
+                        order=item_order,
+                        create_date=datetime.now(),
+                        update_date=datetime.now(),
+                    )
+                    db.session.add(session_plan_item)
+                    session_plan.session_plan_items.append(session_plan_item)
+                    item_order += 1
             else:
                 log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
-
-    db.session.commit()
 
     return log_warn, log_error
 
