@@ -222,7 +222,7 @@ def import_hnsky(hnsky_dso_file):
                         dso.catalogue_id = cat.id
                         dso.major_axis = rlong
                         dso.minor_axis = rshort
-                        dso.positon_angle = position_angle
+                        dso.position_angle = position_angle
                         dso.mag = mag
                         dso.surface_bright = brightness
                         dso.common_name = None

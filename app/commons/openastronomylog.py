@@ -4891,7 +4891,7 @@ class OaldeepSkyMS(OalobservationTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyMS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes,  **kwargs_)
+        super(globals().get("OaldeepSkyMS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, 'deepSkyMS',  **kwargs_)
         if component is None:
             self.component = []
         else:
@@ -5171,7 +5171,7 @@ class OaldeepSkyAS(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyAS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyAS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyAS',  **kwargs_)
         self.pa = pa
         self.validate_positionAngleType(self.pa)
         self.pa_nsprefix_ = None
@@ -5290,7 +5290,7 @@ class OaldeepSkyCG(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyCG"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyCG"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyGC',  **kwargs_)
         self.mag10 = mag10
         self.mag10_nsprefix_ = None
     def factory(*args_, **kwargs_):
@@ -5389,7 +5389,7 @@ class OaldeepSkyDN(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyDN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyDN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyDN',  **kwargs_)
         self.pa = pa
         self.validate_positionAngleType(self.pa)
         self.pa_nsprefix_ = None
@@ -5545,7 +5545,7 @@ class OaldeepSkyDS(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyDS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyDS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyDS',  **kwargs_)
         self.separation = separation
         self.separation_nsprefix_ = None
         self.pa = pa
@@ -5696,7 +5696,7 @@ class OaldeepSkyGC(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyGC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyGC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyGC',  **kwargs_)
         self.magStars = magStars
         self.magStars_nsprefix_ = None
         self.conc = conc
@@ -5812,7 +5812,7 @@ class OaldeepSkyGN(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyGN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyGN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyGN', **kwargs_)
         self.nebulaType = nebulaType
         self.nebulaType_nsprefix_ = None
         self.pa = pa
@@ -5948,7 +5948,7 @@ class OaldeepSkyGX(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyGX"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyGX"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyGX', **kwargs_)
         self.hubbleType = hubbleType
         self.hubbleType_nsprefix_ = None
         self.pa = pa
@@ -6084,7 +6084,8 @@ class OaldeepSkyNA(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyNA"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyNA"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyNA', **kwargs_)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6163,7 +6164,7 @@ class OaldeepSkyOC(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyOC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyOC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyOC', **kwargs_)
         self.stars = stars
         self.stars_nsprefix_ = None
         self.brightestStar = brightestStar
@@ -6298,7 +6299,7 @@ class OaldeepSkyPN(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyPN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyPN"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyPN',  **kwargs_)
         self.magStar = magStar
         self.magStar_nsprefix_ = None
     def factory(*args_, **kwargs_):
@@ -6397,7 +6398,7 @@ class OaldeepSkyQS(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkyQS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkyQS"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkyQS',  **kwargs_)
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6476,7 +6477,7 @@ class OaldeepSkySC(OaldeepSkyTargetType):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
-        super(globals().get("OaldeepSkySC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr,  **kwargs_)
+        super(globals().get("OaldeepSkySC"), self).__init__(id, datasource, observer, name, alias, position, constellation, notes, smallDiameter, largeDiameter, visMag, surfBr, 'deepSkySC',  **kwargs_)
         self.pa = pa
         self.validate_positionAngleType(self.pa)
         self.pa_nsprefix_ = None

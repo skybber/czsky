@@ -211,7 +211,7 @@ def check_from_pn_list(pn_list_file):
             catalogue_id=None,
             major_axis=major_axis,
             minor_axis=minor_axis,
-            positon_angle=None,
+            position_angle=None,
             mag=mag,
             surface_bright=surface_bright,
             c_star_b_mag=cstar_mag,

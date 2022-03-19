@@ -60,11 +60,11 @@ def import_vic(vic_data_file):
                 c.constellation_id = constell_dict[constellation] if constellation else None
                 c.catalogue_id = catalogue_id
                 c.major_axis = vic2int(row['length']) / 10 * 60.0
-                c.minor_axis =  vic2int(row['width']) / 10 * 60.0
-                c.positon_angle =  vic2int(row['orient']) / 10
+                c.minor_axis = vic2int(row['width']) / 10 * 60.0
+                c.position_angle = vic2int(row['orient']) / 10
                 c.mag = vic2int(row['mag']) / 10
                 c.surface_bright = vic2int(row['brightness']) / 10
-                c.hubble_type =  None
+                c.hubble_type = None
                 c.c_star_u_mag = None
                 c.c_star_b_mag = None
                 c.c_star_v_mag = None

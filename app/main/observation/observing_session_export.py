@@ -1,4 +1,5 @@
 from app.commons.coordinates import parse_latlon
+from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_observation_target
 
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
 
@@ -34,13 +35,13 @@ def create_oal_observations(user, observing_sessions):
                 continue
             proc_locations.add(location.id)
             oal_site = OalsiteType(id='site_{}'.format(location.id), name=location.name,
-                                   longitude=_get_oal_angle(angleUnit.DEG, location.longitude), latitude=_get_oal_angle(angleUnit.DEG, location.latitude),
+                                   longitude=get_oal_angle(angleUnit.DEG, location.longitude), latitude=get_oal_angle(angleUnit.DEG, location.latitude),
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
                                    timezone=location.time_zone, code=location.iau_code)
         else:
             lat, lon = parse_latlon(observing_session.location_position)
             oal_site = OalsiteType(id='site_adhoc_{}'.format(observing_session.id), name=None,
-                                   longitude=_get_oal_angle(angleUnit.DEG, lon), latitude=_get_oal_angle(angleUnit.DEG, lat),
+                                   longitude=get_oal_angle(angleUnit.DEG, lon), latitude=get_oal_angle(angleUnit.DEG, lat),
                                    elevation=None, timezone=None, code=None)
         oal_sites.add_site(oal_site)
 
@@ -67,10 +68,7 @@ def create_oal_observations(user, observing_sessions):
                 if dso.id in proc_targets:
                     continue
                 proc_targets.add(dso.id)
-                oal_obs_target = OalobservationTargetType(id='_{}'.format(dso.id), datasource='CzSky', observer=None,
-                                                          name=dso.name, alias=None, position=_get_oal_equ_pos(dso.ra, dso.dec),
-                                                          constellation=dso.get_constellation_iau_code(),
-                                                          notes=None, extensiontype_=None)
+                oal_obs_target = create_observation_target(dso)
                 oal_targets.add_target(oal_obs_target)
 
     # Scopes
@@ -88,7 +86,7 @@ def create_oal_observations(user, observing_sessions):
     eyepieces = Eyepiece.query.filter_by(user_id=user.id, is_deleted=False).all()
     for eyepiece in eyepieces:
         oal_eyepiece = OaleyepieceType(id='ep_{}'.format(eyepiece.id), model=eyepiece.model, vendor=eyepiece.vendor, focalLength=eyepiece.focal_length_mm,
-                                       apparentFOV=_get_oal_non_neg_angle(angleUnit.DEG, eyepiece.fov_deg))
+                                       apparentFOV=get_oal_non_neg_angle(angleUnit.DEG, eyepiece.fov_deg))
         oal_eyepieces.add_eyepiece(oal_eyepiece)
 
     # Lenses
@@ -132,18 +130,6 @@ def create_oal_observations(user, observing_sessions):
                                        images=None, observation=oal_observation_ar)
 
     return oal_observations
-
-
-def _get_oal_angle(unit, angle):
-    return OalangleType(unit=unit, valueOf_=angle)
-
-
-def _get_oal_non_neg_angle(unit, angle):
-    return OalnonNegativeAngleType(unit=unit, valueOf_=angle)
-
-
-def _get_oal_equ_pos(ra, dec):
-    return OalequPosType(ra=_get_oal_non_neg_angle(angleUnit.RAD, ra), dec=_get_oal_angle(angleUnit.RAD, dec))
 
 
 def _get_oal_telescope_type(telescope_type):
