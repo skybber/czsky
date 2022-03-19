@@ -55,9 +55,16 @@ def import_observations(user, import_user, import_history_rec_id, file):
             else:
                 location = found_locations.get(oal_session.get_site())
                 location_position = add_hoc_locations.get(oal_session.get_site())
+                if location:
+                    title = location.name + ' ' + begin.strftime('%d.%m.%Y')
+                elif begin:
+                    title = begin.strftime('%d.%m.%Y')
+                else:
+                    title = oal_session.get_id()
+
                 observing_session = ObservingSession(
                     user_id=user.id,
-                    title=oal_session.get_id(),
+                    title=title,
                     date_from=begin,
                     date_to=end,
                     location_id=location.id if location else None,
