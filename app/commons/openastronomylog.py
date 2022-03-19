@@ -48,10 +48,10 @@ def parsexml_(infile, parser=None, **kwargs):
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
         try:
-            parser = etree_.ETCompatXMLParser()
+            parser = etree_.ETCompatXMLParser(recover=True)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser()
+            parser = etree_.XMLParser(recover=True)
     try:
         if isinstance(infile, os.PathLike):
             infile = os.path.join(infile)
@@ -65,10 +65,10 @@ def parsexmlstring_(instring, parser=None, **kwargs):
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
         try:
-            parser = etree_.ETCompatXMLParser()
+            parser = etree_.ETCompatXMLParser(recover=True)
         except AttributeError:
             # fallback to xml.etree
-            parser = etree_.XMLParser()
+            parser = etree_.XMLParser(recover=True)
     element = etree_.fromstring(instring, parser=parser, **kwargs)
     return element
 
