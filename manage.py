@@ -14,7 +14,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User, Observation, UserConsDescription
+from app.models import Role, User, UserDsoDescription
 from config import Config
 
 from app.commons.comet_loader import *
@@ -278,6 +278,19 @@ def add_anonymous_user():
             )
         db.session.add(user)
         db.session.commit()
+
+
+@manager.command
+def sync_en_descr_rating():
+    editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
+    editor_en = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_EN')).first()
+    descrs_cs = UserDsoDescription.query.filter_by(user_id=editor_cs.id, lang_code='cs').all()
+    for descr in descrs_cs:
+        descr_en = UserDsoDescription.query.filter_by(user_id=editor_en.id, lang_code='en', dso_id=descr.dso_id).first()
+        if descr_en:
+            descr_en.rating = descr.rating
+            db.session.add(descr_en)
+    db.session.commit()
 
 
 @manager.command
