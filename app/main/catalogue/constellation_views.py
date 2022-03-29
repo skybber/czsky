@@ -18,7 +18,19 @@ from flask_babel import gettext
 
 from app import db
 
-from app.models import User, Constellation, UserConsDescription, UserDsoDescription, UserStarDescription, UserDsoApertureDescription, DeepskyObject, WishList, ObservedList
+from app.models import (
+    Constellation,
+    DeepskyObject,
+    ObservedList,
+    ObservedListItem,
+    UserConsDescription,
+    UserDsoDescription,
+    UserStarDescription,
+    UserDsoApertureDescription,
+    WishList,
+    User,
+)
+
 from app.commons.search_utils import process_session_search
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir, get_ug_bl_dsos
@@ -364,6 +376,16 @@ def constellation_deepskyobjects(constellation_id):
         else:
             dso_synonyma_arr.setdefault(dso.master_id, []).append(dso)
 
+    observed = None
+    if current_user.is_authenticated:
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedListItem.observed_list) \
+            .filter(ObservedList.user_id == current_user.id)
+        observed_dso_ids = db.session.query(DeepskyObject.id) \
+            .filter(DeepskyObject.constellation_id == constellation.id) \
+            .filter(DeepskyObject.id.in_(observed_subquery)).all()
+        observed = set(r[0] for r in observed_dso_ids)
+
     dso_synonymas = {}
 
     for dso_id, synonymas in dso_synonyma_arr.items():
@@ -382,7 +404,8 @@ def constellation_deepskyobjects(constellation_id):
         described_dsos.add(dsod.dso_id)
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
-                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas, described_dsos=described_dsos)
+                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas, described_dsos=described_dsos,
+                           observed=observed)
 
 
 def _sort_star_descr(star_descriptions):

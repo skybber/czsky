@@ -344,6 +344,9 @@
         <table class="ui searchable sortable unstackable selectable celled table">
             <thead>
                 <tr>
+                    {% if observed %}
+                    <th class="collapsing mobile hidden"></th>
+                    {% endif %}
                     <th class="sorted ascending">{{ _('Name') }}</th>
                     <th class="sorted ascending mobile hidden">{{ _('Alternative name') }}</th>
                     <th>{{ _('Type') }}</th>
@@ -358,6 +361,13 @@
             {% for d in constellation_dsos | sort(attribute='mag') %}
                 {% set dso_url =  url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constellation', back_id=constellation.iau_code) %}
                 <tr onclick="window.location.href = '{{ dso_url }}';">
+                    {% if observed %}
+                    <td class="collapsing mobile hidden">
+                        {% if d.id in observed %}
+                            <i class="eye icon"></i>
+                        {% endif %}
+                    </td>
+                    {% endif %}
                     <td><a href="{{ dso_url }}">{{ d.denormalized_name() }}</a></td>
                     <td class="mobile hidden">{{ dso_synonymas.get(d.id, '') }}</td>
                     <td>{{ d.type }}</td>
