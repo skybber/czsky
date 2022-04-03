@@ -23,10 +23,10 @@
                                     description=_('View standalone observations'), icon='list icon', extra_icon='corner eye icon') }}
                 {{ dash.dashboard_option(_('Observed List'), 'main_observed.observed_list_info',
                                     description=_('View observed objects'), icon='binoculars icon') }}
-                {{ dash.dashboard_option(_('Observations Export [Experimental]'), 'main_observing_session.observing_sessions_export',
-                                    description=_('Export observing sessions to OAL'), icon='upload icon') }}
-                {{ dash.dashboard_option(_('Observations Import [Experimental]'), 'main_observing_session.observing_sessions_import',
-                                    description=_('Import observing sessions from OAL'), icon='download icon') }}
+                {{ dash.dashboard_option(_('Observations Export [Experimental]'), 'main_observation.observation_export',
+                                    description=_('Export observations to OAL'), icon='upload icon') }}
+                {{ dash.dashboard_option(_('Observations Import [Experimental]'), 'main_observation.observation_import',
+                                    description=_('Import observations from OAL'), icon='download icon') }}
                 {{ dash.dashboard_option(_('Observations Import History [Experimental]'), 'main_import_history.import_history_records',
                                     description=_('View import history from OAL'), icon='history icon') }}
             </div>

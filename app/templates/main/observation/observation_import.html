@@ -12,7 +12,7 @@
                     </a>
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ _('Export observations to OAL') }}
+                        {{ _('Import observations from OAL') }}
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                     {{ _('About OAL') }}
                   </div>
                   <div class="content markdown">
-                {% filter extended_commonmark('') %}
+                        {% filter extended_commonmark('') %}
 {{ about_oal }}
                 {% endfilter %}
                   </div>
@@ -45,11 +45,12 @@
                     <div class="ui menu">
                         <div class="right menu">
                             <div class="ui item">
-                                <form id="fmdownload" method="post" action="{{ url_for('main_observing_session.observing_sessions_export') }}">
-                                    <button class="ui icon positive button" data-content="{{ _('Export observations to OAL')}}">
-                                        <i class="upload icon"></i>
-                                        {{ _('Export observations to OAL') }}
-                                    </button>
+                                <form id="fmupload" method="post" action="{{ url_for('main_observation.observation_import_upload') }}" enctype="multipart/form-data">
+                                    <label for="file" class="ui icon orange button">
+                                        <i class="download icon"></i>
+                                        {{ _('Import observations from OAL') }}
+                                    </label>
+                                    <input type="file" id="file" name="file" class="ui file input">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
                                 </form>
                             </div>
@@ -60,10 +61,18 @@
         </div>
     </div>
 
+    <style>
+        .ui.file.input {
+          top: -999999px;
+          position: absolute;
+        }
+    </style>
     <script type="text/javascript">
         $('.ui.accordion')
           .accordion()
         ;
+        $('#file').change(function() {
+            $("#fmupload" ).submit();
+        });
     </script>
-
 {% endblock %}
