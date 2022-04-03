@@ -1,4 +1,4 @@
-g Copyright (C) 2020 ORGANIZATION
+# Copyright (C) 2020 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
 #
@@ -2097,7 +2097,7 @@ msgstr "Zobrazit pozorování"
 
 #: app/templates/main/observation/observation_menu.html:20
 msgid "Create Standalone Observation"
-msgstr "Přidat samostatné pozorování"
+msgstr "Přidat jednotlivé pozorování"
 
 #: app/templates/main/observation/observation_menu.html:21
 msgid "Create new standalone observation"
@@ -2283,7 +2283,7 @@ msgstr "Upravit pozorování"
 #: app/templates/main/observation/standalone_observation_edit.html:127
 #: app/templates/main/observation/standalone_observation_edit.html:137
 msgid "Delete Observation"
-msgstr "Uložit pozorování"
+msgstr "Odstranit pozorování"
 
 #: app/templates/main/observation/standalone_observation_edit.html:139
 msgid "Are you sure you want to delete observation?"
