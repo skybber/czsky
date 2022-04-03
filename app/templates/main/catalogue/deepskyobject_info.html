@@ -373,8 +373,13 @@
             <div>
                 <div class="ui huge breadcrumb">
                     {% if not embed %}
-                        {% if back == 'constellation' %}
+                        {% if back == 'constell' %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'constell_dso' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_deepskyobjects', constellation_id=back_id) }}#dso{{dso.id}}">
                                 <i class="caret left icon"></i>
                                 <i class="lastfm icon mobile hidden"></i>
                             </a>

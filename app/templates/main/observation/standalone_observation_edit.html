@@ -178,6 +178,7 @@
                 type: 'datetime',
                 monthFirst: false,
                 ampm: false,
+                endCalendar: $('#odate_to'),
                 formatter: {
                     date: function (date, settings) {
                     if (!date) return '';
@@ -193,6 +194,7 @@
                 type: 'datetime',
                 monthFirst: false,
                 ampm: false,
+                startCalendar: $('#odate_from'),
                 formatter: {
                     date: function (date, settings) {
                     if (!date) return '';
