@@ -687,12 +687,18 @@ def deepskyobject_observation_log(dso_id):
             date_from=now,
             date_to=now,
             notes=form.notes.data if form.notes.data else '',
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
         )
         observation.deepsky_objects.append(dso)
 
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.update_by = current_user.id,
+            observation.update_date = datetime.now(),
             db.session.add(observation)
             db.session.commit()
             flash('Observation log successfully updated', 'form-success')
@@ -794,6 +800,8 @@ def _get_prev_next_dso(dso):
                     next_item,
                     next_item.denormalized_name() if next_item else None,
                     )
+    elif back == 'stobservation':
+        pass
     elif back == 'wishlist':
         if current_user.is_authenticated:
             wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)

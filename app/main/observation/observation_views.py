@@ -12,4 +12,3 @@ main_observation = Blueprint('main_observation', __name__)
 @login_required
 def observation_menu():
     return render_template('main/observation/observation_menu.html')
-

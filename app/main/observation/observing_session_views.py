@@ -242,9 +242,14 @@ def observing_session_items_edit(observing_session_id):
                 dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
                 observation = Observation(
                     observing_session_id=observing_session.id,
+                    user=current_user.id,
                     date_from=item_time,
                     date_to=item_time,
-                    notes=notes
+                    notes=notes,
+                    create_by=current_user.id,
+                    update_by=current_user.id,
+                    create_date=datetime.now(),
+                    update_date=datetime.now(),
                 )
                 observing_session.observations.append(observation)
 

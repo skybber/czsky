@@ -383,6 +383,11 @@
                                 <i class="caret left icon"></i>
                                 <i class="eye icon mobile hidden"></i>
                             </a>
+                        {% elif back == 'stobservation' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="eye icon mobile hidden"></i>
+                            </a>
                         {% elif back == 'wishlist' %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}#dso{{dso.id}}">
                                 <i class="caret left icon"></i>

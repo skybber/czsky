@@ -1,7 +1,7 @@
 import sqlalchemy
 from datetime import datetime
 from flask_babel import lazy_pgettext
-from enum import Enum
+from flask import url_for
 
 from .. import db
 
@@ -121,21 +121,87 @@ dso_observation_association_table = db.Table('observation_dsos', db.Model.metada
 class Observation(db.Model):
     __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
-    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
+    user = db.relationship("User", foreign_keys=[user_id,])
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=True)
+    location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
+    location = db.relationship("Location")
+    location_position = db.Column(db.String(256))
     date_from = db.Column(db.DateTime, default=datetime.now(), index=True)
     date_to = db.Column(db.DateTime, default=datetime.now())
+    sqm = db.Column(db.Float)
+    faintest_star = db.Column(db.Float)
+    seeing = db.Column(sqlalchemy.Enum(Seeing))
     telescope_id = db.Column(db.Integer, db.ForeignKey('telescopes.id'))
+    telescope = db.relationship("Telescope")
     eyepiece_id = db.Column(db.Integer, db.ForeignKey('eyepieces.id'))
-    accessories = db.Column(db.String(128))
+    eyepiece = db.relationship("Eyepiece")
     filter_id = db.Column(db.Integer, db.ForeignKey('filters.id'))
+    filter = db.relationship("Filter")
     lens_id = db.Column(db.Integer, db.ForeignKey('lenses.id'))
+    lens = db.relationship("Lens")
+    accessories = db.Column(db.String(128))
     magnification = db.Column(db.Float)
     notes = db.Column(db.Text)
     import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
+    create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    update_date = db.Column(db.DateTime, default=datetime.now())
+
+    def get_target_name(self):
+        if self.deepsky_objects:
+            return ','.join(dso.name for dso in self.deepsky_objects)
+        return ''
+
+    def get_observer_name(self):
+        return self.user.full_name
+
+    def get_location_id(self):
+        if self.location_id is not None:
+            return self.location_id
+        if self.observing_session is not None:
+            return self.observing_session.location_id
+        return None
+
+    def get_location(self):
+        if self.location:
+            return self.location
+        if self.observing_session:
+            return self.observing_session.location
+        return None
+
+    def get_location_position(self):
+        if self.location_position:
+            return self.location_position
+        if self.observing_session:
+            return self.observing_session.location_position
+        return None
+
+    def get_sqm(self):
+        if self.sqm:
+            return self.sqm
+        if self.observing_session and self.observing_session.sqm:
+            return self.observing_session.sqm
+        return None
+
+    def get_seeing(self):
+        if self.seeing:
+            return self.seeing
+        if self.observing_session and self.observing_session.seeing:
+            return self.observing_session.seeing
+        return None
+
+    def loc_seeing(self):
+        seeing = self.get_seeing()
+        return seeing.loc_text() if seeing else ''
 
     def deepsky_objects_to_html(self):
-        return deepsky_objects_to_html(self.observing_session_id, self.deepsky_objects)
+        formatted_dsos = []
+        for dso in self.deepsky_objects:
+            formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back='stobservation', back_id=self.id) + '">' + dso.denormalized_name() + '</a>')
+        return ','.join(formatted_dsos)
 
     def notes_to_html(self):
         return astro_text_to_html(self.observing_session_id, self.notes)

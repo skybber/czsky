@@ -89,7 +89,7 @@ class ObservingSessionMixin:
 
 class ObservingSessionNewForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
-    submit_button = SubmitField(lazy_gettext('Add Observation'))
+    submit_button = SubmitField(lazy_gettext('Create Observing Session'))
 
     def validate(self):
         if not super(ObservingSessionNewForm, self).validate():
@@ -99,7 +99,7 @@ class ObservingSessionNewForm(FlaskForm, ObservingSessionMixin):
 
 class ObservingSessionEditForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
-    submit_button = SubmitField(lazy_gettext('Update Observation'))
+    submit_button = SubmitField(lazy_gettext('Update Observing Session'))
 
     def validate(self):
         if not super(ObservingSessionEditForm, self).validate():
@@ -126,5 +126,5 @@ class ObservingSessionExportForm(FlaskForm):
                           validators=[InputRequired(), ])
     date_to = DateField(lazy_gettext('Date To'), id='odate_from', format='%d/%m/%Y', default=datetime.today,
                         validators=[InputRequired(), ])
-    submit_button = SubmitField(lazy_gettext('Export Observation'))
+    submit_button = SubmitField(lazy_gettext('Export Observing Session'))
 

@@ -110,6 +110,8 @@ def create_app(config):
     app.register_blueprint(main_location)
     from .main.observation import main_observation as main_observation
     app.register_blueprint(main_observation)
+    from .main.observation import main_standalone_observation as main_standalone_observation
+    app.register_blueprint(main_standalone_observation)
     from .main.observation import main_observing_session as main_observing_session
     app.register_blueprint(main_observing_session)
     from .main.observation import main_observed as main_observed

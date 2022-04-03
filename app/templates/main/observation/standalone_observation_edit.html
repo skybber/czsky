@@ -10,19 +10,20 @@
             {% if is_new %}
                 <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
                     <i class="caret left icon"></i>
-                    {{ _('Observation') }}
+                   {{ _('Observations') }}
                 </a>
             {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id) }}">
+                <a class="ui basic compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=observation.id) }}">
                     <i class="caret left icon"></i>
                     {{ _('Leave editing') }}
                 </a>
             {% endif %}
+
             <h2 class="ui header">
                 {% if is_new %}
-                    {{ _('Add New Observing Session') }}
+                    {{ _('Add New Observation') }}
                 {% else %}
-                    {{ _('Edit Observing Session') }}
+                    {{ _('Edit Observation') }}
                 {% endif %}
             </h2>
 
@@ -35,17 +36,11 @@
             {{ f.display_standard_flashes(flashes) }}
 
             {{ f.begin_form(form, flashes) }}
-
                 <input id="goback" type="hidden" value="false">
 
                 <div class="three fields">
-                    <div class="twelve wide field">
-                        {{ f.render_form_field(form.title) }}
-                    </div>
-                    <div class="six wide field">
-                        {{ form.rating.label }}
-                        <div class="ui rating" data-icon="star" data-rating="{{ form.rating.data }}" data-max-rating="5"></div>
-                        {{ form.rating() }}
+                    <div class="field">
+                        {{ f.render_form_field(form.target) }}
                     </div>
                 </div>
 
@@ -65,6 +60,7 @@
                             </div>
                         {% endif %}
                     </div>
+
                     <div class="field">
                         <label for="odate_to">{{ form.date_to.label }}</label>
                         <div class="ui calendar" id="odate_to">
@@ -80,6 +76,7 @@
                             </div>
                         {% endif %}
                     </div>
+
                     <div class="field">
                         {{ form.location.label }}
                         <select name="{{ form.location.name }}" class="ui search selection dropdown dlocation">
@@ -107,17 +104,15 @@
 
                 <div class="three fields">
                     <div class="field">
-                        {{ f.render_form_field(form.transparency) }}
+                        {{ f.render_form_field(form.telescope) }}
                     </div>
                     <div class="field">
-                        {{ f.render_form_field(form.weather) }}
+                        {{ f.render_form_field(form.eyepiece) }}
                     </div>
                     <div class="field">
-                        {{ f.render_form_field(form.equipment) }}
+                        {{ f.render_form_field(form.filter) }}
                     </div>
                 </div>
-
-                {{ f.render_form_field(form.is_public) }}
 
                 {{ f.render_form_field(form.notes) }}
 
@@ -129,7 +124,7 @@
                         {{ field(class='positive ui button') }}
                     {% endfor %}
                     {% if not is_new %}
-                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observing Session') }}</a>
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observation') }}</a>
                     {% endif %}
                 </div>
 
@@ -139,13 +134,13 @@
 
     {% if not is_new %}
         <div class="ui tiny modal deleteModal">
-          <div class="header">{{ _('Delete Observing Session') }}</div>
+          <div class="header">{{ _('Delete Observation') }}</div>
           <div class="content">
-            <p>{{ _('Are you sure you want to delete observing session?') }}</p>
+            <p>{{ _('Are you sure you want to delete observation?') }}</p>
           </div>
           <div class="actions">
-            <div class="ui negative cancel button">No</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observing_session.observing_session_delete', observing_session_id=observing_session.id) }}">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_standalone_observation.standalone_observation_delete', observation_id=observation.id) }}">
                 {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>
@@ -161,6 +156,17 @@
         });
 
         $(function() {
+            {% if not is_new %}
+                $('.ui.modal.deleteModal').modal({
+                    onApprove: function() {
+                        return validateModal()
+                    }
+                });
+                $('#bdelete').click(function() {
+                    $('.ui.modal.deleteModal')
+                        .modal('show');
+                });
+            {% endif %}
 
             $('.bupdateback' ).click(function() {
                 $('#goback').val('true');
@@ -198,13 +204,6 @@
                 }
             });
 
-            $('.ui.rating').rating({
-                maxRating: 5,
-                onRate: function (rating) {
-                    $('#rating').val(rating);
-                }
-            });
-
             $('.ui.dropdown.dlocation').dropdown({
                 allowAdditions: true,
                 minCharacters : 3,
@@ -214,17 +213,5 @@
             });
         });
 
-        {% if not is_new %}
-            $('.ui.modal.deleteModal').modal({
-                onApprove: function() {
-                    return validateModal()
-                }
-            });
-            $('#bdelete').click(function() {
-                $('.ui.modal.deleteModal')
-                    .modal('show');
-            });
-        {% endif %}
     </script>
-
 {% endblock %}

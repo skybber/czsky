@@ -7,6 +7,7 @@ from app import db
 
 from app.commons.coordinates import parse_latlon
 from app.commons.dso_utils import normalize_dso_name_ext
+from flask_login import current_user
 
 from app.models import Location, ObservingSession, Observation, DeepskyObject, User
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
@@ -173,6 +174,10 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 date_to=oal_observation.get_end(),
                 notes=notes,
                 import_history_rec_id=import_history_rec_id,
+                create_by=current_user.id,
+                update_by=current_user.id,
+                create_date=datetime.now(),
+                update_date=datetime.now(),
             )
             observation.deepsky_objects.append(observed_dso)
             if is_session_new:
