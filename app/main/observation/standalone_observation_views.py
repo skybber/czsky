@@ -16,13 +16,19 @@ from flask_babel import gettext
 
 from app import db
 
-from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
+from app.commons.search_utils import (
+    process_paginated_session_search,
+    get_items_per_page,
+    create_table_sort,
+    get_packed_constell_list,
+)
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.pagination import Pagination, get_page_parameter
 
 from .standalone_observation_forms import (
     StandaloneObservationNewForm,
     StandaloneObservationEditForm,
+    SearchStandaloneObservationForm,
 )
 
 from app.models import (
@@ -43,8 +49,19 @@ main_standalone_observation = Blueprint('main_standalone_observation', __name__)
 @login_required
 def standalone_observations():
     """View standalone observations."""
-    page = request.args.get(get_page_parameter(), type=int, default=1)
-    per_page = ITEMS_PER_PAGE
+    search_form = SearchStandaloneObservationForm()
+
+    sort_by = request.args.get('sortby')
+
+    ret, page = process_paginated_session_search('stobservation_search_page', [
+        ('items_per_page', search_form.items_per_page)
+    ])
+
+    if not ret:
+        return redirect(url_for('main_standalone_observation.standalone_observations', page=page, sortby=sort_by))
+
+    per_page = get_items_per_page(search_form.items_per_page)
+
     offset = (page - 1) * per_page
 
     observations = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.date_from.desc())
@@ -53,7 +70,8 @@ def standalone_observations():
     observations_for_render = observations.limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, per_page=per_page, total=observations.count(), search=search, record_name='observations', css_framework='semantic')
-    return render_template('main/observation/standalone_observations.html', observations=observations_for_render, pagination=pagination)
+    return render_template('main/observation/standalone_observations.html', observations=observations_for_render, pagination=pagination,
+                           search_form=search_form)
 
 
 @main_standalone_observation.route('/standalone-observation/<int:observation_id>', methods=['GET'])

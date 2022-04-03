@@ -1,4 +1,5 @@
 {% extends 'layouts/base.html' %}
+{% import 'macros/common_macros.html' as commons %}
 {% import 'macros/form_macros.html' as f %}
 
 {% block content %}
@@ -16,35 +17,37 @@
                 {{ _('Standalone Observations') }}
             </h2>
 
-            <div style="overflow-x: scroll;">
-                {{ pagination.info }}
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th>{{ _('Date') }}</th>
-                            <th>{{ _('Target') }}</th>
-                            <th>{{ _('Location') }}</th>
-                            <th>{{ _('Notes') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for o in observations %}
-                        <tr onclick="window.location.href = '{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=o.id) }}';">
-                            <td>{{ o.date_from.strftime('%Y-%m-%d') }}</td>
-                            <td>{{ o.get_target_name() }}</td>
-                            <td>
-                                {% if o.get_location() %}
-                                    {{ o.get_location().name }}
-                                {% elif o.get_location_position() %}
-                                    {{ o.get_location_position() }}
-                                {% endif %}
-                            </td>
-                            <td>{{ o.notes }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                {{ pagination.links }}
+            <form action="{{ url_for('main_standalone_observation.standalone_observations') }}" method="post" name="search">
+                <div style="overflow-x: scroll;">
+                    {{ pagination.info }}
+                    <table class="ui searchable sortable unstackable selectable celled table">
+                        <thead>
+                            <tr>
+                                <th>{{ _('Date') }}</th>
+                                <th>{{ _('Target') }}</th>
+                                <th>{{ _('Location') }}</th>
+                                <th>{{ _('Notes') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for o in observations %}
+                            <tr onclick="window.location.href = '{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=o.id) }}';">
+                                <td>{{ o.date_from.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ o.get_target_name() }}</td>
+                                <td>
+                                    {% if o.get_location() %}
+                                        {{ o.get_location().name }}
+                                    {% elif o.get_location_position() %}
+                                        {{ o.get_location_position() }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ o.notes }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+                </div>
             </div>
         </div>
     </div>

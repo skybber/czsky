@@ -94,3 +94,6 @@ class StandaloneObservationEditForm(FlaskForm, StandaloneObservationMixin):
             return False
         return self.validate_date_from_to()
 
+
+class SearchStandaloneObservationForm(FlaskForm):
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
