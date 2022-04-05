@@ -8,6 +8,7 @@ from app.commons.form_utils import FormEnum
 
 
 class TelescopeType(FormEnum):
+    NAKED_EYE = 'NAKED_EYE'
     BINOCULAR = 'BINOCULAR'
     NEWTON = 'NEWTON'
     REFRACTOR = 'REFRACTOR'
@@ -16,6 +17,10 @@ class TelescopeType(FormEnum):
     MAKSUTOV = 'MAKSUTOV'
     KUTTER = 'KUTTER'
     OTHER = 'OTHER'
+
+    @classmethod
+    def choices_without_naked_eye(cls):
+        return [(choice, choice.loc_text()) for choice in cls if choice != TelescopeType.NAKED_EYE]
 
     def loc_text(self):
         if self == TelescopeType.BINOCULAR:
@@ -75,9 +80,9 @@ class Eyepiece(db.Model):
     model = db.Column(db.String(128), index=True)
     vendor = db.Column(db.String(128), index=True)
     descr = db.Column(db.Text)
-    focal_length_mm = db.Column(db.Float, nullable=False)
-    fov_deg = db.Column(db.Integer, nullable=False)
-    diameter_inch = db.Column(db.Float, nullable=False)
+    focal_length_mm = db.Column(db.Float)
+    fov_deg = db.Column(db.Integer)
+    diameter_inch = db.Column(db.Float)
     is_active = db.Column(db.Boolean, default=True)
     is_deleted = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -137,7 +142,7 @@ class Filter(db.Model):
     vendor = db.Column(db.String(128), index=True)
     descr = db.Column(db.Text)
     filter_type = db.Column(sqlalchemy.Enum(FilterType))
-    diameter_inch = db.Column(db.Float, nullable=False)
+    diameter_inch = db.Column(db.Float)
     is_active = db.Column(db.Boolean, default=True)
     is_deleted = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -170,8 +175,8 @@ class Lens(db.Model):
     vendor = db.Column(db.String(128), index=True)
     descr = db.Column(db.Text)
     lens_type = db.Column(sqlalchemy.Enum(LensType))
-    magnification = db.Column(db.Float, nullable=False)
-    diameter_inch = db.Column(db.Float, nullable=False)
+    magnification = db.Column(db.Float)
+    diameter_inch = db.Column(db.Float)
     is_active = db.Column(db.Boolean, default=True)
     is_deleted = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

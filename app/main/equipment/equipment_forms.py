@@ -40,7 +40,7 @@ class TelescopeMixin:
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
     model = StringField(lazy_gettext('Model'), validators=[InputRequired(), Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
-    telescope_type = SelectField(lazy_gettext('Telescope Type'), choices=TelescopeType.choices(), coerce=TelescopeType.coerce, default=TelescopeType.REFRACTOR)
+    telescope_type = SelectField(lazy_gettext('Telescope Type'), choices=[tt for tt in TelescopeType.choices_without_naked_eye()], coerce=TelescopeType.coerce, default=TelescopeType.REFRACTOR)
     aperture_mm = IntegerField(lazy_gettext('Aperture (mm)'), validators=[NumberRange(min=1, max=100000)])
     focal_length_mm = IntegerField(lazy_gettext('Focal Length (mm)'), validators=[NumberRange(min=1, max=100000), Optional()])
     fixed_magnification = FloatField(lazy_gettext('Fixed magnification'), validators=[NumberRange(min=0.1, max=10000.0), Optional()])
