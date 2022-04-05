@@ -197,10 +197,16 @@ class Observation(db.Model):
         seeing = self.get_seeing()
         return seeing.loc_text() if seeing else ''
 
-    def deepsky_objects_to_html(self):
+    def deepsky_objects_from_observation_to_html(self):
+        return self._deepsky_objects_from_session_to_html('stobservation', self.id)
+
+    def deepsky_objects_from_session_to_html(self):
+        return self._deepsky_objects_from_session_to_html('observation', self.observing_session_id)
+
+    def _deepsky_objects_from_session_to_html(self, back, back_id):
         formatted_dsos = []
         for dso in self.deepsky_objects:
-            formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back='stobservation', back_id=self.id) + '">' + dso.denormalized_name() + '</a>')
+            formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')
         return ','.join(formatted_dsos)
 
     def notes_to_html(self):

@@ -69,7 +69,7 @@
     <table class="ui compact definition2 unstackable table">
         {% for o in observing_session.observations | sort(attribute='date_from') %}
         <tr>
-            <td class="two wide"><b>{{ o.deepsky_objects_to_html() | safe }}</b></td>
+            <td class="two wide"><b>{{ o.deepsky_objects_from_session_to_html() | safe }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}
 {{ o.notes_to_html() }}
