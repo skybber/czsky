@@ -78,7 +78,6 @@
                     {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                         {{ field(class='positive ui button') }}
                     {% endfor %}
-                    <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Observing Session') }}</a>
                 </div>
 
             {{ f.end_form() }}
