@@ -114,7 +114,8 @@ class ObservingSession(db.Model):
 
 dso_observation_association_table = db.Table('observation_dsos', db.Model.metadata,
                                              db.Column('observation_id', db.Integer, db.ForeignKey('observations.id')),
-                                             db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id'))
+                                             db.Column('dso_id', db.Integer, db.ForeignKey('deepsky_objects.id')),
+                                             db.UniqueConstraint('observation_id', 'dso_id', name='unique_observation_dso'),
                                              )
 
 
