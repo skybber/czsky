@@ -4,18 +4,33 @@ from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, c
 
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
 
-from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType, OalsurfaceBrightnessType
-from app.commons.openastronomylog import OalobserverType, OalobserversType
-from app.commons.openastronomylog import OalsiteType, OalsitesType
-from app.commons.openastronomylog import Oalobservations, OalobservationType
-from app.commons.openastronomylog import OalsessionsType, OalsessionType
-from app.commons.openastronomylog import OaltargetsType, OalobservationTargetType
-from app.commons.openastronomylog import OalscopesType, OalscopeType
-from app.commons.openastronomylog import OaleyepieceType, OaleyepiecesType
-from app.commons.openastronomylog import OallensesType, OallensType
-from app.commons.openastronomylog import OalfiltersType, OalfilterType
-from app.commons.openastronomylog import OalfindingsType
-
+from app.commons.openastronomylog import (
+    angleUnit,
+    OalangleType,
+    OalnonNegativeAngleType,
+    OalequPosType,
+    OalsurfaceBrightnessType,
+    OalobserverType,
+    OalobserversType,
+    OalsiteType,
+    OalsitesType,
+    Oalobservations,
+    OalobservationType,
+    OalsessionsType,
+    OalsessionType,
+    OaltargetsType,
+    OalobservationTargetType,
+    OalscopesType,
+    OalscopeType,
+    OalfixedMagnificationOpticsType,
+    OaleyepieceType,
+    OaleyepiecesType,
+    OallensesType,
+    OallensType,
+    OalfiltersType,
+    OalfilterType,
+    OalfindingsType
+)
 
 def create_oal_observations(user, observing_sessions):
     # Observers
@@ -76,10 +91,16 @@ def create_oal_observations(user, observing_sessions):
     oal_scopes = OalscopesType()
     telescopes = Telescope.query.filter_by(user_id=user.id, is_deleted=False).all()
     for telescope in telescopes:
-        oal_scope = OalscopeType(id='opt_{}'.format(telescope.id), model=telescope.model,
-                                 type=_get_oal_telescope_type(telescope.telescope_type), vendor=telescope.vendor, aperture=telescope.aperture_mm,
-                                 lightGrasp=telescope.light_grasp, orientation=None, focalLength=telescope.focal_length_mm,
-                                 extensiontype_="scopeType")
+        if telescope.fixed_magnification is None:
+            oal_scope = OalscopeType(id='opt_{}'.format(telescope.id), model=telescope.model,
+                                     type_=_get_oal_telescope_type(telescope.telescope_type), vendor=telescope.vendor, aperture=telescope.aperture_mm,
+                                     lightGrasp=telescope.light_grasp, orientation=None, focalLength=telescope.focal_length_mm,
+                                     extensiontype_="scopeType")
+        else:
+            oal_scope = OalfixedMagnificationOpticsType(id='opt_{}'.format(telescope.id), model=telescope.model,
+                                                        type_=_get_oal_telescope_type(telescope.telescope_type), vendor=telescope.vendor, aperture=telescope.aperture_mm,
+                                                        lightGrasp=telescope.light_grasp, orientation=None, magnification=telescope.fixed_magnification,
+                                                        trueField=None, extensiontype_="scopeType")
         oal_scopes.add_scope(oal_scope)
 
     # Eyepieces
@@ -102,7 +123,7 @@ def create_oal_observations(user, observing_sessions):
     filters = Filter.query.filter_by(user_id=user.id, is_deleted=False).all()
     for filter in filters:
         oal_filter = OalfilterType('flt_{}'.format(filter.id), model=filter.model, vendor=filter.vendor,
-                                   type=_get_oal_filter_type(filter.filter_type), color=None,
+                                   type_=_get_oal_filter_type(filter.filter_type), color=None,
                                    wratten=None, schott=None)
         oal_filters.add_filter(oal_filter)
 
