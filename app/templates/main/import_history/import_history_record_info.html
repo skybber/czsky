@@ -28,13 +28,15 @@
             {{ f.display_standard_flashes(flashes) }}
 
             <table class="ui compact definition unstackable table">
-                <tr><td class="two wide">{{ _('Create date') }}</td><td>{{ import_history_rec.create_date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="two wide">{{ _('Create date') }}</td><td>{{ import_history_rec.create_date.strftime('%Y-%m-%d %H:%M') }}</td></tr>
                 <tr><td class="two wide">{{ _('Type') }}</td><td>{{ import_history_rec.import_type.loc_text() }}</td></tr>
                 <tr>
                     <td class="two wide">{{ _('Log') }}</td>
                     <td colspan="5">
                         {% filter extended_commonmark('') %}
+{% if import_history_rec.log %}
 {{ import_history_rec.log.replace('\n', '<br />') | safe }}
+{% endif %}
                         {% endfilter %}
                     </td>
                 </tr>

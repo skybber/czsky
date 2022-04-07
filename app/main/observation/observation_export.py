@@ -32,6 +32,7 @@ from app.commons.openastronomylog import (
     OalfindingsType
 )
 
+
 def create_oal_observations(user, observing_sessions):
     # Observers
     oal_observer = OalobserverType(id='usr_{}'.format(user.id),

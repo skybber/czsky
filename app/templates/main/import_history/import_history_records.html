@@ -31,14 +31,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for r in import_history_recs | sort(attribute='create_date') %}
+                        {% for r in import_history_recs %}
                             <tr onclick="window.location.href = '{{ url_for('main_import_history.import_history_record_info', import_history_rec_id=r.id) }}';">
-                                <td>{{ r.create_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ r.create_date.strftime('%Y-%m-%d %H:%M') }}</td>
                                 <td>{{ r.status.loc_text() }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
+                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
                 </div>
             </form>
         </div>

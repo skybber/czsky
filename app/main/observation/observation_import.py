@@ -231,8 +231,8 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 begin = end
 
             observing_session = ObservingSession.query.filter(ObservingSession.user_id == user.id) \
-                                                .filter(and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end)) \
-                                                .first()
+                .filter(and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end)) \
+                .first()
             if observing_session and observing_session.update_date != observing_session.create_date:
                 found_observing_sessions[oal_session.get_id()] = observing_session
             else:
@@ -344,7 +344,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             filter = found_filters.get(oal_observation.get_filter()) if oal_observation.get_filter() else None
 
             oal_lens = oal_observation.get_lens()
-            lens = found_lenses.get(oal_lens.get_id()) if oal_lens else None
+            lens = found_lenses.get(oal_observation.get_lens()) if oal_observation.get_lens() else None
 
             now = datetime.now()
             if not observation:
@@ -369,7 +369,10 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     create_date=now,
                     update_date=now,
                 )
+                db.session.add(observation)
                 observation.deepsky_objects.append(observed_dso)
+                if observing_session:
+                    observing_session.observations.append(observation)
             else:
                 observation.observing_session_id = observing_session.id if observing_session else None
                 observation.location_id = location.id if location else None
@@ -388,8 +391,8 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 observation.update_by = current_user.id
                 observation.create_date = now  # set create date to update date to easy detect user modifications
                 observation.update_date = now
+                db.session.add(observation)
 
-            db.session.add(observation)
             if is_session_new and observing_session:
                 if not observing_session.sqm and oal_observation.get_sky_quality():
                     observing_session.sqm = _get_sqm_from_oal_surface_brightness(oal_observation.get_sky_quality())
@@ -397,8 +400,6 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     observing_session.faintest_star = oal_observation.get_faintestStar()
                 if not observing_session.seeing and oal_observation.get_seeing():
                     observing_session.seeing = _get_seeing_from_oal_seeing(oal_observation.get_seeing())
-            if observing_session:
-                observing_session.observations.append(observation)
 
     db.session.commit()
 

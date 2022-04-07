@@ -53,7 +53,9 @@ def import_history_records():
     if import_type:
         import_history_recs = import_history_recs.filter_by(import_type=import_type)
 
+    import_history_recs = import_history_recs.order_by(ImportHistoryRec.create_date.desc())
     import_history_recs_for_render = import_history_recs.limit(per_page).offset(offset).all()
+
     pagination = Pagination(page=page, per_page=per_page, total=import_history_recs.count(), search=False, rec_name='import_history_recs', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/import_history/import_history_records.html', import_history_recs=import_history_recs_for_render, pagination=pagination, search_form=search_form)

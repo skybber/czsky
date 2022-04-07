@@ -21,7 +21,7 @@ def get_oal_surface_brighttness(unit, brightness):
 
 
 def create_observation_target(dso):
-    id = '_{}'.format(dso.id)
+    id = '_{}'.format(dso.name)
     ds_czsky = 'CzSky'
     dso_position = get_oal_equ_pos(dso.ra, dso.dec)
     dso_constell = dso.get_constellation_iau_code()
