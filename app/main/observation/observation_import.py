@@ -7,7 +7,7 @@ from flask_babel import lazy_gettext
 from app import db
 
 from app.commons.coordinates import parse_latlon
-from app.commons.dso_utils import normalize_dso_name_ext
+from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name
 from flask_login import current_user
 
 from app.models import (
@@ -289,13 +289,15 @@ def import_observations(user, import_user, import_history_rec_id, file):
     # Targets
     oal_targets = oal_observations.get_targets()
     found_dsos = {}
+    not_found_dsos = set()
     if oal_targets and oal_targets.get_target():
         for target in oal_targets.get_target():
-            normalized_name = normalize_dso_name_ext(target.get_name())
+            normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
             dso = DeepskyObject.query.filter_by(name=normalized_name).first()
             if dso:
                 found_dsos[target.get_id()] = dso
             else:
+                not_found_dsos.add(target.get_id())
                 log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
 
     oal_observations = oal_observations.get_observation()
@@ -309,7 +311,8 @@ def import_observations(user, import_user, import_history_rec_id, file):
 
         observed_dso = found_dsos.get(oal_observation.get_target())
         if not observed_dso:
-            log_error.append(lazy_gettext('OAL Target "{}" not found.').format(oal_observation.get_target()))
+            if oal_observation.get_target() not in not_found_dsos:
+                log_error.append(lazy_gettext('OAL Target "{}" not found.').format(oal_observation.get_target()))
             continue
 
         observation = None

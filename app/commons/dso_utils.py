@@ -3,7 +3,8 @@ import re
 from app.models.catalogue import Catalogue
 
 CATALOG_REPLACEMENTS = [
-    (re.compile(re.escape('barnard'), re.IGNORECASE), 'B')
+    (re.compile(re.escape('barnard'), re.IGNORECASE), 'B'),
+    (re.compile(re.escape('hickson'), re.IGNORECASE), 'HCG')
 ]
 
 CATALOG_SPECS0 = {'sh2'}
@@ -30,6 +31,8 @@ CATALOGS_SPECIFICATIONS = (
 
 CZSKY_CHART_STAR_PREFIX = '_st_'
 CZSKY_CHART_DOUBLE_STAR_PREFIX = '_dst_'
+
+PK_NUM_PATTERN = re.compile(r'([+-])0+(\d+).0+(\d+)')
 
 
 def split_catalog_name(dso_name):
@@ -116,18 +119,29 @@ def normalize_dso_name_for_img(dso_name):
     return dso_name
 
 
+def _unzero(name):
+    eat_zero = False
+    result = ''
+    for i in range(len(name)):
+        c = name[i]
+        if c == '0':
+            if not eat_zero:
+                if i > 0 and not name[i-1].isdigit():
+                    eat_zero = True
+            if not eat_zero:
+                result += '0'
+        else:
+            if eat_zero and not c.isdigit():
+                result += '0'
+            eat_zero = False
+            result += c
+    if eat_zero:
+        result += '0'
+    return result
+
+
 def denormalize_dso_name(name):
-    if name.startswith('PK'):
-        return 'PK ' + name[2:]
-    zero_index = name.find('0')
-    if zero_index < 0 or name[zero_index-1].isdigit():
-        norm = name
-    else:
-        last_zero_index = zero_index
-        l = len(name)
-        while last_zero_index + 1 < l and name[last_zero_index+1] == '0':
-            last_zero_index += 1
-        norm = name[:zero_index] + name[last_zero_index+1:]
+    norm = _unzero(name)
     if norm.startswith('Sh2-'):
         return norm
     m = re.search("\\d", norm)

@@ -1,6 +1,6 @@
 import urllib.parse
 
-from .dso_utils import normalize_dso_name
+from .dso_utils import normalize_dso_name, denormalize_dso_name
 from .greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
 from .utils import get_lang_and_editor_user_from_request
 
@@ -30,7 +30,7 @@ def search_dso(query):
     else:
         query = urllib.parse.unquote(query)
 
-    normalized_name = normalize_dso_name(query)
+    normalized_name = normalize_dso_name(denormalize_dso_name(query))
     dso = DeepskyObject.query.filter_by(name=normalized_name).first()
     return dso
 

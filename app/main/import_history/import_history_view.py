@@ -98,7 +98,7 @@ def delete_imported_observations(import_history_rec_id):
         db.session.commit()
         flash('{} imported observing sessions was deleted'.format(len(observing_sessions)), 'form-success')
     observations = Observation.query.filter_by(import_history_rec_id=import_history_rec_id).all()
-    if len(observing_sessions) > 0:
+    if len(observations) > 0:
         for observation in observations:
             db.session.delete(observation)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
