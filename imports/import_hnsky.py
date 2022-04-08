@@ -193,7 +193,10 @@ def import_hnsky(hnsky_dso_file):
 
                     if name.startswith('PK_'):
                         name = 'PK' + _denormalize_pk_name(name[3:])
-                        
+
+                    if name.startswith('Arp_'):
+                        name = 'Arp' + name[4:]
+
                     if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
                         if name.endswith('A'):
                             name = name[:-1]
@@ -254,7 +257,7 @@ def import_hnsky(hnsky_dso_file):
         # Sort dso in catalog list according object number in catalog
         for i in range(1000):
             dso_list = pref_cats[i]
-            if not dso_list or not i in cat_codes:
+            if not dso_list or i not in cat_codes:
                 continue
             ccl = len(cat_codes[i])
             if cat_codes[i] in { 'Sh2' }: # skip '-' character in case of Sh2 object ID

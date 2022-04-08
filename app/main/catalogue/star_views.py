@@ -254,7 +254,7 @@ def star_edit(star_descr_id):
             return redirect(url_for('main_star.star_edit', star_descr_id=star_descr_id))
         back = request.args.get('back')
         back_id = request.args.get('back_id')
-        if back == 'constellation':
+        if back == 'constell':
             return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='star' + str(user_descr.id)))
         return redirect(url_for('main_star.star_descr_info', star_descr_id=star_descr_id))
 

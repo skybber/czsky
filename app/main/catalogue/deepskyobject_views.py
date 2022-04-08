@@ -643,7 +643,7 @@ def deepskyobject_edit(dso_id):
 
             back = request.args.get('back')
             back_id = request.args.get('back_id')
-            if back == 'constellation':
+            if back == 'constell':
                 return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='dso' + str(dso.id)))
             return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
 

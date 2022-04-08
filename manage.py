@@ -329,5 +329,13 @@ def tmp_import_gottlieb():
     import_gottlieb('data/gottlieb.1')
 
 
+@manager.command
+def tmp_fix_hnsky():
+    """
+    Load catalogues
+    """
+    import_hnsky('data/deep_sky.hnd')
+    fix_cstar_from_open_ngc('data/OpenNGC.csv')
+
 if __name__ == '__main__':
     manager.run()
