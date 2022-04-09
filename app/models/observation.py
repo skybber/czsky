@@ -1,3 +1,4 @@
+from enum import Enum
 import sqlalchemy
 from datetime import datetime
 from flask_babel import lazy_pgettext
@@ -119,11 +120,16 @@ dso_observation_association_table = db.Table('observation_dsos', db.Model.metada
                                              )
 
 
+class ObservationTargetType(Enum):
+    DSO = 'DSO'
+    DBL_STAR = 'DBL_STAR'
+
+
 class Observation(db.Model):
     __tablename__ = 'observations'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
-    user = db.relationship("User", foreign_keys=[user_id,])
+    user = db.relationship("User", foreign_keys=[user_id, ])
     observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=True)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
     location = db.relationship("Location")
@@ -143,15 +149,27 @@ class Observation(db.Model):
     lens = db.relationship("Lens")
     accessories = db.Column(db.String(128))
     magnification = db.Column(db.Float)
+    target_type = db.Column(sqlalchemy.Enum(ObservationTargetType))
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
     notes = db.Column(db.Text)
     import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
+    double_star = db.relationship("DoubleStar")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
     def get_target_name(self):
+        if self.double_star:
+            return self.double_star.get_common_norm_name()
+        if self.deepsky_objects:
+            return ','.join(dso.name for dso in self.deepsky_objects)
+        return ''
+
+    def get_target_norm_name(self):
+        if self.double_star:
+            return self.double_star.get_common_norm_name()
         if self.deepsky_objects:
             return ','.join(dso.name for dso in self.deepsky_objects)
         return ''
@@ -198,13 +216,15 @@ class Observation(db.Model):
         seeing = self.get_seeing()
         return seeing.loc_text() if seeing else ''
 
-    def deepsky_objects_from_observation_to_html(self):
-        return self._deepsky_objects_from_session_to_html('stobservation', self.id)
+    def targets_from_observation_to_html(self):
+        return self._targets_to_html('stobservation', self.id)
 
-    def deepsky_objects_from_session_to_html(self):
-        return self._deepsky_objects_from_session_to_html('observation', self.observing_session_id)
+    def targets_from_session_to_html(self):
+        return self._targets_to_html('observation', self.observing_session_id)
 
-    def _deepsky_objects_from_session_to_html(self, back, back_id):
+    def _targets_to_html(self, back, back_id):
+        if self.double_star:
+            return '<a href="' + url_for('main_double_star.double_star_info', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
         formatted_dsos = []
         for dso in self.deepsky_objects:
             formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')

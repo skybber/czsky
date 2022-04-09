@@ -109,12 +109,10 @@ def observation_import_upload():
 
         if encoding:
             with codecs.open(path, 'r', encoding=encoding) as oal_file:
-                log_warn, log_error = oal_observations = import_observations(current_user, current_user, import_history_rec.id, oal_file)
-                print(log_warn, flush=True)
-                print(log_error, flush=True)
+                log_warn, log_error = import_observations(current_user, current_user, import_history_rec.id, oal_file)
         else:
             with open(path) as oal_file:
-                log_warn, log_error = oal_observations = import_observations(current_user, current_user, import_history_rec.id, oal_file)
+                log_warn, log_error = import_observations(current_user, current_user, import_history_rec.id, oal_file)
 
         if log_warn is not None and log_error is not None:
             log = 'Warnings:\n' + '\n'.join(log_warn) + '\nErrrors:' + '\n'.join(log_error)

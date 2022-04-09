@@ -1,6 +1,6 @@
 from app.commons.coordinates import parse_latlon
 
-from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_observation_target
+from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_dso_observation_target
 
 from app.commons.openastronomylog import angleUnit, OalangleType, OalnonNegativeAngleType, OalequPosType, OalsurfaceBrightnessType
 from app.commons.openastronomylog import OalobserverType, OalobserversType
@@ -41,7 +41,7 @@ def create_oal_observations_from_session_plan(user, session_plan):
         if dso.id in proc_targets:
             continue
         proc_targets.add(dso.id)
-        oal_obs_target = create_observation_target(dso)
+        oal_obs_target = create_dso_observation_target(dso)
         oal_targets.add_target(oal_obs_target)
 
     oal_observations = Oalobservations(observers=oal_observers, sites=oal_sites, sessions=None, targets=oal_targets,

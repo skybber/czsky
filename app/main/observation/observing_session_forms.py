@@ -29,8 +29,8 @@ from wtforms.validators import (
 )
 from flask_babel import lazy_gettext
 
-from app.models import Seeing, Transparency, DeepskyObject
-from app.commons.dso_utils import normalize_dso_name
+from app.models import Seeing, Transparency
+from app.commons.search_sky_object_utils import parse_observation_targets
 
 from app.main.utils.validators import location_lonlat_check
 
@@ -46,16 +46,15 @@ class ObservationItemForm(FlaskForm):
 
     def validate_comp_notes(form, field):
         if field.id != 'items-0-comp_notes':
-            dsos = field.data
-            if ':' in dsos:
-                dsos = dsos[:dsos.index(':')]
-            if len(dsos) == 0:
+            targets = field.data
+            if ':' in targets:
+                targets = targets[:targets.index(':')]
+            if len(targets) == 0:
                 raise ValidationError(lazy_gettext('Value expected.'))
-            for dso_name in dsos.split(','):
-                dso_name = normalize_dso_name(dso_name)
-                dso = DeepskyObject.query.filter_by(name=dso_name).first()
-                if not dso:
-                    raise ValidationError('DSO not found. Dso name:' + dso_name)
+            dsos, double_star, not_found = parse_observation_targets(targets)
+            if not_found:
+                msg = lazy_gettext('Unknown targets:') + ','.join(not_found)
+                raise ValidationError(lazy_gettext('Unknown targets:') + ','.join(not_found))
 
 
 class ObservingSessionMixin:

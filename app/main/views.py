@@ -98,7 +98,12 @@ def global_search():
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed')))
 
-    # 3. Search Star
+    # 3. Search Double Star
+    double_star = search_double_star(query)
+    if double_star:
+        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+
+    # 4. Search Star
     star, usd = search_star(query)
     if star:
         if usd:
@@ -109,11 +114,6 @@ def global_search():
                 return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
         else:
             return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
-
-    # 4. Search Double Star
-    double_star = search_double_star(query)
-    if double_star:
-        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
     # 5. Search comet
     comet = search_comet(query)

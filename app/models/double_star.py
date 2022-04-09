@@ -28,6 +28,18 @@ class DoubleStar(db.Model):
     ra_first = db.Column(db.Float)
     dec_first = db.Column(db.Float)
 
+    def get_common_name(self):
+        if self.other_designation:
+            return self.other_designation
+        return self.common_cat_id
+
+    def get_common_norm_name(self):
+        if self.norm_other_designation:
+            for name in self.norm_other_designation.split(';'):
+                if name:
+                    return name
+        return self.common_cat_id
+
     def ra_first_str_short(self):
         return ra_to_str_short(self.ra_first)
 

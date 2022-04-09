@@ -1,6 +1,11 @@
 from app.commons.coordinates import parse_latlon
 
-from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_observation_target
+from app.commons.oal_export_utils import (
+    get_oal_angle,
+    get_oal_non_neg_angle,
+    create_dso_observation_target,
+    create_double_star_observation_target
+)
 
 from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
 
@@ -81,12 +86,16 @@ def create_oal_observations(user, observing_sessions):
     proc_targets = set()
     for observing_session in observing_sessions:
         for observation in observing_session.observations:
-            for dso in observation.deepsky_objects:
-                if dso.id in proc_targets:
-                    continue
-                proc_targets.add(dso.id)
-                oal_obs_target = create_observation_target(dso)
+            if observation.double_star:
+                oal_obs_target = create_double_star_observation_target(observation.double_star)
                 oal_targets.add_target(oal_obs_target)
+            elif observation.deepsky_objects:
+                for dso in observation.deepsky_objects:
+                    if dso.id in proc_targets:
+                        continue
+                    proc_targets.add(dso.id)
+                    oal_obs_target = create_dso_observation_target(dso)
+                    oal_targets.add_target(oal_obs_target)
 
     # Scopes
     oal_scopes = OalscopesType()

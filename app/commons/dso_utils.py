@@ -94,6 +94,12 @@ def normalize_dso_name(dso_name):
     return dso_name
 
 
+def normalize_double_star_name(double_star_name):
+    norm = _unzero(double_star_name)
+    m = re.search("\\d", norm)
+    return norm[:m.start()].replace(' ', '') + ' ' + norm[m.start():].replace('  ', ' ') if m else norm
+
+
 def normalize_dso_name_for_img(dso_name):
     if dso_name is None:
         return dso_name
@@ -145,7 +151,7 @@ def denormalize_dso_name(name):
     if norm.startswith('Sh2-'):
         return norm
     m = re.search("\\d", norm)
-    return norm[:m.start()] + ' ' + norm[m.start():] if m else norm
+    return norm[:m.start()].replace(' ', '') + ' ' + norm[m.start():].replace(' ', '') if m else norm
 
 
 def destructuralize_dso_name(name):

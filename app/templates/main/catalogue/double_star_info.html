@@ -105,7 +105,7 @@
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ double_star.common_cat_id }}{{ (' - ' + double_star.components) if double_star.components else '' }}
+                        {{ double_star.get_common_name() }}{{ (' - ' + double_star.components) if double_star.components else '' }}
                     </div>
                 </div>
 

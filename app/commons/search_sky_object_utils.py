@@ -1,6 +1,6 @@
 import urllib.parse
 
-from .dso_utils import normalize_dso_name, denormalize_dso_name
+from .dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
 from .greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
 from .utils import get_lang_and_editor_user_from_request
 
@@ -122,7 +122,9 @@ def search_double_star(query):
     if query[0].isdigit():
         double_star = DoubleStar.query.filter_by(wds_number=query).first()
     if not double_star:
-        double_star = DoubleStar.query.filter_by(common_cat_id=query).first()
+        double_star = DoubleStar.query.filter_by(common_cat_id=normalize_double_star_name(query)).first()
+    if not double_star:
+        double_star = DoubleStar.query.filter(DoubleStar.norm_other_designation.ilike('%;' + query + ';%')).first()
 
     return double_star
 
@@ -142,3 +144,26 @@ def _get_constell(costell_code):
         constell = Constellation.get_iau_dict().get(constell_iau_code)
         return constell
     return None
+
+
+def parse_observation_targets(targets):
+    not_found = []
+    dsos = []
+    double_star = None
+    target_names = targets.split(',')
+    for target_name in target_names:
+        dso_name = normalize_dso_name(target_name)
+        dso = DeepskyObject.query.filter_by(name=dso_name).first()
+        if dso:
+            dsos.append(dso)
+            continue
+        double_star_name = normalize_double_star_name(target_name)
+        double_star = DoubleStar.query.filter_by(common_cat_id=double_star_name).first()
+        if double_star:
+            break
+        double_star = DoubleStar.query.filter(DoubleStar.norm_other_designation.ilike('%;' + target_name + ';%')).first()
+        if double_star:
+            break
+        not_found.append(target_name)
+
+    return dsos, double_star, not_found

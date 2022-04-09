@@ -19,10 +19,10 @@ from app import db
 from app.commons.search_utils import (
     process_paginated_session_search,
     get_items_per_page,
-    create_table_sort,
-    get_packed_constell_list,
 )
-from app.commons.dso_utils import normalize_dso_name
+
+from app.commons.search_sky_object_utils import parse_observation_targets
+
 from app.commons.pagination import Pagination, get_page_parameter
 
 from .standalone_observation_forms import (
@@ -33,10 +33,12 @@ from .standalone_observation_forms import (
 
 from app.models import (
     DeepskyObject,
+    DoubleStar,
     Eyepiece,
     Filter,
     Location,
     Observation,
+    ObservationTargetType,
     Seeing,
     Telescope,
     Transparency,
@@ -120,8 +122,6 @@ def new_standalone_observation():
             update_date=datetime.now()
         )
 
-        _set_observation_targets(observation, form.target.data)
-
         db.session.add(observation)
         db.session.commit()
         flash(gettext('Observation successfully created'), 'form-success')
@@ -176,7 +176,8 @@ def standalone_observation_edit(observation_id):
                 return redirect(url_for('main_standalone_observation.standalone_observation_info', observation_id=observation.id))
             return redirect(url_for('main_standalone_observation.standalone_observation_edit', observation_id=observation.id))
     else:
-        form.target.data = observation.get_target_name()
+        form.observing_session_id.data = observation.observing_session_id
+        form.target.data = observation.get_target_norm_name()
         form.date_from.data = observation.date_from
         form.date_to.data = observation.date_to
         form.location.data = observation.location_id if observation.location_id is not None else observation.location_position
@@ -208,12 +209,15 @@ def standalone_observation_delete(observation_id):
 
 def _set_observation_targets(observation, targets):
     observation.deepsky_objects = []
-    target_names = targets.split(',')
-    for target_name in target_names:
-        dso_name = normalize_dso_name(target_name)
-        dso = DeepskyObject.query.filter_by(name=dso_name).first()
-        if dso:
+    observation.double_star_id = None
+    dsos, double_star, not_found = parse_observation_targets(targets)
+    if double_star:
+        observation.double_star_id = double_star.id
+        observation.target_type = ObservationTargetType.DBL_STAR
+    elif dsos:
+        for dso in dsos:
             observation.deepsky_objects.append(dso)
+        observation.target_type = ObservationTargetType.DSO
 
 
 def _get_location_data2_from_form(form):

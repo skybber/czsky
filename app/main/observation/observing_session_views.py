@@ -34,6 +34,7 @@ from app.models import (
     Location,
     Observation,
     ObservingSession,
+    ObservationTargetType,
     ObsSessionPlanRun,
     Seeing,
     SessionPlan,
@@ -43,6 +44,7 @@ from app.models import (
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.dso_utils import normalize_dso_name
+from app.commons.search_sky_object_utils import parse_observation_targets
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -231,7 +233,11 @@ def observing_session_items_edit(observing_session_id):
             observing_session.observations.clear()
             for item_form in form.items[1:]:
                 item_time = datetime.combine(observing_session.date_from, item_form.date_from.data)
-                dsos, notes = _parse_compound_notes(item_form.comp_notes.data)
+                if ':' in item_form.comp_notes.data:
+                    targets, notes = item_form.comp_notes.data.split(':', 1)
+                else:
+                    targets, notes = item_form.comp_notes.data.strip(), ''
+
                 observation = Observation(
                     observing_session_id=observing_session.id,
                     user_id=current_user.id,
@@ -245,13 +251,15 @@ def observing_session_items_edit(observing_session_id):
                 )
                 observing_session.observations.append(observation)
 
-                for dso_name in dsos:
-                    dso_name = normalize_dso_name(dso_name)
-                    dso = DeepskyObject.query.filter_by(name=dso_name).first()
-                    if dso:
+                observation.deepsky_objects = []
+                dsos, double_star, not_found = parse_observation_targets(targets)
+                if double_star:
+                    observation.double_star_id = double_star.id
+                    observation.target_type = ObservationTargetType.DBL_STAR
+                elif dsos:
+                    for dso in dsos:
                         observation.deepsky_objects.append(dso)
-                    else:
-                        flash(gettext('Deepsky object \'{}\' not found').format(dso_name), 'form-warning')
+                    observation.target_type = ObservationTargetType.DSO
 
             db.session.add(observing_session)
             db.session.commit()
@@ -262,21 +270,15 @@ def observing_session_items_edit(observing_session_id):
     else:
         for oi in observing_session.observations:
             oif = form.items.append_entry()
-            comp_dsos = ','.join([dso.name for dso in oi.deepsky_objects])
-            if comp_dsos:
-                comp_dsos += ':'
-            oif.comp_notes.data = comp_dsos + oi.notes
+            if oi.double_star:
+                targets_comp = oi.double_star.get_common_norm_name()
+            else:
+                targets_comp = ','.join([dso.name for dso in oi.deepsky_objects])
+            targets_comp += ':'
+            oif.comp_notes.data = targets_comp + oi.notes
             oif.date_from.data = oi.date_from
 
     return render_template('main/observation/observing_session_items_edit.html', form=form, observing_session=observing_session)
-
-
-def _parse_compound_notes(comp_notes):
-    if ':' in comp_notes:
-        comp_dso, notes = comp_notes.split(':', 1)
-        return comp_dso.split(','), notes
-    else:
-        return (), comp_notes
 
 
 def _get_location_data2_from_form(form):

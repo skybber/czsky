@@ -6,8 +6,6 @@ from flask_babel import lazy_gettext
 
 from app import db
 
-from app.commons.coordinates import parse_latlon
-from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name
 from flask_login import current_user
 
 from app.models import (
@@ -15,6 +13,7 @@ from app.models import (
     ObservingSession,
     Observation,
     DeepskyObject,
+    DoubleStar,
     User,
     Telescope,
     Eyepiece,
@@ -25,7 +24,23 @@ from app.models import (
     Seeing,
 )
 
+from app.commons.openastronomylog import (
+    OaldeepSkyDS,
+    OaldeepSkyGC,
+    OaldeepSkyOC,
+    OaldeepSkyGN,
+    OaldeepSkyDN,
+    OaldeepSkyPN,
+    OaldeepSkyAS,
+    OaldeepSkyQS,
+    OaldeepSkyCG,
+    OalobservationTargetType,
+    OaldeepSkyMS,
+)
+
 from app.commons.openastronomylog import parse, filterKind, OalfixedMagnificationOpticsType, OalscopeType, angleUnit
+from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name, normalize_double_star_name
+from app.commons.search_sky_object_utils import search_double_star
 
 
 def import_observations(user, import_user, import_history_rec_id, file):
@@ -289,16 +304,21 @@ def import_observations(user, import_user, import_history_rec_id, file):
     # Targets
     oal_targets = oal_observations.get_targets()
     found_dsos = {}
-    not_found_dsos = set()
+    found_double_stars = {}
+    not_found_targets = set()
     if oal_targets and oal_targets.get_target():
         for target in oal_targets.get_target():
-            normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
-            dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-            if dso:
-                found_dsos[target.get_id()] = dso
+            double_star = search_double_star(target.get_name())
+            if double_star:
+                found_double_stars[target.get_id()] = double_star
             else:
-                not_found_dsos.add(target.get_id())
-                log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
+                normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
+                dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+                if dso:
+                    found_dsos[target.get_id()] = dso
+                else:
+                    not_found_targets.add(target.get_id())
+                    log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
 
     oal_observations = oal_observations.get_observation()
 
@@ -309,22 +329,27 @@ def import_observations(user, import_user, import_history_rec_id, file):
             observing_session = new_observing_sessions.get(oal_observation.get_session())
             is_session_new = True
 
+        observed_double_star = found_double_stars.get(oal_observation.get_target())
         observed_dso = found_dsos.get(oal_observation.get_target())
-        if not observed_dso:
-            if oal_observation.get_target() not in not_found_dsos:
+
+        if not observed_dso and not observed_double_star:
+            if oal_observation.get_target() not in not_found_targets:
                 log_error.append(lazy_gettext('OAL Target "{}" not found.').format(oal_observation.get_target()))
             continue
 
         observation = None
         if not is_session_new:
             for obs in observing_session.observations:
-                if obs.deepsky_objects:
+                if observed_double_star and obs.double_star_id:
+                    if observed_double_star.id == obs.double_star_id:
+                        observation = obs
+                elif observed_dso and obs.deepsky_objects:
                     for dso in obs.deepsky_objects:
-                        if dso.name == observed_dso.name:
+                        if dso.id == observed_dso.id:
                             observation = obs
                             break
-                    if observation:
-                        break
+                if observation:
+                    break
 
         if observation and observation.create_date != observation.update_date:
             log_warn.append(lazy_gettext('OAL Observation "{}" for session "{}" already exists and was modified by user.').format(oal_observation.get_id(), oal_observation.get_session()))
@@ -372,8 +397,11 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     create_date=now,
                     update_date=now,
                 )
+                if observed_double_star:
+                    observation.double_star_id = observed_double_star.id
                 db.session.add(observation)
-                observation.deepsky_objects.append(observed_dso)
+                if observed_dso:
+                    observation.deepsky_objects.append(observed_dso)
                 if observing_session:
                     observing_session.observations.append(observation)
             else:
