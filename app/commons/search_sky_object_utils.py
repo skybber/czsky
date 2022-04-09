@@ -129,6 +129,16 @@ def search_double_star(query):
     return double_star
 
 
+def search_double_star_strict(query):
+    double_star = None
+    if not double_star:
+        double_star = DoubleStar.query.filter_by(common_cat_id=normalize_double_star_name(query)).first()
+    if query[0].isdigit():
+        double_star = DoubleStar.query.filter_by(wds_number=query).first()
+
+    return double_star
+
+
 def search_comet(query):
     if len(query) > 5:
         search_expr = query.replace('"', '')

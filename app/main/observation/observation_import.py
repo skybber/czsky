@@ -40,7 +40,7 @@ from app.commons.openastronomylog import (
 
 from app.commons.openastronomylog import parse, filterKind, OalfixedMagnificationOpticsType, OalscopeType, angleUnit
 from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name, normalize_double_star_name
-from app.commons.search_sky_object_utils import search_double_star
+from app.commons.search_sky_object_utils import search_double_star_strict
 
 
 def import_observations(user, import_user, import_history_rec_id, file):
@@ -308,14 +308,14 @@ def import_observations(user, import_user, import_history_rec_id, file):
     not_found_targets = set()
     if oal_targets and oal_targets.get_target():
         for target in oal_targets.get_target():
-            double_star = search_double_star(target.get_name())
-            if double_star:
-                found_double_stars[target.get_id()] = double_star
+            normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
+            dso = DeepskyObject.query.filter_by(name=normalized_name).first()
+            if dso:
+                found_dsos[target.get_id()] = dso
             else:
-                normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
-                dso = DeepskyObject.query.filter_by(name=normalized_name).first()
-                if dso:
-                    found_dsos[target.get_id()] = dso
+                double_star = search_double_star_strict(target.get_name())
+                if double_star:
+                    found_double_stars[target.get_id()] = double_star
                 else:
                     not_found_targets.add(target.get_id())
                     log_error.append(lazy_gettext('DSO "{}" not found').format(target.get_name()))
