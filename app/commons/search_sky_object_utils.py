@@ -124,7 +124,22 @@ def search_double_star(query):
     if not double_star:
         double_star = DoubleStar.query.filter_by(common_cat_id=normalize_double_star_name(query)).first()
     if not double_star:
-        double_star = DoubleStar.query.filter(DoubleStar.norm_other_designation.ilike('%;' + query + ';%')).first()
+        words = query.split()
+        if words and len(words) in (2, 3):
+            star_name = words[0].lower()
+            bayer = None
+            if star_name in GREEK_TO_LAT:
+                bayer = star_name
+            elif star_name in SHORT_LAT_TO_GREEK:
+                bayer = SHORT_LAT_TO_GREEK[star_name]
+            elif star_name in LONG_LAT_TO_GREEK:
+                bayer = LONG_LAT_TO_GREEK[star_name]
+            elif star_name in LONG_LAT_CZ_TO_GREEK:
+                bayer = LONG_LAT_CZ_TO_GREEK[star_name]
+            if bayer:
+                query = GREEK_TO_LAT[bayer] + ' ' + ' '.join(words[1:])
+
+        double_star = DoubleStar.query.filter(DoubleStar.norm_other_designation.like('%;' + query.title() + ';%')).first()
 
     return double_star
 
