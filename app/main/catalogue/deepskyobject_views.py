@@ -803,6 +803,22 @@ def _get_prev_next_dso(dso):
                     )
     elif back == 'stobservation':
         pass
+    elif back == 'constell_dso':
+        constellation = Constellation.query.filter_by(id=dso.constellation_id).first()
+        num_dsos = len(constellation.deepsky_objects)
+        for dso_idx in range(num_dsos):
+            constell_dso = constellation.deepsky_objects[dso_idx]
+            if constell_dso.id == dso.id:
+                prev_item, next_item = None, None
+                if dso_idx > 0:
+                    prev_item = constellation.deepsky_objects[dso_idx - 1]
+                if dso_idx < num_dsos - 1:
+                    next_item = constellation.deepsky_objects[dso_idx + 1]
+                return (prev_item,
+                        prev_item.denormalized_name() if prev_item else None,
+                        next_item,
+                        next_item.denormalized_name() if next_item else None,
+                        )
     elif back == 'wishlist':
         if current_user.is_authenticated:
             wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)

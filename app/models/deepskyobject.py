@@ -86,7 +86,7 @@ class DeepskyObject(db.Model):
 
     def get_constellation_iau_code(self):
         if self.constellation_id:
-            return Constellation.get_id_dict().get(self.constellation_id).iau_code
+            return Constellation.get_constellation_by_id(self.constellation_id).iau_code
         return ''
 
     @classmethod

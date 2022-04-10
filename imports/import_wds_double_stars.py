@@ -432,7 +432,7 @@ def import_wds_doubles(bmcevoy_filename, print_not_found=False):
     for star in Star.query.filter_by().all():
         if not star.constellation_id:
             continue
-        constell_iau = Constellation.get_id_dict()[star.constellation_id].iau_code
+        constell_iau = Constellation.get_constellation_by_id(star.constellation_id).iau_code
         if star.flamsteed:
             existing_stars[str(star.flamsteed) + ' ' + constell_iau] = star
         if star.var_id:

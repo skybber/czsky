@@ -36,12 +36,12 @@ class Constellation(db.Model):
         return Constellation._iau_dict
 
     @classmethod
-    def get_id_dict(cls):
+    def get_constellation_by_id(cls, constellation_id):
         if not Constellation._id_dict:
             Constellation._id_dict = {}
             for co in Constellation.get_all():
                 Constellation._id_dict[co.id] = co
-        return Constellation._id_dict
+        return Constellation._id_dict.get(constellation_id)
 
 
 class UserConsDescription(db.Model):
