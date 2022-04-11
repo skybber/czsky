@@ -15,7 +15,18 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import ImportHistoryRec, ImportType, ImportHistoryRecStatus, ObservingSession, Observation
+from app.models import (
+    ImportHistoryRec,
+    ImportType,
+    ImportHistoryRecStatus,
+    ObservingSession,
+    Observation,
+    Telescope,
+    Eyepiece,
+    Filter,
+    Lens
+)
+
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 
@@ -90,6 +101,7 @@ def delete_imported_observations(import_history_rec_id):
         abort(404)
     if import_history_rec.create_by != current_user.id:
         abort(404)
+
     observing_sessions = ObservingSession.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(observing_sessions) > 0:
         for observing_session in observing_sessions:
@@ -97,6 +109,7 @@ def delete_imported_observations(import_history_rec_id):
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported observing sessions was deleted'.format(len(observing_sessions)), 'form-success')
+
     observations = Observation.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(observations) > 0:
         for observation in observations:
@@ -104,4 +117,37 @@ def delete_imported_observations(import_history_rec_id):
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported standalone observations was deleted'.format(len(observations)), 'form-success')
+
+    telescopes = Telescope.query.filter_by(import_history_rec_id=import_history_rec_id).all()
+    if len(telescopes) > 1:
+        for telescope in telescopes:
+            db.session.delete(telescope)
+        import_history_rec.status = ImportHistoryRecStatus.DELETED
+        db.session.commit()
+        flash('{} imported telescopes was deleted'.format(len(telescopes)), 'form-success')
+
+    eyepieces = Eyepiece.query.filter_by(import_history_rec_id=import_history_rec_id).all()
+    if len(eyepieces) > 1:
+        for eyepiece in eyepieces:
+            db.session.delete(eyepiece)
+        import_history_rec.status = ImportHistoryRecStatus.DELETED
+        db.session.commit()
+        flash('{} imported eyepeces was deleted'.format(len(eyepieces)), 'form-success')
+
+    filters = Filter.query.filter_by(import_history_rec_id=import_history_rec_id).all()
+    if len(filters) > 1:
+        for filter in filters:
+            db.session.delete(filter)
+        import_history_rec.status = ImportHistoryRecStatus.DELETED
+        db.session.commit()
+        flash('{} imported filters was deleted'.format(len(filters)), 'form-success')
+
+    lenses = Lens.query.filter_by(import_history_rec_id=import_history_rec_id).all()
+    if len(lenses) > 1:
+        for lens in lenses:
+            db.session.delete(lens)
+        import_history_rec.status = ImportHistoryRecStatus.DELETED
+        db.session.commit()
+        flash('{} imported filters was deleted'.format(len(lenses)), 'form-success')
+
     return redirect(url_for('main_import_history.import_history_record_info', import_history_rec_id=import_history_rec_id))
