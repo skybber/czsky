@@ -11,6 +11,7 @@ from flask_login import current_user
 from app.models import (
     Location,
     ObservingSession,
+    ObservationTargetType,
     Observation,
     DeepskyObject,
     DoubleStar,
@@ -344,14 +345,15 @@ def import_observations(user, import_user, import_history_rec_id, file):
         observation = None
         if not is_session_new:
             for obs in observing_session.observations:
-                if observed_double_star and obs.double_star_id:
-                    if observed_double_star.id == obs.double_star_id:
+                if obs.target_type == ObservationTargetType.DBL_STAR:
+                    if observed_double_star and observed_double_star.id == obs.double_star_id:
                         observation = obs
-                elif observed_dso and obs.deepsky_objects:
-                    for dso in obs.deepsky_objects:
-                        if dso.id == observed_dso.id:
-                            observation = obs
-                            break
+                elif obs.target_type == ObservationTargetType.DSO:
+                    if observed_dso:
+                        for dso in obs.deepsky_objects:
+                            if dso.id == observed_dso.id:
+                                observation = obs
+                                break
                 if observation:
                     break
 
@@ -403,9 +405,11 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 )
                 if observed_double_star:
                     observation.double_star_id = observed_double_star.id
+                    obs.target_type = ObservationTargetType.DBL_STAR
                 db.session.add(observation)
                 if observed_dso:
                     observation.deepsky_objects.append(observed_dso)
+                    obs.target_type = ObservationTargetType.DSO
                 if observing_session:
                     observing_session.observations.append(observation)
             else:

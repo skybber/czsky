@@ -150,27 +150,27 @@ class Observation(db.Model):
     accessories = db.Column(db.String(128))
     magnification = db.Column(db.Float)
     target_type = db.Column(sqlalchemy.Enum(ObservationTargetType))
+    deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
+    double_star = db.relationship("DoubleStar")
     notes = db.Column(db.Text)
     import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
-    deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
-    double_star = db.relationship("DoubleStar")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
 
     def get_target_name(self):
-        if self.double_star:
+        if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return self.double_star.get_common_norm_name()
-        if self.deepsky_objects:
+        if self.target_type == ObservationTargetType.DSO and self.deepsky_objects:
             return ','.join(dso.name for dso in self.deepsky_objects)
         return ''
 
     def get_target_norm_name(self):
-        if self.double_star:
+        if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return self.double_star.get_common_norm_name()
-        if self.deepsky_objects:
+        if self.target_type == ObservationTargetType.DSO and self.deepsky_objects:
             return ','.join(dso.name for dso in self.deepsky_objects)
         return ''
 
