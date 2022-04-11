@@ -628,7 +628,6 @@ except ModulenotfoundExp_ as exp:
                     names = classname.split(':')
                     if len(names) == 2:
                         classname = names[1]
-                    print('{}'.format(classname), flush=True)
                     class_obj2 = globals().get('Oal' + classname)
                     if class_obj2 is not None:
                         class_obj1 = class_obj2
