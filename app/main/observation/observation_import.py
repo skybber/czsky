@@ -109,6 +109,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     is_default=False,
                     is_active=True,
                     is_deleted=False,
+                    import_history_rec_id=import_history_rec_id,
                     user_id=current_user.id,
                     create_by=current_user.id,
                     update_by=current_user.id,
@@ -149,6 +150,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     diameter_inch=None,
                     is_active=True,
                     is_deleted=False,
+                    import_history_rec_id=import_history_rec_id,
                     user_id=current_user.id,
                     create_by=current_user.id,
                     update_by=current_user.id,
@@ -186,6 +188,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     diameter_inch=None,
                     is_active=True,
                     is_deleted=False,
+                    import_history_rec_id=import_history_rec_id,
                     user_id=current_user.id,
                     create_by=current_user.id,
                     update_by=current_user.id,
@@ -224,6 +227,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     diameter_inch=None,
                     is_active=True,
                     is_deleted=False,
+                    import_history_rec_id=import_history_rec_id,
                     user_id=current_user.id,
                     create_by=current_user.id,
                     update_by=current_user.id,
@@ -405,11 +409,11 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 )
                 if observed_double_star:
                     observation.double_star_id = observed_double_star.id
-                    obs.target_type = ObservationTargetType.DBL_STAR
+                    observation.target_type = ObservationTargetType.DBL_STAR
                 db.session.add(observation)
                 if observed_dso:
                     observation.deepsky_objects.append(observed_dso)
-                    obs.target_type = ObservationTargetType.DSO
+                    observation.target_type = ObservationTargetType.DSO
                 if observing_session:
                     observing_session.observations.append(observation)
             else:

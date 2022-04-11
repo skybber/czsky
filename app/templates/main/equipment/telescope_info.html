@@ -39,7 +39,7 @@
                 {% if telescope.fixed_magnification %}
                 <tr><td class="two wide">{{ _('Fixed magnification') }}</td><td>{{ telescope.fixed_magnification }}x</td></tr>
                 {% endif %}
-                <tr><td class="two wide">{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() }}</td></tr>
+                <tr><td class="two wide">{{ _('Telescope type') }}</td><td>{{ telescope.telescope_type.loc_text() if telescope.telescope_type else '' }}</td></tr>
                 <tr>
                     <td class="two wide">{{ _('Is default') }}</td>
                     <td>{% if telescope.is_default %}<i class="green check circle outline icon"></i>{% endif %}</td>

@@ -13,13 +13,13 @@
                     {{ _('Instruments') }}
             </h2>
             <div class="ui two column stackable grid">
-                {{ dash.dashboard_option(_('Telescopes'), 'main_equipment.telescopes',
+                {{ dash.dashboard_option(_('Telescopes') + ' (' + telescopes_count | string + ')', 'main_equipment.telescopes',
                                     description=_('Your telescopes'), icon='binoculars icon') }}
-                {{ dash.dashboard_option(_('Eyepieces'), 'main_equipment.eyepieces',
+                {{ dash.dashboard_option(_('Eyepieces') + ' (' + eyepieces_count | string + ')', 'main_equipment.eyepieces',
                                     description=_('Your eyepieces'), icon='tripadvisor icon') }}
-                {{ dash.dashboard_option(_('Filters'), 'main_equipment.filters',
+                {{ dash.dashboard_option(_('Filters') + ' (' + filters_count | string + ')', 'main_equipment.filters',
                                     description=_('Your filters'), icon='ring icon') }}
-                {{ dash.dashboard_option(_('Barlow & Correctors'), 'main_equipment.lenses',
+                {{ dash.dashboard_option(_('Barlow & Correctors') + ' (' + lenses_count | string + ')', 'main_equipment.lenses',
                                     description=_('Your Barlow and Corrector'), icon='ring icon') }}
             </div>
         </div>

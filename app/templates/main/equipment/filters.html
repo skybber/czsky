@@ -39,7 +39,7 @@
                         {% for f in filters | sort(attribute='focal_length_mm') %}
                             <tr onclick="window.location.href = '{{ url_for('main_equipment.filter_info', filter_id=f.id) }}';">
                                 <td>{{ f.name }}</td>
-                                <td>{{ f.filter_type.loc_text() }}</td>
+                                <td>{{ f.filter_type.loc_text() if f.filter_type else '' }}</td>
                                 <td>{{ f.diameter_inch|string + '"' if f.diameter_inch else '' }}</td>
                             </tr>
                         {% endfor %}

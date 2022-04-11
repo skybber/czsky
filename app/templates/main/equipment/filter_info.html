@@ -32,7 +32,7 @@
                 {% if filter.descr %}
                 <tr><td class="two wide">{{ _('Description') }}</td><td>{{ filter.descr }}</td></tr>
                 {% endif %}
-                <tr><td class="two wide">{{ _('Filter type') }}</td><td>{{ filter.filter_type.loc_text() }}</td></tr>
+                <tr><td class="two wide">{{ _('Filter type') }}</td><td>{{ filter.filter_type.loc_text() if filter.filter_type else '' }}</td></tr>
                 <tr><td class="two wide">{{ _('Diameter (inch)') }}</td><td>{{ filter.diameter_inch }}"</td></tr>
                 <tr>
                     <td class="two wide">{{ _('Is active') }}</td>

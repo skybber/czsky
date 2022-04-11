@@ -53,7 +53,13 @@ def _is_lens_editable(lens):
 @main_equipment.route('/equipment-menu', methods=['GET'])
 @login_required
 def equipment_menu():
-    return render_template('main/equipment/equipment_menu.html')
+    telescopes_count = Telescope.query.filter_by(user_id=current_user.id, is_deleted=False).count()
+    eyepieces_count = Eyepiece.query.filter_by(user_id=current_user.id, is_deleted=False).count()
+    filters_count = Filter.query.filter_by(user_id=current_user.id, is_deleted=False).count()
+    lenses_count = Lens.query.filter_by(user_id=current_user.id, is_deleted=False).count()
+
+    return render_template('main/equipment/equipment_menu.html', telescopes_count=telescopes_count, eyepieces_count=eyepieces_count,
+                           filters_count=filters_count, lenses_count=lenses_count)
 
 
 @main_equipment.route('/telescopes', methods=['GET', 'POST'])
