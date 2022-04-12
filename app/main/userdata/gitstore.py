@@ -27,8 +27,8 @@ from app.commons.dso_utils import denormalize_dso_name, destructuralize_dso_name
 PRIVATE_KEY_PATH = 'ssh/id_git'
 
 
-def get_content_repository_path(user_name):
-    return os.path.join(current_app.config.get('USER_DATA_DIR'), user_name, 'git-content-repository')
+def get_content_repository_path(user):
+    return os.path.join(current_app.config.get('USER_DATA_DIR'), user.user_name, 'git-content-repository')
 
 
 def get_ssh_key_dir_path(user):
