@@ -11,6 +11,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from flask_rq import get_queue
 
 import git
 
@@ -66,13 +67,21 @@ def git_save():
         if _is_git_enabled(subtype):
             if subtype == 'repo_personal':
                 try:
-                    save_personal_data_to_git(current_user, form.commit_message.data)
+                    get_queue().enqueue(
+                        save_personal_data_to_git,
+                        current_user.user_name,
+                        form.commit_message.data
+                    )
                     flash('User data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
                     flash('Storing data to Git repository failed.' + str(e), 'form-error')
             else:
                 try:
-                    save_public_content_data_to_git(current_user, form.commit_message.data)
+                    get_queue().enqueue(
+                        save_public_content_data_to_git,
+                        current_user.user_name,
+                        form.commit_message.data
+                    )
                     flash('Content data was stored to git repository.', 'form-success')
                 except git.GitCommandError as e:
                     flash('Storing content data to Git repository failed.' + str(e), 'form-error')

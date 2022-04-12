@@ -27,8 +27,8 @@ from app.commons.dso_utils import denormalize_dso_name, destructuralize_dso_name
 PRIVATE_KEY_PATH = 'ssh/id_git'
 
 
-def get_content_repository_path(user):
-    return os.path.join(current_app.config.get('USER_DATA_DIR'), user.user_name, 'git-content-repository')
+def get_content_repository_path(user_name):
+    return os.path.join(current_app.config.get('USER_DATA_DIR'), user_name, 'git-content-repository')
 
 
 def get_ssh_key_dir_path(user):
@@ -101,7 +101,8 @@ def _get_user_name(user_id, user_name_cache):
     return user_name
 
 
-def save_public_content_data_to_git(owner, commit_message):
+def save_public_content_data_to_git(user_name, commit_message):
+    owner = User.query.filter_by(user_name=user_name).first()
     editor_user = User.get_editor_user()
     if not editor_user:
         raise EnvironmentError('User Editor not found.')
@@ -560,7 +561,7 @@ def _get_get_date_from_str(strdate):
     return datetime.now()
 
 
-def save_personal_data_to_git(owner, commit_message):
+def save_personal_data_to_git(user_name, commit_message):
     pass
 
 
