@@ -24,9 +24,21 @@ from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
 from imports.import_wds_double_stars import import_wds_doubles
 from imports.import_skyquality import do_import_skyquality_locations
-from imports.import_dso_lists import import_caldwell, import_herschel400, import_superthin_gx, import_holmberg, import_abell_pn
-from imports.import_dso_lists import import_vic_list, import_rosse, import_glahn_pns, import_glahn_palomar_gc, import_glahn_local_group
-from imports.import_dso_lists import import_corstjens
+from imports.import_dso_lists import (
+    import_caldwell,
+    import_herschel400,
+    import_superthin_gx,
+    import_holmberg,
+    import_abell_pn,
+    import_hickson,
+    import_vic_list,
+    import_rosse,
+    import_glahn_pns,
+    import_glahn_palomar_gc,
+    import_glahn_local_group,
+    import_corstjens,
+)
+
 from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
@@ -178,6 +190,7 @@ def import_dso_list():
     import_glahn_pns('data/dsolist/Glahn_PN.csv')
     import_glahn_palomar_gc('data/dsolist/PalomarGC.csv')
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
+    import_hickson('data/dsolist/Hickson.csv')
 
 
 @manager.command
@@ -294,48 +307,14 @@ def sync_en_descr_rating():
 
 
 @manager.command
-def tmp_link_star_descriptions_by_var_id():
-    link_star_descriptions_by_var_id()
-
-
-@manager.command
-def tmp_link_star_descriptions_by_double_star_id():
-    link_star_descriptions_by_double_star_id()
-
-
-@manager.command
-def tmp_import_doubles():
-    import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz', True)
-
-
-@manager.command
-def tmp_import_comets():
-    all_mpc_comets = load_all_mpc_comets()
-    import_update_commets(all_mpc_comets, show_progres=True)
-
-
-@manager.command
-def tmp_import_constellations():
-    import_constellations('data/88-constellations.csv')
-
-
-@manager.command
 def tmp_import_corstjens():
     import_corstjens('data/dsolist/Corstjens.csv')
 
 
 @manager.command
-def tmp_import_gottlieb():
-    import_gottlieb('data/gottlieb.1')
+def tmp_import_hickson():
+    import_hickson('data/dsolist/Hickson.csv')
 
-
-@manager.command
-def tmp_fix_hnsky():
-    """
-    Load catalogues
-    """
-    import_hnsky('data/deep_sky.hnd')
-    fix_cstar_from_open_ngc('data/OpenNGC.csv')
 
 if __name__ == '__main__':
     manager.run()

@@ -196,7 +196,7 @@ def import_caldwell(caldwell_data_file):
         print('') # finish on new line
 
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name = True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False):
+def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name=True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -228,9 +228,9 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     show_descr_name=show_descr_name,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
-                    show_dso_type = show_dso_type,
-                    show_angular_size = show_angular_size,
-                    show_minor_axis = show_minor_axis,
+                    show_dso_type=show_dso_type,
+                    show_angular_size=show_angular_size,
+                    show_minor_axis=show_minor_axis,
                     create_date=datetime.now(),
                     update_date=datetime.now(),
                     hidden=hidden
@@ -263,8 +263,8 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                 if not item:
                     item = DsoListItem(
                         dso_list_id=dso_list.id,
-                        dso_id = dso.id,
-                        item_id = row_id,
+                        dso_id=dso.id,
+                        item_id=row_id,
                         create_by=editor_user.id,
                         create_date=datetime.now(),
                     )
@@ -316,3 +316,7 @@ def import_glahn_local_group(glahn_local_group_data_file):
 def import_corstjens(corstjens_file):
     _do_import_simple_csv(
         corstjens_file, 'corstjens', 'Tim Corstjens images', show_minor_axis=False, hidden=True)
+
+
+def import_hickson(hickson_data_file):
+    _do_import_simple_csv(hickson_data_file, 'hickson', 'Hickson Compact Group', show_common_name=False, show_minor_axis=False)
