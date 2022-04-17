@@ -12,4 +12,6 @@ skupiny a izolovanost od okolí. Cílem těchto kompilací bylo mimo jiné zkoum
 Pro amatéry je Hicksonův katalog zajímavý z několika důvodů. Kromě známých skupin, jako je "Stephanův kvintet" nebo
 galaxie kolem NGC 3190, lze velký počet objektů pozorovat středně velkými dalekohledy. Z vizuálního i fotografického
 hlediska jsou často výzvou, ale díky své kompaktnosti jsou mimořádně atraktivním pozorovacím cílem, který lze
-bez výjimky pozorovat ze středoevropských zeměpisných šířek. 
+bez výjimky pozorovat ze středoevropských zeměpisných šířek.
+
+![](/static/webassets-external/users/dsolist/HCG_chart.jpg)

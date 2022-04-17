@@ -13,3 +13,5 @@ The Hickson catalogue is interesting to amateurs for several reasons. In additio
 the galaxies around NGC 3190, a large number of objects can be observed with medium-sized telescopes. From a visual and photographic point of view
 photographic and visual, they are often challenging, but their compactness makes them extremely attractive observing targets that can be
 without exception from central European latitudes.
+
+![](/static/webassets-external/users/dsolist/HCG_chart.jpg)
