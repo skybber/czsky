@@ -96,4 +96,5 @@ class StandaloneObservationEditForm(FlaskForm, StandaloneObservationMixin):
 
 
 class SearchStandaloneObservationForm(FlaskForm):
+    q = StringField(lazy_gettext('Search'))
     items_per_page = IntegerField(lazy_gettext('Items per page'))

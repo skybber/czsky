@@ -40,6 +40,8 @@ from app.commons.search_utils import (
     get_packed_constell_list,
 )
 
+from app.commons.dso_utils import normalize_double_star_name
+
 from app.main.chart.chart_forms import ChartForm
 
 from .double_star_forms import SearchDoubleStarForm
@@ -74,9 +76,10 @@ def double_stars():
 
     dbl_star_query = DoubleStar.query
     if search_form.q.data:
-        dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
-                                               DoubleStar.wds_number == search_form.q.data,
-                                               DoubleStar.norm_other_designation.like('%;' + search_form.q.data + ';%')
+        double_star_q = normalize_double_star_name(search_form.q.data)
+        dbl_star_query = dbl_star_query.filter(or_(DoubleStar.common_cat_id == double_star_q,
+                                               DoubleStar.wds_number == search_form.q.data.strip(),
+                                               DoubleStar.norm_other_designation.like('%;' + search_form.q.data.strip() + ';%')
                                                ))
     else:
         if search_form.constellation_id.data is not None:

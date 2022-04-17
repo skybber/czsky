@@ -21,6 +21,8 @@ from app.commons.search_utils import (
     get_items_per_page,
 )
 
+from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
+
 from app.commons.search_sky_object_utils import parse_observation_targets
 
 from app.commons.pagination import Pagination, get_page_parameter
@@ -42,6 +44,7 @@ from app.models import (
     Seeing,
     Telescope,
     Transparency,
+    dso_observation_association_table,
 )
 
 main_standalone_observation = Blueprint('main_standalone_observation', __name__)
@@ -56,6 +59,7 @@ def standalone_observations():
     sort_by = request.args.get('sortby')
 
     ret, page = process_paginated_session_search('stobservation_search_page', [
+        ('sto_search', search_form.q),
         ('items_per_page', search_form.items_per_page)
     ])
 
@@ -66,7 +70,26 @@ def standalone_observations():
 
     offset = (page - 1) * per_page
 
-    observations = Observation.query.filter_by(user_id=current_user.id).order_by(Observation.date_from.desc())
+    observations = Observation.query.filter_by(user_id=current_user.id)
+    if search_form.q.data:
+        dso_q = normalize_dso_name(denormalize_dso_name(search_form.q.data))
+        double_star_q = normalize_double_star_name(search_form.q.data)
+        observations = observations.join(dso_observation_association_table, isouter=True) \
+                                   .join(DeepskyObject, isouter=True) \
+                                   .join(DoubleStar, isouter=True) \
+                                   .filter(((Observation.target_type == ObservationTargetType.DSO) &
+                                            (dso_observation_association_table.c.observation_id == Observation.id) &
+                                            (dso_observation_association_table.c.dso_id == DeepskyObject.id) &
+                                            (DeepskyObject.name == dso_q)
+                                            )
+                                           |
+                                           ((Observation.target_type == ObservationTargetType.DBL_STAR) &
+                                            (DoubleStar.id == Observation.double_star_id) &
+                                            (DoubleStar.common_cat_id == double_star_q)))
+
+    observations = observations.order_by(Observation.date_from.desc())
+    statement = observations.statement
+    print(str(statement), flush=True)
     search = False
 
     observations_for_render = observations.limit(per_page).offset(offset).all()

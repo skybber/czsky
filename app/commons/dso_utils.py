@@ -95,7 +95,7 @@ def normalize_dso_name(dso_name):
 
 
 def normalize_double_star_name(double_star_name):
-    norm = _unzero(double_star_name)
+    norm = _unzero(double_star_name.strip())
     m = re.search("\\d", norm)
     return norm[:m.start()].replace(' ', '') + ' ' + norm[m.start():].replace('  ', ' ') if m else norm
 
@@ -147,7 +147,7 @@ def _unzero(name):
 
 
 def denormalize_dso_name(name):
-    norm = _unzero(name)
+    norm = _unzero(name.strip())
     if norm.startswith('Sh2-'):
         return norm
     m = re.search("\\d", norm)

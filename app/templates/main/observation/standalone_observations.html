@@ -18,6 +18,18 @@
             </h2>
 
             <form action="{{ url_for('main_standalone_observation.standalone_observations') }}" method="post" name="search">
+
+                <div class="ui menu">
+                    <div class="ui right search item">
+                        <div class="ui action input">
+                            {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                            <button class="ui icon button">
+                                <i class="search icon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="overflow-x: scroll;">
                     {{ pagination.info }}
                     <table class="ui searchable sortable unstackable selectable celled table">
