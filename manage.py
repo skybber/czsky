@@ -316,5 +316,10 @@ def tmp_import_hickson():
     import_hickson('data/dsolist/Hickson.csv')
 
 
+@manager.command
+def tmp_local_group():
+    import_glahn_local_group('data/dsolist/LocalGroup.csv')
+
+
 if __name__ == '__main__':
     manager.run()
