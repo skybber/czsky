@@ -1,3 +1,4 @@
+import re
 import math
 from datetime import datetime
 from sqlalchemy import and_, or_, not_
@@ -322,6 +323,9 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     log_error.append(lazy_gettext('Double star "{}" not found').format(target.get_name()))
             else:
                 normalized_name = normalize_dso_name_ext(denormalize_dso_name(target.get_name()))
+                m = re.search(r'^(NGC|IC)\d+([A-Z]|-[1-9])$', normalized_name)
+                if m:
+                    normalized_name = normalized_name[:m.start(2)].strip()
                 dso = DeepskyObject.query.filter_by(name=normalized_name).first()
                 if dso:
                     found_dsos[target.get_id()] = dso
