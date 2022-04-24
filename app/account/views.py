@@ -40,6 +40,8 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            user = User.query.filter_by(user_name=form.email.data).first()
         inval_email_or_password = False
         if user is not None:
             if not user.is_hidden and not user.is_deleted and user.password_hash is not None and \

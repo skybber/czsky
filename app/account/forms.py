@@ -15,10 +15,8 @@ from app.models import User
 
 
 class LoginForm(FlaskForm):
-    email = EmailField(
-        'Email', validators=[InputRequired(),
-                             Length(1, 64),
-                             Email()])
+    email = StringField(
+        'User name or email', validators=[InputRequired(), Length(1, 64)])
     password = PasswordField('Password', validators=[InputRequired()])
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log in')
