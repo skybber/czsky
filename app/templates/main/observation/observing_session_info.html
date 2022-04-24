@@ -238,6 +238,11 @@ $(function(){
                             <i class="caret left icon"></i>
                             {{ _('Dashboard') }}
                         </a>
+                    {% elif back == 'stobservation' %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon mobile hidden"></i>
+                        </a>
                     {% else %}
                         <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_sessions') }}">
                             <i class="caret left icon"></i>

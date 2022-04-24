@@ -7,6 +7,9 @@
     'success': get_flashed_messages(category_filter=['form-success'])
 } %}
 
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
@@ -38,6 +41,16 @@
                     <td class="two wide">{{ _('Date') }}</td>
                     <td>{{ observation.date_from.strftime('%Y-%m-%d') }}</td>
                 </tr>
+                {% if observation.observing_session_id is not none %}
+                    <tr>
+                        <td class="two wide">{{ _('Observing session') }}</td>
+                        <td>
+                            <a href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observation.observing_session_id, back='stobservation', back_id=observation.id) }}">
+                                {{ observation.observing_session.title }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endif %}
                 <tr>
                     <td class="two wide">{{ _('Location') }}</td>
                     <td>
