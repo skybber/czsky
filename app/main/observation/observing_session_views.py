@@ -75,7 +75,7 @@ def observing_sessions():
     obs_sessions_for_render = observing_sessions.limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, per_page=per_page, total=observing_sessions.count(), search=search, record_name='observations', css_framework='semantic')
-    return render_template('main/observation/observing_sessions.html', observing_sessions=obs_sessions_for_render, pagination=pagination)
+    return render_template('main/observation/observing_sessions.html', observing_sessions=obs_sessions_for_render, pagination=pagination, user=None)
 
 
 @main_observing_session.route('/user-observing-sessions/<int:user_id>', methods=['GET', 'POST'])

@@ -30,7 +30,11 @@
                     </thead>
                     <tbody>
                     {% for os in observing_sessions %}
+                        {% if user %}
+                        <tr onclick="window.location.href = '{{ url_for('main_observing_session.observing_session_info', observing_session_id=os.id, back='uobs_sessions', back_id=user.id) }}';">
+                        {% else %}
                         <tr onclick="window.location.href = '{{ url_for('main_observing_session.observing_session_info', observing_session_id=os.id) }}';">
+                        {% endif %}
                             <td>{{ os.date_from.strftime('%Y-%m-%d') }}</td>
                             <td>{{ os.title[:64] }}</td>
                             <td>{{ os.location.name if os.location else os.location_position }}</td>

@@ -234,10 +234,17 @@ $(function(){
             <div>
                 <div class="ui huge breadcrumb">
                     {% if not is_mine_observing_session %}
-                        <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
-                            <i class="caret left icon"></i>
-                            {{ _('Dashboard') }}
-                        </a>
+                        {% if back == 'uobs_sessions' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.user_observing_sessions', user_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                                <i class="caret left icon"></i>
+                                {{ _('Dashboard') }}
+                            </a>
+                        {% endif %}
                     {% elif back == 'stobservation' %}
                         <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
                             <i class="caret left icon"></i>
