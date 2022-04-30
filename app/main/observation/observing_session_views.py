@@ -44,8 +44,8 @@ from app.models import (
 
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
-from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_sky_object_utils import parse_observation_targets
+from app.commons.dso_utils import CZSKY_CHART_DOUBLE_STAR_PREFIX
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -373,13 +373,17 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
 
     highlights_dso_list = []
+    highlights_pos_list = []
 
     for observation in observing_session.observations:
-        highlights_dso_list.extend(observation.deepsky_objects)
+        if observation.target_type == ObservationTargetType.DSO:
+            highlights_dso_list.extend(observation.deepsky_objects)
+        elif observation.target_type == ObservationTargetType.DBL_STAR:
+            highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CZSKY_CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id)])
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
