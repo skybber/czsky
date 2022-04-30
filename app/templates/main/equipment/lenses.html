@@ -40,7 +40,7 @@
                         {% for l in lenses | sort(attribute='magnification') %}
                             <tr onclick="window.location.href = '{{ url_for('main_equipment.lens_info', lens_id=l.id) }}';">
                                 <td>{{ l.name }}</td>
-                                <td>{{ l.lens_type.loc_text() }}</td>
+                                <td>{{ l.lens_type.loc_text() if l.lens_type else '' }}</td>
                                 <td>{{ l.magnification|string + 'x' if l.magnification else '' }}</td>
                                 <td>{{ l.diameter_inch|string + '"' if l.diameter_inch else '' }}</td>
                             </tr>
