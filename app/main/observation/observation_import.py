@@ -496,6 +496,8 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
                 observation.update_date = now
                 db.session.add(observation)
 
+            db.session.flush()
+
             if is_session_new and observing_session:
                 if not observing_session.sqm and oal_observation.get_sky_quality():
                     observing_session.sqm = _get_sqm_from_oal_surface_brightness(oal_observation.get_sky_quality())
@@ -504,7 +506,10 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
                 if not observing_session.seeing and oal_observation.get_seeing():
                     observing_session.seeing = _get_seeing_from_oal_seeing(oal_observation.get_seeing())
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except:
+        db.session.rollback()
 
     return log_warn, log_error
 

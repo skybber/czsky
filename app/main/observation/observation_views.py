@@ -131,29 +131,40 @@ def observation_import_upload():
 
 def _do_import_observations_enc(user_id, import_user_id, import_history_rec_id, path, encoding):
     with codecs.open(path, 'r', encoding=encoding) as oal_file:
-        log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
-        _do_process_import_log(log_warn, log_error, import_history_rec_id)
+        try:
+            log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
+            _do_process_import_log(log_warn, log_error, import_history_rec_id)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
 
 
 def _do_import_observations(user_id, import_user_id, import_history_rec_id, path):
     with open(path) as oal_file:
-        log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
-        _do_process_import_log(log_warn, log_error, import_history_rec_id)
+        try:
+            log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
+            _do_process_import_log(log_warn, log_error, import_history_rec_id)
+            db.session.commit()
+        except:
+            db.session.rollback()
+        finally:
+            db.session.close()
 
 
 def _do_process_import_log(log_warn, log_error, import_history_rec_id):
     import_history_rec = ImportHistoryRec.query.filter_by(id=import_history_rec_id).first()
     if not import_history_rec:
         return
+    import_history_rec.status = ImportHistoryRecStatus.IMPORTED
     if log_warn is not None and log_error is not None:
         log = 'Warnings:\n' + '\n'.join(log_warn) + '\nErrrors:' + '\n'.join(log_error)
         import_history_rec.log = log
         import_history_rec.create_date = datetime.now()
         db.session.add(import_history_rec)
-        db.session.commit()
     else:
         db.session.delete(import_history_rec)
-        db.session.commit()
 
 
 def _get_about_oal():
