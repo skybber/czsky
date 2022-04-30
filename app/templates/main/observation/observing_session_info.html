@@ -42,7 +42,7 @@
                     {{ observing_session.location.name }}
                     <a href="{{ observing_session.location.url_mapy_cz() }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
                     <a href="{{ observing_session.location.url_google_maps() }}" target="_blank">google</a>
-                {% else %}
+                {% elif observing_session.location_position %}
                     {{ observing_session.location_position }}
                     <a href="{{ location_position_mapy_cz_url }}" target="_blank" style="margin-left:20px">mapy.cz</a> /
                     <a href="{{ location_position_google_maps_url }}" target="_blank">google</a>
@@ -54,14 +54,14 @@
         <tr><td class="two wide">{{ _('Faintest Star') }}</td><td>{{ "%.2f"|format(observing_session.faintest_star) if observing_session.faintest_star else '' }}</td></tr>
         <tr><td class="two wide">{{ _('Seeing') }}</td><td>{{ observing_session.loc_seeing() }}</td></tr>
         <tr><td class="two wide">{{ _('Transparency') }}</td><td>{{ observing_session.loc_transparency() }}</td></tr>
-        <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observing_session.weather }}</td></tr>
-        <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observing_session.equipment }}</td></tr>
+        <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observing_session.weather if observing_session.weather else '' }}</td></tr>
+        <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observing_session.equipment if observing_session.equipment else '' }}</td></tr>
         <tr>
         <tr>
             <td class="two wide">{{ _('Notes') }}</td>
             <td colspan="5">
                 {% filter extended_commonmark('') %}
-{{ observing_session.notes }}
+{{ observing_session.notes if observing_session.notes else '' }}
                 {% endfilter %}
             </td>
         </tr>

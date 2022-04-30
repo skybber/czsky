@@ -109,20 +109,17 @@ def observation_import_upload():
                     encoding = m.group(1).lower()
 
         if encoding:
-            get_queue().enqueue(
+            get_queue().enqueue_call(
                 _do_import_observations_enc,
-                current_user.id,
-                current_user.id,
-                import_history_rec.id,
-                path,
-                encoding)
+                args=(current_user.id, current_user.id, import_history_rec.id, path, encoding),
+                timeout=3600
+            )
         else:
-            get_queue().enqueue(
+            get_queue().enqueue_call(
                 _do_import_observations,
-                current_user.id,
-                current_user.id,
-                import_history_rec.id,
-                path)
+                args=(current_user.id, current_user.id, import_history_rec.id, path),
+                timeout=3600
+            )
 
     flash(gettext('Observations import enqued.'), 'form-success')
 
