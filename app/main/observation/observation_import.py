@@ -338,6 +338,8 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
 
     addhoc_observing_sessions = {}
 
+    obs_count = 0
+
     for oal_observation in oal_observations:
         location = found_locations.get(oal_observation.get_site())
         location_position = add_hoc_locations.get(oal_observation.get_site())
@@ -496,7 +498,11 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
                 observation.update_date = now
                 db.session.add(observation)
 
-            db.session.flush()
+            obs_count += 1
+
+            if obs_count % 500 == 0:
+                print('Committing {} of {}'.format(obs_count, len(oal_observations)), flush=True)
+                db.session.commit()
 
             if is_session_new and observing_session:
                 if not observing_session.sqm and oal_observation.get_sky_quality():
