@@ -24,6 +24,7 @@ from app.models import (
     TelescopeType,
     FilterType,
     Seeing,
+    dso_observation_association_table,
 )
 
 from app.commons.openastronomylog import (
@@ -335,12 +336,55 @@ def import_observations(user, import_user, import_history_rec_id, file):
 
     oal_observations = oal_observations.get_observation()
 
+    addhoc_observing_sessions = {}
+
     for oal_observation in oal_observations:
+        location = found_locations.get(oal_observation.get_site())
+        location_position = add_hoc_locations.get(oal_observation.get_site())
+
         observing_session = found_observing_sessions.get(oal_observation.get_session())
+
         is_session_new = False
         if not observing_session:
             observing_session = new_observing_sessions.get(oal_observation.get_session())
             is_session_new = True
+
+        if not observing_session:
+            if oal_observation.get_begin():
+                observing_session = addhoc_observing_sessions.get(oal_observation.get_begin().date())
+                if not observing_session:
+                    observing_session = ObservingSession.query.filter(ObservingSession.user_id == current_user.id) \
+                        .filter(ObservingSession.date_from == oal_observation.get_begin())  \
+                        .first()
+                    if not observing_session:
+                        now = datetime.now()
+                        observing_session = ObservingSession(
+                            user_id=user.id,
+                            title=str(oal_observation.get_begin().date()),
+                            date_from=oal_observation.get_begin(),
+                            date_to=oal_observation.get_end(),
+                            location_id=location.id if location else None,
+                            location_position=location_position,
+                            sqm=_get_sqm_from_oal_surface_brightness(oal_observation.get_sky_quality()),
+                            faintest_star=oal_observation.get_faintestStar(),
+                            seeing=_get_seeing_from_oal_seeing(oal_observation.get_seeing()),
+                            transparency=None,
+                            rating=None,
+                            weather=None,
+                            equipment=None,
+                            notes=None,
+                            import_history_rec_id=import_history_rec_id,
+                            create_by=import_user.id,
+                            update_by=import_user.id,
+                            create_date=now,
+                            update_date=now
+                        )
+                        db.session.add(observing_session)
+                        print('Observing session not found!', flush=True)
+                    else:
+                        print('Observing session found!', flush=True)
+                    addhoc_observing_sessions[oal_observation.get_begin().date()] = observing_session
+                is_session_new = True
 
         observed_double_star = found_double_stars.get(oal_observation.get_target())
         observed_dso = found_dsos.get(oal_observation.get_target())
@@ -372,9 +416,6 @@ def import_observations(user, import_user, import_history_rec_id, file):
             if oal_observation.get_result():
                 notes = oal_observation.get_result()[0].get_description()
 
-            location = found_locations.get(oal_observation.get_site())
-            location_position = add_hoc_locations.get(oal_observation.get_site())
-
             if observing_session:
                 if location and observing_session.location_id == location.id:
                     location = None
@@ -387,6 +428,27 @@ def import_observations(user, import_user, import_history_rec_id, file):
 
             oal_lens = oal_observation.get_lens()
             lens = found_lenses.get(oal_observation.get_lens()) if oal_observation.get_lens() else None
+
+            # find out existing observation by date and observed object
+            if not observation:
+                if observed_double_star:
+                    observation = Observation.query.filter_by(user_id=current_user.id) \
+                                                   .filter(Observation.double_star_id == observed_double_star.id) \
+                                                   .filter(Observation.date_from == oal_observation.get_begin())
+                if observed_dso:
+                    observation = Observation.query.filter_by(user_id=current_user.id) \
+                        .join(dso_observation_association_table, isouter=True) \
+                        .join(DeepskyObject, isouter=True) \
+                        .filter(Observation.date_from == oal_observation.get_begin()) \
+                        .filter((Observation.target_type == ObservationTargetType.DSO) &
+                                (dso_observation_association_table.c.observation_id == Observation.id) &
+                                (dso_observation_association_table.c.dso_id == DeepskyObject.id) &
+                                (DeepskyObject.id == observed_dso.id))
+                if observation:
+                    observation = observation.first()
+
+            if not observation:
+                print('Observation: observation not found!', flush=True)
 
             now = datetime.now()
             if not observation:

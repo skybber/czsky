@@ -54,7 +54,8 @@ def create_app(config):
 
     app.config.from_object(Config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
+    app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+    app.config['MAX_CONTENT_SIZE'] = 50 * 1024 * 1024
     app.config['UPLOAD_FOLDER'] = 'uploads/'
     # not using sqlalchemy event system, hence disabling it
 
