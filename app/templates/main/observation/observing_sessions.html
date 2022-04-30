@@ -13,7 +13,7 @@
                 {{ _('New observing session') }}
             </a>
             <h2 class="ui header">
-                {{ _('Observing Sessions') }}
+                {{ _('Observing Sessions') }}{{ (' (' + user.user_name + ')') if user else '' }}
             </h2>
 
             <div style="overflow-x: scroll;">

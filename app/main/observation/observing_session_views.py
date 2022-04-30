@@ -39,6 +39,7 @@ from app.models import (
     Seeing,
     SessionPlan,
     Transparency,
+    User,
 )
 
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
@@ -75,6 +76,26 @@ def observing_sessions():
 
     pagination = Pagination(page=page, per_page=per_page, total=observing_sessions.count(), search=search, record_name='observations', css_framework='semantic')
     return render_template('main/observation/observing_sessions.html', observing_sessions=obs_sessions_for_render, pagination=pagination)
+
+
+@main_observing_session.route('/user-observing-sessions/<int:user_id>', methods=['GET', 'POST'])
+def user_observing_sessions(user_id):
+    """View observing sessions of given user."""
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        abort(404)
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    per_page = ITEMS_PER_PAGE
+    offset = (page - 1) * per_page
+
+    observing_sessions = ObservingSession.query.filter_by(user_id=user_id, is_public=True) \
+                                               .order_by(ObservingSession.date_from.desc())
+    search = False
+
+    obs_sessions_for_render = observing_sessions.limit(per_page).offset(offset).all()
+
+    pagination = Pagination(page=page, per_page=per_page, total=observing_sessions.count(), search=search, record_name='observations', css_framework='semantic')
+    return render_template('main/observation/observing_sessions.html', observing_sessions=obs_sessions_for_render, pagination=pagination, user=user)
 
 
 def _check_observing_session(observing_session, allow_public=False):
