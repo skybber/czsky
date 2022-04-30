@@ -22,10 +22,13 @@ class ImportType(Enum):
 
 
 class ImportHistoryRecStatus(Enum):
+    PROCESSING = 'PROCESSING'
     IMPORTED = 'IMPORTED'
     DELETED = 'DELETED'
 
     def loc_text(self):
+        if self == ImportHistoryRecStatus.PROCESSING:
+            return lazy_pgettext('importstatus', 'Processing')
         if self == ImportHistoryRecStatus.IMPORTED:
             return lazy_pgettext('importstatus', 'Imported')
         if self == ImportHistoryRecStatus.DELETED:

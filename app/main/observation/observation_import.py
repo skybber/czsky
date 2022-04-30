@@ -46,7 +46,7 @@ from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name, 
 from app.commons.search_sky_object_utils import search_double_star_strict, search_double_star
 
 
-def import_observations(user, import_user, import_history_rec_id, file):
+def import_observations(user_id, import_user_id, import_history_rec_id, file):
     log_warn = []
     log_error = []
 
@@ -84,7 +84,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             if isinstance(oal_scope, OalfixedMagnificationOpticsType):
                 fixed_magnification = oal_scope.get_magnification()
 
-            telescope_query = Telescope.query.filter_by(user_id=current_user.id)
+            telescope_query = Telescope.query.filter_by(user_id=user_id)
             if model:
                 telescope_query = telescope_query.filter_by(model=model)
             if telescope_type:
@@ -112,9 +112,9 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     is_active=True,
                     is_deleted=False,
                     import_history_rec_id=import_history_rec_id,
-                    user_id=current_user.id,
-                    create_by=current_user.id,
-                    update_by=current_user.id,
+                    user_id=user_id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -131,7 +131,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             focal_length_mm = oal_eyepiece.get_focalLength()
             fov_deg = _get_angle_from_oal_angle(oal_eyepiece.get_apparentFOV())
 
-            eyepiece_query = Eyepiece.query.filter_by(user_id=current_user.id)
+            eyepiece_query = Eyepiece.query.filter_by(user_id=user_id)
             if model:
                 eyepiece_query = eyepiece_query.filter_by(model=model)
             if vendor:
@@ -153,9 +153,9 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     is_active=True,
                     is_deleted=False,
                     import_history_rec_id=import_history_rec_id,
-                    user_id=current_user.id,
-                    create_by=current_user.id,
-                    update_by=current_user.id,
+                    user_id=user_id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -171,7 +171,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             vendor = oal_filter.get_vendor()
             filter_type = _get_filter_type_from_oal_filter_kind(oal_filter.get_type())
 
-            filter_query = Filter.query.filter_by(user_id=current_user.id)
+            filter_query = Filter.query.filter_by(user_id=user_id)
             if model:
                 filter_query = filter_query.filter_by(model=model)
             if vendor:
@@ -191,9 +191,9 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     is_active=True,
                     is_deleted=False,
                     import_history_rec_id=import_history_rec_id,
-                    user_id=current_user.id,
-                    create_by=current_user.id,
-                    update_by=current_user.id,
+                    user_id=user_id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -209,7 +209,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             vendor = oal_lens.get_vendor()
             factor = oal_lens.get_factor()
 
-            lens_query = Lens.query.filter_by(user_id=current_user.id)
+            lens_query = Lens.query.filter_by(user_id=user_id)
             if model:
                 lens_query = lens_query.filter_by(model=model)
             if vendor:
@@ -230,9 +230,9 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     is_active=True,
                     is_deleted=False,
                     import_history_rec_id=import_history_rec_id,
-                    user_id=current_user.id,
-                    create_by=current_user.id,
-                    update_by=current_user.id,
+                    user_id=user_id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -252,7 +252,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
             if end and not begin:
                 begin = end
 
-            observing_session = ObservingSession.query.filter(ObservingSession.user_id == user.id) \
+            observing_session = ObservingSession.query.filter(ObservingSession.user_id == user_id) \
                 .filter(and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end)) \
                 .first()
             if observing_session and observing_session.update_date != observing_session.create_date:
@@ -270,7 +270,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 now = datetime.now()
                 if not observing_session:
                     observing_session = ObservingSession(
-                        user_id=user.id,
+                        user_id=user_id,
                         title=title,
                         date_from=begin,
                         date_to=end,
@@ -285,8 +285,8 @@ def import_observations(user, import_user, import_history_rec_id, file):
                         equipment=oal_session.get_equipment(),
                         notes=oal_session.get_comments(),
                         import_history_rec_id=import_history_rec_id,
-                        create_by=import_user.id,
-                        update_by=import_user.id,
+                        create_by=import_user_id,
+                        update_by=import_user_id,
                         create_date=now,
                         update_date=now
                     )
@@ -301,7 +301,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     observing_session.equipment = oal_session.get_equipment()
                     observing_session.notes = oal_session.get_comments()
                     observing_session.import_history_rec_id = import_history_rec_id
-                    observing_session.update_by = import_user.id
+                    observing_session.update_by = import_user_id
                     observing_session.create_date = now
                     observing_session.update_date = now
                     found_observing_sessions[oal_session.get_id()] = observing_session
@@ -353,13 +353,13 @@ def import_observations(user, import_user, import_history_rec_id, file):
             if oal_observation.get_begin():
                 observing_session = addhoc_observing_sessions.get(oal_observation.get_begin().date())
                 if not observing_session:
-                    observing_session = ObservingSession.query.filter(ObservingSession.user_id == current_user.id) \
+                    observing_session = ObservingSession.query.filter(ObservingSession.user_id == user_id) \
                         .filter(ObservingSession.date_from == oal_observation.get_begin())  \
                         .first()
                     if not observing_session:
                         now = datetime.now()
                         observing_session = ObservingSession(
-                            user_id=user.id,
+                            user_id=user_id,
                             title=str(oal_observation.get_begin().date()),
                             date_from=oal_observation.get_begin(),
                             date_to=oal_observation.get_end(),
@@ -374,15 +374,12 @@ def import_observations(user, import_user, import_history_rec_id, file):
                             equipment=None,
                             notes=None,
                             import_history_rec_id=import_history_rec_id,
-                            create_by=import_user.id,
-                            update_by=import_user.id,
+                            create_by=import_user_id,
+                            update_by=import_user_id,
                             create_date=now,
                             update_date=now
                         )
                         db.session.add(observing_session)
-                        print('Observing session not found!', flush=True)
-                    else:
-                        print('Observing session found!', flush=True)
                     addhoc_observing_sessions[oal_observation.get_begin().date()] = observing_session
                 is_session_new = True
 
@@ -432,11 +429,11 @@ def import_observations(user, import_user, import_history_rec_id, file):
             # find out existing observation by date and observed object
             if not observation:
                 if observed_double_star:
-                    observation = Observation.query.filter_by(user_id=current_user.id) \
+                    observation = Observation.query.filter_by(user_id=user_id) \
                                                    .filter(Observation.double_star_id == observed_double_star.id) \
                                                    .filter(Observation.date_from == oal_observation.get_begin())
                 if observed_dso:
-                    observation = Observation.query.filter_by(user_id=current_user.id) \
+                    observation = Observation.query.filter_by(user_id=user_id) \
                         .join(dso_observation_association_table, isouter=True) \
                         .join(DeepskyObject, isouter=True) \
                         .filter(Observation.date_from == oal_observation.get_begin()) \
@@ -447,13 +444,10 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 if observation:
                     observation = observation.first()
 
-            if not observation:
-                print('Observation: observation not found!', flush=True)
-
             now = datetime.now()
             if not observation:
                 observation = Observation(
-                    user_id=current_user.id,
+                    user_id=user_id,
                     observing_session_id=observing_session.id if observing_session else None,
                     location_id=location.id if location else None,
                     location_position=location_position,
@@ -468,8 +462,8 @@ def import_observations(user, import_user, import_history_rec_id, file):
                     lens_id=lens.id if lens else None,
                     notes=notes,
                     import_history_rec_id=import_history_rec_id,
-                    create_by=current_user.id,
-                    update_by=current_user.id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
                     create_date=now,
                     update_date=now,
                 )
@@ -497,7 +491,7 @@ def import_observations(user, import_user, import_history_rec_id, file):
                 observation.lens_id = lens.id if lens else None
                 observation.notes = notes
                 observation.import_history_rec_id = import_history_rec_id
-                observation.update_by = current_user.id
+                observation.update_by = import_user_id
                 observation.create_date = now  # set create date to update date to easy detect user modifications
                 observation.update_date = now
                 db.session.add(observation)

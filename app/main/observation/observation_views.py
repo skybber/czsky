@@ -20,6 +20,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from flask_babel import gettext
+from flask_rq import get_queue
 
 from app import db
 
@@ -92,7 +93,7 @@ def observation_import_upload():
 
         import_history_rec = ImportHistoryRec()
         import_history_rec.import_type = ImportType.OBSERVATION
-        import_history_rec.status = ImportHistoryRecStatus.IMPORTED
+        import_history_rec.status = ImportHistoryRecStatus.PROCESSING
         import_history_rec.create_by = current_user.id
         import_history_rec.create_date = datetime.now()
         db.session.add(import_history_rec)
@@ -108,24 +109,51 @@ def observation_import_upload():
                     encoding = m.group(1).lower()
 
         if encoding:
-            with codecs.open(path, 'r', encoding=encoding) as oal_file:
-                log_warn, log_error = import_observations(current_user, current_user, import_history_rec.id, oal_file)
+            get_queue().enqueue(
+                _do_import_observations_enc,
+                current_user.id,
+                current_user.id,
+                import_history_rec.id,
+                path,
+                encoding)
         else:
-            with open(path) as oal_file:
-                log_warn, log_error = import_observations(current_user, current_user, import_history_rec.id, oal_file)
+            get_queue().enqueue(
+                _do_import_observations,
+                current_user.id,
+                current_user.id,
+                import_history_rec.id,
+                path)
 
-        if log_warn is not None and log_error is not None:
-            log = 'Warnings:\n' + '\n'.join(log_warn) + '\nErrrors:' + '\n'.join(log_error)
-            import_history_rec.log = log
-            import_history_rec.create_date = datetime.now()
-            db.session.add(import_history_rec)
-            db.session.commit()
-        else:
-            db.session.delete(import_history_rec)
-            db.session.commit()
-        flash(gettext('Observations imported.'), 'form-success')
+    flash(gettext('Observations import enqued.'), 'form-success')
 
     return render_template('main/observation/observation_import.html', about_oal=_get_about_oal(), log_warn=log_warn, log_error=log_error)
+
+
+def _do_import_observations_enc(user_id, import_user_id, import_history_rec_id, path, encoding):
+    with codecs.open(path, 'r', encoding=encoding) as oal_file:
+        log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
+        _do_process_import_log(log_warn, log_error, import_history_rec_id)
+
+
+def _do_import_observations(user_id, import_user_id, import_history_rec_id, path):
+    with open(path) as oal_file:
+        log_warn, log_error = import_observations(user_id, import_user_id, import_history_rec_id, oal_file)
+        _do_process_import_log(log_warn, log_error, import_history_rec_id)
+
+
+def _do_process_import_log(log_warn, log_error, import_history_rec_id):
+    import_history_rec = ImportHistoryRec.query.filter_by(id=import_history_rec_id).first()
+    if not import_history_rec:
+        return
+    if log_warn is not None and log_error is not None:
+        log = 'Warnings:\n' + '\n'.join(log_warn) + '\nErrrors:' + '\n'.join(log_error)
+        import_history_rec.log = log
+        import_history_rec.create_date = datetime.now()
+        db.session.add(import_history_rec)
+        db.session.commit()
+    else:
+        db.session.delete(import_history_rec)
+        db.session.commit()
 
 
 def _get_about_oal():
