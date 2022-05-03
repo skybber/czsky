@@ -57,7 +57,6 @@
         <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observing_session.weather if observing_session.weather else '' }}</td></tr>
         <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observing_session.equipment if observing_session.equipment else '' }}</td></tr>
         <tr>
-        <tr>
             <td class="two wide">{{ _('Notes') }}</td>
             <td colspan="5">
                 {% filter extended_commonmark('') %}
@@ -70,6 +69,7 @@
         {% for o in observing_session.observations | sort(attribute='date_from') %}
         <tr>
             <td class="two wide"><b>{{ o.targets_from_session_to_html() | safe }}</b></td>
+            <td class="two wide"><b>{{ o.telescope.model if o.telescope else '' }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}
 {{ o.notes_to_html() }}
