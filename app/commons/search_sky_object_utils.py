@@ -169,26 +169,3 @@ def _get_constell(costell_code):
         constell = Constellation.get_iau_dict().get(constell_iau_code)
         return constell
     return None
-
-
-def parse_observation_targets(targets):
-    not_found = []
-    dsos = []
-    double_star = None
-    target_names = targets.split(',')
-    for target_name in target_names:
-        dso_name = normalize_dso_name(target_name)
-        dso = DeepskyObject.query.filter_by(name=dso_name).first()
-        if dso:
-            dsos.append(dso)
-            continue
-        double_star_name = normalize_double_star_name(target_name)
-        double_star = DoubleStar.query.filter_by(common_cat_id=double_star_name).first()
-        if double_star:
-            break
-        double_star = DoubleStar.query.filter(DoubleStar.norm_other_designation.ilike('%;' + target_name + ';%')).first()
-        if double_star:
-            break
-        not_found.append(target_name)
-
-    return dsos, double_star, not_found

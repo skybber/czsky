@@ -32,7 +32,7 @@ from flask_babel import lazy_gettext
 from app.models import Seeing, Transparency, DeepskyObject
 
 from app.main.utils.validators import location_lonlat_check
-from app.commons.search_sky_object_utils import parse_observation_targets
+from app.commons.observation_target_utils import parse_observation_targets
 
 
 class StandaloneObservationMixin:

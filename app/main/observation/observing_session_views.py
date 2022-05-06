@@ -44,7 +44,7 @@ from app.models import (
 
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
-from app.commons.search_sky_object_utils import parse_observation_targets
+from app.commons.observation_target_utils import set_observation_targets
 from app.commons.dso_utils import CZSKY_CHART_DOUBLE_STAR_PREFIX
 
 from app.commons.chart_generator import (
@@ -272,15 +272,7 @@ def observing_session_items_edit(observing_session_id):
                 )
                 observing_session.observations.append(observation)
 
-                observation.deepsky_objects = []
-                dsos, double_star, not_found = parse_observation_targets(targets)
-                if double_star:
-                    observation.double_star_id = double_star.id
-                    observation.target_type = ObservationTargetType.DBL_STAR
-                elif dsos:
-                    for dso in dsos:
-                        observation.deepsky_objects.append(dso)
-                    observation.target_type = ObservationTargetType.DSO
+                set_observation_targets(observation, targets)
 
             db.session.add(observing_session)
             db.session.commit()

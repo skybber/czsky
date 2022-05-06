@@ -23,8 +23,6 @@ from app.commons.search_utils import (
 
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
 
-from app.commons.search_sky_object_utils import parse_observation_targets
-
 from app.commons.pagination import Pagination, get_page_parameter
 
 from .standalone_observation_forms import (
@@ -46,6 +44,8 @@ from app.models import (
     Transparency,
     dso_observation_association_table,
 )
+
+from app.commons.observation_target_utils import set_observation_targets
 
 main_standalone_observation = Blueprint('main_standalone_observation', __name__)
 
@@ -145,6 +145,8 @@ def new_standalone_observation():
             update_date=datetime.now()
         )
 
+        set_observation_targets(observation, form.target.data)
+
         db.session.add(observation)
         db.session.commit()
         flash(gettext('Observation successfully created'), 'form-success')
@@ -173,7 +175,7 @@ def standalone_observation_edit(observation_id):
             else:
                 location_position = form.location.data
 
-            _set_observation_targets(observation, form.target.data)
+            set_observation_targets(observation, form.target.data)
 
             observation.user_id = current_user.id
             observation.date_from = form.date_from.data
@@ -228,19 +230,6 @@ def standalone_observation_delete(observation_id):
     db.session.commit()
     flash(gettext('Observation was deleted'), 'form-success')
     return redirect(url_for('main_standalone_observation.standalone_observations'))
-
-
-def _set_observation_targets(observation, targets):
-    observation.deepsky_objects = []
-    observation.double_star_id = None
-    dsos, double_star, not_found = parse_observation_targets(targets)
-    if double_star:
-        observation.double_star_id = double_star.id
-        observation.target_type = ObservationTargetType.DBL_STAR
-    elif dsos:
-        for dso in dsos:
-            observation.deepsky_objects.append(dso)
-        observation.target_type = ObservationTargetType.DSO
 
 
 def _get_location_data2_from_form(form):
