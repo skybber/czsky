@@ -54,12 +54,12 @@
                         <i class="warning circle icon"></i>
                         <div class="content">
                             <div class="sub header">
-                                You are going to login as hidden user.
+                                You are going to login as a user.
                             </div>
                         </div>
                     </h3>
                     <div class="ui form">
-                        <a class="ui {% if not user.is_hidden %}disabled {% endif %}orange button" href="{{ url_for('admin.login_as', user_id=user.id) }}">
+                        <a class="ui {% if user.is_hidden %}disabled {% endif %}orange button" href="{{ url_for('admin.login_as', user_id=user.id) }}">
                             Login as this user
                         </a>
                     </div>
