@@ -1,3 +1,6 @@
+import pytz
+import datetime
+
 from app.commons.coordinates import parse_latlon
 
 from app.commons.oal_export_utils import get_oal_angle, get_oal_non_neg_angle, create_dso_observation_target
@@ -22,10 +25,14 @@ def create_oal_observations_from_session_plan(user, session_plan):
     oal_sites = OalsitesType()
     location = session_plan.location
     if location:
+        tz_utc_offset = None
+        if location.time_zone:
+            tz_now = datetime.datetime.now(pytz.timezone(location.time_zone))
+            tz_utc_offset = tz_now.utcoffset().total_seconds()/60
         oal_site = OalsiteType(id='site_{}'.format(location.id), name=location.name,
                                longitude=get_oal_angle(angleUnit.DEG, location.longitude), latitude=get_oal_angle(angleUnit.DEG, location.latitude),
                                elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
-                               timezone=location.time_zone, code=location.iau_code)
+                               timezone=tz_utc_offset, code=location.iau_code)
     else:
         lat, lon = parse_latlon(session_plan.location_position)
         oal_site = OalsiteType(id='site_adhoc_{}'.format(session_plan.id), name=None,

@@ -1,3 +1,6 @@
+import pytz
+import datetime
+
 from app.commons.coordinates import parse_latlon
 
 from app.commons.oal_export_utils import (
@@ -56,10 +59,14 @@ def create_oal_observations(user, observing_sessions):
             if location.id in proc_locations:
                 continue
             proc_locations.add(location.id)
+            tz_utc_offset = None
+            if location.time_zone:
+                tz_now = datetime.datetime.now(pytz.timezone(location.time_zone))
+                tz_utc_offset = tz_now.utcoffset().total_seconds()/60
             oal_site = OalsiteType(id='site_{}'.format(location.id), name=location.name,
                                    longitude=get_oal_angle(angleUnit.DEG, location.longitude), latitude=get_oal_angle(angleUnit.DEG, location.latitude),
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
-                                   timezone=location.time_zone, code=location.iau_code)
+                                   timezone=tz_utc_offset, code=location.iau_code)
         else:
             lat, lon = parse_latlon(observing_session.location_position)
             oal_site = OalsiteType(id='site_adhoc_{}'.format(observing_session.id), name=None,
