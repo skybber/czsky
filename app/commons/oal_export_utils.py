@@ -37,7 +37,7 @@ def create_double_star_observation_target(double_star):
                                   constellation=dso_constell, notes=None,
                                   smallDiameter=None, largeDiameter=None,
                                   visMag=double_star.mag_first, surfBr=None, nebulaType=None,
-                                  pa=double_star.position_angle
+                                  pa=double_star.pos_angle
                                   )
     return oal_obs_target
 
