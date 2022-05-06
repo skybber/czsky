@@ -117,9 +117,9 @@ def _search_star_from_catalog(query):
     return star
 
 
-def search_double_star(query):
+def search_double_star(query, number_search=True):
     double_star = None
-    if query[0].isdigit():
+    if number_search and query[0].isdigit():
         double_star = DoubleStar.query.filter_by(wds_number=query).first()
     if not double_star:
         double_star = DoubleStar.query.filter_by(common_cat_id=normalize_double_star_name(query)).first()

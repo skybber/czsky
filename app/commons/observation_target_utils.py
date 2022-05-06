@@ -11,17 +11,15 @@ from app.models import (
 def parse_observation_targets(targets):
     not_found = []
     dsos = []
-    double_star = None
-    target_names = targets.split(',')
-    for target_name in target_names:
-        dso = search_dso(target_name)
-        if dso:
-            dsos.append(dso)
-            continue
-        double_star = search_double_star(target_name)
-        if double_star:
-            break
-        not_found.append(target_name)
+    double_star = search_double_star(targets, number_search=False)
+    if not double_star:
+        target_names = targets.split(',')
+        for target_name in target_names:
+            dso = search_dso(target_name)
+            if dso:
+                dsos.append(dso)
+                continue
+            not_found.append(target_name)
 
     return dsos, double_star, not_found
 
