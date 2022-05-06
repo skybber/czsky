@@ -264,7 +264,7 @@ def observing_session_items_edit(observing_session_id):
                 db.session.delete(observation)
             observing_session.observations.clear()
             for item_form in form.items[1:]:
-                if observing_session.date_from.day < observing_session.date_to.day:
+                if observing_session.date_from.day != observing_session.date_to.day:
                     if item_form.date_from.data.hour >= 12:
                         item_time = datetime.combine(observing_session.date_from, item_form.date_from.data)
                     else:
