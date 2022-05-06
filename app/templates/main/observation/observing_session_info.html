@@ -69,6 +69,9 @@
         {% for o in observing_session.observations | sort(attribute='date_from') %}
         <tr>
             <td class="two wide"><b>{{ o.targets_from_session_to_html() | safe }}</b></td>
+            {% if show_observ_time %}
+            <td class="one wide"><b>{{ o.date_from.strftime('%H:%M') }}</b></td>
+            {% endif %}
             <td class="two wide"><b>{{ o.telescope.model if o.telescope else '' }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}

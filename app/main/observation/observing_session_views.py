@@ -126,8 +126,19 @@ def observing_session_info(observing_session_id):
         location_position_mapy_cz_url = mapy_cz_url(lon, lat)
         location_position_google_maps_url = google_url(lon, lat)
 
+    show_observ_time = False
+
+    if observing_session.observations:
+        ofrom = observing_session.observations[0].date_from
+        oto = observing_session.observations[0].date_to
+        for o in observing_session.observations:
+            if o.date_from != ofrom or o.date_to != oto:
+                show_observ_time = True
+                break
+
     return render_template('main/observation/observing_session_info.html', observing_session=observing_session, type='info', is_mine_observing_session=is_mine_observing_session,
-                           location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url)
+                           location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url,
+                           show_observ_time=show_observ_time)
 
 
 @main_observing_session.route('/new-observing_session', methods=['GET', 'POST'])
