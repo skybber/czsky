@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import and_, or_, not_
 
 from flask_babel import lazy_gettext
+from LatLon23 import LatLon
 
 from app import db
 
@@ -44,6 +45,7 @@ from app.commons.openastronomylog import (
 from app.commons.openastronomylog import parse, filterKind, OalfixedMagnificationOpticsType, OalscopeType, angleUnit
 from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name, normalize_double_star_name
 from app.commons.search_sky_object_utils import search_double_star_strict, search_double_star
+from app.commons.coordinates import latlon_to_string
 
 
 def import_observations(user_id, import_user_id, import_history_rec_id, file):
@@ -62,7 +64,10 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
             if oal_site.get_name():
                 location = Location.query.filter_by(name=oal_site.get_name()).first()
             if location is None:
-                add_hoc_locations[oal_site.name] = (oal_site.get_latitude(), oal_site.get_longitude())
+                lat = _get_angle_from_oal_angle(oal_site.get_latitude())
+                lon = _get_angle_from_oal_angle(oal_site.get_longitude())
+                pos = LatLon(lat, lon)
+                add_hoc_locations[oal_site.get_id()] = str(latlon_to_string(pos))
                 log_warn.append(lazy_gettext('OAL Location "{}" not found').format(oal_site.get_name()))
             else:
                 found_locations[oal_site.get_id()] = location
@@ -514,7 +519,7 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
 
     try:
         db.session.commit()
-    except:
+    except Exception as e:
         db.session.rollback()
 
     return log_warn, log_error
@@ -596,3 +601,4 @@ def _get_angle_from_oal_angle(oal_angle):
             return 180.0 * value / math.pi
         return value
     return None
+

@@ -13,6 +13,7 @@ from app.commons.openastronomylog import (
 
 DS_CZSKY = 'CzSky'
 
+
 def get_oal_angle(unit, angle):
     return OalangleType(unit=unit, valueOf_=angle)
 
