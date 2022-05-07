@@ -66,9 +66,27 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
             if location is None:
                 lat = _get_angle_from_oal_angle(oal_site.get_latitude())
                 lon = _get_angle_from_oal_angle(oal_site.get_longitude())
-                pos = LatLon(lat, lon)
-                add_hoc_locations[oal_site.get_id()] = str(latlon_to_string(pos))
-                log_warn.append(lazy_gettext('OAL Location "{}" not found').format(oal_site.get_name()))
+                location = Location(
+                    name=oal_site.get_name(),
+                    longitude=lon,
+                    latitude=lat,
+                    country_code=None,
+                    descr=None,
+                    bortle=None,
+                    rating=None,
+                    is_public=True,
+                    is_for_observation=True,
+                    time_zone=None,
+                    iau_code=None,
+                    import_history_rec_id=import_history_rec_id,
+                    user_id=user_id,
+                    create_by=import_user_id,
+                    update_by=import_user_id,
+                    create_date=datetime.now(),
+                    update_date=datetime.now()
+                )
+                db.session.add(location)
+                found_locations[oal_site.get_id()] = location
             else:
                 found_locations[oal_site.get_id()] = location
 

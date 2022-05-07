@@ -24,6 +24,7 @@ class Location(db.Model):
     is_public = db.Column(db.Boolean)
     is_for_observation = db.Column(db.Boolean)
     origin_id = db.Column(db.String(32), index=True)
+    import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
