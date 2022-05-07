@@ -6,11 +6,22 @@ from app.commons.coordinates import parse_latlon
 from app.commons.oal_export_utils import (
     get_oal_angle,
     get_oal_non_neg_angle,
+    get_double_star_target_id,
+    get_dso_target_id,
     create_dso_observation_target,
     create_double_star_observation_target
 )
 
-from app.models import Telescope, Eyepiece, Lens, Filter, TelescopeType, FilterType, Seeing
+from app.models import (
+    Telescope,
+    Eyepiece,
+    Lens,
+    Filter,
+    TelescopeType,
+    FilterType,
+    Seeing,
+    ObservationTargetType,
+)
 
 from app.commons.openastronomylog import (
     angleUnit,
@@ -67,7 +78,7 @@ def create_oal_observations(user, observing_sessions):
                                    longitude=get_oal_angle(angleUnit.DEG, location.longitude), latitude=get_oal_angle(angleUnit.DEG, location.latitude),
                                    elevation=(location.elevation if location.elevation and location.elevation != 0 else None),
                                    timezone=tz_utc_offset, code=location.iau_code)
-        else:
+        elif observing_session.location_position:
             lat, lon = parse_latlon(observing_session.location_position)
             oal_site = OalsiteType(id='site_adhoc_{}'.format(observing_session.id), name=None,
                                    longitude=get_oal_angle(angleUnit.DEG, lon), latitude=get_oal_angle(angleUnit.DEG, lat),
@@ -93,16 +104,21 @@ def create_oal_observations(user, observing_sessions):
     proc_targets = set()
     for observing_session in observing_sessions:
         for observation in observing_session.observations:
-            if observation.double_star:
-                oal_obs_target = create_double_star_observation_target(observation.double_star)
-                oal_targets.add_target(oal_obs_target)
-            elif observation.deepsky_objects:
+            if observation.target_type == ObservationTargetType.DSO:
                 for dso in observation.deepsky_objects:
-                    if dso.id in proc_targets:
+                    target_id = '_dso_{}'.format(dso.id)
+                    if target_id in proc_targets:
                         continue
-                    proc_targets.add(dso.id)
+                    proc_targets.add(target_id)
                     oal_obs_target = create_dso_observation_target(dso)
                     oal_targets.add_target(oal_obs_target)
+            elif observation.target_type == ObservationTargetType.DBL_STAR:
+                target_id = '_dbl_{}'.format(observation.double_star.id)
+                if target_id in proc_targets:
+                    continue
+                proc_targets.add(target_id)
+                oal_obs_target = create_double_star_observation_target(observation.double_star)
+                oal_targets.add_target(oal_obs_target)
 
     # Scopes
     oal_scopes = OalscopesType()
@@ -148,27 +164,34 @@ def create_oal_observations(user, observing_sessions):
 
     for observing_session in observing_sessions:
         for observation in observing_session.observations:
-            for dso in observation.deepsky_objects:
-                obs_result = OalfindingsType(lang=user.lang_code, description=observation.notes)
-                oal_sky_quality = OalsurfaceBrightnessType(unit='mags-per-squarearcsec', valueOf_=observing_session.sqm) if observing_session.sqm else None
-                oal_obs = OalobservationType(id='obs_{}'.format(observation.id), observer='usr_{}'.format(user.id), site='site_{}'.format(observing_session.location_id),
-                                             session='se_{}'.format(observing_session.id), target='_{}'.format(dso.id), begin=observation.date_from, end=observation.date_to,
-                                             faintestStar=observing_session.faintest_star, sky_quality=oal_sky_quality, seeing=_get_oal_seeing(observing_session.seeing),
-                                             scope='opt_'.format(observation.telescope_id) if observation.telescope_id else None,
-                                             accessories=observation.accessories,
-                                             eyepiece='ep_'.format(observation.eyepiece_id) if observation.eyepiece_id else None,
-                                             lenses='le_'.format(observation.lens_id) if observation.lens_id else None,
-                                             filter='flt_'.format(observation.filter_id) if observation.filter_id else None,
-                                             magnification=observation.magnification,
-                                             imager=None, result=[obs_result], image=None
-                                             )
-                oal_observation_ar.append(oal_obs)
+            if observation.target_type == ObservationTargetType.DSO:
+                for dso in observation.deepsky_objects:
+                    _append_oalobservation_type(user, observing_session, observation, get_dso_target_id(dso), oal_observation_ar)
+            elif observation.target_type == ObservationTargetType.DBL_STAR:
+                _append_oalobservation_type(user, observing_session, observation, get_double_star_target_id(observation.double_star), oal_observation_ar)
 
     oal_observations = Oalobservations(observers=oal_observers, sites=oal_sites, sessions=oal_sessions, targets=oal_targets,
                                        scopes=oal_scopes, eyepieces=oal_eyepieces, lenses=oal_lenses, filters=oal_filters,
                                        images=None, observation=oal_observation_ar)
 
     return oal_observations
+
+
+def _append_oalobservation_type(user, observing_session, observation, target_id, oal_observation_ar):
+    obs_result = OalfindingsType(lang=user.lang_code, description=observation.notes)
+    oal_sky_quality = OalsurfaceBrightnessType(unit='mags-per-squarearcsec', valueOf_=observing_session.sqm) if observing_session.sqm else None
+    oal_obs = OalobservationType(id='obs_{}'.format(observation.id), observer='usr_{}'.format(user.id), site='site_{}'.format(observing_session.location_id),
+                                 session='se_{}'.format(observing_session.id), target=target_id, begin=observation.date_from, end=observation.date_to,
+                                 faintestStar=observing_session.faintest_star, sky_quality=oal_sky_quality, seeing=_get_oal_seeing(observing_session.seeing),
+                                 scope='opt_'.format(observation.telescope_id) if observation.telescope_id else None,
+                                 accessories=observation.accessories,
+                                 eyepiece='ep_'.format(observation.eyepiece_id) if observation.eyepiece_id else None,
+                                 lenses='le_'.format(observation.lens_id) if observation.lens_id else None,
+                                 filter='flt_'.format(observation.filter_id) if observation.filter_id else None,
+                                 magnification=observation.magnification,
+                                 imager=None, result=[obs_result], image=None
+                                 )
+    oal_observation_ar.append(oal_obs)
 
 
 def _get_oal_telescope_type(telescope_type):
