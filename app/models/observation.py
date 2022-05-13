@@ -123,6 +123,7 @@ dso_observation_association_table = db.Table('observation_dsos', db.Model.metada
 class ObservationTargetType(Enum):
     DSO = 'DSO'
     DBL_STAR = 'DBL_STAR'
+    COMET = 'COMET'
 
 
 class Observation(db.Model):
@@ -153,6 +154,10 @@ class Observation(db.Model):
     deepsky_objects = db.relationship("DeepskyObject", secondary=dso_observation_association_table)
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
     double_star = db.relationship("DoubleStar")
+    comet_id = db.Column(db.Integer, db.ForeignKey('comets.id'), nullable=True)
+    comet = db.relationship("Comet")
+    ra = db.Column(db.Float, index=True)
+    dec = db.Column(db.Float, index=True)
     notes = db.Column(db.Text)
     import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -163,13 +168,8 @@ class Observation(db.Model):
     def get_target_name(self):
         if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return self.double_star.get_common_norm_name()
-        if self.target_type == ObservationTargetType.DSO and self.deepsky_objects:
-            return ','.join(dso.name for dso in self.deepsky_objects)
-        return ''
-
-    def get_target_norm_name(self):
-        if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
-            return self.double_star.get_common_norm_name()
+        if self.target_type == ObservationTargetType.COMET and self.comet:
+            return self.comet.designation
         if self.target_type == ObservationTargetType.DSO and self.deepsky_objects:
             return ','.join(dso.name for dso in self.deepsky_objects)
         return ''
@@ -223,8 +223,10 @@ class Observation(db.Model):
         return self._targets_to_html('observation', self.observing_session_id)
 
     def _targets_to_html(self, back, back_id):
-        if self.double_star:
+        if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return '<a href="' + url_for('main_double_star.double_star_info', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
+        if self.target_type == ObservationTargetType.COMET and self.comet:
+            return '<a href="' + url_for('main_comet.comet_info', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
         formatted_dsos = []
         for dso in self.deepsky_objects:
             formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')

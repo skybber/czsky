@@ -118,7 +118,7 @@ def global_search():
     # 5. Search comet
     comet = search_comet(query)
     if comet is not None:
-        return redirect(url_for('main_comet.comet_info', comet_id=comet['comet_id']))
+        return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id))
 
     # 6. search by radec
     res = _search_by_ra_dec(query)

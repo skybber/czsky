@@ -390,6 +390,8 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
             highlights_dso_list.extend(observation.deepsky_objects)
         elif observation.target_type == ObservationTargetType.DBL_STAR:
             highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CZSKY_CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id)])
+        elif observation.target_type == ObservationTargetType.COMET:
+            highlights_pos_list.append([observation.ra, observation.dec, ''])
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None

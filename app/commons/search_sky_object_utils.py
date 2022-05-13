@@ -5,6 +5,7 @@ from .greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT
 from .utils import get_lang_and_editor_user_from_request
 
 from app.models import (
+    Comet,
     Constellation,
     DeepskyObject,
     DoubleStar,
@@ -157,10 +158,8 @@ def search_double_star_strict(query):
 def search_comet(query):
     if len(query) > 5:
         search_expr = query.replace('"', '')
-        all_comets = get_all_comets()
-        comets = all_comets.query('designation.str.contains("{}")'.format(search_expr))
-        if len(comets) >= 1:
-            return comets.iloc[0]
+        comet = Comet.query.filter(Comet.designation.like('%' + search_expr + '%')).first()
+        return comet
 
 
 def _get_constell(costell_code):

@@ -32,6 +32,7 @@ from .standalone_observation_forms import (
 )
 
 from app.models import (
+    Comet,
     DeepskyObject,
     DoubleStar,
     Eyepiece,
@@ -74,9 +75,11 @@ def standalone_observations():
     if search_form.q.data:
         dso_q = normalize_dso_name(denormalize_dso_name(search_form.q.data))
         double_star_q = normalize_double_star_name(search_form.q.data)
+        comet_q = search_form.q.data
         observations = observations.join(dso_observation_association_table, isouter=True) \
                                    .join(DeepskyObject, isouter=True) \
                                    .join(DoubleStar, isouter=True) \
+                                   .join(Comet, isouter=True) \
                                    .filter(((Observation.target_type == ObservationTargetType.DSO) &
                                             (dso_observation_association_table.c.observation_id == Observation.id) &
                                             (dso_observation_association_table.c.dso_id == DeepskyObject.id) &
@@ -85,7 +88,12 @@ def standalone_observations():
                                            |
                                            ((Observation.target_type == ObservationTargetType.DBL_STAR) &
                                             (DoubleStar.id == Observation.double_star_id) &
-                                            (DoubleStar.common_cat_id == double_star_q)))
+                                            (DoubleStar.common_cat_id == double_star_q))
+                                           |
+                                           ((Observation.target_type == ObservationTargetType.COMET) &
+                                            (Comet.id == Observation.comet_id) &
+                                            (Comet.designation == comet_q))
+                                           )
 
     observations = observations.order_by(Observation.date_from.desc())
     statement = observations.statement
@@ -202,7 +210,7 @@ def standalone_observation_edit(observation_id):
             return redirect(url_for('main_standalone_observation.standalone_observation_edit', observation_id=observation.id))
     else:
         form.observing_session_id.data = observation.observing_session_id
-        form.target.data = observation.get_target_norm_name()
+        form.target.data = observation.get_target_name()
         form.date_from.data = observation.date_from
         form.date_to.data = observation.date_to
         form.location.data = observation.location_id if observation.location_id is not None else observation.location_position

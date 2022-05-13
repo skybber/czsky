@@ -49,6 +49,10 @@ from app.commons.chart_generator import (
 
 from app.commons.utils import to_float
 
+from app.models import (
+    Comet,
+)
+
 main_comet = Blueprint('main_comet', __name__)
 
 all_comets_expiration = datetime.now() + timedelta(days=1)
@@ -75,18 +79,46 @@ def _create_comet_brighness_file(all_comets, fname):
     mags = []
     t = ts.now()
     with open(fname, 'w') as f:
-        for index, row in all_comets.iterrows():
+        for index, mpc_comet in all_comets.iterrows():
             m = 22.0
             try:
-                comet = sun + mpc.comet_orbit(row, ts, GM_SUN)
-                dist_earth = earth.at(t).observe(comet).distance().au
-                dist_sun = sun.at(t).observe(comet).distance().au
+                skf_comet = sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN)
+                dist_earth = earth.at(t).observe(skf_comet).distance().au
+                dist_sun = sun.at(t).observe(skf_comet).distance().au
                 if dist_earth < 10.0:
-                    m = row['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*row['magnitude_k']*np.log10(dist_sun)
-                    print('Comet: {} de={} ds={} m={} g={}'.format(row['designation'], dist_earth, dist_sun, m, row['magnitude_k']), flush=True)
+                    m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
+                    print('Comet: {} de={} ds={} m={} g={}'.format(mpc_comet['designation'], dist_earth, dist_sun, m, mpc_comet['magnitude_k']), flush=True)
+
+                comet_id = mpc_comet['comet_id']
+
+                comet = Comet.query.filter_by(comet_id=comet_id).first()
+                if comet is None:
+                    comet = Comet()
+                    comet.comet_id = comet_id
+
+                comet.designation = mpc_comet['designation']
+                comet.number = mpc_comet['number']
+                comet.orbit_type = mpc_comet['orbit_type']
+                comet.designation_packed = mpc_comet['designation_packed']
+                comet.perihelion_year = mpc_comet['perihelion_year']
+                comet.perihelion_month = mpc_comet['perihelion_month']
+                comet.perihelion_day = mpc_comet['perihelion_day']
+                comet.perihelion_distance_au = mpc_comet['perihelion_distance_au']
+                comet.eccentricity = mpc_comet['eccentricity']
+                comet.argument_of_perihelion_degrees = mpc_comet['argument_of_perihelion_degrees']
+                comet.longitude_of_ascending_node_degrees = mpc_comet['longitude_of_ascending_node_degrees']
+                comet.inclination_degrees = mpc_comet['inclination_degrees']
+                comet.perturbed_epoch_year = mpc_comet['perturbed_epoch_year']
+                comet.perturbed_epoch_month = mpc_comet['perturbed_epoch_month']
+                comet.perturbed_epoch_day = mpc_comet['perturbed_epoch_day']
+                comet.magnitude_g = mpc_comet['magnitude_g']
+                comet.magnitude_k = mpc_comet['magnitude_k']
+                comet.reference = mpc_comet['reference']
+                db.session.add(comet)
+                db.session.commit()
             except Exception:
                 pass
-            f.write(row['comet_id'] + ' ' + str(m) + '\n')
+            f.write(mpc_comet['comet_id'] + ' ' + str(m) + '\n')
             mags.append(m)
 
     all_comets['mag'] = mags
