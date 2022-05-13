@@ -301,8 +301,10 @@ def observing_session_items_edit(observing_session_id):
     else:
         for oi in observing_session.observations:
             oif = form.items.append_entry()
-            if oi.double_star:
+            if oi.target_type == ObservationTargetType.DBL_STAR:
                 targets_comp = oi.double_star.get_common_norm_name()
+            if oi.target_type == ObservationTargetType.COMET:
+                targets_comp = oi.comet.comet_id
             else:
                 targets_comp = ','.join([dso.name for dso in oi.deepsky_objects])
             targets_comp += ':'
