@@ -137,6 +137,12 @@ def get_all_comets():
     return all_comets
 
 
+def find_mpc_comet(comet_id):
+    all_comets = get_all_comets()
+    c = all_comets.loc[all_comets['comet_id'] == comet_id]
+    return c.iloc[0] if len(c) > 0 else None
+
+
 @main_comet.route('/comets', methods=['GET', 'POST'])
 def comets():
     """View comets."""
@@ -168,17 +174,11 @@ def comets():
     return render_template('main/solarsystem/comets.html', comets=comets_for_render, pagination=pagination, search_form=search_form)
 
 
-def _find_comet(comet_id):
-    all_comets = get_all_comets()
-    c = all_comets.loc[all_comets['comet_id'] == comet_id]
-    return c.iloc[0] if len(c) > 0 else None
-
-
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
 @main_comet.route('/comet/<string:comet_id>/info', methods=['GET', 'POST'])
 def comet_info(comet_id):
     """View a comet info."""
-    comet = _find_comet(comet_id)
+    comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
 
@@ -236,7 +236,7 @@ def comet_info(comet_id):
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def comet_chart_pos_img(comet_id, ra, dec):
-    comet = _find_comet(comet_id)
+    comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
 
@@ -262,7 +262,7 @@ def comet_chart_pos_img(comet_id, ra, dec):
 
 @main_comet.route('/comet/<string:comet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def comet_chart_legend_img(comet_id, ra, dec):
-    comet = _find_comet(comet_id)
+    comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
 
@@ -275,7 +275,7 @@ def comet_chart_legend_img(comet_id, ra, dec):
 
 @main_comet.route('/comet/<string:comet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def comet_chart_pdf(comet_id, ra, dec):
-    comet = _find_comet(comet_id)
+    comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
 
@@ -298,7 +298,7 @@ def comet_chart_pdf(comet_id, ra, dec):
 @main_comet.route('/comet/<string:comet_id>/catalogue_data')
 def comet_catalogue_data(comet_id):
     """View a comet catalog info."""
-    comet = _find_comet(comet_id)
+    comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
     return render_template('main/solarsystem/comet_info.html', type='catalogue_data', user_descr=user_descr)
