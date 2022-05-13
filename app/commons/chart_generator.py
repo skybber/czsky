@@ -842,7 +842,7 @@ def common_equipment():
 
 def get_trajectory_time_delta(d1, d2):
     delta = d2 - d1
-    if delta.days > 90:
+    if delta.days > 120:
         return timedelta(days=30)
     if delta.days > 30:
         return timedelta(days=7)
