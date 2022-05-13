@@ -24,10 +24,9 @@ def load_all_mpc_comets():
         return all_mpc_comets
 
 
-def import_update_commets(all_mpc_comets, show_progres=False):
+def import_update_comets(all_mpc_comets, show_progress=False):
     comets = []
     for index, mpc_comet in all_mpc_comets.iterrows():
-        
         comet_id = mpc_comet['comet_id']
         
         comet = Comet.query.filter_by(comet_id=comet_id).first()
@@ -57,11 +56,11 @@ def import_update_commets(all_mpc_comets, show_progres=False):
     try:
         line_cnt = 1
         for comet in comets:
-            if show_progres:
+            if show_progress:
                 progress(line_cnt, len(comets), 'Importing minor planets')
             line_cnt += 1
             db.session.add(comet)
-        if show_progres:
+        if show_progress:
             print('')
         db.session.commit()
     except IntegrityError as err:

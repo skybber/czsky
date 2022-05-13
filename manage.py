@@ -206,7 +206,7 @@ def import_minor_planets():
 @manager.command
 def tmp_import_comets():
     all_mpc_comets = load_all_mpc_comets()
-    import_update_commets(all_mpc_comets, show_progres=True)
+    import_update_comets(all_mpc_comets, show_progres=True)
 
 
 @manager.command

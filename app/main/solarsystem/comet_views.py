@@ -47,6 +47,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
+from app.commons.comet_loader import import_update_comets
 from app.commons.utils import to_float
 
 from app.models import (
@@ -89,33 +90,6 @@ def _create_comet_brighness_file(all_comets, fname):
                     m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
                     print('Comet: {} de={} ds={} m={} g={}'.format(mpc_comet['designation'], dist_earth, dist_sun, m, mpc_comet['magnitude_k']), flush=True)
 
-                comet_id = mpc_comet['comet_id']
-
-                comet = Comet.query.filter_by(comet_id=comet_id).first()
-                if comet is None:
-                    comet = Comet()
-                    comet.comet_id = comet_id
-
-                comet.designation = mpc_comet['designation']
-                comet.number = mpc_comet['number']
-                comet.orbit_type = mpc_comet['orbit_type']
-                comet.designation_packed = mpc_comet['designation_packed']
-                comet.perihelion_year = mpc_comet['perihelion_year']
-                comet.perihelion_month = mpc_comet['perihelion_month']
-                comet.perihelion_day = mpc_comet['perihelion_day']
-                comet.perihelion_distance_au = mpc_comet['perihelion_distance_au']
-                comet.eccentricity = mpc_comet['eccentricity']
-                comet.argument_of_perihelion_degrees = mpc_comet['argument_of_perihelion_degrees']
-                comet.longitude_of_ascending_node_degrees = mpc_comet['longitude_of_ascending_node_degrees']
-                comet.inclination_degrees = mpc_comet['inclination_degrees']
-                comet.perturbed_epoch_year = mpc_comet['perturbed_epoch_year']
-                comet.perturbed_epoch_month = mpc_comet['perturbed_epoch_month']
-                comet.perturbed_epoch_day = mpc_comet['perturbed_epoch_day']
-                comet.magnitude_g = mpc_comet['magnitude_g']
-                comet.magnitude_k = mpc_comet['magnitude_k']
-                comet.reference = mpc_comet['reference']
-                db.session.add(comet)
-                db.session.commit()
             except Exception:
                 pass
             f.write(mpc_comet['comet_id'] + ' ' + str(m) + '\n')
@@ -147,6 +121,8 @@ def get_all_comets():
             all_comets['comet_id'] = np.where(all_comets['designation_packed'].isnull(), all_comets['designation'], all_comets['designation_packed'])
             all_comets['comet_id'] = all_comets['comet_id'].str.replace('/', '')
             all_comets['comet_id'] = all_comets['comet_id'].str.replace(' ', '')
+
+            import_update_comets(all_comets, False)
 
         # brightness file expires after 5 days
         fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
