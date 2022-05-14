@@ -103,14 +103,6 @@ def delete_imported_observations(import_history_rec_id):
     if import_history_rec.create_by != current_user.id:
         abort(404)
 
-    observing_sessions = ObservingSession.query.filter_by(import_history_rec_id=import_history_rec_id).all()
-    if len(observing_sessions) > 0:
-        for observing_session in observing_sessions:
-            db.session.delete(observing_session)
-        import_history_rec.status = ImportHistoryRecStatus.DELETED
-        db.session.commit()
-        flash('{} imported observing sessions was deleted'.format(len(observing_sessions)), 'form-success')
-
     observations = Observation.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(observations) > 0:
         for observation in observations:
@@ -119,10 +111,19 @@ def delete_imported_observations(import_history_rec_id):
         db.session.commit()
         flash('{} imported standalone observations was deleted'.format(len(observations)), 'form-success')
 
+    observing_sessions = ObservingSession.query.filter_by(import_history_rec_id=import_history_rec_id).all()
+    if len(observing_sessions) > 0:
+        for observing_session in observing_sessions:
+            db.session.delete(observing_session)
+        import_history_rec.status = ImportHistoryRecStatus.DELETED
+        db.session.commit()
+        flash('{} imported observing sessions was deleted'.format(len(observing_sessions)), 'form-success')
+
     telescopes = Telescope.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(telescopes) > 0:
         for telescope in telescopes:
-            db.session.delete(telescope)
+            if Observation.query.filter_by(telescope_id=telescope.id).count() == 0:
+                db.session.delete(telescope)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported telescopes was deleted'.format(len(telescopes)), 'form-success')
@@ -130,7 +131,8 @@ def delete_imported_observations(import_history_rec_id):
     eyepieces = Eyepiece.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(eyepieces) > 0:
         for eyepiece in eyepieces:
-            db.session.delete(eyepiece)
+            if Observation.query.filter_by(eyepiece_id=eyepiece.id).count() == 0:
+                db.session.delete(eyepiece)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported eyepeces was deleted'.format(len(eyepieces)), 'form-success')
@@ -138,7 +140,8 @@ def delete_imported_observations(import_history_rec_id):
     filters = Filter.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(filters) > 0:
         for filter in filters:
-            db.session.delete(filter)
+            if Observation.query.filter_by(filter_id=filter.id).count() == 0:
+                db.session.delete(filter)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported filters was deleted'.format(len(filters)), 'form-success')
@@ -146,7 +149,8 @@ def delete_imported_observations(import_history_rec_id):
     lenses = Lens.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(lenses) > 0:
         for lens in lenses:
-            db.session.delete(lens)
+            if Observation.query.filter_by(lens_id=lens.id).count() == 0:
+                db.session.delete(lens)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported filters was deleted'.format(len(lenses)), 'form-success')
@@ -154,7 +158,8 @@ def delete_imported_observations(import_history_rec_id):
     locations = Location.query.filter_by(import_history_rec_id=import_history_rec_id).all()
     if len(locations) > 0:
         for location in locations:
-            db.session.delete(location)
+            if ObservingSession.query.filter_by(location_id=location.id).count():
+                db.session.delete(location)
         import_history_rec.status = ImportHistoryRecStatus.DELETED
         db.session.commit()
         flash('{} imported locations was deleted'.format(len(locations)), 'form-success')
