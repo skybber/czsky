@@ -16,7 +16,14 @@ from app.commons.dso_utils import CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_ST
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
 
-from app.commons.search_sky_object_utils import search_constellation, search_dso, search_star, search_comet, search_double_star
+from app.commons.search_sky_object_utils import (
+    search_constellation,
+    search_dso,
+    search_star,
+    search_comet,
+    search_double_star,
+    search_minor_planet
+)
 
 from app.models import (
     Constellation,
@@ -119,6 +126,12 @@ def global_search():
     comet = search_comet(query)
     if comet is not None:
         return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id))
+
+    # 7. Search minor planet
+    # 5. Search comet
+    minor_planet = search_minor_planet(query)
+    if minor_planet is not None:
+        return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation))
 
     # 6. search by radec
     res = _search_by_ra_dec(query)

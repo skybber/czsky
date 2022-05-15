@@ -138,7 +138,7 @@ def minor_planets():
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
 def minor_planet_info(minor_planet_id):
     """View a minor_planet info."""
-    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -202,7 +202,7 @@ def minor_planet_info(minor_planet_id):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
-    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -228,7 +228,7 @@ def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
-    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -241,7 +241,7 @@ def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pdf(minor_planet_id, ra, dec):
-    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
 
@@ -264,7 +264,7 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/catalogue_data')
 def minor_planet_catalogue_data(minor_planet_id):
     """View a minor_planet catalog info."""
-    minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet)

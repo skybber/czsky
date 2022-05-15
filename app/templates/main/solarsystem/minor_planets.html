@@ -37,7 +37,7 @@
                         </thead>
                         <tbody>
                         {% for mp in minor_planets %}
-                            {% set minor_planet_url = url_for('main_minor_planet.minor_planet_info', minor_planet_id=mp.id) %}
+                            {% set minor_planet_url = url_for('main_minor_planet.minor_planet_info', minor_planet_id=mp.int_designation) %}
                             <tr onclick="window.location.href = '{{ minor_planet_url }}';">
                                 <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
                                 <td>{{ magnitudes.get(mp.int_designation, '') }}</td>

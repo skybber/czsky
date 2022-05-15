@@ -9,6 +9,7 @@ from app.models import (
     Constellation,
     DeepskyObject,
     DoubleStar,
+    MinorPlanet,
     Star,
     UserStarDescription,
 )
@@ -160,6 +161,12 @@ def search_comet(query):
         search_expr = query.replace('"', '')
         comet = Comet.query.filter(Comet.designation.like('%' + search_expr + '%')).first()
         return comet
+
+
+def search_minor_planet(query):
+    if len(query) > 3:
+        minor_planet = MinorPlanet.query.filter(MinorPlanet.designation.like('%' + query + '%')).first()
+        return minor_planet
 
 
 def _get_constell(costell_code):
