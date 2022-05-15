@@ -64,6 +64,10 @@ def _get_mpc_minor_planets():
     return all_minor_planets
 
 
+def find_mpc_minor_planet(mplanet_int_designation):
+    return _get_mpc_minor_planets().iloc[mplanet_int_designation-1]
+
+
 def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
     beta = math.acos(
                         (body_sun_distanceAU * body_sun_distanceAU + body_earth_distanceAU * body_earth_distanceAU - earth_sun_distanceAU * earth_sun_distanceAU) /
