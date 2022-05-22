@@ -39,43 +39,19 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
+from app.commons.planet_utils import get_all_planets, Planet
 
 main_planet = Blueprint('main_planet', __name__)
-
-all_planets = None
-
-
-class Planet:
-    def __init__(self, name, body_key, eph):
-        self.name = name
-        self.eph = eph[body_key]
-
-
-def _get_all_planets():
-    global all_planets
-    if all_planets is None:
-        eph = load('de421.bsp')
-        all_planets = [ \
-            Planet('mercury', 'MERCURY', eph), \
-            Planet('venus', 'VENUS', eph), \
-            Planet('mars', 'MARS', eph), \
-            Planet('jupiter', 'JUPITER_BARYCENTER', eph), \
-            Planet('saturn', 'SATURN_BARYCENTER', eph), \
-            Planet('uranus', 'URANUS_BARYCENTER', eph), \
-            Planet('neptune', 'NEPTUNE_BARYCENTER', eph), \
-            Planet('pluto', 'PLUTO_BARYCENTER', eph), \
-            ]
-    return all_planets
 
 
 @main_planet.route('/planets', methods=['GET', 'POST'])
 def planets():
-    planets = _get_all_planets()
+    planets = get_all_planets()
     return render_template('main/solarsystem/planets.html', planets_enumerate=enumerate(planets))
 
 
 def _find_planet(planet_name):
-    planets = _get_all_planets()
+    planets = get_all_planets()
     planet_name_lower = planet_name.lower()
     return next(p for p in planets if p.name == planet_name)
 
