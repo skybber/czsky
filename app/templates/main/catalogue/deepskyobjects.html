@@ -79,7 +79,11 @@
                                         mag {{ table_sort['mag'].icon | safe }}
                                     </a>
                                 </th>
-                                <th class="right aligned collapsing mobile hidden">Ø</th>
+                                <th class="center aligned collapsing">
+                                    <a href="{{ url_for('main_deepskyobject.deepskyobjects', page=pagination.page, sortby=table_sort['major_axis'].sort) }}" style="color: inherit;">
+                                        Ø {{ table_sort['major_axis'].icon | safe }}
+                                    </a>
+                                </th>
                                 {% if observed %}
                                 <th class="collapsing mobile hidden"></th>
                                 {% endif %}

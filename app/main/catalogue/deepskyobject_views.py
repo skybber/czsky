@@ -130,6 +130,7 @@ def deepskyobjects():
                  'dec': DeepskyObject.dec,
                  'constellation': DeepskyObject.constellation_id,
                  'mag': DeepskyObject.mag,
+                 'major_axis': DeepskyObject.major_axis,
     }
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
