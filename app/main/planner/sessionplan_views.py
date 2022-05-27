@@ -491,7 +491,7 @@ def session_plan_schedule(session_plan_id):
     default_t1, default_t2 = _get_twighligh_component(session_plan, 1)
     if not default_t2 and not default_t2:
         # try nautical twilight
-        default_t1, default_t2 = _get_twighligh_component(session_plan, 1)
+        default_t1, default_t2 = _get_twighligh_component(session_plan, 2)
 
     time_from = _setup_search_from(schedule_form, observer, observation_time, tz_info, default_t1)
     time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_t2)
