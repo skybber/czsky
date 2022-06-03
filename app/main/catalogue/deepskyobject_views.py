@@ -698,8 +698,8 @@ def deepskyobject_observation_log(dso_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
-            observation.update_by = current_user.id,
-            observation.update_date = datetime.now(),
+            observation.update_by = current_user.id
+            observation.update_date = datetime.now()
             db.session.add(observation)
             db.session.commit()
             flash('Observation log successfully updated', 'form-success')
