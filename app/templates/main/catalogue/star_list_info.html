@@ -57,7 +57,7 @@
             <tbody>
 
             {% for item in star_list_items %}
-                <tr onclick="window.location.href='{{ url_for('main_star.star_chart', star_id=item.star.id, back='star_list', back_id=star_list.id, season=season) }}';">
+                <tr onclick="window.location.href='{{ url_for('main_star.star_chart', star_id=item.star.id, back='star_list', back_id=star_list.id) }}';">
                     <td class="collapsing">
                         <p id="star{{ item.star_id }}">{{ item.item_id }}</p>
                     </td>
