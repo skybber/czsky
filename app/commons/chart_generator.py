@@ -63,7 +63,7 @@ class ChartControl:
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
                  disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
                  theme=None, gui_field_sizes=None, gui_field_index=None,
-                 chart_mx=None, chart_my=None, chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
+                 chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None, cancel_selection_url=None, equipment_telescopes=None, equipment_eyepieces=None,
                  eyepiece_fov=None):
@@ -81,8 +81,6 @@ class ChartControl:
         self.theme = theme
         self.gui_field_sizes = gui_field_sizes
         self.gui_field_index = gui_field_index
-        self.chart_mx = chart_mx
-        self.chart_my = chart_my
         self.chart_mlim = chart_mlim
         self.chart_flags = chart_flags
         self.legend_flags = legend_flags
@@ -299,15 +297,12 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, width)
 
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
-                  maglim, dso_maglim, mirror_x=mirror_x, mirror_y=mirror_y, show_legend=False, dso_names=dso_names,
-                  flags=flags, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
-                  trajectory=trajectory, hl_constellation=hl_constellation)
+                  maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
+                  highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation)
     img_bytes.seek(0)
     return img_bytes
 
@@ -323,14 +318,12 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     if height > MAX_IMG_HEIGHT:
         height = MAX_IMG_HEIGHT
 
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov, mirror_x, mirror_y,  flags=flags)
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov,  flags=flags)
     img_bytes.seek(0)
     return img_bytes
 
@@ -340,8 +333,6 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 
-    mirror_x = to_boolean(request.args.get('mx'), False)
-    mirror_y = to_boolean(request.args.get('my'), False)
     flags = request.args.get('flags')
 
     landscape = request.args.get('landscape', 'true') == 'true'
@@ -349,7 +340,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim, mirror_x, mirror_y,
+    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory,
                       eyepiece_fov=eyepiece_fov)
     img_bytes.seek(0)
@@ -421,9 +412,6 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     gui_field_sizes = STR_GUI_FIELD_SIZES
     gui_field_index = (form.radius.data-1)*2
 
-    chart_mx = ('1' if form.mirror_x.data else '0')
-    chart_my = ('1' if form.mirror_y.data else '0')
-
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
     chart_dso_list_menu = common_chart_dso_list_menu()
@@ -447,7 +435,6 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                         disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                         theme=theme,
                         gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
-                        chart_mx=chart_mx, chart_my=chart_my,
                         chart_mlim=str(form.maglim.data),
                         chart_flags=chart_flags, legend_flags=legend_flags, chart_pdf_flags=(chart_flags + legend_flags),
                         chart_dso_list_menu=chart_dso_list_menu,
@@ -544,8 +531,8 @@ def _check_in_mag_interval(mag, mag_interval):
 
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
-                  mirror_x=False, mirror_y=False, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
-                  highlights_pos_list=None, trajectory=None, hl_constellation=None):
+                  show_legend=True, dso_names=None, flags='', highlights_dso_list=None, highlights_pos_list=None, trajectory=None,
+                  hl_constellation=None):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -557,8 +544,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
-    config.mirror_x = mirror_x
-    config.mirror_y = mirror_y
+    config.mirror_x = 'X' in flags
+    config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
 
     config.show_flamsteed = (fld_size <= 20)
@@ -631,7 +618,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim, mirror_x=False, mirror_y=False,
+def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
                       highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
@@ -645,8 +632,8 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
-    config.mirror_x = mirror_x
-    config.mirror_y = mirror_y
+    config.mirror_x = 'X' in flags
+    config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
 
     config.show_flamsteed = (fld_size <= 20)
@@ -708,7 +695,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, mirror_x=False, mirror_y=False, flags=''):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, flags=''):
     global free_mem_counter
     # tm = time()
 
@@ -719,8 +706,8 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
-    config.mirror_x = mirror_x
-    config.mirror_y = mirror_y
+    config.mirror_x = 'X' in flags
+    config.mirror_y = 'Y' in flags
 
     config.legend_only = True
     config.show_mag_scale_legend = True
@@ -805,6 +792,14 @@ def get_chart_legend_flags(form):
 
     if form.show_equatorial_grid.data == 'true':
         chart_flags += 'E'
+
+    if form.mirror_x.data == 'true':
+        legend_flags += 'X'
+        chart_flags += 'X'
+
+    if form.mirror_y.data == 'true':
+        legend_flags += 'Y'
+        chart_flags += 'Y'
 
     return chart_flags, legend_flags
 

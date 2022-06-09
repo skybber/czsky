@@ -20,6 +20,8 @@
       <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
       <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
+      <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
+      <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100;">
@@ -109,13 +111,22 @@
                     data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="draw polygon icon"></i>
               </button>
-              <button class="ui toggle icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid"
-                    data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-position="bottom center" data-variation="tiny basic">
-                  <i class="globe icon"></i>
-              </button>
               <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso"
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
+              </button>
+          </div>
+      </div>
+
+      <div class="ui right horizontally fitted computer only item" style="z-index:100">
+          <div class="ui buttons">
+              <button class="ui toggle icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx"
+                    data-inverted="" data-tooltip="{{ _('Flip horizontaly')}}" data-position="bottom center" data-variation="tiny basic">
+                  <i class="exchange alternate icon"></i>
+              </button>
+              <button class="ui toggle icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory"
+                    data-inverted="" data-tooltip="{{ _('Flip vertically')}}" data-position="bottom center" data-variation="tiny basic">
+                  <i class="clockwise rotated  exchange alternate icon"></i>
               </button>
           </div>
       </div>
@@ -128,6 +139,7 @@
               </button>
           </div>
       </div>
+
       <div class="ui right horizontally fitted tablet mobile only item" style="z-index:100">
           <div class="ui icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
               <i class="cog icon"></i>
@@ -162,6 +174,18 @@
                           <i class="superpowers icon"></i>
                       </button>
                   </div>
+                  <div class="item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx"
+                            data-inverted="" data-tooltip="{{ _('Flip horizontaly')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="exchange alternate icon"></i>
+                      </button>
+                  </div>
+                  <div class="item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory"
+                            data-inverted="" data-tooltip="{{ _('Flip vertically')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="clockwise rotated  exchange alternate icon"></i>
+                      </button>
+                  </div>
               </div>
           </div>
       </div>
@@ -169,7 +193,7 @@
       <!-- Star mag limit -->
       <div class="ui horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
-              <button id="decmag" class="ui icon {{ chart_control.disable_dec_mag }} button mobile hidden">
+              <button id="decmag" class="ui icon {{ chart_control.disable_dec_mag }} button mobile tablet hidden">
                   <i class="left chevron icon"></i>
               </button>
               <div class="ui icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-position="left center" data-variation="tiny basic">
@@ -181,7 +205,7 @@
                       {% endfor %}
                   </div>
               </div>
-              <button id="incmag" class="ui right icon {{ chart_control.disable_inc_mag }} button mobile hidden">
+              <button id="incmag" class="ui right icon {{ chart_control.disable_inc_mag }} button mobile tablet hidden">
                   <i class="right chevron icon"></i>
               </button>
           </div>
@@ -190,7 +214,7 @@
       <!-- dso mag limit -->
       <div class="ui horizontally fitted item" style="z-index:100">
           <div class="ui buttons">
-              <button id="decdsomag" class="ui icon {{ chart_control.disable_dso_dec_mag }} button mobile hidden">
+              <button id="decdsomag" class="ui icon {{ chart_control.disable_dso_dec_mag }} button mobile tablet hidden">
                   <i class="left chevron icon"></i>
               </button>
               <div class="ui icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-position="left center" data-variation="tiny basic">
@@ -204,7 +228,7 @@
                       {% endfor %}
                   </div>
               </div>
-              <button id="incdsomag" class="ui right icon {{ chart_control.disable_dso_inc_mag }} button mobile hidden">
+              <button id="incdsomag" class="ui right icon {{ chart_control.disable_dso_inc_mag }} button mobile tablet hidden">
                   <i class="right chevron icon"></i>
               </button>
           </div>
@@ -285,7 +309,7 @@
           <i class="search icon"></i>
       </div>
   </div>
-  <div class="ui horizontally fitted item computer tablet only" style="margin-right:0px; z-index:100">
+  <div class="ui horizontally fitted item computer only" style="margin-right:0px; z-index:100">
       <div class="ui buttons">
           <button id="bsplitview" type="button" class="ui icon button" data-inverted="" data-tooltip="{{ _('Split view') }}" data-position="bottom center" data-variation="tiny basic">
               <i class="columns icon"></i>
@@ -357,6 +381,8 @@
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}", true,
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
             '{{ default_chart_iframe_url }}',
             '{{ embed }}'
     );
@@ -432,6 +458,16 @@
     $('.bdso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('.mirrorx').click(function(){
+        $(this).toggleClass('active');
+        $('#mirror_x').val($('#mirror_x').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('.mirrory').click(function(){
+        $(this).toggleClass('active');
+        $('#mirror_y').val($('#mirror_y').val() == 'true' ? 'false' : 'true');
     });
 
     $('.begrid').click(function(){

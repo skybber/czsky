@@ -141,7 +141,7 @@ def star_chart(star_id):
 
     season = request.args.get('season')
 
-    form  = ChartForm()
+    form = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:

@@ -1,4 +1,5 @@
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview, default_chart_iframe_url, embed) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
+                 mirror_x, mirror_y, default_chart_iframe_url, embed) {
 
     this.fchartDiv = fchartDiv;
 
@@ -88,6 +89,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.splitview = splitview;
     this.zoomInterval = undefined;
     this.zoomStep = undefined;
+    this.multRA = mirror_x ? -1 : 1;
+    this.multDEC = mirror_y ? -1 : 1;
 
     this.moveInterval = undefined;
     this.smoothMoveStep = undefined;
@@ -509,7 +512,7 @@ FChart.prototype.moveEnd = function() {
     this.fldSize = this.fieldSizes[this.fldSizeIndex];
 
     var wh = Math.max(this.canvas.width, this.canvas.height);
-    this.dec = this.dec + this.dy * Math.PI * this.fldSize / (180.0 * wh);
+    this.dec = this.dec + this.multDEC * this.dy * Math.PI * this.fldSize / (180.0 * wh);
     var movDec = this.dec;
 
     if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
@@ -518,7 +521,7 @@ FChart.prototype.moveEnd = function() {
     if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
     if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
 
-    this.ra = this.ra + this.dx * Math.PI * this.fldSize / (180.0 * wh * Math.cos(movDec));
+    this.ra = this.ra + this.multRA * this.dx * Math.PI * this.fldSize / (180.0 * wh * Math.cos(movDec));
     if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
     if (this.ra < 0) this.ra = this.ra + 2 * Math.PI
 
