@@ -4,7 +4,7 @@ from lat_lon_parser import parse as lonlat_parse
 from wtforms.validators import ValidationError
 from skyfield.units import Angle
 
-r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d\d?\d?)?)[s:]?[ ]*([+-]?\d\d)[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d\d?\d?)?)[″"]?''')
+r_radec = re.compile(r'''(\d\d?)[h:]?[ ]?(\d\d?)[m:]?[ ]?(\d\d?(\.\d+)?)[s:]?[ ]*([+-]?\d\d)[:°]?[ ]?(\d\d?)[:′']?[ ]?(\d\d?(\.\d+)?)[″"]?''')
 
 
 def geoc_to_string(geoc, format_str):
