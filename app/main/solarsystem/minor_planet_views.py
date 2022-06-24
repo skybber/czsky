@@ -125,7 +125,7 @@ def minor_planets():
     mpc_minor_planets = _get_mpc_minor_planets()
 
     for minor_planet in minor_planets_for_render:
-        mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation]
+        mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
         body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
         ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
         ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
