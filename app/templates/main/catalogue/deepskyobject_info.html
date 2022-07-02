@@ -73,8 +73,15 @@
                         <span class="mobile only tablet only">{{ dso.constellation.iau_code.capitalize() }}</span>
                     </a>
                 {% endif %}
-                <div class="ui label" style="float:left;">
-                    <i class="info icon"></i>{{ dso.type }}
+                <div class="tablet hidden computer hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        <i class="info icon"></i>{{ dso.type }}
+                    </div>
+                </div>
+                <div class="mobile hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        <i class="info icon"></i>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}
+                    </div>
                 </div>
                 <div class="mobile hidden" style="float:left">
                     <div class="ui label" style="float:left;">

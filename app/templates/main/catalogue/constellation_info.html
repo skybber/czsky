@@ -129,8 +129,15 @@
             {% for user_dso_descr in dso_descriptions %}
                 <div id="dso{{ user_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
                     <div id="dso-toolbar" style="float:right;">
-                        <div class="ui label" style="float:left;">
-                            <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
+                        <div class="tablet hidden computer hidden" style="float:left">
+                            <div class="ui label" style="float:left;">
+                                <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
+                            </div>
+                        </div>
+                        <div class="mobile hidden" style="float:left">
+                            <div class="ui label" style="float:left;">
+                                <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }} {% if user_dso_descr.deepskyObject.subtype %}[{{ user_dso_descr.deepskyObject.subtype }}]{% endif %}
+                            </div>
                         </div>
                         <div class="mobile hidden" style="float:left">
                             <div class="ui label" style="float:left;">
