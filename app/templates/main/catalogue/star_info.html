@@ -7,6 +7,7 @@
     {% set endpoints = [
         ('main_star.star_descr_info', _('Info'), 'info'),
         ('main_star.star_descr_chart', _('Chart'), 'info'),
+        ('main_star.star_descr_surveys', _('Aladin'), 'table'),
         ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
     ] %}
     {% else %}
@@ -17,6 +18,7 @@
 {% else %}
     {% set endpoints = [
         ('main_star.star_chart', _('Chart'), 'info'),
+        ('main_star.star_surveys', _('Aladin'), 'table'),
         ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
     ] %}
 {% endif %}
@@ -69,6 +71,21 @@
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                               fchart_form,)
     }}
+{% endmacro %}
+
+{# --- Surveys --- #}
+{% macro star_surveys(star) %}
+    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+    <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
+    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var aladin = A.aladin('#aladin-lite-div', {
+                survey: "P/DSS2/color",
+                fov:{{ field_size }},
+                target: "{{ star.ra_str_short().replace(':',' ')}} {{star.dec_str_short().replace(':',' ')}}"
+                {% if embed %} ,fullScreen: true {% endif %}
+        });
+    </script>
 {% endmacro %}
 
 {% set back = request.args.get('back') %}
@@ -156,6 +173,12 @@
                     {{ star_chart(user_descr.star) }}
                 {% else %}
                     {{ star_chart(star) }}
+                {% endif %}
+            {% elif type == 'surveys' %}
+                {% if user_descr is not none %}
+                    {{ star_surveys(user_descr.star) }}
+                {% else %}
+                    {{ star_surveys(star) }}
                 {% endif %}
             {% else %}
                 {% if user_descr is not none %}

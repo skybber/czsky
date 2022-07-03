@@ -61,6 +61,25 @@ def star_info(star_id):
                            editable=False, embed=embed, season=season, )
 
 
+@main_star.route('/star/<string:star_id>/surveys', methods=['GET', 'POST'])
+def star_surveys(star_id):
+    """Digital surveys view a star."""
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'surveys'
+
+    season = request.args.get('season')
+
+    prev_star, next_star = _get_prev_next_star(star)
+
+    return render_template('main/catalogue/star_info.html', type='surveys', star=star, user_descr=None, prev_star=prev_star, next_star=next_star,
+                           editable=False, embed=embed, season=season, field_size=40.0)
+
+
 @main_star.route('/star/<int:star_descr_id>/descr-info')
 def star_descr_info(star_descr_id):
     """View a star description info."""
@@ -84,6 +103,31 @@ def star_descr_info(star_descr_id):
 
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, prev_star=prev_star, next_star=next_star,
                            editable=editable, embed=embed, season=season, )
+
+
+@main_star.route('/star/<string:star_descr_id>/descr-surveys', methods=['GET', 'POST'])
+def star_descr_surveys(star_descr_id):
+    """View a star description info."""
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
+    if user_descr is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['star_embed_seltab'] = 'surveys'
+
+    season = request.args.get('season')
+
+    editable=current_user.is_editor()
+
+    if user_descr.star is not None:
+        prev_star, next_star = _get_prev_next_star(user_descr.star)
+    else:
+        prev_star, next_star = (None, None)
+
+    return render_template('main/catalogue/star_info.html', type='surveys', user_descr=user_descr, prev_star=prev_star, next_star=next_star,
+                           editable=editable, embed=embed, season=season, field_size=40.0)
 
 
 @main_star.route('/star/<int:star_id>/catalogue-data')

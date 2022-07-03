@@ -154,6 +154,29 @@ def double_star_info(double_star_id):
                            embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr)
 
 
+@main_double_star.route('/double-star/<int:double_star_id>/surveys')
+def double_star_surveys(double_star_id):
+    """View a double star catalogue data."""
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['double_star_embed_seltab'] = 'surveys'
+
+    season = request.args.get('season')
+
+    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+    user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+
+    return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star,
+                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr,
+                           field_size=40.0)
+
+
 @main_double_star.route('/double-star/<int:double_star_id>/catalogue-data')
 def double_star_catalogue_data(double_star_id):
     """View a double star catalogue data."""

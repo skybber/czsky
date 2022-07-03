@@ -6,11 +6,13 @@
     {% set endpoints = [
         ('main_double_star.double_star_info', _('Info'), 'info'),
         ('main_double_star.double_star_chart', _('Chart'), 'info'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
         ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_double_star.double_star_chart', _('Chart'), 'info'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
         ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
     ] %}
 {% endif %}
@@ -55,6 +57,21 @@
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                               fchart_form,)
     }}
+{% endmacro %}
+
+{# --- Surveys --- #}
+{% macro double_star_surveys(double_star) %}
+    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+    <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
+    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var aladin = A.aladin('#aladin-lite-div', {
+                survey: "P/DSS2/color",
+                fov:{{ field_size }},
+                target: "{{ double_star.ra_first_str_short().replace(':',' ')}} {{double_star.dec_first_str_short().replace(':',' ')}}"
+                {% if embed %} ,fullScreen: true {% endif %}
+        });
+    </script>
 {% endmacro %}
 
 {% set back = request.args.get('back') %}
@@ -130,6 +147,8 @@
                 {{ double_star_user_info(user_descr) }}
             {% elif type == 'chart' %}
                 {{ double_star_chart(double_star) }}
+            {% elif type == 'surveys' %}
+                {{ double_star_surveys(double_star) }}
             {% else %}
                 {{ double_star_catalogue_data(double_star) }}
             {% endif %}
