@@ -47,7 +47,7 @@ GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
-MAG_SCALES = [(12, 16), (12, 16), (12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
+MAG_SCALES = [(14, 16), (13, 16), (12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
 DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
 
 free_mem_counter = 0
@@ -384,7 +384,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.eyepiece_fov.data = request.args.get('epfov')
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
-    session['pref_maglim'  + str(fld_size)] = form.maglim.data
+    session['pref_maglim' + str(fld_size)] = form.maglim.data
 
     if request.method == 'POST':
         _actualize_stars_pref_maglims(form.maglim.data, form.radius.data - 1)
