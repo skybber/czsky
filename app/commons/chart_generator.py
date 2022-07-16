@@ -35,7 +35,7 @@ MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
 
-FIELD_SIZES = (1, 2, 5, 10, 20, 40, 100)
+FIELD_SIZES = (0.25, 0.5, 1, 2, 5, 10, 20, 40, 100)
 
 GUI_FIELD_SIZES = []
 
@@ -47,8 +47,8 @@ GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
-MAG_SCALES = [(12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
+MAG_SCALES = [(12, 16), (12, 16), (12, 16), (11, 15), (10, 13), (8, 11), (6, 9), (6, 8), (5, 7)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 500
