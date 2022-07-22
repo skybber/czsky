@@ -492,6 +492,9 @@ def session_plan_schedule(session_plan_id):
     if not default_t2 and not default_t2:
         # try nautical twilight
         default_t1, default_t2 = _get_twighligh_component(session_plan, 2)
+        if not default_t2 and not default_t2:
+            default_t1 = tz_info.localize(session_plan.for_date + timedelta(hours=22)).time()
+            default_t2 = tz_info.localize(session_plan.for_date + timedelta(hours=26)).time()
 
     time_from = _setup_search_from(schedule_form, observer, observation_time, tz_info, default_t1)
     time_to = _setup_search_to(schedule_form, observer, observation_time, time_from, tz_info, default_t2)
