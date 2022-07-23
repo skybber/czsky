@@ -1,26 +1,46 @@
-{% extends 'layouts/base.html' %}
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% if user_descr %}
     {% if user_descr.star %}
-    {% set endpoints = [
-        ('main_star.star_descr_info', _('Info'), 'info'),
-        ('main_star.star_descr_chart', _('Chart'), 'info'),
-        ('main_star.star_descr_surveys', _('Aladin'), 'table'),
-        ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
-    ] %}
+        {% if not embed %}
+            {% set endpoints = [
+                ('main_star.star_descr_info', _('Info'), 'info'),
+                ('main_star.star_descr_chart', _('Chart'), 'info'),
+                ('main_star.star_descr_surveys', _('Aladin'), 'table'),
+                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
+            ] %}
+        {% else %}
+            {% set endpoints = [
+                ('main_star.star_descr_info', _('Info'), 'info'),
+                ('main_star.star_descr_surveys', _('Aladin'), 'table'),
+                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
+            ] %}
+        {% endif %}
     {% else %}
-    {% set endpoints = [
-        ('main_star.star_descr_info', 'Info', 'info'),
-    ] %}
+        {% set endpoints = [
+            ('main_star.star_descr_info', 'Info', 'info'),
+        ] %}
     {% endif %}
 {% else %}
-    {% set endpoints = [
-        ('main_star.star_chart', _('Chart'), 'info'),
-        ('main_star.star_surveys', _('Aladin'), 'table'),
-        ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
-    ] %}
+    {% if not embed %}
+        {% set endpoints = [
+            ('main_star.star_chart', _('Chart'), 'info'),
+            ('main_star.star_surveys', _('Aladin'), 'table'),
+            ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% else %}
+        {% set endpoints = [
+            ('main_star.star_surveys', _('Aladin'), 'table'),
+            ('main_star.star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% endif %}
 {% endif %}
 
 {% set back = request.args.get('back') %}
@@ -30,13 +50,13 @@
     <div class="ui icon secondary pointing menu">
         {% if user_descr is not none %}
             {% for route, pupup_text, icon in items %}
-                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
+                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_descr_id=user_descr.id, back=back, back_id=back_id, embed=embed) }}">
                     {{ pupup_text }}
                 </a>
             {% endfor %}
         {% else %}
             {% for route, pupup_text, icon in items %}
-                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_id=star.id, back=back, back_id=back_id) }}">
+                <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, star_id=star.id, back=back, back_id=back_id, embed=embed) }}">
                     {{ pupup_text }}
                 </a>
             {% endfor %}

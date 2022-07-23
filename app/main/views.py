@@ -12,7 +12,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import CZSKY_CHART_STAR_PREFIX, CZSKY_CHART_DOUBLE_STAR_PREFIX
+from app.commons.dso_utils import CHART_STAR_PREFIX, CHART_DOUBLE_STAR_PREFIX
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
 
@@ -162,16 +162,16 @@ def _search_by_ra_dec(query):
 
 
 def _search_chart_ids(query):
-    if query.startswith(CZSKY_CHART_STAR_PREFIX):
+    if query.startswith(CHART_STAR_PREFIX):
         try:
-            star_id = int(query[len(CZSKY_CHART_STAR_PREFIX):])
+            star_id = int(query[len(CHART_STAR_PREFIX):])
             star = Star.query.filter_by(id=star_id).first()
             return redirect(url_for('main_star.star_catalogue_data', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
-    if query.startswith(CZSKY_CHART_DOUBLE_STAR_PREFIX):
+    if query.startswith(CHART_DOUBLE_STAR_PREFIX):
         try:
-            double_star_id = int(query[len(CZSKY_CHART_DOUBLE_STAR_PREFIX):])
+            double_star_id = int(query[len(CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
             return redirect(url_for('main_double_star.double_star_catalogue_data', double_star_id=double_star.id, embed=request.args.get('embed')))
         except (ValueError, TypeError):

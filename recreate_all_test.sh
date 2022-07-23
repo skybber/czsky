@@ -25,4 +25,5 @@ confirm() {
 ./manage.py add_help_users
 ./manage.py import_dso_list
 ./manage.py import_star_list
+./manage.py import_double_star_list
 ./manage.py import_minor_planets

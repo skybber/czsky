@@ -19,7 +19,19 @@ from sqlalchemy.orm import subqueryload
 from app import db
 from posix import wait
 
-from app.models import Constellation, DsoList, DsoListItem, DsoListDescription, User, UserDsoDescription, StarList, ObservedList, ObservedListItem
+from app.models import (
+    Constellation,
+    DoubleStarList,
+    DsoList,
+    DsoListItem,
+    DsoListDescription,
+    User,
+    UserDsoDescription,
+    StarList,
+    ObservedList,
+    ObservedListItem
+)
+
 from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
@@ -68,8 +80,10 @@ def _find_highlights_dso_list(dso_list_id):
 def dso_lists_menu():
     dso_lists = DsoList.query.filter_by(hidden=False).all()
     star_lists = StarList.query.all()
+    double_star_lists = DoubleStarList.query.all()
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
-    return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists, lang_code=lang)
+    return render_template('main/catalogue/dso_list_menu.html', dso_lists=dso_lists, star_lists=star_lists,
+                           double_star_lists=double_star_lists, lang_code=lang)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>', methods=['GET','POST'])
@@ -192,5 +206,3 @@ def dso_list_chart_pdf(dso_list_id, ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
-
-

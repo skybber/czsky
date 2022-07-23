@@ -32,6 +32,12 @@
                             <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
                         </tr>
                     {% endfor %}
+                    {% for d in double_star_lists %}
+                        <tr onclick="window.location.href = '{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=d.name) }}';">
+                            <td>{{ d.get_descr_by_lang_code(lang_code).long_name }}</td>
+                            <td>{{ d.get_descr_by_lang_code(lang_code).short_descr }}</td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>

@@ -1,20 +1,40 @@
-{% extends 'layouts/base.html' %}
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% if user_descr %}
-    {% set endpoints = [
-        ('main_double_star.double_star_info', _('Info'), 'info'),
-        ('main_double_star.double_star_chart', _('Chart'), 'info'),
-        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-        ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-    ] %}
+    {% if not embed %}
+        {% set endpoints = [
+            ('main_double_star.double_star_info', _('Info'), 'info'),
+            ('main_double_star.double_star_chart', _('Chart'), 'info'),
+            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% else %}
+        {% set endpoints = [
+            ('main_double_star.double_star_info', _('Info'), 'info'),
+            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% endif %}
 {% else %}
-    {% set endpoints = [
-        ('main_double_star.double_star_chart', _('Chart'), 'info'),
-        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-        ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-    ] %}
+    {% if not embed %}
+        {% set endpoints = [
+            ('main_double_star.double_star_chart', _('Chart'), 'info'),
+            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% else %}
+        {% set endpoints = [
+            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
+        ] %}
+    {% endif %}
 {% endif %}
 
 {% set back = request.args.get('back') %}
@@ -23,7 +43,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_id=double_star.id, back=back, back_id=back_id) }}">
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_id=double_star.id, back=back, back_id=back_id, embed=embed) }}">
                 {{ pupup_text }}
             </a>
         {% endfor %}
@@ -109,6 +129,11 @@
                             <i class="caret left icon"></i>
                             <i class="eye icon"></i>
                         </a>
+                    {% elif back=='double_star_list' %}
+                        <a class="ui basic compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
+                            <i class="caret left icon"></i>
+                            <i class="tasks icon mobile hidden"></i>
+                        </a>
                     {% elif back=='constell' %}
                         <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
                             <i class="caret left icon"></i>
@@ -133,13 +158,34 @@
                     </a>
                 {% endif %}
                 {% if prev_dbl_star and embed != 'pl' %}
-                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_double_star.double_star_chart', double_star_id=prev_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.double_star_chart', double_star_id=prev_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
                         <i class="caret left icon"></i>
                         {{ prev_dbl_star.common_cat_id }}
                     </a>
                 {% endif %}
 
             </div>
+
+            {% if next_double_star and embed != 'pl' %}
+                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.star_chart', double_star_id=next_double_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                    {% if next_double_star.common_cat_id %}
+                        {{ next_double_star.common_cat_id }}
+                    {% elif next_double_star.wds_number is not none %}
+                        HD{{ next_double_star.wds_number }}
+                    {% endif %}
+                    <i class="caret right icon"></i>
+                </a>
+            {% endif %}
+            {% if prev_double_star and embed != 'pl' %}
+                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.star_chart', double_star_id=prev_double_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                    <i class="caret left icon"></i>
+                    {% if prev_double_star.common_cat_id %}
+                        {{ prev_double_star.common_cat_id }}
+                    {% elif prev_double_star.wds_number is not none %}
+                        HD{{ prev_double_star.wds_number }}
+                    {% endif %}
+                </a>
+            {% endif %}
 
             {{ navigation(endpoints) }}
 

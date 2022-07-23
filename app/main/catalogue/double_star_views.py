@@ -22,7 +22,7 @@ from flask_login import current_user, login_required
 
 from app import db
 
-from app.models import Constellation, DoubleStar, UserStarDescription
+from app.models import Constellation, DoubleStar, UserStarDescription, DoubleStarList
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -278,7 +278,7 @@ def _get_season_constell_ids():
     return None
 
 
-def _get_prev_next_double_star(star):
+def _get_prev_next_double_star(double_star):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
 
@@ -290,5 +290,11 @@ def _get_prev_next_double_star(star):
         pass # TODO
     elif back == 'session_plan':
         pass # TODO
+    elif back == 'double_star_list' and not (back_id is None):
+        double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
+        if double_star_list:
+            prev_item, next_item = double_star_list.get_prev_next_item(double_star.id, _get_season_constell_ids())
+            return prev_item.double_star if prev_item else None, next_item.double_star if next_item else None
 
     return None, None
+

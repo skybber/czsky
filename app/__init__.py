@@ -105,6 +105,8 @@ def create_app(config):
     app.register_blueprint(main_dso_list)
     from .main.catalogue import main_star_list as main_star_list
     app.register_blueprint(main_star_list)
+    from .main.catalogue import main_double_star_list as main_double_star_list
+    app.register_blueprint(main_double_star_list)
     from .main.catalogue import main_double_star as main_double_star
     app.register_blueprint(main_double_star)
     from .main.location import main_location as main_location

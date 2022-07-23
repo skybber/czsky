@@ -45,7 +45,7 @@ from app.models import (
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.observation_target_utils import set_observation_targets
-from app.commons.dso_utils import CZSKY_CHART_DOUBLE_STAR_PREFIX
+from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -393,7 +393,7 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
         if observation.target_type == ObservationTargetType.DSO:
             highlights_dso_list.extend(observation.deepsky_objects)
         elif observation.target_type == ObservationTargetType.DBL_STAR:
-            highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CZSKY_CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id)])
+            highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id)])
         elif observation.target_type == ObservationTargetType.COMET:
             highlights_pos_list.append([observation.ra, observation.dec, observation.comet.designation])
         elif observation.target_type == ObservationTargetType.M_PLANET:

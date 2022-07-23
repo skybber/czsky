@@ -6,6 +6,7 @@ from sqlalchemy import or_
 
 from .deepskyobject import DeepskyObject
 
+
 class ObservedList(db.Model):
     __tablename__ = 'observed_lists'
     id = db.Column(db.Integer, primary_key=True)
@@ -21,10 +22,10 @@ class ObservedList(db.Model):
 
     def append_new_deepsky_object(self, dso_id, user_id):
         new_item = ObservedListItem(
-            observed_list_id = self.id,
-            dso_id = dso_id,
-            create_date = datetime.now(),
-            update_date = datetime.now(),
+            observed_list_id=self.id,
+            dso_id=dso_id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
             )
         db.session.add(new_item)
         db.session.commit()
@@ -72,16 +73,19 @@ class ObservedList(db.Model):
 
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
-            .filter(ObservedList.id==observed_list.id, ObservedList.user_id==user_id)
+            .filter(ObservedList.id == observed_list.id, ObservedList.user_id == user_id)
 
         return DeepskyObject.query.filter(or_(DeepskyObject.id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery))).all()
+
 
 class ObservedListItem(db.Model):
     __tablename__ = 'observed_list_items'
     id = db.Column(db.Integer, primary_key=True)
     observed_list_id = db.Column(db.Integer, db.ForeignKey('observed_lists.id'), nullable=False)
-    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
+    dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=True)
     deepskyObject = db.relationship("DeepskyObject")
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
+    double_star = db.relationship("DoubleStar")
     notes = db.Column(db.Text)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())

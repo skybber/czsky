@@ -46,6 +46,7 @@ from imports.import_constellations_positions import import_constellations_positi
 from imports.link_star_descriptions import link_star_descriptions_by_var_id, link_star_descriptions_by_double_star_id
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
+from imports.import_double_star_list import import_herschel500
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -196,6 +197,11 @@ def import_dso_list():
 @manager.command
 def import_star_list():
     import_carbon_stars('data/starlist/CarbonStars.txt')
+
+
+@manager.command
+def import_double_star_list():
+    import_herschel500('data/doublestarlist/Herschel500.csv')
 
 
 @manager.command

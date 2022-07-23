@@ -2,6 +2,7 @@ from datetime import datetime
 
 from .. import db
 
+
 class WishList(db.Model):
     __tablename__ = 'wish_lists'
     id = db.Column(db.Integer, primary_key=True)
@@ -20,11 +21,11 @@ class WishList(db.Model):
         if not max:
             max = 0
         new_item = WishListItem(
-            wish_list_id = self.id,
-            dso_id = dso_id,
-            order = max + 1,
-            create_date = datetime.now(),
-            update_date = datetime.now(),
+            wish_list_id=self.id,
+            dso_id=dso_id,
+            order=max + 1,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
             )
         db.session.add(new_item)
         db.session.commit()
@@ -66,12 +67,15 @@ class WishList(db.Model):
             db.session.commit()
         return wish_list
 
+
 class WishListItem(db.Model):
     __tablename__ = 'wish_list_items'
     id = db.Column(db.Integer, primary_key=True)
     wish_list_id = db.Column(db.Integer, db.ForeignKey('wish_lists.id'), nullable=False)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     deepskyObject = db.relationship("DeepskyObject")
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
+    double_star = db.relationship("DoubleStar")
     order = db.Column(db.Integer, default=100000)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())

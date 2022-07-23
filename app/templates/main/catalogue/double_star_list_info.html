@@ -1,0 +1,133 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_double_star_list.double_star_list_info', _('Info'), 'info'),
+    ('main_double_star_list.double_star_list_chart', _('Chart'), 'info'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_list_id=double_star_list.id, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro double_star_list_info(double_star_list) %}
+    <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+        <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+          <div class="title">
+            <i class="dropdown icon"></i>
+            {{ _('Description') }}
+          </div>
+          <div class="content markdown">
+                {% filter extended_commonmark('') %}
+{{ double_star_list_descr.text }}
+                {% endfilter %}
+          </div>
+        </div>
+    </div>
+
+    <form action="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id) }}" method="post" name="search" class="ui stackable menu">
+        <div class="ui item">
+            {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+            <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+        </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+    </form>
+
+    <div style="overflow-x: scroll;">
+        <table class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th class="mobile hidden">WDS</th>
+                    <th>{{ _('Catalog ID') }}</th>
+                    <th>{{ _('Co.') }}</th>
+                    <th class="mobile hidden">{{ _('Other designation') }}</th>
+                    <th>{{ _('Mag1') }}</th>
+                    <th>{{ _('Mag2') }}</th>
+                    <th>{{ _('Sep.') }}</th>
+                    <th class="mobile hidden">RA</th>
+                    <th class="mobile hidden">Dec</th>
+                    <th>{{ _('Spec.') }}</th>
+                    <th class="right aligned"><i class="lastfm icon"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {% for item in double_star_list_items %}
+                <tr onclick="window.location.href='{{ url_for('main_double_star.double_star_chart', double_star_id=item.double_star.id, back='double_star_list', back_id=double_star_list.id) }}';">
+                    <td class="mobile hidden">{{ item.double_star.wds_number }}</td>
+                    <td>{{ item.double_star.common_cat_id }}</td>
+                    <td>{{ item.double_star.components }}</td>
+                    <td class="mobile hidden">{{ item.double_star.other_designation }}</td>
+                    <td>{{ commons.convert_mag(item.double_star.mag_first) }}</td>
+                    <td>{{ commons.convert_mag(item.double_star.mag_second) }}</td>
+                    <td>{{ item.double_star.separation }}</td>
+                    <td class="mobile hidden">{{ item.double_star.ra_first_str_short() }}</td>
+                    <td class="mobile hidden">{{ item.double_star.dec_first_str_short() }}</td>
+                    <td>{{ item.double_star.spectral_type }}</td>
+                    <td class="right aligned">{{ item.double_star.get_constellation_iau_code() }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro double_star_list_chart(double_star_list) %}
+    {{ fchart.fchart(url_for('main_double_star_list.double_star_list_chart', double_star_list_id=double_star_list.id, back=back, back_id=back_id),
+                     url_for('main_double_star_list.double_star_list_chart_pos_img', double_star_list_id=double_star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                     url_for('main_double_star_list.double_star_list_chart_legend_img', double_star_list_id=double_star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_double_star_list.double_star_list_chart_pdf', double_star_list_id=double_star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags,
+                              epfov=chart_control.eyepiece_fov, ),
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=double_star_list&back_id={}'.format(double_star_list.id) )
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_dso_list.dso_lists_menu') }}">
+                        <i class="caret left icon"></i>
+                        <i class="list icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ double_star_list_descr.long_name }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ double_star_list_info(double_star_list) }}
+            {% else %}
+                {{ double_star_list_chart(double_star_list) }}
+            {% endif %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
+{% endblock %}

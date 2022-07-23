@@ -5,7 +5,7 @@ from datetime import datetime
 from app import db
 from app.models.constellation import Constellation
 from app.models.star import Star
-from app.models.starlist import StarList, StarListDescription, StarListItem
+from app.models.star_list import StarList, StarListDescription, StarListItem
 from app.models.user import User
 from skyfield.api import position_from_radec, load_constellation_map
 

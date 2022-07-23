@@ -29,8 +29,8 @@ CATALOGS_SPECIFICATIONS = (
     ('VIC', 2),
 )
 
-CZSKY_CHART_STAR_PREFIX = '_st_'
-CZSKY_CHART_DOUBLE_STAR_PREFIX = '_dst_'
+CHART_STAR_PREFIX = '_st_'
+CHART_DOUBLE_STAR_PREFIX = '_dst_'
 
 PK_NUM_PATTERN = re.compile(r'([+-])0+(\d+).0+(\d+)')
 

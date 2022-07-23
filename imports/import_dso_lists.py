@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.dsolist import DsoList, DsoListDescription, DsoListItem
+from app.models.dso_list import DsoList, DsoListDescription, DsoListItem
 from app.models.user import User
 from app.models.deepskyobject import DeepskyObject
 
