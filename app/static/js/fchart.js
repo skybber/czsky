@@ -43,6 +43,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.draggingStart = false;
     this.mouseX = 0;
     this.mouseY = 0;
+    this.mouseDownDec = undefined;
     this.initialDistance = undefined;
     this.dx = 0;
     this.dy = 0;
@@ -176,12 +177,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
         }
         if (e.keyCode == 33) {
             if (this.zoomInterval === undefined) {
-                this.adjustZoom(-1, null);
+                this.adjustZoom(1, null);
             }
             e.preventDefault();
         } else if (e.keyCode == 34) {
             if (this.zoomInterval === undefined) {
-                this.adjustZoom(1, null);
+                this.adjustZoom(-1, null);
             }
             e.preventDefault();
         } else if (e.keyCode in moveMap) {
@@ -466,6 +467,10 @@ FChart.prototype.onPointerDown = function(e) {
     this.draggingStart = true;
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
+    var rect = this.canvas.getBoundingClientRect();
+    var wh = Math.max(this.canvas.width, this.canvas.height);
+    var fldSize = this.fieldSizes[this.fldSizeIndex];
+    this.mouseDownDec = this.dec + this.multDEC * (this.canvas.height/2 - this.mouseY - rect.top) * Math.PI * fldSize / (180.0 * wh);
 }
 
 FChart.prototype.onPointerUp = function(e) {
@@ -484,6 +489,7 @@ FChart.prototype.onPointerUp = function(e) {
             */
         }
         this.isDragging = false
+        this.mouseDownDec = undefined;
     }
 }
 
@@ -513,10 +519,13 @@ FChart.prototype.moveEnd = function() {
 
     var wh = Math.max(this.canvas.width, this.canvas.height);
     this.dec = this.dec + this.multDEC * this.dy * Math.PI * this.fldSize / (180.0 * wh);
-    var movDec = this.dec;
+    var movDec = this.mouseDownDec;
 
-    if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
-    if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
+    if (movDec == undefined) {
+        movDec = this.dec;
+        if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
+        if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
+    }
 
     if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
     if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
