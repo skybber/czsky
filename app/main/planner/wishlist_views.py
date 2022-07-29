@@ -39,6 +39,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
+    common_set_initial_ra_dec,
 )
 
 from .wishlist_forms import (
@@ -131,7 +132,7 @@ def wish_list_chart():
     if wish_list is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     dso_id = request.args.get('dso_id')
 
@@ -140,13 +141,16 @@ def wish_list_chart():
         idso_id = int(dso_id)
         wish_list_item = next((x for x in wish_list.wish_list_items if x.deepskyObject.id == idso_id), None)
 
-    if not wish_list_item:
-        wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
-
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
-            form.ra.data = wish_list_item.deepskyObject.ra if wish_list_item else 0
-            form.dec.data = wish_list_item.deepskyObject.dec if wish_list_item else 0
+            if wish_list_item:
+                form.ra.data = wish_list_item.deepskyObject.ra
+                form.dec.data = wish_list_item.deepskyObject.dec
+            else:
+                common_set_initial_ra_dec(form)
+
+    if not wish_list_item:
+        wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
 
     chart_control = common_prepare_chart_data(form)
 

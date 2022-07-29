@@ -15,7 +15,7 @@ from flask_babel import lazy_gettext
 
 
 class ChartForm(FlaskForm):
-    radius = IntegerField(lazy_gettext('Field radius'), default=7, validators=[Length(min=1, max=7)])
+    radius = IntegerField(lazy_gettext('Field radius'), default=9, validators=[Length(min=1, max=10)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=7)
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = HiddenField('mirror_x', default='false')

@@ -172,7 +172,7 @@ def dso_list_chart(dso_list_id):
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def  dso_list_chart_pos_img(dso_list_id, ra, dec):
+def dso_list_chart_pos_img(dso_list_id, ra, dec):
     highlights_dso_list = _find_highlights_dso_list(dso_list_id)
     if highlights_dso_list is None:
         abort(404)
