@@ -1,3 +1,51 @@
+function pos2radec(x, y, centerRA, centerDEC) {
+    return {
+        "ra" : centerRA + Math.atan2(x, (Math.cos(centerDEC) * Math.sqrt(1 - x*x - y*y) - y*Math.sin(centerDEC))),
+        "dec" : Math.asin((y*Math.cos(centerDEC) + Math.sin(centerDEC) * Math.sqrt(1 - x*x - y*y)))
+    }
+}
+
+function ra2hms(ra) {
+    var h = ra / (2 * Math.PI) * 24;
+    var h_int = parseInt(h);
+    var m = (h - h_int) * 60;
+    var m_int = parseInt(m);
+    var s = (m - m_int) * 60;
+    var s_int = parseInt(s);
+    return {
+        "h" : h_int,
+        "m" : m_int,
+        "s" : s_int
+    }
+}
+
+function dec2deg(dec) {
+    var dec_deg = dec / (Math.PI) * 180;
+    var int_dec_deg = parseInt(dec_deg);
+    var dec_min = (dec_deg - int_dec_deg) * 60;
+    var int_dec_min = parseInt(dec_min);
+    return {
+        "deg": int_dec_deg,
+        "min": int_dec_min
+    }
+}
+
+function normalizeDelta(e) {
+    var delta = 0;
+    var wheelDelta = e.originalEvent.wheelDelta;
+    var deltaY = e.originalEvent.deltaY;
+
+    // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
+    if (wheelDelta) {
+        delta = -wheelDelta / 120;
+    }
+    // FIREFOX WIN / MAC | IE
+    if(deltaY) {
+        deltaY > 0 ? delta = 1 : delta = -1;
+    }
+    return delta;
+}
+
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
                  mirror_x, mirror_y, default_chart_iframe_url, embed) {
 
@@ -43,7 +91,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.draggingStart = false;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.mouseDownDec = undefined;
+    this.movingPos = undefined;
     this.initialDistance = undefined;
     this.dx = 0;
     this.dy = 0;
@@ -419,20 +467,16 @@ FChart.prototype.getEventLocation = function(e) {
     return pos;
 }
 
-function normalizeDelta(e) {
-    var delta = 0;
-    var wheelDelta = e.originalEvent.wheelDelta;
-    var deltaY = e.originalEvent.deltaY;
-
-    // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
-    if (wheelDelta) {
-        delta = -wheelDelta / 120;
-    }
-    // FIREFOX WIN / MAC | IE
-    if(deltaY) {
-        deltaY > 0 ? delta = 1 : delta = -1;
-    }
-    return delta;
+FChart.prototype.getFChartScale = function() {
+    // Compute scale as FChart3 does
+    var wh = Math.max(this.canvas.width, this.canvas.height);
+    var fldSize = this.fieldSizes[this.fldSizeIndex];
+    var drawingwidth = this.canvas.width;
+    var drawingheight = this.canvas.height;
+    var fieldradius = fldSize * Math.PI / 180.0 / 2.0;
+    var fieldsize = fieldradius * Math.sqrt(drawingwidth**2 + drawingheight**2) / wh;
+    var scale = wh / 2.0 / Math.sin(fieldradius);
+    return scale;
 }
 
 FChart.prototype.findDso = function(e) {
@@ -468,9 +512,14 @@ FChart.prototype.onPointerDown = function(e) {
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
     var rect = this.canvas.getBoundingClientRect();
-    var wh = Math.max(this.canvas.width, this.canvas.height);
-    var fldSize = this.fieldSizes[this.fldSizeIndex];
-    this.mouseDownDec = this.dec + this.multDEC * (this.canvas.height/2 - this.mouseY - rect.top) * Math.PI * fldSize / (180.0 * wh);
+
+    var scale = this.getFChartScale();
+    var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
+    var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
+    this.movingPos = pos2radec(x, y, this.ra, this.dec);
+    ra_hms = ra2hms(this.movingPos.ra);
+    dec_deg = dec2deg(this.movingPos.dec);
+    // console.log("ra:" + ra_hms.h + ":" + ra_hms.m + ":" + ra_hms.s + " dec:" + dec_deg.deg + "." + dec_deg.min);
 }
 
 FChart.prototype.onPointerUp = function(e) {
@@ -489,7 +538,7 @@ FChart.prototype.onPointerUp = function(e) {
             */
         }
         this.isDragging = false
-        this.mouseDownDec = undefined;
+        this.movingPos = undefined;
     }
 }
 
@@ -515,24 +564,35 @@ FChart.prototype.moveXY = function(mx, my) {
 }
 
 FChart.prototype.moveEnd = function() {
-    this.fldSize = this.fieldSizes[this.fldSizeIndex];
+    if (this.movingPos != undefined) {
+        var rect = this.canvas.getBoundingClientRect();
+        var scale = this.getFChartScale();
+        var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
+        var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
+        var movingToPos = pos2radec(x, y, this.ra, this.dec);
+        var dRA = movingToPos.ra - this.movingPos.ra;
+        var dDEC = movingToPos.dec - this.movingPos.dec;
+        this.ra -= dRA;
+        this.dec -= dDEC;
+        //this.movingPos = pos2radec(x, y, this.ra, this.dec);
+    } else {
+        var fldSize = this.fieldSizes[this.fldSizeIndex];
+        var wh = Math.max(this.canvas.width, this.canvas.height);
+        this.dec = this.dec + this.multDEC * this.dy * Math.PI * fldSize / (180.0 * wh);
 
-    var wh = Math.max(this.canvas.width, this.canvas.height);
-    this.dec = this.dec + this.multDEC * this.dy * Math.PI * this.fldSize / (180.0 * wh);
-    var movDec = this.mouseDownDec;
+        var movDec = this.dec;
 
-    if (movDec == undefined) {
-        movDec = this.dec;
-        if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
-        if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
+        if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
+        if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
+
+        this.ra = this.ra + this.multRA * this.dx * Math.PI * fldSize / (180.0 * wh * Math.cos(movDec));
     }
 
-    if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
-    if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
-
-    this.ra = this.ra + this.multRA * this.dx * Math.PI * this.fldSize / (180.0 * wh * Math.cos(movDec));
     if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
     if (this.ra < 0) this.ra = this.ra + 2 * Math.PI
+
+    if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
+    if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
 
     $('#ra').val(this.ra);
     $('#dec').val(this.dec);
