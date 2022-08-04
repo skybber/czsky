@@ -703,7 +703,7 @@ def deepskyobject_observation_log(dso_id):
             db.session.add(observation)
             db.session.commit()
             flash('Observation log successfully updated', 'form-success')
-            return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id))
+            return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
 
