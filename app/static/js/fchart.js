@@ -496,7 +496,6 @@ FChart.prototype.findDso = function(e) {
 FChart.prototype.onClick = function(e) {
     var dso  = this.findDso(e)
     if (dso != null) {
-        dso = dso.replace(/\s/g, '');
         if (this.isInSplitView()) {
             var url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + "&embed=fc";
             $(".fchart-iframe").attr('src', url);
