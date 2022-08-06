@@ -358,7 +358,8 @@ def deepskyobject_info(dso_id):
             .first()
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
-        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+        if embed != 'pl':
+            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
 
     has_observations = _has_dso_observations(dso, orig_dso)
     season = request.args.get('season')
