@@ -35,6 +35,8 @@ from app.models import (
     ObsSessionPlanRun,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
+    SessionPlanItem,
+    SessionPlanItemType,
     User,
     UserDsoApertureDescription,
     UserDsoDescription,
@@ -230,6 +232,46 @@ def deepskyobject_switch_observed_list():
     return jsonify(result=result)
 
 
+@main_deepskyobject.route('/deepskyobject/switch-session-plan', methods=['GET'])
+@login_required
+def deepskyobject_switch_session_plan():
+    dso_id = request.args.get('dso_id', None, type=int)
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+
+    session_plan_id = request.args.get('session_plan_id', None, type=int)
+    if not session_plan_id:
+        abort(404)
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if not session_plan:
+        abort(404)
+
+    if current_user.is_anonymous:
+        if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+            abort(404)
+    elif session_plan.user_id != current_user.id:
+        abort(404)
+
+    session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan_id, dso_id=dso_id).first()
+    if session_plan_item:
+        db.session.delete(session_plan_item)
+        db.session.commit()
+        result = 'off'
+    else:
+        new_item = SessionPlanItem(
+            session_plan_id=session_plan_id,
+            item_type=SessionPlanItemType.DSO,
+            dso_id=dso_id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+        db.session.add(new_item)
+        db.session.commit()
+        result = 'on'
+    return jsonify(result=result)
+
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/seltab')
 def deepskyobject_seltab(dso_id):
     """View a deepsky object seltab."""
@@ -302,6 +344,7 @@ def deepskyobject_info(dso_id):
 
     wish_list = None
     observed_list = None
+    offered_session_plans = None
     if current_user.is_authenticated:
         wish_item = WishListItem.query.filter(WishListItem.dso_id.in_((dso.id, orig_dso.id))) \
             .join(WishList) \
@@ -315,14 +358,16 @@ def deepskyobject_info(dso_id):
             .first()
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
+        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+
     has_observations = _has_dso_observations(dso, orig_dso)
     season = request.args.get('season')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
-                           wish_list=wish_list, observed_list=observed_list, title_img=title_img, season=season, embed=embed,
-                           has_observations=has_observations,
+                           wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
+                           title_img=title_img, season=season, embed=embed, has_observations=has_observations,
                            )
 
 

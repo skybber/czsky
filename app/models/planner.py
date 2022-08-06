@@ -18,7 +18,6 @@ class SessionPlan(db.Model):
     location = db.relationship("Location")
     location_position = db.Column(db.String(256))
     for_date = db.Column(db.DateTime, default=datetime.now())
-    # is_offered = db.Column(db.Boolean, default=False)
     is_anonymous = db.Column(db.Boolean, default=False, nullable=False)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     is_archived = db.Column(db.Boolean, default=False, nullable=False)
