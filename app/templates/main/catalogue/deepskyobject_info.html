@@ -97,9 +97,7 @@
                     </div>
                 {% endif %}
 
-                {% if current_user.is_authenticated %}
-                    {{ commons.wish_observed_list_toolbar(dso.id, wish_list, observed_list, offered_session_plans) }}
-                {% endif %}
+                {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, offered_session_plans) }}
 
                 {% if user_descr %}
                     <div class="mobile hidden" style="float:left">
@@ -277,9 +275,7 @@
                       </div>
                   {% endif %}
 
-                  {% if current_user.is_authenticated %}
-                      {{ commons.wish_observed_list_toolbar(dso.id, wish_list, observed_list, offered_session_plans, float='right') }}
-                  {% endif %}
+                  {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, offered_session_plans, float='right') }}
                   <div class="ui label" style="float:right;">
                       <i class="info icon"></i>{{ dso.type }}
                   </div>

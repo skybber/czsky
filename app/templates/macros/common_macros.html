@@ -21,7 +21,8 @@
   {% endif %}
 {% endmacro %}
 
-{% macro wish_observed_list_toolbar(dso_id, wish_list, observed_list, offered_session_plans, float='left') %}
+{% macro wish_observed_list_toolbar(current_user, dso_id, wish_list, observed_list, offered_session_plans, float='left') %}
+    {% if current_user.is_authenticated %}
     <div class="ui icon label" style="float:{{ float }};">
         <a id="switch_wishlist_{{ dso_id }}" class="icon detail" data-tooltip="{{ _('Add to wishlist') }}" data-variation="mini" data-inverted="">
             <i class="heart {{ '' if dso_id in wish_list else 'outline black' }} icon"></i>
@@ -30,6 +31,7 @@
             <i class="eye {{ '' if dso_id in observed_list else 'slash outline black' }} icon"></i>
         </a>
     </div>
+    {% endif %}
     {% if offered_session_plans %}
         <div id="switch_sesplan_dropdown" class="ui icon label tiny dropdown" style="float:{{ float }};" data-tooltip="{{ _('Add to session plan') }}" data-variation="mini" data-inverted="">
             <i class="calendar plus outline icon"></i>

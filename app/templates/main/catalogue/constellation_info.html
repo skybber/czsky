@@ -153,9 +153,7 @@
                             </div>
                         {% endif %}
 
-                        {% if current_user.is_authenticated %}
-                            {{ commons.wish_observed_list_toolbar(user_dso_descr.deepskyObject.id, wish_list, observed_list, offered_session_plans) }}
-                        {% endif %}
+                        {{ commons.wish_observed_list_toolbar(current_user, user_dso_descr.deepskyObject.id, wish_list, observed_list, offered_session_plans) }}
 
                         <div class="mobile hidden" style="float:left;">
                           <div class="ui label">
@@ -220,9 +218,7 @@
                             </div>
                         {% endif %}
 
-                        {% if current_user.is_authenticated %}
-                            {{ commons.wish_observed_list_toolbar(ug_bl_dso.dso.id, wishlist, observed_list, offered_session_plans) }}
-                        {% endif %}
+                        {{ commons.wish_observed_list_toolbar(current_user, ug_bl_dso.dso.id, wishlist, observed_list, offered_session_plans) }}
 
                         <div class="mobile hidden" style="float:left;">
                             <div class="ui label">

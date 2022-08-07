@@ -233,7 +233,6 @@ def deepskyobject_switch_observed_list():
 
 
 @main_deepskyobject.route('/deepskyobject/switch-session-plan', methods=['GET'])
-@login_required
 def deepskyobject_switch_session_plan():
     dso_id = request.args.get('dso_id', None, type=int)
     dso, orig_dso = _find_dso(dso_id)
@@ -360,6 +359,11 @@ def deepskyobject_info(dso_id):
 
         if embed != 'pl':
             offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+    else:
+        if embed != 'pl':
+            session_plan_id = session.get('session_plan_id')
+            if session_plan_id:
+                offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
 
     has_observations = _has_dso_observations(dso, orig_dso)
     season = request.args.get('season')
