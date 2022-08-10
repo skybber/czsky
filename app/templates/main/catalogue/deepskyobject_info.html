@@ -54,6 +54,61 @@
     </div>
 {% endmacro %}
 
+{% macro dso_toolbar_js() %}
+    <script type=text/javascript>
+        $(function() {
+            $('#switch_sesplan_dropdown')
+                .dropdown({
+                    action: 'hide'
+                })
+            ;
+            $("a[id^='switch_wishlist_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wish_list') }}", {
+                     dso_id: m[0]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.find("i").attr('class', 'heart icon');
+                     } else {
+                         $this.find("i").attr('class', 'heart outline black icon');
+                     }
+                 });
+            });
+            $("a[id^='switch_observed_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_observed_list') }}", {
+                     dso_id: m[0]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.find("i").attr('class', 'eye icon');
+                     } else {
+                         $this.find("i").attr('class', 'eye slash outline black icon');
+                     }
+                 });
+            });
+            $("a[id^='switch_sesplan_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_session_plan') }}", {
+                     session_plan_id: m[0],
+                     dso_id: m[1]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.attr('class', 'selected item');
+                     } else {
+                         $this.attr('class', 'item');
+                     }
+                 });
+            });
+        });
+    </script>
+{% endmacro %}
+
 {# --- DSO Info --- #}
 {% macro deepskyobject_info() %}
     <style>
@@ -144,58 +199,7 @@
         </div>
     </div>
 
-    <script type=text/javascript>
-        $(function() {
-            $('#switch_sesplan_dropdown')
-                .dropdown({
-                    action: 'hide'
-                })
-            ;
-            $("a[id^='switch_wishlist_']").click(function() {
-                 var $this = $(this);
-                 var id = $(this).attr('id');
-                 var m = id.match(/\d+/g);
-                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wish_list') }}", {
-                     dso_id: m[0]
-                 }, function(data) {
-                     if (data.result == 'on') {
-                         $this.find("i").attr('class', 'heart icon');
-                     } else {
-                         $this.find("i").attr('class', 'heart outline black icon');
-                     }
-                 });
-            });
-            $("a[id^='switch_observed_']").click(function() {
-                 var $this = $(this);
-                 var id = $(this).attr('id');
-                 var m = id.match(/\d+/g);
-                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_observed_list') }}", {
-                     dso_id: m[0]
-                 }, function(data) {
-                     if (data.result == 'on') {
-                         $this.find("i").attr('class', 'eye icon');
-                     } else {
-                         $this.find("i").attr('class', 'eye slash outline black icon');
-                     }
-                 });
-            });
-            $("a[id^='switch_sesplan_']").click(function() {
-                 var $this = $(this);
-                 var id = $(this).attr('id');
-                 var m = id.match(/\d+/g);
-                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_session_plan') }}", {
-                     session_plan_id: m[0],
-                     dso_id: m[1]
-                 }, function(data) {
-                     if (data.result == 'on') {
-                         $this.attr('class', 'selected item');
-                     } else {
-                         $this.attr('class', 'item');
-                     }
-                 });
-            });
-        });
-    </script>
+    {{ dso_toolbar_js() }}
 
 {% endmacro %}
 
@@ -291,6 +295,7 @@
             </div>
         </div>
     {% endif %}
+    {{ dso_toolbar_js() }}
 {% endmacro %}
 
 {% macro deepskyobject_data_table(dso, full_table) %}
