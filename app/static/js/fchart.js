@@ -800,7 +800,7 @@ FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
                     this.dec = oldDec;
                     $('#ra').val(this.ra);
                     $('#dec').val(this.dec);
-                    this.renderOnTimeOutFromMouseMove();
+                    //this.renderOnTimeOutFromMouseMove();
                 }
             }
         }).bind(this), timeout);
