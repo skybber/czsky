@@ -5,6 +5,22 @@ function pos2radec(x, y, centerRA, centerDEC) {
     }
 }
 
+function radec2pos(ra, dec, centerRA, centerDEC) {
+    deltaRA = ra - centerRA
+
+    sinDEC = Math.sin(dec)
+    cosDEC = Math.cos(dec)
+    sinDEC0 = Math.sin(centerDEC)
+    cosDEC0 = Math.cos(centerDEC)
+
+    cos_deltaRA = Math.cos(deltaRA)
+
+    return {
+        'x' : -cosDEC*Math.sin(deltaRA),
+        'y' : (sinDEC*cosDEC0 - cosDEC*cos_deltaRA*sinDEC0)
+    }
+}
+
 function ra2hms(ra) {
     var h = ra / (2 * Math.PI) * 24;
     var h_int = parseInt(h);
@@ -45,6 +61,79 @@ function normalizeDelta(e) {
     }
     return delta;
 }
+
+
+// uses affine texture mapping to draw a textured triangle
+// at screen coordinates [x0, y0], [x1, y1], [x2, y2] from
+// img *pixel* coordinates [u0, v0], [u1, v1], [u2, v2]
+// code from http://www.dhteumeuleu.com/lab/image3D.html
+function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
+                                    u0, v0, u1, v1, u2, v2, alpha,
+                                    dx, dy, applyCorrection) {
+    dx = dx || 0;
+    dy = dy || 0;
+
+    if (!applyCorrection) {
+        applyCorrection = false;
+    }
+
+    u0 += dx;
+    u1 += dx;
+    u2 += dx;
+    v0 += dy;
+    v1 += dy;
+    v2 += dy;
+    var xc = (x0 + x1 + x2) / 3;
+    var yc = (y0 + y1 + y2) / 3;
+
+
+    // ---- centroid ----
+    var xc = (x0 + x1 + x2) / 3;
+    var yc = (y0 + y1 + y2) / 3;
+    ctx.save();
+    if (alpha) {
+            ctx.globalAlpha = alpha;
+    }
+
+    var coeff = 0.01; // default value
+    if (applyCorrection) {
+        coeff = 0.01;
+    }
+    // ---- scale triangle by (1 + coeff) to remove anti-aliasing and draw ----
+    ctx.beginPath();
+    ctx.moveTo(((1+coeff) * x0 - xc * coeff), ((1+coeff) * y0 - yc * coeff));
+    ctx.lineTo(((1+coeff) * x1 - xc * coeff), ((1+coeff) * y1 - yc * coeff));
+    ctx.lineTo(((1+coeff) * x2 - xc * coeff), ((1+coeff) * y2 - yc * coeff));
+    ctx.closePath();
+    ctx.clip();
+
+
+    // this is needed to prevent to see some lines between triangles
+    if (applyCorrection) {
+        coeff = 0.03;
+        x0 = ((1+coeff) * x0 - xc * coeff), y0 = ((1+coeff) * y0 - yc * coeff);
+        x1 = ((1+coeff) * x1 - xc * coeff), y1 = ((1+coeff) * y1 - yc * coeff);
+        x2 = ((1+coeff) * x2 - xc * coeff), y2 = ((1+coeff) * y2 - yc * coeff);
+    }
+
+    // ---- transform texture ----
+    var d_inv = 1/ (u0 * (v2 - v1) - u1 * v2 + u2 * v1 + (u1 - u2) * v0);
+    ctx.transform(
+        -(v0 * (x2 - x1) -  v1 * x2  + v2 *  x1 + (v1 - v2) * x0) * d_inv, // m11
+            (v1 *  y2 + v0  * (y1 - y2) - v2 *  y1 + (v2 - v1) * y0) * d_inv, // m12
+            (u0 * (x2 - x1) -  u1 * x2  + u2 *  x1 + (u1 - u2) * x0) * d_inv, // m21
+        -(u1 *  y2 + u0  * (y1 - y2) - u2 *  y1 + (u2 - u1) * y0) * d_inv, // m22
+            (u0 * (v2 * x1  -  v1 * x2) + v0 * (u1 *  x2 - u2  * x1) + (u2 * v1 - u1 * v2) * x0) * d_inv, // dx
+            (u0 * (v2 * y1  -  v1 * y2) + v0 * (u1 *  y2 - u2  * y1) + (u2 * v1 - u1 * v2) * y0) * d_inv  // dy
+    );
+    ctx.drawImage(img, 0, 0);
+    //ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
+
+//    ctx.globalAlpha = 1.0;
+
+    ctx.restore();
+}
+
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
                  mirror_x, mirror_y, default_chart_iframe_url, embed) {
@@ -110,6 +199,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.MOVE_INTERVAL = 200;
     this.MAX_SMOOTH_MOVE_STEPS = 10;
     this.MOVE_DIST = 80;
+    this.GRID_SIZE = 10;
 
     this.ra = ra;
     this.dec = dec;
@@ -150,10 +240,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
     this.renderOnTimeOutFromKbdMoveDepth = 0;
     this.backwardMove = false;
     this.isMoveReload = false;
-    this.moveOldImgX = 0;
-    this.moveOldImgY = 0;
     this.moseMoveTimeout = false;
     this.dsoRegions = undefined;
+    this.imgGrid = undefined;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -320,11 +409,16 @@ FChart.prototype.redrawAll = function () {
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
-    var img_width = curSkyImg.width * this.scaleFac;
-    var img_height = curSkyImg.height * this.scaleFac;
-    this.ctx.fillStyle = this.getThemeColor();
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
+    
+    if (this.isDragging) {      
+        this.drawImgGrid(curSkyImg);
+    } else {
+        var img_width = curSkyImg.width * this.scaleFac;
+        var img_height = curSkyImg.height * this.scaleFac;
+        this.ctx.fillStyle = this.getThemeColor();
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
+    }
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
 
@@ -365,6 +459,38 @@ FChart.prototype.forceReloadImage = function() {
     this.doReloadImage()
 }
 
+FChart.prototype.doReloadImage = function() {
+    var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
+
+    var cumulX = this.cumulatedMoveX;
+    var cumulY = this.cumulatedMoveY;
+    var centerRA = this.ra;
+    var centerDEC = this.dec;
+
+    if (this.jsonLoad) {
+        // this.skyImgBuf[this.skyImg.background].src = url;
+        this.reqInProcess ++;
+        $.getJSON(url, {
+            json : true
+        }, function(data) {
+            this.reqInProcess --;
+            if (this.reqInProcess == 0) {
+                this.dsoRegions = data.img_map;
+                this.activateImageOnLoad(cumulX, cumulY, centerRA, centerDEC);
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
+                var queryParams = new URLSearchParams(window.location.search);
+                queryParams.set('ra', this.ra.toString());
+                queryParams.set('dec', this.dec.toString());
+                queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
+                history.replaceState(null, null, "?" + queryParams.toString());
+            }
+        }.bind(this));
+    } else {
+        activateImageOnLoad(cumulX, cumulY, centerRA, centerDEC);
+        this.skyImgBuf[this.skyImg.background].src = url;
+    }
+}
+
 FChart.prototype.formatUrl = function(inpUrl) {
     var url = inpUrl;
     url = url.replace('_RA_', this.ra.toString());
@@ -377,43 +503,14 @@ FChart.prototype.formatUrl = function(inpUrl) {
     return url;
 }
 
-FChart.prototype.doReloadImage = function() {
-    var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
-
-    var cumulX = this.cumulatedMoveX;
-    var cumulY = this.cumulatedMoveY;
-
-    if (this.jsonLoad) {
-        // this.skyImgBuf[this.skyImg.background].src = url;
-        this.reqInProcess ++;
-        $.getJSON(url, {
-            json : true
-        }, function(data) {
-            this.reqInProcess --;
-            if (this.reqInProcess == 0) {
-                this.dsoRegions = data.img_map;
-                this.activateImageOnLoad(cumulX, cumulY);
-                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
-                var queryParams = new URLSearchParams(window.location.search);
-                queryParams.set('ra', this.ra.toString());
-                queryParams.set('dec', this.dec.toString());
-                queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
-                history.replaceState(null, null, "?" + queryParams.toString());
-            }
-        }.bind(this));
-    } else {
-        activateImageOnLoad(cumulX, cumulY);
-        this.skyImgBuf[this.skyImg.background].src = url;
-    }
-}
-
-FChart.prototype.activateImageOnLoad = function(cumulX, cumulY) {
+FChart.prototype.activateImageOnLoad = function(cumulX, cumulY, centerRA, centerDEC) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = null;
         var old = this.skyImg.active;
         this.skyImg.active = this.skyImg.background;
         this.skyImg.background = old;
         this.imgField = this.fieldSizes[this.fldSizeIndex];
+        this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
             this.cumulativeScaleFac = 1.0;
@@ -437,14 +534,31 @@ FChart.prototype.activateImageOnLoad = function(cumulX, cumulY) {
         }
         if (this.isMoveReload) {
             this.isMoveReload = false;
-            this.moveOldImgX -= this.storeMoveOldImgX;
-            this.moveOldImgY -= this.storeMoveOldImgY;
         }
         this.reloadingImgCnt --;
         if (this.reloadingImgCnt > 0) {
             this.doReloadImage();
         }
     }.bind(this);
+}
+
+FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
+    var dx = this.canvas.width / this.GRID_SIZE;
+    var dy = this.canvas.height / this.GRID_SIZE;
+    var screenY = 0;
+    this.imgGrid = [];
+    var scale = this.getFChartScale();
+    for (i=0; i <= this.GRID_SIZE; i++) {
+        var screenX = 0;
+        var y = -(screenY - this.canvas.height / 2.0) / scale;
+        for (j=0; j <= this.GRID_SIZE; j++) {
+            var x = -(screenX - this.canvas.width / 2.0) / scale;
+            var rd = pos2radec(x, y, centerRA, centerDEC);
+            this.imgGrid.push([rd.ra, rd.dec]);
+            screenX += dx;
+        }
+        screenY += dy;
+    }
 }
 
 FChart.prototype.getEventLocation = function(e) {
@@ -471,12 +585,8 @@ FChart.prototype.getFChartScale = function() {
     // Compute scale as FChart3 does
     var wh = Math.max(this.canvas.width, this.canvas.height);
     var fldSize = this.fieldSizes[this.fldSizeIndex];
-    var drawingwidth = this.canvas.width;
-    var drawingheight = this.canvas.height;
     var fieldradius = fldSize * Math.PI / 180.0 / 2.0;
-    var fieldsize = fieldradius * Math.sqrt(drawingwidth**2 + drawingheight**2) / wh;
-    var scale = wh / 2.0 / Math.sin(fieldradius);
-    return scale;
+    return wh / 2.0 / Math.sin(fieldradius);
 }
 
 FChart.prototype.findDso = function(e) {
@@ -505,39 +615,40 @@ FChart.prototype.onClick = function(e) {
     }
 }
 
+FChart.prototype.getDRaDec = function() {
+    var rect = this.canvas.getBoundingClientRect();
+    var scale = this.getFChartScale();
+    var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
+    var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
+    var movingToPos = pos2radec(x, y, this.ra, this.dec);
+    return {
+        'dRA' : movingToPos.ra - this.movingPos.ra,
+        'dDEC' : movingToPos.dec - this.movingPos.dec
+    }
+}
+
 FChart.prototype.onPointerDown = function(e) {
     this.isDragging = true;
     this.draggingStart = true;
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
-    var rect = this.canvas.getBoundingClientRect();
 
+    var rect = this.canvas.getBoundingClientRect();
     var scale = this.getFChartScale();
     var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
     var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
     this.movingPos = pos2radec(x, y, this.ra, this.dec);
-    ra_hms = ra2hms(this.movingPos.ra);
-    dec_deg = dec2deg(this.movingPos.dec);
+
+    // ra_hms = ra2hms(this.movingPos.ra);
+    // dec_deg = dec2deg(this.movingPos.dec);
     // console.log("ra:" + ra_hms.h + ":" + ra_hms.m + ":" + ra_hms.s + " dec:" + dec_deg.deg + "." + dec_deg.min);
 }
 
 FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
-        this.dx += this.getEventLocation(e).x - this.mouseX;
-        this.dy += this.getEventLocation(e).y - this.mouseY;
-        if (this.dx != 0 || this.dy != 0) {
-            this.renderOnTimeOutFromMouseMove();
-            /*
-            this.moveEnd();
-            this.reloadImage();
-            this.dx = 0;
-            this.dy = 0;
-            this.moveOldImgX = 0;
-            this.moveOldImgY = 0;
-            */
-        }
-        this.isDragging = false
-        this.movingPos = undefined;
+        this.mouseX = this.getEventLocation(e).x;
+        this.mouseY = this.getEventLocation(e).y;
+        this.renderOnTimeOutFromMouseMove(true);
     }
 }
 
@@ -564,16 +675,9 @@ FChart.prototype.moveXY = function(mx, my) {
 
 FChart.prototype.moveEnd = function() {
     if (this.movingPos != undefined) {
-        var rect = this.canvas.getBoundingClientRect();
-        var scale = this.getFChartScale();
-        var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
-        var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
-        var movingToPos = pos2radec(x, y, this.ra, this.dec);
-        var dRA = movingToPos.ra - this.movingPos.ra;
-        var dDEC = movingToPos.dec - this.movingPos.dec;
-        this.ra -= dRA;
-        this.dec -= dDEC;
-        //this.movingPos = pos2radec(x, y, this.ra, this.dec);
+        var dRD = this.getDRaDec();
+        this.ra -= dRD.dRA;
+        this.dec -= dRD.dDEC;
     } else {
         var fldSize = this.fieldSizes[this.fldSizeIndex];
         var wh = Math.max(this.canvas.width, this.canvas.height);
@@ -605,53 +709,99 @@ FChart.prototype.onPointerMove = function (e) {
         this.canvas.style.cursor = "default"
     }
     if (this.isDragging) {
-        this.ctx.fillStyle = this.getThemeColor();
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        var ddx = (this.getEventLocation(e).x-this.mouseX);
-        var ddy = (this.getEventLocation(e).y-this.mouseY);
         this.mouseX = this.getEventLocation(e).x;
         this.mouseY = this.getEventLocation(e).y;
-
-        this.moveOldImgX += ddx;
-        this.moveOldImgY += ddy;
-
-        var curSkyImg = this.skyImgBuf[this.skyImg.active];
+        
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
-        this.ctx.drawImage(curSkyImg, this.moveOldImgX, this.moveOldImgY);
+        var curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+        this.drawImgGrid(curSkyImg);
         this.ctx.drawImage(curLegendImg, 0, 0);
-
-        this.dx += ddx;
-        this.dy += ddy;
-
-        this.renderOnTimeOutFromMouseMove();
+        this.renderOnTimeOutFromMouseMove(false);
     }
 }
 
-FChart.prototype.renderOnTimeOutFromMouseMove = function() {
-    if (!this.moseMoveTimeout) {
+FChart.prototype.drawImgGrid = function (curSkyImg) {
+    this.ctx.fillStyle = this.getThemeColor();
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    var dRD = this.getDRaDec();
+    var scale = this.getFChartScale();
+
+    var screenImgGrid = [];
+    var w2 = curSkyImg.width / 2;
+    var h2 = curSkyImg.height / 2;
+    var centerRA = this.ra - dRD.dRA;
+    var centerDEC = this.dec - dRD.dDEC;
+    for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
+        var pos = radec2pos(this.imgGrid[i][0], this.imgGrid[i][1], centerRA, centerDEC, scale);
+        screenImgGrid.push([pos.x * scale + w2, -pos.y * scale + h2]);
+    }
+    var imgY = 0;
+    var dimgX = curSkyImg.width / this.GRID_SIZE;
+    var dimgY = curSkyImg.height / this.GRID_SIZE;
+    for (j=0; j < this.GRID_SIZE; j++) {
+        var imgX = 0;
+        for (i=0; i < this.GRID_SIZE; i++) {
+            var p1 = screenImgGrid[i + j * (this.GRID_SIZE + 1)];
+            var p2 = screenImgGrid[i + 1 + j * (this.GRID_SIZE + 1)];
+            var p3 = screenImgGrid[i + (j  + 1) * (this.GRID_SIZE + 1)];
+            var p4 = screenImgGrid[i + 1 + (j  + 1) * (this.GRID_SIZE + 1)];
+            drawTexturedTriangle(this.ctx, curSkyImg,
+                                    p1[0], p1[1],
+                                    p2[0], p2[1],
+                                    p3[0], p3[1],
+                                    imgX, imgY,
+                                    imgX + dimgX, imgY,
+                                    imgX, imgY + dimgY,
+                                    false,
+                                    0, 0, false);
+            drawTexturedTriangle(this.ctx, curSkyImg,
+                                    p2[0], p2[1],
+                                    p4[0], p4[1],
+                                    p3[0], p3[1],
+                                    imgX + dimgX, imgY,
+                                    imgX + dimgX, imgY + dimgY,
+                                    imgX, imgY + dimgY,
+                                    false,
+                                    0, 0, false);
+            imgX += dimgX;
+        }
+        imgY += dimgY;
+    }
+}
+
+FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
+    if (!this.mouseMoveTimeout || isMouseUp) {
         var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
         this.draggingStart = false;
-        this.moseMoveTimeout = true;
+        this.mouseMoveTimeout = true;
 
+        if (isMouseUp) {
+            this.isDragging = false
+        }
+        
         setTimeout((function() {
-            this.moseMoveTimeout = false;
+            this.mouseMoveTimeout = false;
             var oldRa = this.ra;
             var oldDec = this.dec;
             this.moveEnd();
-            if (this.reloadImage()) {
-                this.isMoveReload = true;
-                this.dx = 0;
-                this.dy = 0;
-                this.storeMoveOldImgX = this.moveOldImgX;
-                this.storeMoveOldImgY = this.moveOldImgY;
+            if (isMouseUp) {
+                this.forceReloadImage();
+                this.movingPos = undefined;
             } else {
-                // revert ra/dec
-                this.ra = oldRa;
-                this.dec = oldDec;
-                $('#ra').val(this.ra);
-                $('#dec').val(this.dec);
-                this.renderOnTimeOutFromMouseMove();
+                if (this.reloadImage()) {
+                    this.isMoveReload = true;
+                    this.dx = 0;
+                    this.dy = 0;
+                } else {
+                    // revert ra/dec
+                    this.ra = oldRa;
+                    this.dec = oldDec;
+                    $('#ra').val(this.ra);
+                    $('#dec').val(this.dec);
+                    this.renderOnTimeOutFromMouseMove();
+                }
             }
         }).bind(this), timeout);
     }
