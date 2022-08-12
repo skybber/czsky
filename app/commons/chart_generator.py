@@ -645,6 +645,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     config.fov_telrad = 'T' in flags
     config.show_milky_way = False
     config.eyepiece_fov = eyepiece_fov
+    config.star_mag_shift = 1.0  # increase radius of star by 1 magnitude
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -720,6 +721,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.fov_telrad = 'T' in flags
 
     config.eyepiece_fov = eyepiece_fov
+    config.star_mag_shift = 1.0  # increase radius of star by 1 magnitude
 
     config.show_flamsteed = (fld_size <= 20)
 
