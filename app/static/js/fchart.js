@@ -542,6 +542,10 @@ FChart.prototype.activateImageOnLoad = function(cumulX, cumulY, centerRA, center
     }.bind(this);
 }
 
+FChart.prototype.mirroredPos2radec = function(x, y, centerRA, centerDEC) {
+    return pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
+}
+
 FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
     var dx = this.canvas.width / this.GRID_SIZE;
     var dy = this.canvas.height / this.GRID_SIZE;
@@ -553,7 +557,7 @@ FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
         var y = -(screenY - this.canvas.height / 2.0) / scale;
         for (j=0; j <= this.GRID_SIZE; j++) {
             var x = -(screenX - this.canvas.width / 2.0) / scale;
-            var rd = pos2radec(x, y, centerRA, centerDEC);
+            var rd = this.mirroredPos2radec(x, y, centerRA, centerDEC);
             this.imgGrid.push([rd.ra, rd.dec]);
             screenX += dx;
         }
@@ -620,7 +624,7 @@ FChart.prototype.getDRaDec = function() {
     var scale = this.getFChartScale();
     var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
     var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
-    var movingToPos = pos2radec(x, y, this.ra, this.dec);
+    var movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
     return {
         'dRA' : movingToPos.ra - this.movingPos.ra,
         'dDEC' : movingToPos.dec - this.movingPos.dec
@@ -637,7 +641,7 @@ FChart.prototype.onPointerDown = function(e) {
     var scale = this.getFChartScale();
     var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
     var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
-    this.movingPos = pos2radec(x, y, this.ra, this.dec);
+    this.movingPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
 
     // ra_hms = ra2hms(this.movingPos.ra);
     // dec_deg = dec2deg(this.movingPos.dec);
@@ -735,7 +739,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
     var centerDEC = this.dec - dRD.dDEC;
     for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
         var pos = radec2pos(this.imgGrid[i][0], this.imgGrid[i][1], centerRA, centerDEC, scale);
-        screenImgGrid.push([pos.x * scale + w2, -pos.y * scale + h2]);
+        screenImgGrid.push([this.multRA * pos.x * scale + w2, -this.multDEC * pos.y * scale + h2]);
     }
     var imgY = 0;
     var dimgX = curSkyImg.width / this.GRID_SIZE;
