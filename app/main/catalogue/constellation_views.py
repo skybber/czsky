@@ -23,6 +23,7 @@ from app.models import (
     DeepskyObject,
     ObservedList,
     ObservedListItem,
+    SessionPlan,
     UserConsDescription,
     UserDsoDescription,
     UserStarDescription,
@@ -198,18 +199,25 @@ def constellation_info(constellation_id):
                     ug_bl_dsos.append({'dso': dso, 'img_info': dso_image_info})
 
         ug_bl_dsos.sort(key=lambda x: x['dso'].mag)
-    editable=current_user.is_editor()
+    editable = current_user.is_editor()
 
     wish_list = None
     observed_list = None
+    offered_session_plans = None
     if current_user.is_authenticated:
         wish_list = [item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items]
         observed_list = [item.dso_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items]
+        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+    else:
+        session_plan_id = session.get('session_plan_id')
+        if session_plan_id:
+            offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='info',
                            user_descr=user_descr, common_name = common_name, star_descriptions=star_descriptions,
                            dso_descriptions=dso_descriptions, aperture_descr_map=aperture_descr_map, editable=editable,
-                           ug_bl_dsos=ug_bl_dsos, wish_list=wish_list, observed_list=observed_list, title_images=title_images,
+                           ug_bl_dsos=ug_bl_dsos, wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
+                           title_images=title_images,
                            )
 
 

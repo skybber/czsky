@@ -152,7 +152,8 @@
                     </div>
                 {% endif %}
 
-                {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, offered_session_plans) }}
+                {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list) }}
+                {{ commons.offered_session_plans_toolbar(dso.id, offered_session_plans) }}
 
                 {% if user_descr %}
                     <div class="mobile hidden" style="float:left">
@@ -268,6 +269,8 @@
                           <i class="caret edit icon"></i>
                       </a>
                   {% endif %}
+                  {{ commons.offered_session_plans_toolbar(dso.id, offered_session_plans, float='right') }}
+                  {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, float='right') }}
                   {% if dso.mag %}
                       <div class="ui label" style="float:right;">
                           &#9728;{{ commons.convert_mag(dso.mag) }}mag
@@ -278,10 +281,8 @@
                           Ø {{ commons.convert_dso_size(dso.major_axis, dso.minor_axis) }}
                       </div>
                   {% endif %}
-
-                  {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, offered_session_plans, float='right') }}
                   <div class="ui label" style="float:right;">
-                      <i class="info icon"></i>{{ dso.type }}
+                      <i class="info icon"></i>{{ dso.type }} {% if dso.subtype %}[{{ dso.subtype }}]{% endif %}
                   </div>
                   {% if dso.constellation %}
                   <a class="ui label" style="float:right;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
