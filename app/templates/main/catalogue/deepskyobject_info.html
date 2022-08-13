@@ -57,12 +57,7 @@
 {% macro dso_toolbar_js() %}
     <script type=text/javascript>
         $(function() {
-            $('#switch_sesplan_dropdown')
-                .dropdown({
-                    action: 'hide'
-                })
-            ;
-            $("a[id^='switch_wishlist_']").click(function() {
+            $("a[id^='switch_wishlist_dso_']").click(function() {
                  var $this = $(this);
                  var id = $(this).attr('id');
                  var m = id.match(/\d+/g);
@@ -76,7 +71,7 @@
                      }
                  });
             });
-            $("a[id^='switch_observed_']").click(function() {
+            $("a[id^='switch_observed_dso_']").click(function() {
                  var $this = $(this);
                  var id = $(this).attr('id');
                  var m = id.match(/\d+/g);
@@ -90,7 +85,12 @@
                      }
                  });
             });
-            $("a[id^='switch_sesplan_']").click(function() {
+            $("[id^='switch_sesplan_dso_dropdown_']")
+                .dropdown({
+                    action: 'hide'
+                })
+            ;
+            $("a[id^='switch_sesplan_dso_']").click(function() {
                  var $this = $(this);
                  var id = $(this).attr('id');
                  var m = id.match(/\d+/g);
@@ -152,8 +152,8 @@
                     </div>
                 {% endif %}
 
-                {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list) }}
-                {{ commons.offered_session_plans_toolbar(dso.id, offered_session_plans) }}
+                {{ commons.wish_observed_dso_toolbar(current_user, dso.id, wish_list, observed_list) }}
+                {{ commons.offered_session_plans_dso_toolbar(dso.id, offered_session_plans) }}
 
                 {% if user_descr %}
                     <div class="mobile hidden" style="float:left">
@@ -269,8 +269,8 @@
                           <i class="caret edit icon"></i>
                       </a>
                   {% endif %}
-                  {{ commons.offered_session_plans_toolbar(dso.id, offered_session_plans, float='right') }}
-                  {{ commons.wish_observed_list_toolbar(current_user, dso.id, wish_list, observed_list, float='right') }}
+                  {{ commons.offered_session_plans_dso_toolbar(dso.id, offered_session_plans, float='right') }}
+                  {{ commons.wish_observed_dso_toolbar(current_user, dso.id, wish_list, observed_list, float='right') }}
                   {% if dso.mag %}
                       <div class="ui label" style="float:right;">
                           &#9728;{{ commons.convert_mag(dso.mag) }}mag

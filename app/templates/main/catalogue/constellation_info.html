@@ -153,8 +153,8 @@
                             </div>
                         {% endif %}
 
-                        {{ commons.wish_observed_list_toolbar(current_user, user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
-                        {{ commons.offered_session_plans_toolbar(user_dso_descr.deepskyObject.id, offered_session_plans) }}
+                        {{ commons.wish_observed_dso_toolbar(current_user, user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
+                        {{ commons.offered_session_plans_dso_toolbar(user_dso_descr.deepskyObject.id, offered_session_plans) }}
 
                         <div class="mobile hidden" style="float:left;">
                           <div class="ui label">
@@ -219,8 +219,8 @@
                             </div>
                         {% endif %}
 
-                        {{ commons.wish_observed_list_toolbar(current_user, ug_bl_dso.dso.id, wishlist, observed_list) }}
-                        {{ commons.offered_session_plans_toolbar(ug_bl_dso.dso.id, offered_session_plans) }}
+                        {{ commons.wish_observed_dso_toolbar(current_user, ug_bl_dso.dso.id, wishlist, observed_list) }}
+                        {{ commons.offered_session_plans_dso_toolbar(ug_bl_dso.dso.id, offered_session_plans) }}
 
                         <div class="mobile hidden" style="float:left;">
                             <div class="ui label">
@@ -248,29 +248,51 @@
     </div>
     <script type=text/javascript>
         $(function() {
-            $("a[id^='switch_wishlist_']").click(function() {
+            $("a[id^='switch_wishlist_dso_']").click(function() {
                  var $this = $(this);
                  var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
                  $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_wish_list') }}", {
-                     dso_id: id.substring(id.indexOf(id.match(/\d/)))
+                     dso_id: m[0]
                  }, function(data) {
                      if (data.result == 'on') {
                          $this.find("i").attr('class', 'heart icon');
                      } else {
                          $this.find("i").attr('class', 'heart outline black icon');
                      }
-               });
+                 });
             });
-            $("a[id^='switch_observed_']").click(function() {
+            $("a[id^='switch_observed_dso_']").click(function() {
                  var $this = $(this);
                  var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
                  $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_observed_list') }}", {
-                     dso_id: id.substring(id.indexOf(id.match(/\d/)))
+                     dso_id: m[0]
                  }, function(data) {
                      if (data.result == 'on') {
                          $this.find("i").attr('class', 'eye icon');
                      } else {
                          $this.find("i").attr('class', 'eye slash outline black icon');
+                     }
+                 });
+            });
+            $("[id^='switch_sesplan_dso_dropdown_']")
+                .dropdown({
+                    action: 'hide'
+                })
+            ;
+            $("a[id^='switch_sesplan_dso_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_deepskyobject.deepskyobject_switch_session_plan') }}", {
+                     session_plan_id: m[0],
+                     dso_id: m[1]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.attr('class', 'selected item');
+                     } else {
+                         $this.attr('class', 'item');
                      }
                  });
             });
