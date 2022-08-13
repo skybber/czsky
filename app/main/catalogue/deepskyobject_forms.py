@@ -57,7 +57,7 @@ class SearchDsoForm(FlaskForm):
          ('BN', 'Nebula'),
          ('PN', 'Planetary Nebula'),
     ], default='All')
-    maglim = IntegerField(lazy_gettext('Limit mag'), default=12, validators=[NumberRange(min=-30.0, max=30.0)])
+    maglim = FloatField(lazy_gettext('Limit mag'), default=12.0, validators=[NumberRange(min=-30.0, max=30.0)])
     constellation_id = IntegerField('Constellation', default=None)
     dec_min = FloatField(lazy_gettext('Dec min'), default=-35.0, validators=[NumberRange(min=-90.0, max=90.0), Optional()])
     max_axis_ratio = FloatField(lazy_gettext('Max axis ratio'), default=None, validators=[NumberRange(min=0.0, max=1.0), Optional()])
