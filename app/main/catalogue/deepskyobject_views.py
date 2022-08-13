@@ -129,28 +129,27 @@ def deepskyobjects():
 
         dso_query = DeepskyObject.query
         if search_form.q.data:
-            dso_query = dso_query.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
+            dso_query = dso_query.filter_by(name=normalize_dso_name(search_form.q.data))
+        else:
+            if search_form.dso_type.data and search_form.dso_type.data != 'All':
+                dso_query = dso_query.filter(DeepskyObject.type == search_form.dso_type.data)
+            cat_id = None
+            if search_form.catalogue.data and search_form.catalogue.data != 'All':
+                cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
+                if cat_id:
+                    dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
-        if search_form.dso_type.data and search_form.dso_type.data != 'All':
-            dso_query = dso_query.filter(DeepskyObject.type == search_form.dso_type.data)
+            if not cat_id:
+                dso_query = dso_query.filter_by(master_id=None)
 
-        cat_id = None
-        if search_form.catalogue.data and search_form.catalogue.data != 'All':
-            cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
-            if cat_id:
-                dso_query = dso_query.filter_by(catalogue_id=cat_id)
+            if search_form.dec_min.data:
+                dso_query = dso_query.filter(DeepskyObject.dec > (np.pi * search_form.dec_min.data / 180.0))
 
-        if not cat_id:
-            dso_query = dso_query.filter_by(master_id=None)
+            if search_form.max_axis_ratio.data:
+                dso_query = dso_query.filter(DeepskyObject.axis_ratio <= search_form.max_axis_ratio.data)
 
-        if search_form.dec_min.data:
-            dso_query = dso_query.filter(DeepskyObject.dec > (np.pi * search_form.dec_min.data / 180.0))
-
-        if search_form.max_axis_ratio.data:
-            dso_query = dso_query.filter(DeepskyObject.axis_ratio <= search_form.max_axis_ratio.data)
-
-        if not search_form.q.data and search_form.maglim.data:
-            dso_query = dso_query.filter(DeepskyObject.mag <= search_form.maglim.data)
+            if search_form.maglim.data:
+                dso_query = dso_query.filter(DeepskyObject.mag <= search_form.maglim.data)
 
 
         order_by_field = None
