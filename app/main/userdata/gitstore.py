@@ -311,7 +311,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             udd.update_date = updated_date
             db.session.add(udd)
             if child_udd:
-                db.session.remove(child_udd)
+                db.session.delete(child_udd)
 
 
 def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
@@ -345,11 +345,11 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             if uad and uad.deepskyObject.master_id:
                 master_dso = DeepskyObject.query.filter_by(id=uad.deepskyObject.master_id).first()
                 master_uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
-                        .filter_by(lang_code=lang_code_dir) \
-                        .filter_by(aperture_class=aperture_class) \
-                        .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
-                        .filter_by(name=master_dso.name) \
-                        .first()
+                    .filter_by(lang_code=lang_code_dir) \
+                    .filter_by(aperture_class=aperture_class) \
+                    .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+                    .filter_by(name=master_dso.name) \
+                    .first()
                 if not master_uad:
                     master_uad = UserDsoApertureDescription(
                         dso_id=master_dso.id,
@@ -401,7 +401,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             uad.update_date = updated_date
             db.session.add(uad)
             if child_uad:
-                db.session.remove(child_uad)
+                db.session.delete(child_uad)
 
 
 def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
