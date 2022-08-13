@@ -120,6 +120,9 @@ def deepskyobjects():
         if not ret:
             return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))
 
+        if search_form.maglim.data is None:
+            search_form.maglim.data = search_form.maglim.default
+
         per_page = get_items_per_page(search_form.items_per_page)
 
         offset = (page - 1) * per_page
