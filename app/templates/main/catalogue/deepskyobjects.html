@@ -13,9 +13,9 @@
             </h2>
 
             <form action="{{ url_for('main_deepskyobject.deepskyobjects') }}" method="post" name="search">
-                <div class="ui tiny menu">
+                <div class="ui menu">
                     <div class="ui item">
-                        <div id="catalogue_dropdown" class="ui search selection dropdown">
+                        <div id="catalogue_dropdown" class="ui dropdown">
                             <input type="hidden" id="catalogue_id" name="{{ search_form.catalogue.name }}" value="{{ search_form.catalogue.data }}">
                             <span class="text">{{ _('Choose Catalogue') }}</span>
                             <i class="dropdown icon"></i>
