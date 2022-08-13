@@ -22,6 +22,7 @@ confirm() {
 ./manage.py add_editor_user
 ./manage.py add_anonymous_user
 ./manage.py initialize_catalogues
+./manage.py update_dso_axis_ratio
 ./manage.py add_help_users
 ./manage.py import_dso_list
 ./manage.py import_star_list

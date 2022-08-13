@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import base64
 import urllib.parse
 
@@ -94,38 +95,6 @@ def deepskyobjects():
 
     sort_by = request.args.get('sortby')
 
-    ret, page = process_paginated_session_search('dso_search_page', [
-        ('dso_search', search_form.q),
-        ('dso_type', search_form.dso_type),
-        ('dso_catal', search_form.catalogue),
-        ('dso_maglim', search_form.maglim),
-        ('items_per_page', search_form.items_per_page)
-    ])
-
-    if not ret:
-        return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))
-
-    per_page = get_items_per_page(search_form.items_per_page)
-
-    offset = (page - 1) * per_page
-
-    dso_query = DeepskyObject.query
-    if search_form.q.data:
-        dso_query = dso_query.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
-
-    mag_scale = (8, 16)
-
-    if search_form.dso_type.data and search_form.dso_type.data != 'All':
-        dso_query = dso_query.filter(DeepskyObject.type == search_form.dso_type.data)
-
-    if search_form.catalogue.data and search_form.catalogue.data != 'All':
-        cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
-        if cat_id:
-            dso_query = dso_query.filter_by(catalogue_id=cat_id)
-
-    if not search_form.q.data and search_form.maglim.data is not None and search_form.maglim.data < mag_scale[1]:
-        dso_query = dso_query.filter(DeepskyObject.mag<search_form.maglim.data)
-
     sort_def = { 'name': DeepskyObject.name,
                  'type': DeepskyObject.type,
                  'ra': DeepskyObject.ra,
@@ -133,33 +102,76 @@ def deepskyobjects():
                  'constellation': DeepskyObject.constellation_id,
                  'mag': DeepskyObject.mag,
                  'major_axis': DeepskyObject.major_axis,
-    }
+                 }
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
 
-    order_by_field = None
-    if sort_by:
-        desc = sort_by[0] == '-'
-        sort_by_name = sort_by[1:] if desc else sort_by
-        order_by_field = sort_def.get(sort_by_name)
-        if order_by_field and desc:
-            order_by_field = order_by_field.desc()
+    if request.method == 'GET' or search_form.validate_on_submit():
+        ret, page = process_paginated_session_search('dso_search_page', [
+            ('dso_search', search_form.q),
+            ('dso_type', search_form.dso_type),
+            ('dso_catal', search_form.catalogue),
+            ('dso_maglim', search_form.maglim),
+            ('dec_min', search_form.dec_min),
+            ('max_axis_ratio', search_form.max_axis_ratio),
+            ('items_per_page', search_form.items_per_page)
+        ])
 
-    if order_by_field is None:
-        order_by_field = DeepskyObject.id
+        if not ret:
+            return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))
 
-    shown_dsos = dso_query.order_by(order_by_field).limit(per_page).offset(offset).all()
+        per_page = get_items_per_page(search_form.items_per_page)
 
-    observed = set()
-    if not current_user.is_anonymous:
-        for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
-            observed.add(dso.id)
+        offset = (page - 1) * per_page
 
-    pagination = Pagination(page=page, per_page=per_page, total=dso_query.count(), search=False, record_name='deepskyobjects',
-                            css_framework='semantic', not_passed_args='back')
+        dso_query = DeepskyObject.query
+        if search_form.q.data:
+            dso_query = dso_query.filter(DeepskyObject.name.like('%' + normalize_dso_name(search_form.q.data) + '%'))
 
-    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=shown_dsos, mag_scale=mag_scale,
-                           pagination=pagination, search_form=search_form, table_sort=table_sort, observed=observed)
+        if search_form.dso_type.data and search_form.dso_type.data != 'All':
+            dso_query = dso_query.filter(DeepskyObject.type == search_form.dso_type.data)
+
+        if search_form.catalogue.data and search_form.catalogue.data != 'All':
+            cat_id = Catalogue.get_catalogue_id_by_cat_code(search_form.catalogue.data)
+            if cat_id:
+                dso_query = dso_query.filter_by(catalogue_id=cat_id)
+
+        if search_form.dec_min.data:
+            dso_query = dso_query.filter(DeepskyObject.dec > (np.pi * search_form.dec_min.data / 180.0))
+
+        if search_form.max_axis_ratio.data:
+            dso_query = dso_query.filter(DeepskyObject.axis_ratio <= search_form.max_axis_ratio.data)
+
+        if not search_form.q.data and search_form.maglim.data:
+            dso_query = dso_query.filter(DeepskyObject.mag <= search_form.maglim.data)
+
+        order_by_field = None
+        if sort_by:
+            desc = sort_by[0] == '-'
+            sort_by_name = sort_by[1:] if desc else sort_by
+            order_by_field = sort_def.get(sort_by_name)
+            if order_by_field and desc:
+                order_by_field = order_by_field.desc()
+
+        if order_by_field is None:
+            order_by_field = DeepskyObject.id
+
+        shown_dsos = dso_query.order_by(order_by_field).limit(per_page).offset(offset).all()
+
+        observed = set()
+        if not current_user.is_anonymous:
+            for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id):
+                observed.add(dso.id)
+
+        pagination = Pagination(page=page, per_page=per_page, total=dso_query.count(), search=False, record_name='deepskyobjects',
+                                css_framework='semantic', not_passed_args='back')
+    else:
+        shown_dsos = []
+        pagination = None
+        observed = None
+
+    return render_template('main/catalogue/deepskyobjects.html', deepskyobjects=shown_dsos, pagination=pagination, search_form=search_form,
+                           table_sort=table_sort, observed=observed)
 
 
 @main_deepskyobject.route('/deepskyobject/search')

@@ -23,6 +23,7 @@ from wtforms.validators import (
     InputRequired,
     Length,
     NumberRange,
+    Optional,
     required
 )
 from flask_babel import lazy_gettext
@@ -47,7 +48,7 @@ class SearchDsoForm(FlaskForm):
          ('Mel', 'Melotte'),
          ('LDN', 'LDN'),
          ('VIC', 'Vic'),
-    ], default='')
+    ], default='All')
     dso_type = SelectField(lazy_gettext('Object type'), choices=[
          ('All', lazy_gettext('All types')),
          ('GX', 'Galaxy'),
@@ -55,8 +56,11 @@ class SearchDsoForm(FlaskForm):
          ('OC', 'Open Cluster'),
          ('BN', 'Nebula'),
          ('PN', 'Planetary Nebula'),
-    ], default='')
-    maglim = IntegerField(lazy_gettext('Limit mag'), default=12)
+    ], default='All')
+    maglim = IntegerField(lazy_gettext('Limit mag'), default=12, validators=[NumberRange(min=-30.0, max=30.0)])
+    constellation_id = IntegerField('Constellation', default=None)
+    dec_min = FloatField(lazy_gettext('Dec min'), validators=[NumberRange(min=-90.0, max=90.0), Optional()])
+    max_axis_ratio = FloatField(lazy_gettext('Max axis ration'), default=None, validators=[NumberRange(min=0.0, max=1.0), Optional()])
     items_per_page = IntegerField(lazy_gettext('Items per page'))
 
 

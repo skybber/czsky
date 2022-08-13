@@ -29,6 +29,7 @@ class DeepskyObject(db.Model):
     catalogue_id = db.Column(db.Integer, db.ForeignKey('catalogues.id'))
     major_axis = db.Column(db.Float)
     minor_axis = db.Column(db.Float)
+    axis_ratio = db.Column(db.Float)
     position_angle = db.Column(db.Float)
     mag = db.Column(db.Float)
     surface_bright = db.Column(db.Float)

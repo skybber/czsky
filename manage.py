@@ -14,7 +14,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User, UserDsoDescription
+from app.models import Role, User, UserDsoDescription, DeepskyObject
 from config import Config
 
 from app.commons.comet_loader import *
@@ -38,6 +38,7 @@ from imports.import_dso_lists import (
     import_glahn_local_group,
     import_corstjens,
 )
+from imports.import_utils import progress
 
 from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky
@@ -126,7 +127,7 @@ def setup_general():
     if admin_query.first() is not None:
         if User.query.filter_by(email=Config.ADMIN_EMAIL).first() is None:
             user = User(
-                user_name = 'admin',
+                user_name='admin',
                 full_name='Admin Account',
                 password=Config.ADMIN_PASSWORD,
                 confirmed=True,
@@ -297,6 +298,26 @@ def add_anonymous_user():
             )
         db.session.add(user)
         db.session.commit()
+
+
+@manager.command
+def update_dso_axis_ratio():
+    all_count = DeepskyObject.query.count()
+    i = 0
+    for dso in DeepskyObject.query.all():
+        axis_ratio = 1
+        if dso.major_axis is not None and dso.minor_axis is not None:
+            major, minor = dso.major_axis, dso.minor_axis
+            if major < minor:
+                major, minor = minor, major
+            if major > 0:
+                axis_ratio = minor / major
+        dso.axis_ratio = axis_ratio
+        db.session.add(dso)
+        progress(i, all_count, 'Updating DSOs axis ratio...')
+        i += 1
+    db.session.commit()
+    print('')
 
 
 @manager.command
