@@ -37,7 +37,7 @@ def anonymous_planner_menu():
     session_plan_id = session.get('session_plan_id')
     if session_plan_id:
         session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-        if not session_plan.is_anonymous:
+        if not session_plan or not session_plan.is_anonymous:
             session.pop('session_plan_id')
             session_plan_id = None
 
