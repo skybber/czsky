@@ -95,7 +95,7 @@ def minor_planets():
     """View minor_planets."""
     search_form = SearchMinorPlanetForm()
 
-    ret, page = process_paginated_session_search('minor_planet_search_page', [
+    ret, page, _ = process_paginated_session_search('minor_planet_search_page', None, [
         ('minor_planet_search', search_form.q),
     ])
 

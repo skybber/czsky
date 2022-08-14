@@ -48,7 +48,7 @@ def all_locations():
 def locations():
     search_form = SearchLocationForm()
 
-    ret, page = process_paginated_session_search('location_search_page', [
+    ret, page, _ = process_paginated_session_search('location_search_page', None, [
         ('location_search', search_form.q),
         ('items_per_page', search_form.items_per_page)
     ])

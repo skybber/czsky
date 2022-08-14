@@ -85,6 +85,9 @@ def all_deepskyobjects():
     session.pop('dso_type', None)
     session.pop('dso_catal', None)
     session.pop('dso_maglim', None)
+    session.pop('dec_min', None)
+    session.pop('dso_max_axis_ratio', None)
+    session.pop('dso_sort_by', None)
     return redirect(url_for('main_deepskyobject.deepskyobjects'))
 
 
@@ -92,8 +95,6 @@ def all_deepskyobjects():
 def deepskyobjects():
     """View deepsky objects."""
     search_form = SearchDsoForm()
-
-    sort_by = request.args.get('sortby')
 
     sort_def = { 'name': DeepskyObject.name,
                  'type': DeepskyObject.type,
@@ -104,10 +105,8 @@ def deepskyobjects():
                  'major_axis': DeepskyObject.major_axis,
                  }
 
-    table_sort = create_table_sort(sort_by, sort_def.keys())
-
     if request.method == 'GET' or search_form.validate_on_submit():
-        ret, page = process_paginated_session_search('dso_search_page', [
+        ret, page, sort_by = process_paginated_session_search('dso_search_page', 'dso_sort_by', [
             ('dso_search', search_form.q),
             ('dso_type', search_form.dso_type),
             ('dso_catal', search_form.catalogue),
@@ -119,6 +118,8 @@ def deepskyobjects():
 
         if not ret:
             return redirect(url_for('main_deepskyobject.deepskyobjects', page=page, sortby=sort_by))
+
+        table_sort = create_table_sort(sort_by, sort_def.keys())
 
         if search_form.maglim.data is None:
             search_form.maglim.data = search_form.maglim.default
@@ -173,6 +174,7 @@ def deepskyobjects():
         pagination = Pagination(page=page, per_page=per_page, total=dso_query.count(), search=False, record_name='deepskyobjects',
                                 css_framework='semantic', not_passed_args='back')
     else:
+        table_sort = create_table_sort(request.args.get('sortby'), sort_def.keys())
         shown_dsos = []
         pagination = None
         observed = None

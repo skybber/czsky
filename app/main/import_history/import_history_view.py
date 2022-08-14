@@ -41,7 +41,7 @@ from .import_history_forms import SearchImportHistoryRecsForm
 def import_history_records():
     search_form = SearchImportHistoryRecsForm()
 
-    ret, page = process_paginated_session_search('import_history_search_page', [
+    ret, page, _ = process_paginated_session_search('import_history_search_page', None, [
         ('import_history_search', search_form.q),
         ('items_per_page', search_form.items_per_page)
     ])

@@ -450,7 +450,7 @@ def session_plan_schedule(session_plan_id):
     if str_per_page is not None:
         session['items_per_page'] = int(str_per_page)
 
-    ret, page = process_paginated_session_search('planner_page', [
+    ret, page, _ = process_paginated_session_search('planner_page', None, [
         ('planner_dso_type', schedule_form.dso_type),
         ('planner_dso_obj_source', schedule_form.obj_source),
         ('planner_dso_maglim', schedule_form.maglim),

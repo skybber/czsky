@@ -148,7 +148,7 @@ def comets():
     """View comets."""
     search_form = SearchCometForm()
 
-    ret, page = process_paginated_session_search('comet_search_page', [
+    ret, page, _ = process_paginated_session_search('comet_search_page', None, [
         ('comet_search', search_form.q),
     ])
 

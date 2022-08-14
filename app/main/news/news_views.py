@@ -53,7 +53,7 @@ def _is_editable(news):
 def news_list():
     search_form = SearchNewsForm()
 
-    ret, page = process_paginated_session_search('news_search_page', [
+    ret, page, _ = process_paginated_session_search('news_search_page', None, [
         ('news_search', search_form.q),
     ])
 

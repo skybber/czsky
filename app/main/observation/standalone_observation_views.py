@@ -58,9 +58,7 @@ def standalone_observations():
     """View standalone observations."""
     search_form = SearchStandaloneObservationForm()
 
-    sort_by = request.args.get('sortby')
-
-    ret, page = process_paginated_session_search('stobservation_search_page', [
+    ret, page, sort_by = process_paginated_session_search('stobservation_search_page', 'stobservation_sort_by', [
         ('sto_search', search_form.q),
         ('items_per_page', search_form.items_per_page)
     ])

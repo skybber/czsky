@@ -54,9 +54,7 @@ def double_stars():
     """View double stars."""
     search_form = SearchDoubleStarForm()
 
-    sort_by = request.args.get('sortby')
-
-    ret, page = process_paginated_session_search('dbl_star_search_page', [
+    ret, page, sort_by = process_paginated_session_search('dbl_star_search_page', 'dbl_sort_by', [
         ('dbl_star_search', search_form.q),
         ('constellation_id', search_form.constellation_id),
         ('dbl_mag_max', search_form.mag_max),

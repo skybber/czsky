@@ -217,6 +217,10 @@ def get_per_page_parameter(param=None, args=None):
     return get_parameter(param, args, "per_page")
 
 
+def get_sortby_parameter(param=None, args=None):
+    return get_parameter(param, args, "sortby")
+
+
 def get_page_args(
     page_parameter=None, per_page_parameter=None, for_test=False, **kwargs
 ):

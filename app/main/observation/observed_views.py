@@ -52,7 +52,7 @@ def observed_list_info():
     add_form = AddToObservedListForm()
     search_form = SearchObservedForm()
 
-    ret, page = process_paginated_session_search('observed_search_page', [
+    ret, page, _ = process_paginated_session_search('observed_search_page', None, [
         ('observed_search', search_form.q),
         ('items_per_page', search_form.items_per_page)
     ])

@@ -32,7 +32,7 @@ from app.models import (
 )
 
 from app.commons.pagination import Pagination, get_page_parameter
-from app.commons.search_utils import process_session_search, process_paginated_session_search, get_items_per_page, create_table_sort, get_catalogues_menu_items
+from app.commons.search_utils import process_session_search
 from app.commons.chart_generator import (
     common_chart_pdf_img,
     common_chart_pos_img,
