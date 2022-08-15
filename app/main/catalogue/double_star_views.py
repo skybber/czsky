@@ -19,10 +19,25 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
+from sqlalchemy.sql.expression import literal
 
 from app import db
 
-from app.models import Constellation, DoubleStar, UserStarDescription, DoubleStarList
+from app.models import (
+    DoubleStar,
+    Observation,
+    ObservingSession,
+    ObservationTargetType,
+    ObservedList,
+    ObservedListItem,
+    ObsSessionPlanRun,
+    SessionPlan,
+    SessionPlanItem,
+    UserStarDescription,
+    WishList,
+    WishListItem,
+)
+
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -43,8 +58,10 @@ from app.commons.search_utils import (
 from app.commons.dso_utils import normalize_double_star_name
 
 from app.main.chart.chart_forms import ChartForm
+from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.highlights_list_utils import create_hightlights_lists
 
-from .double_star_forms import SearchDoubleStarForm
+from .double_star_forms import SearchDoubleStarForm, DoubleStarObservationLogForm
 
 main_double_star = Blueprint('main_double_star', __name__)
 
@@ -82,15 +99,15 @@ def double_stars():
     else:
         if search_form.constellation_id.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.constellation_id == search_form.constellation_id.data)
-        if search_form.mag_max.data:
+        if search_form.mag_max.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
-        if search_form.delta_mag_min.data:
+        if search_form.delta_mag_min.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
-        if search_form.separation_min.data:
+        if search_form.separation_min.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.separation > search_form.separation_min.data)
-        if search_form.separation_max.data:
+        if search_form.separation_max.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.separation < search_form.separation_max.data)
-        if search_form.dec_min.data:
+        if search_form.dec_min.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.dec_first > (np.pi * search_form.dec_min.data / 180.0))
 
     sort_def = { 'wds_number': DoubleStar.wds_number,
@@ -141,15 +158,50 @@ def double_star_info(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'catalogue_data'
 
-    season = request.args.get('season')
-
-    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
+    wish_list = None
+    observed_list = None
+    offered_session_plans = None
+    if current_user.is_authenticated:
+        wish_item = WishListItem.query.filter_by(double_star_id=double_star.id).first()
+        wish_list = [wish_item.double_star_id] if wish_item else []
+
+        observed_item = ObservedListItem.query.filter_by(double_star_id=double_star.id).first()
+        observed_list = [observed_item.double_star_id] if observed_item else []
+
+        if embed != 'pl':
+            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+    else:
+        if embed != 'pl':
+            session_plan_id = session.get('session_plan_id')
+            if session_plan_id:
+                offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
+
+    has_observations = _has_double_star_observations(double_star)
+
     return render_template('main/catalogue/double_star_info.html', type='info', double_star=double_star,
-                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr)
+                           wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
+                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
+                           has_observations=has_observations,)
+
+
+def _get_observations_query(double_star):
+    query = Observation.query.join(ObservingSession) \
+        .filter((ObservingSession.user_id == current_user.id) & (Observation.double_star_id == double_star.id))
+    return query
+
+
+def _has_double_star_observations(double_star):
+    has_observations = False
+    if current_user.is_authenticated:
+        back = request.args.get('back')
+        has_observations = (back != 'running_plan') and \
+                           db.session.query(literal(True)).filter(_get_observations_query(double_star).exists()).scalar()
+    return has_observations
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/surveys')
@@ -163,16 +215,42 @@ def double_star_surveys(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'surveys'
 
-    season = request.args.get('season')
-
-    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+    has_observations = _has_double_star_observations(double_star)
 
     return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star,
-                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr,
-                           field_size=40.0)
+                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
+                           has_observations=has_observations, field_size=40.0)
+
+
+@main_double_star.route('/double-star/<int:double_star_id>/observations')
+def double_star_observations(double_star_id):
+    """View a double star object observations."""
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observations')
+
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['double_star_embed_seltab'] = 'observations'
+
+    observations = None
+    if current_user.is_authenticated:
+        observations = _get_observations_query().all()
+
+    if not observations:
+        return _do_redirect('main_double_star.double_star_info', double_star)
+
+    return render_template('main/catalogue/double_star_info.html', type='observations', double_star=double_star,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, has_observations=True,
+                           observations=observations,
+                           )
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/catalogue-data')
@@ -186,15 +264,119 @@ def double_star_catalogue_data(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'catalogue_data'
 
-    season = request.args.get('season')
-
-    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
+    has_observations = _has_double_star_observations(double_star)
     return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star,
-                           embed=embed, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, season=season, user_descr=user_descr)
+                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
+                           has_observations=has_observations)
+
+
+@main_double_star.route('/double-star/switch-wish-list', methods=['GET'])
+@login_required
+def double_star_switch_wish_list():
+    double_star_id = request.args.get('double_star_id', None, type=int)
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    wish_list_item = WishListItem.query.filter_by(wish_list_id=wish_list.id, double_star_id=double_star_id).first()
+    if wish_list_item:
+        db.session.delete(wish_list_item)
+        db.session.commit()
+        result = 'off'
+    else:
+        wish_list_item = wish_list.create_new_double_star_item(double_star_id)
+        db.session.add(wish_list_item)
+        db.session.commit()
+        result = 'on'
+    return jsonify(result=result)
+
+
+@main_double_star.route('/double-star/switch-observed-list', methods=['GET'])
+@login_required
+def double_star_switch_observed_list():
+    double_star_id = request.args.get('double_star_id', None, type=int)
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    observed_list_item = ObservedListItem.query.filter_by(observed_list_id=observed_list.id, double_star_id=double_star_id).first()
+    if observed_list_item:
+        db.session.delete(observed_list_item)
+        db.session.commit()
+        result = 'off'
+    else:
+        observed_list_item = observed_list.create_new_double_star_item(double_star_id)
+        db.session.add(observed_list_item)
+        db.session.commit()
+        result = 'on'
+    return jsonify(result=result)
+
+
+@main_double_star.route('/double-star/switch-session-plan', methods=['GET'])
+def double_star_switch_session_plan():
+    double_star_id = request.args.get('double_star_id', None, type=int)
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    session_plan_id = request.args.get('session_plan_id', None, type=int)
+    if not session_plan_id:
+        abort(404)
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    if not session_plan:
+        abort(404)
+
+    if current_user.is_anonymous:
+        if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
+            abort(404)
+    elif session_plan.user_id != current_user.id:
+        abort(404)
+
+    session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan_id, double_star_id=double_star_id).first()
+    if session_plan_item:
+        db.session.delete(session_plan_item)
+        db.session.commit()
+        result = 'off'
+    else:
+        session_plan_item = session_plan.create_new_double_star_item(double_star_id)
+        db.session.add(session_plan_item)
+        db.session.commit()
+        result = 'on'
+    return jsonify(result=result)
+
+
+@main_double_star.route('/double-star/<int:double_star_id>/seltab')
+def double_star_seltab(double_star_id):
+    """View a double star seltab."""
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if not double_star:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('double_star_embed_seltab', None)
+
+    if seltab:
+        if seltab == 'chart':
+            return _do_redirect('main_double_star.double_star_chart', double_star)
+        if seltab == 'surveys':
+            return _do_redirect('main_double_star.double_star_surveys', double_star)
+        if seltab == 'observations':
+            return _do_redirect('main_double_star.double_star_observations', double_star)
+
+    back = request.args.get('back')
+    if back == 'running_plan':
+        return _do_redirect('main_double_star.double_star_log', double_star)
+
+    return _do_redirect('main_double_star.double_star_info', double_star)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/chart', methods=['GET', 'POST'])
@@ -208,8 +390,6 @@ def double_star_chart(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'catalogue_data'
 
-    season = request.args.get('season')
-
     form = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
@@ -219,14 +399,15 @@ def double_star_chart(double_star_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    prev_dbl_star, next_dbl_star = _get_prev_next_double_star(double_star)
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+    has_observations = _has_double_star_observations(double_star)
 
     return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star,
-                           chart_control=chart_control, prev_dbl_star=prev_dbl_star, next_dbl_star=next_dbl_star, embed=embed, season=season,
-                           user_descr=user_descr)
+                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, user_descr=user_descr,
+                           has_observations=has_observations,)
 
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -237,7 +418,12 @@ def double_star_chart_pos_img(double_star_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(double_star.ra_first, double_star.dec_first, ra, dec, visible_objects=visible_objects)
+
+    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
+
+    img_bytes = common_chart_pos_img(double_star.ra_first, double_star.dec_first, ra, dec, visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
+
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
@@ -266,33 +452,94 @@ def double_star_chart_pdf(double_star_id, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-def _get_season_constell_ids():
-    season = request.args.get('season', None)
-    if season is not None:
-        constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            constell_ids.add(constell_id[0])
-        return constell_ids
-    return None
+@main_double_star.route('/double-star/<string:double_star_id>/observation-log', methods=['GET', 'POST'])
+def double_star_observation_log(double_star_id):
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    back = request.args.get('back')
+    if back != 'running_plan':
+        abort(404)
+
+    back_id = request.args.get('back_id')
+    observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
+    if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
+        abort(404)
+
+    form = DoubleStarObservationLogForm()
+
+    observation = observation_plan_run.observing_session.find_observation_by_double_star_id(double_star.id)
+
+    is_new_observation_log = observation is None
+
+    if is_new_observation_log:
+        now = datetime.now()
+        observation = Observation(
+            observing_session_id=observation_plan_run.observing_session.id,
+            double_star_id=double_star.id,
+            date_from=now,
+            date_to=now,
+            notes=form.notes.data if form.notes.data else '',
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            observation.notes = form.notes.data
+            observation.update_by = current_user.id
+            observation.update_date = datetime.now()
+            db.session.add(observation)
+            db.session.commit()
+            flash('Observation log successfully updated', 'form-success')
+            return redirect(url_for('main_double_star.double_star_observation_log', double_star_id=double_star_id, back=back, back_id=back_id, embed=request.args.get('embed')))
+    else:
+        form.notes.data = observation.notes
+
+    embed = request.args.get('embed')
+    if embed:
+        session['dso_embed_seltab'] = 'obs_log'
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observation_log')
+
+    return render_template('main/catalogue/double_star_info.html', type='observation_log', double_star=double_star, form=form,
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
+                           has_observations=False, prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           )
 
 
-def _get_prev_next_double_star(double_star):
+@main_double_star.route('/double_star/<string:double_star_id>/observation-log-delete', methods=['GET', 'POST'])
+def double_star_observation_log_delete(double_star_id):
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    back = request.args.get('back')
+    if back != 'running_plan':
+        abort(404)
+    back_id = request.args.get('back_id')
+    observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
+    if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
+        abort(404)
+
+    observation = observation_plan_run.observing_session.find_observation_by_double_star_id(double_star.id)
+
+    if observation is not None:
+        db.session.delete(observation)
+        db.session.commit()
+
+    flash('Observation log deleted.', 'form-success')
+    return redirect(url_for('main_double_star.double_star_observation_log', double_star_id=double_star_id, back=back, back_id=back_id))
+
+
+def _do_redirect(url, double_star):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
-
-    if back == 'observation':
-        pass # TODO
-    elif back == 'wishlist':
-        pass # TODO
-    elif back == 'observed_list':
-        pass # TODO
-    elif back == 'session_plan':
-        pass # TODO
-    elif back == 'double_star_list' and not (back_id is None):
-        double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
-        if double_star_list:
-            prev_item, next_item = double_star_list.get_prev_next_item(double_star.id, _get_season_constell_ids())
-            return prev_item.double_star if prev_item else None, next_item.double_star if next_item else None
-
-    return None, None
-
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    season = request.args.get('season')
+    return redirect(url_for(url, double_star_id=double_star.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

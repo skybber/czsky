@@ -151,22 +151,45 @@
                 {% endif %}
             </tr>
         </thead>
+        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}{% endmacro %}
+        {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_observation_log', double_star_id=item.double_star.id, back='running_plan', back_id=observing_session_plan_run.id) }}{% endmacro %}
+
         {% for item in not_observed_plan_items %}
+            {% if item.dso_id is not none %}
+                {% set to_url = to_dso_url(item) %}
+                {% set item_name = item.deepskyObject.denormalized_name() %}
+                {% set item_type = item.deepskyObject.type %}
+                {% set item_constell = item.deepskyObject.get_constellation_iau_code() %}
+                {% set item_mag = commons.convert_mag(item.deepskyObject.mag) %}
+            {% elif item.double_star_id is not none %}
+                {% set to_url = to_double_star_url(item) %}
+                {% set item_name = item.double_star.common_cat_id %}
+                {% set item_type = item.double_star.components %}
+                {% set item_constell = item.double_star.get_constellation_iau_code() %}
+                {% set item_mag = (item.double_star.mag_first | string) + '/' + (item.double_star.mag_second | string) %}
+            {% else %}
+                {% set to_url = '' %}
+                {% set item_name = '' %}
+                {% set item_type = '' %}
+                {% set item_constell = '' %}
+                {% set item_mag = '' %}
+            {% endif %}
+
         {% if observing_session_plan_run is not none %}
             <tr onclick="window.location.href='{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}';">
         {% else %}
             <tr>
         {% endif %}
-                <td>{{ item.deepskyObject.denormalized_name() }}</td>
-                <td>{{ item.deepskyObject.type }}</td>
-                <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
-                <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
-                <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                <td>{{ item_name }}</td>
+                <td>{{ item_type }}</td>
+                <td class="mobile hidden">{{ item.get_ra_str_short() }}</td>
+                <td class="mobile hidden">{{ item.get_dec_str_short() }}</td>
+                <td>{{ item_constell }}</td>
                 <td class="right aligned">
-                    {{ commons.convert_mag(item.deepskyObject.mag) }}
+                    {{ item_mag }}
                 </td>
                 <td class="right aligned mobile hidden">
-                    {% if item.deepskyObject.major_axis %}
+                    {% if item.dso_id is not none and item.deepskyObject.major_axis %}
                         {% if item.deepskyObject.major_axis >= 100.0 %}
                           {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
                         {% else %}
@@ -183,7 +206,7 @@
                 </td>
                 {% if observed %}
                 <td class="collapsing mobile hidden">
-                    {% if item.deepskyobject.id in observed %}
+                    {% if item.dso_id is not none and item.deepskyobject.id in observed %}
                         <i class="eye icon"></i>
                     {% endif %}
                 </td>

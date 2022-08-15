@@ -27,10 +27,6 @@ from .observing_session_forms import (
 )
 
 from app.models import (
-    DeepskyObject,
-    ImportHistoryRec,
-    ImportHistoryRecStatus,
-    ImportType,
     Location,
     Observation,
     ObservingSession,
@@ -45,7 +41,6 @@ from app.models import (
 from app.commons.search_utils import get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.observation_target_utils import set_observation_targets
-from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -57,6 +52,8 @@ from app.commons.chart_generator import (
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.coordinates import *
+from app.commons.prevnext_utils import get_default_chart_iframe_url, parse_prefix_obj_id
+from app.commons.highlights_list_utils import common_highlights_from_observing_session
 
 main_observing_session = Blueprint('main_observing_session', __name__)
 
@@ -346,36 +343,32 @@ def observing_session_chart(observing_session_id):
 
     form = ChartForm()
 
-    dso_id = request.args.get('dso_id')
-    observing_session_item = None
-    dso = None
+    prefix, obj_id = parse_prefix_obj_id(request.args.get('obj_id'))
 
-    idso_id = int(dso_id) if dso_id and dso_id.isdigit() else None
+    observing_session_item = None
+
     for oitem in observing_session.observations:
-        for oitem_dso in oitem.deepsky_objects:
-            if idso_id is None or oitem_dso.id == idso_id:
+        if oitem.target_type == ObservationTargetType.DSO:
+            for oitem_dso in oitem.deepsky_objects:
+                if obj_id is None or oitem_dso.id == obj_id:
+                    observing_session_item = oitem
+                    break
+        elif oitem.target_type == ObservationTargetType.DBL_STAR:
+            if obj_id is None or oitem.double_star_id == obj_id:
                 observing_session_item = oitem
-                dso = oitem_dso
-                break
         if observing_session_item is not None:
             break
 
     if not common_ra_dec_fsz_from_request(form):
         if observing_session_item:
             if form.ra.data is None or form.dec.data is None:
-                if not dso:
-                    dso = observing_session_item.deepsky_objects[0] if observing_session_item and observing_session_item.deepsky_objects else None
-                form.ra.data = dso.ra if dso else 0
-                form.dec.data = dso.dec if dso else 0
+                form.ra.data = observing_session_item.get_ra()
+                form.dec.data = observing_session_item.get_dec()
         else:
             common_set_initial_ra_dec(form)
 
-    if observing_session_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observing_session', back_id=observing_session.id, dso_id=dso.name, embed='fc', allow_back='true')
-    else:
-        default_chart_iframe_url = None
-
     chart_control = common_prepare_chart_data(form)
+    default_chart_iframe_url = get_default_chart_iframe_url(observing_session_item, back='observation', back_id=observing_session.id)
 
     return render_template('main/observation/observing_session_info.html', fchart_form=form, type='chart', observing_session=observing_session, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_observing_session=is_mine_observing_session)
@@ -386,22 +379,12 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
 
-    highlights_dso_list = []
-    highlights_pos_list = []
-
-    for observation in observing_session.observations:
-        if observation.target_type == ObservationTargetType.DSO:
-            highlights_dso_list.extend(observation.deepsky_objects)
-        elif observation.target_type == ObservationTargetType.DBL_STAR:
-            highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id)])
-        elif observation.target_type == ObservationTargetType.COMET:
-            highlights_pos_list.append([observation.ra, observation.dec, observation.comet.designation])
-        elif observation.target_type == ObservationTargetType.M_PLANET:
-            highlights_pos_list.append([observation.ra, observation.dec, observation.minor_planet.designation])
+    highlights_dso_list, highlights_pos_list = common_highlights_from_observing_session(observing_session)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)

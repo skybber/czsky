@@ -108,7 +108,14 @@ def global_search():
     # 3. Search Double Star
     double_star = search_double_star(query)
     if double_star:
-        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+        return redirect(url_for('main_double_star.double_star_seltab',
+                                double_star_id=double_star.id,
+                                seltab=request.args.get('seltab'),
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
+                                embed=request.args.get('embed')))
 
     # 4. Search Star
     star, usd = search_star(query)
@@ -173,7 +180,7 @@ def _search_chart_ids(query):
         try:
             double_star_id = int(query[len(CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-            return redirect(url_for('main_double_star.double_star_catalogue_data', double_star_id=double_star.id, embed=request.args.get('embed')))
+            return redirect(url_for('main_double_star.double_star_info', double_star_id=double_star.id, embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     return None

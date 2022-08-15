@@ -45,5 +45,3 @@ def anonymous_planner_menu():
         return redirect(url_for('main_sessionplan.new_session_plan'))
 
     return redirect(url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan_id))
-
-

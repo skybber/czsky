@@ -69,15 +69,9 @@ def double_star_list_info(double_star_list_id):
         return redirect(url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list_id, season=search_form.season.data))
 
     season = request.args.get('season', None)
+    constell_ids = Constellation.get_season_constell_ids(season)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
-
-    if season:
-        constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            constell_ids.add(constell_id[0])
-    else:
-        constell_ids = None
 
     double_star_list_descr = DoubleStarListDescription.query.filter_by(double_star_list_id=double_star_list.id, lang_code=lang).first()
 
@@ -165,4 +159,3 @@ def double_star_list_chart_pdf(double_star_list_id, ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_double_star_list=highlights_double_star_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
-

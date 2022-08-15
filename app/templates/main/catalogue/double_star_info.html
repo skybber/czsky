@@ -5,40 +5,29 @@
 {% endif %}
 
 {% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
-
-{% if user_descr %}
-    {% if not embed %}
-        {% set endpoints = [
-            ('main_double_star.double_star_info', _('Info'), 'info'),
-            ('main_double_star.double_star_chart', _('Chart'), 'info'),
-            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-        ] %}
-    {% else %}
-        {% set endpoints = [
-            ('main_double_star.double_star_info', _('Info'), 'info'),
-            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-        ] %}
-    {% endif %}
-{% else %}
-    {% if not embed %}
-        {% set endpoints = [
-            ('main_double_star.double_star_chart', _('Chart'), 'info'),
-            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-        ] %}
-    {% else %}
-        {% set endpoints = [
-            ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
-            ('main_double_star.double_star_catalogue_data', _('Catalogue data'), 'table')
-        ] %}
-    {% endif %}
-{% endif %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
+
+{% set endpoint_log = [ ('main_double_star.double_star_observation_log', _('Log'), 'obslog') ] if back == 'running_plan' else [] %}
+{% set endpoint_observations = [ ('main_double_star.double_star_observations', _('Observations'), 'info') ] if has_observations else [] %}
+
+{% if not embed %}
+    {% set endpoints = [
+        ('main_double_star.double_star_info', _('Info'), 'info'),
+        ('main_double_star.double_star_chart', _('Chart'), 'info'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_double_star.double_star_info', _('Info'), 'info'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+    ] %}
+{% endif %}
+
+{% set endpoints = endpoint_log + endpoints + endpoint_observations %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -50,9 +39,45 @@
     </div>
 {% endmacro %}
 
-{% macro double_star_user_info(user_descr) %}
-    <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block">
+{% macro double_star_info(user_descr) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
+        <div class="ui blue segment" style="display: inline-block; width:100%">
+            <h3>&nbsp;
+                {% if double_star.constellation is not none %}
+                    <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=double_star.constellation.iau_code) }}">
+                        <i class="lastfm icon"></i>
+                        <span class="mobile hidden tablet hidden">{{ double_star.constellation.name.capitalize() }}</span>
+                        <span class="mobile only tablet only">{{ double_star.constellation.iau_code.capitalize() }}</span>
+                    </a>
+                {% endif %}
+                {% if double_star.components is not none %}
+                <div class="tablet hidden computer hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        <i class="info icon"></i>{{ double_star.components }}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="mobile hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        &#8982; {{ double_star.ra_first_str_short() }}/{{ double_star.dec_first_str_short() }}
+                    </div>
+                </div>
+                {% if double_star.mag_first is not none and double_star.mag_second is not none %}
+                <div class="ui label" style="float:left;">
+                    &#9728;{{ commons.convert_mag(double_star.mag_first) }}/{{ commons.convert_mag(double_star.mag_second) }}mag
+                </div>
+                {% endif %}
+                {% if double_star.separation %}
+                    <div class="ui label" style="float:left;">
+                        Ø {{ commons.convert_double_star_separation(double_star.separation) }}
+                    </div>
+                {% endif %}
+
+                {{ commons.wish_observed_double_star_toolbar(current_user, double_star.id, wish_list, observed_list) }}
+                {{ commons.offered_session_plans_double_star_toolbar(double_star.id, offered_session_plans) }}
+            </h3>
+
+            {% if user_descr %}
             <div class="markdown">
                 {% if editable %}
                     <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
@@ -63,14 +88,86 @@
 {{ user_descr.text }}
                 {% endfilter %}
             </div>
+            {% endif %}
+
+            {% if double_star is not none %}
+            <table class="ui compact striped definition unstackable table">
+                <tr><td class="three wide">{{ _('WDS ID') }}</td><td>{{ double_star.wds_number }}</td></tr>
+                <tr><td class="three wide">{{ _('Common catalogue ID') }}</td><td>{{ double_star.common_cat_id }}</td></tr>
+                <tr><td class="three wide">{{ _('Components') }}</td><td>{{ double_star.components }}</td></tr>
+                <tr><td class="three wide">{{ _('Other Designation') }}</td><td>{{ double_star.other_designation }}</td></tr>
+                <tr><td class="three wide">{{ _('Position angle') }}</td><td>{{ double_star.pos_angle }}</td></tr>
+                <tr><td class="three wide">{{ _('Separation') }}</td><td>{{ double_star.separation }}</td></tr>
+                <tr><td class="three wide">{{ _('Mag First') }}</td><td>{{ double_star.mag_first }}</td></tr>
+                <tr><td class="three wide">{{ _('Mag Second') }}</td><td>{{ double_star.mag_second }}</td></tr>
+                <tr><td class="three wide">{{ _('Delta mag') }}</td><td>{{ double_star.delta_mag }}</td></tr>
+                <tr><td class="three wide">{{ _('Spectral Type') }}</td><td>{{ double_star.spectral_type }}</td></tr>
+                <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ double_star.constellation.name.capitalize() if double_star.constellation else '' }}</td></tr>
+                <tr><td class="three wide">RA</td><td>{{ double_star.ra_first_str() }}</td></tr>
+                <tr><td class="three wide">Dec</td><td>{{ double_star.dec_first_str() }}</td></tr>
+            </table>
+            {% endif %}
+        </div>
     </div>
+    <script type=text/javascript>
+        $(function() {
+            $("a[id^='switch_wishlist_dbl_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_double_star.double_star_switch_wish_list') }}", {
+                     double_star_id: m[0]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.find("i").attr('class', 'heart icon');
+                     } else {
+                         $this.find("i").attr('class', 'heart outline black icon');
+                     }
+                 });
+            });
+            $("a[id^='switch_observed_dbl_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_double_star.double_star_switch_observed_list') }}", {
+                     double_star_id: m[0]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.find("i").attr('class', 'eye icon');
+                     } else {
+                         $this.find("i").attr('class', 'eye slash outline black icon');
+                     }
+                 });
+            });
+            $("[id^='switch_sesplan_dbl_dropdown']")
+                .dropdown({
+                    action: 'hide'
+                })
+            ;
+            $("a[id^='switch_sesplan_dbl_']").click(function() {
+                 var $this = $(this);
+                 var id = $(this).attr('id');
+                 var m = id.match(/\d+/g);
+                 $.getJSON("{{ url_for('main_double_star.double_star_switch_session_plan') }}", {
+                     session_plan_id: m[0],
+                     double_star_id: m[1]
+                 }, function(data) {
+                     if (data.result == 'on') {
+                         $this.attr('class', 'selected item');
+                     } else {
+                         $this.attr('class', 'item');
+                     }
+                 });
+            });
+        });
+    </script>
 {% endmacro %}
 
 {# --- Chart --- #}
 {% macro double_star_chart(double_star) %}
     {{ fchart.fchart(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, back=back, back_id=back_id),
                      url_for('main_double_star.double_star_chart_pos_img', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id ),
                      url_for('main_double_star.double_star_chart_legend_img', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
                      url_for('main_double_star.double_star_chart_pdf', double_star_id=double_star.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
@@ -94,111 +191,167 @@
     </script>
 {% endmacro %}
 
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
-
-{# --- Catalogue Data --- #}
-{% macro double_star_catalogue_data(double_star) %}
-    {% if double_star is not none %}
-    <table class="ui compact striped definition unstackable table">
-        <tr><td class="three wide">{{ _('WDS ID') }}</td><td>{{ double_star.wds_number }}</td></tr>
-        <tr><td class="three wide">{{ _('Common catalogue ID') }}</td><td>{{ double_star.common_cat_id }}</td></tr>
-        <tr><td class="three wide">{{ _('Components') }}</td><td>{{ double_star.components }}</td></tr>
-        <tr><td class="three wide">{{ _('Other Designation') }}</td><td>{{ double_star.other_designation }}</td></tr>
-        <tr><td class="three wide">{{ _('Position angle') }}</td><td>{{ double_star.pos_angle }}</td></tr>
-        <tr><td class="three wide">{{ _('Separation') }}</td><td>{{ double_star.separation }}</td></tr>
-        <tr><td class="three wide">{{ _('Mag First') }}</td><td>{{ double_star.mag_first }}</td></tr>
-        <tr><td class="three wide">{{ _('Mag Second') }}</td><td>{{ double_star.mag_second }}</td></tr>
-        <tr><td class="three wide">{{ _('Delta mag') }}</td><td>{{ double_star.delta_mag }}</td></tr>
-        <tr><td class="three wide">{{ _('Spectral Type') }}</td><td>{{ double_star.spectral_type }}</td></tr>
-        <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ double_star.constellation.name.capitalize() if double_star.constellation else '' }}</td></tr>
-        <tr><td class="three wide">RA</td><td>{{ double_star.ra_first_str() }}</td></tr>
-        <tr><td class="three wide">Dec</td><td>{{ double_star.dec_first_str() }}</td></tr>
+{# --- Observations --- #}
+{% macro double_star_observations() %}
+    <table class="ui compact definition2 unstackable searchable sortable selectable table">
+        {% for observation in observations %}
+        <tr onclick="window.location.href = '{{ url_for('main_observing_session.observing_session_info', observing_session_id=observation.observing_session.id) }}';">
+            <td class="two wide"><b>{{ observation.observing_session.date_from.strftime('%Y-%m-%d') }}</b></td>
+            <td class="two wide"><b>{{ observation.observing_session.location.name if observation.observing_session.location else '' }}</b></td>
+            <td class="two wide"><b>{{ observation.observing_session.title }}</b></td>
+            <td>
+                {% filter extended_commonmark('') %}
+{{ observation.notes_to_html() }}
+                {% endfilter %}
+            </td>
+        </tr>
+        {% endfor %}
     </table>
-    {% endif %}
 {% endmacro %}
 
+{% macro double_star_observation_log() %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    {{ f.begin_form(form, flashes) }}
+
+        {{ f.render_form_field(form.notes) }}
+
+        <div class="two fields">
+            {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                {{ field(class='positive ui button') }}
+            {% endfor %}
+            {% if not is_new_observation_log %}
+                <a id="bdeleteobservlog" class="negative ui button" href="#">{{ _('Delete Log') }}</a>
+            {% endif %}
+        </div>
+
+    {{ f.end_form() }}
+    {% if not is_new_observation_log %}
+        <div class="ui tiny modal deleteObservationLogModal">
+          <div class="header">{{ _('Delete Log') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete this observation log?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_double_star.double_star_observation_log_delete', double_star_id=double_star.id, back=back, back_id=back_id ) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+{% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                    {% if back=='observation' %}
-                        <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
-                            <i class="caret left icon"></i>
-                            <i class="eye icon"></i>
-                        </a>
-                    {% elif back=='double_star_list' %}
-                        <a class="ui basic compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
-                            <i class="caret left icon"></i>
-                            <i class="tasks icon mobile hidden"></i>
-                        </a>
-                    {% elif back=='constell' %}
-                        <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
-                            <i class="caret left icon"></i>
-                            <i class="lastfm icon"></i>
-                        </a>
-                    {% else %}
-                        <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
-                            <i class="caret left icon"></i>
-                            <i class="list icon"></i>
-                        </a>
+                    {% if not embed %}
+                        {% if back=='constell' %}
+                            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon"></i>
+                            </a>
+                        {% elif back=='observation' %}
+                            <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="eye icon"></i>
+                            </a>
+                        {% elif back == 'stobservation' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="eye icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'wishlist' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}">
+                                <i class="caret left icon"></i>
+                                <i class="heart icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'observed_list' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}">
+                                <i class="caret left icon"></i>
+                                <i class="heart icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'session_plan' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% elif back == 'running_plan' %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% elif back=='double_star_list' %}
+                            <a class="ui basic compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
+                                <i class="caret left icon"></i>
+                                <i class="tasks icon mobile hidden"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
+                        {% endif %}
+                        <div class="divider">  </div>
                     {% endif %}
-                    <div class="divider">  </div>
                     <div class="active section">
                         {{ double_star.get_common_name() }}{{ (' - ' + double_star.components) if double_star.components else '' }}
                     </div>
                 </div>
 
-                {% if next_dbl_star and embed != 'pl' %}
-                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.double_star_chart', double_star_id=next_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
-                        {{ next_dbl_star.common_cat_id }}
+                {% if next_wrap and embed != 'pl' %}
+                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
+                        {{ next_wrap.label() }}
                         <i class="caret right icon"></i>
                     </a>
                 {% endif %}
-                {% if prev_dbl_star and embed != 'pl' %}
-                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.double_star_chart', double_star_id=prev_dbl_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                {% if prev_wrap and embed != 'pl' %}
+                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else prev_wrap.url() }}">
                         <i class="caret left icon"></i>
-                        {{ prev_dbl_star.common_cat_id }}
+                        {{ prev_wrap.label() }}
                     </a>
                 {% endif %}
-
             </div>
-
-            {% if next_double_star and embed != 'pl' %}
-                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.star_chart', double_star_id=next_double_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
-                    {% if next_double_star.common_cat_id %}
-                        {{ next_double_star.common_cat_id }}
-                    {% elif next_double_star.wds_number is not none %}
-                        HD{{ next_double_star.wds_number }}
-                    {% endif %}
-                    <i class="caret right icon"></i>
-                </a>
-            {% endif %}
-            {% if prev_double_star and embed != 'pl' %}
-                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_double_star.star_chart', double_star_id=prev_double_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
-                    <i class="caret left icon"></i>
-                    {% if prev_double_star.common_cat_id %}
-                        {{ prev_double_star.common_cat_id }}
-                    {% elif prev_double_star.wds_number is not none %}
-                        HD{{ prev_double_star.wds_number }}
-                    {% endif %}
-                </a>
-            {% endif %}
 
             {{ navigation(endpoints) }}
 
-            {% if type == 'info' and user_descr is not none %}
-                {{ double_star_user_info(user_descr) }}
+            {% if type == 'info' %}
+                {{ double_star_info(user_descr) }}
             {% elif type == 'chart' %}
                 {{ double_star_chart(double_star) }}
-            {% elif type == 'surveys' %}
-                {{ double_star_surveys(double_star) }}
+            {% elif type == 'observations' %}
+                {{ double_star_observations() }}
+            {% elif type == 'observation_log' %}
+                {{ double_star_observation_log() }}
             {% else %}
-                {{ double_star_catalogue_data(double_star) }}
+                {{ double_star_surveys(double_star) }}
             {% endif %}
         </div>
     </div>
 
+    <script type="text/javascript">
+        {% if embed == 'fc' %}
+            {% if prev_wrap %}
+                $('#bprev' ).click(function() {
+                    parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
+                    return true;
+                });
+            {% endif %}
+            {% if next_wrap %}
+                $('#bnext' ).click(function() {
+                    parent.window.location.href = "{{ next_wrap.top_url() | safe }}";
+                    return false;
+                });
+            {% endif %}
+        {% endif %}
+    </script>
 {% endblock %}

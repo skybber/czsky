@@ -38,6 +38,8 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
 )
+from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
+from app.commons.highlights_list_utils import common_highlights_from_observed_list
 
 from app.main.chart.chart_forms import ChartForm
 
@@ -86,11 +88,14 @@ def observed_list_item_add():
     form = AddToObservedListForm()
     dso_name = normalize_dso_name(form.dso_name.data)
     if request.method == 'POST' and form.validate_on_submit():
-        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name == dso_name).first()
         if deepsky_object:
             observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
             dso_id = deepsky_object.master_id if deepsky_object.master_id is not None else deepsky_object.id
-            if observed_list.append_deepsky_object(dso_id, current_user.id):
+            if not observed_list.find_list_item_by_id(dso_id):
+                new_item = observed_list.create_new_deepsky_object_item(dso_id)
+                db.session.add(new_item)
+                db.session.commit()
                 flash(gettext('Object was added to observed list.'), 'form-success')
             else:
                 flash(gettext('Object is already on observed list.'), 'form-info')
@@ -191,29 +196,20 @@ def observed_list_chart():
     if observed_list is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
-    dso_id = request.args.get('dso_id')
-
-    observed_list_item = None
-    if dso_id and dso_id.isdigit():
-        idso_id = int(dso_id)
-        observed_list_item = next((x for x in observed_list.observed_list_items if x.deepskyObject.id == idso_id), None)
+    observed_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), observed_list.observed_list_items)
 
     if not observed_list_item:
         observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
-            form.ra.data = observed_list_item.deepskyObject.ra if observed_list_item else 0
-            form.dec.data = observed_list_item.deepskyObject.dec if observed_list_item else 0
+            form.ra.data = observed_list_item.get_ra() if observed_list_item else 0
+            form.dec.data = observed_list_item.get_dec() if observed_list_item else 0
 
     chart_control = common_prepare_chart_data(form)
-
-    if observed_list_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='observedlist', dso_id=observed_list_item.deepskyObject.name, embed='fc', allow_back='true')
-    else:
-        default_chart_iframe_url = None
+    default_chart_iframe_url = get_default_chart_iframe_url(observed_list_item, back='observed_list')
 
     return render_template('main/observation/observed_list.html', fchart_form=form, type='chart', observed_list=observed_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url,)
@@ -226,11 +222,12 @@ def observed_list_chart_pos_img(ra, dec):
     if observed_list is None:
         abort(404)
 
-    highlights_dso_list = [ x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items ]
+    highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list(observed_list)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)

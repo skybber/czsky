@@ -29,6 +29,7 @@
 {% endif %}
 
 {% set endpoints = endpoint_log + endpoints + endpoint_observations + endpoint_catalog %}
+{% set season = request.args.get('season') %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -204,8 +205,6 @@
 
 {% endmacro %}
 
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 {% if back %}
     {% set search_url_params = 'back=' + back + (('&back_id=' + back_id) if back_id is not none else '') %}
 {% else %}
@@ -240,7 +239,7 @@
     </script>
 {% endmacro %}
 
-{# --- Catalog Data --- #}
+{# --- Observations --- #}
 {% macro deepskyobject_observations() %}
     <table class="ui compact definition2 unstackable searchable sortable selectable table">
         {% for observation in observations %}
@@ -436,12 +435,12 @@
                                 <i class="eye icon mobile hidden"></i>
                             </a>
                         {% elif back == 'wishlist' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}#dso{{dso.id}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}">
                                 <i class="caret left icon"></i>
                                 <i class="heart icon mobile hidden"></i>
                             </a>
                         {% elif back == 'observed_list' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}#dso{{dso.id}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}">
                                 <i class="caret left icon"></i>
                                 <i class="heart icon mobile hidden"></i>
                             </a>
@@ -478,16 +477,16 @@
                     </div>
                 </div>
 
-            {% if next_dso and embed != 'pl' %}
-                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=next_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
-                    {{ next_dso_title }}
+            {% if next_wrap and embed != 'pl' %}
+                <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
+                    {{ next_wrap.label() }}
                     <i class="caret right icon"></i>
                 </a>
             {% endif %}
-            {% if prev_dso and embed != 'pl' %}
-                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_deepskyobject.deepskyobject_seltab', dso_id=prev_dso.name, seltab=type, back=back, back_id=back_id, season=season, embed=embed) }}">
+            {% if prev_wrap and embed != 'pl' %}
+                <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else prev_wrap.url() }}">
                     <i class="caret left icon"></i>
-                    {{ prev_dso_title }}
+                    {{ prev_wrap.label() }}
                 </a>
             {% endif %}
             </div>
@@ -515,32 +514,15 @@
     </div>
     <script type="text/javascript">
         {% if embed == 'fc' %}
-            {% if back == 'observation' %}
-                {% set top_prev_url =  url_for('main_observing_session.observing_session_chart', observing_session_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_observing_session.observing_session_chart', observing_session_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% elif back == 'wishlist' %}
-                {% set top_prev_url =  url_for('main_wishlist.wish_list_chart', dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_wishlist.wish_list_chart', dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% elif back == 'dso_list' %}
-                {% set top_prev_url =  url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% elif back == 'session_plan' %}
-                {% set top_prev_url =  url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=prev_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, dso_id=next_dso.id, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% else %}
-                {% set top_prev_url =  url_for('main_deepskyobject.deepskyobject_chart', dso_id=prev_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
-                {% set top_next_url = url_for('main_deepskyobject.deepskyobject_chart', dso_id=next_dso.name, back=back, back_id=back_id, season=season, splitview='true') %}
-            {% endif %}
-
-            {% if prev_dso %}
+            {% if prev_wrap %}
                 $('#bprev' ).click(function() {
-                    parent.window.location.href = "{{ top_prev_url | safe }}";
+                    parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
                     return true;
                 });
             {% endif %}
-            {% if next_dso %}
+            {% if next_wrap %}
                 $('#bnext' ).click(function() {
-                    parent.window.location.href = "{{ top_next_url | safe }}";
+                    parent.window.location.href = "{{ next_wrap.top_url() | safe }}";
                     return false;
                 });
             {% endif %}

@@ -102,15 +102,9 @@ def dso_list_info(dso_list_id):
         return redirect(url_for('main_dso_list.dso_list_info', dso_list_id=dso_list_id, season=search_form.season.data))
 
     season = request.args.get('season', None)
+    constell_ids = Constellation.get_season_constell_ids(season)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
-
-    if season:
-        constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            constell_ids.add(constell_id[0])
-    else:
-        constell_ids = None
 
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
@@ -141,7 +135,7 @@ def dso_list_chart(dso_list_id):
     if dso_list is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     dso_id = request.args.get('dso_id')
     dso_list_item = None

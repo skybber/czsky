@@ -43,6 +43,15 @@ class Constellation(db.Model):
                 Constellation._id_dict[co.id] = co
         return Constellation._id_dict.get(constellation_id)
 
+    @classmethod
+    def get_season_constell_ids(cls, season):
+        if season is not None:
+            constell_ids = set()
+            for constell_id in db.session.query(Constellation.id).filter(Constellation.season == season):
+                constell_ids.add(constell_id[0])
+            return constell_ids
+        return None
+
 
 class UserConsDescription(db.Model):
     __tablename__ = 'user_cons_descriptions'

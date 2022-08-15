@@ -81,6 +81,8 @@ from app.main.chart.chart_forms import ChartForm
 from app.commons.dso_utils import normalize_dso_name
 from app.commons.utils import get_anonymous_user
 from app.commons.coordinates import parse_latlon
+from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
+from app.commons.highlights_list_utils import common_highlights_from_session_plan
 
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 from .sessionplan_import import import_session_plan_items
@@ -302,7 +304,7 @@ def session_plan_item_add(session_plan_id):
     if deepsky_object:
         if not session_plan.find_dso_by_id(deepsky_object.id):
             user = get_anonymous_user() if current_user.is_anonymous else current_user
-            new_item = session_plan.create_new_session_plan_item(deepsky_object.id, user.id)
+            new_item = session_plan.create_new_deepsky_object_item(deepsky_object.id)
             db.session.add(new_item)
             db.session.commit()
             flash(gettext('Object was added to session plan.'), 'form-success')
@@ -376,7 +378,7 @@ def session_plan_import(session_plan_id):
                     if dso and dso.id not in existing_ids:
                         if not session_plan.find_dso_by_id(dso.id):
                             user = get_anonymous_user() if current_user.is_anonymous else current_user
-                            new_item = session_plan.create_new_session_plan_item(dso.id, user.id)
+                            new_item = session_plan.create_new_deepsky_object_item(dso.id)
                             db.session.add(new_item)
                         existing_ids.add(dso.id)
                 db.session.commit()
@@ -540,7 +542,11 @@ def session_plan_schedule(session_plan_id):
     if drow_index > len(session_plan_compound_list_for_render):
         drow_index = len(session_plan_compound_list_for_render)
     if drow_index > 0:
-        selected_dso_name = session_plan_compound_list_for_render[drow_index-1][0].deepskyObject.name
+        sel_item = session_plan_compound_list_for_render[drow_index-1][0]
+        if sel_item.dso_id is not None:
+            selected_dso_name = sel_item.deepskyObject.name
+        elif sel_item.double_star_id is not None:
+            selected_dso_name = sel_item.double_star.common_cat_id
 
     if not schedule_form.selected_dso_name.data:
         schedule_form.selected_dso_name.data = 'M1'
@@ -623,11 +629,7 @@ def session_plan_chart(session_plan_id):
 
     form = ChartForm()
 
-    dso_id = request.args.get('dso_id')
-    session_plan_item = None
-    if dso_id and dso_id.isdigit():
-        idso_id = int(dso_id)
-        session_plan_item = next((x for x in session_plan.session_plan_items if x.deepskyObject.id == idso_id), None)
+    session_plan_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), session_plan.session_plan_items)
 
     if not session_plan_item:
         session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
@@ -635,33 +637,29 @@ def session_plan_chart(session_plan_id):
     if not common_ra_dec_fsz_from_request(form):
         if session_plan_item:
             if form.ra.data is None or form.dec.data is None:
-                form.ra.data = session_plan_item.deepskyObject.ra if session_plan_item else 0
-                form.dec.data = session_plan_item.deepskyObject.dec if session_plan_item else 0
+                form.ra.data = session_plan_item.get_ra() if session_plan_item else 0
+                form.dec.data = session_plan_item.get_dec() if session_plan_item else 0
         else:
             common_set_initial_ra_dec(form)
 
-
-    if session_plan_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='session_plan', back_id=session_plan.id, dso_id=session_plan_item.dso_id, embed='fc', allow_back='true')
-    else:
-        default_chart_iframe_url = None
-
     chart_control = common_prepare_chart_data(form)
+    default_chart_iframe_url = get_default_chart_iframe_url(session_plan_item, back='session_plan', back_id=session_plan.id)
 
     return render_template('main/planner/session_plan_info.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def  session_plan_chart_pos_img(session_plan_id, ra, dec):
+def session_plan_chart_pos_img(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
-    highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+    highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
@@ -683,9 +681,10 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
-    highlights_dso_list = [ x.deepskyObject for x in session_plan.session_plan_items if session_plan ]
+    highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pdf_img(None, None, ra, dec,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

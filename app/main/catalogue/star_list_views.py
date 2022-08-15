@@ -69,15 +69,9 @@ def star_list_info(star_list_id):
         return redirect(url_for('main_star_list.star_list_info', star_list_id=star_list_id, season=search_form.season.data))
 
     season = request.args.get('season', None)
+    constell_ids = Constellation.get_season_constell_ids(season)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
-
-    if season:
-        constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            constell_ids.add(constell_id[0])
-    else:
-        constell_ids = None
 
     star_list_descr = StarListDescription.query.filter_by(star_list_id=star_list.id, lang_code=lang).first()
 
@@ -165,4 +159,3 @@ def star_list_chart_pdf(star_list_id, ra, dec):
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_star_list=highlights_star_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
-

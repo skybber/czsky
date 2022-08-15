@@ -31,7 +31,7 @@ def create_session_plan_compound_list(session_plan, observer, observation_time, 
     # create session plan list
     spi = session_plan.session_plan_items.copy()
     spi.sort(key=lambda x: x.order)
-    session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi], tz_info)
+    session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [(x.get_ra(), x.get_dec()) for x in spi], tz_info)
     session_plan_compound_list = [ (spi[i], *session_plan_rms_list[i]) for i in range(len(spi))]
 
     return session_plan_compound_list
@@ -48,7 +48,8 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     if schedule_form.obj_source.data is None or schedule_form.obj_source.data == 'WL':
         wishlist_subquery = db.session.query(WishListItem.dso_id) \
             .join(WishListItem.wish_list) \
-            .filter(WishList.user_id==current_user.id)
+            .filter(WishList.user_id == current_user.id) \
+            .filter(WishListItem.dso_id.is_not(None))
 
         dso_query = DeepskyObject.query \
             .filter(DeepskyObject.id.in_(wishlist_subquery))
@@ -58,7 +59,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
 
         dsolist_subquery = db.session.query(DsoListItem.dso_id) \
             .join(DsoListItem.dso_list) \
-            .filter(DsoList.id==dso_list_id)
+            .filter(DsoList.id == dso_list_id)
 
         dso_query = DeepskyObject.query \
             .filter(DeepskyObject.id.in_(dsolist_subquery))
@@ -69,7 +70,8 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
             dso_query = dso_query.filter_by(catalogue_id=cat_id)
 
     scheduled_subquery = db.session.query(SessionPlanItem.dso_id) \
-        .filter(SessionPlanItem.session_plan_id==session_plan.id)
+        .filter(SessionPlanItem.session_plan_id == session_plan.id) \
+        .filter(SessionPlanItem.dso_id.is_not(None))
 
     # Subtract already scheduled dsos
     dso_query = dso_query.filter(DeepskyObject.id.notin_(scheduled_subquery))
@@ -78,14 +80,15 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     if not session_plan.is_anonymous and schedule_form.not_observed.data:
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
-            .filter(ObservedList.user_id==current_user.id)
+            .filter(ObservedList.user_id == current_user.id) \
+            .filter(ObservedListItem.dso_id.is_not(None))
+
         dso_query = dso_query.filter(DeepskyObject.id.notin_(observed_subquery))
         dso_query = dso_query.filter(or_(DeepskyObject.master_id.is_(None), DeepskyObject.master_id.notin_(observed_subquery)))
 
-
     # filter by type
     if schedule_form.dso_type.data and schedule_form.dso_type.data != 'All':
-        dso_query = dso_query.filter(DeepskyObject.type==schedule_form.dso_type.data)
+        dso_query = dso_query.filter(DeepskyObject.type == schedule_form.dso_type.data)
 
     # filter by magnitude limit
     if schedule_form.maglim.data is not None and schedule_form.maglim.data < mag_scale[1]:
@@ -93,7 +96,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
 
     # filter by constellation
     if schedule_form.constellation_id.data is not None:
-        dso_query = dso_query.filter(DeepskyObject.constellation_id==schedule_form.constellation_id.data)
+        dso_query = dso_query.filter(DeepskyObject.constellation_id == schedule_form.constellation_id.data)
 
     order_by_field = None
     if sort_by:
@@ -162,13 +165,13 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
             time_filtered_list = [ time_filtered_list[i] for i in range(len(time_filtered_list)) if observable_list[i] ]
 
         all_count = len(time_filtered_list)
-        if offset>=all_count:
+        if offset >= all_count:
             offset = 0
             page = 1
         selection_compound_list = time_filtered_list[offset:offset+per_page]
     else:
-        selection_rms_list = rise_merid_set_time_str(observation_time, observer, [ (x.ra, x.dec) for x in selection_list], tz_info)
-        selection_compound_list = [ (selection_list[i], *selection_rms_list[i]) for i in range(len(selection_list))]
+        selection_rms_list = rise_merid_set_time_str(observation_time, observer, [(x.ra, x.dec) for x in selection_list], tz_info)
+        selection_compound_list = [(selection_list[i], selection_rms_list[i]) for i in range(len(selection_list))]
 
     return selection_compound_list, page, all_count
 
@@ -207,8 +210,8 @@ def reorder_by_merid_time(session_plan):
     observer = Observer(name=loc.name, location=loc_coords, timezone=tz_info)
 
     spi = session_plan.session_plan_items
-    merid_time_list = merid_time(observation_time, observer, [ (x.deepskyObject.ra, x.deepskyObject.dec) for x in spi])
-    session_plan_compound_list = [ (spi[i], merid_time_list[i]) for i in range(len(spi))]
+    merid_time_list = merid_time(observation_time, observer, [(x.get_ra(), x.get_dec()) for x in spi])
+    session_plan_compound_list = [(spi[i], merid_time_list[i]) for i in range(len(spi))]
     session_plan_compound_list.sort(key=lambda x: x[1])
     i = 1
     for item in session_plan_compound_list:
@@ -244,4 +247,3 @@ def _wrap2array(ar):
         return ar
     except TypeError:
         return [ar]
-

@@ -37,3 +37,8 @@ class SearchDoubleStarForm(FlaskForm):
     dec_min = FloatField(lazy_gettext('Dec min'), default=-35.0)
     constellation_id = IntegerField('Constellation', default=None)
     items_per_page = IntegerField(lazy_gettext('Items per page'))
+
+
+class DoubleStarObservationLogForm(FlaskForm):
+    notes = TextAreaField(lazy_gettext('Notes'))
+    submit = SubmitField(lazy_gettext('Update'))

@@ -20,6 +20,7 @@ from app.models import (
     Eyepiece,
     Lens,
     ObservingSession,
+    ObservationTargetType,
     SessionPlan,
     Telescope,
 )

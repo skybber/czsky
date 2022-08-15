@@ -83,14 +83,34 @@
                         </thead>
                         <tbody>
                         {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='observed_list') }}{% endmacro %}
+                        {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='observed_list') }}{% endmacro %}
 
                         {% for i, item in observed_list_items %}
+                            {% if item.dso_id is not none %}
+                                {% set to_url = to_dso_url(item) %}
+                                {% set item_name = item.deepskyObject.denormalized_name() %}
+                                {% set item_type = item.deepskyObject.type %}
+                                {% set item_constell = item.deepskyObject.get_constellation_iau_code() %}
+                                {% set item_mag = item.deepskyObject.mag %}
+                            {% elif item.double_star_id is not none %}
+                                {% set to_url = to_double_star_url(item) %}
+                                {% set item_name = item.double_star.common_cat_id %}
+                                {% set item_type = item.double_star.components %}
+                                {% set item_constell = item.double_star.get_constellation_iau_code() %}
+                                {% set item_mag = (item.double_star.mag_first | string) + '/' + (item.double_star.mag_second | string) %}
+                            {% else %}
+                                {% set to_url = '' %}
+                                {% set item_name = '' %}
+                                {% set item_type = '' %}
+                                {% set item_constell = '' %}
+                                {% set item_mag = '' %}
+                            {% endif %}
                             <tr>
                                 <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ i + 1 + page_offset }}</p></td>
-                                <td onclick="window.location.href='{{ to_dso_url(item) }}';"><p id="dso{{ item.dso_id }}">{{ item.deepskyObject.denormalized_name() }}</p></td>
-                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.type }}</td>
-                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.get_constellation_iau_code() }}</td>
-                                <td onclick="window.location.href='{{ to_dso_url(item) }}';">{{ item.deepskyObject.mag }}</td>
+                                <td onclick="window.location.href='{{ to_url }}';">{{ item_name }}</td>
+                                <td onclick="window.location.href='{{ to_url }}';">{{ item_type }}</td>
+                                <td onclick="window.location.href='{{ to_url }}';">{{ item_constell }}</td>
+                                <td onclick="window.location.href='{{ to_url }}';">{{ item_mag }}</td>
                                 <td class="collapsing specialClass">
                                     <a class="ui icon mini button" href="{{ url_for('main_observed.observed_list_item_delete', item_id=item.id) }}">
                                         <i class="trash alternate icon"></i>

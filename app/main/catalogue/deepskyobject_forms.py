@@ -62,6 +62,7 @@ class SearchDsoForm(FlaskForm):
     dec_min = FloatField(lazy_gettext('Dec min'), default=-35.0, validators=[NumberRange(min=-90.0, max=90.0), Optional()])
     max_axis_ratio = FloatField(lazy_gettext('Max axis ratio'), default=None, validators=[NumberRange(min=0.0, max=1.0), Optional()])
     items_per_page = IntegerField(lazy_gettext('Items per page'))
+    sort_by = HiddenField()
 
 
 class DsoApertureDescriptionForm(FlaskForm):
@@ -80,6 +81,6 @@ class DeepskyObjectEditForm(FlaskForm):
     submit_button = SubmitField(lazy_gettext('Update'))
 
 
-class DeepskyObjectObservationLog(FlaskForm):
+class DeepskyObjectObservationLogForm(FlaskForm):
     notes = TextAreaField(lazy_gettext('Notes'))
     submit = SubmitField(lazy_gettext('Update'))

@@ -121,171 +121,191 @@
 <div class="ui segment" style="overflow-x: scroll;">
 <div class="ui two column very relaxed grid">
     <div class="column">
-      <table id="tblsrc" class="ui searchable sortable unstackable selectable celled table">
-          <thead>
-              <tr>
-                  <th>
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['name'].sort) }}" style="color: inherit;">
-                          {{ _('Name') }} {{ src_table_sort['name'].icon | safe }}
-                      </a>
-                  </th>
+        <table id="tblsrc" class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['name'].sort) }}" style="color: inherit;">
+                            {{ _('Name') }} {{ src_table_sort['name'].icon | safe }}
+                        </a>
+                    </th>
 
-                  <th>{{ _('Type') }}</th>
-                  <th class="right aligned collapsing">
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['constellation'].sort) }}" style="color: inherit;">
-                          <i class="lastfm icon"></i> {{ src_table_sort['constellation'].icon | safe }}
-                      </a>
-                  </th>
-                  <th>
-                      <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, scr_sortby=src_table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
-                          mag {{ src_table_sort['mag'].icon | safe }}
-                      </a>
-                  </th>
-                  <th>{{ _('Rise') }}</th>
-                  <th>{{ _('Merid') }}</th>
-                  <th>{{ _('Set') }}</th>
-                  <th></th>
-              </tr>
-          </thead>
-          <tbody>
-          {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].name, embed='pl') }}{% endmacro %}
-          {% macro master_name(master) %}{{ (' / ' + master.denormalized_name() ) if master else '' }}{% endmacro %}
+                    <th>{{ _('Type') }}</th>
+                    <th class="right aligned collapsing">
+                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['constellation'].sort) }}" style="color: inherit;">
+                            <i class="lastfm icon"></i> {{ src_table_sort['constellation'].icon | safe }}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, scr_sortby=src_table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
+                            mag {{ src_table_sort['mag'].icon | safe }}
+                        </a>
+                    </th>
+                    <th>{{ _('Rise') }}</th>
+                    <th>{{ _('Merid') }}</th>
+                    <th>{{ _('Set') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% macro to_dso_url1(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].name, embed='pl') }}{% endmacro %}
+            {% macro master_name(master) %}{{ (' / ' + master.denormalized_name() ) if master else '' }}{% endmacro %}
 
-          {% for item in selection_compound_list %}
-              <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}" tabindex="0">
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].type }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].mag }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[3] }}</td>
-                  <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
-                          <i class="arrow right icon"></i>
-                      </a>
-                  </td>
-              </tr>
-          {% endfor %}
-          </tbody>
-      </table>
-      {{ src_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, srow_index=1)) }} {{ src_pagination.info }}
+            {% for item in selection_compound_list %}
+                <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}" tabindex="0">
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].type }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].mag }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[1] }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[2] }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[3] }}</td>
+                    <td class="collapsing specialClass">
+                        <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
+                            <i class="arrow right icon"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ src_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, srow_index=1)) }} {{ src_pagination.info }}
     </div>
     <div class="column">
+        <div class="ui tiny menu">
+            {{ f.begin_form(add_form, flashes, action=url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id), extra_classes="ui item") }}
+            <div class="ui action input">
+                <input type="text" name="{{ add_form.dso_name.name }}" placeholder="{{ ('Add dso...') }}">
+                <button class="ui icon button">
+                    <i class="plus icon"></i>
+                </button>
+            </div>
+            {{ f.end_form(add_form) }}
+            <div class="right compact menu">
+                  <div class="item">
+                      <div class="ui dropdown icon button">
+                      <i class="upload icon"></i>
+                      <div class="menu">
+                          <a class="item" onclick="$('#fmdownloadCsv').submit();return false;">
+                              <form id="fmdownloadCsv" method="post" action="{{ url_for('main_sessionplan.session_plan_export_csv', session_plan_id=session_plan.id) }}">
+                                  {{ _('Export CSV') }}
+                                  <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                              </form>
+                          </a>
+                          <a class="item" onclick="$('#fmdownloadOal').submit();return false;">
+                              <form id="fmdownloadOal" method="post" action="{{ url_for('main_sessionplan.session_plan_export_oal', session_plan_id=session_plan.id) }}">
+                                  {{ _('Export OAL') }}
+                                  <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                              </form>
+                          </a>
+                      </div>
+                      </div>
+                  </div>
 
-      <div class="ui tiny menu">
-          {{ f.begin_form(add_form, flashes, action=url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id), extra_classes="ui item") }}
-          <div class="ui action input">
-              <input type="text" name="{{ add_form.dso_name.name }}" placeholder="{{ ('Add dso...') }}">
-              <button class="ui icon button">
-                  <i class="plus icon"></i>
-              </button>
-          </div>
-          {{ f.end_form(add_form) }}
-          <div class="right compact menu">
+                <form id="fmupload" method="post" action="{{ url_for('main_sessionplan.session_plan_import', session_plan_id=session_plan.id) }}" enctype="multipart/form-data" class="item">
+                    <label for="file" class="ui icon button" data-inverted="" data-tooltip="{{ _('Upload session plan from CSV/OAL') }}" data-position="bottom center" data-variation="tiny basic">
+                        <i class="download icon"></i>
+                    </label>
+                    <input type="file" id="file" name="file" class="ui file input">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                </form>
                 <div class="item">
-                    <div class="ui dropdown icon button">
-                    <i class="upload icon"></i>
-                    <div class="menu">
-                        <a class="item" onclick="$('#fmdownloadCsv').submit();return false;">
-                            <form id="fmdownloadCsv" method="post" action="{{ url_for('main_sessionplan.session_plan_export_csv', session_plan_id=session_plan.id) }}">
-                                {{ _('Export CSV') }}
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                            </form>
-                        </a>
-                        <a class="item" onclick="$('#fmdownloadOal').submit();return false;">
-                            <form id="fmdownloadOal" method="post" action="{{ url_for('main_sessionplan.session_plan_export_oal', session_plan_id=session_plan.id) }}">
-                                {{ _('Export OAL') }}
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                            </form>
-                        </a>
-                    </div>
-                    </div>
+                    <button id="clear_schedule" class="ui icon negative button" data-inverted="" data-tooltip="{{ _('Clear schedule') }}" data-position="bottom center" data-variation="tiny basic">
+                        <i class="trash alternate icon"></i>
+                    </button>
                 </div>
+            </div>
+        </div>
 
-              <form id="fmupload" method="post" action="{{ url_for('main_sessionplan.session_plan_import', session_plan_id=session_plan.id) }}" enctype="multipart/form-data" class="item">
-                  <label for="file" class="ui icon button" data-inverted="" data-tooltip="{{ _('Upload session plan from CSV/OAL') }}" data-position="bottom center" data-variation="tiny basic">
-                      <i class="download icon"></i>
-                  </label>
-                  <input type="file" id="file" name="file" class="ui file input">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-              </form>
-              <div class="item">
-                  <button id="clear_schedule" class="ui icon negative button" data-inverted="" data-tooltip="{{ _('Clear schedule') }}" data-position="bottom center" data-variation="tiny basic">
-                      <i class="trash alternate icon"></i>
-                  </button>
-              </div>
-          </div>
-      </div>
+        <table id="tbldst" class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th class="sorted ascending">{{ _('Name') }}</th>
+                    <th>{{ _('Type') }}</th>
+                    <th><i class="lastfm icon"></i></th>
+                    <th>mag</th>
+                    <th>{{ _('Rise') }}</th>
+                    <th>{{ _('Merid') }}</th>
+                    <th>{{ _('Set') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
+            {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item[0].double_star.id, embed='pl') }}{% endmacro %}
 
-      <table id="tbldst" class="ui searchable sortable unstackable selectable celled table">
-          <thead>
-              <tr>
-                  <th class="sorted ascending">{{ _('Name') }}</th>
-                  <th>{{ _('Type') }}</th>
-                  <th><i class="lastfm icon"></i></th>
-                  <th>mag</th>
-                  <th>{{ _('Rise') }}</th>
-                  <th>{{ _('Merid') }}</th>
-                  <t
-                  h>{{ _('Set') }}</th>
-                  <th></th>
-              </tr>
-          </thead>
-          <tbody>
-          {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepskyObject.name, embed='pl') }}{% endmacro %}
+            {% for item in session_plan_compound_list %}
+                {% if item[0].dso_id is not none %}
+                    {% set to_url = to_dso_url2(item) %}
+                    {% set item_name = item[0].deepskyObject.denormalized_name() %}
+                    {% set item_type = item[0].deepskyObject.type %}
+                    {% set item_constell = item[0].deepskyObject.get_constellation_iau_code() %}
+                    {% set item_mag = item[0].deepskyObject.mag %}
+                    {% set item_mag = commons.convert_mag(item.deepskyObject.mag) %}
+                {% elif item[0].double_star_id is not none %}
+                    {% set to_url = to_double_star_url2(item) %}
+                    {% set item_name = item[0].double_star.common_cat_id %}
+                    {% set item_type = item[0].double_star.components %}
+                    {% set item_constell = item[0].double_star.get_constellation_iau_code() %}
+                    {% set item_mag = (item[0].double_star.mag_first | string) + '/' + (item[0].double_star.mag_second | string) %}
+                {% else %}
+                    {% set to_url = '' %}
+                    {% set item_name = '' %}
+                    {% set item_type = '' %}
+                    {% set item_constell = '' %}
+                    {% set item_mag = '' %}
+                {% endif %}
 
-          {% for item in session_plan_compound_list %}
-              <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}" tabindex="0">
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.denormalized_name() }}{{ master_name(item[0].deepskyObject.masterObject) }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.type }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.get_constellation_iau_code() }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[0].deepskyObject.mag }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[1] }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[2] }}</td>
-                  <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[3] }}</td>
-                   <td class="collapsing specialClass">
-                      <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
-                          <i class="trash alternate icon"></i>
-                      </a>
-                  </td>
-              </tr>
-          {% endfor %}
-          </tbody>
-      </table>
-      {{ dst_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=dst_pagination.page, srow_index=1)) }} {{ dst_pagination.info }}
+                <tr class="{{ 'left marked green' if loop.index == drow_index else '' }}" tabindex="0">
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item_name }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item_type }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item_constell }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item_mag }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[1] }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[2] }}</td>
+                    <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[3] }}</td>
+                     <td class="collapsing specialClass">
+                        <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
+                            <i class="trash alternate icon"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ dst_pagination.links }} {{ commons.items_per_page_as_links(schedule_form.items_per_page.data, url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=dst_pagination.page, srow_index=1)) }} {{ dst_pagination.info }}
     </div>
   </div>
 </div>
 
 <div class="ui tiny modal loadModal">
-  <div class="header">{{ _('Load session plan') }}</div>
-  <div class="content">
-    <p>{{ _('All data from file will be added to session plan.') }}</p>
-    <p>{{ _('Are you sure you want to import session plan?') }}</p>
-  </div>
-  <div class="actions">
-    <div class="ui negative cancel button">{{ _('No') }}</div>
-    <button id="confirm_upload" class="ui positive right labeled icon approve button">
-        {{ _('Yes') }}
-        <i class="checkmark icon"></i>
-    </button>
-  </div>
+    <div class="header">{{ _('Load session plan') }}</div>
+    <div class="content">
+        <p>{{ _('All data from file will be added to session plan.') }}</p>
+        <p>{{ _('Are you sure you want to import session plan?') }}</p>
+    </div>
+    <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <button id="confirm_upload" class="ui positive right labeled icon approve button">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </button>
+    </div>
 </div>
 
 <div class="ui tiny modal deleteModal">
-  <div class="header">{{ _('Clear session plan') }}</div>
-  <div class="content">
-    <p>{{ _('All planned items will be removed.') }}</p>
-    <p>{{ _('Are you sure you want to clear session plan?') }}</p>
-  </div>
-  <div class="actions">
-    <div class="ui negative cancel button">{{ _('No') }}</div>
-    <a class="ui positive right labeled icon approve button" href="{{ url_for('main_sessionplan.session_plan_clear', session_plan_id=session_plan.id) }}">
-        {{ _('Yes') }}
-        <i class="checkmark icon"></i>
-    </a>
-  </div>
+    <div class="header">{{ _('Clear session plan') }}</div>
+    <div class="content">
+        <p>{{ _('All planned items will be removed.') }}</p>
+        <p>{{ _('Are you sure you want to clear session plan?') }}</p>
+    </div>
+    <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_sessionplan.session_plan_clear', session_plan_id=session_plan.id) }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+    </div>
 </div>
 
 <style>
@@ -301,9 +321,13 @@ var srcDsoUrls = [
 {% endfor %}
 ];
 
-var dstDsoUrls = [
+var dstSkyObjUrls = [
 {% for item in session_plan_compound_list %}
+    {% if item[0].dso_id is not none %}
     '{{ to_dso_url2(item) }}',
+    {% elif item[0].double_star_id is not none %}
+    '{{ to_double_star_url2(item) }}',
+    {% endif %}
 {% endfor %}
 ];
 
@@ -323,7 +347,7 @@ function setIFrameSrcFromDstList(rowIndex) {
     $('#tbldst tr').removeClass();
     $('#tbldst tr:nth-child(' + rowIndex + ')').addClass('left marked green');
     dstRowIndex = rowIndex;
-    setIFrameSrc(dstDsoUrls[rowIndex-1]);
+    setIFrameSrc(dstSkyObjUrls[rowIndex-1]);
 }
 
 
@@ -427,7 +451,7 @@ $(function(){
                 setIFrameSrcFromDstList(dstRowIndex-1);
             }
         } else if (keyCode == 40) {
-            if (dstRowIndex < dstDsoUrls.length) {
+            if (dstRowIndex < dstSkyObjUrls.length) {
                 setIFrameSrcFromDstList(dstRowIndex+1);
             }
             e.preventDefault();

@@ -49,7 +49,9 @@ from .wishlist_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
-from app.commons.dso_utils import normalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, CHART_DOUBLE_STAR_PREFIX
+from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
+from app.commons.highlights_list_utils import common_highlights_from_wishlist
 
 main_wishlist = Blueprint('main_wishlist', __name__)
 
@@ -69,13 +71,7 @@ def wish_list_info():
         return redirect(url_for('main_wishlist.wish_list_info', season=search_form.season.data))
 
     season = request.args.get('season', None)
-
-    if season:
-        constell_ids = set()
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            constell_ids.add(constell_id[0])
-    else:
-        constell_ids = None
+    constell_ids = Constellation.get_season_constell_ids(season)
 
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
 
@@ -98,10 +94,13 @@ def wish_list_item_add():
     form = AddToWishListForm()
     dso_name = normalize_dso_name(form.dso_name.data)
     if request.method == 'POST' and form.validate_on_submit():
-        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name == dso_name).first()
         if deepsky_object:
             wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-            if wish_list.append_deepsky_object(deepsky_object.id, current_user.id):
+            if not wish_list.find_dso_by_id(deepsky_object.id):
+                new_item = wish_list.create_new_deepsky_object_item(deepsky_object.id)
+                db.session.add(new_item)
+                db.session.commit()
                 flash('Object was added to wishlist.', 'form-success')
             else:
                 flash('Object is already on wishlist.', 'form-info')
@@ -134,18 +133,13 @@ def wish_list_chart():
 
     form = ChartForm()
 
-    dso_id = request.args.get('dso_id')
-
-    wish_list_item = None
-    if dso_id and dso_id.isdigit():
-        idso_id = int(dso_id)
-        wish_list_item = next((x for x in wish_list.wish_list_items if x.deepskyObject.id == idso_id), None)
+    wish_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), wish_list.wish_list_items)
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
             if wish_list_item:
-                form.ra.data = wish_list_item.deepskyObject.ra
-                form.dec.data = wish_list_item.deepskyObject.dec
+                form.ra.data = wish_list_item.get_ra()
+                form.dec.data = wish_list_item.get_dec()
             else:
                 common_set_initial_ra_dec(form)
 
@@ -153,11 +147,7 @@ def wish_list_chart():
         wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
 
     chart_control = common_prepare_chart_data(form)
-
-    if wish_list_item:
-        default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='wishlist', dso_id=wish_list_item.deepskyObject.name, embed='fc', allow_back='true')
-    else:
-        default_chart_iframe_url = None
+    default_chart_iframe_url = get_default_chart_iframe_url(wish_list_item, back='wishlist')
 
     return render_template('main/planner/wish_list.html', fchart_form=form, type='chart', wish_list=wish_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, )
@@ -165,16 +155,17 @@ def wish_list_chart():
 
 @main_wishlist.route('/wish-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
-def  wish_list_chart_pos_img(ra, dec):
+def wish_list_chart_pos_img(ra, dec):
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
     if wish_list is None:
         abort(404)
 
-    highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist(wish_list)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
         return jsonify(img=img, img_map=visible_objects)
@@ -199,10 +190,10 @@ def wish_list_chart_pdf(ra, dec):
     if wish_list is None:
         abort(404)
 
-    highlights_dso_list = [ x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items ]
+    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist(wish_list)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')

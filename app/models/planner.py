@@ -30,40 +30,41 @@ class SessionPlan(db.Model):
 
     def find_dso_by_id(self, dso_id):
         for item in self.session_plan_items:
-            if item.deepskyObject and item.deepskyObject.id == dso_id:
+            if item.dso_id == dso_id:
                 return item
         return None
 
-    def create_new_session_plan_item(self, dso_id, user_id):
+    def find_double_star_by_id(self, double_star_id):
+        for item in self.session_plan_items:
+            if item.double_star_id == double_star_id:
+                return item
+        return None
+
+    def _get_max_order(self):
         max = db.session.query(db.func.max(SessionPlanItem.order)).filter_by(session_plan_id=self.id).scalar()
-        if not max:
-            max = 0
+        return max if max else 0
+
+    def create_new_deepsky_object_item(self, dso_id):
         new_item = SessionPlanItem(
             session_plan_id=self.id,
             item_type=SessionPlanItemType.DSO,
             dso_id=dso_id,
-            order=max + 1,
+            order=self._get_max_order() + 1,
             create_date=datetime.now(),
             update_date=datetime.now(),
             )
         return new_item
 
-    def get_prev_next_item(self, dso_id, constell_ids):
-        sorted_list = sorted(self.session_plan_items, key=lambda x: x.id)
-        for i, item in enumerate(sorted_list):
-            if item.dso_id == dso_id:
-                for prev_item in reversed(sorted_list[0:i]):
-                    if constell_ids is None or prev_item.deepskyObject.constellation_id in constell_ids:
-                        break
-                else:
-                    prev_item = None
-                for next_item in sorted_list[i+1:]:
-                    if constell_ids is None or next_item.deepskyObject.constellation_id in constell_ids:
-                        break
-                else:
-                    next_item = None
-                return prev_item, next_item
-        return None, None
+    def create_new_double_star_item(self, double_star_id):
+        new_item = SessionPlanItem(
+            session_plan_id=self.id,
+            item_type=SessionPlanItemType.DBL_STAR,
+            double_star_id=double_star_id,
+            order=self._get_max_order() + 1,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+        return new_item
 
     @staticmethod
     def create_get_session_plan_by_user_id(user_id):
@@ -94,7 +95,7 @@ class SessionPlanItem(db.Model):
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     deepskyObject = db.relationship("DeepskyObject")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'))
-    doubleStar = db.relationship("DoubleStar")
+    double_star = db.relationship("DoubleStar")
     minor_planet_id = db.Column(db.Integer, db.ForeignKey('minor_planets.id'))
     minorPlanet = db.relationship("MinorPlanet")
     comet_id = db.Column(db.Integer, db.ForeignKey('comets.id'))
@@ -102,3 +103,32 @@ class SessionPlanItem(db.Model):
     order = db.Column(db.Integer, default=DEFAULT_ORDER)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+
+    def get_ra(self):
+        if self.dso_id is not None:
+            return self.deepskyObject.ra
+        if self.double_star_id is not None:
+            return self.double_star.ra_first
+        return None
+
+    def get_dec(self):
+        if self.dso_id is not None:
+            return self.deepskyObject.dec
+        if self.double_star_id is not None:
+            return self.double_star.dec_first
+        return None
+
+    def get_ra_str_short(self):
+        if self.dso_id is not None:
+            return self.deepskyObject.ra_str_short()
+        if self.double_star_id is not None:
+            return self.double_star.ra_first_str_short()
+        return None
+
+    def get_dec_str_short(self):
+        if self.dso_id is not None:
+            return self.deepskyObject.dec_str_short()
+        if self.double_star_id is not None:
+            return self.double_star.dec_first_str_short()
+        return None
+

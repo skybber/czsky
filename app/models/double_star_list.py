@@ -22,23 +22,6 @@ class DoubleStarList(db.Model):
                 return descr
         return None
 
-    def get_prev_next_item(self, double_star_id, constell_ids):
-        sorted_list = sorted(self.double_star_list_items, key=lambda x: x.item_id)
-        for i, item in enumerate(sorted_list):
-            if item.double_star_id == double_star_id:
-                for prev_item in reversed(sorted_list[0:i]):
-                    if constell_ids is None or prev_item.double_star.constellation_id in constell_ids:
-                        break
-                else:
-                    prev_item = None
-                for next_item in sorted_list[i+1:]:
-                    if constell_ids is None or next_item.double_star.constellation_id in constell_ids:
-                        break
-                else:
-                    next_item = None
-                return prev_item, next_item
-        return None, None
-
 
 class DoubleStarListDescription(db.Model):
     __tablename__ = 'double_star_list_descriptions'

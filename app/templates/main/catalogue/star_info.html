@@ -108,8 +108,6 @@
     </script>
 {% endmacro %}
 
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {# --- Catalogue Data --- #}
 {% macro star_catalogue_data(star) %}
@@ -162,24 +160,16 @@
                     </div>
                 </div>
 
-                {% if next_star and embed != 'pl' %}
-                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_star.star_chart', star_id=next_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
-                        {% if next_star.var_id %}
-                            {{ next_star.var_id }}
-                        {% elif next_star.hd is not none %}
-                            HD{{ next_star.hd }}
-                        {% endif %}
+                {% if next_wrap and embed != 'pl' %}
+                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
+                        {{ next_wrap.label() }}
                         <i class="caret right icon"></i>
                     </a>
                 {% endif %}
-                {% if prev_star and embed != 'pl' %}
-                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else url_for('main_star.star_chart', star_id=prev_star.id, back=back, back_id=back_id, season=season, embed=embed) }}">
+                {% if prev_wrap and embed != 'pl' %}
+                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else prev_wrap.url() }}">
                         <i class="caret left icon"></i>
-                        {% if prev_star.var_id %}
-                            {{ prev_star.var_id }}
-                        {% elif prev_star.hd is not none %}
-                            HD{{ prev_star.hd }}
-                        {% endif %}
+                        {{ prev_wrap.label() }}
                     </a>
                 {% endif %}
 

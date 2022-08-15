@@ -34,6 +34,7 @@ from app.models import (
     ObservedList,
     ObservedListItem,
     ObsSessionPlanRun,
+    ObservationTargetType,
     SHOWN_APERTURE_DESCRIPTIONS,
     SessionPlan,
     SessionPlanItem,
@@ -48,10 +49,11 @@ from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort
 from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.permission_utils import allow_view_session_plan
 
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
-    DeepskyObjectObservationLog,
+    DeepskyObjectObservationLogForm,
     SearchDsoForm,
 )
 
@@ -66,6 +68,8 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
+from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.highlights_list_utils import create_hightlights_lists
 
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
@@ -152,7 +156,6 @@ def deepskyobjects():
             if search_form.maglim.data:
                 dso_query = dso_query.filter(DeepskyObject.mag <= search_form.maglim.data)
 
-
         order_by_field = None
         if sort_by:
             desc = sort_by[0] == '-'
@@ -229,7 +232,9 @@ def deepskyobject_switch_wish_list():
         db.session.commit()
         result = 'off'
     else:
-        wish_list.append_new_deepsky_object(dso_id, current_user.id)
+        wish_list_item = wish_list.create_new_deepsky_object_item(dso_id)
+        db.session.add(wish_list_item)
+        db.session.commit()
         result = 'on'
     return jsonify(result=result)
 
@@ -248,7 +253,9 @@ def deepskyobject_switch_observed_list():
         db.session.commit()
         result = 'off'
     else:
-        observed_list.append_new_deepsky_object(dso_id, current_user.id)
+        observed_list_item = observed_list.create_new_deepsky_object_item(dso_id)
+        db.session.add(observed_list_item)
+        db.session.commit()
         result = 'on'
     return jsonify(result=result)
 
@@ -279,14 +286,8 @@ def deepskyobject_switch_session_plan():
         db.session.commit()
         result = 'off'
     else:
-        new_item = SessionPlanItem(
-            session_plan_id=session_plan_id,
-            item_type=SessionPlanItemType.DSO,
-            dso_id=dso_id,
-            create_date=datetime.now(),
-            update_date=datetime.now(),
-        )
-        db.session.add(new_item)
+        session_plan_item = session_plan.create_new_deepsky_object_item(dso_id)
+        db.session.add(session_plan_item)
         db.session.commit()
         result = 'on'
     return jsonify(result=result)
@@ -354,9 +355,9 @@ def deepskyobject_info(dso_id):
             if image_info is not None:
                 title_img = image_info[0]
 
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='info')
 
-    editable=current_user.is_editor()
+    editable = current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
     dso_image_info = get_dso_image_info(dso.normalized_name_for_img())
 
@@ -370,7 +371,7 @@ def deepskyobject_info(dso_id):
             .join(WishList) \
             .filter(WishList.user_id == current_user.id) \
             .first()
-        wish_list = [wish_item.dso_id] if wish_item is not None else []
+        wish_list = [wish_item.dso_id] if wish_item else []
 
         observed_item = ObservedListItem.query.filter(ObservedListItem.dso_id.in_((dso.id, orig_dso.id))) \
             .join(ObservedList) \
@@ -387,13 +388,12 @@ def deepskyobject_info(dso_id):
                 offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
 
     has_observations = _has_dso_observations(dso, orig_dso)
-    season = request.args.get('season')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
                            wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
-                           title_img=title_img, season=season, embed=embed, has_observations=has_observations,
+                           title_img=title_img, embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -422,11 +422,10 @@ def deepskyobject_surveys(dso_id):
     if dso is None:
         abort(404)
 
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='surveys')
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
-    season = request.args.get('season')
     embed = request.args.get('embed', None)
 
     if embed:
@@ -435,8 +434,8 @@ def deepskyobject_surveys(dso_id):
     has_observations = _has_dso_observations(dso, orig_dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           field_size=field_size, season=season, embed=embed, has_observations=has_observations,
+                           field_size=field_size, embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -453,14 +452,14 @@ def deepskyobject_observations(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='observations')
 
     other_names = _get_other_names(dso)
-    season = request.args.get('season')
     embed = request.args.get('embed', None)
 
     if embed:
-        session['dso_embed_seltab'] = 'catalogue_data'
+        session['dso_embed_seltab'] = 'observations'
 
     observations = None
     if current_user.is_authenticated:
@@ -470,8 +469,8 @@ def deepskyobject_observations(dso_id):
         return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observations', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
-                           season=season, embed=embed, has_observations=True, observations=observations,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
+                           embed=embed, has_observations=True, observations=observations,
                            )
 
 
@@ -481,10 +480,10 @@ def deepskyobject_catalogue_data(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='catalogue_data')
 
     other_names = _get_other_names(dso)
-    season = request.args.get('season')
     embed = request.args.get('embed', None)
 
     if embed:
@@ -493,8 +492,8 @@ def deepskyobject_catalogue_data(dso_id):
     has_observations = _has_dso_observations(dso, orig_dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title, other_names=other_names,
-                           season=season, embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
+                           embed=embed, has_observations=has_observations,
                            )
 
 
@@ -507,7 +506,7 @@ def deepskyobject_chart(dso_id):
 
     form = ChartForm()
 
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='chart')
 
     if not common_ra_dec_fsz_from_request(form):
         if form.ra.data is None or form.dec.data is None:
@@ -536,9 +535,9 @@ def deepskyobject_chart(dso_id):
     has_observations = _has_dso_observations(dso, orig_dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
-                           chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url, season=season, embed=embed,
-                           has_observations=has_observations,
+                           chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
+                           embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -552,36 +551,12 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     visible_objects = [] if flags else None
 
     highlights_dso_list = None
+    highlights_pos_list = None
 
-    back = request.args.get('back')
-    back_id = request.args.get('back_id')
+    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
 
-    if back == 'dso_list' and back_id is not None:
-        dso_list = DsoList.query.filter_by(id=back_id).first()
-        if dso_list:
-            highlights_dso_list = [x.deepskyObject for x in dso_list.dso_list_items if dso_list]
-    elif back == 'wishlist' and current_user.is_authenticated:
-        wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-        highlights_dso_list = [x.deepskyObject for x in wish_list.wish_list_items if wish_list.wish_list_items]
-    elif back == 'session_plan':
-        session_plan = SessionPlan.query.filter_by(id=back_id).first()
-        if _allow_view_session_plan(session_plan):
-            highlights_dso_list = [x.deepskyObject for x in session_plan.session_plan_items if session_plan]
-    elif back == 'observation':
-        observing_session = ObservingSession.query.filter_by(id=back_id).first()
-        if observing_session and (observing_session.is_public or observing_session.user_id == current_user.id):
-            highlights_dso_list = []
-            for observation in observing_session.observations:
-                highlights_dso_list.extend(observation.deepsky_objects)
-    elif back == 'observed_list' and current_user.is_authenticated:
-        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-        highlights_dso_list = [x.deepskyObject for x in observed_list.observed_list_items if observed_list.observed_list_items]
-    elif back == 'running_plan' and back_id is not None:
-        observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
-        if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
-            highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
-
-    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
@@ -739,16 +714,9 @@ def deepskyobject_observation_log(dso_id):
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
         abort(404)
 
-    form = DeepskyObjectObservationLog()
+    form = DeepskyObjectObservationLogForm()
 
-    observation = None
-    for o in observation_plan_run.observing_session.observations:
-        for oi_dso in o.deepsky_objects:
-            if oi_dso.id == dso.id:
-                observation = o
-                break
-        if observation is not None:
-            break
+    observation = observation_plan_run.observing_session.find_observation_by_dso_id(dso.id)
 
     is_new_observation_log = observation is None
 
@@ -782,12 +750,12 @@ def deepskyobject_observation_log(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'obs_log'
 
-    prev_dso, prev_dso_title, next_dso, next_dso_title = _get_prev_next_dso(orig_dso)
+    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='observation_log')
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
-                           prev_dso=prev_dso, next_dso=next_dso, prev_dso_title=prev_dso_title, next_dso_title=next_dso_title,
                            embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=False
+                           has_observations=False,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -804,14 +772,7 @@ def deepskyobject_observation_log_delete(dso_id):
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
         abort(404)
 
-    observation = None
-    for oi in observation_plan_run.observing_session.observations:
-        for oi_dso in oi.deepsky_objects:
-            if oi_dso.id == dso.id:
-                observation = oi
-                break
-        if observation is not None:
-            break
+    observation = observation_plan_run.observing_session.find_observation_by_dso_id(dso.id)
 
     if observation is not None:
         db.session.delete(observation)
@@ -845,105 +806,3 @@ def _do_redirect(url, dso):
     season = request.args.get('season')
     return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
 
-
-def _get_season_constell_ids():
-    season = request.args.get('season', None)
-    constell_ids = None
-    if season is not None:
-        for constell_id in db.session.query(Constellation.id).filter(Constellation.season==season):
-            if constell_ids is None:
-                constell_ids = set()
-            constell_ids.add(constell_id[0])
-    return constell_ids
-
-
-def _get_prev_next_dso(dso):
-    back = request.args.get('back')
-    back_id = request.args.get('back_id')
-
-    has_item = False
-    next_item = None
-
-    if back == 'observation':
-        observing_session = ObservingSession.query.filter_by(id=back_id).first()
-        if observing_session and (observing_session.is_public or observing_session.user_id == current_user.id):
-            prev_item, next_item = observing_session.get_prev_next_item(dso.id)
-            return (prev_item,
-                    prev_item.denormalized_name() if prev_item else None,
-                    next_item,
-                    next_item.denormalized_name() if next_item else None,
-                    )
-    elif back == 'stobservation':
-        pass
-    elif back == 'constell_dso':
-        constell_dsos = DeepskyObject.query.filter_by(constellation_id=dso.constellation_id, master_id=None) \
-                                           .order_by(DeepskyObject.mag) \
-                                           .all()
-        num_dsos = len(constell_dsos)
-        for dso_idx in range(num_dsos):
-            constell_dso = constell_dsos[dso_idx]
-            if constell_dso.id == dso.id:
-                prev_item, next_item = None, None
-                if dso_idx > 0:
-                    prev_item = constell_dsos[dso_idx - 1]
-                if dso_idx < num_dsos - 1:
-                    next_item = constell_dsos[dso_idx + 1]
-                return (prev_item,
-                        prev_item.denormalized_name() if prev_item else None,
-                        next_item,
-                        next_item.denormalized_name() if next_item else None,
-                        )
-    elif back == 'wishlist':
-        if current_user.is_authenticated:
-            wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-            prev_item, next_item = wish_list.get_prev_next_item(dso.id, _get_season_constell_ids())
-            has_item = True
-    elif back == 'observed_list':
-        if current_user.is_authenticated:
-            observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-            prev_item, next_item = observed_list.get_prev_next_item(dso.id, _get_season_constell_ids())
-            has_item = True
-    elif back == 'session_plan':
-        session_plan = SessionPlan.query.filter_by(id=back_id).first()
-        if _allow_view_session_plan(session_plan):
-            prev_item, next_item = session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
-            has_item = True
-    elif back == 'dso_list' and not (back_id is None):
-        dso_list = DsoList.query.filter_by(id=back_id).first()
-        if dso_list:
-            prev_item, next_item = dso_list.get_prev_next_item(dso.id, _get_season_constell_ids())
-            return (prev_item.deepskyObject if prev_item else None,
-                    prev_item.item_id if prev_item else None,
-                    next_item.deepskyObject if next_item else None,
-                    next_item.item_id if next_item else None,
-                    )
-    elif back == 'running_plan':
-        observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
-        if observation_plan_run and _allow_view_session_plan(observation_plan_run.session_plan):
-            prev_item, next_item = observation_plan_run.session_plan.get_prev_next_item(dso.id, _get_season_constell_ids())
-            has_item = True
-
-    if has_item:
-        return (prev_item.deepskyObject if prev_item else None,
-                prev_item.deepskyObject.denormalized_name() if prev_item else None,
-                next_item.deepskyObject if next_item else None,
-                next_item.deepskyObject.denormalized_name() if next_item else None,
-                )
-
-    prev_dso, next_dso = dso.get_prev_next_dso()
-    return (prev_dso,
-            prev_dso.catalog_number() if prev_dso else None,
-            next_dso,
-            next_dso.catalog_number() if next_dso else None)
-
-
-def _allow_view_session_plan(session_plan):
-    if not session_plan:
-        return False
-    if not session_plan.is_public:
-        if current_user.is_anonymous:
-            if not session_plan.is_anonymous or session.get('session_plan_id') != session_plan.id:
-                return False
-        elif session_plan.user_id != current_user.id:
-            return False
-    return True

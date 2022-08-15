@@ -9,7 +9,6 @@ from .. import db
 from app.commons.observation_utils import deepsky_objects_to_html, astro_text_to_html
 from app.commons.form_utils import FormEnum
 
-
 class Seeing(FormEnum):
         TERRIBLE = 'TERRIBLE'
         VERYBAD = 'VERYBAD'
@@ -90,27 +89,25 @@ class ObservingSession(db.Model):
             return 0
         return int(round(self.rating * m / 10))
 
-    def get_prev_next_item(self, dso_id):
-        observation_list = sorted(self.observations, key=lambda x: x.id)
-        prev_dso = None
-        next_dso = None
-        find_next = False
-        for observation in observation_list:
-            for dso in observation.deepsky_objects:
-                if dso.id == dso_id:
-                    find_next = True
-                elif not find_next:
-                    prev_dso = dso
-                else:
-                    next_dso = dso
-                    return prev_dso, next_dso
-        return prev_dso, next_dso
-
     def loc_seeing(self):
         return self.seeing.loc_text() if self.seeing else ''
 
     def loc_transparency(self):
         return self.transparency.loc_text() if self.transparency else ''
+
+    def find_observation_by_double_star_id(self, double_star_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.DBL_STAR and o.double_star_id == double_star_id:
+                return o
+        return None
+
+    def find_observation_by_dso_id(self, dso_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.DSO:
+                for oi_dso in o.deepsky_objects:
+                    if oi_dso.id == dso_id:
+                        return o
+        return None
 
 
 dso_observation_association_table = db.Table('observation_dsos', db.Model.metadata,
@@ -167,6 +164,20 @@ class Observation(db.Model):
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+
+    def get_ra(self):
+        if self.target_type == ObservationTargetType.DSO:
+            return self.deepsky_objects[0].ra if len(self.deepsky_objects) > 0 else None
+        if self.target_type == ObservationTargetType.DBL_STAR:
+            return self.double_star.ra_first
+        return None
+
+    def get_dec(self):
+        if self.target_type == ObservationTargetType.DSO:
+            return self.deepsky_objects[0].dec if len(self.deepsky_objects) > 0 else None
+        if self.target_type == ObservationTargetType.DBL_STAR:
+            return self.double_star.dec_first
+        return None
 
     def get_target_name(self):
         if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
@@ -241,7 +252,6 @@ class Observation(db.Model):
 
     def notes_to_html(self):
         return astro_text_to_html(self.observing_session_id, self.notes)
-
 
 class ObsSessionPlanRun(db.Model):
     __tablename__ = 'obs_session_plan_runs'
