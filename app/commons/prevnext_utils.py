@@ -48,7 +48,7 @@ class PrevNextWrapper:
         if type(self._sky_obj) == Star:
             return url_for('main_star.star_chart', star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, embed=embed)
         if type(self._sky_obj) == DoubleStar:
-            return url_for('main_double_star.double_star_chart', double_star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, embed=embed)
+            return url_for('main_double_star.double_star_seltab', double_star_id=self._sky_obj.id, seltab=self._tab, back=back, back_id=back_id, season=season, embed=embed)
 
     def top_url(self):
         embed = request.args.get('embed')

@@ -218,23 +218,35 @@
         <div class="ui segment">{{ _('No object has been observed from this plan yet.')}}</div>
     {% endif %}
 
-    {% if observed_items|length > 0 %}
+    {% if observed_items | length > 0 %}
     <h4 class="ui header">
       <i class="eye icon"></i>
       <div class="content">{{ _('Observed') }}</div>
     </h4>
     <table class="ui compact definition2 unstackable table">
+        {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item.deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}{% endmacro %}
+        {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_observation_log', double_star_id=item.double_star_id, back='running_plan', back_id=observing_session_plan_run.id) }}{% endmacro %}
         {% for item in observed_items %}
-        <tr>
-            <td class="two wide">
-                <b><a href="{{ url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=item[0].deepskyObject.name, back='running_plan', back_id=observing_session_plan_run.id) }}">{{ item[0].deepskyObject.name}} </a></b>
-            </td>
-            <td>
-                {% filter extended_commonmark('') %}
+            {% if item[0].dso_id is not none %}
+                {% set to_url = to_dso_url2(item[0]) %}
+                {% set item_name = item[0].deepskyObject.denormalized_name() %}
+            {% elif item[0].double_star_id is not none %}
+                {% set to_url = to_double_star_url2(item[0]) %}
+                {% set item_name = item[0].double_star.common_cat_id %}
+            {% else %}
+                {% set to_url = '' %}
+                {% set item_name = '' %}
+            {% endif %}
+            <tr>
+                <td class="two wide">
+                    <b><a href="{{ to_url }}">{{ item_name }} </a></b>
+                </td>
+                <td>
+                    {% filter extended_commonmark('') %}
 {{ item[1].notes_to_html() }}
-                {% endfilter %}
-            </td>
-        </tr>
+                    {% endfilter %}
+                </td>
+            </tr>
         {% endfor %}
     </table>
     {% endif %}

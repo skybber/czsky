@@ -709,6 +709,7 @@ def deepskyobject_observation_log(dso_id):
     back = request.args.get('back')
     if back != 'running_plan':
         abort(404)
+
     back_id = request.args.get('back_id')
     observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
     if observation_plan_run is None or observation_plan_run.session_plan.user_id != current_user.id:
@@ -724,6 +725,7 @@ def deepskyobject_observation_log(dso_id):
         now = datetime.now()
         observation = Observation(
             observing_session_id=observation_plan_run.observing_session.id,
+            target_type=ObservationTargetType.DSO,
             date_from=now,
             date_to=now,
             notes=form.notes.data if form.notes.data else '',

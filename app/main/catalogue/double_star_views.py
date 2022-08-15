@@ -374,7 +374,7 @@ def double_star_seltab(double_star_id):
 
     back = request.args.get('back')
     if back == 'running_plan':
-        return _do_redirect('main_double_star.double_star_log', double_star)
+        return _do_redirect('main_double_star.double_star_observation_log', double_star)
 
     return _do_redirect('main_double_star.double_star_info', double_star)
 
@@ -478,6 +478,7 @@ def double_star_observation_log(double_star_id):
         observation = Observation(
             observing_session_id=observation_plan_run.observing_session.id,
             double_star_id=double_star.id,
+            target_type=ObservationTargetType.DBL_STAR,
             date_from=now,
             date_to=now,
             notes=form.notes.data if form.notes.data else '',
@@ -542,4 +543,4 @@ def _do_redirect(url, double_star):
     fullscreen = request.args.get('fullscreen')
     splitview = request.args.get('splitview')
     season = request.args.get('season')
-    return redirect(url_for(url, double_star_id=double_star.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
+    return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

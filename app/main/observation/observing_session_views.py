@@ -449,16 +449,14 @@ def observing_session_run_plan(observing_session_id):
 
     if session_plan:
         for plan_item in session_plan.session_plan_items:
-            observed = False
-            for observation in observing_session.observations:
-                for dso in observation.deepsky_objects:
-                    if dso.id == plan_item.dso_id:
-                        observed_items.append((plan_item, observation))
-                        observed = True
-                        break
-                if observed:
-                    break
-            if not observed:
+            observation = None
+            if plan_item.dso_id is not None:
+                observation = observing_session.find_observation_by_dso_id(plan_item.dso_id)
+            elif plan_item.double_star_id is not None:
+                observation = observing_session.find_observation_by_double_star_id(plan_item.double_star_id)
+            if observation:
+                observed_items.append((plan_item, observation))
+            else:
                 not_observed_plan_items.append(plan_item)
 
     return render_template('main/observation/observing_session_info.html', observing_session=observing_session, type='run_plan',
