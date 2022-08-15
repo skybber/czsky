@@ -114,8 +114,12 @@ def star_list_chart(star_list_id):
 
     chart_control = common_prepare_chart_data(form)
 
+    default_chart_iframe_url = None
+    if star_list_item:
+        default_chart_iframe_url = url_for('main_star.star_info', star_id=star_list_item.star_id,
+                                           back='star_list', back_id=star_list.id, embed='fc', allow_back='true')
     return render_template('main/catalogue/star_list_info.html', fchart_form=form, type='chart', star_list=star_list, star_list_descr=star_list_descr,
-                           chart_control=chart_control)
+                           chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_star_list.route('/star-list/<string:star_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

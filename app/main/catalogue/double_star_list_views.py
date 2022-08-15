@@ -93,7 +93,7 @@ def double_star_list_chart(double_star_list_id):
     if double_star_list is None:
         abort(404)
 
-    form  = ChartForm()
+    form = ChartForm()
 
     star_id = request.args.get('star_id')
     double_star_list_item = None
@@ -112,10 +112,15 @@ def double_star_list_chart(double_star_list_id):
             form.ra.data = double_star_list_item.double_star.ra_first if double_star_list_item else 0
             form.dec.data = double_star_list_item.double_star.dec_first if double_star_list_item else 0
 
+    default_chart_iframe_url = None
+    if double_star_list_item:
+        default_chart_iframe_url = url_for('main_double_star.double_star_info', double_star_id=double_star_list_item.double_star_id,
+                                           back='double_star_list', back_id=double_star_list.id, embed='fc', allow_back='true')
+
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/double_star_list_info.html', fchart_form=form, type='chart', double_star_list=double_star_list, double_star_list_descr=double_star_list_descr,
-                           chart_control=chart_control)
+    return render_template('main/catalogue/double_star_list_info.html', fchart_form=form, type='chart', double_star_list=double_star_list,
+                           double_star_list_descr=double_star_list_descr, chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,)
 
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
