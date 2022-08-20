@@ -14,6 +14,8 @@ ALL_APERTURE_DESCRIPTIONS = ('Naked-eye', '<100', '100/150', '200/250', '300/350
 
 SHOWN_APERTURE_DESCRIPTIONS = ('Naked-eye', '<100', '100/150', '200/250', '300/350', '400/500', '600/800', '900/1200')
 
+IMPORT_SOURCE_HNSKY = 1
+
 
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
@@ -37,6 +39,7 @@ class DeepskyObject(db.Model):
     c_star_v_mag = db.Column(db.Float)
     common_name = db.Column(db.String(256))
     descr = db.Column(db.Text)
+    import_source = db.Column(db.Integer)
 
     _browsing_catalogue_map = None
 

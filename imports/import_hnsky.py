@@ -3,7 +3,7 @@ import numpy as np
 from math import log
 from app import db
 
-from app.models.deepskyobject import DeepskyObject, Catalogue
+from app.models.deepskyobject import DeepskyObject, Catalogue, IMPORT_SOURCE_HNSKY
 from app.models.constellation import Constellation
 
 from .import_utils import progress
@@ -60,7 +60,7 @@ def _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, save_master_ds
         if save_master_dsos:
             if dso.name in master_dso_map:
                 continue
-        elif not dso.name in master_dso_map:
+        elif dso.name not in master_dso_map:
             continue
         else:
             dso.master_id = master_dso_map[dso.name].id
@@ -129,10 +129,10 @@ def import_hnsky(hnsky_dso_file):
 
             obj_type = obj_types[0].strip()
             indx = obj_types[0].find('[')
-            if indx>0:
+            if indx > 0:
                 obj_type = obj_type[:indx]
             indx = obj_types[0].find(';')
-            if indx>0:
+            if indx > 0:
                 obj_type = obj_type[:indx]
 
             indx1 = items[4].find('[')
@@ -229,6 +229,7 @@ def import_hnsky(hnsky_dso_file):
                         dso.mag = mag
                         dso.surface_bright = brightness
                         dso.common_name = None
+                        dso.import_source = IMPORT_SOURCE_HNSKY
 
                         cat_prio = cat_priorities.get(cat.code, 1000)
 

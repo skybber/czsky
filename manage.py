@@ -48,6 +48,7 @@ from imports.link_star_descriptions import link_star_descriptions_by_var_id, lin
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
+from imports.import_pgc import import_pgc
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -334,6 +335,16 @@ def sync_en_descr_rating():
 
 
 @manager.command
+def tmp_import_gottlieb():
+    import_gottlieb('data/gottlieb')
+
+
+@manager.command
+def tmp_update_hnsky():
+    import_hnsky('data/deep_sky.hnd')
+
+
+@manager.command
 def tmp_import_corstjens():
     import_corstjens('data/dsolist/Corstjens.csv')
 
@@ -347,6 +358,15 @@ def tmp_import_hickson():
 def tmp_local_group():
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
 
+
+@manager.command
+def tmp_import_pgc():
+    import_pgc('data/PGC.dat')
+
+
+@manager.command
+def tmp_constellations():
+    import_constellations('data/88-constellations.csv')
 
 if __name__ == '__main__':
     manager.run()
