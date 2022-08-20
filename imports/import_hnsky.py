@@ -198,9 +198,7 @@ def import_hnsky(hnsky_dso_file):
                         name = 'Arp' + name[4:]
 
                     if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
-                        if name.endswith('A'):
-                            name = name[:-1]
-                        elif name.endswith('-1') or name.endswith('_1'):
+                        if name.endswith('-1') or name.endswith('_1'):
                             name = name[:-2]
 
                     if name in dso_set:

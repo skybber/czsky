@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 from .. import db
@@ -73,7 +74,8 @@ class DeepskyObject(db.Model):
         catalogue = DeepskyObject.get_browsing_catalogue_map().get(self.catalogue_id)
         if catalogue:
             main_component_name = main_component_dso_name(self.name)
-            dso_id = int(main_component_name[catalogue.prefix_len():])
+            in_cat_name = main_component_name[catalogue.prefix_len():]
+            dso_id = int(re.findall('\\d+', in_cat_name)[0])
             prev_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id-1)
             if not prev_dso:
                 prev_dso = self._get_by_catcode_and_id(catalogue.get_prefix(), dso_id-2)
