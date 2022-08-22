@@ -11,7 +11,7 @@ from .img_dir_resolver import resolve_img_path_dir, parse_inline_link
 
 EXPAND_IMG_DIR_FUNC = re.compile(r'\!\[(.*?)\]\((\$IMG_DIR(.*?))\)')
 NO_EXPAND = re.compile(r'(\[.*?\]\(.*?\))|(src=".*)')
-EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC)\s*\d+)')
+EXPANDING_DSOS = re.compile(r'(\W)((M|Abell|NGC|IC|PGC|UGC)\s*\d+)')
 
 
 def parse_extended_commonmark(md_text, ignore_name, ext_url_params):

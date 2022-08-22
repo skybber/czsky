@@ -370,12 +370,5 @@ def tmp_constellations():
     import_constellations('data/88-constellations.csv')
 
 
-@manager.command
-def tmp_tmp():
-    import_hnsky('data/deep_sky.hnd')
-    import_vic('data/vic.csv')
-    fix_cstar_from_open_ngc('data/OpenNGC.csv')
-    import_pgc('data/PGC.dat')
-
 if __name__ == '__main__':
     manager.run()
