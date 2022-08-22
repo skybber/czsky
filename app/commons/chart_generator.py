@@ -110,7 +110,8 @@ def _load_used_catalogs():
                                              limiting_magnitude_deepsky=100.0,
                                              force_asterisms=False,
                                              force_unknown=False,
-                                             show_catalogs=[])
+                                             show_catalogs=[],
+                                             use_pgc_catalog=True)
         global dso_name_cache
         dso_name_cache = {}
     return used_catalogs
