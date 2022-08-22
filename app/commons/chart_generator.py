@@ -142,6 +142,7 @@ def _setup_dark_theme(config, width):
     config.nebula_linewidth = 0.25
     config.galaxy_color = (0.6, 0.2, 0.2)
     config.star_cluster_color = (0.6, 0.6, 0.0)
+    config.galaxy_cluster_color = (0.6, 0.6, 0.6)
     if width and width <= 768:
         config.grid_color = (0.18, 0.27, 0.3)
         config.constellation_linewidth = 0.3
@@ -174,6 +175,7 @@ def _setup_night_theme(config, width):
     config.nebula_linewidth = 0.25
     config.galaxy_color = (0.6, 0.15, 0.0)
     config.star_cluster_color = (0.6, 0.15, 0.0)
+    config.galaxy_cluster_color = (0.6, 0.15, 0.0)
     config.grid_color = (0.2, 0.06, 0.06)
     config.grid_linewidth = 0.15
     config.star_colors = False
@@ -201,6 +203,7 @@ def _setup_light_theme(config, width):
     config.nebula_linewidth = 0.25
     config.galaxy_color = (0.3, 0.0, 0.0)
     config.star_cluster_color = (0.3, 0.3, 0.0)
+    config.galaxy_cluster_color = (0.3, 0.3, 0.3)
     config.grid_color = (0.7, 0.7, 0.7)
     config.grid_linewidth = 0.15
     config.dso_dynamic_brightness = False
@@ -215,6 +218,7 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     config.constellation_linewidth = 0.5
     config.constellation_linewidth = 0.3
     config.open_cluster_linewidth = 0.3
+    config.galaxy_cluster_linewidth = 0.15
     config.grid_linewidth = 0.15
     config.dso_linewidth = 0.4
     config.legend_linewidth = 0.2
