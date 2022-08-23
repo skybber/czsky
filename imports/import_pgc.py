@@ -108,7 +108,7 @@ def import_pgc(filename):
         try:
             mag = float(line[59:63])
         except ValueError:
-            mag = None
+            mag = 100.0
 
         try:
             position_angle = int(line[73:76])
