@@ -56,6 +56,7 @@ class SearchDsoForm(FlaskForm):
          ('OC', 'Open Cluster'),
          ('BN', 'Nebula'),
          ('PN', 'Planetary Nebula'),
+         ('GALCL', 'Galaxy Cluster'),
     ], default='All')
     maglim = FloatField(lazy_gettext('Limit mag'), default=12.0, validators=[NumberRange(min=-30.0, max=30.0), Optional()])
     constellation_id = IntegerField('Constellation', default=None)
