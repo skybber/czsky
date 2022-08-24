@@ -91,6 +91,7 @@ def import_hnsky(hnsky_dso_file):
 
     dso_set = set()
     master_dso_map = {}
+    main_dso_list = []
 
     pref_cats = [None] * 1000
     cat_codes = {}
@@ -181,6 +182,7 @@ def import_hnsky(hnsky_dso_file):
             master_dso = None
             child_dsos = []
             master_cat_prio = None
+
             for name1 in names:
                 for name in name1.split(';'):
                     name = name.strip()
@@ -196,10 +198,6 @@ def import_hnsky(hnsky_dso_file):
 
                     if name.startswith('Arp_'):
                         name = 'Arp' + name[4:]
-
-                    if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
-                        if name.endswith('-1') or name.endswith('_1'):
-                            name = name[:-2]
 
                     if name in dso_set:
                         continue
@@ -253,6 +251,17 @@ def import_hnsky(hnsky_dso_file):
             for child_dso in child_dsos:
                 master_dso_map[child_dso.name] = master_dso
 
+            if master_dso:
+                for name1 in names:
+                    for name in name1.split(';'):
+                        name = name.strip()
+                        if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
+                            if name.endswith('A'):
+                                main_dso_list.append(([name[:-1]], master_dso))
+                            elif name.endswith('-1') or name.endswith('_1'):
+                                main_dso_list.append(([name[:-2]], master_dso))
+
+
         # Sort dso in catalog list according object number in catalog
         for i in range(1000):
             dso_list = pref_cats[i]
@@ -281,10 +290,37 @@ def import_hnsky(hnsky_dso_file):
             if dso_list and i in cat_codes:
                 line_cnt = _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, False)
 
-        line_cnt = _save_dso_list(dso_count, line_cnt, other_dsos, master_dso_map, False) 
-        
+        line_cnt = _save_dso_list(dso_count, line_cnt, other_dsos, master_dso_map, False)
+
+        for name, master_dso in main_dso_list:
+            if name in dso_set:
+                continue
+
+            print('Creating fake {}'.format(name))
+            dso = existing_dsos.get(name, None)
+
+            if dso is None:
+                dso = DeepskyObject()
+
+            dso.name = name
+            dso.type = master_dso.type
+            dso.subtype = master_dso.subtype
+            dso.ra = master_dso.ra
+            dso.dec = master_dso.dec
+            dso.constellation_id = master_dso.constellation_id
+            dso.catalogue_id = master_dso.catalogue_id
+            dso.major_axis = master_dso.major_axis
+            dso.minor_axis = master_dso.minor_axis
+            dso.position_angle = master_dso.position_angle
+            dso.mag = master_dso.mag
+            dso.surface_bright = master_dso.surface_bright
+            dso.common_name = master_dso.common_name
+            dso.import_source = IMPORT_SOURCE_HNSKY
+            dso.master_id = master_dso.id
+            db.session.add(dso)
+
         db.session.commit()
-        
+
     except KeyError as err:
         print('\nKey error: {}'.format(err))
         db.session.rollback()
