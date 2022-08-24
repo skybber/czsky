@@ -257,9 +257,9 @@ def import_hnsky(hnsky_dso_file):
                         name = name.strip()
                         if name.startswith('NGC') or name.startswith('IC') or name.startswith('UGC'):
                             if name.endswith('A'):
-                                main_dso_list.append(([name[:-1]], master_dso))
+                                main_dso_list.append((name[:-1], master_dso))
                             elif name.endswith('-1') or name.endswith('_1'):
-                                main_dso_list.append(([name[:-2]], master_dso))
+                                main_dso_list.append((name[:-2], master_dso))
 
 
         # Sort dso in catalog list according object number in catalog
