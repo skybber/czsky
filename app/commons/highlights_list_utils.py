@@ -32,12 +32,12 @@ def common_highlights_from_wishlist(wish_list):
     return highlights_dso_list, highlights_pos_list
 
 
-def common_highlights_from_observed_list(observed_list):
+def common_highlights_from_observed_list_items(observed_list_items):
     highlights_dso_list = []
     highlights_pos_list = []
 
-    if observed_list:
-        for item in observed_list.observed_list_items:
+    if observed_list_items:
+        for item in observed_list_items:
             if item.dso_id is not None:
                 highlights_dso_list.append(item.deepskyObject)
             elif item.double_star_id is not None:
@@ -103,7 +103,7 @@ def create_hightlights_lists():
             highlights_dso_list, highlights_pos_list = common_highlights_from_observing_session(observing_session)
     elif back == 'observed_list' and current_user.is_authenticated:
         observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-        highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list(observed_list)
+        highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list.observed_list_items if observed_list else None)
     elif back == 'running_plan' and back_id is not None:
         observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and allow_view_session_plan(observation_plan_run.session_plan):

@@ -6,6 +6,8 @@ import base64
 
 from werkzeug.utils import secure_filename
 
+from sqlalchemy.orm import joinedload
+
 from flask import (
     abort,
     Blueprint,
@@ -39,7 +41,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
-from app.commons.highlights_list_utils import common_highlights_from_observed_list
+from app.commons.highlights_list_utils import common_highlights_from_observed_list_items
 
 from app.main.chart.chart_forms import ChartForm
 
@@ -218,11 +220,14 @@ def observed_list_chart():
 @main_observed.route('/observed-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
 def observed_list_chart_pos_img(ra, dec):
-    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-    if observed_list is None:
-        abort(404)
+    observed_list = ObservedList.query.filter_by(user_id=current_user.id).first()
+    observed_list_items = None
+    if observed_list:
+        observed_list_items = db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepskyObject)) \
+            .filter(ObservedListItem.observed_list_id == observed_list.id) \
+            .all()
 
-    highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list(observed_list)
+    highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list_items)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
