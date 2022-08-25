@@ -62,7 +62,6 @@ PICKER_RADIUS = 4.0
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
-                 disable_dec_mag=None, disable_inc_mag=None, disable_dso_dec_mag=None, disable_dso_inc_mag=None,
                  theme=None, gui_field_sizes=None, gui_field_index=None,
                  chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
@@ -75,10 +74,6 @@ class ChartControl:
         self.dso_mag_scale = dso_mag_scale
         self.dso_mag_ranges = dso_mag_ranges
         self.dso_mag_range_values = dso_mag_range_values
-        self.disable_dec_mag = disable_dec_mag
-        self.disable_inc_mag = disable_inc_mag
-        self.disable_dso_dec_mag = disable_dso_dec_mag
-        self.disable_dso_inc_mag = disable_dso_inc_mag
         self.theme = theme
         self.gui_field_sizes = gui_field_sizes
         self.gui_field_index = gui_field_index
@@ -409,12 +404,6 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         mag_range_values.append(ml)
         dso_mag_range_values.append(dml)
 
-    disable_dec_mag = 'disabled' if form.maglim.data <= cur_mag_scale[0] else ''
-    disable_inc_mag = 'disabled' if form.maglim.data >= cur_mag_scale[1] else ''
-
-    disable_dso_dec_mag = 'disabled' if form.dso_maglim.data <= cur_dso_mag_scale[0] else ''
-    disable_dso_inc_mag = 'disabled' if form.dso_maglim.data >= cur_dso_mag_scale[1] else ''
-
     gui_field_sizes = STR_GUI_FIELD_SIZES
     gui_field_index = (form.radius.data-1)*2
 
@@ -438,7 +427,6 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     return ChartControl(chart_fsz=str(fld_size),
                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                         dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
-                        disable_dec_mag=disable_dec_mag, disable_inc_mag=disable_inc_mag, disable_dso_dec_mag=disable_dso_dec_mag, disable_dso_inc_mag=disable_dso_inc_mag,
                         theme=theme,
                         gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
                         chart_mlim=str(form.maglim.data),

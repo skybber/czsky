@@ -39,6 +39,7 @@ from app.commons.utils import get_cs_editor_user, get_lang_and_editor_user_from_
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
+    common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
 )
@@ -268,6 +269,17 @@ def constellation_chart_legend_img(constellation_id, ra, dec):
 
     img_bytes = common_chart_legend_img(constellation.label_ra, constellation.label_dec, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_constellation.route('/constellation/<string:constellation_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def constellation_chart_pdf(constellation_id, ra, dec):
+    constellation = _find_constellation(constellation_id)
+    if constellation is None:
+        abort(404)
+
+    img_bytes = common_chart_pdf_img(constellation.label_ra, constellation.label_dec, ra, dec)
+
+    return send_file(img_bytes, mimetype='application/pdf')
 
 
 @main_constellation.route('/constellation/<int:constellation_id>/edit', methods=['GET', 'POST'])
