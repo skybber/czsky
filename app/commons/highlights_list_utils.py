@@ -19,12 +19,12 @@ from app.commons.permission_utils import allow_view_session_plan
 from .dso_utils import CHART_DOUBLE_STAR_PREFIX
 
 
-def common_highlights_from_wishlist(wish_list):
+def common_highlights_from_wishlist_items(wish_list_items):
     highlights_dso_list = []
     highlights_pos_list = []
 
-    if wish_list:
-        for item in wish_list.wish_list_items:
+    if wish_list_items:
+        for item in wish_list_items:
             if item.dso_id is not None:
                 highlights_dso_list.append(item.deepskyObject)
             elif item.double_star_id is not None:
@@ -93,7 +93,7 @@ def create_hightlights_lists():
             highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id)) for x in double_star_list.double_star_list_items if double_star_list]
     elif back == 'wishlist' and current_user.is_authenticated:
         wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-        highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist(wish_list)
+        highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list.items if wish_list else None)
     elif back == 'session_plan':
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
         highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)

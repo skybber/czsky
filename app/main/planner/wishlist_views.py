@@ -3,6 +3,8 @@ import csv
 from datetime import datetime
 import base64
 
+from sqlalchemy.orm import joinedload
+
 from werkzeug.utils import secure_filename
 
 import numpy as np
@@ -51,7 +53,7 @@ from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name, CHART_DOUBLE_STAR_PREFIX
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
-from app.commons.highlights_list_utils import common_highlights_from_wishlist
+from app.commons.highlights_list_utils import common_highlights_from_wishlist_items
 
 main_wishlist = Blueprint('main_wishlist', __name__)
 
@@ -156,12 +158,8 @@ def wish_list_chart():
 @main_wishlist.route('/wish-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
 def wish_list_chart_pos_img(ra, dec):
-    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    if wish_list is None:
-        abort(404)
-
-    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist(wish_list)
-
+    wish_list_items = _get_wish_list_items(current_user.id)
+    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
@@ -186,14 +184,20 @@ def wish_list_chart_legend_img(ra, dec):
 
 @main_wishlist.route('/wish-list/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def wish_list_chart_pdf(ra, dec):
-    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    if wish_list is None:
-        abort(404)
-
-    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist(wish_list)
-
+    wish_list_items = _get_wish_list_items(current_user.id)
+    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
+
+
+def _get_wish_list_items(user_id):
+    wish_list = WishList.query.filter_by(user_id=user_id).first()
+    if wish_list:
+        return db.session.query(WishListItem).options(joinedload(WishListItem.deepskyObject)) \
+            .filter(WishListItem.wish_list_id == wish_list.id) \
+            .all()
+    return []
+

@@ -220,15 +220,8 @@ def observed_list_chart():
 @main_observed.route('/observed-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
 def observed_list_chart_pos_img(ra, dec):
-    observed_list = ObservedList.query.filter_by(user_id=current_user.id).first()
-    observed_list_items = None
-    if observed_list:
-        observed_list_items = db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepskyObject)) \
-            .filter(ObservedListItem.observed_list_id == observed_list.id) \
-            .all()
-
+    observed_list_items = _get_observed_list_items(current_user.id)
     highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list_items)
-
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
@@ -249,3 +242,12 @@ def observed_list_chart_legend_img(ra, dec):
 
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
+
+
+def _get_observed_list_items(user_id):
+    observed_list = ObservedList.query.filter_by(user_id=user_id).first()
+    if observed_list:
+        return db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepskyObject)) \
+                .filter(ObservedListItem.observed_list_id == observed_list.id) \
+                .all()
+    return []
