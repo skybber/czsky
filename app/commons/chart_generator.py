@@ -329,7 +329,7 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     return img_bytes
 
 
-def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_dso_list=None, trajectory=None):
+def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_dso_list=None, trajectory=None, highlights_pos_list=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
@@ -342,8 +342,8 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
 
     img_bytes = BytesIO()
     _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim,
-                      landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list, trajectory=trajectory,
-                      eyepiece_fov=eyepiece_fov)
+                      landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
+                      highlights_pos_list=highlights_pos_list, trajectory=trajectory, eyepiece_fov=eyepiece_fov)
     img_bytes.seek(0)
     return img_bytes
 
