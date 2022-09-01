@@ -87,8 +87,8 @@
         <tr onclick="window.location.href='{{ to_url }}';">
             <td>{{ item_name }}</td>
             <td>{{ item_type }}</td>
-            <td class="mobile hidden">{{ item.get_ra() }}</td>
-            <td class="mobile hidden">{{ item.get_dec() }}</td>
+            <td class="mobile hidden">{{ item.get_ra_str_short() }}</td>
+            <td class="mobile hidden">{{ item.get_dec_str_short() }}</td>
             <td>{{ item_constell }}</td>
             <td class="right aligned">
                 {{ item_mag }}
