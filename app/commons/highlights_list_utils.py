@@ -93,7 +93,7 @@ def create_hightlights_lists():
             highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id)) for x in double_star_list.double_star_list_items if double_star_list]
     elif back == 'wishlist' and current_user.is_authenticated:
         wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-        highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list.items if wish_list else None)
+        highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list.wish_list_items if wish_list else None)
     elif back == 'session_plan':
         session_plan = SessionPlan.query.filter_by(id=back_id).first()
         highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
