@@ -6,7 +6,7 @@ from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
 from app import db
 
-from app.models.solar_system import MinorPlanet
+from app.models.minor_planet import MinorPlanet
 from .import_utils import progress
 
 

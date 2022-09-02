@@ -33,6 +33,7 @@
                             <tr>
                                 <th>{{ _('Name') }}</th>
                                 <th>{{ _('Brightness') }}</th>
+                                <th>{{ _('Size') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -41,6 +42,7 @@
                             <tr onclick="window.location.href = '{{ comet_url }}';">
                                 <td><a href="{{ comet_url }}">{{ row['designation'] }}</a></td>
                                 <td>{{ row['mag'] | round(1) }}</td>
+                                <td>{{ row['coma_diameter'] }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>

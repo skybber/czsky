@@ -50,6 +50,8 @@ from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc
 
+from app.main.solarsystem.comet_cobs_update import update_comets_observations
+
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 
@@ -92,20 +94,6 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
-
-
-@manager.option(
-    '-n',
-    '--number-users',
-    default=10,
-    type=int,
-    help='Number of each model type to create',
-    dest='number_users')
-def add_fake_data(number_users):
-    """
-    Adds fake data to the database.
-    """
-    User.generate_fake(count=number_users)
 
 
 @manager.command
@@ -368,6 +356,11 @@ def tmp_import_pgc():
 @manager.command
 def tmp_constellations():
     import_constellations('data/88-constellations.csv')
+
+
+@manager.command
+def update_comets_obs():
+    update_comets_observations()
 
 
 if __name__ == '__main__':

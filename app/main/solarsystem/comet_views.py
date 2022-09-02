@@ -23,6 +23,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 from sqlalchemy import func
+
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
@@ -52,6 +53,7 @@ from app.commons.utils import to_float
 
 from app.models import (
     Comet,
+    CometObservation
 )
 
 main_comet = Blueprint('main_comet', __name__)
@@ -66,13 +68,36 @@ def _load_comet_brightness(all_comets, fname):
         lines = f.readlines()
     for line in lines:
         comet_id, str_mag = line.split(' ')
+        after = datetime.today() - timedelta(days=31)
+        comet = Comet.query.filter_by(comet_id=comet_id).first()
+        str_coma_diameter = '-'
+        if comet:
+            obsers = CometObservation.query.filter_by(comet_id=comet.id)\
+                .filter(CometObservation.date >= after) \
+                .order_by(CometObservation.date.desc()).all()[:5]
+            if len(obsers) > 0:
+                n = 1
+                mag = obsers[0].mag
+                coma_diameter = obsers[0].coma_diameter
+                first_dt = obsers[0].date
+                for o in obsers[1:]:
+                    if (first_dt - o.date).days > 2:
+                        break
+                    n += 1
+                    mag += o.mag
+                    if o.coma_diameter is not None:
+                        coma_diameter = (coma_diameter + o.coma_diameter) if coma_diameter is not None else o.coma_diameter
+                str_mag = '{:.1f}'.format(mag / n)
+                str_coma_diameter = '{:.1f}\''.format(coma_diameter / n) if coma_diameter is not None else '-'
+                current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, str_mag, str_coma_diameter))
         try:
             all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag)
+            all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = str_coma_diameter
         except Exception:
             pass
 
 
-def _create_comet_brighness_file(all_comets, fname):
+def _create_comet_evaluated_brighness_file(all_comets, fname):
     global creation_running
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -130,7 +155,7 @@ def get_all_comets():
         if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) + timedelta(days=5) < all_comets_expiration) and not creation_running:
             all_comets.loc[:, 'mag'] = 22.0
             creation_running = True
-            thread = threading.Thread(target=_create_comet_brighness_file, args=(all_comets, fname,))
+            thread = threading.Thread(target=_create_comet_evaluated_brighness_file, args=(all_comets, fname,))
             thread.start()
         else:
             _load_comet_brightness(all_comets, fname)

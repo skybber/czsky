@@ -9,6 +9,7 @@ from .. import db
 from app.commons.observation_utils import deepsky_objects_to_html, astro_text_to_html
 from app.commons.form_utils import FormEnum
 
+
 class Seeing(FormEnum):
         TERRIBLE = 'TERRIBLE'
         VERYBAD = 'VERYBAD'

@@ -1,4 +1,5 @@
 import os
+import sys
 import werkzeug
 
 from werkzeug.utils import secure_filename
@@ -17,6 +18,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_babel import Babel
 from sqlalchemy import MetaData
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css, red_theme_css
 from config import config as Config
@@ -41,6 +43,8 @@ babel = Babel()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'account.login'
+
+scheduler = BackgroundScheduler(daemon=True)
 
 UPLOAD_FOLDER = 'uploads'
 
@@ -160,6 +164,9 @@ def create_app(config):
 
     from flask_commonmark import Commonmark
     cm = Commonmark(app)
+
+    if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
+        scheduler.start()
 
     return app
 
