@@ -49,7 +49,7 @@ scheduler = BackgroundScheduler(daemon=True)
 UPLOAD_FOLDER = 'uploads'
 
 
-def create_app(config):
+def create_app(config, web=True):
     app = Flask(__name__)
     config_name = config
 
@@ -98,75 +98,76 @@ def create_app(config):
         from flask_sslify import SSLify
         SSLify(app)
 
-    # Create app blueprints
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-    from .main.catalogue import main_constellation as main_constellation
-    app.register_blueprint(main_constellation)
-    from .main.catalogue import main_deepskyobject as main_deepskyobject
-    app.register_blueprint(main_deepskyobject)
-    from .main.catalogue import main_dso_list as main_dso_list
-    app.register_blueprint(main_dso_list)
-    from .main.catalogue import main_star_list as main_star_list
-    app.register_blueprint(main_star_list)
-    from .main.catalogue import main_double_star_list as main_double_star_list
-    app.register_blueprint(main_double_star_list)
-    from .main.catalogue import main_double_star as main_double_star
-    app.register_blueprint(main_double_star)
-    from .main.location import main_location as main_location
-    app.register_blueprint(main_location)
-    from .main.observation import main_observation as main_observation
-    app.register_blueprint(main_observation)
-    from .main.observation import main_standalone_observation as main_standalone_observation
-    app.register_blueprint(main_standalone_observation)
-    from .main.observation import main_observing_session as main_observing_session
-    app.register_blueprint(main_observing_session)
-    from .main.observation import main_observed as main_observed
-    app.register_blueprint(main_observed)
-    from .main.skyquality import main_sqm as main_sqm
-    app.register_blueprint(main_sqm)
-    from .main.skyquality import main_skyquality as main_skyquality
-    app.register_blueprint(main_skyquality)
-    from .main.userdata import main_userdata as main_userdata
-    app.register_blueprint(main_userdata)
-    from .main.catalogue import main_star as main_star
-    app.register_blueprint(main_star)
-    from .main.usersettings import main_usersettings as main_usersettings
-    app.register_blueprint(main_usersettings)
-    from .main.planner import main_planner as main_planner
-    app.register_blueprint(main_planner)
-    from .main.planner import main_sessionplan as main_sessionplan
-    app.register_blueprint(main_sessionplan)
-    from .main.planner import main_wishlist as main_wishlist
-    app.register_blueprint(main_wishlist)
-    from .main.solarsystem import main_solarsystem as main_solarsystem
-    app.register_blueprint(main_solarsystem)
-    from .main.solarsystem import main_comet as main_comet
-    app.register_blueprint(main_comet)
-    from .main.solarsystem import main_minor_planet as main_minor_panet
-    app.register_blueprint(main_minor_panet)
-    from .main.solarsystem import main_planet as main_planet
-    app.register_blueprint(main_planet)
-    from .main.chart import main_chart as main_chart
-    app.register_blueprint(main_chart)
-    from .main.news import main_news as main_news
-    app.register_blueprint(main_news)
-    from .main.equipment import main_equipment as main_equipment
-    app.register_blueprint(main_equipment)
-    from .main.import_history import main_import_history as main_import_history
-    app.register_blueprint(main_import_history)
+    if web:
+        # Create app blueprints
+        from .main import main as main_blueprint
+        app.register_blueprint(main_blueprint)
+        from .main.catalogue import main_constellation as main_constellation
+        app.register_blueprint(main_constellation)
+        from .main.catalogue import main_deepskyobject as main_deepskyobject
+        app.register_blueprint(main_deepskyobject)
+        from .main.catalogue import main_dso_list as main_dso_list
+        app.register_blueprint(main_dso_list)
+        from .main.catalogue import main_star_list as main_star_list
+        app.register_blueprint(main_star_list)
+        from .main.catalogue import main_double_star_list as main_double_star_list
+        app.register_blueprint(main_double_star_list)
+        from .main.catalogue import main_double_star as main_double_star
+        app.register_blueprint(main_double_star)
+        from .main.location import main_location as main_location
+        app.register_blueprint(main_location)
+        from .main.observation import main_observation as main_observation
+        app.register_blueprint(main_observation)
+        from .main.observation import main_standalone_observation as main_standalone_observation
+        app.register_blueprint(main_standalone_observation)
+        from .main.observation import main_observing_session as main_observing_session
+        app.register_blueprint(main_observing_session)
+        from .main.observation import main_observed as main_observed
+        app.register_blueprint(main_observed)
+        from .main.skyquality import main_sqm as main_sqm
+        app.register_blueprint(main_sqm)
+        from .main.skyquality import main_skyquality as main_skyquality
+        app.register_blueprint(main_skyquality)
+        from .main.userdata import main_userdata as main_userdata
+        app.register_blueprint(main_userdata)
+        from .main.catalogue import main_star as main_star
+        app.register_blueprint(main_star)
+        from .main.usersettings import main_usersettings as main_usersettings
+        app.register_blueprint(main_usersettings)
+        from .main.planner import main_planner as main_planner
+        app.register_blueprint(main_planner)
+        from .main.planner import main_sessionplan as main_sessionplan
+        app.register_blueprint(main_sessionplan)
+        from .main.planner import main_wishlist as main_wishlist
+        app.register_blueprint(main_wishlist)
+        from .main.solarsystem import main_solarsystem as main_solarsystem
+        app.register_blueprint(main_solarsystem)
+        from .main.solarsystem import main_comet as main_comet
+        app.register_blueprint(main_comet)
+        from .main.solarsystem import main_minor_planet as main_minor_panet
+        app.register_blueprint(main_minor_panet)
+        from .main.solarsystem import main_planet as main_planet
+        app.register_blueprint(main_planet)
+        from .main.chart import main_chart as main_chart
+        app.register_blueprint(main_chart)
+        from .main.news import main_news as main_news
+        app.register_blueprint(main_news)
+        from .main.equipment import main_equipment as main_equipment
+        app.register_blueprint(main_equipment)
+        from .main.import_history import main_import_history as main_import_history
+        app.register_blueprint(main_import_history)
 
-    from .account import account as account_blueprint
-    app.register_blueprint(account_blueprint, url_prefix='/account')
+        from .account import account as account_blueprint
+        app.register_blueprint(account_blueprint, url_prefix='/account')
 
-    from .admin import admin as admin_blueprint
-    app.register_blueprint(admin_blueprint, url_prefix='/admin')
+        from .admin import admin as admin_blueprint
+        app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
-    from flask_commonmark import Commonmark
-    cm = Commonmark(app)
+        from flask_commonmark import Commonmark
+        cm = Commonmark(app)
 
-    if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
-        scheduler.start()
+        if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
+            scheduler.start()
 
     return app
 

@@ -1,7 +1,5 @@
 import os
 import numpy as np
-import math
-import threading
 import json
 import base64
 from io import BytesIO
@@ -22,16 +20,18 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from sqlalchemy import func
+from flask_rq import get_queue
 
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
 from app import db
+from app import create_app
 
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
+from app import scheduler
 
 from .comet_forms import (
     SearchCometForm,
@@ -43,13 +43,12 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
     common_chart_pdf_img,
     get_trajectory_time_delta,
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.comet_loader import import_update_comets
+from app.commons.comet_loader import import_update_comets, update_comets_cobs_observations, update_evaluated_comet_brightness
 from app.commons.utils import to_float
 
 from app.models import (
@@ -61,7 +60,22 @@ main_comet = Blueprint('main_comet', __name__)
 
 all_comets_expiration = datetime.now() + timedelta(days=1)
 all_comets = None
-creation_running = False
+
+
+def _update_comets_cobs_observations():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        update_comets_cobs_observations()
+
+
+def _update_evaluated_comet_brightness():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        update_evaluated_comet_brightness()
+
+
+job1 = scheduler.add_job(_update_comets_cobs_observations, 'interval', hours=12, replace_existing=True)
+job2 = scheduler.add_job(_update_evaluated_comet_brightness, 'interval', days=5, replace_existing=True)
 
 
 def _get_mag_coma_from_observations(observs):
@@ -86,64 +100,9 @@ def _get_mag_coma_from_observations(observs):
     return mag, coma_diameter
 
 
-def _load_comet_brightness(all_comets, fname):
-    with open(fname, 'r') as f:
-        lines = f.readlines()
-    for line in lines:
-        comet_id, str_mag = line.split(' ')
-        after = datetime.today() - timedelta(days=31)
-        comet = Comet.query.filter_by(comet_id=comet_id).first()
-        str_coma_diameter = '-'
-        real_mag = False
-        if comet:
-            observs = CometObservation.query.filter_by(comet_id=comet.id)\
-                .filter(CometObservation.date >= after) \
-                .order_by(CometObservation.date.desc()).all()[:5]
-            if len(observs) > 0:
-                mag, coma_diameter = _get_mag_coma_from_observations(observs)
-                str_mag = '{:.1f}'.format(mag) if mag is not None else ''
-                str_coma_diameter = '{:.1f}\''.format(coma_diameter) if coma_diameter is not None else '-'
-                current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, str_mag, str_coma_diameter))
-                real_mag = True
-        try:
-            all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag)
-            all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = str_coma_diameter
-            all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
-        except Exception:
-            pass
-
-
-def _create_comet_evaluated_brighness_file(all_comets, fname):
-    global creation_running
-    ts = load.timescale(builtin=True)
-    eph = load('de421.bsp')
-    sun, earth = eph['sun'], eph['earth']
-    mags = []
-    t = ts.now()
-    with open(fname, 'w') as f:
-        for index, mpc_comet in all_comets.iterrows():
-            m = 22.0
-            try:
-                skf_comet = sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN)
-                dist_earth = earth.at(t).observe(skf_comet).distance().au
-                dist_sun = sun.at(t).observe(skf_comet).distance().au
-                if dist_earth < 10.0:
-                    m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
-                    print('Comet: {} de={} ds={} m={} g={}'.format(mpc_comet['designation'], dist_earth, dist_sun, m, mpc_comet['magnitude_k']), flush=True)
-
-            except Exception:
-                pass
-            f.write(mpc_comet['comet_id'] + ' ' + str(m) + '\n')
-            mags.append(m)
-
-    all_comets['mag'] = mags
-    creation_running = False
-
-
 def get_all_comets():
     global all_comets
     global all_comets_expiration
-    global creation_running
     now = datetime.now()
     if all_comets is None or now > all_comets_expiration:
         all_comets_expiration = now + timedelta(days=1)
@@ -165,17 +124,26 @@ def get_all_comets():
 
             import_update_comets(all_comets, False)
 
-        # brightness file expires after 5 days
-        fname = os.path.join(current_app.config.get('USER_DATA_DIR'), 'comets_brightness.txt')
+        for comet in Comet.query.filter_by().all():
+            after = datetime.today() - timedelta(days=31)
+            mag, coma_diameter = comet.eval_mag, None
+            real_mag = False
+            observs = CometObservation.query.filter_by(comet_id=comet.id) \
+                .filter(CometObservation.date >= after) \
+                .order_by(CometObservation.date.desc()).all()[:5]
 
-        if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) + timedelta(days=5) < all_comets_expiration) and not creation_running:
-            all_comets.loc[:, 'mag'] = 22.0
-            all_comets.loc[:, 'real_mag'] = False
-            creation_running = True
-            thread = threading.Thread(target=_create_comet_evaluated_brighness_file, args=(all_comets, fname,))
-            thread.start()
-        else:
-            _load_comet_brightness(all_comets, fname)
+            comet_id = comet.comet_id
+            if len(observs) > 0:
+                mag, coma_diameter = _get_mag_coma_from_observations(observs)
+                current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, mag, coma_diameter))
+                real_mag = True
+            try:
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float('{:.1f}'.format(mag)) if mag else None
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = '{:.1f}\''.format(coma_diameter) if coma_diameter else None
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
+            except Exception:
+                pass
+
     return all_comets
 
 

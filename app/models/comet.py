@@ -25,6 +25,7 @@ class Comet(db.Model):
     magnitude_g = db.Column(db.Float)
     magnitude_k = db.Column(db.Float)
     reference = db.Column(db.String(30))
+    eval_mag = db.Column(db.Float)
 
 
 class CometObservation(db.Model):

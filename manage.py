@@ -50,7 +50,6 @@ from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc
 
-from app.main.solarsystem.comet_cobs_update import update_comets_observations
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -201,9 +200,11 @@ def import_minor_planets():
 
 
 @manager.command
-def tmp_import_comets():
+def import_comets():
     all_mpc_comets = load_all_mpc_comets()
-    import_update_comets(all_mpc_comets, show_progres=True)
+    import_update_comets(all_mpc_comets, show_progress=True)
+    update_evaluated_comet_brightness(all_comets=all_mpc_comets, show_progress=True)
+    update_comets_cobs_observations()
 
 
 @manager.command
@@ -356,11 +357,6 @@ def tmp_import_pgc():
 @manager.command
 def tmp_constellations():
     import_constellations('data/88-constellations.csv')
-
-
-@manager.command
-def update_comets_obs():
-    update_comets_observations()
 
 
 if __name__ == '__main__':
