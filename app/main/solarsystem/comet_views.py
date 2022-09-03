@@ -94,6 +94,7 @@ def _load_comet_brightness(all_comets, fname):
         after = datetime.today() - timedelta(days=31)
         comet = Comet.query.filter_by(comet_id=comet_id).first()
         str_coma_diameter = '-'
+        real_mag = False
         if comet:
             observs = CometObservation.query.filter_by(comet_id=comet.id)\
                 .filter(CometObservation.date >= after) \
@@ -103,9 +104,11 @@ def _load_comet_brightness(all_comets, fname):
                 str_mag = '{:.1f}'.format(mag) if mag is not None else ''
                 str_coma_diameter = '{:.1f}\''.format(coma_diameter) if coma_diameter is not None else '-'
                 current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, str_mag, str_coma_diameter))
+                real_mag = True
         try:
             all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag)
             all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = str_coma_diameter
+            all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
         except Exception:
             pass
 
@@ -167,6 +170,7 @@ def get_all_comets():
 
         if (not os.path.isfile(fname) or datetime.fromtimestamp(os.path.getctime(fname)) + timedelta(days=5) < all_comets_expiration) and not creation_running:
             all_comets.loc[:, 'mag'] = 22.0
+            all_comets.loc[:, 'real_mag'] = False
             creation_running = True
             thread = threading.Thread(target=_create_comet_evaluated_brighness_file, args=(all_comets, fname,))
             thread.start()
@@ -306,6 +310,11 @@ def comet_cobs_observations(comet_id):
     last_mag, last_coma_diameter = None, None
     if len(cobs_observations) > 0:
         last_mag, last_coma_diameter = _get_mag_coma_from_observations(cobs_observations)
+
+    if last_mag is None:
+        last_mag = '-'
+    if last_coma_diameter is None:
+        last_coma_diameter = '-'
 
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),

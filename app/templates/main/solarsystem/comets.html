@@ -41,7 +41,9 @@
                             {% set comet_url = url_for('main_comet.comet_info', comet_id=row['comet_id']) %}
                             <tr onclick="window.location.href = '{{ comet_url }}';">
                                 <td><a href="{{ comet_url }}">{{ row['designation'] }}</a></td>
-                                <td>{{ row['mag'] | round(1) }}</td>
+                                <td>
+                                    {{ row['mag'] | round(1) }} {% if not row['real_mag'] %}*{% endif %}
+                                </td>
                                 <td>{{ row['coma_diameter'] }}</td>
                             </tr>
                         {% endfor %}
