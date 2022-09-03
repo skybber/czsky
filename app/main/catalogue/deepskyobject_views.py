@@ -341,8 +341,8 @@ def deepskyobject_info(dso_id):
     if editor_user:
         user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
         user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-                        .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
-                        .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
+            .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
+            .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
         for apdescr in user_apert_descrs:
             if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
                 if apdescr.aperture_class == '<100':
@@ -380,12 +380,14 @@ def deepskyobject_info(dso_id):
         observed_list = [observed_item.dso_id] if observed_item is not None else []
 
         if embed != 'pl':
-            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+                .order_by(SessionPlan.for_date.desc()).all()
     else:
         if embed != 'pl':
             session_plan_id = session.get('session_plan_id')
             if session_plan_id:
-                offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
+                offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id) \
+                    .order_by(SessionPlan.for_date.desc()).all()
 
     has_observations = _has_dso_observations(dso, orig_dso)
 
