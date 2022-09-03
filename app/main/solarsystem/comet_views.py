@@ -279,9 +279,14 @@ def comet_cobs_observations(comet_id):
     if len(cobs_observations) > 0:
         last_mag, last_coma_diameter = _get_mag_coma_from_observations(cobs_observations)
 
-    if last_mag is None:
+    if last_mag is not None:
+        last_mag = '{:.2f}'.format(last_mag)
+    else:
         last_mag = '-'
-    if last_coma_diameter is None:
+
+    if last_coma_diameter is not None:
+        last_coma_diameter = '{:.2f}'.format(last_coma_diameter)
+    else:
         last_coma_diameter = '-'
 
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
