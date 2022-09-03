@@ -178,10 +178,9 @@ def minor_planet_info(minor_planet_id):
             trajectory = []
             hr_count = 0
             while d1 <= d2:
-                hr = hr_count % 24
                 t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
                 ra, dec, distance = earth.at(t).observe(c).radec()
-                fmt = '%d.%m.' if hr_count == 0 else '%d.%m. %H:00'
+                fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
                 trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
                 if d1 == d2:
                     break
