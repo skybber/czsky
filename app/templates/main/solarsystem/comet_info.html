@@ -40,27 +40,30 @@
         <tr><td class="three wide">{{ _('Coma diameter') }}</td><td>{{ last_coma_diameter }}</td></tr>
     </table>
     <div style="overflow-x: scroll;width: 100%">
-        <table class="ui searchable sortable unstackable selectable celled table">
-            <thead>
-                <tr>
-                    <th>{{ _('Date') }}</th>
-                    <th>{{ _('Brightness') }}</th>
-                    <th>{{ _('Size') }}</th>
-                    <th>{{ _('Notes') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for i, obs in cobs_observations %}
-                <tr>
-                    <td>{{ obs.date.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ obs.mag }}</td>
-                    <td>{{ obs.coma_diameter }}</td>
-                    <td>{{ obs.notes }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+        <form action="{{ url_for('main_comet.comet_cobs_observations', comet_id=comet.comet_id) }}" method="post" name="search">
+            <table class="ui searchable sortable unstackable selectable celled table">
+                <thead>
+                    <tr>
+                        <th>{{ _('Date') }}</th>
+                        <th>{{ _('Brightness') }}</th>
+                        <th>{{ _('Size') }}</th>
+                        <th>{{ _('Notes') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for i, obs in cobs_observations %}
+                    <tr>
+                        <td>{{ obs.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ obs.mag }}</td>
+                        <td>{{ obs.coma_diameter }}</td>
+                        <td>{{ obs.notes }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+        </form>
     </div>
     <p>
     </p>
