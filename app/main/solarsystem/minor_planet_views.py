@@ -166,26 +166,29 @@ def minor_planet_info(minor_planet_id):
         minor_planet_ra_ang, minor_planet_dec_ang, distance = earth.at(t).observe(c).radec()
         trajectory_b64 = None
     else:
-        d1 = date(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
-        d2 = date(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
+        d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
+        d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
         t = ts.now()
         minor_planet_ra_ang, minor_planet_dec_ang, distance = earth.at(t).observe(c).radec()
         if d1 != d2:
             time_delta = d2 - d1
             if time_delta.days > 365:
                 d2 = d1 + timedelta(days=365)
-            dt = get_trajectory_time_delta(d1, d2)
+            dt, hr_step = get_trajectory_time_delta(d1, d2)
             trajectory = []
+            hr_count = 0
             while d1 <= d2:
-                t = ts.utc(d1.year, d1.month, d1.day)
+                hr = hr_count % 24
+                t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
                 ra, dec, distance = earth.at(t).observe(c).radec()
-                trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
+                fmt = '%d.%m.' if hr_count == 0 else '%d.%m. %H:00'
+                trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
                 if d1 == d2:
                     break
-                d1 += dt # timedelta(days=1)
+                d1 += dt  # timedelta(days=1)
+                hr_count += hr_step
                 if d1 > d2:
                     d1 = d2
-            t = ts.utc(d1.year, d1.month, d1.day)
             trajectory_json = json.dumps(trajectory)
             trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
         else:

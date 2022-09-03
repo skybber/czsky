@@ -88,7 +88,7 @@ def planet_info(planet_name):
             time_delta = d2 - d1
             if time_delta.days > 365:
                 d2 = d1 + timedelta(days=365)
-            dt = get_trajectory_time_delta(d1, d2)
+            dt, hr_step = get_trajectory_time_delta(d1, d2)
             trajectory = []
             while d1 <= d2:
                 t = ts.utc(d1.year, d1.month, d1.day)

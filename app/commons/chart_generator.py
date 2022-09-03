@@ -834,10 +834,16 @@ def common_equipment():
 def get_trajectory_time_delta(d1, d2):
     delta = d2 - d1
     if delta.days > 120:
-        return timedelta(days=30)
+        return timedelta(days=30), 0
     if delta.days > 30:
-        return timedelta(days=7)
-    return timedelta(days=1)
+        return timedelta(days=7), 0
+    if delta.days > 4:
+        return timedelta(days=1), 0
+    if delta.days > 2:
+        return timedelta(hours=12), 12
+    if delta.days > 1:
+        return timedelta(hours=6), 6
+    return timedelta(hours=3), 3
 
 
 def common_set_initial_ra_dec(form):
