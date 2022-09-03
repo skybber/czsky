@@ -35,6 +35,10 @@ class SearchCometForm(FlaskForm):
     items_per_page = IntegerField(lazy_gettext('Items per page'))
 
 
+class SearchCobsForm(FlaskForm):
+    items_per_page = IntegerField(lazy_gettext('Items per page'))
+
+
 class CometFindChartForm(ChartForm):
     date_from = DateField(lazy_gettext('From'), id='datefrom', format = '%d/%m/%Y', default = None)
     date_to = DateField(lazy_gettext('To'), id='dateto', format = '%d/%m/%Y', default = None)

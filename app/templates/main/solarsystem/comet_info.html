@@ -1,9 +1,11 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/common_macros.html' as commons %}
 
 {% set endpoints = [
-    ('main_comet.comet_info', 'Info', 'info')
+    ('main_comet.comet_info', 'Info', 'info'),
+    ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
 ] %}
 
 {% macro navigation(items) %}
@@ -30,12 +32,47 @@
     }}
 {% endmacro %}
 
+{# --- COBS observations --- #}
+{% macro comet_cobs_observations() %}
+    Credit: COBS Comet Observation Database – CC BY-NA-SA 4.0”
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('Mag') }}</td><td>{{ last_mag }}</td></tr>
+        <tr><td class="three wide">{{ _('Coma diameter') }}</td><td>{{ last_coma_diameter }}</td></tr>
+    </table>
+    <div style="overflow-x: scroll;width: 100%">
+        <table class="ui searchable sortable unstackable selectable celled table">
+            <thead>
+                <tr>
+                    <th>{{ _('Date') }}</th>
+                    <th>{{ _('Brightness') }}</th>
+                    <th>{{ _('Size') }}</th>
+                    <th>{{ _('Notes') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i, obs in cobs_observations %}
+                <tr>
+                    <td>{{ obs.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ obs.mag }}</td>
+                    <td>{{ obs.coma_diameter }}</td>
+                    <td>{{ obs.notes }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+    </div>
+    <p>
+    </p>
+{% endmacro %}
+
 {# --- Catalogue Data --- #}
 {% macro comet_catalogue_data() %}
 {% endmacro %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
+
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -63,6 +100,8 @@
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
                 {{ comet_info() }}
+            {% elif type == 'cobs_observations' %}
+                {{ comet_cobs_observations() }}
             {% else %}
                 {{ comet_info() }}
                 {# {{ comet_catalogue_data() }} #}

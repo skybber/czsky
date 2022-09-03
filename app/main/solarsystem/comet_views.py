@@ -35,6 +35,7 @@ from app.commons.search_utils import process_paginated_session_search, get_items
 
 from .comet_forms import (
     SearchCometForm,
+    SearchCobsForm,
     CometFindChartForm,
 )
 
@@ -63,6 +64,28 @@ all_comets = None
 creation_running = False
 
 
+def _get_mag_coma_from_observations(observs):
+    mag, coma_diameter = None, None
+    if len(observs) > 0:
+        n = 1
+        mag = observs[0].mag
+        coma_diameter = observs[0].coma_diameter
+        first_dt = observs[0].date
+        for o in observs[1:5]:
+            if (first_dt - o.date).days > 2:
+                break
+            n += 1
+            mag += o.mag
+            if o.coma_diameter is not None:
+                coma_diameter = (coma_diameter + o.coma_diameter) if coma_diameter is not None else o.coma_diameter
+        if mag is not None:
+            mag = mag / n
+        if coma_diameter is not None:
+            coma_diameter = coma_diameter / n
+
+    return mag, coma_diameter
+
+
 def _load_comet_brightness(all_comets, fname):
     with open(fname, 'r') as f:
         lines = f.readlines()
@@ -72,23 +95,13 @@ def _load_comet_brightness(all_comets, fname):
         comet = Comet.query.filter_by(comet_id=comet_id).first()
         str_coma_diameter = '-'
         if comet:
-            obsers = CometObservation.query.filter_by(comet_id=comet.id)\
+            observs = CometObservation.query.filter_by(comet_id=comet.id)\
                 .filter(CometObservation.date >= after) \
                 .order_by(CometObservation.date.desc()).all()[:5]
-            if len(obsers) > 0:
-                n = 1
-                mag = obsers[0].mag
-                coma_diameter = obsers[0].coma_diameter
-                first_dt = obsers[0].date
-                for o in obsers[1:]:
-                    if (first_dt - o.date).days > 2:
-                        break
-                    n += 1
-                    mag += o.mag
-                    if o.coma_diameter is not None:
-                        coma_diameter = (coma_diameter + o.coma_diameter) if coma_diameter is not None else o.coma_diameter
-                str_mag = '{:.1f}'.format(mag / n)
-                str_coma_diameter = '{:.1f}\''.format(coma_diameter / n) if coma_diameter is not None else '-'
+            if len(observs) > 0:
+                mag, coma_diameter = _get_mag_coma_from_observations(observs)
+                str_mag = '{:.1f}'.format(mag) if mag is not None else ''
+                str_coma_diameter = '{:.1f}\''.format(coma_diameter) if coma_diameter is not None else '-'
                 current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, str_mag, str_coma_diameter))
         try:
             all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float(str_mag)
@@ -257,6 +270,46 @@ def comet_info(comet_id):
 
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64)
+
+
+@main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
+def comet_cobs_observations(comet_id):
+    """View a comet observations from cobs."""
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    search_form = SearchCobsForm()
+
+    ret, page, _ = process_paginated_session_search('cobs_observs_page', None, [
+        ('items_per_page', search_form.items_per_page)
+    ])
+
+    if not ret:
+        return redirect(url_for('main_comet.comet_cobs_observations', comet_id=comet_id))
+
+    cobs_observations = CometObservation.query.filter_by(comet_id=comet.id) \
+        .order_by(CometObservation.date.desc()).all()
+
+    per_page = get_items_per_page(search_form.items_per_page)
+
+    page_offset = (page - 1) * per_page
+
+    if page_offset < len(cobs_observations):
+        page_items = cobs_observations[page_offset:page_offset + per_page]
+    else:
+        page_items = []
+
+    pagination = Pagination(page=page, per_page=per_page, total=len(cobs_observations), search=False, record_name='cobs_observs',
+                            css_framework='semantic', not_passed_args='back',)
+
+    last_mag, last_coma_diameter = None, None
+    if len(cobs_observations) > 0:
+        last_mag, last_coma_diameter = _get_mag_coma_from_observations(cobs_observations)
+
+    return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
+                           last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
+                           page_offset=page_offset, pagination=pagination, search_form=search_form)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
