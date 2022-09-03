@@ -48,12 +48,13 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.comet_loader import import_update_comets, update_comets_cobs_observations, update_evaluated_comet_brightness
+from app.commons.comet_loader import import_update_comets, update_comets_cobs_observations, update_evaluated_comet_brightness, update_comets_positions
 from app.commons.utils import to_float
 
 from app.models import (
     Comet,
-    CometObservation
+    CometObservation,
+    Constellation,
 )
 
 main_comet = Blueprint('main_comet', __name__)
@@ -74,8 +75,15 @@ def _update_evaluated_comet_brightness():
         update_evaluated_comet_brightness()
 
 
+def _update_comets_positions():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        update_comets_positions()
+
+
 job1 = scheduler.add_job(_update_comets_cobs_observations, 'interval', hours=12, replace_existing=True)
 job2 = scheduler.add_job(_update_evaluated_comet_brightness, 'interval', days=5, replace_existing=True)
+job3 = scheduler.add_job(_update_comets_positions, 'interval', hours=3, replace_existing=True)
 
 
 def _get_mag_coma_from_observations(observs):
@@ -140,7 +148,10 @@ def get_all_comets():
             try:
                 all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float('{:.1f}'.format(mag)) if mag else None
                 all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = '{:.1f}\''.format(coma_diameter) if coma_diameter else '-'
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_ra'] = comet.cur_ra_str_short()
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_dec'] = comet.cur_dec_str_short()
+                constell = Constellation.get_constellation_by_id(comet.cur_constell_id)
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_constell'] = constell.iau_code if constell is not None else ''
             except Exception:
                 pass
 

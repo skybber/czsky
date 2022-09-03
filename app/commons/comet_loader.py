@@ -9,6 +9,7 @@ import numpy as np
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
+from skyfield.api import position_from_radec, load_constellation_map
 
 from flask import (
     current_app,
@@ -18,6 +19,7 @@ from app import db
 from app.models import (
     Comet,
     CometObservation,
+    Constellation,
 )
 from imports.import_utils import progress
 
@@ -54,6 +56,18 @@ def _save_comets(comets, show_progress, progress_title):
 
 def import_update_comets(all_mpc_comets, show_progress=False):
     comets = []
+
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    t = ts.now()
+
+    sun, earth = eph['sun'], eph['earth']
+    constellation_at = load_constellation_map()
+    constell_dict = {}
+
+    for co in Constellation.query.all():
+        constell_dict[co.iau_code.upper()] = co.id
+
     for index, mpc_comet in all_mpc_comets.iterrows():
         comet_id = mpc_comet['comet_id']
         
@@ -61,7 +75,19 @@ def import_update_comets(all_mpc_comets, show_progress=False):
         if comet is None:
             comet = Comet()
             comet.comet_id = comet_id
-            
+
+            skf_comet = sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN)
+            dist_earth = earth.at(t).observe(skf_comet).distance().au
+            dist_sun = sun.at(t).observe(skf_comet).distance().au
+            m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
+            comet.eval_mag = m
+
+            comet_ra_ang, comet_dec_ang, distance = skf_comet.radec()
+            comet.cur_ra = comet_ra_ang.radians
+            comet.cur_dec = comet_dec_ang.radians
+            const_code = constellation_at(position_from_radec(comet_ra_ang.radians / np.pi * 12.0, comet_dec_ang.radians / np.pi * 180.0))
+            comet.cur_constell_id = constell_dict[const_code.upper()] if const_code else None
+
         comet.designation = mpc_comet['designation']
         comet.number = mpc_comet['number']
         comet.orbit_type = mpc_comet['orbit_type']
@@ -92,6 +118,7 @@ def update_evaluated_comet_brightness(all_comets=None, show_progress=False):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
     t = ts.now()
+
     comets = []
     for index, mpc_comet in all_comets.iterrows():
         m = 22.0
@@ -198,3 +225,37 @@ def update_comets_cobs_observations():
                                             current_app.logger.warn('Can\'t find comet={}'.format(comet_name))
 
     current_app.logger.info('Comets\' cobs observations loaded.')
+
+
+def update_comets_positions(all_comets=None, show_progress=False):
+    if all_comets is None:
+        all_comets = load_all_mpc_comets()
+
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    t = ts.now()
+
+    sun, earth = eph['sun'], eph['earth']
+    constellation_at = load_constellation_map()
+    constell_dict = {}
+
+    for co in Constellation.query.all():
+        constell_dict[co.iau_code.upper()] = co.id
+
+    comets = []
+
+    for db_comet in Comet.query.all():
+        c = all_comets.loc[all_comets['comet_id'] == db_comet.comet_id]
+        mpc_comet = c.iloc[0] if len(c) > 0 else None
+        if mpc_comet is not None:
+            skf_comet = sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN)
+            comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(skf_comet).radec()
+            db_comet.cur_ra = comet_ra_ang.radians
+            db_comet.cur_dec = comet_dec_ang.radians
+            const_code = constellation_at(position_from_radec(comet_ra_ang.radians / np.pi * 12.0, comet_dec_ang.radians / np.pi * 180.0))
+            db_comet.cur_constell_id = constell_dict[const_code.upper()] if const_code else None
+
+            comets.append(db_comet)
+
+    _save_comets(comets, show_progress, 'Saving comets...')
+    current_app.logger.info('Comets\' positions updated.')

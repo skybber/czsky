@@ -32,6 +32,9 @@
                         <thead>
                             <tr>
                                 <th>{{ _('Name') }}</th>
+                                <th class="mobile hidden">RA</th>
+                                <th class="mobile hidden">Dec</th>
+                                <th><i class="lastfm icon"></i></th>
                                 <th>{{ _('Brightness') }}</th>
                                 <th>{{ _('Size') }}</th>
                             </tr>
@@ -41,6 +44,9 @@
                             {% set comet_url = url_for('main_comet.comet_info', comet_id=row['comet_id']) %}
                             <tr onclick="window.location.href = '{{ comet_url }}';">
                                 <td><a href="{{ comet_url }}">{{ row['designation'] }}</a></td>
+                                <td class="mobile hidden">{{ row['cur_ra'] }}</td>
+                                <td class="mobile hidden">{{ row['cur_dec'] }}</td>
+                                <td>{{ row['cur_constell'] }}</td>
                                 <td>
                                     {{ row['mag'] | round(1) }} {% if not row['real_mag'] %}*{% endif %}
                                 </td>

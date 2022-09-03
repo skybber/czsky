@@ -2,6 +2,8 @@ from datetime import datetime
 
 from .. import db
 
+from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
+
 
 class Comet(db.Model):
     __tablename__ = 'comets'
@@ -26,6 +28,21 @@ class Comet(db.Model):
     magnitude_k = db.Column(db.Float)
     reference = db.Column(db.String(30))
     eval_mag = db.Column(db.Float)
+    cur_ra = db.Column(db.Float)
+    cur_dec = db.Column(db.Float)
+    cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
+
+    def cur_ra_str(self):
+        return ra_to_str(self.cur_ra) if self.cur_ra is not None else ''
+
+    def cur_dec_str(self):
+        return dec_to_str(self.cur_dec) if self.cur_dec is not None else ''
+
+    def cur_ra_str_short(self):
+        return ra_to_str_short(self.cur_ra) if self.cur_ra is not None else ''
+
+    def cur_dec_str_short(self):
+        return dec_to_str_short(self.cur_dec) if self.cur_dec is not None else ''
 
 
 class CometObservation(db.Model):

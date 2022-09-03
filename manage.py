@@ -205,6 +205,7 @@ def import_comets():
     import_update_comets(all_mpc_comets, show_progress=True)
     update_evaluated_comet_brightness(all_comets=all_mpc_comets, show_progress=True)
     update_comets_cobs_observations()
+    update_comets_positions()
 
 
 @manager.command
@@ -363,6 +364,11 @@ def tmp_constellations():
 def tmp_update_comets_obs():
     CometObservation.query.delete()
     update_comets_cobs_observations()
+
+
+@manager.command
+def tmp_update_comets_positions():
+    update_comets_positions()
 
 
 if __name__ == '__main__':
