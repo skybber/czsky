@@ -359,5 +359,11 @@ def tmp_constellations():
     import_constellations('data/88-constellations.csv')
 
 
+@manager.command
+def tmp_update_comets_obs():
+    CometObservation.query.delete()
+    update_comets_cobs_observations()
+
+
 if __name__ == '__main__':
     manager.run()

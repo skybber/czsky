@@ -151,7 +151,7 @@ def update_comets_cobs_observations():
                                     mags = re.findall(r'\d+(?:\.\d*)?', obs_items[1])
                                     mag = float(mags[0]) if len(mags) > 0 else None
                                     diams = obs_items[2].strip()
-                                    notes = obs_parts[1][:obs_parts[1].index(')')]
+                                    notes = obs_parts[1][:obs_parts[1].index(';')-1]
 
                                     coma_diameter = None
                                     if diams != '':
