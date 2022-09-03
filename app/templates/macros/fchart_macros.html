@@ -111,6 +111,10 @@
                     data-inverted="" data-tooltip="{{ _('Constellation borders')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="draw polygon icon"></i>
               </button>
+              <button class="ui toggle icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid"
+                    data-inverted="" data-tooltip="{{ _('Equatorial grid')}}" data-position="bottom center" data-variation="tiny basic">
+                  <i class="globe icon"></i>
+              </button>
               <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso"
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
