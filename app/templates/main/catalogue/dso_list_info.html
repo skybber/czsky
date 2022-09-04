@@ -73,35 +73,41 @@
             <thead>
                 <tr>
                     <th class="collapsing">
-                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['item_id'].sort) }}" style="color: inherit;">N</a>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['item_id'].sort) }}" style="color: inherit;">
+                            N {{ table_sort['item_id'].icon | safe }}
+                        </a>
                     </th>
                     {% if observed %}
                     <th class="collapsing mobile hidden"></th>
                     {% endif %}
                     <th>
                         <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['name'].sort) }}" style="color: inherit;">
-                            {{ _('Name') }}
+                            {{ _('Name') }} {{ table_sort['name'].icon | safe }}
                         </a>
                     </th>
                     {% if dso_list.show_common_name %}
                         <th class="mobile hidden">
                             <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['common_name'].sort) }}" style="color: inherit;">
-                                {{ _('Common name') }}
+                                {{ _('Common name') }} {{ table_sort['common_name'].icon | safe }}
                             </a>
                         </th>
                     {% endif %}
                     {% if dso_list.show_dso_type %}
                         <th>
                             <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['type'].sort) }}" style="color: inherit;">
-                                {{ _('Type') }}
+                                {{ _('Type') }} {{ table_sort['type'].icon | safe }}
                             </a>
                         </th>
                     {% endif %}
                     <th class="mobile hidden">
-                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['ra'].sort) }}" style="color: inherit;">RA</a>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
+                            RA {{ table_sort['ra'].icon | safe }}
+                        </a>
                     </th>
                     <th class="mobile hidden">
-                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['dec'].sort) }}" style="color: inherit;">Dec</a>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
+                            Dec {{ table_sort['dec'].icon | safe }}
+                        </a>
                     </th>
                     <th>
                         <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
@@ -109,7 +115,9 @@
                         </a>
                     </th>
                     <th class="right aligned">
-                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['mag'].sort) }}" style="color: inherit;">mag</a>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['mag'].sort) }}" style="color: inherit;">
+                            mag {{ table_sort['mag'].icon | safe }}
+                        </a>
                     </th>
                     {% if dso_list.show_angular_size %}
                         <th class="right aligned mobile hidden">
