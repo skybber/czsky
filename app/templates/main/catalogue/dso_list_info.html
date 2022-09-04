@@ -38,30 +38,85 @@
             {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
             <div class="top right aligned floating ui label">{{ _('Season') }}</div>
         </div>
+        <div class="ui input item">
+            {{ search_form.maglim(size=4) }}
+            {% if search_form.maglim.errors %}
+                <div class="bottom aligned red pointing floating ui label">
+                    {{ search_form.maglim.errors[0] | safe }}
+                </div>
+            {% endif %}
+            <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+        </div>
+
+        <div class="ui input item">
+            {{ search_form.dec_min(size=4) }}
+            {% if search_form.dec_min.errors %}
+                <div class="bottom left aligned red pointing floating ui label">
+                    {{ search_form.dec_min.errors[0] | safe }}
+                </div>
+            {% endif %}
+            <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+        </div>
+        <div class="ui right search item">
+            <div class="ui action input">
+                {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                <button class="ui icon button">
+                    <i class="search icon"></i>
+                </button>
+            </div>
+        </div>
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
     </form>
 
     <div style="overflow-x: scroll;">
-        <table class="ui searchable sortable unstackable selectable celled table">
+        <table class="ui searchable unstackable selectable celled table">
             <thead>
                 <tr>
-                    <th class="sorted ascending collapsing">N</th>
+                    <th class="collapsing">
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['item_id'].sort) }}" style="color: inherit;">N</a>
+                    </th>
                     {% if observed %}
                     <th class="collapsing mobile hidden"></th>
                     {% endif %}
-                    <th class="sorted ascending">{{ _('Name') }}</th>
+                    <th>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['name'].sort) }}" style="color: inherit;">
+                            {{ _('Name') }}
+                        </a>
+                    </th>
                     {% if dso_list.show_common_name %}
-                        <th class="mobile hidden">{{ _('Common name') }}</th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['common_name'].sort) }}" style="color: inherit;">
+                                {{ _('Common name') }}
+                            </a>
+                        </th>
                     {% endif %}
                     {% if dso_list.show_dso_type %}
-                        <th>{{ _('Type') }}</th>
+                        <th>
+                            <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['type'].sort) }}" style="color: inherit;">
+                                {{ _('Type') }}
+                            </a>
+                        </th>
                     {% endif %}
-                    <th class="mobile hidden">RA</th>
-                    <th class="mobile hidden">Dec</th>
-                    <th><i class="lastfm icon"></i></th>
-                    <th class="right aligned">mag</th>
+                    <th class="mobile hidden">
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['ra'].sort) }}" style="color: inherit;">RA</a>
+                    </th>
+                    <th class="mobile hidden">
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['dec'].sort) }}" style="color: inherit;">Dec</a>
+                    </th>
+                    <th>
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                            <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
+                        </a>
+                    </th>
+                    <th class="right aligned">
+                        <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['dec'].sort) }}" style="color: inherit;">mag</a>
+                    </th>
                     {% if dso_list.show_angular_size %}
-                        <th class="right aligned mobile hidden">{{ _('Size') }}</th>
+                        <th class="right aligned mobile hidden">
+                            <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['major_axis'].sort) }}" style="color: inherit;">
+                                Ø {{ table_sort['major_axis'].icon | safe }}
+                            </a>
+                        </th>
                     {% endif %}
                 </tr>
             </thead>

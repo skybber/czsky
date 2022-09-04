@@ -45,7 +45,7 @@ class Constellation(db.Model):
 
     @classmethod
     def get_season_constell_ids(cls, season):
-        if season is not None:
+        if season and season != 'All':
             constell_ids = set()
             for constell_id in db.session.query(Constellation.id).filter(Constellation.season == season):
                 constell_ids.add(constell_id[0])
