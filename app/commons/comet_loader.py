@@ -82,7 +82,7 @@ def import_update_comets(all_mpc_comets, show_progress=False):
             m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
             comet.eval_mag = m
 
-            comet_ra_ang, comet_dec_ang, distance = skf_comet.radec()
+            comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(skf_comet).radec()
             comet.cur_ra = comet_ra_ang.radians
             comet.cur_dec = comet_dec_ang.radians
             const_code = constellation_at(position_from_radec(comet_ra_ang.radians / np.pi * 12.0, comet_dec_ang.radians / np.pi * 180.0))
