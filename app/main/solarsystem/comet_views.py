@@ -152,6 +152,7 @@ def get_all_comets():
                 all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_dec'] = comet.cur_dec_str_short()
                 constell = Constellation.get_constellation_by_id(comet.cur_constell_id)
                 all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_constell'] = constell.iau_code if constell is not None else ''
+                all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
             except Exception:
                 pass
 
