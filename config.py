@@ -80,6 +80,8 @@ class Config:
 
     LANGUAGES = ['en', 'cs']
 
+    CHART_FONT = os.environ.get('CHART_FONT')
+
     @staticmethod
     def init_app(app):
         pass
