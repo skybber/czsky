@@ -229,7 +229,7 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     if font is None:
         font = 'sans'
     config.font = font
-    config.font_size = 3.0
+    config.font_size = 3.3
 
     if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
