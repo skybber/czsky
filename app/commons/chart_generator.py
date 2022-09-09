@@ -60,7 +60,12 @@ NO_FREE_MEM_CYCLES = 500
 
 FORCE_SHOWING_DSOS = ['NGC 1909', 'IC443']
 
+ADD_SHOW_CATALOGS = ['Berk', 'King']
+
 PICKER_RADIUS = 4.0
+
+DEFAULT_SCREEN_FONT_SIZE = 3.3
+DEFAULT_PDF_FONT_SIZE = 2.9
 
 chart_font_face = None
 chart_font_face_initialized = False
@@ -112,7 +117,7 @@ def _load_used_catalogs():
                                              limiting_magnitude_deepsky=100.0,
                                              force_asterisms=False,
                                              force_unknown=False,
-                                             show_catalogs=[],
+                                             show_catalogs=ADD_SHOW_CATALOGS,
                                              use_pgc_catalog=True)
         global dso_name_cache
         dso_name_cache = {}
@@ -216,7 +221,7 @@ def _setup_light_theme(config, width):
     config.picker_color = (0.2, 0.2, 0.0)
 
 
-def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
+def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False):
     config.constellation_linewidth = 0.5
     config.constellation_linewidth = 0.3
     config.open_cluster_linewidth = 0.3
@@ -225,11 +230,12 @@ def _setup_skymap_graphics(config, fld_size, width, force_light_mode=False):
     config.dso_linewidth = 0.4
     config.legend_linewidth = 0.2
     config.no_margin = True
+    config.bayer_label_font_fac = 1.2
     font = _get_chart_font_face()
     if font is None:
         font = 'sans'
     config.font = font
-    config.font_size = 3.3
+    config.font_size = font_size
 
     if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
@@ -544,7 +550,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width)
+    _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
@@ -633,7 +639,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, None, True)
+    _setup_skymap_graphics(config, fld_size, None, DEFAULT_PDF_FONT_SIZE, True)
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
@@ -708,7 +714,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width)
+    _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
