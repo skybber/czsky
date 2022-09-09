@@ -128,6 +128,13 @@
                             </a>
                         </th>
                     {% endif %}
+                    {% if dso_list.show_distance %}
+                        <th class="right aligned mobile hidden">
+                            <a href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, page=1, sortby=table_sort['distance'].sort) }}" style="color: inherit;">
+                                {{ _('Distance') }} {{ table_sort['distance'].icon | safe }}
+                            </a>
+                        </th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -177,6 +184,11 @@
                               {% endif %}
                           {% endif %}
                       </td>
+                    {% endif %}
+                    {% if dso_list.show_distance %}
+                        <td class="right aligned mobile hidden">
+                            {{ commons.convert_distance(item.deepskyObject.distance) }}
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}

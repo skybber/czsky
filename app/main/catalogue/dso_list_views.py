@@ -108,6 +108,7 @@ def dso_list_info(dso_list_id):
                  'constellation': DeepskyObject.constellation_id,
                  'mag': DeepskyObject.mag,
                  'major_axis': DeepskyObject.major_axis,
+                 'distance': DeepskyObject.distance,
                  }
 
     ret, page, sort_by = process_paginated_session_search('dso_list_search_page', 'dso_list_sort_by', [

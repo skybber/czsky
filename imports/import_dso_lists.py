@@ -196,7 +196,9 @@ def import_caldwell(caldwell_data_file):
         print('') # finish on new line
 
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name=True, show_dso_type=False, show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False):
+def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name=True, show_dso_type=False,
+                          show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False,
+                          show_distance=False, distance_mult=0.0):
     row_count = sum(1 for line in open(csv_data_file)) - 1
 
     with open(csv_data_file) as csvfile:
@@ -216,6 +218,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                 dso_list.show_dso_type = show_dso_type
                 dso_list.show_angular_size = show_angular_size
                 dso_list.show_minor_axis = show_minor_axis
+                dso_list.show_distance = show_distance
                 dso_list.create_date = datetime.now()
                 dso_list.dso_list_items[:] = []
                 dso_list.dso_list_descriptions[:] = []
@@ -231,6 +234,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     show_dso_type=show_dso_type,
                     show_angular_size=show_angular_size,
                     show_minor_axis=show_minor_axis,
+                    show_distance=show_distance,
                     create_date=datetime.now(),
                     update_date=datetime.now(),
                     hidden=hidden
@@ -252,12 +256,23 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                 dso_name = row['DSO_NAME']
                 if dso_name == 'none':
                     continue
+
                 object_name = dso_name.replace(' ', '')
                 dso = DeepskyObject.query.filter_by(name=object_name).first()
 
                 if not dso:
                     print('Not found: {}'.format(object_name))
                     continue
+
+                if show_distance and dso.distance is None:
+                    dso_distance = None
+                    try:
+                        dso_distance = float(row['DIST'])
+                    except ValueError as err:
+                        pass
+                    if dso_distance is not None:
+                        dso.distance = dso_distance * distance_mult
+                        db.session.add(dso)
 
                 item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, dso_id=dso.id).first()
                 if not item:
@@ -320,3 +335,9 @@ def import_corstjens(corstjens_file):
 
 def import_hickson(hickson_data_file):
     _do_import_simple_csv(hickson_data_file, 'hickson', 'Hickson Compact Group', show_common_name=False, show_minor_axis=False)
+
+
+def import_billionaries_club(billionaries_club_data_file):
+    _do_import_simple_csv(
+        billionaries_club_data_file, 'billionaries-club', 'Billionaries Club', show_minor_axis=True, show_distance=True, distance_mult=1000000000.0)
+

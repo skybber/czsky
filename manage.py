@@ -25,6 +25,7 @@ from imports.import_vic import import_vic
 from imports.import_wds_double_stars import import_wds_doubles
 from imports.import_skyquality import do_import_skyquality_locations
 from imports.import_dso_lists import (
+    import_billionaries_club,
     import_caldwell,
     import_herschel400,
     import_superthin_gx,
@@ -182,6 +183,7 @@ def import_dso_list():
     import_glahn_palomar_gc('data/dsolist/PalomarGC.csv')
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
     import_hickson('data/dsolist/Hickson.csv')
+    import_billionaries_club('data/dsolist/BillionairesClub.csv')
 
 
 @manager.command
@@ -361,7 +363,7 @@ def tmp_constellations():
 
 
 @manager.command
-def tmp_update_comets_obs():
+def tmp_update_comets_cobs():
     CometObservation.query.delete()
     update_comets_cobs_observations()
 
@@ -369,6 +371,12 @@ def tmp_update_comets_obs():
 @manager.command
 def tmp_update_comets_positions():
     update_comets_positions()
+
+
+@manager.command
+def tmp_import_billionaries_club():
+    import_billionaries_club('data/dsolist/BillionairesClub.csv')
+
 
 
 if __name__ == '__main__':

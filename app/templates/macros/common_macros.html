@@ -31,6 +31,20 @@
   {% endif %}
 {% endmacro %}
 
+{% macro convert_distance(d) %}
+  {% if d %}
+  {% if d >= 1000000000.0 %}
+      {{ "%.2f"|format(d / 1000000000.0) }} Gly
+  {% elif d >= 1000000.0 %}
+      {{ "%.2f"|format(d / 1000000.0) }} Mly
+  {% elif d >= 1000.0 %}
+      {{ "%.2f"|format(d / 1000.0) }} Kly
+  {% else %}
+      {{ "%.2f"|format(d) }} ly
+  {% endif %}
+  {% endif %}
+{% endmacro %}
+
 {% macro offered_session_plans_dso_toolbar(dso_id, offered_session_plans, float='left') %}
     {% if offered_session_plans %}
         <div id="switch_sesplan_dso_dropdown_{{ dso_id }}" class="ui icon label tiny dropdown" style="float:{{ float }};" data-tooltip="{{ _('Add to session plan') }}" data-variation="mini" data-inverted="">
