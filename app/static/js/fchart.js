@@ -178,8 +178,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
 
     this.isDragging = false;
     this.draggingStart = false;
-    this.mouseX = 0;
-    this.mouseY = 0;
+    this.mouseX = undefined;
+    this.mouseY = undefined;
     this.movingPos = undefined;
     this.initialDistance = undefined;
     this.dx = 0;
@@ -287,18 +287,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
 
     $(this.canvas).bind('mousemove', this.onPointerMove.bind(this));
 
-    $(this.canvas).bind('touchmove', (function(e) {
-        e.preventDefault();
-        if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
-            var distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
-                                     (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
-            var zoomFac = this.initialDistance / (this.initialDistance + 0.7 * (distance - this.initialDistance));
-            this.adjustZoom(null, zoomFac);
-            this.initialDistance = distance;
-        } else {
-            this.onPointerMove(e);
-        }
-    }).bind(this));
+    $(this.canvas).bind('touchmove', this.onTouchMove.bind(this));
 
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
@@ -441,6 +430,10 @@ FChart.prototype.reloadLegendImage = function () {
         this.redrawAll();
     }).bind(this);
     this.legendImgBuf[this.legendImg.background].src = url;
+}
+
+FChart.prototype.isReloadingImage = function() {
+    return this.reloadingImgCnt > 0;
 }
 
 FChart.prototype.reloadImage = function() {
@@ -652,6 +645,7 @@ FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
         this.mouseX = this.getEventLocation(e).x;
         this.mouseY = this.getEventLocation(e).y;
+        this.isDragging = false
         this.renderOnTimeOutFromMouseMove(true);
     }
 }
@@ -672,7 +666,7 @@ FChart.prototype.moveXY = function(mx, my) {
     var t = this;
     this.smoothMoveStep = 0;
     this.backwardMove = false;
-    this.moveInterval = setInterval(function(){t.moveFunc();}, this.MOVE_INTERVAL/this.MAX_SMOOTH_MOVE_STEPS);
+    this.moveInterval = setInterval(function(){ t.moveFunc(); }, this.MOVE_INTERVAL/this.MAX_SMOOTH_MOVE_STEPS);
     this.nextMovePosition();
     this.redrawAll();
 }
@@ -712,16 +706,30 @@ FChart.prototype.onPointerMove = function (e) {
     } else {
         this.canvas.style.cursor = "default"
     }
+
+    this.mouseX = this.getEventLocation(e).x;
+    this.mouseY = this.getEventLocation(e).y;
+
     if (this.isDragging) {
-        this.mouseX = this.getEventLocation(e).x;
-        this.mouseY = this.getEventLocation(e).y;
-        
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
         this.drawImgGrid(curSkyImg);
         this.ctx.drawImage(curLegendImg, 0, 0);
         this.renderOnTimeOutFromMouseMove(false);
+    }
+}
+
+FChart.prototype.onTouchMove = function (e) {
+    e.preventDefault();
+    if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
+        var distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
+                                 (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
+        var zoomFac = this.initialDistance / (this.initialDistance + 0.7 * (distance - this.initialDistance));
+        this.adjustZoom(null, zoomFac);
+        this.initialDistance = distance;
+    } else {
+        this.onPointerMove(e);
     }
 }
 
@@ -781,30 +789,21 @@ FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
         this.draggingStart = false;
         this.mouseMoveTimeout = true;
 
-        if (isMouseUp) {
-            this.isDragging = false
-        }
-        
         setTimeout((function() {
             this.mouseMoveTimeout = false;
-            var oldRa = this.ra;
-            var oldDec = this.dec;
-            this.moveEnd();
             if (isMouseUp) {
+                this.moveEnd();
                 this.forceReloadImage();
                 this.movingPos = undefined;
-            } else {
-                if (this.reloadImage()) {
+                this.dx = 0;
+                this.dy = 0;
+            } else if (this.isDragging) {
+                if (!this.isReloadingImage()) {
+                    this.moveEnd();
+                    this.reloadImage();
                     this.isMoveReload = true;
                     this.dx = 0;
                     this.dy = 0;
-                } else {
-                    // revert ra/dec
-                    this.ra = oldRa;
-                    this.dec = oldDec;
-                    $('#ra').val(this.ra);
-                    $('#dec').val(this.dec);
-                    //this.renderOnTimeOutFromMouseMove();
                 }
             }
         }).bind(this), timeout);
@@ -850,7 +849,6 @@ FChart.prototype.nextMovePosition = function() {
 
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
     if (!this.isDragging) {
-
         if (zoomAmount != null) {
             this.fldSizeIndexR += zoomAmount;
         } else {
@@ -880,15 +878,15 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
               clearInterval(this.zoomInterval);
             }
             var t = this;
-            this.zoomInterval = setInterval(function(){t.zoomFunc();}, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
+            this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
             this.queuedImgs++;
             setTimeout((function() {
-               // wait some time to keep order of requests
-               this.queuedImgs--;
-               if (this.queuedImgs == 0) {
-                   this.reloadLegendImage();
-                   this.forceReloadImage();
-               }
+                // wait some time to keep order of requests
+                this.queuedImgs--;
+                if (this.queuedImgs == 0) {
+                    this.reloadLegendImage();
+                    this.forceReloadImage();
+                }
             }).bind(this), 100);
             if (this.onFieldChangeCallback  != undefined) {
                 this.onFieldChangeCallback.call(this, this.fldSizeIndex);
