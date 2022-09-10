@@ -65,10 +65,13 @@ ADD_SHOW_CATALOGS = ['Berk', 'King']
 PICKER_RADIUS = 4.0
 
 DEFAULT_SCREEN_FONT_SIZE = 3.3
-DEFAULT_PDF_FONT_SIZE = 2.9
+DEFAULT_PDF_FONT_SIZE = 3.0
 
 chart_font_face = None
 chart_font_face_initialized = False
+
+pdf_font_face = None
+pdf_font_face_initialized = False
 
 
 class ChartControl:
@@ -221,7 +224,7 @@ def _setup_light_theme(config, width):
     config.picker_color = (0.2, 0.2, 0.0)
 
 
-def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False):
+def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
     config.constellation_linewidth = 0.5
     config.constellation_linewidth = 0.3
     config.open_cluster_linewidth = 0.3
@@ -231,7 +234,12 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     config.legend_linewidth = 0.2
     config.no_margin = True
     config.bayer_label_font_fac = 1.2
-    font = _get_chart_font_face()
+    config.flamsteed_label_font_fac = 0.9
+    config.outlined_dso_label_font_fac = 1.1
+    if is_pdf:
+        font = _get_pdf_font_face()
+    else:
+        font = _get_chart_font_face()
     if font is None:
         font = 'sans'
     config.font = font
@@ -558,7 +566,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
 
-    config.show_flamsteed = (fld_size <= 20)
+    config.show_flamsteed = (fld_size <= 30)
 
     config.show_constellation_shapes = 'C' in flags
     config.show_constellation_borders = 'B' in flags
@@ -639,7 +647,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, None, DEFAULT_PDF_FONT_SIZE, True)
+    _setup_skymap_graphics(config, fld_size, None, DEFAULT_PDF_FONT_SIZE, force_light_mode=True, is_pdf=True)
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
@@ -880,16 +888,24 @@ def _get_chart_font_face():
     global chart_font_face
     global chart_font_face_initialized
 
-    if chart_font_face_initialized:
-        return chart_font_face
+    if not chart_font_face_initialized:
+        chart_font_face_initialized = True
+        if current_app.config.get('CHART_FONT'):
+            chart_font_face = create_cairo_font_face_for_file(current_app.config.get('CHART_FONT'), 0)
 
-    chart_font_face_initialized = True
-
-    if not current_app.config.get('CHART_FONT'):
-        return chart_font_face
-
-    chart_font_face = create_cairo_font_face_for_file(current_app.config.get('CHART_FONT'), 0)
     return chart_font_face
+
+
+def _get_pdf_font_face():
+    global pdf_font_face
+    global pdf_font_face_initialized
+
+    if not pdf_font_face_initialized:
+        pdf_font_face_initialized = True
+        if current_app.config.get('PDF_FONT'):
+            pdf_font_face = create_cairo_font_face_for_file(current_app.config.get('PDF_FONT'), 0)
+
+    return pdf_font_face
 
 
 ft_initialized = False
