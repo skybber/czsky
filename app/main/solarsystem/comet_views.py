@@ -249,8 +249,9 @@ def comet_info(comet_id):
     comet_dec = comet_dec_ang.radians
 
     if not common_ra_dec_fsz_from_request(form):
-        form.ra.data = comet_ra
-        form.dec.data = comet_dec
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
+            form.ra.data = comet_ra
+            form.dec.data = comet_dec
 
     chart_control = common_prepare_chart_data(form)
 

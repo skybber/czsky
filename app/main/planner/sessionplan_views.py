@@ -636,7 +636,7 @@ def session_plan_chart(session_plan_id):
 
     if not common_ra_dec_fsz_from_request(form):
         if session_plan_item:
-            if form.ra.data is None or form.dec.data is None:
+            if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
                 form.ra.data = session_plan_item.get_ra() if session_plan_item else 0
                 form.dec.data = session_plan_item.get_dec() if session_plan_item else 0
         else:

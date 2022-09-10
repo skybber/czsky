@@ -109,14 +109,14 @@ def planet_info(planet_name):
     planet_dec = planet_dec_ang.radians
 
     if not common_ra_dec_fsz_from_request(form):
-        form.ra.data = planet_ra
-        form.dec.data = planet_dec
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
+            form.ra.data = planet_ra
+            form.dec.data = planet_dec
 
     chart_control = common_prepare_chart_data(form)
 
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
-                           planet_ra=planet_ra, planet_dec=planet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64)
+                           planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
 
 
 @main_planet.route('/planet/<string:planet_name>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

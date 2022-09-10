@@ -197,7 +197,7 @@ def dso_list_chart(dso_list_id):
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
             form.ra.data = dso_list_item.deepskyObject.ra if dso_list_item else 0
             form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
 

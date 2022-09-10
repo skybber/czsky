@@ -64,7 +64,7 @@ main_chart = Blueprint('main_chart', __name__)
 @main_chart.route('/chart', methods=['GET', 'POST'])
 def chart():
     """View a chart."""
-    form  = ChartForm()
+    form = ChartForm()
 
     ra = request.args.get('mra', None)
     dec = request.args.get('mdec', None)

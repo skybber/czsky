@@ -108,7 +108,7 @@ def star_list_chart(star_list_id):
     star_list_descr = StarListDescription.query.filter_by(star_list_id=star_list.id, lang_code=lang).first()
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
             form.ra.data = star_list_item.star.ra if star_list_item else 0
             form.dec.data = star_list_item.star.dec if star_list_item else 0
 

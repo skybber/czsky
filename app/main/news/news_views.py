@@ -101,7 +101,7 @@ def news_chart(news_id):
     form = ChartForm()
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
             form.ra.data = news.ra
             form.dec.data = news.dec
 

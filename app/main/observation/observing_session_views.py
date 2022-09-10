@@ -361,7 +361,7 @@ def observing_session_chart(observing_session_id):
 
     if not common_ra_dec_fsz_from_request(form):
         if observing_session_item:
-            if form.ra.data is None or form.dec.data is None:
+            if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
                 form.ra.data = observing_session_item.get_ra()
                 form.dec.data = observing_session_item.get_dec()
         else:

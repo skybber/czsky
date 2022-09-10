@@ -138,7 +138,7 @@ def wish_list_chart():
     wish_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), wish_list.wish_list_items)
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
             if wish_list_item:
                 form.ra.data = wish_list_item.get_ra()
                 form.dec.data = wish_list_item.get_dec()

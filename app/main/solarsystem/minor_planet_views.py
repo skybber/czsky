@@ -197,13 +197,14 @@ def minor_planet_info(minor_planet_id):
     minor_planet_dec = minor_planet_dec_ang.radians
 
     if not common_ra_dec_fsz_from_request(form):
-        form.ra.data = minor_planet_ra
-        form.dec.data = minor_planet_dec
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
+            form.ra.data = minor_planet_ra
+            form.dec.data = minor_planet_dec
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet, minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64)
+    return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
+                           minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
 
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

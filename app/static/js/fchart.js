@@ -135,7 +135,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
                  mirror_x, mirror_y, default_chart_iframe_url, embed) {
 
     this.fchartDiv = fchartDiv;
@@ -203,8 +203,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, theme, legendUrl,
 
     this.ra = ra;
     this.dec = dec;
-    this.obj_ra = ra;
-    this.obj_dec = dec;
+    this.obj_ra = obj_ra != '' ? obj_ra : ra;
+    this.obj_dec = obj_dec != '' ? obj_dec : dec;
 
     this.theme = theme;
 

@@ -206,7 +206,7 @@ def observed_list_chart():
         observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
 
     if not common_ra_dec_fsz_from_request(form):
-        if form.ra.data is None or form.dec.data is None:
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
             form.ra.data = observed_list_item.get_ra() if observed_list_item else 0
             form.dec.data = observed_list_item.get_dec() if observed_list_item else 0
 

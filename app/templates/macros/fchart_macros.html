@@ -1,4 +1,4 @@
-{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, default_chart_iframe_url='', embed='', search_url_params='') %}
+{% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_form, default_chart_iframe_url='', embed='', search_url_params='', obj_ra='', obj_dec='') %}
 
 {% set is_fullscreen = True if fchart_form.fullscreen.data == 'true' else False %}
 {% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
@@ -363,13 +363,15 @@
 
     var ra = parseFloat($('#ra').val());
     var dec = parseFloat($('#dec').val());
+    var obj_ra = '{{ obj_ra }}';
+    var obj_dec = '{{ obj_dec }}';
 
     var theme = '{{ chart_control.theme }}';
 
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
-    var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, theme, legendUrl, chartUrl,
+    var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}", true,
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
