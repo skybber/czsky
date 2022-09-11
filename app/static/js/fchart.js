@@ -177,18 +177,16 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.reqInProcess = 0;
 
     this.isDragging = false;
-    this.draggingStart = false;
     this.mouseX = undefined;
     this.mouseY = undefined;
     this.movingPos = undefined;
     this.initialDistance = undefined;
     this.dx = 0;
     this.dy = 0;
+    this.mouseMoveTimeout = false;
 
     this.fldSizeIndex = fldSizeIndex;
-
     this.fieldSizes = fieldSizes;
-
     this.fldSizeIndexR = fldSizeIndex + 1;
 
     this.MAX_ZOOM = fieldSizes.length + 0.49;
@@ -213,7 +211,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.searchUrl = searchUrl;
     this.jsonLoad = jsonLoad;
 
-    this.queuedImgs = 0;
+    this.zoomQueuedImgs = 0;
     this.reloadingImgCnt = 0;
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
@@ -239,7 +237,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.cumulatedMoveY = 0;
     this.renderOnTimeOutFromKbdMoveDepth = 0;
     this.backwardMove = false;
-    this.isMoveReload = false;
     this.moseMoveTimeout = false;
     this.dsoRegions = undefined;
     this.imgGrid = undefined;
@@ -525,11 +522,10 @@ FChart.prototype.activateImageOnLoad = function(cumulX, cumulY, centerRA, center
         } else {
             this.backwardScale = true;
         }
-        if (this.isMoveReload) {
-            this.isMoveReload = false;
-        }
         this.reloadingImgCnt --;
-        if (this.reloadingImgCnt > 0) {
+        if (this.reloadingImgCnt < 0) {
+            this.reloadingImgCnt = 0;
+        } else if (this.reloadingImgCnt > 0) {
             this.doReloadImage();
         }
     }.bind(this);
@@ -613,20 +609,25 @@ FChart.prototype.onClick = function(e) {
 }
 
 FChart.prototype.getDRaDec = function() {
-    var rect = this.canvas.getBoundingClientRect();
-    var scale = this.getFChartScale();
-    var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
-    var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
-    var movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+    if (this.movingPos != undefined) {
+        var rect = this.canvas.getBoundingClientRect();
+        var scale = this.getFChartScale();
+        var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
+        var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
+        var movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+        return {
+            'dRA' : movingToPos.ra - this.movingPos.ra,
+            'dDEC' : movingToPos.dec - this.movingPos.dec
+        }
+    }
     return {
-        'dRA' : movingToPos.ra - this.movingPos.ra,
-        'dDEC' : movingToPos.dec - this.movingPos.dec
+        'dRA' : 0,
+        'dDEC' : 0
     }
 }
 
 FChart.prototype.onPointerDown = function(e) {
     this.isDragging = true;
-    this.draggingStart = true;
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
 
@@ -635,10 +636,6 @@ FChart.prototype.onPointerDown = function(e) {
     var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
     var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
     this.movingPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
-
-    // ra_hms = ra2hms(this.movingPos.ra);
-    // dec_deg = dec2deg(this.movingPos.dec);
-    // console.log("ra:" + ra_hms.h + ":" + ra_hms.m + ":" + ra_hms.s + " dec:" + dec_deg.deg + "." + dec_deg.min);
 }
 
 FChart.prototype.onPointerUp = function(e) {
@@ -657,7 +654,7 @@ FChart.prototype.moveXY = function(mx, my) {
     this.moveDY = this.MOVE_DIST * my;
     this.dx += this.moveDX;
     this.dy += this.moveDY;
-    this.moveEnd();
+    this.setMoveRaDEC();
     this.dx -= this.moveDX;
     this.dy -= this.moveDY;
 
@@ -671,7 +668,7 @@ FChart.prototype.moveXY = function(mx, my) {
     this.redrawAll();
 }
 
-FChart.prototype.moveEnd = function() {
+FChart.prototype.setMoveRaDEC = function() {
     if (this.movingPos != undefined) {
         var dRD = this.getDRaDec();
         this.ra -= dRD.dRA;
@@ -785,28 +782,25 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
 
 FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
     if (!this.mouseMoveTimeout || isMouseUp) {
-        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
-        this.draggingStart = false;
         this.mouseMoveTimeout = true;
 
         setTimeout((function() {
             this.mouseMoveTimeout = false;
             if (isMouseUp) {
-                this.moveEnd();
+                this.setMoveRaDEC();
                 this.forceReloadImage();
                 this.movingPos = undefined;
                 this.dx = 0;
                 this.dy = 0;
             } else if (this.isDragging) {
                 if (!this.isReloadingImage()) {
-                    this.moveEnd();
+                    this.setMoveRaDEC();
                     this.reloadImage();
-                    this.isMoveReload = true;
                     this.dx = 0;
                     this.dy = 0;
                 }
             }
-        }).bind(this), timeout);
+        }).bind(this), 20);
     }
 }
 
@@ -879,11 +873,11 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
             }
             var t = this;
             this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
-            this.queuedImgs++;
+            this.zoomQueuedImgs++;
             setTimeout((function() {
                 // wait some time to keep order of requests
-                this.queuedImgs--;
-                if (this.queuedImgs == 0) {
+                this.zoomQueuedImgs--;
+                if (this.zoomQueuedImgs == 0) {
                     this.reloadLegendImage();
                     this.forceReloadImage();
                 }
