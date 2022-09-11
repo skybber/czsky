@@ -177,6 +177,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.reqInProcess = 0;
 
     this.isDragging = false;
+    this.draggingStart = false;
     this.mouseX = undefined;
     this.mouseY = undefined;
     this.movingPos = undefined;
@@ -628,6 +629,7 @@ FChart.prototype.getDRaDec = function() {
 
 FChart.prototype.onPointerDown = function(e) {
     this.isDragging = true;
+    this.draggingStart = true;
     this.mouseX = this.getEventLocation(e).x;
     this.mouseY = this.getEventLocation(e).y;
 
@@ -643,6 +645,7 @@ FChart.prototype.onPointerUp = function(e) {
         this.mouseX = this.getEventLocation(e).x;
         this.mouseY = this.getEventLocation(e).y;
         this.isDragging = false
+        this.draggingStart = false
         this.renderOnTimeOutFromMouseMove(true);
     }
 }
@@ -782,7 +785,10 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
 
 FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
     if (!this.mouseMoveTimeout || isMouseUp) {
+        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
+        this.draggingStart = false;
         this.mouseMoveTimeout = true;
+
 
         setTimeout((function() {
             this.mouseMoveTimeout = false;
@@ -800,7 +806,7 @@ FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
                     this.dy = 0;
                 }
             }
-        }).bind(this), 20);
+        }).bind(this), timeout);
     }
 }
 
