@@ -90,7 +90,7 @@ def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distan
     return apparentMagnitude
 
 
-@main_minor_planet.route('/minor_planets', methods=['GET', 'POST'])
+@main_minor_planet.route('/minor-planets', methods=['GET', 'POST'])
 def minor_planets():
     """View minor_planets."""
     search_form = SearchMinorPlanetForm()
@@ -138,8 +138,8 @@ def minor_planets():
     return render_template('main/solarsystem/minor_planets.html', minor_planets=minor_planets_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
 
 
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>', methods=['GET', 'POST'])
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>', methods=['GET', 'POST'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
 def minor_planet_info(minor_planet_id):
     """View a minor_planet info."""
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
@@ -207,7 +207,7 @@ def minor_planet_info(minor_planet_id):
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
 
 
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
@@ -233,7 +233,7 @@ def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
         return send_file(img_bytes, mimetype='image/png')
 
 
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
@@ -246,7 +246,7 @@ def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planet_chart_pdf(minor_planet_id, ra, dec):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
@@ -267,8 +267,8 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>')
-@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/catalogue_data')
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>')
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/catalogue_data')
 def minor_planet_catalogue_data(minor_planet_id):
     """View a minor_planet catalog info."""
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
