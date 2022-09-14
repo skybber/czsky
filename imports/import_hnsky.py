@@ -372,29 +372,34 @@ def fix_masters_after_hnsky_import():
                                            (max_dso.major_axis is not None and child.major_axis is not None and max_dso.major_axis < child.major_axis)):
                         max_dso = child
                     child.master_id = None
+
+                max_dso.master_id = master.id
+
+                for child in dso_map[dso_name]:
                     db.session.add(child)
 
-                db.session.commit()
+                master.master_id = None
+                master.type = max_dso.type
+                master.subtype = max_dso.subtype
+                master.ra = max_dso.ra
+                master.dec = max_dso.dec
+                master.constellation_id = max_dso.constellation_id
+                master.catalogue_id = max_dso.catalogue_id
+                master.major_axis = max_dso.major_axis
+                master.minor_axis = max_dso.minor_axis
+                master.axis_ratio = max_dso.axis_ratio
+                master.position_angle = max_dso.position_angle
+                master.mag = max_dso.mag
+                master.surface_bright = max_dso.surface_bright
+                master.c_star_b_mag = max_dso.c_star_b_mag
+                master.c_star_v_mag = max_dso.c_star_v_mag
+                master.distance = max_dso.distance
+                master.common_name = max_dso.common_name
+                master.descr = max_dso.descr
+                master.import_source = max_dso.import_source
+                db.session.add(master)
 
-                max_dso_id = max_dso.id
-                master_id = master.id
-                master_name = master.name
-
-                db.session.delete(master)
-                db.session.commit()
-
-                db.session.expunge(max_dso)
-                make_transient(max_dso)
-                max_dso.id = master_id
-                max_dso.name = master_name
-                max_dso.master_id = None
-                db.session.add(max_dso)
-                db.session.commit()
-
-                max_dso = DeepskyObject.query.filter_by(id=max_dso_id).first()
-                max_dso.master_id = master_id
-                db.session.add(max_dso)
-                db.session.commit()
+        db.session.commit()
 
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))
