@@ -1,9 +1,12 @@
 import numpy as np
 
 from math import log
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.session import make_transient
+
 from app import db
 
-from app.models.deepskyobject import DeepskyObject, Catalogue, IMPORT_SOURCE_HNSKY
+from app.models.deepskyobject import DeepskyObject, Catalogue, UserDsoDescription, UserDsoApertureDescription, IMPORT_SOURCE_HNSKY
 from app.models.constellation import Constellation
 
 from .import_utils import progress
@@ -72,8 +75,6 @@ def _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, save_master_ds
 
 
 def import_hnsky(hnsky_dso_file):
-
-    from sqlalchemy.exc import IntegrityError
 
     constellation_at = load_constellation_map()
 
@@ -348,3 +349,54 @@ def _denormalize_pk_name(name):
             compress = False
         denorm += c
     return denorm
+
+
+def fix_masters_after_hnsky_import():
+    cat_prefixes = ['NGC', 'IC' ]
+    try:
+        print('Fixing masters after hnsky import...')
+        for cat_pref in cat_prefixes:
+            dso_map = {}
+            all_dso = DeepskyObject.query.filter(DeepskyObject.name.like(cat_pref + '%\\__', escape='\\')).all()
+            for dso in all_dso:
+                master_name = dso.name[:dso.name.index('_')]
+                if master_name not in dso_map:
+                    dso_map[master_name] = []
+                dso_map[master_name].append(dso)
+
+            for dso_name in dso_map:
+                master = DeepskyObject.query.filter_by(name=dso_name).first()
+                max_dso = None
+                for child in dso_map[dso_name]:
+                    if max_dso is None or ((max_dso.major_axis is None and child.major_axis is not None) or
+                                           (max_dso.major_axis is not None and child.major_axis is not None and max_dso.major_axis < child.major_axis)):
+                        max_dso = child
+                    child.master_id = None
+                    db.session.add(child)
+
+                db.session.commit()
+
+                max_dso_id = max_dso.id
+                master_id = master.id
+                master_name = master.name
+
+                db.session.delete(master)
+                db.session.commit()
+
+                db.session.expunge(max_dso)
+                make_transient(max_dso)
+                max_dso.id = master_id
+                max_dso.name = master_name
+                max_dso.master_id = None
+                db.session.add(max_dso)
+                db.session.commit()
+
+                max_dso = DeepskyObject.query.filter_by(id=max_dso_id).first()
+                max_dso.master_id = master_id
+                db.session.add(max_dso)
+                db.session.commit()
+
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()
+    print('') # finish on new line

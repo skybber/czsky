@@ -42,7 +42,7 @@ from imports.import_dso_lists import (
 from imports.import_utils import progress
 
 from imports.import_star_lists import import_carbon_stars
-from imports.import_hnsky import import_hnsky
+from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
 from imports.link_star_descriptions import link_star_descriptions_by_var_id, link_star_descriptions_by_double_star_id
@@ -163,6 +163,7 @@ def initialize_catalogues():
     import_constellations('data/88-constellations.csv')
     import_bright_stars_bsc5_json_all('data/bsc5-all.json')
     import_hnsky('data/deep_sky.hnd')
+    fix_masters_after_hnsky_import()
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     import_pgc('data/PGC.dat')
@@ -377,6 +378,10 @@ def tmp_update_comets_positions():
 def tmp_import_billionaries_club():
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
 
+
+@manager.command
+def tmp_fix_masters():
+    fix_masters_after_hnsky_import()
 
 
 if __name__ == '__main__':
