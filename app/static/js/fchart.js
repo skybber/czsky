@@ -789,7 +789,6 @@ FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
         this.draggingStart = false;
         this.mouseMoveTimeout = true;
 
-
         setTimeout((function() {
             this.mouseMoveTimeout = false;
             if (isMouseUp) {
@@ -1024,7 +1023,7 @@ FChart.prototype.getThemeColor = function() {
     if (this.theme == 'night') {
         return "#020202";
     }
-    return "#03030D";
+    return "#000000";
 }
 
 FChart.prototype.onFieldChange = function(callback) {

@@ -141,7 +141,7 @@ def _get_dso_hide_filter():
 
 
 def _setup_dark_theme(config, width):
-    config.background_color = (0.01, 0.01, 0.05)
+    config.background_color = (0.0, 0.0, 0.0)
     config.constellation_lines_color = (0.18, 0.27, 0.3)
     config.constellation_border_color = (0.3, 0.27, 0.07)
     config.constellation_hl_border_color = (0.6, 0.5, 0.14)
@@ -199,7 +199,8 @@ def _setup_night_theme(config, width):
 
 
 def _setup_light_theme(config, width):
-    config.constellation_lines_color = (0.5, 0.7, 0.8)
+    fac = 0.8
+    config.constellation_lines_color = (0.5 * fac, 0.7 * fac, 0.8 * fac)
     if width and width <= 768:
         config.constellation_linewidth = 0.35
     else:
@@ -219,7 +220,7 @@ def _setup_light_theme(config, width):
     config.dso_dynamic_brightness = False
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.92, 0.93, 0.94)
+    config.milky_way_color = (0.836, 0.945, 0.992)
     config.light_mode = True
     config.picker_color = (0.2, 0.2, 0.0)
 
@@ -262,14 +263,24 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     if fld_size <= 10:
         config.show_milky_way = False
     elif config.show_milky_way:
-        sup_coef = (fld_size - 10) / (70-10)
+        fade = (fld_size - 10) / (70-10)
         bg_r, bg_g, bg_b = config.background_color[0], config.background_color[1], config.background_color[2]
-        if sup_coef > 1:
-            sup_coef = 1
-        if sup_coef > 0:
-            config.milky_way_color = (bg_r + (config.milky_way_color[0]-bg_r) * sup_coef,
-                                      bg_g + (config.milky_way_color[1]-bg_g) * sup_coef,
-                                      bg_b + (config.milky_way_color[2]-bg_b) * sup_coef)
+        if fade > 1:
+            fade = 1
+        if fade > 0:
+            config.show_enhanced_milky_way = False
+            if force_light_mode or session.get('theme', '') == 'light':
+                config.enhanced_milky_way_fade = (1.0, -(1.0 - config.milky_way_color[0]) * fade * 5,
+                                                  1.0, -(1.0 - config.milky_way_color[1]) * fade * 5,
+                                                  1.0, -(1.0 - config.milky_way_color[2]) * fade * 5)
+            else:
+                config.enhanced_milky_way_fade = (0.005, config.milky_way_color[0] * fade * 5,
+                                                  0.005, config.milky_way_color[1] * fade * 5,
+                                                  0.005, config.milky_way_color[2] * fade * 5)
+
+            config.milky_way_color = (bg_r + (config.milky_way_color[0]-bg_r) * fade,
+                                      bg_g + (config.milky_way_color[1]-bg_g) * fade,
+                                      bg_b + (config.milky_way_color[2]-bg_b) * fade)
         else:
             config.show_milky_way = False
 
