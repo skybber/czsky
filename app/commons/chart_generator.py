@@ -268,7 +268,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
         if fade > 1:
             fade = 1
         if fade > 0:
-            config.show_enhanced_milky_way = False
+            config.show_enhanced_milky_way = True
             if force_light_mode or session.get('theme', '') == 'light':
                 config.enhanced_milky_way_fade = (1.0, -(1.0 - config.milky_way_color[0]) * fade * 5,
                                                   1.0, -(1.0 - config.milky_way_color[1]) * fade * 5,
