@@ -341,3 +341,7 @@ def import_billionaries_club(billionaries_club_data_file):
     _do_import_simple_csv(
         billionaries_club_data_file, 'billionaries-club', 'Billionaries Club', show_minor_axis=True, show_distance=True, distance_mult=1000000000.0)
 
+def import_deep_man_600(deep_man_600_data_file):
+    _do_import_simple_csv(
+        deep_man_600_data_file, 'deep-man-600', 'Deep Man 600', show_minor_axis=True)
+

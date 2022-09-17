@@ -2,6 +2,7 @@ import numpy as np
 
 from math import log
 from app import db
+from sqlalchemy.exc import IntegrityError
 
 from app.models.deepskyobject import DeepskyObject, Catalogue, IMPORT_SOURCE_PGC
 from app.models.constellation import Constellation
@@ -9,6 +10,7 @@ from app.models.constellation import Constellation
 from .import_utils import progress
 from app.commons.dso_utils import get_catalog_from_dsoname
 from skyfield.api import position_from_radec, load_constellation_map
+from astroquery.simbad import Simbad
 
 
 def _append_found(name, existing_dsos, found_dsos):
@@ -37,8 +39,6 @@ def _create_dso(name, master_id, cat_id, ra, dec, constellation_id, rlong, rshor
 
 
 def import_pgc(filename):
-    from sqlalchemy.exc import IntegrityError
-
     constellation_at = load_constellation_map()
 
     constell_dict = {}
@@ -168,3 +168,48 @@ def import_pgc(filename):
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
+
+
+def create_pgc_update_file_from_simbad(pgc_file, output_file):
+    with open(pgc_file, 'r') as sf:
+        inp_lines = sf.readlines()
+
+    try:
+        with open(output_file, 'r') as sf:
+            gen_lines = sf.readlines()
+    except:
+        gen_lines = []
+
+    if len(gen_lines) > 0:
+        last_pgc = int(gen_lines[-1].split()[0][3:])
+    else:
+        last_pgc = 0
+
+    simbad = Simbad()
+    simbad.add_votable_fields('dim_majaxis')
+    simbad.add_votable_fields('dim_minaxis')
+
+    line_cnt = 1
+    total_lines = len(inp_lines)
+
+    with open(output_file, 'a') as fout:
+        for line in inp_lines:
+            line_cnt += 1
+
+            if len(line[6:37].strip()) == 0:
+                continue
+
+            pgc_num = int(line[0:5])
+
+            if pgc_num <= last_pgc:
+                continue
+
+            pgc_name = 'PGC{}'.format(pgc_num)
+            try:
+                progress(line_cnt, total_lines, 'Reading {}'.format(pgc_name))
+                dso = simbad.query_object(pgc_name)
+                fout.write('{} {} {}\n'.format(pgc_name, dso[0]['GALDIM_MAJAXIS'], dso[0]['GALDIM_MINAXIS']))
+                if line_cnt % 50 == 0:
+                    fout.flush()
+            except TypeError:
+                pass

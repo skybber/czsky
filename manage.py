@@ -27,6 +27,7 @@ from imports.import_skyquality import do_import_skyquality_locations
 from imports.import_dso_lists import (
     import_billionaries_club,
     import_caldwell,
+    import_deep_man_600,
     import_herschel400,
     import_superthin_gx,
     import_holmberg,
@@ -49,7 +50,7 @@ from imports.link_star_descriptions import link_star_descriptions_by_var_id, lin
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
-from imports.import_pgc import import_pgc
+from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -185,6 +186,7 @@ def import_dso_list():
     import_glahn_local_group('data/dsolist/LocalGroup.csv')
     import_hickson('data/dsolist/Hickson.csv')
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
+    import_deep_man_600('data/dsolist/DeepMan600.csv')
 
 
 @manager.command
@@ -382,6 +384,16 @@ def tmp_import_billionaries_club():
 @manager.command
 def tmp_fix_masters():
     fix_masters_after_hnsky_import()
+
+
+@manager.command
+def tmp_import_deep_man_600():
+    import_deep_man_600('data/dsolist/DeepMan600.csv')
+
+
+@manager.command
+def create_pgc_update_file():
+    create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
 
 
 if __name__ == '__main__':
