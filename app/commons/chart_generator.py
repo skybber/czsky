@@ -264,7 +264,11 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
         config.show_milky_way = False
     elif config.show_milky_way:
         fade = (fld_size - 10) / (70-10)
-        bg_r, bg_g, bg_b = config.background_color[0], config.background_color[1], config.background_color[2]
+        # shift background color little bit by fraction of MW color (bg_shift_frac)
+        bg_shift_frac = 0.15
+        bg_r, bg_g, bg_b = config.background_color[0] + (config.milky_way_color[0]-config.background_color[0]) * bg_shift_frac, \
+                           config.background_color[1] + (config.milky_way_color[1]-config.background_color[1]) * bg_shift_frac, \
+                           config.background_color[2] + (config.milky_way_color[2]-config.background_color[2]) * bg_shift_frac
         if fade > 1:
             fade = 1
         if fade > 0:
