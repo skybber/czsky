@@ -3,6 +3,7 @@ appdirs==1.4.4
 APScheduler==3.9.1
 astroplan==0.8
 astropy==5.1
+astroquery==0.4.6
 attrs==21.3.0
 beautifulsoup4==4.10.0 
 blinker==1.4
@@ -20,6 +21,7 @@ Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Migrate==2.7.0
 Flask-RQ==0.2
+Flask-Scss==0.5
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.5.1
 Flask-SSLify==0.1.5
