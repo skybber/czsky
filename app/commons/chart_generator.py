@@ -520,7 +520,7 @@ def _get_fld_size_maglim(fld_size_index):
     dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
     if dso_maglim is None:
         if fld_size_index == len(MAG_SCALES) - 1:
-            dso_maglim = dso_mag_scale[1]  # use second lowest mag to decrease number of DSO in largest field
+            dso_maglim = dso_mag_scale[0] + 1  # use second lowest mag to decrease number of DSO in largest field
         else:
             dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1] + 1) // 2
         for i in range(fld_size_index+1, len(DSO_MAG_SCALES)):
