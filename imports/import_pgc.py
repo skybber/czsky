@@ -251,12 +251,12 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
                 dso.minor_axis = minor
                 dso.axis_ratio = axis_ratio
                 db.session.add(dso)
-                if dso.masterObject is not None and dso.masterObject.import_source == IMPORT_SOURCE_PGC \
-                        and dso.masterObject.name.startswith('UGC') and dso.masterObject.major_axis is None:
-                    dso.masterObject.major_axis = major
-                    dso.masterObject.minor_axis = minor
-                    dso.masterObject.axis_ratio = axis_ratio
-                    db.session.add(dso.masterObject)
+                if dso.master_dso is not None and dso.master_dso.import_source == IMPORT_SOURCE_PGC \
+                        and dso.master_dso.name.startswith('UGC') and dso.master_dso.major_axis is None:
+                    dso.master_dso.major_axis = major
+                    dso.master_dso.minor_axis = minor
+                    dso.master_dso.axis_ratio = axis_ratio
+                    db.session.add(dso.master_dso)
 
             except ValueError:
                 pass

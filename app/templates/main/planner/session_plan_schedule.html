@@ -153,7 +153,7 @@
 
             {% for item in selection_compound_list %}
                 <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}" tabindex="0">
-                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].masterObject) }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].master_dso) }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].type }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].mag }}</td>

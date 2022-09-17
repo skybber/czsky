@@ -406,7 +406,7 @@ def session_plan_export_csv(session_plan_id):
 
     for item in session_plan_compound_list:
         dso = item[0].deepskyObject
-        name = dso.denormalized_name() + (('/' + dso.masterObject.denormalized_name()) if dso.masterObject else '')
+        name = dso.denormalized_name() + (('/' + dso.master_dso.denormalized_name()) if dso.master_dso else '')
         writer.writerow([name, dso.type, dso.get_constellation_iau_code(), dso.ra_str_short(), dso.dec_str_short(), item[1], item[2], item[3]])
 
     mem = BytesIO()

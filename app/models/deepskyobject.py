@@ -23,7 +23,7 @@ class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
     id = db.Column(db.Integer, primary_key=True)
     master_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
-    masterObject = db.relationship("DeepskyObject", remote_side=[id], lazy=True)
+    master_dso = db.relationship("DeepskyObject", remote_side=[id], lazy=True)
     name = db.Column(db.String(32), index=True)
     type = db.Column(db.String(8))
     subtype = db.Column(db.String(16))
