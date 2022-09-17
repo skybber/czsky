@@ -144,7 +144,6 @@ def import_pgc(filename):
             if pgc_dso.master_id is not None and pgc_dso.master_id in existing_dso_ids:
                 dsos.append(_create_dso(ugc_name, pgc_dso.master_id, cat_ugc.id, ra, dec, constellation_id, rlong, rshort, position_angle, mag))
             else:
-                # switch master PGC->UGC ?
                 master_ugc_dsos.append([_create_dso(ugc_name, None, cat_ugc.id, ra, dec, constellation_id, rlong, rshort, position_angle, mag), pgc_dso])
                 dsos.append(pgc_dso)
 
@@ -213,3 +212,56 @@ def create_pgc_update_file_from_simbad(pgc_file, output_file):
                     fout.flush()
             except TypeError:
                 pass
+
+
+def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
+    with open(pgc_update_file, 'r') as sf:
+        lines = sf.readlines()
+
+    dsos = DeepskyObject.query.filter_by(import_source=IMPORT_SOURCE_PGC, major_axis=None).all()
+
+    dso_map = {}
+
+    for dso in dsos:
+        dso_map[dso.name] = dso
+
+    line_cnt = 1
+    total_lines = len(lines)
+
+    try:
+        for line in lines:
+            progress(line_cnt, total_lines, 'Updating PGC data...')
+            line_cnt += 1
+            dso_name, major, minor = line.split()
+            dso = dso_map.get(dso_name)
+            if not dso:
+                continue
+            try:
+                major = round(float(major) * 60.0)
+                if minor == '-':
+                    minor = major
+                else:
+                    minor = round(float(minor) * 60.0)
+                axis_ratio = 1
+                if major < minor:
+                    major, minor = minor, major
+                if major > 0:
+                    axis_ratio = minor / major
+                dso.major_axis = major
+                dso.minor_axis = minor
+                dso.axis_ratio = axis_ratio
+                db.session.add(dso)
+                if dso.masterObject is not None and dso.masterObject.import_source == IMPORT_SOURCE_PGC \
+                        and dso.masterObject.name.startswith('UGC') and dso.masterObject.major_axis is None:
+                    dso.masterObject.major_axis = major
+                    dso.masterObject.minor_axis = minor
+                    dso.masterObject.axis_ratio = axis_ratio
+                    db.session.add(dso.masterObject)
+
+            except ValueError:
+                pass
+        print('')
+        db.session.commit()
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()

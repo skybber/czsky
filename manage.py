@@ -50,7 +50,7 @@ from imports.link_star_descriptions import link_star_descriptions_by_var_id, lin
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
-from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad
+from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -394,6 +394,11 @@ def tmp_import_deep_man_600():
 @manager.command
 def create_pgc_update_file():
     create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
+
+
+@manager.command
+def update_pgc_imported_dsos():
+    update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
 
 
 if __name__ == '__main__':
