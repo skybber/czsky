@@ -265,7 +265,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     elif config.show_milky_way:
         fade = (fld_size - 10) / (70-10)
         # shift background color little bit by fraction of MW color (bg_shift_frac)
-        bg_shift_frac = 0.15
+        bg_shift_frac = 0.10
         bg_r, bg_g, bg_b = config.background_color[0] + (config.milky_way_color[0]-config.background_color[0]) * bg_shift_frac, \
                            config.background_color[1] + (config.milky_way_color[1]-config.background_color[1]) * bg_shift_frac, \
                            config.background_color[2] + (config.milky_way_color[2]-config.background_color[2]) * bg_shift_frac
@@ -273,9 +273,10 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
             fade = 1
         if fade > 0:
             config.show_enhanced_milky_way = True
-            config.enhanced_milky_way_fade = (bg_r, (config.milky_way_color[0] - bg_r) * fade * 2,
-                                              bg_g, (config.milky_way_color[1] - bg_g) * fade * 2,
-                                              bg_b, (config.milky_way_color[2] - bg_b) * fade * 2)
+            mw_scale_fac = 3.0
+            config.enhanced_milky_way_fade = (bg_r, (config.milky_way_color[0] - bg_r) * fade * mw_scale_fac,
+                                              bg_g, (config.milky_way_color[1] - bg_g) * fade * mw_scale_fac,
+                                              bg_b, (config.milky_way_color[2] - bg_b) * fade * mw_scale_fac)
 
             config.milky_way_color = (bg_r + (config.milky_way_color[0]-bg_r) * fade,
                                       bg_g + (config.milky_way_color[1]-bg_g) * fade,
