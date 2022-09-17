@@ -1023,7 +1023,7 @@ FChart.prototype.getThemeColor = function() {
     if (this.theme == 'night') {
         return "#020202";
     }
-    return "#000000";
+    return "#010107";
 }
 
 FChart.prototype.onFieldChange = function(callback) {
