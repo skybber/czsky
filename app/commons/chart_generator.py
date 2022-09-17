@@ -31,6 +31,8 @@ from app.models import (
 
 from .utils import to_float, to_boolean
 
+MOBILE_WIDTH = 768
+
 used_catalogs = None
 dso_name_cache = None
 dso_hide_filter = None
@@ -153,13 +155,14 @@ def _setup_dark_theme(config, width):
     config.galaxy_color = (0.6, 0.2, 0.2)
     config.star_cluster_color = (0.6, 0.6, 0.0)
     config.galaxy_cluster_color = (0.6, 0.6, 0.6)
-    if width and width <= 768:
+    if width and width <= MOBILE_WIDTH:
         config.grid_color = (0.18, 0.27, 0.3)
-        config.constellation_linewidth = 0.3
+        config.constellation_linewidth = 0.2
     else:
         config.grid_color = (0.12, 0.18, 0.20)
         config.constellation_linewidth = 0.2
-    config.grid_linewidth = 0.15
+    config.constellation_border_linewidth = 0.15
+    config.grid_linewidth = 0.1
     config.star_colors = True
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.1, 0.2, 0.4)
@@ -172,11 +175,11 @@ def _setup_dark_theme(config, width):
 def _setup_night_theme(config, width):
     config.background_color = (0.01, 0.01, 0.01)
     config.constellation_lines_color = (0.37, 0.12, 0.0)
-    if width and width <= 768:
-        config.constellation_linewidth = 0.3
+    if width and width <= MOBILE_WIDTH:
+        config.constellation_linewidth = 0.2
     else:
         config.constellation_linewidth = 0.2
-    config.constellation_border_color = (0.3, 0.13, 0.03)
+    config.constellation_border_color = (0.4, 0.19, 0.05)
     config.constellation_hl_border_color = (0.6, 0.26, 0.06)
     config.draw_color = (1.0, 0.5, 0.5)
     config.label_color = (0.7, 0.3, 0.3)
@@ -187,7 +190,8 @@ def _setup_night_theme(config, width):
     config.star_cluster_color = (0.6, 0.15, 0.0)
     config.galaxy_cluster_color = (0.6, 0.15, 0.0)
     config.grid_color = (0.2, 0.06, 0.06)
-    config.grid_linewidth = 0.15
+    config.constellation_border_linewidth = 0.15
+    config.grid_linewidth = 0.1
     config.star_colors = False
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.4, 0.2, 0.1)
@@ -201,12 +205,12 @@ def _setup_night_theme(config, width):
 def _setup_light_theme(config, width):
     fac = 0.8
     config.constellation_lines_color = (0.5 * fac, 0.7 * fac, 0.8 * fac)
-    if width and width <= 768:
-        config.constellation_linewidth = 0.35
+    if width and width <= MOBILE_WIDTH:
+        config.constellation_linewidth = 0.2
     else:
-        config.constellation_linewidth = 0.35
+        config.constellation_linewidth = 0.2
     config.constellation_hl_border_color = (0.4, 0.4, 0.4)
-    config.constellation_border_color = (0.8, 0.7, 0.1)
+    config.constellation_border_color = (0.4, 0.35, 0.05)
     config.draw_color = (0.0, 0.0, 0.0)
     config.label_color = (0.2, 0.2, 0.2)
     config.dso_color = (0.3, 0.3, 0.3)
@@ -216,7 +220,8 @@ def _setup_light_theme(config, width):
     config.star_cluster_color = (0.3, 0.3, 0.0)
     config.galaxy_cluster_color = (0.3, 0.3, 0.3)
     config.grid_color = (0.7, 0.7, 0.7)
-    config.grid_linewidth = 0.15
+    config.constellation_border_linewidth = 0.15
+    config.grid_linewidth = 0.1
     config.dso_dynamic_brightness = False
     config.dso_highlight_color = (0.1, 0.2, 0.4)
     config.dso_highlight_linewidth = 0.3
@@ -226,11 +231,11 @@ def _setup_light_theme(config, width):
 
 
 def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
-    config.constellation_linewidth = 0.5
     config.constellation_linewidth = 0.3
     config.open_cluster_linewidth = 0.3
     config.galaxy_cluster_linewidth = 0.3
-    config.grid_linewidth = 0.15
+    config.constellation_border_linewidth = 0.15
+    config.grid_linewidth = 0.1
     config.dso_linewidth = 0.4
     config.legend_linewidth = 0.2
     config.no_margin = True
@@ -254,7 +259,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     else:
         _setup_dark_theme(config, width)
 
-    if fld_size >= 60 or (fld_size >= 40 and width and width <= 768):
+    if fld_size >= 60 or (fld_size >= 40 and width and width <= MOBILE_WIDTH):
         config.constellation_linespace = 1.5
         config.show_star_labels = False
     else:
