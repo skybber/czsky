@@ -167,7 +167,7 @@ def create_app(config, web=True):
         from flask_commonmark import Commonmark
         cm = Commonmark(app)
 
-        if len(sys.argv) == 2 and sys.argv[1] == 'runserver':
+        if (len(sys.argv) == 2 and sys.argv[1] == 'runserver') or ("gunicorn" in os.environ.get("SERVER_SOFTWARE", "")):
             scheduler.start()
 
     return app
