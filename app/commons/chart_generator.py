@@ -9,8 +9,6 @@ import numpy as np
 import ctypes as ct
 import cairo
 
-from memory_profiler import profile
-
 import fchart3
 from flask import (
     current_app,
