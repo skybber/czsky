@@ -9,6 +9,7 @@ import numpy as np
 import ctypes as ct
 import cairo
 
+from memory_profiler import profile
 
 import fchart3
 from flask import (
@@ -143,7 +144,10 @@ def _get_dso_hide_filter():
 
 
 def _setup_dark_theme(config, width):
-    config.background_color = (0.005, 0.005, 0.02)
+    if width and width <= MOBILE_WIDTH:
+        config.background_color = (0.01, 0.01, 0.01)
+    else:
+        config.background_color = (0.005, 0.005, 0.02)
     config.constellation_lines_color = (0.18, 0.27, 0.3)
     config.constellation_border_color = (0.3, 0.27, 0.07)
     config.constellation_hl_border_color = (0.6, 0.5, 0.14)
@@ -266,7 +270,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
         config.constellation_linespace = 2.0
 
     if fld_size <= 10:
-        config.show_milky_way = False
+        config.show_milky_way = False  # hide MW if field < 10deg
     elif config.show_milky_way:
         fade = (fld_size - 10) / (70-10)
         # shift background color little bit by fraction of MW color (bg_shift_frac)
@@ -802,7 +806,6 @@ def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
 
 
 def _find_dso_by_name(dso_name):
-    dso = dso_name_cache.get(dso_name)
     if dso_name not in dso_name_cache:
         dso, cat, name = used_catalogs.lookup_dso(dso_name)
         dso_name_cache[dso_name] = dso

@@ -1023,6 +1023,9 @@ FChart.prototype.getThemeColor = function() {
     if (this.theme == 'night') {
         return "#020202";
     }
+    if (this.canvas.width <= 768) {
+        return "#020202"; // mobile black
+    }
     return "#010107";
 }
 
