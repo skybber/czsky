@@ -426,6 +426,23 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.fullscreen.data = 'true'
         if request.args.get('epfov'):
             form.eyepiece_fov.data = request.args.get('epfov')
+        form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
+        form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
+        form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
+        form.show_constell_borders.data = session.get('chart_show_constell_borders', form.show_constell_borders.data)
+        form.show_dso.data = session.get('chart_show_dso', form.show_dso.data)
+        form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
+        form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
+        form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
+    else:
+        session['chart_show_telrad'] = form.show_telrad.data
+        session['chart_show_picker'] = form.show_picker.data
+        session['chart_show_constell_shapes'] = form.show_constell_shapes.data
+        session['chart_show_constell_borders'] = form.show_constell_borders.data
+        session['chart_show_dso'] = form.show_dso.data
+        session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
+        session['chart_mirror_x'] = form.mirror_x.data
+        session['chart_mirror_y'] = form.mirror_y.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
