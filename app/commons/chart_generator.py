@@ -426,6 +426,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.fullscreen.data = 'true'
         if request.args.get('epfov'):
             form.eyepiece_fov.data = request.args.get('epfov')
+        else:
+            form.eyepiece_fov.data = session.get('chart_eyepiece_fov', form.eyepiece_fov.data)
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
         form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
@@ -435,6 +437,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
     else:
+        session['chart_eyepiece_fov'] = form.eyepiece_fov.data
         session['chart_show_telrad'] = form.show_telrad.data
         session['chart_show_picker'] = form.show_picker.data
         session['chart_show_constell_shapes'] = form.show_constell_shapes.data
