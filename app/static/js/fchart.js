@@ -761,6 +761,8 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
                     this.setMovingPosToCenter();
                 }
                 this.reloadImage();
+            } else if (isPointerUp) {
+                this.forceReloadImage();
             }
         }).bind(this), timeout);
     }
