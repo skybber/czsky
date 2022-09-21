@@ -177,14 +177,14 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.reqInProcess = 0;
 
     this.isDragging = false;
+    this.kbdDragging = 0;
     this.draggingStart = false;
-    this.mouseX = undefined;
-    this.mouseY = undefined;
+    this.pointerX = undefined;
+    this.pointerY = undefined;
     this.movingPos = undefined;
     this.initialDistance = undefined;
-    this.dx = 0;
-    this.dy = 0;
-    this.mouseMoveTimeout = false;
+    this.pointerMoveTimeout = false;
+    this.keyboardMoveTimeout = false;
 
     this.fldSizeIndex = fldSizeIndex;
     this.fieldSizes = fieldSizes;
@@ -196,7 +196,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.MAX_ZOOM_STEPS = 10;
 
     this.MOVE_INTERVAL = 200;
-    this.MAX_SMOOTH_MOVE_STEPS = 10;
     this.MOVE_DIST = 80;
     this.GRID_SIZE = 10;
 
@@ -231,14 +230,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.multDEC = mirror_y ? -1 : 1;
 
     this.moveInterval = undefined;
-    this.smoothMoveStep = undefined;
-    this.moveX = 0;
-    this.moveY = 0;
-    this.cumulatedMoveX = 0;
-    this.cumulatedMoveY = 0;
-    this.renderOnTimeOutFromKbdMoveDepth = 0;
-    this.backwardMove = false;
-    this.moseMoveTimeout = false;
+    this.kbdMoveDX = 0;
+    this.kbdMoveDY = 0;
     this.dsoRegions = undefined;
     this.imgGrid = undefined;
 
@@ -281,7 +274,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         }
     }).bind(this));
 
-    $(this.canvas).bind('mouseout', this.onPointerUp.bind(this));
+    $(this.canvas).bind('mouseout', this.onMouseOut.bind(this));
 
     $(this.canvas).bind('mousemove', this.onPointerMove.bind(this));
 
@@ -292,30 +285,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         this.adjustZoom(normalizeDelta(e), null);
     }).bind(this));
 
-    $(this.canvas).bind('keydown', (function(e) {
-        var moveMap = {
-            37: [1, 0],
-            38: [0, 1],
-            39: [-1, 0],
-            40: [0, -1],
-        }
-        if (e.keyCode == 33) {
-            if (this.zoomInterval === undefined) {
-                this.adjustZoom(1, null);
-            }
-            e.preventDefault();
-        } else if (e.keyCode == 34) {
-            if (this.zoomInterval === undefined) {
-                this.adjustZoom(-1, null);
-            }
-            e.preventDefault();
-        } else if (e.keyCode in moveMap) {
-            if (this.moveInterval === undefined) {
-                this.moveXY(moveMap[e.keyCode][0], moveMap[e.keyCode][1]);
-            }
-            e.preventDefault();
-        }
-    }).bind(this));
+    $(this.canvas).bind('keydown', this.onKeyDown.bind(this));
+    $(this.canvas).bind('keyup', this.onKeyUp.bind(this));
 
     $(this.separator).bind('mousedown',  (function(e) {
         var md = {
@@ -397,14 +368,14 @@ FChart.prototype.redrawAll = function () {
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
     
-    if (this.isDragging) {      
+    if (this.isDragging || this.kbdDragging != 0) {
         this.drawImgGrid(curSkyImg);
     } else {
         var img_width = curSkyImg.width * this.scaleFac;
         var img_height = curSkyImg.height * this.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(curSkyImg, this.moveX + this.dx + (this.canvas.width-img_width)/2, this.moveY + this.dy + (this.canvas.height-img_height)/2, img_width, img_height);
+        this.ctx.drawImage(curSkyImg, (this.canvas.width-img_width)/2, (this.canvas.height-img_height)/2, img_width, img_height);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
@@ -453,8 +424,6 @@ FChart.prototype.forceReloadImage = function() {
 FChart.prototype.doReloadImage = function() {
     var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
 
-    var cumulX = this.cumulatedMoveX;
-    var cumulY = this.cumulatedMoveY;
     var centerRA = this.ra;
     var centerDEC = this.dec;
 
@@ -467,7 +436,7 @@ FChart.prototype.doReloadImage = function() {
             this.reqInProcess --;
             if (this.reqInProcess == 0) {
                 this.dsoRegions = data.img_map;
-                this.activateImageOnLoad(cumulX, cumulY, centerRA, centerDEC);
+                this.activateImageOnLoad(centerRA, centerDEC);
                 this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
                 var queryParams = new URLSearchParams(window.location.search);
                 queryParams.set('ra', this.ra.toString());
@@ -477,7 +446,7 @@ FChart.prototype.doReloadImage = function() {
             }
         }.bind(this));
     } else {
-        activateImageOnLoad(cumulX, cumulY, centerRA, centerDEC);
+        activateImageOnLoad(centerRA, centerDEC);
         this.skyImgBuf[this.skyImg.background].src = url;
     }
 }
@@ -494,7 +463,7 @@ FChart.prototype.formatUrl = function(inpUrl) {
     return url;
 }
 
-FChart.prototype.activateImageOnLoad = function(cumulX, cumulY, centerRA, centerDEC) {
+FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = null;
         var old = this.skyImg.active;
@@ -505,21 +474,7 @@ FChart.prototype.activateImageOnLoad = function(cumulX, cumulY, centerRA, center
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
             this.cumulativeScaleFac = 1.0;
-            this.cumulatedMoveX -= cumulX;
-            this.cumulatedMoveY -= cumulY;
-            if (this.moveInterval === undefined) {
-                this.moveX = this.cumulatedMoveX;
-                this.moveY = this.cumulatedMoveY;
-                //if (this.reloadingImgCnt <= 1) {
-                    this.redrawAll();
-                //}
-            } else {
-                if (this.cumulatedMoveY == 0 && this.cumulatedMoveY == 0) {
-                    this.backwardMove = true;
-                } else {
-                    this.backwardMove = false;
-                }
-            }
+            this.redrawAll();
         } else {
             this.backwardScale = true;
         }
@@ -613,8 +568,8 @@ FChart.prototype.getDRaDec = function() {
     if (this.movingPos != undefined) {
         var rect = this.canvas.getBoundingClientRect();
         var scale = this.getFChartScale();
-        var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
-        var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
+        var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+        var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
         var movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
         return {
             'dRA' : movingToPos.ra - this.movingPos.ra,
@@ -628,47 +583,76 @@ FChart.prototype.getDRaDec = function() {
 }
 
 FChart.prototype.onPointerDown = function(e) {
-    this.isDragging = true;
-    this.draggingStart = true;
-    this.mouseX = this.getEventLocation(e).x;
-    this.mouseY = this.getEventLocation(e).y;
+    if (this.kbdDragging == 0) {
+        this.isDragging = true;
+        this.draggingStart = true;
+        this.pointerX = this.getEventLocation(e).x;
+        this.pointerY = this.getEventLocation(e).y;
 
-    var rect = this.canvas.getBoundingClientRect();
-    var scale = this.getFChartScale();
-    var x = -(this.mouseX - rect.left - this.canvas.width / 2.0) / scale;
-    var y = -(this.mouseY - rect.top - this.canvas.height / 2.0) / scale;
-    this.movingPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+        var rect = this.canvas.getBoundingClientRect();
+        var scale = this.getFChartScale();
+        var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+        var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+        this.movingPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+    }
 }
 
 FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
-        this.mouseX = this.getEventLocation(e).x;
-        this.mouseY = this.getEventLocation(e).y;
+        this.pointerX = this.getEventLocation(e).x;
+        this.pointerY = this.getEventLocation(e).y;
         this.isDragging = false
         this.draggingStart = false
-        this.renderOnTimeOutFromMouseMove(true);
+        this.renderOnTimeOutFromPointerMove(true);
     }
 }
 
-FChart.prototype.moveXY = function(mx, my) {
-    this.cumulatedMoveX = this.moveX;
-    this.cumulatedMoveY = this.moveY;
-    this.moveDX = this.MOVE_DIST * mx;
-    this.moveDY = this.MOVE_DIST * my;
-    this.dx += this.moveDX;
-    this.dy += this.moveDY;
-    this.setMoveRaDEC();
-    this.dx -= this.moveDX;
-    this.dy -= this.moveDY;
+FChart.prototype.onMouseOut = function(e) {
+    this.movingKeyUp();
+    this.onPointerUp(e);
+}
 
-    this.reloadImage();
+FChart.prototype.onKeyDown = function (e) {
+    var keyMoveMap = {
+        37: [1, 0],
+        38: [0, 1],
+        39: [-1, 0],
+        40: [0, -1],
+    }
 
-    var t = this;
-    this.smoothMoveStep = 0;
-    this.backwardMove = false;
-    this.moveInterval = setInterval(function(){ t.moveFunc(); }, this.MOVE_INTERVAL/this.MAX_SMOOTH_MOVE_STEPS);
-    this.nextMovePosition();
-    this.redrawAll();
+    if (e.keyCode == 33) {
+        if (this.zoomInterval === undefined) {
+            this.adjustZoom(1, null);
+        }
+        e.preventDefault();
+    } else if (e.keyCode == 34) {
+        if (this.zoomInterval === undefined) {
+            this.adjustZoom(-1, null);
+        }
+        e.preventDefault();
+    } else if (e.keyCode in keyMoveMap) {
+        if (this.kbdMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1])) {
+            e.preventDefault();
+        }
+    }
+}
+
+FChart.prototype.onKeyUp = function (e) {
+    if (e.keyCode == this.kbdDragging) {
+        this.movingKeyUp();
+    }
+}
+
+FChart.prototype.movingKeyUp = function () {
+    if (this.kbdDragging != 0) {
+        this.kbdDragging = 0;
+        this.draggingStart = false
+        if (this.moveInterval != undefined) {
+            clearInterval(this.moveInterval);
+            this.moveInterval = undefined;
+        }
+        this.renderOnTimeOutFromPointerMove(true);
+    }
 }
 
 FChart.prototype.setMoveRaDEC = function() {
@@ -676,17 +660,6 @@ FChart.prototype.setMoveRaDEC = function() {
         var dRD = this.getDRaDec();
         this.ra -= dRD.dRA;
         this.dec -= dRD.dDEC;
-    } else {
-        var fldSize = this.fieldSizes[this.fldSizeIndex];
-        var wh = Math.max(this.canvas.width, this.canvas.height);
-        this.dec = this.dec + this.multDEC * this.dy * Math.PI * fldSize / (180.0 * wh);
-
-        var movDec = this.dec;
-
-        if (movDec > Math.PI / 2.0 - Math.PI / 10.0) movDec = Math.PI / 2.0 - Math.PI / 10.0;
-        if (movDec < -Math.PI / 2.0 + Math.PI / 10.0) movDec = -Math.PI / 2.0 + Math.PI / 10.0;
-
-        this.ra = this.ra + this.multRA * this.dx * Math.PI * fldSize / (180.0 * wh * Math.cos(movDec));
     }
 
     if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
@@ -707,16 +680,16 @@ FChart.prototype.onPointerMove = function (e) {
         this.canvas.style.cursor = "default"
     }
 
-    this.mouseX = this.getEventLocation(e).x;
-    this.mouseY = this.getEventLocation(e).y;
-
     if (this.isDragging) {
+        this.pointerX = this.getEventLocation(e).x;
+        this.pointerY = this.getEventLocation(e).y;
+
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
         this.drawImgGrid(curSkyImg);
         this.ctx.drawImage(curLegendImg, 0, 0);
-        this.renderOnTimeOutFromMouseMove(false);
+        this.renderOnTimeOutFromPointerMove(false);
     }
 }
 
@@ -730,6 +703,66 @@ FChart.prototype.onTouchMove = function (e) {
         this.initialDistance = distance;
     } else {
         this.onPointerMove(e);
+    }
+}
+
+FChart.prototype.kbdMove = function(keyCode, mx, my) {
+    if (!this.isDragging) {
+        if (this.kbdDragging == 0) {
+            this.kbdDragging = keyCode;
+            this.kbdMoveDX = mx;
+            this.kbdMoveDY = my;
+            this.setMovingPosToCenter();
+            this.kbdSmoothMove();
+            var t = this;
+            this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, 20);
+            return true;
+        } if (this.kbdDragging == keyCode) {
+            return true;
+        }
+    }
+    return false;
+}
+
+FChart.prototype.setMovingPosToCenter = function() {
+    var rect = this.canvas.getBoundingClientRect();
+    this.pointerX = rect.left + this.canvas.width / 2.0;
+    this.pointerY = rect.top + this.canvas.height / 2.0;
+    this.movingPos = {
+        "ra" : this.ra,
+        "dec" :  this.dec
+    }
+}
+
+FChart.prototype.kbdSmoothMove = function() {
+    this.pointerX += this.kbdMoveDX * 10;
+    this.pointerY += this.kbdMoveDY * 10;
+
+    var curLegendImg = this.legendImgBuf[this.legendImg.active];
+    var curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+    this.drawImgGrid(curSkyImg);
+    this.ctx.drawImage(curLegendImg, 0, 0);
+
+    this.renderOnTimeOutFromPointerMove(false);
+}
+
+FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
+    if (!this.pointerMoveTimeout || isPointerUp) {
+        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
+        this.draggingStart = false;
+        this.pointerMoveTimeout = true;
+
+        setTimeout((function() {
+            this.pointerMoveTimeout = false;
+            if (!this.isReloadingImage()) {
+                this.setMoveRaDEC();
+                if (this.kbdDragging != 0) {
+                    this.setMovingPosToCenter();
+                }
+                this.reloadImage();
+            }
+        }).bind(this), timeout);
     }
 }
 
@@ -783,71 +816,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
     }
 }
 
-FChart.prototype.renderOnTimeOutFromMouseMove = function(isMouseUp) {
-    if (!this.mouseMoveTimeout || isMouseUp) {
-        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
-        this.draggingStart = false;
-        this.mouseMoveTimeout = true;
-
-        setTimeout((function() {
-            this.mouseMoveTimeout = false;
-            if (isMouseUp) {
-                this.setMoveRaDEC();
-                this.forceReloadImage();
-                this.movingPos = undefined;
-                this.dx = 0;
-                this.dy = 0;
-            } else if (this.isDragging) {
-                if (!this.isReloadingImage()) {
-                    this.setMoveRaDEC();
-                    this.reloadImage();
-                    this.dx = 0;
-                    this.dy = 0;
-                }
-            }
-        }).bind(this), timeout);
-    }
-}
-
-FChart.prototype.moveFunc = function() {
-    this.nextMovePosition();
-    this.redrawAll();
-    if (this.smoothMoveStep == this.MAX_SMOOTH_MOVE_STEPS) {
-        clearInterval(this.moveInterval);
-        this.moveInterval = undefined;
-        this.renderOnTimeOutFromKbdMove();
-
-    }
-}
-
-FChart.prototype.renderOnTimeOutFromKbdMove = function() {
-    setTimeout((function() {
-        if (this.moveInterval === undefined) {
-            if (!this.reloadImage() && this.renderOnTimeOutFromKbdMoveDepth<5) {
-                this.renderOnTimeOutFromKbdMoveDepth ++;
-                this.renderOnTimeOutFromKbdMove();
-            } else {
-                this.renderOnTimeOutFromKbdMoveDepth = 0;
-            }
-        }
-    }).bind(this), this.MOVE_INTERVAL/2);
-}
-
-FChart.prototype.nextMovePosition = function() {
-    if (this.smoothMoveStep < this.MAX_SMOOTH_MOVE_STEPS) {
-        this.smoothMoveStep ++;
-        if (this.backwardMove) {
-            this.moveX = this.cumulatedMoveX + this.moveDX * (this.smoothMoveStep-this.MAX_SMOOTH_MOVE_STEPS) / this.MAX_SMOOTH_MOVE_STEPS;
-            this.moveY = this.cumulatedMoveY + this.moveDY * (this.smoothMoveStep-this.MAX_SMOOTH_MOVE_STEPS) / this.MAX_SMOOTH_MOVE_STEPS;
-        } else {
-            this.moveX = this.cumulatedMoveX + this.moveDX * this.smoothMoveStep / this.MAX_SMOOTH_MOVE_STEPS;
-            this.moveY = this.cumulatedMoveY + this.moveDY * this.smoothMoveStep / this.MAX_SMOOTH_MOVE_STEPS;
-        }
-    }
-}
-
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
-    if (!this.isDragging) {
+    if (!this.isMoving) {
         if (zoomAmount != null) {
             this.fldSizeIndexR += zoomAmount;
         } else {
