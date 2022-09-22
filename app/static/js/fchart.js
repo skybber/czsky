@@ -661,13 +661,13 @@ FChart.prototype.onKeyUp = function (e) {
 
 FChart.prototype.movingKeyUp = function () {
     if (this.kbdDragging != 0) {
-        this.kbdDragging = 0;
-        this.draggingStart = false
         if (this.moveInterval != undefined) {
             clearInterval(this.moveInterval);
             this.moveInterval = undefined;
         }
         this.renderOnTimeOutFromPointerMove(true);
+        this.kbdDragging = 0;
+        this.draggingStart = false
     }
 }
 
