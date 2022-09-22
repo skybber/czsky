@@ -782,6 +782,10 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
                 }
                 this.reloadImage();
             } else if (isPointerUp) {
+                this.setMoveRaDEC();
+                if (this.kbdDragging != 0) {
+                    this.setMovingPosToCenter();
+                }
                 this.forceReloadImage();
             }
         }).bind(this), timeout);
