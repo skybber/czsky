@@ -5,6 +5,13 @@ function pos2radec(x, y, centerRA, centerDEC) {
     }
 }
 
+function pos2radec2(x, y, centerRA, centerDEC) {
+    return {
+        "ra" : centerRA + Math.atan2(x, (Math.cos(centerDEC) * Math.sqrt(1 - x*x - y*y) - y*Math.sin(centerDEC))),
+        "dec" : Math.asin((y*Math.cos(centerDEC) + Math.sin(centerDEC) * Math.sqrt(1 - y*y)))
+    }
+}
+
 function radec2pos(ra, dec, centerRA, centerDEC) {
     deltaRA = ra - centerRA
 
@@ -196,8 +203,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.MAX_ZOOM_STEPS = 10;
 
     this.MOVE_INTERVAL = 200;
-    this.MOVE_DIST = 80;
+    this.MOVE_STEP_MS = 20;
     this.GRID_SIZE = 10;
+    this.MOVE_SEC_PER_SCREEN = 2;
 
     this.ra = ra;
     this.dec = dec;
@@ -212,7 +220,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.jsonLoad = jsonLoad;
 
     this.zoomQueuedImgs = 0;
-    this.reloadingImgCnt = 0;
+    this.isReloadingImage = false;
+    this.isForceReload = false;
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
@@ -401,27 +410,22 @@ FChart.prototype.reloadLegendImage = function () {
     this.legendImgBuf[this.legendImg.background].src = url;
 }
 
-FChart.prototype.isReloadingImage = function() {
-    return this.reloadingImgCnt > 0;
-}
-
 FChart.prototype.reloadImage = function() {
-    if (this.reloadingImgCnt == 0) {
-        this.reloadingImgCnt = 1;
-        this.doReloadImage();
+    if (!this.isReloadingImage) {
+        this.isReloadingImage = true;
+        this.doReloadImage(false);
         return true
-    } else {
-        // this.reloadingImgCnt = 2;
     }
     return false;
 }
 
 FChart.prototype.forceReloadImage = function() {
-    this.reloadingImgCnt = 1;
-    this.doReloadImage()
+    this.isReloadingImage = true;
+    this.isForceReload = true;
+    this.doReloadImage(true);
 }
 
-FChart.prototype.doReloadImage = function() {
+FChart.prototype.doReloadImage = function(forceReload) {
     var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
 
     var centerRA = this.ra;
@@ -434,7 +438,7 @@ FChart.prototype.doReloadImage = function() {
             json : true
         }, function(data) {
             this.reqInProcess --;
-            if (this.reqInProcess == 0) {
+            if (this.reqInProcess == 0 || forceReload) {
                 this.dsoRegions = data.img_map;
                 this.activateImageOnLoad(centerRA, centerDEC);
                 this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
@@ -443,6 +447,12 @@ FChart.prototype.doReloadImage = function() {
                 queryParams.set('dec', this.dec.toString());
                 queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
                 history.replaceState(null, null, "?" + queryParams.toString());
+                if (this.isReloadingImage) {
+                    this.isReloadingImage = false;
+                }
+                if (forceReload) {
+                    this.forceReload = false;
+                }
             }
         }.bind(this));
     } else {
@@ -478,17 +488,15 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         } else {
             this.backwardScale = true;
         }
-        this.reloadingImgCnt --;
-        if (this.reloadingImgCnt < 0) {
-            this.reloadingImgCnt = 0;
-        } else if (this.reloadingImgCnt > 0) {
-            this.doReloadImage();
-        }
     }.bind(this);
 }
 
 FChart.prototype.mirroredPos2radec = function(x, y, centerRA, centerDEC) {
     return pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
+}
+
+FChart.prototype.mirroredPos2radec2 = function(x, y, centerRA, centerDEC) {
+    return pos2radec2(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
 }
 
 FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
@@ -570,7 +578,12 @@ FChart.prototype.getDRaDec = function() {
         var scale = this.getFChartScale();
         var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
         var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
-        var movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+        var movingToPos;
+        if (this.kbdDragging == 0) {
+            movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+        } else {
+            movingToPos = this.mirroredPos2radec2(x, y, this.ra, this.dec);
+        }
         return {
             'dRA' : movingToPos.ra - this.movingPos.ra,
             'dDEC' : movingToPos.dec - this.movingPos.dec
@@ -602,8 +615,11 @@ FChart.prototype.onPointerUp = function(e) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
         this.isDragging = false
-        this.draggingStart = false
-        this.renderOnTimeOutFromPointerMove(true);
+        if (!this.draggingStart) { // there was some mouse movement
+            this.renderOnTimeOutFromPointerMove(true);
+        } else {
+            this.draggingStart = false
+        }
     }
 }
 
@@ -709,6 +725,7 @@ FChart.prototype.onTouchMove = function (e) {
 FChart.prototype.kbdMove = function(keyCode, mx, my) {
     if (!this.isDragging) {
         if (this.kbdDragging == 0) {
+            this.draggingStart = true;
             this.kbdDragging = keyCode;
             this.kbdMoveDX = mx;
             this.kbdMoveDY = my;
@@ -735,8 +752,11 @@ FChart.prototype.setMovingPosToCenter = function() {
 }
 
 FChart.prototype.kbdSmoothMove = function() {
-    this.pointerX += this.kbdMoveDX * 10;
-    this.pointerY += this.kbdMoveDY * 10;
+    var vh = Math.max(this.canvas.width, this.canvas.height);
+    var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / this.MOVE_STEP_MS);
+    console.log(stepAmount)
+    this.pointerX += this.kbdMoveDX * stepAmount;
+    this.pointerY += this.kbdMoveDY * stepAmount;
 
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
@@ -749,13 +769,13 @@ FChart.prototype.kbdSmoothMove = function() {
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
-        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
+        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : this.MOVE_STEP_MS;
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
 
         setTimeout((function() {
             this.pointerMoveTimeout = false;
-            if (!this.isReloadingImage()) {
+            if (!this.isReloadingImage) {
                 this.setMoveRaDEC();
                 if (this.kbdDragging != 0) {
                     this.setMovingPosToCenter();
