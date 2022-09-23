@@ -703,7 +703,9 @@ FChart.prototype.onPointerMove = function (e) {
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
-        this.drawImgGrid(curSkyImg);
+        if (this.imgGrid != undefined) {
+            this.drawImgGrid(curSkyImg);
+        }
         this.ctx.drawImage(curLegendImg, 0, 0);
         this.renderOnTimeOutFromPointerMove(false);
     }
@@ -734,6 +736,11 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
             var t = this;
             this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, 20);
             return true;
+        } if (this.kbdDragging != keyCode) {
+            this.kbdDragging = keyCode;
+            this.kbdMoveDX = mx;
+            this.kbdMoveDY = my;
+            return true;
         } if (this.kbdDragging == keyCode) {
             return true;
         }
@@ -760,7 +767,9 @@ FChart.prototype.kbdSmoothMove = function() {
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
-    this.drawImgGrid(curSkyImg);
+    if (this.imgGrid != undefined) {
+        this.drawImgGrid(curSkyImg);
+    }
     this.ctx.drawImage(curLegendImg, 0, 0);
 
     this.renderOnTimeOutFromPointerMove(false);
