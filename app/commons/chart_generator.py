@@ -198,7 +198,7 @@ def _setup_night_theme(config, width):
     config.dso_dynamic_brightness = True
     config.dso_highlight_color = (0.4, 0.2, 0.1)
     config.dso_highlight_linewidth = 0.3
-    config.milky_way_color = (0.1, 0.02, 0.02)
+    config.milky_way_color = (0.075, 0.015, 0.015)
     config.light_mode = False
     config.picker_color = (0.5, 0.1, 0.0)
     config.eyepiece_color = (0.5, 0.0, 0.0)
