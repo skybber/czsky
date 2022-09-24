@@ -57,7 +57,7 @@ MAG_SCALES = [(14, 16), (13, 16), (12, 16), (11, 15), (10, 13), (8, 11), (6, 9),
 DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 11), (6, 10)]
 
 free_mem_counter = 0
-NO_FREE_MEM_CYCLES = 500
+NO_FREE_MEM_CYCLES = 200
 
 FORCE_SHOWING_DSOS = ['NGC 1909', 'IC443']
 
@@ -146,7 +146,7 @@ def _setup_dark_theme(config, width):
         config.background_color = (0.01, 0.01, 0.01)
     else:
         config.background_color = (0.005, 0.005, 0.02)
-    config.constellation_lines_color = (0.18, 0.27, 0.3)
+    config.constellation_lines_color = (0.12, 0.27, 0.3)
     config.constellation_border_color = (0.3, 0.27, 0.07)
     config.constellation_hl_border_color = (0.6, 0.5, 0.14)
     config.draw_color = (1.0, 1.0, 1.0)
