@@ -344,10 +344,8 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    if current_app.config.get('CHART_IMG_FORMAT'):
-        img_format = current_app.config.get('CHART_IMG_FORMAT')
-    else:
-        img_format = 'png'
+    img_format = current_app.config.get('CHART_IMG_FORMAT')
+
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
                   maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                   highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation,
@@ -633,7 +631,13 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         dso_maglim = -10
 
     high_quality = request.args.get('hqual', '')
-    jpg_quality = 95 if high_quality == '1' else 75
+
+    jpg_low_quality = current_app.config.get('CHART_JPEG_LOW_QUALITY')
+    jpg_low_quality = int(jpg_low_quality)
+    jpg_high_quality = current_app.config.get('CHART_JPEG_HIGH_QUALITY')
+    jpg_high_quality = int(jpg_high_quality)
+
+    jpg_quality = jpg_high_quality if high_quality == '1' else jpg_low_quality
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality)

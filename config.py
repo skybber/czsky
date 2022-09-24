@@ -83,7 +83,10 @@ class Config:
     CHART_FONT = os.environ.get('CHART_FONT')
     PDF_FONT = os.environ.get('PDF_FONT')
 
-    CHART_IMG_FORMAT = os.environ.get('CHART_IMG_FORMAT')
+    CHART_IMG_FORMAT = os.environ.get('CHART_IMG_FORMAT', 'png')
+
+    CHART_JPEG_LOW_QUALITY = os.environ.get('CHART_JPEG_LOW_QUALITY', 80)
+    CHART_JPEG_HIGH_QUALITY = os.environ.get('CHART_JPEG_HIGH_QUALITY', 95)
 
     @staticmethod
     def init_app(app):
