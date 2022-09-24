@@ -256,7 +256,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     window.addEventListener('resize', (function(e) {
         this.adjustCanvasSize();
         this.reloadLegendImage();
-        this.forceReload();
+        this.forceReloadImage();
     }).bind(this), false);
 
     $(this.canvas).bind('click', this.onClick.bind(this));
@@ -349,13 +349,13 @@ FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
     this.reloadLegendImage();
-    this.forceReload();
+    this.forceReloadImage();
 };
 
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();
     this.reloadLegendImage();
-    this.forceReload();
+    this.forceReloadImage();
 }
 
 FChart.prototype.adjustCanvasSize = function() {
