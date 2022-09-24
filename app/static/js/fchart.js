@@ -428,6 +428,12 @@ FChart.prototype.forceReloadImage = function() {
 FChart.prototype.doReloadImage = function(forceReload) {
     var url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
 
+    if (forceReload) {
+        url += '&hqual=1';
+    }
+
+    console.log(url)
+
     var centerRA = this.ra;
     var centerDEC = this.dec;
 
@@ -786,18 +792,18 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
 
         setTimeout((function() {
             this.pointerMoveTimeout = false;
-            if (!this.isReloadingImage) {
-                this.setMoveRaDEC(wasKbdDragging);
-                if (wasKbdDragging) {
-                    this.setMovingPosToCenter();
-                }
-                this.reloadImage();
-            } else if (isPointerUp) {
+            if (isPointerUp) {
                 this.setMoveRaDEC(wasKbdDragging);
                 if (wasKbdDragging) {
                     this.setMovingPosToCenter();
                 }
                 this.forceReloadImage();
+            } else if (!this.isReloadingImage) {
+                this.setMoveRaDEC(wasKbdDragging);
+                if (wasKbdDragging) {
+                    this.setMovingPosToCenter();
+                }
+                this.reloadImage();
             }
         }).bind(this), timeout);
     }
