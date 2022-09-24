@@ -432,8 +432,6 @@ FChart.prototype.doReloadImage = function(forceReload) {
         url += '&hqual=1';
     }
 
-    console.log(url)
-
     var centerRA = this.ra;
     var centerDEC = this.dec;
 
