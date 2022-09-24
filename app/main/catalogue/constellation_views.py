@@ -253,10 +253,10 @@ def constellation_chart_pos_img(constellation_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(constellation.label_ra, constellation.label_dec, ra, dec, visible_objects=visible_objects, hl_constellation=constellation.iau_code)
+    img_bytes, img_format = common_chart_pos_img(constellation.label_ra, constellation.label_dec, ra, dec, visible_objects=visible_objects, hl_constellation=constellation.iau_code)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_map=visible_objects)
+        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
     else:
         return send_file(img_bytes, mimetype='image/png')
 

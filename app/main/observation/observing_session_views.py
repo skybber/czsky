@@ -383,11 +383,11 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
-                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_map=visible_objects)
+        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
     else:
         return send_file(img_bytes, mimetype='image/png')
 

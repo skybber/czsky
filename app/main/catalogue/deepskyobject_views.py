@@ -557,12 +557,12 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
 
     highlights_dso_list, highlights_pos_list = create_hightlights_lists()
 
-    img_bytes = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
-                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     if visible_objects is not None:
         img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_map=visible_objects)
+        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
     else:
         return send_file(img_bytes, mimetype='image/png')
 

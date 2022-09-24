@@ -83,6 +83,8 @@ class Config:
     CHART_FONT = os.environ.get('CHART_FONT')
     PDF_FONT = os.environ.get('PDF_FONT')
 
+    CHART_IMG_FORMAT = os.environ.get('CHART_IMG_FORMAT')
+
     @staticmethod
     def init_app(app):
         pass

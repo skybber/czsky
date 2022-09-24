@@ -377,7 +377,7 @@ FChart.prototype.redrawAll = function () {
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
 
-    if (this.isDragging || this.kbdDragging != 0) {
+    if (this.imgGrid != undefined && (this.isDragging || this.kbdDragging != 0 )) {
         this.drawImgGrid(curSkyImg);
     } else {
         var img_width = curSkyImg.width * this.scaleFac;
@@ -439,9 +439,10 @@ FChart.prototype.doReloadImage = function(forceReload) {
         }, function(data) {
             this.reqInProcess --;
             if (this.reqInProcess == 0 || forceReload) {
+                var img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
                 this.dsoRegions = data.img_map;
                 this.activateImageOnLoad(centerRA, centerDEC);
-                this.skyImgBuf[this.skyImg.background].src = 'data:image/png;base64,' + data.img;
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
                 var queryParams = new URLSearchParams(window.location.search);
                 queryParams.set('ra', this.ra.toString());
                 queryParams.set('dec', this.dec.toString());
@@ -456,7 +457,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
             }
         }.bind(this));
     } else {
-        activateImageOnLoad(centerRA, centerDEC);
+        this.activateImageOnLoad(centerRA, centerDEC);
         this.skyImgBuf[this.skyImg.background].src = url;
     }
 }

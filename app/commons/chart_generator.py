@@ -344,11 +344,16 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
+    if current_app.config.get('CHART_IMG_FORMAT'):
+        img_format = current_app.config.get('CHART_IMG_FORMAT')
+    else:
+        img_format = 'png'
     _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
                   maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
-                  highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation)
+                  highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation,
+                  img_format=img_format)
     img_bytes.seek(0)
-    return img_bytes
+    return img_bytes, ('jpeg' if img_format == 'jpg' else img_format)
 
 
 def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
@@ -367,7 +372,8 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov,  flags=flags)
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov,
+                         flags=flags, img_format='png')
     img_bytes.seek(0)
     return img_bytes
 
@@ -592,7 +598,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
                   show_legend=True, dso_names=None, flags='', highlights_dso_list=None, highlights_pos_list=None, trajectory=None,
-                  hl_constellation=None):
+                  hl_constellation=None, img_format='png'):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -626,7 +632,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png',
+    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
@@ -757,7 +763,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, flags=''):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
     global free_mem_counter
     # tm = time()
 
@@ -789,7 +795,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     if dso_maglim is None:
         dso_maglim = -10
 
-    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format='png', pixels=True if width else False)
+    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format, pixels=True if width else False)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
