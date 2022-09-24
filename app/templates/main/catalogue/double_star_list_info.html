@@ -33,51 +33,124 @@
         </div>
     </div>
 
-    <form action="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id) }}" method="post" name="search" class="ui stackable menu">
-        <div class="ui item">
-            {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-            <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+    <form action="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id) }}" method="post" name="search">
+        <div class="ui menu">
+            <div class="ui item">
+                {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+                <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+            </div>
+            <div class="ui input item">
+                {{ search_form.mag_max(size=4) }}
+                <div class="top right aligned floating ui label">{{ _('Mag max') }}</div>
+            </div>
+            <div class="ui input item">
+                {{ search_form.delta_mag_min(size=4) }}
+                <div class="top right aligned floating ui label">{{ _('Delta mag min') }}</div>
+            </div>
+            <div class="ui input item">
+                {{ search_form.separation_min(size=4) }}
+                <div class="top right aligned floating ui label">{{ _('Separation min') }}</div>
+            </div>
+            <div class="ui input item">
+                {{ search_form.separation_max(size=4) }}
+                <div class="top right aligned floating ui label">{{ _('Separation max') }}</div>
+            </div>
+            <div class="ui input item">
+                {{ search_form.dec_min(size=4) }}
+                <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+            </div>
+            <div class="ui right action small input item">
+                {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                <button class="ui small icon button">
+                    <i class="search icon"></i>
+                </button>
+                <div class="top right aligned floating ui label">{{ _('WDS or Cat. ID') }}</div>
+            </div>
         </div>
+        
         <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+
+        <div style="overflow-x: scroll;">
+            <table class="ui searchable unstackable selectable celled table">
+                <thead>
+                    <tr>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['wds_number'].sort) }}" style="color: inherit;">
+                                WDS {{ table_sort['wds_number'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['common_cat_id'].sort) }}" style="color: inherit;">
+                                {{ _('Catalog ID') }} {{ table_sort['common_cat_id'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['components'].sort) }}" style="color: inherit;">
+                                {{ _('Co.') }} {{ table_sort['components'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['other_designation'].sort) }}" style="color: inherit;">
+                                {{ _('Other designation') }} {{ table_sort['other_designation'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['mag_first'].sort) }}" style="color: inherit;white-space: nowrap;">
+                                {{ _('Mag1') }} {{ table_sort['mag_first'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['mag_second'].sort) }}" style="color: inherit;white-space: nowrap;">
+                                {{ _('Mag2') }} {{ table_sort['mag_second'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['separation'].sort) }}" style="color: inherit;">
+                                {{ _('Sep.') }} {{ table_sort['separation'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
+                                RA {{ table_sort['ra'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
+                                Dec {{ table_sort['dec'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['spectral_type'].sort) }}" style="color: inherit;">
+                                {{ _('Spec.') }} {{ table_sort['spectral_type'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="right aligned collapsing">
+                            <a href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                                <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for d in double_star_list_items %}
+                    <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_chart', double_star_id=d.id) }}';">
+                        <td class="mobile hidden">{{ d.double_star.wds_number }}</td>
+                        <td>{{ d.double_star.common_cat_id }}</td>
+                        <td>{{ d.double_star.components }}</td>
+                        <td class="mobile hidden">{{ d.double_star.other_designation }}</td>
+                        <td class="right aligned">{{ commons.convert_mag(d.double_star.mag_first) }}</td>
+                        <td class="right aligned">{{ commons.convert_mag(d.double_star.mag_second) }}</td>
+                        <td class="right aligned">{{ d.double_star.separation }}</td>
+                        <td class="mobile hidden">{{ d.double_star.ra_first_str_short() }}</td>
+                        <td class="mobile hidden">{{ d.double_star.dec_first_str_short() }}</td>
+                        <td class="mobile hidden">{{ d.double_star.spectral_type }}</td>
+                        <td>{{ d.double_star.get_constellation_iau_code() }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </form>
-
-    <div style="overflow-x: scroll;">
-        <table class="ui searchable sortable unstackable selectable celled table">
-            <thead>
-                <tr>
-                    <th class="mobile hidden">WDS</th>
-                    <th>{{ _('Catalog ID') }}</th>
-                    <th>{{ _('Co.') }}</th>
-                    <th class="mobile hidden">{{ _('Other designation') }}</th>
-                    <th>{{ _('Mag1') }}</th>
-                    <th>{{ _('Mag2') }}</th>
-                    <th>{{ _('Sep.') }}</th>
-                    <th class="mobile hidden">RA</th>
-                    <th class="mobile hidden">Dec</th>
-                    <th>{{ _('Spec.') }}</th>
-                    <th class="right aligned"><i class="lastfm icon"></i></th>
-                </tr>
-            </thead>
-            <tbody>
-
-            {% for item in double_star_list_items %}
-                <tr onclick="window.location.href='{{ url_for('main_double_star.double_star_chart', double_star_id=item.double_star.id, back='double_star_list', back_id=double_star_list.id) }}';">
-                    <td class="mobile hidden">{{ item.double_star.wds_number }}</td>
-                    <td>{{ item.double_star.common_cat_id }}</td>
-                    <td>{{ item.double_star.components }}</td>
-                    <td class="mobile hidden">{{ item.double_star.other_designation }}</td>
-                    <td>{{ commons.convert_mag(item.double_star.mag_first) }}</td>
-                    <td>{{ commons.convert_mag(item.double_star.mag_second) }}</td>
-                    <td>{{ item.double_star.separation }}</td>
-                    <td class="mobile hidden">{{ item.double_star.ra_first_str_short() }}</td>
-                    <td class="mobile hidden">{{ item.double_star.dec_first_str_short() }}</td>
-                    <td>{{ item.double_star.spectral_type }}</td>
-                    <td class="right aligned">{{ item.double_star.get_constellation_iau_code() }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
     <script type="text/javascript">
         $('.ui.accordion')
           .accordion()
