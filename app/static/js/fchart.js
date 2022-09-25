@@ -235,15 +235,13 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.multRA = mirror_x ? -1 : 1;
     this.multDEC = mirror_y ? -1 : 1;
     this.pendingMoveRequest = undefined;
+    this.lastSmoothMoveTime = -1;
 
     this.moveInterval = undefined;
     this.kbdMoveDX = 0;
     this.kbdMoveDY = 0;
     this.dsoRegions = undefined;
     this.imgGrid = undefined;
-    this.lastDrawTime = -1;
-    this.moveIntervalDrawTime = -1;
-    this.lastMoveTimeout = -1;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -373,7 +371,6 @@ FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
 }
 
 FChart.prototype.redrawAll = function () {
-    var startTime = performance.now();
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
     this.canvas.width = curLegendImg.width;
@@ -389,7 +386,6 @@ FChart.prototype.redrawAll = function () {
         this.ctx.drawImage(curSkyImg, (this.canvas.width-img_width)/2, (this.canvas.height-img_height)/2, img_width, img_height);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
-    this.lastDrawTime = performance.now() - startTime;
 }
 
 FChart.prototype.reloadLegendImage = function () {
@@ -679,7 +675,6 @@ FChart.prototype.movingKeyUp = function () {
         this.renderOnTimeOutFromPointerMove(true);
         this.kbdDragging = 0;
         this.draggingStart = false
-        // this.moveIntervalDrawTime = -1;
     }
 }
 
@@ -744,9 +739,10 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
             this.kbdMoveDX = mx;
             this.kbdMoveDY = my;
             this.setMovingPosToCenter();
+            this.lastSmoothMoveTime = performance.now();
             this.kbdSmoothMove();
             var t = this;
-            this.setMoveInterval(true);
+            this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, 20);
             return true;
         } if (this.kbdDragging != keyCode) {
             this.kbdDragging = keyCode;
@@ -754,46 +750,11 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
             this.kbdMoveDY = my;
             return true;
         } if (this.kbdDragging == keyCode) {
-            this.setMoveInterval(false);
             return true;
         }
     }
     return false;
 }
-
-FChart.prototype.setMoveInterval = function(force) {
-    var moveTimeoutsMs = [this.FREQ_60_HZ_TIMEOUT, 25, 30, 50, 75, 100, 150, 200, 300, 500, 750, 1000];
-
-    if (this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
-        var d = this.lastDrawTime - this.moveIntervalDrawTime;
-        if (force || this.moveIntervalDrawTime + d > 1.5 * this.moveIntervalDrawTime || this.moveIntervalDrawTime + d < 0.66 * this.moveIntervalDrawTime) {
-            this.moveIntervalDrawTime = this.lastDrawTime;
-            var moveTimeout;
-            for (i=0; i<moveTimeoutsMs.length; i++) {
-                moveTimeout = moveTimeoutsMs[i];
-                if (this.lastDrawTime <= moveTimeoutsMs[i]) {
-                    break;
-                }
-            }
-            if (force || this.moveInterval === undefined || moveTimeout != this.lastMoveTimeout) {
-                this.lastMoveTimeout = moveTimeout;
-                if (this.moveInterval != undefined) {
-                    clearInterval(this.moveInterval);
-                    this.moveInterval = undefined;
-                }
-                var t = this;
-                this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, this.lastMoveTimeout);
-                // console.log('Changed: ' + moveTimeout);
-            }
-        }
-    } else {
-        this.lastMoveTimeout = this.moveIntervalDrawTime = moveTimeoutsMs[0];
-        var t = this;
-        this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, this.lastMoveTimeout);
-        // console.log('Changed: ' + moveTimeoutsMs[0]);
-    }
-}
-
 
 FChart.prototype.setMovingPosToCenter = function() {
     var rect = this.canvas.getBoundingClientRect();
@@ -807,9 +768,16 @@ FChart.prototype.setMovingPosToCenter = function() {
 
 FChart.prototype.kbdSmoothMove = function() {
     if (this.kbdDragging != 0) {
+        var now = performance.now();
+        var timeout = now - this.lastSmoothMoveTime;
+        if (timeout > 1000) {
+            timeout = 1000;
+        } else if (timeout < this.FREQ_60_HZ_TIMEOUT) {
+            timeout = this.FREQ_60_HZ_TIMEOUT;
+        }
+        this.lastSmoothMoveTime = now;
         var vh = Math.max(this.canvas.width, this.canvas.height);
-        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : this.FREQ_60_HZ_TIMEOUT;
-        var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / moveStepMs);
+        var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
         this.pointerX += this.kbdMoveDX * stepAmount;
         this.pointerY += this.kbdMoveDY * stepAmount;
 
@@ -864,7 +832,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    var dRD = this.getDRaDec(false);
+    var fromKbdMove = this.pendingMoveRequest != undefined && this.pendingMoveRequest.wasKbdDragging;
+    var dRD = this.getDRaDec(fromKbdMove);
     var scale = this.getFChartScale();
 
     var screenImgGrid = [];
