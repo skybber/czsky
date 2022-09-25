@@ -176,6 +176,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
+    $(this.canvas).focus();
+
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
 
@@ -986,6 +988,8 @@ FChart.prototype.toggleFullscreen = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
 
+    $(this.canvas).focus();
+
     if (this.isInFullScreen()) {
         queryParams.set('fullscreen', 'true');
     } else {
@@ -1020,6 +1024,8 @@ FChart.prototype.toggleSplitView = function() {
         $(this.fchartDiv).css('left', 0);
         $(this.fchartDiv).css('width', '100%');
     }
+
+    $(this.canvas).focus();
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
