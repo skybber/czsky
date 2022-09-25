@@ -173,10 +173,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     var iframe_style = "display:none;background-color:" + iframe_background;
     this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="' + iframe_style + '"></iframe>').appendTo(this.fchartDiv)[0];
     this.separator = $('<div class="fchart-separator" style="display:none"></div>').appendTo(this.fchartDiv)[0];
-    this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1"></canvas>').appendTo(this.fchartDiv)[0];
+    this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1" style="outline: 0;"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
-
-    $(this.canvas).focus();
 
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
@@ -355,6 +353,7 @@ FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
 
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();
+    $(this.canvas).focus();
     this.reloadLegendImage();
     this.forceReloadImage();
 }
