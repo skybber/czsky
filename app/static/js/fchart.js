@@ -771,9 +771,9 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
 FChart.prototype.setMoveInterval = function(force) {
     var moveTimeoutsMs = [20, 30, 50, 75, 100, 150, 200, 300, 500, 750, 1000];
 
-    if (!force && this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
+    if (this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
         var d = this.lastDrawTime - this.moveIntervalDrawTime;
-        if (this.moveIntervalDrawTime + d > 1.5 * this.moveIntervalDrawTime || this.moveIntervalDrawTime + d < 0.66 * this.moveIntervalDrawTime) {
+        if (force || this.moveIntervalDrawTime + d > 1.5 * this.moveIntervalDrawTime || this.moveIntervalDrawTime + d < 0.66 * this.moveIntervalDrawTime) {
             this.moveIntervalDrawTime = this.lastDrawTime;
             var moveTimeout;
             for (i=0; i<moveTimeoutsMs.length; i++) {
@@ -782,7 +782,7 @@ FChart.prototype.setMoveInterval = function(force) {
                     break;
                 }
             }
-            if (this.moveInterval === undefined || moveTimeout != this.lastMoveTimeout) {
+            if (force || this.moveInterval === undefined || moveTimeout != this.lastMoveTimeout) {
                 this.lastMoveTimeout = moveTimeout;
                 if (this.moveInterval != undefined) {
                     clearInterval(this.moveInterval);
