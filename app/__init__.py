@@ -84,7 +84,7 @@ def create_app(config, web=True):
     for path in dirs:
         assets_env.append_path(os.path.join(basedir, path))
     assets_env.url_expire = True
-    assets_env.config['PYSCSS_DEBUG_INFO'] = False
+    # assets_env.config['PYSCSS_DEBUG_INFO'] = False
 
     assets_env.register('app_css', app_css)
     assets_env.register('default_theme_css', default_theme_css)
