@@ -3,6 +3,7 @@ import numpy as np
 import json
 import base64
 from io import BytesIO
+import datetime as dt_module
 
 from datetime import date, datetime, timedelta
 
@@ -84,6 +85,9 @@ def _update_comets_positions():
 job1 = scheduler.add_job(_update_comets_cobs_observations, 'interval', hours=12, replace_existing=True)
 job2 = scheduler.add_job(_update_evaluated_comet_brightness, 'interval', days=5, replace_existing=True)
 job3 = scheduler.add_job(_update_comets_positions, 'interval', hours=3, replace_existing=True)
+
+
+utc = dt_module.timezone.utc
 
 
 def _get_mag_coma_from_observations(observs):
@@ -237,6 +241,12 @@ def comet_info(comet_id):
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
         t = ts.now()
+        today = date.today()
+        if today < d1.date():
+            t = ts.from_datetime(d1.replace(tzinfo=utc))
+        elif today > d2.date():
+            t = ts.from_datetime(d2.replace(tzinfo=utc))
+
         comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
         if d1 != d2:
             time_delta = d2 - d1
