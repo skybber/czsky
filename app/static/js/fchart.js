@@ -196,6 +196,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.fldSizeIndex = fldSizeIndex;
     this.fieldSizes = fieldSizes;
     this.fldSizeIndexR = fldSizeIndex + 1;
+    this.isResizing = false;
+    this.isNextResizeEvnt = false;
 
     this.MAX_ZOOM = fieldSizes.length + 0.49;
     this.MIN_ZOOM = 0.5;
@@ -253,9 +255,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     }
 
     window.addEventListener('resize', (function(e) {
-        this.adjustCanvasSize();
-        this.reloadLegendImage();
-        this.forceReloadImage();
+        this.onResize();
     }).bind(this), false);
 
     $(this.canvas).bind('click', this.onClick.bind(this));
@@ -369,6 +369,31 @@ FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
     this.canvas.height = Math.max(computedHeight, 1);
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+}
+
+FChart.prototype.onResize = function() {
+    if (!this.isResizing) {
+        this.isResizing = true;
+        setTimeout((function() {
+            this.doResize();
+        }).bind(this), 100);
+    } else {
+        this.isNextResizeEvnt = true;
+    }
+}
+
+FChart.prototype.doResize = function() {
+    if (!this.isNextResizeEvnt) {
+        this.isResizing = false;
+        this.adjustCanvasSize();
+        this.reloadLegendImage();
+        this.forceReloadImage();
+    } else {
+        this.isNextResizeEvnt = false;
+        setTimeout((function() {
+            this.doResize();
+        }).bind(this), 100);
+    }
 }
 
 FChart.prototype.redrawAll = function () {
