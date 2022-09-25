@@ -485,7 +485,7 @@ FChart.prototype.formatUrl = function(inpUrl) {
 
 FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
-        this.skyImgBuf[this.skyImg.background].onload = null;
+        this.skyImgBuf[this.skyImg.background].onload = undefined;
         var old = this.skyImg.active;
         this.skyImg.active = this.skyImg.background;
         this.skyImg.background = old;
@@ -686,7 +686,7 @@ FChart.prototype.movingKeyUp = function () {
         this.renderOnTimeOutFromPointerMove(true);
         this.kbdDragging = 0;
         this.draggingStart = false
-        this.moveIntervalDrawTime = -1;
+        // this.moveIntervalDrawTime = -1;
     }
 }
 
@@ -813,21 +813,23 @@ FChart.prototype.setMovingPosToCenter = function() {
 }
 
 FChart.prototype.kbdSmoothMove = function() {
-    var vh = Math.max(this.canvas.width, this.canvas.height);
-    var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : 20;
-    var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / moveStepMs);
-    this.pointerX += this.kbdMoveDX * stepAmount;
-    this.pointerY += this.kbdMoveDY * stepAmount;
+    if (this.kbdDragging != 0) {
+        var vh = Math.max(this.canvas.width, this.canvas.height);
+        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : 20;
+        var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / moveStepMs);
+        this.pointerX += this.kbdMoveDX * stepAmount;
+        this.pointerY += this.kbdMoveDY * stepAmount;
 
-    var curLegendImg = this.legendImgBuf[this.legendImg.active];
-    var curSkyImg = this.skyImgBuf[this.skyImg.active];
+        var curLegendImg = this.legendImgBuf[this.legendImg.active];
+        var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
-    if (this.imgGrid != undefined) {
-        this.drawImgGrid(curSkyImg);
+        if (this.imgGrid != undefined) {
+            this.drawImgGrid(curSkyImg);
+        }
+        this.ctx.drawImage(curLegendImg, 0, 0);
+
+        this.renderOnTimeOutFromPointerMove(false);
     }
-    this.ctx.drawImage(curLegendImg, 0, 0);
-
-    this.renderOnTimeOutFromPointerMove(false);
 }
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
