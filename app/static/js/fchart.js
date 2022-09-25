@@ -204,7 +204,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.GRID_SIZE = 10;
     this.MOVE_SEC_PER_SCREEN = 2;
-
     this.FREQ_60_HZ_TIMEOUT = 16.67;
 
     this.ra = ra;
@@ -809,7 +808,7 @@ FChart.prototype.setMovingPosToCenter = function() {
 FChart.prototype.kbdSmoothMove = function() {
     if (this.kbdDragging != 0) {
         var vh = Math.max(this.canvas.width, this.canvas.height);
-        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : 15;
+        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : this.FREQ_60_HZ_TIMEOUT;
         var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / moveStepMs);
         this.pointerX += this.kbdMoveDX * stepAmount;
         this.pointerY += this.kbdMoveDY * stepAmount;
@@ -828,7 +827,7 @@ FChart.prototype.kbdSmoothMove = function() {
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
-        var timeout = this.draggingStart ? 100 : this.FREQ_60_HZ_TIMEOUT;
+        var timeout = this.draggingStart ? 50 : this.FREQ_60_HZ_TIMEOUT;
 
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
@@ -841,29 +840,20 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
 
         setTimeout((function() {
             this.pointerMoveTimeout = false;
-            if (isPointerUp) {
-                if (!this.isReloadingImage) {
-                    this.setMoveRaDEC(wasKbdDragging);
-                    if (wasKbdDragging) {
-                        this.setMovingPosToCenter();
-                    }
-                    this.forceReloadImage();
-                } else {
-                    this.pendingMoveRequest = {
-                        'wasKbdDragging': wasKbdDragging,
-                        'isPointerUp': true
-                    }
+            if (this.isReloadingImage) {
+                this.pendingMoveRequest = {
+                    'wasKbdDragging': wasKbdDragging,
+                    'isPointerUp': isPointerUp
                 }
-            } else if (!this.isReloadingImage) {
+            } else {
                 this.setMoveRaDEC(wasKbdDragging);
                 if (wasKbdDragging) {
                     this.setMovingPosToCenter();
                 }
-                this.reloadImage();
-            } else {
-                this.pendingMoveRequest = {
-                    'wasKbdDragging': wasKbdDragging,
-                    'isPointerUp': false
+                if (isPointerUp) {
+                    this.forceReloadImage();
+                } else {
+                    this.reloadImage();
                 }
             }
         }).bind(this), timeout);
