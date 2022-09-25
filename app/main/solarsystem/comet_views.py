@@ -212,6 +212,18 @@ def comet_info(comet_id):
 
     c = sun + mpc.comet_orbit(comet, ts, GM_SUN)
 
+    if request.method == 'GET':
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        if date_from and date_to:
+            try:
+                date_from = datetime.strptime(date_from, '%d-%m-%Y').date()
+                date_to = datetime.strptime(date_to, '%d-%m-%Y').date()
+                form.date_from.data = date_from
+                form.date_to.data = date_to
+            except ValueError:
+                pass
+
     if not form.date_from.data or not form.date_to.data:
         today = datetime.today()
         form.date_from.data = today
