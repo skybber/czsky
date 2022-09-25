@@ -753,7 +753,7 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
             this.setMovingPosToCenter();
             this.kbdSmoothMove();
             var t = this;
-            this.setMoveInterval();
+            this.setMoveInterval(true);
             return true;
         } if (this.kbdDragging != keyCode) {
             this.kbdDragging = keyCode;
@@ -761,17 +761,17 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
             this.kbdMoveDY = my;
             return true;
         } if (this.kbdDragging == keyCode) {
-            this.setMoveInterval();
+            this.setMoveInterval(false);
             return true;
         }
     }
     return false;
 }
 
-FChart.prototype.setMoveInterval = function() {
+FChart.prototype.setMoveInterval = function(force) {
     var moveTimeoutsMs = [20, 30, 50, 75, 100, 150, 200, 300, 500, 750, 1000];
 
-    if (this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
+    if (!force && this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
         var d = this.lastDrawTime - this.moveIntervalDrawTime;
         if (this.moveIntervalDrawTime + d > 1.5 * this.moveIntervalDrawTime || this.moveIntervalDrawTime + d < 0.66 * this.moveIntervalDrawTime) {
             this.moveIntervalDrawTime = this.lastDrawTime;
