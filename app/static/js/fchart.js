@@ -485,15 +485,21 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         } else {
             this.backwardScale = true;
         }
+        this.isReloadingImage = false;
         if (this.pendingMoveRequest != undefined) {
-            this.setMoveRaDEC(this.pendingMoveRequest.wasKbdDragging);
+            var wasPointerUp = this.pendingMoveRequest.isPointerUp;
+            var wasKbdDragging = this.pendingMoveRequest.wasKbdDragging;
+            this.setMoveRaDEC(wasKbdDragging);
             if (this.pendingMoveRequest.wasKbdDragging) {
                 this.setMovingPosToCenter();
             }
             this.pendingMoveRequest = undefined;
-            this.forceReloadImage();
+            if (wasPointerUp) {
+                this.forceReloadImage();
+            } else {
+                this.reloadImage();
+            }
         }
-        this.isReloadingImage = false;
     }.bind(this);
 }
 
@@ -823,8 +829,13 @@ FChart.prototype.kbdSmoothMove = function() {
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
         var timeout = this.draggingStart ? 100 : this.FREQ_60_HZ_TIMEOUT;
+
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
+
+        if (isPointerUp) {
+            timeout += 10;
+        }
 
         var wasKbdDragging = (this.kbdDragging != 0);
 
@@ -839,7 +850,8 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
                     this.forceReloadImage();
                 } else {
                     this.pendingMoveRequest = {
-                        'wasKbdDragging': wasKbdDragging
+                        'wasKbdDragging': wasKbdDragging,
+                        'isPointerUp': true
                     }
                 }
             } else if (!this.isReloadingImage) {
@@ -848,6 +860,11 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
                     this.setMovingPosToCenter();
                 }
                 this.reloadImage();
+            } else {
+                this.pendingMoveRequest = {
+                    'wasKbdDragging': wasKbdDragging,
+                    'isPointerUp': false
+                }
             }
         }).bind(this), timeout);
     }
