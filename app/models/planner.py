@@ -90,7 +90,7 @@ class SessionPlanItemType(FormEnum):
 class SessionPlanItem(db.Model):
     __tablename__ = 'session_plan_items'
     id = db.Column(db.Integer, primary_key=True)
-    session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
+    session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False, index=True)
     item_type = db.Column(sqlalchemy.Enum(SessionPlanItemType))
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     deepskyObject = db.relationship("DeepskyObject")

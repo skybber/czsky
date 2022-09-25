@@ -26,7 +26,7 @@ class StarList(db.Model):
 class StarListDescription(db.Model):
     __tablename__ = 'star_list_descriptions'
     id = db.Column(db.Integer, primary_key=True)
-    star_list_id = db.Column(db.Integer, db.ForeignKey('star_lists.id'), nullable=False)
+    star_list_id = db.Column(db.Integer, db.ForeignKey('star_lists.id'), nullable=False, index=True)
     long_name = db.Column(db.String(256), index=True)
     short_descr = db.Column(db.String(256))
     lang_code = db.Column(db.String(2), nullable=False)
@@ -40,7 +40,7 @@ class StarListDescription(db.Model):
 class StarListItem(db.Model):
     __tablename__ = 'star_list_items'
     id = db.Column(db.Integer, primary_key=True)
-    star_list_id = db.Column(db.Integer, db.ForeignKey('star_lists.id'), nullable=False)
+    star_list_id = db.Column(db.Integer, db.ForeignKey('star_lists.id'), nullable=False, index=True)
     star_id = db.Column(db.Integer, db.ForeignKey('stars.id'), nullable=False)
     item_id = db.Column(db.Integer, nullable=False)
     star = db.relationship("Star")

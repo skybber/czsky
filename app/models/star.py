@@ -71,7 +71,7 @@ class UserStarDescription(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     lang_code = db.Column(db.String(2))
     text = db.Column(db.Text)
-    star_id = db.Column(db.Integer, db.ForeignKey('stars.id'))
+    star_id = db.Column(db.Integer, db.ForeignKey('stars.id'), index=True)
     star = db.relationship("Star")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'))
     double_star = db.relationship("DoubleStar")

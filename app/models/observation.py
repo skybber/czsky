@@ -130,7 +130,7 @@ class Observation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     user = db.relationship("User", foreign_keys=[user_id, ])
-    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=True)
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=True, index=True)
     location_id = db.Column(db.Integer, db.ForeignKey('locations.id'), index=True)
     location = db.relationship("Location")
     location_position = db.Column(db.String(256))
@@ -254,10 +254,11 @@ class Observation(db.Model):
     def notes_to_html(self):
         return astro_text_to_html(self.observing_session_id, self.notes)
 
+
 class ObsSessionPlanRun(db.Model):
     __tablename__ = 'obs_session_plan_runs'
     id = db.Column(db.Integer, primary_key=True)
-    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False)
+    observing_session_id = db.Column(db.Integer, db.ForeignKey('observing_sessions.id'), nullable=False, index=True)
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False)
     observing_session = db.relationship("ObservingSession")
     session_plan = db.relationship("SessionPlan")

@@ -66,7 +66,7 @@ class ObservedList(db.Model):
 class ObservedListItem(db.Model):
     __tablename__ = 'observed_list_items'
     id = db.Column(db.Integer, primary_key=True)
-    observed_list_id = db.Column(db.Integer, db.ForeignKey('observed_lists.id'), nullable=False)
+    observed_list_id = db.Column(db.Integer, db.ForeignKey('observed_lists.id'), nullable=False, index=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=True)
     deepskyObject = db.relationship("DeepskyObject")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)

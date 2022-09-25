@@ -47,7 +47,7 @@ class DsoListDescription(db.Model):
 class DsoListItem(db.Model):
     __tablename__ = 'dso_list_items'
     id = db.Column(db.Integer, primary_key=True)
-    dso_list_id = db.Column(db.Integer, db.ForeignKey('dso_lists.id'), nullable=False)
+    dso_list_id = db.Column(db.Integer, db.ForeignKey('dso_lists.id'), nullable=False, index=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
     item_id = db.Column(db.Integer, nullable=False)
     deepskyObject = db.relationship("DeepskyObject")

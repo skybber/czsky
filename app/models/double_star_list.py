@@ -40,7 +40,7 @@ class DoubleStarListDescription(db.Model):
 class DoubleStarListItem(db.Model):
     __tablename__ = 'double_star_list_items'
     id = db.Column(db.Integer, primary_key=True)
-    double_star_list_id = db.Column(db.Integer, db.ForeignKey('double_star_lists.id'), nullable=False)
+    double_star_list_id = db.Column(db.Integer, db.ForeignKey('double_star_lists.id'), nullable=False, index=True)
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=False)
     item_id = db.Column(db.Integer, nullable=False)
     double_star = db.relationship("DoubleStar")

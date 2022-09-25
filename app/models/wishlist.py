@@ -64,7 +64,7 @@ class WishList(db.Model):
 class WishListItem(db.Model):
     __tablename__ = 'wish_list_items'
     id = db.Column(db.Integer, primary_key=True)
-    wish_list_id = db.Column(db.Integer, db.ForeignKey('wish_lists.id'), nullable=False)
+    wish_list_id = db.Column(db.Integer, db.ForeignKey('wish_lists.id'), nullable=False, index=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
     deepskyObject = db.relationship("DeepskyObject")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
