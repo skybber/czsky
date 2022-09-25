@@ -202,9 +202,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.ZOOM_INTERVAL = 200;
     this.MAX_ZOOM_STEPS = 10;
 
-    this.MOVE_INTERVAL = 200;
     this.GRID_SIZE = 10;
     this.MOVE_SEC_PER_SCREEN = 2;
+
+    this.FREQ_60_HZ_TIMEOUT = 16.67;
 
     this.ra = ra;
     this.dec = dec;
@@ -219,7 +220,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.zoomQueuedImgs = 0;
     this.isReloadingImage = false;
-    this.isForceReload = false;
 
     this.imgField = this.fieldSizes[this.fldSizeIndex];
     this.scaleFac = 1.0;
@@ -425,7 +425,6 @@ FChart.prototype.reloadImage = function() {
 
 FChart.prototype.forceReloadImage = function() {
     this.isReloadingImage = true;
-    this.isForceReload = true;
     this.doReloadImage(true);
 }
 
@@ -455,12 +454,6 @@ FChart.prototype.doReloadImage = function(forceReload) {
             queryParams.set('dec', this.dec.toString());
             queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
-            if (this.isReloadingImage) {
-                this.isReloadingImage = false;
-            }
-            if (forceReload) {
-                this.forceReload = false;
-            }
         }
     }.bind(this));
 }
@@ -500,6 +493,7 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
             this.pendingMoveRequest = undefined;
             this.forceReloadImage();
         }
+        this.isReloadingImage = false;
     }.bind(this);
 }
 
@@ -763,7 +757,7 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
 }
 
 FChart.prototype.setMoveInterval = function(force) {
-    var moveTimeoutsMs = [20, 30, 50, 75, 100, 150, 200, 300, 500, 750, 1000];
+    var moveTimeoutsMs = [this.FREQ_60_HZ_TIMEOUT, 25, 30, 50, 75, 100, 150, 200, 300, 500, 750, 1000];
 
     if (this.lastDrawTime >= 0 && this.moveIntervalDrawTime >=0) {
         var d = this.lastDrawTime - this.moveIntervalDrawTime;
@@ -788,10 +782,10 @@ FChart.prototype.setMoveInterval = function(force) {
             }
         }
     } else {
-        this.lastMoveTimeout = this.moveIntervalDrawTime = 20;
+        this.lastMoveTimeout = this.moveIntervalDrawTime = moveTimeoutsMs[0];
         var t = this;
         this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, this.lastMoveTimeout);
-        // console.log('Changed: ' + 20);
+        // console.log('Changed: ' + moveTimeoutsMs[0]);
     }
 }
 
@@ -809,7 +803,7 @@ FChart.prototype.setMovingPosToCenter = function() {
 FChart.prototype.kbdSmoothMove = function() {
     if (this.kbdDragging != 0) {
         var vh = Math.max(this.canvas.width, this.canvas.height);
-        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : 20;
+        var moveStepMs = this.lastMoveTimeout != -1 ? this.lastMoveTimeout : 15;
         var stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / moveStepMs);
         this.pointerX += this.kbdMoveDX * stepAmount;
         this.pointerY += this.kbdMoveDY * stepAmount;
@@ -828,7 +822,7 @@ FChart.prototype.kbdSmoothMove = function() {
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
-        var timeout = this.draggingStart ? this.MOVE_INTERVAL/2 : 20;
+        var timeout = this.draggingStart ? 100 : this.FREQ_60_HZ_TIMEOUT;
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
 
