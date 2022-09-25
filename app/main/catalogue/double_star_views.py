@@ -424,11 +424,8 @@ def double_star_chart_pos_img(double_star_id, ra, dec):
     img_bytes, img_format = common_chart_pos_img(double_star.ra_first, double_star.dec_first, ra, dec, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
 
-    if visible_objects is not None:
-        img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-    else:
-        return send_file(img_bytes, mimetype='image/png')
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])

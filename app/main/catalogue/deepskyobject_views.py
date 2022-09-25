@@ -560,11 +560,8 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
-    if visible_objects is not None:
-        img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-    else:
-        return send_file(img_bytes, mimetype='image/png')
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])

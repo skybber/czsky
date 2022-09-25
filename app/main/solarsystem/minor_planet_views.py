@@ -226,11 +226,8 @@ def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
         trajectory = None
 
     img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, ra, dec, visible_objects=visible_objects, trajectory=trajectory)
-    if visible_objects is not None:
-        img = base64.b64encode(img_bytes.read()).decode()
-        return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-    else:
-        return send_file(img_bytes, mimetype='image/png')
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])

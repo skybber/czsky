@@ -372,7 +372,7 @@
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
     var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
-            "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}", true,
+            "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},

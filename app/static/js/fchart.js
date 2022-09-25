@@ -142,7 +142,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, jsonLoad, fullScreen, splitview,
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, fullScreen, splitview,
                  mirror_x, mirror_y, default_chart_iframe_url, embed) {
 
     this.fchartDiv = fchartDiv;
@@ -216,7 +216,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
     this.searchUrl = searchUrl;
-    this.jsonLoad = jsonLoad;
 
     this.zoomQueuedImgs = 0;
     this.isReloadingImage = false;
@@ -440,35 +439,30 @@ FChart.prototype.doReloadImage = function(forceReload) {
     var centerRA = this.ra;
     var centerDEC = this.dec;
 
-    if (this.jsonLoad) {
-        // this.skyImgBuf[this.skyImg.background].src = url;
-        this.reqInProcess ++;
-        $.getJSON(url, {
-            json : true
-        }, function(data) {
-            this.reqInProcess --;
-            if (this.reqInProcess == 0 || forceReload) {
-                var img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
-                this.dsoRegions = data.img_map;
-                this.activateImageOnLoad(centerRA, centerDEC);
-                this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
-                var queryParams = new URLSearchParams(window.location.search);
-                queryParams.set('ra', this.ra.toString());
-                queryParams.set('dec', this.dec.toString());
-                queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
-                history.replaceState(null, null, "?" + queryParams.toString());
-                if (this.isReloadingImage) {
-                    this.isReloadingImage = false;
-                }
-                if (forceReload) {
-                    this.forceReload = false;
-                }
+    // this.skyImgBuf[this.skyImg.background].src = url;
+    this.reqInProcess ++;
+    $.getJSON(url, {
+        json : true
+    }, function(data) {
+        this.reqInProcess --;
+        if (this.reqInProcess == 0 || forceReload) {
+            var img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
+            this.dsoRegions = data.img_map;
+            this.activateImageOnLoad(centerRA, centerDEC);
+            this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
+            var queryParams = new URLSearchParams(window.location.search);
+            queryParams.set('ra', this.ra.toString());
+            queryParams.set('dec', this.dec.toString());
+            queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
+            history.replaceState(null, null, "?" + queryParams.toString());
+            if (this.isReloadingImage) {
+                this.isReloadingImage = false;
             }
-        }.bind(this));
-    } else {
-        this.activateImageOnLoad(centerRA, centerDEC);
-        this.skyImgBuf[this.skyImg.background].src = url;
-    }
+            if (forceReload) {
+                this.forceReload = false;
+            }
+        }
+    }.bind(this));
 }
 
 FChart.prototype.formatUrl = function(inpUrl) {
