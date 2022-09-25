@@ -236,6 +236,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.zoomStep = undefined;
     this.multRA = mirror_x ? -1 : 1;
     this.multDEC = mirror_y ? -1 : 1;
+    this.pendingMoveRequest = undefined;
 
     this.moveInterval = undefined;
     this.kbdMoveDX = 0;
@@ -380,7 +381,7 @@ FChart.prototype.redrawAll = function () {
     this.canvas.width = curLegendImg.width;
     this.canvas.height = curLegendImg.height;
 
-    if (this.imgGrid != undefined && (this.isDragging || this.kbdDragging != 0 )) {
+    if (this.imgGrid != undefined && (this.isDragging || this.kbdDragging != 0 || this.pendingMoveRequest != undefined)) {
         this.drawImgGrid(curSkyImg);
     } else {
         var img_width = curSkyImg.width * this.scaleFac;
@@ -496,6 +497,14 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
             this.redrawAll();
         } else {
             this.backwardScale = true;
+        }
+        if (this.pendingMoveRequest != undefined) {
+            this.setMoveRaDEC(this.pendingMoveRequest.wasKbdDragging);
+            if (this.pendingMoveRequest.wasKbdDragging) {
+                this.setMovingPosToCenter();
+            }
+            this.pendingMoveRequest = undefined;
+            this.forceReloadImage();
         }
     }.bind(this);
 }
@@ -832,11 +841,17 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
         setTimeout((function() {
             this.pointerMoveTimeout = false;
             if (isPointerUp) {
-                this.setMoveRaDEC(wasKbdDragging);
-                if (wasKbdDragging) {
-                    this.setMovingPosToCenter();
+                if (!this.isReloadingImage) {
+                    this.setMoveRaDEC(wasKbdDragging);
+                    if (wasKbdDragging) {
+                        this.setMovingPosToCenter();
+                    }
+                    this.forceReloadImage();
+                } else {
+                    this.pendingMoveRequest = {
+                        'wasKbdDragging': wasKbdDragging
+                    }
                 }
-                this.forceReloadImage();
             } else if (!this.isReloadingImage) {
                 this.setMoveRaDEC(wasKbdDragging);
                 if (wasKbdDragging) {
