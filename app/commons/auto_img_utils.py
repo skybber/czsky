@@ -35,8 +35,8 @@ def get_ug_bl_dsos():
         for c in Constellation.get_all():
             ug_bl_dsos[c.id] = {}
 
-        files = [f for f in sorted(glob.glob('app/static/webassets-external/users/glahn/img/dso/*.jpg'))] + \
-            [f for f in sorted(glob.glob('app/static/webassets-external/users/laville/img/dso/*.jpg'))]
+        files = [f for f in sorted(glob.glob('app/static/content/users/glahn/img/dso/*.jpg'))] + \
+            [f for f in sorted(glob.glob('app/static/content/users/laville/img/dso/*.jpg'))]
 
         for f in files:
             base_name = os.path.basename(f)
