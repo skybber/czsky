@@ -231,15 +231,15 @@ def import_all_skyquality_locations():
 
 @manager.command
 def add_help_users():
-    add_help_user('8mag', '8mag')
-    add_help_user('s.gottlieb', 's.gottlieb')
+    add_help_user('editor.cs', 'editor.cs')
+    add_help_user('editor.en', 'editor.en')
     add_help_user('skyquality', 'skyquality')
 
 
 def add_help_user(user_name, user_email):
     if User.query.filter_by(email=user_email).first() is None:
         user = User(
-            user_name = user_name,
+            user_name=user_name,
             full_name='',
             password='',
             confirmed=True,

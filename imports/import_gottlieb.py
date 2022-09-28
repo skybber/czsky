@@ -14,37 +14,37 @@ from app.models.user import User
 GOTTLIEB_REF = 'Notes by [Steve Gottlieb](https://www.astronomy-mall.com/Adventures.In.Deep.Space/steve.ngc.htm)'
 
 
-def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
+def _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor_cs):
     dso = DeepskyObject.query.filter_by(name=dso_name).first()
 
     if dso and dso.master_id:
         dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
 
     if dso:
-        mag8_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_8mag.id).first()
+        mag8_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor_cs.id).first()
 
         # update constellation ID since it is missing in vic catalogue
 
         print('Importing {}'.format(dso_name))
 
-        udd = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_gottlieb.id, lang_code='en').first()
+        udd = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=user_editor_en.id, lang_code='en').first()
         if udd:
             udd.text = dso_descr
             udd.references = GOTTLIEB_REF
-            udd.update_by = user_gottlieb.id
+            udd.update_by = user_editor_en.id
             udd.update_date = datetime.now()
         else:
             udd = UserDsoDescription(
                 dso_id=dso.id,
-                user_id=user_gottlieb.id,
+                user_id=user_editor_en.id,
                 rating=mag8_descr.rating if mag8_descr else 0,
                 lang_code='en',
                 cons_order=mag8_descr.cons_order if mag8_descr else 100000,
                 text=dso_descr,
                 references=GOTTLIEB_REF,
                 common_name=dso.common_name,
-                create_by=user_gottlieb.id,
-                update_by=user_gottlieb.id,
+                create_by=user_editor_en.id,
+                update_by=user_editor_en.id,
                 create_date=datetime.now(),
                 update_date=datetime.now(),
 
@@ -69,22 +69,22 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
                 else:
                     apert_class = '900/1200'
 
-            uad = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=user_gottlieb.id, aperture_class=apert_class, lang_code='en').first()
+            uad = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=user_editor_en.id, aperture_class=apert_class, lang_code='en').first()
 
             if uad:
                 uad.text = apert_descr
-                uad.update_by = user_gottlieb.id
+                uad.update_by = user_editor_en.id
                 uad.update_date = datetime.now()
             else:
                 uad = UserDsoApertureDescription(
                     dso_id=dso.id,
-                    user_id=user_gottlieb.id,
+                    user_id=user_editor_en.id,
                     lang_code='en',
                     aperture_class=apert_class,
                     text=apert_descr,
                     is_public=True,
-                    create_by=user_gottlieb.id,
-                    update_by=user_gottlieb.id,
+                    create_by=user_editor_en.id,
+                    update_by=user_editor_en.id,
                     create_date=datetime.now(),
                     update_date=datetime.now(),
                 )
@@ -95,8 +95,8 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag):
 
 def import_gottlieb(gottlieb_dir):
 
-    user_gottlieb = User.query.filter_by(user_name='s.gottlieb').first()
-    user_8mag = User.query.filter_by(user_name='8mag').first()
+    user_editor_en = User.query.filter_by(user_name='editor.en').first()
+    user_editor_cs = User.query.filter_by(user_name='editor.cs').first()
 
     gottlieb_files = [f for f in listdir(gottlieb_dir) if isfile(join(gottlieb_dir, f))]
 
@@ -124,7 +124,7 @@ def import_gottlieb(gottlieb_dir):
 
                 if line.strip() == '******************************':
                     if dso_name:
-                        _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag)
+                        _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor_cs)
                     search_obj_id = True
                     dso_name = None
                     dso_descr = ''
@@ -170,7 +170,7 @@ def import_gottlieb(gottlieb_dir):
                 dso_descr += line
 
         if dso_name:
-            _found_dso(dso_name, dso_descr, dso_apert_descr, user_gottlieb, user_8mag)
+            _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor_cs)
 
         db.session.commit()
     except KeyError as err:
