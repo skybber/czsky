@@ -230,20 +230,6 @@ def import_all_skyquality_locations():
 
 
 @manager.command
-def add_test_user():
-    user_email = 'test@test.test'
-    if User.query.filter_by(email=user_email).first() is None:
-        user = User(
-            user_name='test',
-            full_name='test',
-            password='nologin',
-            confirmed=True,
-            email=user_email)
-        db.session.add(user)
-        db.session.commit()
-
-
-@manager.command
 def add_help_users():
     add_help_user('8mag', '8mag')
     add_help_user('s.gottlieb', 's.gottlieb')
@@ -259,23 +245,6 @@ def add_help_user(user_name, user_email):
             confirmed=True,
             email=user_email,
             is_hidden=True)
-        db.session.add(user)
-        db.session.commit()
-
-
-@manager.command
-def add_editor_user():
-    user_email = 'editor@test.test'
-    if User.query.filter_by(email=user_email).first() is None:
-        role = Role.query.filter_by(name='Editor').first()
-        user = User(
-            user_name='editor',
-            full_name='Editor Editorovic',
-            password='nologin',
-            confirmed=True,
-            email=user_email,
-            role=role,
-            )
         db.session.add(user)
         db.session.commit()
 

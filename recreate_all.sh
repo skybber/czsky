@@ -18,8 +18,6 @@ confirm() {
 
 ./manage.py recreate_db
 ./manage.py setup_prod
-./manage.py add_test_user
-./manage.py add_editor_user
 ./manage.py add_anonymous_user
 ./manage.py initialize_catalogues
 ./manage.py update_dso_axis_ratio
