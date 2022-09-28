@@ -2,7 +2,7 @@
 
 confirm() {
     # call with a prompt string or use a default
-    echo "This operation recreate DB and initializes catalogues from OpenNGC data. It could be long."
+    echo "This operation initializes CzSky database. It could be long."
     read -r -p "${1:-Are you sure to recreate all data in DB? [y/N]} " response
     case "$response" in
         [yY][eE][sS]|[yY])
