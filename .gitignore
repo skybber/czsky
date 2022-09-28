@@ -1,5 +1,6 @@
 .webassets-cache/
 webassets-external/
+app/static/content/
 private_data/
 user_data/
 backup/
