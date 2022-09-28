@@ -231,8 +231,10 @@ def import_all_skyquality_locations():
 
 @manager.command
 def add_help_users():
-    add_help_user('editor.cs', 'editor.cs')
-    add_help_user('editor.en', 'editor.en')
+    if current_app.config.get('EDITOR_USER_NAME_CS'):
+        add_help_user(current_app.config.get('EDITOR_USER_NAME_CS'), current_app.config.get('EDITOR_USER_NAME_CS'))
+    if current_app.config.get('EDITOR_USER_NAME_EN'):
+        add_help_user(current_app.config.get('EDITOR_USER_NAME_EN'), current_app.config.get('EDITOR_USER_NAME_EN'))
     add_help_user('skyquality', 'skyquality')
 
 
