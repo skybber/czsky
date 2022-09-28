@@ -9,6 +9,7 @@ from flask import current_app
 import git
 from Crypto.PublicKey import RSA
 
+from app import create_app
 from app import db
 
 from app.models import (
@@ -208,7 +209,13 @@ def _convert_to_multiline(t):
     return t.strip().replace('\r\n', '\n').replace('\n', '\\\n')
 
 
-def load_public_content_data_from_git(user_name):
+def load_public_content_data_from_git(user_name, **kwargs):
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        _do_load_public_content_data_from_git(user_name)
+
+
+def _do_load_public_content_data_from_git(user_name):
     owner = User.query.filter_by(user_name=user_name).first()
     editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
