@@ -101,28 +101,14 @@ _Linux:_
 $ sudo apt-get install redis-server
 ```
 
-You will also need to install **PostgresQL**
 
-_Mac (using homebrew):_
-
-```
-brew install postgresql
-```
-
-_Linux (based on this [issue](https://github.com/hack4impact/flask-base/issues/96)):_
-
-```
-sudo apt-get install libpq-dev
-```
-
-
-##### Create the database
+##### Initialize CzSky project
 
 ```
 $ ./recreate_all.sh
 ```
 
-## Running the app
+## Running CzSky
 
 ```
 $ source env/bin/activate
