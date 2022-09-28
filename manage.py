@@ -304,7 +304,7 @@ def sync_en_descr_rating():
 
 @manager.command
 def import_git_content():
-    git_content_repository = current_app.config.get('GIT_CONTENT_REPOSITORY')
+    git_content_repository = os.environ.get('GIT_CONTENT_REPOSITORY')
     if git_content_repository:
         load_public_content_data_from_git2(user_name=current_app.config.get('EDITOR_USER_NAME_CS'), git_content_repository=git_content_repository)
     else:
