@@ -821,7 +821,7 @@ FChart.prototype.kbdSmoothMove = function() {
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
-        var timeout = this.draggingStart ? 50 : this.FREQ_60_HZ_TIMEOUT;
+        var timeout = this.draggingStart ? 0 : this.FREQ_60_HZ_TIMEOUT/2;
 
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
