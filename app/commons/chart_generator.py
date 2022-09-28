@@ -253,6 +253,8 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     config.font = font
     config.font_size = font_size
     config.legend_font_scale = 1.4
+    config.show_nebula_outlines = True
+    config.show_enhanced_milky_way = True
 
     if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
@@ -268,8 +270,8 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
         config.constellation_linespace = 2.0
 
     if fld_size <= 10:
-        config.show_milky_way = False  # hide MW if field < 10deg
-    elif config.show_milky_way:
+        config.show_enhanced_milky_way = False
+    elif config.show_enhanced_milky_way:
         fade = (fld_size - 10) / (70-10)
         # shift background color little bit by fraction of MW color (bg_shift_frac)
         bg_shift_frac = 0.10
@@ -289,7 +291,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
                                       bg_g + (config.milky_way_color[1]-bg_g) * fade,
                                       bg_b + (config.milky_way_color[2]-bg_b) * fade)
         else:
-            config.show_milky_way = False
+            config.show_enhanced_milky_way = False
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
@@ -718,6 +720,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     config.show_equatorial_grid = 'E' in flags
     config.fov_telrad = 'T' in flags
     config.show_milky_way = False
+    config.show_enhanced_milky_way = False
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 0.7  # increase radius of star by 0.5 magnitude
 
