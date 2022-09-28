@@ -63,17 +63,23 @@ def _actualize_repository(user_name, git_repository, git_ssh_private_key, reposi
     git_repopath = os.path.join(repository_path, '.git')
     if not os.path.isdir(repository_path) or not os.path.isdir(git_repopath):
         if os.path.isdir(repository_path):
-            shutil.rmtree(repository_path) # remove repository_path in case there is no .git file
+            shutil.rmtree(repository_path)  # remove repository_path in case there is no .git file
         os.makedirs(repository_path, exist_ok=True)
         try:
-            git.Repo.clone_from(git_repository, repository_path,
-                                env={'GIT_SSH_COMMAND': _get_git_ssh_command(user_name, git_ssh_private_key, False)})
+            if git_ssh_private_key:
+                env = {'GIT_SSH_COMMAND': _get_git_ssh_command(user_name, git_ssh_private_key, False)}
+            else:
+                env = {}
+            git.Repo.clone_from(git_repository, repository_path, env=env)
         finally:
             _finalize_git_ssh_command(user_name)
     else:
         repo = git.Repo(repository_path)
         try:
-            with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(user_name, git_ssh_private_key, True)):
+            if git_ssh_private_key:
+                with repo.git.custom_environment(GIT_SSH_COMMAND=_get_git_ssh_command(user_name, git_ssh_private_key, True)):
+                    repo.remotes.origin.pull()
+            else:
                 repo.remotes.origin.pull()
         finally:
             _finalize_git_ssh_command(user_name)
@@ -212,14 +218,16 @@ def _convert_to_multiline(t):
 def load_public_content_data_from_git(user_name, **kwargs):
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        _do_load_public_content_data_from_git(user_name)
+        load_public_content_data_from_git2(user_name)
 
 
-def _do_load_public_content_data_from_git(user_name):
+def load_public_content_data_from_git2(user_name, git_content_repository=None):
     owner = User.query.filter_by(user_name=user_name).first()
     editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
-    _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
+    if not git_content_repository:
+        git_content_repository = owner.git_content_repository
+    _actualize_repository(owner.user_name, git_content_repository, owner.git_content_ssh_private_key, repository_path)
 
     user_cache = {}
 

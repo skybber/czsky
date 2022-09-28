@@ -51,6 +51,7 @@ from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
+from app.main.userdata.gitstore import load_public_content_data_from_git2
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -302,7 +303,16 @@ def sync_en_descr_rating():
 
 
 @manager.command
-def tmp_import_gottlieb():
+def import_git_content():
+    git_content_repository = current_app.config.get('GIT_CONTENT_REPOSITORY')
+    if git_content_repository:
+        load_public_content_data_from_git2(user_name=current_app.config.get('EDITOR_USER_NAME_CS'), git_content_repository=git_content_repository)
+    else:
+        print('GIT_CONTENT_REPOSITORY is not configured.')
+
+
+@manager.command
+def import_gottlieb():
     import_gottlieb('data/gottlieb')
 
 
