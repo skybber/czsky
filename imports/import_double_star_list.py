@@ -2,6 +2,8 @@ import sys, os, glob
 import numpy as np
 from datetime import datetime
 
+from sqlalchemy.exc import IntegrityError
+
 from app import db
 from app.models.constellation import Constellation
 from app.models.double_star import DoubleStar
