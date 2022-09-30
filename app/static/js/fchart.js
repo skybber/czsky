@@ -906,49 +906,51 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
 }
 
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
-    if (!this.isMoving) {
-        if (zoomAmount != null) {
-            this.fldSizeIndexR += zoomAmount;
+    if (this.isMoving) {
+        return;
+    }
+
+    if (zoomAmount != null) {
+        this.fldSizeIndexR += zoomAmount;
+    } else {
+        this.fldSizeIndexR *= zoomFac;
+    }
+
+    var oldFldSizeIndex = this.fldSizeIndex;
+
+    this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM )
+    this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM )
+
+    this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
+
+    if (this.fldSizeIndex != oldFldSizeIndex) {
+        if (this.zoomInterval === undefined && this.scaleFac != 1.0) {
+            this.cumulativeScaleFac = this.scaleFac;
+            this.scaleFacTotal = this.fieldSizes[oldFldSizeIndex]  / this.fieldSizes[this.fldSizeIndex];
         } else {
-            this.fldSizeIndexR *= zoomFac;
+            //this.cumulativeScaleFac = 1.0;
+            this.scaleFacTotal = this.imgField  / this.fieldSizes[this.fldSizeIndex];
         }
-
-        var oldFldSizeIndex = this.fldSizeIndex;
-
-        this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM )
-        this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM )
-
-        this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
-
-        if (this.fldSizeIndex != oldFldSizeIndex) {
-            if (this.zoomInterval === undefined && this.scaleFac != 1.0) {
-                this.cumulativeScaleFac = this.scaleFac;
-                this.scaleFacTotal = this.fieldSizes[oldFldSizeIndex]  / this.fieldSizes[this.fldSizeIndex];
-            } else {
-                //this.cumulativeScaleFac = 1.0;
-                this.scaleFacTotal = this.imgField  / this.fieldSizes[this.fldSizeIndex];
+        this.backwardScale = false;
+        this.zoomStep = 0;
+        this.nextScaleFac();
+        this.redrawAll();
+        if (this.zoomInterval != undefined) {
+          clearInterval(this.zoomInterval);
+        }
+        var t = this;
+        this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
+        this.zoomQueuedImgs++;
+        setTimeout((function() {
+            // wait some time to keep order of requests
+            this.zoomQueuedImgs--;
+            if (this.zoomQueuedImgs == 0) {
+                this.reloadLegendImage();
+                this.forceReloadImage();
             }
-            this.backwardScale = false;
-            this.zoomStep = 0;
-            this.nextScaleFac();
-            this.redrawAll();
-            if (this.zoomInterval != undefined) {
-              clearInterval(this.zoomInterval);
-            }
-            var t = this;
-            this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
-            this.zoomQueuedImgs++;
-            setTimeout((function() {
-                // wait some time to keep order of requests
-                this.zoomQueuedImgs--;
-                if (this.zoomQueuedImgs == 0) {
-                    this.reloadLegendImage();
-                    this.forceReloadImage();
-                }
-            }).bind(this), 100);
-            if (this.onFieldChangeCallback  != undefined) {
-                this.onFieldChangeCallback.call(this, this.fldSizeIndex);
-            }
+        }).bind(this), 20);
+        if (this.onFieldChangeCallback  != undefined) {
+            this.onFieldChangeCallback.call(this, this.fldSizeIndex);
         }
     }
 }
