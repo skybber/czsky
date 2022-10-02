@@ -122,7 +122,8 @@ def _load_used_catalogs():
                                              force_asterisms=False,
                                              force_unknown=False,
                                              show_catalogs=ADD_SHOW_CATALOGS,
-                                             use_pgc_catalog=True)
+                                             use_pgc_catalog=True,
+                                             enhanced_mw_optim_max_col_diff=18/255.0)
         global dso_name_cache
         dso_name_cache = {}
     return used_catalogs
@@ -684,7 +685,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
                     dso_hide_filter=_get_dso_hide_filter(),
                     trajectory=trajectory,
                     hl_constellation=hl_constellation,
-                    visible_objects=visible_objects)
+                    visible_objects=visible_objects,
+                    use_optimized_mw=(high_quality != '1'))
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
