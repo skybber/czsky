@@ -32,14 +32,14 @@ def _to_date(s):
         return None
 
 
-def update_supernovas_from_rochesterastronomy():
+def update_supernovae_from_rochesterastronomy():
     r = requests.get('https://www.rochesterastronomy.org/snimages/snactive.html')
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
     tbl = soup.findAll('table')[1].find_all('tr')
 
-    supernovas = []
+    supernovae = []
 
     constellation_at = load_constellation_map()
 
@@ -92,9 +92,9 @@ def update_supernovas_from_rochesterastronomy():
 
             supernova.constellation_id = constell_dict[const_code.upper()] if const_code else None
 
-            supernovas.append(supernova)
+            supernovae.append(supernova)
 
-    for supernova in supernovas:
+    for supernova in supernovae:
         db.session.add(supernova)
 
     try:

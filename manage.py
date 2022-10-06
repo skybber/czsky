@@ -216,8 +216,8 @@ def import_comets():
 
 
 @manager.command
-def import_supernovas():
-    update_supernovas_from_rochesterastronomy()
+def import_supernovae():
+    update_supernovae_from_rochesterastronomy()
 
 
 @manager.command

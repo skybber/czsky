@@ -53,7 +53,7 @@ from app.commons.search_utils import (
     get_packed_constell_list,
 )
 
-from app.commons.supernova_loader import update_supernovas_from_rochesterastronomy
+from app.commons.supernova_loader import update_supernovae_from_rochesterastronomy
 from app.commons.dso_utils import normalize_supernova_name
 
 from app.main.chart.chart_forms import ChartForm
@@ -65,18 +65,18 @@ from .supernova_forms import SearchSupernovaForm
 main_supernova = Blueprint('main_supernova', __name__)
 
 
-def _update_supernovas():
+def _update_supernovae():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        update_supernovas_from_rochesterastronomy()
+        update_supernovae_from_rochesterastronomy()
 
 
-job3 = scheduler.add_job(_update_supernovas, 'interval', hours=3, replace_existing=True)
+job1 = scheduler.add_job(_update_supernovae, 'interval', hours=3, replace_existing=True)
 
 
-@main_supernova.route('/supernovas', methods=['GET', 'POST'])
-def supernovas():
-    """View supernovas."""
+@main_supernova.route('/supernovae', methods=['GET', 'POST'])
+def supernovae():
+    """View supernovae."""
     search_form = SearchSupernovaForm()
 
     ret, page, sort_by = process_paginated_session_search('sn_search_page', 'sn_sort_by', [
@@ -88,7 +88,7 @@ def supernovas():
     ])
 
     if not ret:
-        return redirect(url_for('main_supernova.supernovas', page=page, sortby=sort_by))
+        return redirect(url_for('main_supernova.supernovae', page=page, sortby=sort_by))
 
     per_page = get_items_per_page(search_form.items_per_page)
 
@@ -136,14 +136,14 @@ def supernovas():
     if order_by_field is None:
         order_by_field = Supernova.id
 
-    shown_supernovas = supernova_query.order_by(order_by_field).limit(per_page).offset(offset).all()
+    shown_supernovae = supernova_query.order_by(order_by_field).limit(per_page).offset(offset).all()
 
-    pagination = Pagination(page=page, per_page=per_page, total=supernova_query.count(), search=False, record_name='supernovas',
+    pagination = Pagination(page=page, per_page=per_page, total=supernova_query.count(), search=False, record_name='supernovae',
                             css_framework='semantic', not_passed_args='back')
 
     packed_constell_list = get_packed_constell_list()
 
-    return render_template('main/catalogue/supernovas.html', supernovas=shown_supernovas, pagination=pagination,
+    return render_template('main/catalogue/supernovae.html', supernovae=shown_supernovae, pagination=pagination,
                            search_form=search_form, table_sort=table_sort, packed_constell_list=packed_constell_list)
 
 

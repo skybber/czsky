@@ -13,7 +13,7 @@
                 {{ _('Supernovae') }}
             </h2>
 
-            <form action="{{ url_for('main_supernova.supernovas') }}" method="post" name="search">
+            <form action="{{ url_for('main_supernova.supernovae') }}" method="post" name="search">
                 <div class="ui menu">
                     <div class="ui item">
                         <div id="constellation_dropdown" class="ui dropdown">
@@ -61,12 +61,12 @@
                         <thead>
                             <tr>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['designation'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['designation'].sort) }}" style="color: inherit;">
                                         SN {{ table_sort['designation'].icon | safe }}
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['host_galaxy'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['host_galaxy'].sort) }}" style="color: inherit;">
                                         {{ _('Host Galaxy') }} {{ table_sort['host_galaxy'].icon | safe }}
                                     </a>
                                 </th>
@@ -76,63 +76,63 @@
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['ra'].sort) }}" style="color: inherit;">
                                         RA {{ table_sort['ra'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['dec'].sort) }}" style="color: inherit;">
                                         Dec {{ table_sort['dec'].icon | safe }}
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['offset'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['offset'].sort) }}" style="color: inherit;">
                                         {{ _('Offset') }} {{ table_sort['offset'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['latest_mag'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['latest_mag'].sort) }}" style="color: inherit;">
                                         {{ _('Latest Mag') }} {{ table_sort['latest_mag'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['latest_observed'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['latest_observed'].sort) }}" style="color: inherit;">
                                         {{ _('Latest Observed') }} {{ table_sort['latest_observed'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['sn_type'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['sn_type'].sort) }}" style="color: inherit;">
                                         {{ _('Type') }} {{ table_sort['sn_type'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['z'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['z'].sort) }}" style="color: inherit;">
                                         z {{ table_sort['z'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['max_mag'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['max_mag'].sort) }}" style="color: inherit;">
                                         {{ _('Max Mag') }} {{ table_sort['max_mag'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['max_mag_date'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['max_mag_date'].sort) }}" style="color: inherit;">
                                         {{ _('Max Mag Date') }} {{ table_sort['max_mag_date'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['first_observed'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['first_observed'].sort) }}" style="color: inherit;">
                                         {{ _('First Observed') }} {{ table_sort['first_observed'].icon | safe }}
                                     </a>
                                 </th>
                                 {# -------------
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['discoverer'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['discoverer'].sort) }}" style="color: inherit;">
                                         {{ _('Discoverer') }} {{ table_sort['discoverer'].icon | safe }}
                                     </a>
                                 </th>
                                 <th class="mobile hidden">
-                                    <a href="{{ url_for('main_supernova.supernovas', page=pagination.page, sortby=table_sort['aka'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['aka'].sort) }}" style="color: inherit;">
                                         AKA {{ table_sort['aka'].icon | safe }}
                                     </a>
                                 </th>
@@ -140,7 +140,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                        {% for sn in supernovas %}
+                        {% for sn in supernovae %}
                             <tr onclick="window.location.href = '{{ url_for('main_supernova.supernova_info', designation=sn.designation) }}';">
                                 <td>{{ sn.designation }}</td>
                                 <td>{{ sn.host_galaxy }}</td>
