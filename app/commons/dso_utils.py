@@ -100,6 +100,11 @@ def normalize_double_star_name(double_star_name):
     return norm[:m.start()].replace(' ', '') + ' ' + norm[m.start():].replace('  ', ' ') if m else norm
 
 
+def normalize_supernova_name(supernove_name):
+    norm = supernove_name.strip().replace(' ', '')
+    return norm
+
+
 def normalize_dso_name_for_img(dso_name):
     if dso_name is None:
         return dso_name

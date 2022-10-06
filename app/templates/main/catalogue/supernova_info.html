@@ -1,0 +1,174 @@
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% if not embed %}
+    {% set endpoints = [
+        ('main_supernova.supernova_info', _('Info'), 'info'),
+        ('main_supernova.supernova_chart', _('Chart'), 'info'),
+        ('main_supernova.supernova_surveys', _('Aladin'), 'table'),
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_supernova.supernova_info', _('Info'), 'info'),
+        ('main_supernova.supernova_surveys', _('Aladin'), 'table'),
+    ] %}
+{% endif %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, designation=supernova.designation, back=back, back_id=back_id, embed=embed) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro supernova_info(user_descr) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
+        <div class="ui blue segment" style="display: inline-block; width:100%">
+            <h3>&nbsp;
+                {% if supernova.constellation is not none %}
+                    <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=supernova.constellation.iau_code) }}">
+                        <i class="lastfm icon"></i>
+                        <span class="mobile hidden tablet hidden">{{ supernova.constellation.name.capitalize() }}</span>
+                        <span class="mobile only tablet only">{{ supernova.constellation.iau_code.capitalize() }}</span>
+                    </a>
+                {% endif %}
+                {% if supernova.sn_type is not none %}
+                <div class="tablet hidden computer hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        <i class="info icon"></i>{{ supernova.sn_type }}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="mobile hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        &#8982; {{ supernova.ra_str_short() }}/{{ supernova.dec_str_short() }}
+                    </div>
+                </div>
+                {% if supernova.latest_mag is not none %}
+                <div class="ui label" style="float:left;">
+                    &#9728;{{ commons.convert_mag(supernova.latest_mag) }}mag
+                </div>
+                {% endif %}
+            </h3>
+
+            <table class="ui compact striped definition unstackable table">
+                <tr><td class="three wide">SN</td><td>{{ supernova.designation }}</td></tr>
+                <tr><td class="three wide">{{ _('Host Galaxy') }}</td><td>{{ supernova.host_galaxy }}</td></tr>
+                <tr><td class="three wide">RA</td><td>{{ supernova.ra_str() }}</td></tr>
+                <tr><td class="three wide">Dec</td><td>{{ supernova.dec_str() }}</td></tr>
+                <tr><td class="three wide">{{ _('Offset') }}</td><td>{{ supernova.offset }}</td></tr>
+                <tr><td class="three wide">{{ _('Latest Mag') }}</td><td>{{ supernova.latest_mag }}</td></tr>
+                <tr><td class="three wide">{{ _('Last Observed') }}</td><td>{{ supernova.last_observed }}</td></tr>
+                <tr><td class="three wide">{{ _('Type') }}</td><td>{{ supernova.sn_type }}</td></tr>
+                <tr><td class="three wide">z</td><td>{{ supernova.z }}</td></tr>
+                <tr><td class="three wide">{{ _('Max Mag') }}</td><td>{{ supernova.max_mag }}</td></tr>
+                <tr><td class="three wide">{{ _('Max Mag Date') }}</td><td>{{ supernova.max_mag_date.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="three wide">{{ _('First Observed') }}</td><td>{{ supernova.first_observed.strftime('%Y-%m-%d') }}</td></tr>
+                <tr><td class="three wide">{{ _('Discoverer') }}</td><td>{{ supernova.discoverer }}</td></tr>
+                <tr><td class="three wide">AKA</td><td>{{ supernova.aka }}</td></tr>
+            </table>
+        </div>
+    </div>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro supernova_chart(supernova) %}
+    {{ fchart.fchart(url_for('main_supernova.supernova_chart', designation=supernova.designation, back=back, back_id=back_id),
+                     url_for('main_supernova.supernova_chart_pos_img', designation=supernova.designation, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id ),
+                     url_for('main_supernova.supernova_chart_legend_img', designation=supernova.designation, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_supernova.supernova_chart_pdf', designation=supernova.designation, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                              fchart_form,)
+    }}
+{% endmacro %}
+
+{# --- Surveys --- #}
+{% macro supernova_surveys(supernova) %}
+    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+    <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
+    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        var aladin = A.aladin('#aladin-lite-div', {
+                survey: "P/DSS2/color",
+                fov:{{ field_size }},
+                target: "{{ supernova.ra_str_short().replace(':',' ')}} {{ supernova.dec_str_short().replace(':',' ') }}"
+                {% if embed %} ,fullScreen: true {% endif %}
+        });
+    </script>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if not embed %}
+                        <a class="ui basic compact button" href="{{ url_for('main_supernova.supernovas', back=1)}}">
+                            <i class="caret left icon"></i>
+                            <i class="list icon"></i>
+                        </a>
+                        <div class="divider">  </div>
+                    {% endif %}
+                    <div class="active section">
+                        {{ supernova.designation }}
+                    </div>
+                </div>
+
+                {% if next_wrap and embed != 'pl' %}
+                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
+                        {{ next_wrap.label() }}
+                        <i class="caret right icon"></i>
+                    </a>
+                {% endif %}
+                {% if prev_wrap and embed != 'pl' %}
+                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else prev_wrap.url() }}">
+                        <i class="caret left icon"></i>
+                        {{ prev_wrap.label() }}
+                    </a>
+                {% endif %}
+            </div>
+
+            {{ navigation(endpoints) }}
+
+            {% if type == 'info' %}
+                {{ supernova_info(user_descr) }}
+            {% elif type == 'chart' %}
+                {{ supernova_chart(supernova) }}
+            {% else %}
+                {{ supernova_surveys(supernova) }}
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        {% if embed == 'fc' %}
+            {% if prev_wrap %}
+                $('#bprev' ).click(function() {
+                    parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
+                    return true;
+                });
+            {% endif %}
+            {% if next_wrap %}
+                $('#bnext' ).click(function() {
+                    parent.window.location.href = "{{ next_wrap.top_url() | safe }}";
+                    return false;
+                });
+            {% endif %}
+        {% endif %}
+    </script>
+{% endblock %}

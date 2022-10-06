@@ -22,6 +22,7 @@ from .sqm import *
 from .skylist import *
 from .star import *
 from .star_list import *
+from .supernova import *
 from .equipment import *
 from .user import *
 from .wishlist import *

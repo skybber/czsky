@@ -18,6 +18,7 @@ from app.models import Role, User, UserDsoDescription, DeepskyObject
 from config import Config
 
 from app.commons.comet_loader import *
+from app.commons.supernova_loader import *
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
@@ -215,6 +216,11 @@ def import_comets():
 
 
 @manager.command
+def import_supernovas():
+    update_supernovas_from_rochesterastronomy()
+
+
+@manager.command
 def import_new_skyquality_locations():
     """
     Import new skyquality locations
@@ -317,59 +323,9 @@ def import_gottlieb():
 
 
 @manager.command
-def tmp_update_hnsky():
-    import_hnsky('data/deep_sky.hnd')
-
-
-@manager.command
-def tmp_import_corstjens():
-    import_corstjens('data/dsolist/Corstjens.csv')
-
-
-@manager.command
-def tmp_import_hickson():
-    import_hickson('data/dsolist/Hickson.csv')
-
-
-@manager.command
-def tmp_local_group():
-    import_glahn_local_group('data/dsolist/LocalGroup.csv')
-
-
-@manager.command
-def tmp_import_pgc():
-    import_pgc('data/PGC.dat')
-
-
-@manager.command
-def tmp_constellations():
-    import_constellations('data/88-constellations.csv')
-
-
-@manager.command
 def tmp_update_comets_cobs():
     CometObservation.query.delete()
     update_comets_cobs_observations()
-
-
-@manager.command
-def tmp_update_comets_positions():
-    update_comets_positions()
-
-
-@manager.command
-def tmp_import_billionaries_club():
-    import_billionaries_club('data/dsolist/BillionairesClub.csv')
-
-
-@manager.command
-def tmp_fix_masters():
-    fix_masters_after_hnsky_import()
-
-
-@manager.command
-def tmp_import_deep_man_600():
-    import_deep_man_600('data/dsolist/DeepMan600.csv')
 
 
 @manager.command

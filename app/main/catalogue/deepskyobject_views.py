@@ -761,7 +761,6 @@ def deepskyobject_observation_log(dso_id):
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/observation-log-delete', methods=['GET', 'POST'])
-
 def deepskyobject_observation_log_delete(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:

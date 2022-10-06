@@ -1,0 +1,277 @@
+import os
+from datetime import datetime
+import numpy as np
+import base64
+
+from flask import (
+    abort,
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    send_file,
+    url_for,
+)
+from flask_login import current_user, login_required
+from sqlalchemy.sql.expression import literal
+
+from app import db
+from app import scheduler
+from app import create_app
+
+from app.models import (
+    Supernova,
+    Observation,
+    ObservingSession,
+    ObservationTargetType,
+    ObservedList,
+    ObservedListItem,
+    ObsSessionPlanRun,
+    SessionPlan,
+    SessionPlanItem,
+    UserStarDescription,
+    WishList,
+    WishListItem,
+)
+
+from app.commons.pagination import Pagination
+from app.commons.chart_generator import (
+    common_chart_pos_img,
+    common_chart_legend_img,
+    common_chart_pdf_img,
+    common_prepare_chart_data,
+    common_ra_dec_fsz_from_request,
+)
+
+from app.commons.search_utils import (
+    process_paginated_session_search,
+    get_items_per_page,
+    create_table_sort,
+    get_packed_constell_list,
+)
+
+from app.commons.supernova_loader import update_supernovas_from_rochesterastronomy
+from app.commons.dso_utils import normalize_supernova_name
+
+from app.main.chart.chart_forms import ChartForm
+from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.highlights_list_utils import create_hightlights_lists
+
+from .supernova_forms import SearchSupernovaForm
+
+main_supernova = Blueprint('main_supernova', __name__)
+
+
+def _update_supernovas():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        update_supernovas_from_rochesterastronomy()
+
+
+job3 = scheduler.add_job(_update_supernovas, 'interval', hours=3, replace_existing=True)
+
+
+@main_supernova.route('/supernovas', methods=['GET', 'POST'])
+def supernovas():
+    """View supernovas."""
+    search_form = SearchSupernovaForm()
+
+    ret, page, sort_by = process_paginated_session_search('sn_search_page', 'sn_sort_by', [
+        ('sn_search', search_form.q),
+        ('sn_constellation_id', search_form.constellation_id),
+        ('sn_latest_mag_max', search_form.latest_mag_max),
+        ('dec_min', search_form.dec_min),
+        ('items_per_page', search_form.items_per_page)
+    ])
+
+    if not ret:
+        return redirect(url_for('main_supernova.supernovas', page=page, sortby=sort_by))
+
+    per_page = get_items_per_page(search_form.items_per_page)
+
+    offset = (page - 1) * per_page
+
+    supernova_query = Supernova.query
+    if search_form.q.data:
+        supernova_q = normalize_supernova_name(search_form.q.data)
+        supernova_query = supernova_query.filter(Supernova.designation.like('%;' + supernova_q.strip() + ';%'))
+    else:
+        if search_form.constellation_id.data is not None:
+            supernova_query = supernova_query.filter(Supernova.constellation_id == search_form.constellation_id.data)
+        if search_form.latest_mag_max.data is not None:
+            supernova_query = supernova_query.filter(Supernova.latest_mag < search_form.latest_mag_max.data)
+        if search_form.dec_min.data is not None:
+            supernova_query = supernova_query.filter(Supernova.dec > (np.pi * search_form.dec_min.data / 180.0))
+
+    sort_def = {'designation': Supernova.designation,
+                'host_galaxy': Supernova.host_galaxy,
+                'constellation': Supernova.constellation_id,
+                'ra': Supernova.ra,
+                'dec': Supernova.dec,
+                'offset': Supernova.offset,
+                'latest_mag': Supernova.latest_mag,
+                'latest_observed': Supernova.latest_observed,
+                'sn_type': Supernova.sn_type,
+                'z': Supernova.z,
+                'max_mag': Supernova.max_mag,
+                'max_mag_date': Supernova.max_mag_date,
+                'first_observed': Supernova.first_observed,
+                'discoverer': Supernova.discoverer,
+                'aka': Supernova.aka,
+                }
+
+    table_sort = create_table_sort(sort_by, sort_def.keys())
+
+    order_by_field = None
+    if sort_by:
+        desc = sort_by[0] == '-'
+        sort_by_name = sort_by[1:] if desc else sort_by
+        order_by_field = sort_def.get(sort_by_name)
+        if order_by_field and desc:
+            order_by_field = order_by_field.desc()
+
+    if order_by_field is None:
+        order_by_field = Supernova.id
+
+    shown_supernovas = supernova_query.order_by(order_by_field).limit(per_page).offset(offset).all()
+
+    pagination = Pagination(page=page, per_page=per_page, total=supernova_query.count(), search=False, record_name='supernovas',
+                            css_framework='semantic', not_passed_args='back')
+
+    packed_constell_list = get_packed_constell_list()
+
+    return render_template('main/catalogue/supernovas.html', supernovas=shown_supernovas, pagination=pagination,
+                           search_form=search_form, table_sort=table_sort, packed_constell_list=packed_constell_list)
+
+
+@main_supernova.route('/supernova/<string:designation>/info')
+def supernova_info(designation):
+    """View a supernova catalogue data."""
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['supernova_embed_seltab'] = 'catalogue_data'
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+
+    return render_template('main/catalogue/supernova_info.html', type='info', supernova=supernova,
+                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap,)
+
+
+@main_supernova.route('/supernova/<string:designation>/surveys')
+def supernova_surveys(designation):
+    """View a supernova catalogue data."""
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['supernova_embed_seltab'] = 'surveys'
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+
+    return render_template('main/catalogue/supernova_info.html', type='surveys', supernova=supernova,
+                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, field_size=40.0)
+
+
+@main_supernova.route('/supernova/<string:designation>/seltab')
+def supernova_seltab(designation):
+    """View a supernova seltab."""
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if not supernova:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('supernova_embed_seltab', None)
+
+    if seltab:
+        if seltab == 'chart':
+            return _do_redirect('main_supernova.supernova_chart', supernova)
+        if seltab == 'surveys':
+            return _do_redirect('main_supernova.supernova_surveys', supernova)
+
+    return _do_redirect('main_supernova.supernova_info', supernova)
+
+
+@main_supernova.route('/supernova/<string:designation>/chart', methods=['GET', 'POST'])
+def supernova_chart(designation):
+    """View a supernova findchart."""
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if not supernova:
+        abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['supernova_embed_seltab'] = 'info'
+
+    form = ChartForm()
+
+    if not common_ra_dec_fsz_from_request(form):
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
+            form.ra.data = supernova.ra
+            form.dec.data = supernova.dec
+
+    chart_control = common_prepare_chart_data(form)
+
+    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+
+    return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova,
+                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed,)
+
+
+@main_supernova.route('/supernova/<string:designation>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def supernova_chart_pos_img(designation, ra, dec):
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+
+    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
+
+    img_bytes, img_format = common_chart_pos_img(supernova.ra, supernova.dec, ra, dec, visible_objects=visible_objects,
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
+
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_supernova.route('/supernova/<string:designation>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def supernova_chart_legend_img(designation, ra, dec):
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    img_bytes = common_chart_legend_img(supernova.ra, supernova.dec, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')
+
+
+@main_supernova.route('/supernova/<string:designation>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def supernova_chart_pdf(designation, ra, dec):
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    img_bytes = common_chart_pdf_img(supernova.ra, supernova.dec, ra, dec)
+
+    return send_file(img_bytes, mimetype='application/pdf')
+
+
+def _do_redirect(url, supernova):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    season = request.args.get('season')
+    return redirect(url_for(url, designation=supernova.designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

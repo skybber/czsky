@@ -115,6 +115,8 @@ def create_app(config, web=True):
         app.register_blueprint(main_double_star_list)
         from .main.catalogue import main_double_star as main_double_star
         app.register_blueprint(main_double_star)
+        from .main.catalogue import main_supernova as main_supernova
+        app.register_blueprint(main_supernova)
         from .main.location import main_location as main_location
         app.register_blueprint(main_location)
         from .main.observation import main_observation as main_observation
