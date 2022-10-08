@@ -1,3 +1,4 @@
+import re
 import urllib.parse
 
 from .dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
@@ -28,6 +29,8 @@ def search_constellation(query):
 
 def search_dso(query):
     if query.isdigit():
+        query = 'NGC' + query
+    elif re.match(r'^\d*_\d$', query):
         query = 'NGC' + query
     else:
         query = urllib.parse.unquote(query)
