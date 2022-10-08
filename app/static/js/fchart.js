@@ -608,24 +608,13 @@ FChart.prototype.onClick = function(e) {
 }
 
 FChart.prototype.onDblClick = function(e) {
-    var rect = this.canvas.getBoundingClientRect();
-    var x = e.clientX-rect.left;
-    var y = rect.bottom -e.clientY;
-
     this.setMovingPosToCenter();
 
-    if (x < this.canvas.width / 3) {
-        this.pointerX += this.canvas.width / 2;
-    }
-    if (x > 2 * this.canvas.width / 3) {
-        this.pointerX -= this.canvas.width / 2;
-    }
-    if (y < this.canvas.height / 3) {
-        this.pointerY -= this.canvas.height / 2;
-    }
-    if (y > 2 * this.canvas.height / 3) {
-        this.pointerY += this.canvas.height / 2;
-    }
+    var rect = this.canvas.getBoundingClientRect();
+
+    this.pointerX = rect.left + (-(e.clientX - rect.left) + this.canvas.width);
+    this.pointerY = rect.top + (-(e.clientY - rect.top) + this.canvas.height);
+
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
