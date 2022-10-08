@@ -66,14 +66,14 @@
 
             <table class="ui compact striped definition unstackable table">
                 <tr><td class="three wide">SN</td><td>{{ supernova.designation }}</td></tr>
-                <tr><td class="three wide">{{ _('Host Galaxy') }}</td><td>{{ supernova.host_galaxy }}</td></tr>
+                <tr><td class="three wide">{{ _('Host Galaxy') }}</td><td>{{ supernova.host_galaxy if supernova.host_galaxy != 'none' else '-' }}</td></tr>
                 <tr><td class="three wide">RA</td><td>{{ supernova.ra_str() }}</td></tr>
                 <tr><td class="three wide">Dec</td><td>{{ supernova.dec_str() }}</td></tr>
                 <tr><td class="three wide">{{ _('Offset') }}</td><td>{{ supernova.offset }}</td></tr>
                 <tr><td class="three wide">{{ _('Latest Mag') }}</td><td>{{ supernova.latest_mag }}</td></tr>
                 <tr><td class="three wide">{{ _('Last Observed') }}</td><td>{{ supernova.last_observed }}</td></tr>
-                <tr><td class="three wide">{{ _('Type') }}</td><td>{{ supernova.sn_type }}</td></tr>
-                <tr><td class="three wide">z</td><td>{{ supernova.z }}</td></tr>
+                <tr><td class="three wide">{{ _('Type') }}</td><td>{{ supernova.sn_type if supernova.sn_type != 'unk' else '-' }}</td></tr>
+                <tr><td class="three wide">z</td><td>{{ supernova.z if supernova.z else '-' }}</td></tr>
                 <tr><td class="three wide">{{ _('Max Mag') }}</td><td>{{ supernova.max_mag }}</td></tr>
                 <tr><td class="three wide">{{ _('Max Mag Date') }}</td><td>{{ supernova.max_mag_date.strftime('%Y-%m-%d') }}</td></tr>
                 <tr><td class="three wide">{{ _('First Observed') }}</td><td>{{ supernova.first_observed.strftime('%Y-%m-%d') }}</td></tr>

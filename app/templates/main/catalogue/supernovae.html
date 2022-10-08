@@ -143,15 +143,15 @@
                         {% for sn in supernovae %}
                             <tr onclick="window.location.href = '{{ url_for('main_supernova.supernova_info', designation=sn.designation) }}';">
                                 <td>{{ sn.designation }}</td>
-                                <td>{{ sn.host_galaxy }}</td>
+                                <td>{{ sn.host_galaxy if sn.host_galaxy != 'none' else ''}}</td>
                                 <td>{{ sn.get_constellation_iau_code() }}</td>
                                 <td class="mobile hidden">{{ sn.ra_str_short() }}</td>
                                 <td class="mobile hidden">{{ sn.dec_str_short() }}</td>
                                 <td class="mobile hidden">{{ sn.offset }}</td>
                                 <td>{{ sn.latest_mag }}</td>
                                 <td>{{ sn.latest_observed.strftime('%Y-%m-%d') }}</td>
-                                <td class="mobile hidden">{{ sn.sn_type }}</td>
-                                <td class="mobile hidden">{{ sn.z }}</td>
+                                <td class="mobile hidden">{{ sn.sn_type if sn.sn_type != 'unk' else '' }}</td>
+                                <td class="mobile hidden">{{ sn.z if sn.z else '' }}</td>
                                 <td class="mobile hidden">{{ sn.max_mag }}</td>
                                 <td class="mobile hidden">{{ sn.max_mag_date.strftime('%Y-%m-%d') }}</td>
                                 <td class="mobile hidden">{{ sn.first_observed.strftime('%Y-%m-%d') }}</td>
