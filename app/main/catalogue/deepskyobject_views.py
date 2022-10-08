@@ -47,7 +47,8 @@ from app.models import (
 )
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
+    get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.permission_utils import allow_view_session_plan
 
@@ -156,13 +157,7 @@ def deepskyobjects():
             if search_form.maglim.data:
                 dso_query = dso_query.filter(DeepskyObject.mag <= search_form.maglim.data)
 
-        order_by_field = None
-        if sort_by:
-            desc = sort_by[0] == '-'
-            sort_by_name = sort_by[1:] if desc else sort_by
-            order_by_field = sort_def.get(sort_by_name)
-            if order_by_field and desc:
-                order_by_field = order_by_field.desc()
+        order_by_field = get_order_by_field(sort_def, sort_by)
 
         if order_by_field is None:
             order_by_field = DeepskyObject.id

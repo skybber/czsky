@@ -12,6 +12,7 @@ from lru import LRU
 from sqlalchemy import or_
 from flask_login import current_user, login_required
 
+from app.commons.search_utils import get_order_by_field
 from app.models import (
     Catalogue,
     DeepskyObject,
@@ -98,13 +99,7 @@ def create_selection_coumpound_list(session_plan, schedule_form, observer, obser
     if schedule_form.constellation_id.data is not None:
         dso_query = dso_query.filter(DeepskyObject.constellation_id == schedule_form.constellation_id.data)
 
-    order_by_field = None
-    if sort_by:
-        desc = sort_by[0] == '-'
-        sort_by_name = sort_by[1:] if desc else sort_by
-        order_by_field = sort_def.get(sort_by_name)
-        if order_by_field and desc:
-            order_by_field = order_by_field.desc()
+    order_by_field = get_order_by_field(sort_def, sort_by)
 
     if order_by_field is None:
         order_by_field = DeepskyObject.id

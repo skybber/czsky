@@ -31,11 +31,12 @@ from app.models import (
     UserDsoDescription,
     StarList,
     ObservedList,
-    ObservedListItem
+    ObservedListItem,
+    WishList,
 )
 
 from app.commons.dso_utils import normalize_dso_name
-from app.commons.search_utils import process_session_search, process_paginated_session_search, create_table_sort
+from app.commons.search_utils import process_session_search, process_paginated_session_search, create_table_sort, get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -139,13 +140,7 @@ def dso_list_info(dso_list_id):
         if search_form.maglim.data:
             dso_list_query = dso_list_query.filter(DeepskyObject.mag <= search_form.maglim.data)
 
-    order_by_field = None
-    if sort_by:
-        desc = sort_by[0] == '-'
-        sort_by_name = sort_by[1:] if desc else sort_by
-        order_by_field = sort_def.get(sort_by_name)
-        if order_by_field and desc:
-            order_by_field = order_by_field.desc()
+    order_by_field = get_order_by_field(sort_def, sort_by)
 
     if order_by_field is None:
         order_by_field = DsoListItem.item_id
@@ -154,7 +149,8 @@ def dso_list_info(dso_list_id):
 
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
-    observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
+    observed = {dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id)} if not current_user.is_anonymous else None
+    wished = {dso.id for dso in WishList.get_wished_dsos_by_user_id(current_user.id)} if not current_user.is_anonymous else None
 
     user_descrs = {} if dso_list.show_descr_name else None
     dso_list_items = []
@@ -173,7 +169,7 @@ def dso_list_info(dso_list_id):
 
     return render_template('main/catalogue/dso_list_info.html', dso_list=dso_list, type='info', dso_list_descr=dso_list_descr,
                            dso_list_items=dso_list_items, user_descrs=user_descrs, search_form=search_form,
-                           inverted_accordion=inverted_accordion, observed=observed, table_sort=table_sort)
+                           inverted_accordion=inverted_accordion, observed=observed, wished=wished, table_sort=table_sort)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart', methods=['GET', 'POST'])

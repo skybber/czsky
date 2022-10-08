@@ -51,6 +51,7 @@ from app.commons.search_utils import (
     get_items_per_page,
     create_table_sort,
     get_packed_constell_list,
+    get_order_by_field,
 )
 
 from app.commons.supernova_loader import update_supernovae_from_rochesterastronomy
@@ -125,13 +126,7 @@ def supernovae():
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
 
-    order_by_field = None
-    if sort_by:
-        desc = sort_by[0] == '-'
-        sort_by_name = sort_by[1:] if desc else sort_by
-        order_by_field = sort_def.get(sort_by_name)
-        if order_by_field and desc:
-            order_by_field = order_by_field.desc()
+    order_by_field = get_order_by_field(sort_def, sort_by)
 
     if order_by_field is None:
         order_by_field = Supernova.id

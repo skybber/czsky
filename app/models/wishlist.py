@@ -1,6 +1,10 @@
 from datetime import datetime
 
+from sqlalchemy import or_
+
 from .. import db
+
+from .deepskyobject import DeepskyObject
 
 
 class WishList(db.Model):
@@ -59,6 +63,16 @@ class WishList(db.Model):
             db.session.add(wish_list)
             db.session.commit()
         return wish_list
+
+    @staticmethod
+    def get_wished_dsos_by_user_id(user_id):
+        wish_list = WishList.query.filter_by(user_id=user_id).first()
+
+        wished_subquery = db.session.query(WishListItem.dso_id) \
+            .join(WishListItem.wish_list) \
+            .filter(WishList.id == wish_list.id, WishList.user_id == user_id, WishListItem.dso_id is not None)
+
+        return DeepskyObject.query.filter(or_(DeepskyObject.id.in_(wished_subquery), DeepskyObject.master_id.in_(wished_subquery))).all()
 
 
 class WishListItem(db.Model):

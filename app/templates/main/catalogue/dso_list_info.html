@@ -79,7 +79,7 @@
                             N {{ table_sort['item_id'].icon | safe }}
                         </a>
                     </th>
-                    {% if observed %}
+                    {% if observed is not none and wished is not none %}
                     <th class="collapsing mobile hidden"></th>
                     {% endif %}
                     <th>
@@ -145,10 +145,13 @@
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>
-                    {% if observed %}
+                    {% if observed is not none and wished is not none %}
                     <td class="collapsing mobile hidden">
                         {% if item.deepskyObject.id in observed %}
                             <i class="eye icon"></i>
+                        {% endif %}
+                        {% if item.deepskyObject.id in wished %}
+                            <i class="heart icon"></i>
                         {% endif %}
                     </td>
                     {% endif %}

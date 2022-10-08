@@ -203,3 +203,14 @@ def get_packed_constell_list():
         else:
             packed_constell_list.append([l1, letter_list])
     return packed_constell_list
+
+
+def get_order_by_field(sort_def, sort_by):
+    order_by_field = None
+    if sort_by:
+        desc = sort_by[0] == '-'
+        sort_by_name = sort_by[1:] if desc else sort_by
+        order_by_field = sort_def.get(sort_by_name)
+        if order_by_field and desc:
+            order_by_field = order_by_field.desc()
+    return order_by_field

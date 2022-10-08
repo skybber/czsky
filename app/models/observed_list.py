@@ -58,7 +58,7 @@ class ObservedList(db.Model):
 
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
-            .filter(ObservedList.id == observed_list.id, ObservedList.user_id == user_id)
+            .filter(ObservedList.id == observed_list.id, ObservedList.user_id == user_id, ObservedListItem.dso_id is not None)
 
         return DeepskyObject.query.filter(or_(DeepskyObject.id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery))).all()
 
