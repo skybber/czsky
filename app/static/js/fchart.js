@@ -701,7 +701,7 @@ FChart.prototype.onKeyDown = function (e) {
         e.preventDefault();
     } else if (e.keyCode in keyMoveMap) {
         if (e.shiftKey) {
-            this.kbdShiftMove(keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1]);
+            this.kbdShiftMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1]);
         } else if (this.kbdMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1])) {
             e.preventDefault();
         }
@@ -779,7 +779,7 @@ FChart.prototype.onTouchMove = function (e) {
     }
 }
 
-FChart.prototype.kbdShiftMove = function(mx, my) {
+FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
     if (!this.isDragging && this.kbdDragging == 0) {
         this.setMovingPosToCenter();
 
@@ -801,8 +801,10 @@ FChart.prototype.kbdShiftMove = function(mx, my) {
         if (this.imgGrid != undefined) {
             this.drawImgGrid(curSkyImg);
         }
+        this.kbdDragging = keycode;
         this.ctx.drawImage(curLegendImg, 0, 0);
         this.renderOnTimeOutFromPointerMove(false);
+        this.kbdDragging = 0;
     }
 }
 
