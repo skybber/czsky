@@ -260,6 +260,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     $(this.canvas).bind('click', this.onClick.bind(this));
 
+    $(this.canvas).bind('dblclick', this.onDblClick.bind(this));
+
     $(this.canvas).bind('mousedown', this.onPointerDown.bind(this));
 
     $(this.canvas).bind('touchstart', (function(e) {
@@ -605,6 +607,35 @@ FChart.prototype.onClick = function(e) {
     }
 }
 
+FChart.prototype.onDblClick = function(e) {
+    var rect = this.canvas.getBoundingClientRect();
+    var x = e.clientX-rect.left;
+    var y = rect.bottom -e.clientY;
+
+    this.setMovingPosToCenter();
+
+    if (x < this.canvas.width / 3) {
+        this.pointerX += this.canvas.width / 2;
+    }
+    if (x > 2 * this.canvas.width / 3) {
+        this.pointerX -= this.canvas.width / 2;
+    }
+    if (y < this.canvas.height / 3) {
+        this.pointerY -= this.canvas.height / 2;
+    }
+    if (y > 2 * this.canvas.height / 3) {
+        this.pointerY += this.canvas.height / 2;
+    }
+    var curLegendImg = this.legendImgBuf[this.legendImg.active];
+    var curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+    if (this.imgGrid != undefined) {
+        this.drawImgGrid(curSkyImg);
+    }
+    this.ctx.drawImage(curLegendImg, 0, 0);
+    this.renderOnTimeOutFromPointerMove(false);
+}
+
 FChart.prototype.getDRaDec = function(fromKbdMove) {
     if (this.movingPos != undefined) {
         var rect = this.canvas.getBoundingClientRect();
@@ -680,7 +711,9 @@ FChart.prototype.onKeyDown = function (e) {
         }
         e.preventDefault();
     } else if (e.keyCode in keyMoveMap) {
-        if (this.kbdMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1])) {
+        if (e.shiftKey) {
+            this.kbdShiftMove(keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1]);
+        } else if (this.kbdMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1])) {
             e.preventDefault();
         }
     }
@@ -754,6 +787,33 @@ FChart.prototype.onTouchMove = function (e) {
         this.initialDistance = distance;
     } else {
         this.onPointerMove(e);
+    }
+}
+
+FChart.prototype.kbdShiftMove = function(mx, my) {
+    if (!this.isDragging && this.kbdDragging == 0) {
+        this.setMovingPosToCenter();
+
+        if (mx > 0) {
+            this.pointerX += this.canvas.width / 2;
+        }
+        if (mx < 0) {
+            this.pointerX -= this.canvas.width / 2;
+        }
+        if (my < 0) {
+            this.pointerY -= this.canvas.height / 2;
+        }
+        if (my > 0) {
+            this.pointerY += this.canvas.height / 2;
+        }
+        var curLegendImg = this.legendImgBuf[this.legendImg.active];
+        var curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+        if (this.imgGrid != undefined) {
+            this.drawImgGrid(curSkyImg);
+        }
+        this.ctx.drawImage(curLegendImg, 0, 0);
+        this.renderOnTimeOutFromPointerMove(false);
     }
 }
 
