@@ -1157,6 +1157,10 @@ View = (function() {
         // execute 'positionChanged' and 'zoomChanged' callbacks
         this.executeCallbacksThrottled();
 
+        if (this.aladin.callbacksByEventName != undefined) {
+            var redrawFinishedFunction = this.aladin.callbacksByEventName['redrawFinished'];
+            (typeof redrawFinishedFunction === 'function') && redrawFinishedFunction();
+        }
     };
 
     View.prototype.forceRedraw = function() {
