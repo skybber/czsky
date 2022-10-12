@@ -1,5 +1,7 @@
 # CzSky
 
+![OrionDss](https://user-images.githubusercontent.com/2523097/195431903-615c48f6-4268-4441-bf66-7120a29319fa.png)
+
 ## Setting up
 
 ##### Clone the repository
