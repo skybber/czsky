@@ -435,6 +435,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.eyepiece_fov.data = request.args.get('epfov')
         else:
             form.eyepiece_fov.data = session.get('chart_eyepiece_fov', form.eyepiece_fov.data)
+        if request.args.get('dss', 'false') == 'true':
+            form.show_dss.data = 'true'
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
         form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
