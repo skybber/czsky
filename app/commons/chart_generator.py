@@ -440,6 +440,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
         form.show_constell_borders.data = session.get('chart_show_constell_borders', form.show_constell_borders.data)
         form.show_dso.data = session.get('chart_show_dso', form.show_dso.data)
+        form.show_dss.data = session.get('chart_show_dss', form.show_dss.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
@@ -450,6 +451,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_constell_shapes'] = form.show_constell_shapes.data
         session['chart_show_constell_borders'] = form.show_constell_borders.data
         session['chart_show_dso'] = form.show_dso.data
+        session['chart_show_dss'] = form.show_dss.data
         session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
         session['chart_mirror_x'] = form.mirror_x.data
         session['chart_mirror_y'] = form.mirror_y.data
@@ -614,6 +616,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.mirror_x = 'X' in flags
     config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
+    config.show_dss = False
 
     config.show_flamsteed = (fld_size <= 30)
 
@@ -621,6 +624,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_constellation_borders = 'B' in flags
     config.show_deepsky = 'D' in flags
     config.show_equatorial_grid = 'E' in flags
+    config.show_dss = 'S' in flags
     config.show_picker = False  # do not show picker, only activate it
     if 'P' in flags:
         config.picker_radius = PICKER_RADIUS
@@ -678,6 +682,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     hl_showing_dsos = len(showing_dsos) - len1 > 0
 
+    if config.show_dss:
+        config.show_milky_way = False
+        config.show_enhanced_milky_way = False
+        config.show_star_circles = False
+
     engine.make_map(used_catalogs,
                     showing_dsos=showing_dsos,
                     hl_showing_dsos=hl_showing_dsos,
@@ -713,6 +722,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     config.mirror_x = 'X' in flags
     config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
+    config.show_dss = False
 
     config.show_flamsteed = (fld_size <= 20)
 
@@ -794,6 +804,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.show_map_scale_legend = True
     config.show_field_border = True
     config.show_equatorial_grid = True
+    config.show_dss = False
     config.show_picker = 'P' in flags
     config.picker_radius = PICKER_RADIUS
 
@@ -872,6 +883,9 @@ def get_chart_legend_flags(form):
 
     if form.show_equatorial_grid.data == 'true':
         chart_flags += 'E'
+
+    if form.show_dss.data == 'true':
+        chart_flags += 'S'
 
     if form.mirror_x.data == 'true':
         legend_flags += 'X'

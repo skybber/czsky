@@ -143,7 +143,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, fullScreen, splitview,
-                 mirror_x, mirror_y, default_chart_iframe_url, embed) {
+                 mirror_x, mirror_y, default_chart_iframe_url, embed, aladin) {
 
     this.fchartDiv = fchartDiv;
 
@@ -208,8 +208,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.MOVE_SEC_PER_SCREEN = 2;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
 
-    this.ra = ra;
-    this.dec = dec;
+    this.viewCenter = {ra: ra, dec: dec}
     this.obj_ra = obj_ra != '' ? obj_ra : ra;
     this.obj_dec = obj_dec != '' ? obj_dec : dec;
 
@@ -244,6 +243,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.kbdMoveDY = 0;
     this.dsoRegions = undefined;
     this.imgGrid = undefined;
+
+    this.aladin = aladin;
 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
@@ -358,6 +359,9 @@ FChart.prototype.onWindowLoad = function() {
     $(this.canvas).focus();
     this.reloadLegendImage();
     this.forceReloadImage();
+    this.syncAladinDivSize();
+    this.syncAladinZoom();
+    this.syncAladinViewCenter();
 }
 
 FChart.prototype.adjustCanvasSize = function() {
@@ -390,6 +394,7 @@ FChart.prototype.doResize = function() {
         this.adjustCanvasSize();
         this.reloadLegendImage();
         this.forceReloadImage();
+        this.syncAladinDivSize();
     } else {
         this.isNextResizeEvnt = false;
         setTimeout((function() {
@@ -411,6 +416,11 @@ FChart.prototype.redrawAll = function () {
         var img_height = curSkyImg.height * this.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        if (this.aladin != null) {
+            var posx = (this.canvas.width - this.aladin.view.imageCanvas.width) / 2;
+            var posy = (this.canvas.height - this.aladin.view.imageCanvas.height) / 2;
+            this.ctx.drawImage(this.aladin.view.imageCanvas, posx, posy);
+        }
         this.ctx.drawImage(curSkyImg, (this.canvas.width-img_width)/2, (this.canvas.height-img_height)/2, img_width, img_height);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
@@ -418,8 +428,8 @@ FChart.prototype.redrawAll = function () {
 
 FChart.prototype.reloadLegendImage = function () {
     var url = this.legendUrl;
-    url = url.replace('_RA_', this.ra.toString());
-    url = url.replace('_DEC_', this.dec.toString());
+    url = url.replace('_RA_', this.viewCenter.ra.toString());
+    url = url.replace('_DEC_', this.viewCenter.dec.toString());
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
@@ -458,8 +468,8 @@ FChart.prototype.doReloadImage = function(forceReload) {
         url += '&hqual=1';
     }
 
-    var centerRA = this.ra;
-    var centerDEC = this.dec;
+    var centerRA = this.viewCenter.ra;
+    var centerDEC = this.viewCenter.dec;
 
     // this.skyImgBuf[this.skyImg.background].src = url;
     this.reqInProcess ++;
@@ -473,8 +483,8 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.activateImageOnLoad(centerRA, centerDEC);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             var queryParams = new URLSearchParams(window.location.search);
-            queryParams.set('ra', this.ra.toString());
-            queryParams.set('dec', this.dec.toString());
+            queryParams.set('ra', this.viewCenter.ra.toString());
+            queryParams.set('dec', this.viewCenter.dec.toString());
             queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
         }
@@ -483,8 +493,8 @@ FChart.prototype.doReloadImage = function(forceReload) {
 
 FChart.prototype.formatUrl = function(inpUrl) {
     var url = inpUrl;
-    url = url.replace('_RA_', this.ra.toString());
-    url = url.replace('_DEC_', this.dec.toString());
+    url = url.replace('_RA_', this.viewCenter.ra.toString());
+    url = url.replace('_DEC_', this.viewCenter.dec.toString());
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
@@ -503,6 +513,7 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
+            this.syncAladinZoom();
             this.cumulativeScaleFac = 1.0;
             this.redrawAll();
         } else {
@@ -512,7 +523,7 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         if (this.pendingMoveRequest != undefined) {
             var wasPointerUp = this.pendingMoveRequest.isPointerUp;
             var wasKbdDragging = this.pendingMoveRequest.wasKbdDragging;
-            this.setMoveRaDEC(wasKbdDragging);
+            this.moveRaDEC(wasKbdDragging);
             if (this.pendingMoveRequest.wasKbdDragging) {
                 this.setMovingPosToCenter();
             }
@@ -615,6 +626,8 @@ FChart.prototype.onDblClick = function(e) {
     this.pointerX = rect.left + (-(e.clientX - rect.left) + this.canvas.width);
     this.pointerY = rect.top + (-(e.clientY - rect.top) + this.canvas.height);
 
+    this.syncAladinViewCenter();
+
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
@@ -633,9 +646,9 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
         var movingToPos;
         if (this.kbdDragging == 0 && !fromKbdMove) {
-            movingToPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+            movingToPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
         } else {
-            movingToPos = this.mirroredPos2radec2(x, y, this.ra, this.dec);
+            movingToPos = this.mirroredPos2radec2(x, y, this.viewCenter.ra, this.viewCenter.dec);
         }
         return {
             'dRA' : movingToPos.ra - this.movingPos.ra,
@@ -659,7 +672,7 @@ FChart.prototype.onPointerDown = function(e) {
         var scale = this.getFChartScale();
         var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
         var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
-        this.movingPos = this.mirroredPos2radec(x, y, this.ra, this.dec);
+        this.movingPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
     }
 }
 
@@ -667,6 +680,7 @@ FChart.prototype.onPointerUp = function(e) {
     if (this.isDragging) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
+        this.syncAladinViewCenter();
         this.isDragging = false
         if (!this.draggingStart) { // there was some mouse movement
             this.renderOnTimeOutFromPointerMove(true);
@@ -726,21 +740,45 @@ FChart.prototype.movingKeyUp = function () {
     }
 }
 
-FChart.prototype.setMoveRaDEC = function(fromKbdMove) {
+FChart.prototype.syncAladinDivSize = function () {
+    if (this.aladin != null) {
+        $(this.aladin.aladinDiv).width($(this.fchartDiv).width());
+        $(this.aladin.aladinDiv).height($(this.fchartDiv).height());
+        this.aladin.view.fixLayoutDimensions();
+    }
+}
+
+FChart.prototype.syncAladinViewCenter = function () {
+    if (this.aladin != null) {
+        var dRD = this.getDRaDec(false);
+        var centerRA = this.viewCenter.ra - dRD.dRA;
+        var centerDEC = this.viewCenter.dec - dRD.dDEC;
+
+        this.aladin.gotoPosition(centerRA * 180 / Math.PI, centerDEC * 180 / Math.PI);
+    }
+}
+
+FChart.prototype.syncAladinZoom = function () {
+    if (this.aladin != null) {
+        this.aladin.setZoom(Math.round(this.imgField / this.scaleFac));
+    }
+}
+
+FChart.prototype.moveRaDEC = function(fromKbdMove) {
     if (this.movingPos != undefined) {
         var dRD = this.getDRaDec(fromKbdMove);
-        this.ra -= dRD.dRA;
-        this.dec -= dRD.dDEC;
+        this.viewCenter.ra -= dRD.dRA;
+        this.viewCenter.dec -= dRD.dDEC;
     }
 
-    if (this.ra > Math.PI*2) this.ra = this.ra - 2 * Math.PI
-    if (this.ra < 0) this.ra = this.ra + 2 * Math.PI
+    if (this.viewCenter.ra > Math.PI*2) this.viewCenter.ra = this.viewCenter.ra - 2 * Math.PI
+    if (this.viewCenter.ra < 0) this.viewCenter.ra = this.viewCenter.ra + 2 * Math.PI
 
-    if (this.dec > Math.PI / 2.0) this.dec = Math.PI/2.0;
-    if (this.dec < -Math.PI / 2.0) this.dec = -Math.PI/2.0;
+    if (this.viewCenter.dec > Math.PI / 2.0) this.viewCenter.dec = Math.PI/2.0;
+    if (this.viewCenter.dec < -Math.PI / 2.0) this.viewCenter.dec = -Math.PI/2.0;
 
-    $('#ra').val(this.ra);
-    $('#dec').val(this.dec);
+    $('#ra').val(this.viewCenter.ra);
+    $('#dec').val(this.viewCenter.dec);
 }
 
 FChart.prototype.onPointerMove = function (e) {
@@ -754,6 +792,8 @@ FChart.prototype.onPointerMove = function (e) {
     if (this.isDragging) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
+
+        this.syncAladinViewCenter();
 
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
@@ -798,6 +838,8 @@ FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
 
+        this.syncAladinViewCenter();
+
         if (this.imgGrid != undefined) {
             this.drawImgGrid(curSkyImg);
         }
@@ -838,8 +880,8 @@ FChart.prototype.setMovingPosToCenter = function() {
     this.pointerX = rect.left + this.canvas.width / 2.0;
     this.pointerY = rect.top + this.canvas.height / 2.0;
     this.movingPos = {
-        "ra" : this.ra,
-        "dec" :  this.dec
+        "ra" : this.viewCenter.ra,
+        "dec" :  this.viewCenter.dec
     }
 }
 
@@ -860,6 +902,8 @@ FChart.prototype.kbdSmoothMove = function() {
 
         var curLegendImg = this.legendImgBuf[this.legendImg.active];
         var curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+        this.syncAladinViewCenter();
 
         if (this.imgGrid != undefined) {
             this.drawImgGrid(curSkyImg);
@@ -891,7 +935,7 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
                     'isPointerUp': isPointerUp
                 }
             } else {
-                this.setMoveRaDEC(wasKbdDragging);
+                this.moveRaDEC(wasKbdDragging);
                 if (wasKbdDragging) {
                     this.setMovingPosToCenter();
                 }
@@ -916,8 +960,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
     var screenImgGrid = [];
     var w2 = curSkyImg.width / 2;
     var h2 = curSkyImg.height / 2;
-    var centerRA = this.ra - dRD.dRA;
-    var centerDEC = this.dec - dRD.dDEC;
+    var centerRA = this.viewCenter.ra - dRD.dRA;
+    var centerDEC = this.viewCenter.dec - dRD.dDEC;
     for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
         var pos = radec2pos(this.imgGrid[i][0], this.imgGrid[i][1], centerRA, centerDEC, scale);
         screenImgGrid.push([this.multRA * pos.x * scale + w2, -this.multDEC * pos.y * scale + h2]);
@@ -925,6 +969,13 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
     var imgY = 0;
     var dimgX = curSkyImg.width / this.GRID_SIZE;
     var dimgY = curSkyImg.height / this.GRID_SIZE;
+
+    if (this.aladin != null) {
+        var posx = (this.canvas.width - this.aladin.view.imageCanvas.width) / 2;
+        var posy = (this.canvas.height - this.aladin.view.imageCanvas.height) / 2;
+        this.ctx.drawImage(this.aladin.view.imageCanvas, posx, posy);
+    }
+
     for (j=0; j < this.GRID_SIZE; j++) {
         var imgX = 0;
         for (i=0; i < this.GRID_SIZE; i++) {
@@ -957,7 +1008,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
 }
 
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
-    if (this.isMoving) {
+    if (this.isDragging) {
         return;
     }
 
@@ -1033,6 +1084,7 @@ FChart.prototype.nextScaleFac = function() {
             }
         }
         this.scaleFac = this.scaleFac * this.cumulativeScaleFac;
+        this.syncAladinZoom();
     }
 }
 
@@ -1075,6 +1127,8 @@ FChart.prototype.toggleFullscreen = function() {
 
     history.replaceState(null, null, "?" + queryParams.toString());
 
+    this.syncAladinDivSize();
+
     if (this.onFullscreenChangeCallback  != undefined) {
         this.onFullscreenChangeCallback.call(this, this.isInFullScreen());
     }
@@ -1094,7 +1148,6 @@ FChart.prototype.toggleSplitView = function() {
         $(".fchart-iframe").show();
         $(".fchart-separator").show();
         this.setSplitViewPosition();
-
     } else {
         $(".fchart-iframe").hide();
         $(".fchart-separator").hide();
@@ -1108,8 +1161,8 @@ FChart.prototype.toggleSplitView = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
 
-    queryParams.set('ra', this.ra.toString());
-    queryParams.set('dec', this.dec.toString());
+    queryParams.set('ra', this.viewCenter.ra.toString());
+    queryParams.set('dec', this.viewCenter.dec.toString());
     queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
     history.replaceState(null, null, "?" + queryParams.toString());
 
@@ -1120,6 +1173,8 @@ FChart.prototype.toggleSplitView = function() {
     }
 
     history.replaceState(null, null, "?" + queryParams.toString());
+
+    this.syncAladinDivSize();
 
     if (this.onSplitViewChangeCallback  != undefined) {
         this.onSplitViewChangeCallback.call(this, this.isInSplitView());

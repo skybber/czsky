@@ -20,7 +20,7 @@ from flask_babel import Babel
 from sqlalchemy import MetaData
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css, red_theme_css
+from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css, red_theme_css, aladin_js
 from config import config as Config
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -93,6 +93,7 @@ def create_app(config, web=True):
     assets_env.register('app_js', app_js)
     assets_env.register('vendor_css', vendor_css)
     assets_env.register('vendor_js', vendor_js)
+    assets_env.register('aladin_js', aladin_js)
 
     # Configure SSL if platform supports it
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:

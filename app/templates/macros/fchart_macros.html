@@ -19,6 +19,7 @@
       <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
       <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
       <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
+      <input type="hidden" id="show_dss" name="{{ fchart_form.show_dss.name }}" value="{{ fchart_form.show_dss.data }}">
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
       <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
       <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
@@ -119,6 +120,10 @@
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
               </button>
+              <button class="ui toggle icon button{{ ' active' if fchart_form.show_dss.data=='true' else ''}} bdss"
+                    data-inverted="" data-tooltip="{{ _('DSS background')}}" data-position="bottom center" data-variation="tiny basic">
+                  <i class="image outline icon"></i>
+              </button>
           </div>
       </div>
 
@@ -176,6 +181,12 @@
                       <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso"
                             data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                           <i class="superpowers icon"></i>
+                      </button>
+                  </div>
+                  <div class="item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.show_dss.data=='true' else ''}} bdss"
+                            data-inverted="" data-tooltip="{{ _('DSS background')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="image outline icon"></i>
                       </button>
                   </div>
                   <div class="item">
@@ -319,6 +330,9 @@
 
 </div>
 
+<div id="fchart-aladin-div" style="position:fixed;left:0;top:0;display:none">
+</div>
+
 {% if chart_control.show_not_found %}
     <div class="ui tiny modal notFoundModal" style="z-index:10000;">
         <div class="header">{{ _('Object not found') }}</div>
@@ -337,6 +351,11 @@
   z-index: 10000 !important;
 }
 </style>
+{% endif %}
+
+{% if fchart_form.show_dss.data == 'true' %}
+{% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
+<link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
 {% endif %}
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
@@ -371,6 +390,28 @@
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
 
+{% if fchart_form.show_dss.data == 'true' %}
+    var aladin = A.aladin('#fchart-aladin-div', {
+            survey: "P/DSS2/color",
+            fov:60,
+            target: "0 0 0 0 0 0",
+            fullScreen: false,
+            showReticle: false,
+            showZoomControl:          false,
+            showFullscreenControl:    false,
+            showLayersControl:        false,
+            showGotoControl:          false,
+            showSimbadPointerControl: false,
+            showShareControl:         false,
+            showCatalog:              false,
+            showFrame:                false,
+            showCooGrid:              false,
+            fullScreen:               false,
+            log:                      true
+    });
+{% else %}
+    var aladin = null;
+{% endif %}
     var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
@@ -378,7 +419,8 @@
             {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
             '{{ default_chart_iframe_url }}',
-            '{{ embed }}'
+            '{{ embed }}',
+            aladin
     );
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
@@ -452,6 +494,11 @@
     $('.bdso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('.bdss').click(function(){
+        $(this).toggleClass('active');
+        $('#show_dss').val($('#show_dss').val() == 'true' ? 'false' : 'true');
     });
 
     $('.mirrorx').click(function(){

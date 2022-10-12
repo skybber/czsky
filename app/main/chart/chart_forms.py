@@ -30,4 +30,5 @@ class ChartForm(FlaskForm):
     show_constell_borders = HiddenField('show_constell_borders', default='true')
     show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     show_dso = HiddenField('show_dso', default='true')
+    show_dss = HiddenField('show_dss', default='false')
     eyepiece_fov = HiddenField('eyepiece_fov')
