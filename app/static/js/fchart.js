@@ -513,10 +513,11 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
             this.scaleFac = 1.0;
-            this.syncAladinZoom();
             this.cumulativeScaleFac = 1.0;
+            this.syncAladinZoom();
             this.redrawAll();
         } else {
+            this.syncAladinZoom();
             this.backwardScale = true;
         }
         this.isReloadingImage = false;
@@ -760,7 +761,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 
 FChart.prototype.syncAladinZoom = function () {
     if (this.aladin != null) {
-        this.aladin.setZoom(Math.round(this.imgField / this.scaleFac));
+        this.aladin.setZoom(this.imgField / this.scaleFac);
     }
 }
 
@@ -1038,7 +1039,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
         this.nextScaleFac();
         this.redrawAll();
         if (this.zoomInterval != undefined) {
-          clearInterval(this.zoomInterval);
+            clearInterval(this.zoomInterval);
         }
         var t = this;
         this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL/this.MAX_ZOOM_STEPS);
