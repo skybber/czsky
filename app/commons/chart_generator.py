@@ -349,10 +349,10 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     img_bytes = BytesIO()
     img_format = current_app.config.get('CHART_IMG_FORMAT')
 
-    _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
-                  maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
-                  highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation,
-                  img_format=img_format)
+    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
+                               maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
+                               highlights_pos_list=highlights_pos_list, trajectory=trajectory, hl_constellation=hl_constellation,
+                               img_format=img_format)
     img_bytes.seek(0)
     return img_bytes, ('jpeg' if img_format == 'jpg' else img_format)
 
@@ -646,6 +646,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     jpg_quality = jpg_high_quality if high_quality == '1' else jpg_low_quality
 
+    if config.show_dss:
+        img_format = 'png'
+
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
@@ -682,10 +685,12 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     hl_showing_dsos = len(showing_dsos) - len1 > 0
 
+    transparent = False
     if config.show_dss:
         config.show_milky_way = False
         config.show_enhanced_milky_way = False
         config.show_star_circles = False
+        transparent = True
 
     engine.make_map(used_catalogs,
                     showing_dsos=showing_dsos,
@@ -695,7 +700,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
                     trajectory=trajectory,
                     hl_constellation=hl_constellation,
                     visible_objects=visible_objects,
-                    use_optimized_mw=(high_quality != '1'))
+                    use_optimized_mw=(high_quality != '1'),
+                    transparent=transparent)
 
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
@@ -703,6 +709,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         used_catalogs.free_mem()
 
     print("Map created within : {} ms".format(str(time()-tm)), flush=True)
+
+    return img_format
 
 
 def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim,
@@ -824,7 +832,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
 
-    engine.make_map(used_catalogs)
+    engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
     if free_mem_counter > NO_FREE_MEM_CYCLES:
         free_mem_counter = 0
