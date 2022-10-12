@@ -249,7 +249,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     if (this.aladin != null) {
         var t = this;
         this.aladin.on('redrawFinished', function() {
-            t.redrawAll();
+            if (!this.isDragging) {
+                t.redrawAll();
+            }
         });
     }
 
