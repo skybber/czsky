@@ -26,7 +26,7 @@ class Planet(db.Model):
     _id_dict = None
 
     def get_localized_name(self):
-        return gettext(self.iau_code)
+        return gettext(self.iau_code).capitalize()
 
     @classmethod
     def get_all(cls):

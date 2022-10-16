@@ -34,7 +34,7 @@ def parse_observation_targets(targets):
         return dsos, double_star, planet, comet, minor_planet, not_found
 
     planet = search_planet(targets)
-    if comet:
+    if planet:
         return dsos, double_star, planet, comet, minor_planet, not_found
 
     comet = search_comet(targets)
