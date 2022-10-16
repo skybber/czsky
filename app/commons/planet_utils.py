@@ -8,19 +8,22 @@ class Planet:
         self.name = name
         self.eph = eph[body_key]
 
+    def localized_name(self):
+        return gettext(self.name)
+
 
 def get_all_planets():
     global all_planets
     if all_planets is None:
         eph = load('de421.bsp')
         all_planets = [
-            Planet(gettext('mercury'), 'MERCURY', eph),
-            Planet(gettext('venus'), 'VENUS', eph),
-            Planet(gettext('mars'), 'MARS', eph),
-            Planet(gettext('jupiter'), 'JUPITER_BARYCENTER', eph),
-            Planet(gettext('saturn'), 'SATURN_BARYCENTER', eph),
-            Planet(gettext('uranus'), 'URANUS_BARYCENTER', eph),
-            Planet(gettext('neptune'), 'NEPTUNE_BARYCENTER', eph),
-            Planet(gettext('pluto'), 'PLUTO_BARYCENTER', eph),
+            Planet('mercury', 'MERCURY', eph),
+            Planet('venus', 'VENUS', eph),
+            Planet('mars', 'MARS', eph),
+            Planet('jupiter', 'JUPITER_BARYCENTER', eph),
+            Planet('saturn', 'SATURN_BARYCENTER', eph),
+            Planet('uranus', 'URANUS_BARYCENTER', eph),
+            Planet('neptune', 'NEPTUNE_BARYCENTER', eph),
+            Planet('pluto', 'PLUTO_BARYCENTER', eph),
         ]
     return all_planets

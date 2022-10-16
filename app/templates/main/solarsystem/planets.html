@@ -26,7 +26,7 @@
                     {% for index, planet in planets_enumerate %}
                         <tr onclick="window.location.href = '{{ url_for('main_planet.planet_info', planet_name=planet.name) }}';">
                             <td>{{ index + 1 }}</td>
-                            <td>{{ planet.name.capitalize() }}</td>
+                            <td>{{ planet.localized_name().capitalize() }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>
