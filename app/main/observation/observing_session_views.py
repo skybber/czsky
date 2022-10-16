@@ -493,8 +493,8 @@ def observing_session_run_plan_execute(observing_session_id, session_plan_id):
 
     session['running_plan_id'] = observing_session_plan_run.id
 
-    if len(session_plan.session_plan_items) and session_plan.session_plan_items[0].deepskyObject is not None:
-        dso_name = session_plan.session_plan_items[0].deepskyObject.name
+    if len(session_plan.session_plan_items) and session_plan.session_plan_items[0].deepsky_object is not None:
+        dso_name = session_plan.session_plan_items[0].deepsky_object.name
     else:
         dso_name = 'M1'  # fallback
     return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_name, back='running_plan', back_id=observing_session_plan_run.id))

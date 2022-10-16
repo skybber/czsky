@@ -80,7 +80,7 @@ class WishListItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     wish_list_id = db.Column(db.Integer, db.ForeignKey('wish_lists.id'), nullable=False, index=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
-    deepskyObject = db.relationship("DeepskyObject")
+    deepsky_object = db.relationship("DeepskyObject")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=True)
     double_star = db.relationship("DoubleStar")
     order = db.Column(db.Integer, default=100000)
@@ -89,14 +89,14 @@ class WishListItem(db.Model):
 
     def get_ra(self):
         if self.dso_id is not None:
-            return self.deepskyObject.ra
+            return self.deepsky_object.ra
         if self.double_star_id is not None:
             return self.double_star.ra_first
         return None
 
     def get_dec(self):
         if self.dso_id is not None:
-            return self.deepskyObject.dec
+            return self.deepsky_object.dec
         if self.double_star_id is not None:
             return self.double_star.dec_first
         return None

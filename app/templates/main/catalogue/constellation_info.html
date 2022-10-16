@@ -131,30 +131,30 @@
                     <div id="dso-toolbar" style="float:right;">
                         <div class="tablet hidden computer hidden" style="float:left">
                             <div class="ui label" style="float:left;">
-                                <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }}
+                                <i class="info icon"></i>{{ user_dso_descr.deepsky_object.type }}
                             </div>
                         </div>
                         <div class="mobile hidden" style="float:left">
                             <div class="ui label" style="float:left;">
-                                <i class="info icon"></i>{{ user_dso_descr.deepskyObject.type }} {% if user_dso_descr.deepskyObject.subtype %}[{{ user_dso_descr.deepskyObject.subtype }}]{% endif %}
+                                <i class="info icon"></i>{{ user_dso_descr.deepsky_object.type }} {% if user_dso_descr.deepsky_object.subtype %}[{{ user_dso_descr.deepsky_object.subtype }}]{% endif %}
                             </div>
                         </div>
                         <div class="mobile hidden" style="float:left">
                             <div class="ui label" style="float:left;">
-                                &#8982; {{ user_dso_descr.deepskyObject.ra_str_short() }}/{{ user_dso_descr.deepskyObject.dec_str_short() }}
+                                &#8982; {{ user_dso_descr.deepsky_object.ra_str_short() }}/{{ user_dso_descr.deepsky_object.dec_str_short() }}
                             </div>
                         </div>
                         <div class="ui label" style="float:left;">
-                            &#9728;{{ commons.convert_mag(user_dso_descr.deepskyObject.mag) }}mag
+                            &#9728;{{ commons.convert_mag(user_dso_descr.deepsky_object.mag) }}mag
                         </div>
-                        {% if user_dso_descr.deepskyObject.major_axis %}
+                        {% if user_dso_descr.deepsky_object.major_axis %}
                             <div class="ui label" style="float:left;">
-                                Ø {{ commons.convert_dso_size(user_dso_descr.deepskyObject.major_axis, user_dso_descr.deepskyObject.minor_axis) }}
+                                Ø {{ commons.convert_dso_size(user_dso_descr.deepsky_object.major_axis, user_dso_descr.deepsky_object.minor_axis) }}
                             </div>
                         {% endif %}
 
-                        {{ commons.wish_observed_dso_toolbar(current_user, user_dso_descr.deepskyObject.id, wish_list, observed_list) }}
-                        {{ commons.offered_session_plans_dso_toolbar(user_dso_descr.deepskyObject.id, offered_session_plans) }}
+                        {{ commons.wish_observed_dso_toolbar(current_user, user_dso_descr.deepsky_object.id, wish_list, observed_list) }}
+                        {{ commons.offered_session_plans_dso_toolbar(user_dso_descr.deepsky_object.id, offered_session_plans) }}
 
                         <div class="mobile hidden" style="float:left;">
                           <div class="ui label">
@@ -170,13 +170,13 @@
                         {% endif %}
                     </div>
 
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=user_dso_descr.deepskyObject.name, back='constell', back_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=user_dso_descr.deepsky_object.name, back='constell', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
-                            {{ user_dso_descr.deepskyObject.denormalized_name() }}
+                            {{ user_dso_descr.deepsky_object.denormalized_name() }}
                         </h3>
                     </a>
                     <div class="dso-list-markdown markdown" style="clear:both;">
-                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constell&back_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(user_dso_descr.deepsky_object.name, '?back=constell&back_id=' + constellation.iau_code) %}
 
                             {% if user_dso_descr.dso_id in title_images %}
 ![<]({{ title_images[user_dso_descr.dso_id] }})
@@ -186,12 +186,12 @@
                         {% endfilter %}
                         {% if user_dso_descr.dso_id in aperture_descr_map %}
                             {% for ap_class, app_descr in aperture_descr_map[user_dso_descr.dso_id] %}
-                                {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constell&back_id=' + constellation.iau_code) %}
+                                {% filter extended_commonmark(user_dso_descr.deepsky_object.name, '?back=constell&back_id=' + constellation.iau_code) %}
 **{{ commons.norm_aperture_class(ap_class) }}** - {{ app_descr }}
                                 {% endfilter %}
                             {% endfor %}
                         {% endif %}
-                        {% filter extended_commonmark(user_dso_descr.deepskyObject.name, '?back=constell&back_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(user_dso_descr.deepsky_object.name, '?back=constell&back_id=' + constellation.iau_code) %}
 {{ user_dso_descr.references or '' }}
                         {% endfilter %}
                     </div>
@@ -334,11 +334,11 @@
                 <div id="dso{{ aster_dso_descr.dso_id }}" class="ui segment" style="display: inline-block;width:100%">
                     <div id="dso-toolbar" style="float:right;">
                         <div class="ui label" style="float:left;">
-                            {{ aster_dso_descr.deepskyObject.mag if aster_dso_descr.deepskyObject.mag else '' }}mag
+                            {{ aster_dso_descr.deepsky_object.mag if aster_dso_descr.deepsky_object.mag else '' }}mag
                         </div>
-                        {% if aster_dso_descr.deepskyObject.major_axis %}
+                        {% if aster_dso_descr.deepsky_object.major_axis %}
                             <div class="ui label" style="float:left;">
-                                Ø {{ commons.convert_dso_size(aster_dso_descr.deepskyObject.major_axis, aster_dso_descr.deepskyObject.minor_axis) }}
+                                Ø {{ commons.convert_dso_size(aster_dso_descr.deepsky_object.major_axis, aster_dso_descr.deepsky_object.minor_axis) }}
                             </div>
                         {% endif %}
                         <div class="mobile hidden" style="float:left">
@@ -353,13 +353,13 @@
                             </a>
                         {% endif %}
                     </div>
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=aster_dso_descr.deepskyObject.name, back='constell', back_id=constellation.iau_code) }}">
+                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=aster_dso_descr.deepsky_object.name, back='constell', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
-                            {{ aster_dso_descr.deepskyObject.denormalized_name() }}
+                            {{ aster_dso_descr.deepsky_object.denormalized_name() }}
                         </h3>
                     </a>
                     <div class="markdown">
-                        {% filter extended_commonmark(aster_dso_descr.deepskyObject.name, '?back=constell&back_id=' + constellation.iau_code) %}
+                        {% filter extended_commonmark(aster_dso_descr.deepsky_object.name, '?back=constell&back_id=' + constellation.iau_code) %}
 {{ aster_dso_descr.text | safe }}
                         {% endfilter %}
                     </div>

@@ -73,7 +73,7 @@ def _find_highlights_dso_list(dso_list_id):
         if dso_list:
             ret = []
             for item in dso_list.dso_list_items:
-                dso = item.deepskyObject
+                dso = item.deepsky_object
                 db.session.expunge(dso)
                 ret.append(dso)
             highlights_dso_list_cache[dso_list_id] = ret
@@ -129,7 +129,7 @@ def dso_list_info(dso_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
 
     dso_list_query = DsoListItem.query.filter(DsoListItem.dso_list_id == dso_list.id) \
-        .join(DsoListItem.deepskyObject, aliased=True)
+        .join(DsoListItem.deepsky_object, aliased=True)
 
     if search_form.q.data:
         dso_list_query = dso_list_query.filter(DeepskyObject.name == normalize_dso_name(search_form.q.data))
@@ -155,14 +155,14 @@ def dso_list_info(dso_list_id):
     user_descrs = {} if dso_list.show_descr_name else None
     dso_list_items = []
     for dso_list_item in selected_items:
-        if constell_ids is None or dso_list_item.deepskyObject.constellation_id in constell_ids:
+        if constell_ids is None or dso_list_item.deepsky_object.constellation_id in constell_ids:
             dso_list_items.append(dso_list_item)
             if user_descrs is not None:
                 udd = UserDsoDescription.query.filter_by(dso_id=dso_list_item.dso_id, user_id=editor_user.id, lang_code=lang).first()
                 if udd and udd.common_name:
                     user_descrs[dso_list_item.dso_id] = udd.common_name
                 else:
-                    user_descrs[dso_list_item.dso_id] = dso_list_item.deepskyObject.name
+                    user_descrs[dso_list_item.dso_id] = dso_list_item.deepsky_object.name
 
     theme = request.args.get('theme', '')
     inverted_accordion = theme in ['dark', 'night']
@@ -184,7 +184,7 @@ def dso_list_chart(dso_list_id):
     dso_list_item = None
     if dso_id and dso_id.isdigit():
         idso_id = int(dso_id)
-        dso_list_item = next((x for x in dso_list.dso_list_items if x.deepskyObject.id == idso_id), None)
+        dso_list_item = next((x for x in dso_list.dso_list_items if x.deepsky_object.id == idso_id), None)
 
     if not dso_list_item:
         dso_list_item = DsoListItem.query.filter_by(dso_list_id=dso_list.id, item_id=1).first()
@@ -194,13 +194,13 @@ def dso_list_chart(dso_list_id):
 
     if not common_ra_dec_fsz_from_request(form):
         if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = dso_list_item.deepskyObject.ra if dso_list_item else 0
-            form.dec.data = dso_list_item.deepskyObject.dec if dso_list_item else 0
+            form.ra.data = dso_list_item.deepsky_object.ra if dso_list_item else 0
+            form.dec.data = dso_list_item.deepsky_object.dec if dso_list_item else 0
 
     default_chart_iframe_url = None
     if dso_list_item:
         default_chart_iframe_url = url_for('main_deepskyobject.deepskyobject_info', back='dso_list', back_id=dso_list.id,
-                                           dso_id=dso_list_item.deepskyObject.name, embed='fc', allow_back='true')
+                                           dso_id=dso_list_item.deepsky_object.name, embed='fc', allow_back='true')
 
     chart_control = common_prepare_chart_data(form)
 

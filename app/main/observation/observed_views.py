@@ -182,7 +182,7 @@ def observed_list_download():
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     for observed_item in observed_list.observed_list_items:
         if observed_item.dso_id is not None:
-            buf.write(observed_item.deepskyObject.name + '\n')
+            buf.write(observed_item.deepsky_object.name + '\n')
     mem = BytesIO()
     mem.write(buf.getvalue().encode('utf-8'))
     mem.seek(0)
@@ -244,7 +244,7 @@ def observed_list_chart_legend_img(ra, dec):
 def _get_observed_list_items(user_id):
     observed_list = ObservedList.query.filter_by(user_id=user_id).first()
     if observed_list:
-        return db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepskyObject)) \
+        return db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepsky_object)) \
                 .filter(ObservedListItem.observed_list_id == observed_list.id) \
                 .all()
     return []

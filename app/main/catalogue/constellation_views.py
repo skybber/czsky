@@ -126,7 +126,7 @@ def constellation_info(constellation_id):
         star_descriptions = _sort_star_descr(star_descriptions)
 
         all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs')\
-                                                          .join(UserDsoDescription.deepskyObject, aliased=True) \
+                                                          .join(UserDsoDescription.deepsky_object, aliased=True) \
                                                           .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type != 'AST') \
                                                           .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
                                                           .all()
@@ -136,7 +136,7 @@ def constellation_info(constellation_id):
             existing = set(dsod.dso_id for dsod in all_cs_dso_descriptions)
             all_dso_descriptions = []
             available_dso_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user_dso.id, lang_code=lang)\
-                                                                 .join(UserDsoDescription.deepskyObject, aliased=True) \
+                                                                 .join(UserDsoDescription.deepsky_object, aliased=True) \
                                                                  .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type != 'AST') \
                                                                  .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
                                                                  .all()
@@ -147,7 +147,7 @@ def constellation_info(constellation_id):
                 available_dso_descriptions_map[dsod.dso_id] = dsod
                 if dsod.dso_id in existing:
                     all_dso_descriptions.append(dsod)
-                elif dsod.deepskyObject.mag<10.0:
+                elif dsod.deepsky_object.mag<10.0:
                     all_dso_descriptions.append(dsod)
                     existing.add(dsod.dso_id)
 
@@ -169,12 +169,12 @@ def constellation_info(constellation_id):
                 existing.add(dsod.dso_id)
                 dso_descriptions.append(dsod)
             if not dsod.text or not dsod.text.startswith('![<]($IMG_DIR/'):
-                image_info = get_dso_image_info_with_imgdir(dsod.deepskyObject.normalized_name_for_img())
+                image_info = get_dso_image_info_with_imgdir(dsod.deepsky_object.normalized_name_for_img())
                 if image_info is not None:
                     title_images[dsod.dso_id] = image_info[0]
 
         dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user_dso.id, lang_code=lang)\
-                                                                 .join(UserDsoApertureDescription.deepskyObject, aliased=True) \
+                                                                 .join(UserDsoApertureDescription.deepsky_object, aliased=True) \
                                                                  .filter_by(constellation_id=constellation.id) \
                                                                  .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
                                                                  .all()
@@ -356,7 +356,7 @@ def constellation_stars(constellation_id):
         star_descriptions = _sort_star_descr(star_descriptions)
 
         all_aster_descriptions = UserDsoDescription.query.filter_by(user_id=editor_user.id, lang_code=lang)\
-            .join(UserDsoDescription.deepskyObject, aliased=True) \
+            .join(UserDsoDescription.deepsky_object, aliased=True) \
             .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type == 'AST') \
             .order_by(UserDsoDescription.rating.desc()) \
             .all()
@@ -411,7 +411,7 @@ def constellation_deepskyobjects(constellation_id):
     cs_editor_user = get_cs_editor_user()
 
     all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs') \
-        .join(UserDsoDescription.deepskyObject, aliased=True) \
+        .join(UserDsoDescription.deepsky_object, aliased=True) \
         .filter(DeepskyObject.constellation_id == constellation.id) \
         .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
         .all()

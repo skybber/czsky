@@ -132,7 +132,7 @@ def get_default_chart_iframe_url(obj_item, back, back_id=None):
                     return url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id, embed='fc', allow_back='true')
                 return None
         elif obj_item.dso_id is not None:
-            return url_for('main_deepskyobject.deepskyobject_info', dso_id=obj_item.deepskyObject.name, back=back, back_id=back_id, embed='fc', allow_back='true')
+            return url_for('main_deepskyobject.deepskyobject_info', dso_id=obj_item.deepsky_object.name, back=back, back_id=back_id, embed='fc', allow_back='true')
         if obj_item.double_star_id is not None:
             return url_for('main_double_star.double_star_info', double_star_id=obj_item.double_star_id, back=back, back_id=back_id, embed='fc', allow_back='true')
     return None
@@ -141,7 +141,7 @@ def get_default_chart_iframe_url(obj_item, back, back_id=None):
 def _unwrap(item):
     if item is not None:
         if item.dso_id is not None:
-            return item.deepskyObject
+            return item.deepsky_object
         if item.double_star_id is not None:
             return item.double_star
     return None
@@ -191,12 +191,12 @@ def _get_prev_next_from_dso_list(dso_list, dso):
     for i, item in enumerate(sorted_list):
         if item.dso_id == dso.id:
             for prev_item in reversed(sorted_list[0:i]):
-                if constell_ids is None or prev_item.deepskyObject.constellation_id in constell_ids:
+                if constell_ids is None or prev_item.deepsky_object.constellation_id in constell_ids:
                     break
             else:
                 prev_item = None
             for next_item in sorted_list[i+1:]:
-                if constell_ids is None or next_item.deepskyObject.constellation_id in constell_ids:
+                if constell_ids is None or next_item.deepsky_object.constellation_id in constell_ids:
                     break
             else:
                 next_item = None
@@ -239,7 +239,7 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
             for prev_item in reversed(sorted_list[0:i]):
                 if constell_ids is None:
                     break
-                if prev_item.dso_id is not None and prev_item.deepskyObject.constellation_id in constell_ids:
+                if prev_item.dso_id is not None and prev_item.deepsky_object.constellation_id in constell_ids:
                     break
                 if prev_item.double_star_id is not None and prev_item.double_star.constellation_id in constell_ids:
                     break
@@ -248,7 +248,7 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
             for next_item in sorted_list[i+1:]:
                 if constell_ids is None:
                     break
-                if next_item.dso_id is not None and next_item.deepskyObject.constellation_id in constell_ids:
+                if next_item.dso_id is not None and next_item.deepsky_object.constellation_id in constell_ids:
                     break
                 if next_item.double_star_id is not None and next_item.double_star.constellation_id in constell_ids:
                     break
@@ -310,8 +310,8 @@ def create_prev_next_wrappers(sky_obj, tab=None):
             prev_item, next_item = _get_prev_next_from_dso_list(dso_list, sky_obj)
             prev_label = str(prev_item.item_id) if prev_item else None
             next_label = str(next_item.item_id) if next_item else None
-            prev_obj = prev_item.deepskyObject if prev_item else None
-            next_obj = next_item.deepskyObject if next_item else None
+            prev_obj = prev_item.deepsky_object if prev_item else None
+            next_obj = next_item.deepsky_object if next_item else None
     elif back == 'star_list' and back_id is not None:
         star_list = StarList.query.filter_by(id=back_id).first()
         if star_list:

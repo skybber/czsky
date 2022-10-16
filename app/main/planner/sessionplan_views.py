@@ -405,7 +405,7 @@ def session_plan_export_csv(session_plan_id):
     writer.writerow([gettext('Name'), gettext('Type'), gettext('Constellation'), 'RA', 'DEC', gettext('Rise'), gettext('Merid'), gettext('Set')])
 
     for item in session_plan_compound_list:
-        dso = item[0].deepskyObject
+        dso = item[0].deepsky_object
         name = dso.denormalized_name() + (('/' + dso.master_dso.denormalized_name()) if dso.master_dso else '')
         writer.writerow([name, dso.type, dso.get_constellation_iau_code(), dso.ra_str_short(), dso.dec_str_short(), item[1], item[2], item[3]])
 
@@ -544,7 +544,7 @@ def session_plan_schedule(session_plan_id):
     if drow_index > 0:
         sel_item = session_plan_compound_list_for_render[drow_index-1][0]
         if sel_item.dso_id is not None:
-            selected_dso_name = sel_item.deepskyObject.name
+            selected_dso_name = sel_item.deepsky_object.name
         elif sel_item.double_star_id is not None:
             selected_dso_name = sel_item.double_star.common_cat_id
 

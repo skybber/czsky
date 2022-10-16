@@ -60,16 +60,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='wishlist', season=season) }}{% endmacro %}
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='wishlist', season=season) }}{% endmacro %}
                     {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='wishlist', season=season) }}{% endmacro %}
 
                     {% for item in wish_list_items %}
                         {% if item.dso_id is not none %}
                             {% set to_url = to_dso_url(item) %}
-                            {% set item_name = item.deepskyObject.denormalized_name() %}
-                            {% set item_type = item.deepskyObject.type %}
-                            {% set item_constell = item.deepskyObject.get_constellation_iau_code() %}
-                            {% set item_mag = item.deepskyObject.mag %}
+                            {% set item_name = item.deepsky_object.denormalized_name() %}
+                            {% set item_type = item.deepsky_object.type %}
+                            {% set item_constell = item.deepsky_object.get_constellation_iau_code() %}
+                            {% set item_mag = item.deepsky_object.mag %}
                         {% elif item.double_star_id is not none %}
                             {% set to_url = to_double_star_url(item) %}
                             {% set item_name = item.double_star.common_cat_id %}

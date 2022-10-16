@@ -39,8 +39,8 @@ def import_session_plan_items(session_plan, file):
     item_order = 0
     existing_dsos = {}
     for session_plan_item in session_plan.session_plan_items:
-        if session_plan_item.deepskyObject:
-            existing_dsos[session_plan_item.deepskyObject.id] = session_plan_item.deepskyObject
+        if session_plan_item.deepsky_object:
+            existing_dsos[session_plan_item.deepsky_object.id] = session_plan_item.deepsky_object
         if session_plan_item.order >= item_order:
             item_order = session_plan_item.order + 1
 

@@ -140,49 +140,49 @@
             <tbody>
 
             {% for item in dso_list_items %}
-                {% set dso_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='dso_list', back_id=dso_list.id) %}
+                {% set dso_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='dso_list', back_id=dso_list.id) %}
                 <tr onclick="window.location.href='{{ dso_url }}';">
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>
                     {% if observed is not none and wished is not none %}
                     <td class="collapsing mobile hidden">
-                        {% if item.deepskyObject.id in observed %}
+                        {% if item.deepsky_object.id in observed %}
                             <i class="eye icon"></i>
                         {% endif %}
-                        {% if item.deepskyObject.id in wished %}
+                        {% if item.deepsky_object.id in wished %}
                             <i class="heart icon"></i>
                         {% endif %}
                     </td>
                     {% endif %}
-                    <td><a href="{{ dso_url }}">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepskyObject.denormalized_name() }}</a></td>
+                    <td><a href="{{ dso_url }}">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepsky_object.denormalized_name() }}</a></td>
                     {% if dso_list.show_common_name %}
                     <td class="mobile hidden">
-                        {{ item.deepskyObject.common_name if item.deepskyObject.common_name else '' }}
+                        {{ item.deepsky_object.common_name if item.deepsky_object.common_name else '' }}
                     </td>
                     {% endif %}
                     {% if dso_list.show_dso_type %}
-                      <td>{{ item.deepskyObject.type }}</td>
+                      <td>{{ item.deepsky_object.type }}</td>
                     {% endif %}
-                    <td class="mobile hidden">{{ item.deepskyObject.ra_str_short() }}</td>
-                    <td class="mobile hidden">{{ item.deepskyObject.dec_str_short() }}</td>
-                    <td>{{ item.deepskyObject.get_constellation_iau_code() }}</td>
+                    <td class="mobile hidden">{{ item.deepsky_object.ra_str_short() }}</td>
+                    <td class="mobile hidden">{{ item.deepsky_object.dec_str_short() }}</td>
+                    <td>{{ item.deepsky_object.get_constellation_iau_code() }}</td>
                     <td class="right aligned">
-                        {{ commons.convert_mag(item.deepskyObject.mag) }}
+                        {{ commons.convert_mag(item.deepsky_object.mag) }}
                     </td>
                     {% if dso_list.show_angular_size %}
                       <td class="right aligned mobile hidden">
-                          {% if item.deepskyObject.major_axis %}
-                              {% if item.deepskyObject.major_axis >= 100.0 %}
-                                {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                          {% if item.deepsky_object.major_axis %}
+                              {% if item.deepsky_object.major_axis >= 100.0 %}
+                                {{ (item.deepsky_object.major_axis / 60.0) | round(2, 'floor') }}'
                               {% else %}
-                                {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                                {{ item.deepsky_object.major_axis | round(2, 'floor')}}''
                               {% endif %}
-                              {% if dso_list.show_minor_axis and item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
-                              / {% if item.deepskyObject.minor_axis >= 100.0 %}
-                                  {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                              {% if dso_list.show_minor_axis and item.deepsky_object.minor_axis and item.deepsky_object.major_axis != item.deepsky_object.minor_axis %}
+                              / {% if item.deepsky_object.minor_axis >= 100.0 %}
+                                  {{ (item.deepsky_object.minor_axis / 60.0) | round(2, 'floor') }}'
                                 {% else %}
-                                  {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                                  {{ item.deepsky_object.minor_axis | round(2, 'floor')}}''
                                 {% endif %}
                               {% endif %}
                           {% endif %}
@@ -190,7 +190,7 @@
                     {% endif %}
                     {% if dso_list.show_distance %}
                         <td class="right aligned mobile hidden">
-                            {{ commons.convert_distance(item.deepskyObject.distance) }}
+                            {{ commons.convert_distance(item.deepsky_object.distance) }}
                         </td>
                     {% endif %}
                 </tr>

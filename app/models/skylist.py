@@ -18,7 +18,7 @@ class SkyList(db.Model):
 
     def find_dso_in_skylist(self, dso_id):
         for item in self.sky_list_items:
-            if item.deepskyObject and item.deepskyObject.id == dso_id:
+            if item.deepsky_object and item.deepsky_object.id == dso_id:
                 return item
         return None
 
@@ -27,12 +27,12 @@ class SkyList(db.Model):
         for i, item in enumerate(sorted_list):
             if item.dso_id == dso_id:
                 for prev_item in reversed(sorted_list[0:i]):
-                    if constell_ids is None or prev_item.deepskyObject.constellation_id in constell_ids:
+                    if constell_ids is None or prev_item.deepsky_object.constellation_id in constell_ids:
                         break
                 else:
                     prev_item = None
                 for next_item in sorted_list[i+1:]:
-                    if constell_ids is None or next_item.deepskyObject.constellation_id in constell_ids:
+                    if constell_ids is None or next_item.deepsky_object.constellation_id in constell_ids:
                         break
                 else:
                     next_item = None
@@ -44,7 +44,7 @@ class SkyListItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sky_list_id = db.Column(db.Integer, db.ForeignKey('sky_lists.id'), nullable=False)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
-    deepskyObject = db.relationship("DeepskyObject")
+    deepsky_object = db.relationship("DeepskyObject")
     order = db.Column(db.Integer, default=DEFAULT_ORDER)
     notes = db.Column(db.Text)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))

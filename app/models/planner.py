@@ -93,7 +93,7 @@ class SessionPlanItem(db.Model):
     session_plan_id = db.Column(db.Integer, db.ForeignKey('session_plans.id'), nullable=False, index=True)
     item_type = db.Column(sqlalchemy.Enum(SessionPlanItemType))
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'))
-    deepskyObject = db.relationship("DeepskyObject")
+    deepsky_object = db.relationship("DeepskyObject")
     double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'))
     double_star = db.relationship("DoubleStar")
     minor_planet_id = db.Column(db.Integer, db.ForeignKey('minor_planets.id'))
@@ -106,28 +106,28 @@ class SessionPlanItem(db.Model):
 
     def get_ra(self):
         if self.dso_id is not None:
-            return self.deepskyObject.ra
+            return self.deepsky_object.ra
         if self.double_star_id is not None:
             return self.double_star.ra_first
         return None
 
     def get_dec(self):
         if self.dso_id is not None:
-            return self.deepskyObject.dec
+            return self.deepsky_object.dec
         if self.double_star_id is not None:
             return self.double_star.dec_first
         return None
 
     def get_ra_str_short(self):
         if self.dso_id is not None:
-            return self.deepskyObject.ra_str_short()
+            return self.deepsky_object.ra_str_short()
         if self.double_star_id is not None:
             return self.double_star.ra_first_str_short()
         return None
 
     def get_dec_str_short(self):
         if self.dso_id is not None:
-            return self.deepskyObject.dec_str_short()
+            return self.deepsky_object.dec_str_short()
         if self.double_star_id is not None:
             return self.double_star.dec_first_str_short()
         return None

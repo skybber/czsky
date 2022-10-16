@@ -61,16 +61,16 @@
             </tr>
         </thead>
 
-        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepskyObject.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
         {% for item in session_plan.session_plan_items %}
             {% if item.dso_id is not none %}
                 {% set to_url = to_dso_url(item) %}
-                {% set item_name = item.deepskyObject.denormalized_name() %}
-                {% set item_type = item.deepskyObject.type %}
-                {% set item_constell = item.deepskyObject.get_constellation_iau_code() %}
-                {% set item_mag = commons.convert_mag(item.deepskyObject.mag) %}
+                {% set item_name = item.deepsky_object.denormalized_name() %}
+                {% set item_type = item.deepsky_object.type %}
+                {% set item_constell = item.deepsky_object.get_constellation_iau_code() %}
+                {% set item_mag = commons.convert_mag(item.deepsky_object.mag) %}
             {% elif item.double_star_id is not none %}
                 {% set to_url = to_double_star_url(item) %}
                 {% set item_name = item.double_star.common_cat_id %}
@@ -94,24 +94,24 @@
                 {{ item_mag }}
             </td>
             <td class="right aligned mobile hidden">
-                {% if item.dso_id is not none and item.deepskyObject.major_axis %}
-                    {% if item.deepskyObject.major_axis >= 100.0 %}
-                      {{ (item.deepskyObject.major_axis / 60.0) | round(2, 'floor') }}'
+                {% if item.dso_id is not none and item.deepsky_object.major_axis %}
+                    {% if item.deepsky_object.major_axis >= 100.0 %}
+                      {{ (item.deepsky_object.major_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
-                      {{ item.deepskyObject.major_axis | round(2, 'floor')}}''
+                      {{ item.deepsky_object.major_axis | round(2, 'floor')}}''
                     {% endif %}
-                    {% if item.deepskyObject.minor_axis and item.deepskyObject.major_axis != item.deepskyObject.minor_axis %}
-                    / {% if item.deepskyObject.minor_axis >= 100.0 %}
-                        {{ (item.deepskyObject.minor_axis / 60.0) | round(2, 'floor') }}'
+                    {% if item.deepsky_object.minor_axis and item.deepsky_object.major_axis != item.deepsky_object.minor_axis %}
+                    / {% if item.deepsky_object.minor_axis >= 100.0 %}
+                        {{ (item.deepsky_object.minor_axis / 60.0) | round(2, 'floor') }}'
                       {% else %}
-                        {{ item.deepskyObject.minor_axis | round(2, 'floor')}}''
+                        {{ item.deepsky_object.minor_axis | round(2, 'floor')}}''
                       {% endif %}
                     {% endif %}
                 {% endif %}
             </td>
             {% if observed %}
             <td class="collapsing mobile hidden">
-                {% if item.dso_id is not none and item.deepskyObject.id in observed %}
+                {% if item.dso_id is not none and item.deepsky_object.id in observed %}
                     <i class="eye icon"></i>
                 {% endif %}
             </td>

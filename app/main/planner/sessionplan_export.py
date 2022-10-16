@@ -44,7 +44,7 @@ def create_oal_observations_from_session_plan(user, session_plan):
     oal_targets = OaltargetsType()
     proc_targets = set()
     for session_plan_item in session_plan.session_plan_items:
-        dso = session_plan_item.deepskyObject
+        dso = session_plan_item.deepsky_object
         if dso.id in proc_targets:
             continue
         proc_targets.add(dso.id)

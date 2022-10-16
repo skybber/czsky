@@ -81,7 +81,7 @@ def wish_list_info():
 
     if constell_ids:
         for item in wish_list.wish_list_items:
-            if item.deepskyObject and item.deepskyObject.constellation_id in constell_ids:
+            if item.deepsky_object and item.deepsky_object.constellation_id in constell_ids:
                 wish_list_items.append(item)
     else:
         wish_list_items = wish_list.wish_list_items
@@ -193,7 +193,7 @@ def wish_list_chart_pdf(ra, dec):
 def _get_wish_list_items(user_id):
     wish_list = WishList.query.filter_by(user_id=user_id).first()
     if wish_list:
-        return db.session.query(WishListItem).options(joinedload(WishListItem.deepskyObject)) \
+        return db.session.query(WishListItem).options(joinedload(WishListItem.deepsky_object)) \
             .filter(WishListItem.wish_list_id == wish_list.id) \
             .all()
     return []

@@ -26,7 +26,7 @@ def common_highlights_from_wishlist_items(wish_list_items):
     if wish_list_items:
         for item in wish_list_items:
             if item.dso_id is not None:
-                highlights_dso_list.append(item.deepskyObject)
+                highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id)])
     return highlights_dso_list, highlights_pos_list
@@ -39,7 +39,7 @@ def common_highlights_from_observed_list_items(observed_list_items):
     if observed_list_items:
         for item in observed_list_items:
             if item.dso_id is not None:
-                highlights_dso_list.append(item.deepskyObject)
+                highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id)])
     return highlights_dso_list, highlights_pos_list
@@ -70,7 +70,7 @@ def common_highlights_from_session_plan(session_plan):
     if session_plan and allow_view_session_plan(session_plan):
         for item in session_plan.session_plan_items:
             if item.dso_id is not None:
-                highlights_dso_list.append(item.deepskyObject)
+                highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id)])
     return highlights_dso_list, highlights_pos_list
@@ -86,7 +86,7 @@ def create_hightlights_lists():
     if back == 'dso_list' and back_id is not None:
         dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
-            highlights_dso_list = [x.deepskyObject for x in dso_list.dso_list_items if dso_list]
+            highlights_dso_list = [x.deepsky_object for x in dso_list.dso_list_items if dso_list]
     elif back == 'double_star_list' and back_id is not None:
         double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
         if double_star_list:
@@ -107,6 +107,6 @@ def create_hightlights_lists():
     elif back == 'running_plan' and back_id is not None:
         observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and allow_view_session_plan(observation_plan_run.session_plan):
-            highlights_dso_list = [x.deepskyObject for x in observation_plan_run.session_plan.session_plan_items]
+            highlights_dso_list = [x.deepsky_object for x in observation_plan_run.session_plan.session_plan_items]
 
     return highlights_dso_list, highlights_pos_list

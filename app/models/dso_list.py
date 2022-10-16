@@ -50,7 +50,7 @@ class DsoListItem(db.Model):
     dso_list_id = db.Column(db.Integer, db.ForeignKey('dso_lists.id'), nullable=False, index=True)
     dso_id = db.Column(db.Integer, db.ForeignKey('deepsky_objects.id'), nullable=False)
     item_id = db.Column(db.Integer, nullable=False)
-    deepskyObject = db.relationship("DeepskyObject")
+    deepsky_object = db.relationship("DeepskyObject")
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
 
