@@ -27,6 +27,7 @@ confirm() {
 ./manage.py import_dso_list
 ./manage.py import_star_list
 ./manage.py import_double_star_list
+./manage.py import_planets
 ./manage.py import_minor_planets
 ./manage.py import_comets
 ./manage.py import_supernovae

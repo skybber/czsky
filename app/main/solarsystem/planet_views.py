@@ -29,6 +29,8 @@ from .planet_forms import (
     PlanetFindChartForm,
 )
 
+from app.models import Planet
+
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -39,28 +41,21 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
-from app.commons.planet_utils import get_all_planets, Planet
 
 main_planet = Blueprint('main_planet', __name__)
 
 
 @main_planet.route('/planets', methods=['GET', 'POST'])
 def planets():
-    planets = get_all_planets()
+    planets = Planet.get_all()
     return render_template('main/solarsystem/planets.html', planets_enumerate=enumerate(planets))
 
 
-def _find_planet(planet_name):
-    planets = get_all_planets()
-    planet_name_lower = planet_name.lower()
-    return next(p for p in planets if p.name == planet_name)
-
-
-@main_planet.route('/planet/<string:planet_name>', methods=['GET', 'POST'])
-@main_planet.route('/planet/<string:planet_name>/info', methods=['GET', 'POST'])
-def planet_info(planet_name):
+@main_planet.route('/planet/<string:planet_iau_code>', methods=['GET', 'POST'])
+@main_planet.route('/planet/<string:planet_iau_code>/info', methods=['GET', 'POST'])
+def planet_info(planet_iau_code):
     """View a planet info."""
-    planet = _find_planet(planet_name)
+    planet =Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -119,9 +114,9 @@ def planet_info(planet_name):
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
 
 
-@main_planet.route('/planet/<string:planet_name>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_pos_img(planet_name, ra, dec):
-    planet = _find_planet(planet_name)
+@main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def planet_chart_pos_img(planet_iau_code, ra, dec):
+    planet =Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -143,9 +138,9 @@ def planet_chart_pos_img(planet_name, ra, dec):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_planet.route('/planet/<string:planet_name>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_legend_img(planet_name, ra, dec):
-    planet = _find_planet(planet_name)
+@main_planet.route('/planet/<string:planet_iau_code>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def planet_chart_legend_img(planet_iau_code, ra, dec):
+    planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -156,9 +151,9 @@ def planet_chart_legend_img(planet_name, ra, dec):
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_planet.route('/planet/<string:planet_name>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_pdf(planet_name, ra, dec):
-    planet = _find_planet(planet_name)
+@main_planet.route('/planet/<string:planet_iau_code>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def planet_chart_pdf(planet_iau_code, ra, dec):
+    planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -177,14 +172,14 @@ def planet_chart_pdf(planet_name, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_planet.route('/planet/<string:planet_name>')
-@main_planet.route('/planet/<string:planet_name>/catalogue_data')
-def planet_catalogue_data(planet_name):
+@main_planet.route('/planet/<string:planet_iau_code>')
+@main_planet.route('/planet/<string:planet_iau_code>/catalogue_data')
+def planet_catalogue_data(planet_iau_code):
     """View a planet catalog info."""
-    planet = _find_planet(planet_name)
+    planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
-    return render_template('main/solarsystem/planet_info.html', type='catalogue_data', user_descr=user_descr)
+    return render_template('main/solarsystem/planet_info.html', type='catalogue_data')
 
 
 def _check_in_mag_interval(mag, mag_interval):

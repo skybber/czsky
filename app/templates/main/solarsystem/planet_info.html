@@ -9,7 +9,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, planet_name=planet['name']) %}
+            {% set href = url_for(route, planet_iau_code=planet.iau_code) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
@@ -19,12 +19,12 @@
 
 {# --- Find Chart --- #}
 {% macro planet_info() %}
-    {{ fchart.fchart(url_for('main_planet.planet_info', planet_name=planet.name, back=back, back_id=back_id),
-                     url_for('main_planet.planet_chart_pos_img', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+    {{ fchart.fchart(url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, back=back, back_id=back_id),
+                     url_for('main_planet.planet_chart_pos_img', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
-                     url_for('main_planet.planet_chart_legend_img', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_planet.planet_chart_legend_img', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_planet.planet_chart_pdf', planet_name=planet.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_planet.planet_chart_pdf', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      fchart_form, obj_ra=planet_ra|string, obj_dec=planet_dec|string )
     }}
@@ -55,7 +55,7 @@
                     {% endif %}
                     <div class="divider">  </div>
                     <div class="active section">
-                        {{ planet.localized_name().capitalize() }}
+                        {{ planet.get_localized_name().capitalize() }}
                     </div>
                 </div>
             </div>

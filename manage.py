@@ -21,6 +21,7 @@ from app.commons.comet_loader import *
 from app.commons.supernova_loader import *
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
+from imports.import_planets import import_db_planets
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
 from imports.import_wds_double_stars import import_wds_doubles
@@ -213,6 +214,11 @@ def import_comets():
     update_evaluated_comet_brightness(all_comets=all_mpc_comets, show_progress=True)
     update_comets_cobs_observations()
     update_comets_positions()
+
+
+@manager.command
+def import_planets():
+    import_db_planets()
 
 
 @manager.command

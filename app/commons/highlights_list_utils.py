@@ -59,6 +59,8 @@ def common_highlights_from_observing_session(observing_session):
                 highlights_pos_list.append([observation.ra, observation.dec, observation.comet.designation])
             elif observation.target_type == ObservationTargetType.M_PLANET:
                 highlights_pos_list.append([observation.ra, observation.dec, observation.minor_planet.designation])
+            elif observation.target_type == ObservationTargetType.PLANET:
+                highlights_pos_list.append([observation.ra, observation.dec, observation.planet.get_localized_name()])
 
     return highlights_dso_list, highlights_pos_list
 

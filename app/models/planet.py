@@ -1,34 +1,44 @@
+from .. import db
+
 from flask_babel import gettext
 from skyfield.api import load
 
+BODY_KEY_DICT = {
+    'mercury': 'MERCURY',
+    'venus': 'VENUS',
+    'mars': 'MARS',
+    'jupiter': 'JUPITER_BARYCENTER',
+    'saturn': 'SATURN_BARYCENTER',
+    'uranus': 'URANUS_BARYCENTER',
+    'neptune': 'NEPTUNE_BARYCENTER',
+    'pluto': 'PLUTO_BARYCENTER'
+}
 
-class Planet:
+
+class Planet(db.Model):
+    __tablename__ = 'planets'
+    id = db.Column(db.Integer, primary_key=True)
+    int_designation = db.Column(db.Integer, index=True)
+    iau_code = db.Column(db.String(20))
+
     _all = None
     _iau_dict = None
     _id_dict = None
 
-    def __init__(self, iau_code, id, body_key, eph):
-        self.iau_code = iau_code
-        self.id = id
-        self.eph = eph[body_key]
-
-    def localized_name(self):
+    def get_localized_name(self):
         return gettext(self.iau_code)
 
     @classmethod
     def get_all(cls):
         if Planet._all is None:
+            all_pl = []
             eph = load('de421.bsp')
-            Planet._all = [
-                Planet('mercury', 1, 'MERCURY', eph),
-                Planet('venus', 2, 'VENUS', eph),
-                Planet('mars', 4, 'MARS', eph),
-                Planet('jupiter', 5, 'JUPITER_BARYCENTER', eph),
-                Planet('saturn', 6, 'SATURN_BARYCENTER', eph),
-                Planet('uranus', 7, 'URANUS_BARYCENTER', eph),
-                Planet('neptune', 8, 'NEPTUNE_BARYCENTER', eph),
-                Planet('pluto', 9, 'PLUTO_BARYCENTER', eph),
-            ]
+            for pl in Planet.query.all():
+                db.session.expunge(pl)
+                pl.eph = eph[BODY_KEY_DICT[pl.iau_code.lower()]]
+                all_pl.append(pl)
+            Planet._all = all_pl
+
         return Planet._all
 
     @classmethod

@@ -32,6 +32,7 @@ from app.models import (
     ObservingSession,
     ObservationTargetType,
     ObsSessionPlanRun,
+    Planet,
     Seeing,
     SessionPlan,
     Transparency,
@@ -300,6 +301,8 @@ def observing_session_items_edit(observing_session_id):
             oif = form.items.append_entry()
             if oi.target_type == ObservationTargetType.DBL_STAR:
                 targets_comp = oi.double_star.get_common_norm_name()
+            elif oi.target_type == ObservationTargetType.PLANET:
+                targets_comp = Planet.get_by_iau_code(oi.planet.iau_code).get_localized_name()
             elif oi.target_type == ObservationTargetType.COMET:
                 targets_comp = oi.comet.designation
             elif oi.target_type == ObservationTargetType.M_PLANET:

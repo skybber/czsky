@@ -17,6 +17,7 @@ from .minor_planet import *
 from .news import *
 from .observation import *
 from .observed_list import *
+from .planet import *
 from .planner import *
 from .sqm import *
 from .skylist import *

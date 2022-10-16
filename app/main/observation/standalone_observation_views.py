@@ -33,17 +33,17 @@ from .standalone_observation_forms import (
 
 from app.models import (
     Comet,
-    MinorPlanet,
     DeepskyObject,
     DoubleStar,
     Eyepiece,
     Filter,
     Location,
+    MinorPlanet,
     Observation,
     ObservationTargetType,
+    Planet,
     Seeing,
     Telescope,
-    Transparency,
     dso_observation_association_table,
 )
 
@@ -76,6 +76,7 @@ def standalone_observations():
         double_star_q = normalize_double_star_name(search_form.q.data)
         comet_q = search_form.q.data
         minor_planet_q = search_form.q.data
+        planet_q = search_form.q.data
         observations = observations.join(dso_observation_association_table, isouter=True) \
                                    .join(DeepskyObject, isouter=True) \
                                    .join(DoubleStar, isouter=True) \
@@ -90,6 +91,10 @@ def standalone_observations():
                                            ((Observation.target_type == ObservationTargetType.DBL_STAR) &
                                             (DoubleStar.id == Observation.double_star_id) &
                                             (DoubleStar.common_cat_id == double_star_q))
+                                           |
+                                           ((Observation.target_type == ObservationTargetType.PLANET) &
+                                            (Planet.id == Observation.planet_id) &
+                                            (Planet.iau_code == planet_q))
                                            |
                                            ((Observation.target_type == ObservationTargetType.COMET) &
                                             (Comet.id == Observation.comet_id) &

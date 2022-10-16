@@ -8,7 +8,8 @@ from app.commons.search_sky_object_utils import (
     search_dso,
     search_double_star,
     search_comet,
-    search_minor_planet
+    search_minor_planet,
+    search_planet
 )
 
 from app.models import (
@@ -24,20 +25,25 @@ from app.main.solarsystem.minor_planet_views import find_mpc_minor_planet
 def parse_observation_targets(targets):
     not_found = []
     dsos = []
+    planet = None
     comet = None
     minor_planet = None
     double_star = search_double_star(targets, number_search=False)
 
     if double_star:
-        return dsos, double_star, comet, minor_planet, not_found
+        return dsos, double_star, planet, comet, minor_planet, not_found
+
+    planet = search_planet(targets)
+    if comet:
+        return dsos, double_star, planet, comet, minor_planet, not_found
 
     comet = search_comet(targets)
     if comet:
-        return dsos, double_star, comet, minor_planet, not_found
+        return dsos, double_star, planet, comet, minor_planet, not_found
 
     minor_planet = search_minor_planet(targets)
     if minor_planet:
-        return dsos, double_star, comet, minor_planet, not_found
+        return dsos, double_star, planet, comet, minor_planet, not_found
 
     target_names = targets.split(',')
     for target_name in target_names:
@@ -47,16 +53,30 @@ def parse_observation_targets(targets):
             continue
         not_found.append(target_name)
 
-    return dsos, double_star, comet, minor_planet, not_found
+    return dsos, double_star, planet, comet, minor_planet, not_found
 
 
 def set_observation_targets(observation, targets):
     observation.deepsky_objects = []
     observation.double_star_id = None
-    dsos, double_star, comet, minor_planet, not_found = parse_observation_targets(targets)
+    dsos, double_star, planet, comet, minor_planet, not_found = parse_observation_targets(targets)
     if double_star:
         observation.double_star_id = double_star.id
         observation.target_type = ObservationTargetType.DBL_STAR
+    elif planet:
+        observation.planet_id = planet.id
+        observation.target_type = ObservationTargetType.PLANET
+
+        ts = load.timescale(builtin=True)
+        eph = load('de421.bsp')
+        earth = eph['earth']
+
+        dt = observation.date_from
+        t = ts.utc(dt.year, dt.month, dt.day)
+        planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
+
+        observation.ra = planet_ra_ang.radians
+        observation.dec = planet_dec_ang.radians
     elif comet:
         observation.comet_id = comet.id
         observation.target_type = ObservationTargetType.COMET

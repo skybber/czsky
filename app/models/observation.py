@@ -123,6 +123,7 @@ class ObservationTargetType(Enum):
     DBL_STAR = 'DBL_STAR'
     COMET = 'COMET'
     M_PLANET = 'M_PLANET'
+    PLANET = 'PLANET'
 
 
 class Observation(db.Model):
@@ -157,6 +158,8 @@ class Observation(db.Model):
     comet = db.relationship("Comet")
     minor_planet_id = db.Column(db.Integer, db.ForeignKey('minor_planets.id'), nullable=True)
     minor_planet = db.relationship("MinorPlanet")
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'), nullable=True)
+    planet = db.relationship("Planet")
     ra = db.Column(db.Float, index=True)
     dec = db.Column(db.Float, index=True)
     notes = db.Column(db.Text)
@@ -183,6 +186,8 @@ class Observation(db.Model):
     def get_target_name(self):
         if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return self.double_star.get_common_norm_name()
+        if self.target_type == ObservationTargetType.PLANET and self.planet:
+            return self.planet.get_localized_name()
         if self.target_type == ObservationTargetType.COMET and self.comet:
             return self.comet.designation
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
@@ -242,6 +247,8 @@ class Observation(db.Model):
     def _targets_to_html(self, back, back_id):
         if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
             return '<a href="' + url_for('main_double_star.double_star_info', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
+        if self.target_type == ObservationTargetType.PLANET and self.planet:
+            return '<a href="' + url_for('main_planet.planet_info', planet_iau_code=self.planet.iau_code, back=back, back_id=back_id) + '">' + self.planet.get_localized_name() + '</a>'
         if self.target_type == ObservationTargetType.COMET and self.comet:
             return '<a href="' + url_for('main_comet.comet_info', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
