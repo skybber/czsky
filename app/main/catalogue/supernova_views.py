@@ -129,7 +129,7 @@ def supernovae():
     order_by_field = get_order_by_field(sort_def, sort_by)
 
     if order_by_field is None:
-        order_by_field = Supernova.id
+        order_by_field = Supernova.latest_mag
 
     shown_supernovae = supernova_query.order_by(order_by_field).limit(per_page).offset(offset).all()
 
