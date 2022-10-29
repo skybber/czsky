@@ -1,3 +1,4 @@
+import os
 import math
 import json
 import base64
@@ -18,7 +19,14 @@ from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app.models import MinorPlanet
+from app import create_app
+from app import scheduler
+
+from app.models import (
+    DB_UPDATE_MINOR_PLANETS_POS_KEY,
+    MinorPlanet,
+)
+
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 
@@ -37,9 +45,21 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
-from ...commons.minor_planet_utils import get_all_mpc_minor_planets
+from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions
+
+from app.commons.dbupdate_utils import ask_dbupdate_permit
 
 main_minor_planet = Blueprint('main_minor_planet', __name__)
+
+
+def _update_minor_planet_positions():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_KEY, timedelta(hours=1)):
+            update_minor_planets_positions()
+
+
+job1 = scheduler.add_job(_update_minor_planet_positions, 'interval', hours=24, replace_existing=True)
 
 
 def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
