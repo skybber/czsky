@@ -48,7 +48,12 @@ from app.commons.utils import to_float
 from app.models import (
     Comet,
     CometObservation,
+    DB_UPDATE_COMETS_COBS_KEY,
+    DB_UPDATE_COMETS_BRIGHT_KEY,
+    DB_UPDATE_COMETS_POS_KEY,
 )
+
+from app.commons.dbupdate_utils import ask_dbupdate_permit
 
 main_comet = Blueprint('main_comet', __name__)
 
@@ -56,19 +61,22 @@ main_comet = Blueprint('main_comet', __name__)
 def _update_comets_cobs_observations():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        update_comets_cobs_observations()
+        if ask_dbupdate_permit(DB_UPDATE_COMETS_COBS_KEY, timedelta(hours=1)):
+            update_comets_cobs_observations()
 
 
 def _update_evaluated_comet_brightness():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        update_evaluated_comet_brightness()
+        if ask_dbupdate_permit(DB_UPDATE_COMETS_BRIGHT_KEY, timedelta(hours=1)):
+            update_evaluated_comet_brightness()
 
 
 def _update_comets_positions():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        update_comets_positions()
+        if ask_dbupdate_permit(DB_UPDATE_COMETS_POS_KEY, timedelta(hours=1)):
+            update_comets_positions()
 
 
 job1 = scheduler.add_job(_update_comets_cobs_observations, 'interval', hours=12, replace_existing=True)

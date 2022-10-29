@@ -6,6 +6,7 @@ module (as opposed to just their python files)
 from .catalogue import *
 from .constellation import *
 from .comet import *
+from .db_update import *
 from .deepskyobject import *
 from .double_star import *
 from .double_star_list import *
@@ -18,7 +19,7 @@ from .news import *
 from .observation import *
 from .observed_list import *
 from .planet import *
-from .planner import *
+from .session_plan import *
 from .sqm import *
 from .skylist import *
 from .star import *
