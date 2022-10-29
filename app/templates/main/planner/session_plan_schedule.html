@@ -254,13 +254,13 @@
                     {% set to_url = to_minor_planet_url2(item) %}
                     {% set item_name = item[0].minor_planet.designation %}
                     {% set item_type = _('Minor planet') %}
-                    {% set item_constell = '' %}
+                    {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                     {% set item_mag = '' %}
                 {% elif item[0].comet_id is not none %}
                     {% set to_url = to_comet_url2(item) %}
                     {% set item_name = item[0].comet.designation %}
                     {% set item_type = _('Comet') %}
-                    {% set item_constell = constellation_by_id_dict[item[0].comet.cur_constell_id].iau_code if item[0].comet.cur_constell_id is not none else '' %}
+                    {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                     {% set item_mag = '' %}
                 {% else %}
                     {% set to_url = '' %}

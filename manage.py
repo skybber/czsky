@@ -14,10 +14,11 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
+from app.commons.minor_planet_utils import update_minor_planets_positions
 from app.models import Role, User, UserDsoDescription, DeepskyObject
 from config import Config
 
-from app.commons.comet_loader import *
+from app.commons.comet_utils import *
 from app.commons.supernova_loader import *
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
@@ -40,7 +41,6 @@ from imports.import_dso_lists import (
     import_glahn_pns,
     import_glahn_palomar_gc,
     import_glahn_local_group,
-    import_corstjens,
 )
 from imports.import_utils import progress
 
@@ -48,7 +48,6 @@ from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
-from imports.link_star_descriptions import link_star_descriptions_by_var_id, link_star_descriptions_by_double_star_id
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
@@ -205,6 +204,7 @@ def import_double_star_list():
 @manager.command
 def import_minor_planets():
     import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
+    update_minor_planets_positions(None, True)
 
 
 @manager.command
@@ -213,7 +213,7 @@ def import_comets():
     import_update_comets(all_mpc_comets, show_progress=True)
     update_evaluated_comet_brightness(all_comets=all_mpc_comets, show_progress=True)
     update_comets_cobs_observations()
-    update_comets_positions()
+    update_comets_positions(None, True)
 
 
 @manager.command
@@ -342,6 +342,11 @@ def create_pgc_update_file():
 @manager.command
 def update_pgc_imported_dsos():
     update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
+
+
+@manager.command
+def tmp_update_minor_planets_positions():
+    update_minor_planets_positions(None, True)
 
 
 if __name__ == '__main__':

@@ -9,7 +9,8 @@ from app.commons.search_sky_object_utils import (
     search_minor_planet,
     search_planet
 )
-from app.commons.solar_system_utils import find_mpc_minor_planet, find_mpc_comet
+from app.commons.minor_planet_utils import find_mpc_minor_planet
+from app.commons.comet_utils import find_mpc_comet
 
 from app.models import (
     ObservationTargetType,

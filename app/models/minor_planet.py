@@ -1,4 +1,7 @@
+from . import Constellation
 from .. import db
+
+from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
 
 
 class MinorPlanet(db.Model):
@@ -27,5 +30,21 @@ class MinorPlanet(db.Model):
     hex_flags = db.Column(db.String(5))
     designation = db.Column(db.String(30))
     last_observation_date = db.Column(db.String(9))
+    cur_ra = db.Column(db.Float)
+    cur_dec = db.Column(db.Float)
+    cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
 
+    def cur_ra_str(self):
+        return ra_to_str(self.cur_ra) if self.cur_ra is not None else ''
 
+    def cur_dec_str(self):
+        return dec_to_str(self.cur_dec) if self.cur_dec is not None else ''
+
+    def cur_ra_str_short(self):
+        return ra_to_str_short(self.cur_ra) if self.cur_ra is not None else ''
+
+    def cur_dec_str_short(self):
+        return dec_to_str_short(self.cur_dec) if self.cur_dec is not None else ''
+
+    def cur_constell(self):
+        return Constellation.get_constellation_by_id(self.cur_constell_id) if self.cur_constell_id is not None else None

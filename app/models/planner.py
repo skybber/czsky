@@ -5,7 +5,6 @@ from .. import db
 
 from app.commons.form_utils import FormEnum
 from app.commons.coordinates import ra_to_str_short, dec_to_str_short
-from app.commons.solar_system_utils import get_mpc_comet_position, find_mpc_comet, get_mpc_minor_planet_position, find_mpc_minor_planet
 
 DEFAULT_ORDER = 100000
 
@@ -80,28 +79,26 @@ class SessionPlan(db.Model):
         )
         return new_item
 
-    def create_new_comet_item(self, comet, date_time):
-        ra, dec = get_mpc_comet_position(find_mpc_comet(comet.comet_id), date_time)
+    def create_new_comet_item(self, comet, ra, dec):
         new_item = SessionPlanItem(
             session_plan_id=self.id,
             item_type=SessionPlanItemType.COMET,
             comet_id=comet.id,
-            ra=ra.radians,
-            dec=dec.radians,
+            ra=ra,
+            dec=dec,
             order=self._get_max_order() + 1,
             create_date=datetime.now(),
             update_date=datetime.now(),
         )
         return new_item
 
-    def create_new_minor_planet_item(self, minor_planet, date_time):
-        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet.int_designation), date_time)
+    def create_new_minor_planet_item(self, minor_planet, ra, dec):
         new_item = SessionPlanItem(
             session_plan_id=self.id,
             item_type=SessionPlanItemType.MINOR_PLANET,
             minor_planet_id=minor_planet.id,
-            ra=ra.radians,
-            dec=dec.radians,
+            ra=ra,
+            dec=dec,
             order=self._get_max_order() + 1,
             create_date=datetime.now(),
             update_date=datetime.now(),
@@ -144,6 +141,7 @@ class SessionPlanItem(db.Model):
     comet = db.relationship("Comet")
     ra = db.Column(db.Float, index=True)
     dec = db.Column(db.Float, index=True)
+    constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
     order = db.Column(db.Integer, default=DEFAULT_ORDER)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
@@ -167,19 +165,3 @@ class SessionPlanItem(db.Model):
 
     def get_dec_str_short(self):
         return dec_to_str_short(self.get_dec())
-
-    def actualize_ra_dec(self, date_time):
-        ra, dec = None, None
-        if self.item_type == SessionPlanItemType.COMET:
-            ra, dec = get_mpc_comet_position(find_mpc_comet(self.comet.comet_id), date_time)
-        elif self.item_type == SessionPlanItemType.MINOR_PLANET:
-            ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(self.minor_planet.int_designation), date_time)
-        if (ra is not None) and (dec is not None):
-            ra = ra.radians
-            dec = dec.radians
-            if (ra != self.ra) or (dec != self.dec):
-                self.ra = ra
-                self.dec = dec
-                return True
-        return False
-

@@ -8,10 +8,10 @@ import codecs
 
 from werkzeug.utils import secure_filename
 
-from astropy.time import Time, TimeDelta
+from astropy.time import Time
 from astropy.coordinates import EarthLocation, SkyCoord
 import astropy.units as u
-from astroplan import Observer, FixedTarget
+from astroplan import Observer
 
 from skyfield import almanac
 from skyfield.api import load, wgs84
@@ -44,10 +44,10 @@ from app.models import (
     ObservedList,
     SessionPlan,
     SessionPlanItem,
-    UserConsDescription,
+    SessionPlanItemType,
 )
 
-from app.commons.pagination import Pagination, get_page_parameter
+from app.commons.pagination import Pagination
 
 from app.commons.search_utils import (
     process_session_search,
@@ -87,7 +87,9 @@ from app.commons.highlights_list_utils import common_highlights_from_session_pla
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 from .sessionplan_import import import_session_plan_items
 from .sessionplan_export import create_oal_observations_from_session_plan
-from ...commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_dso
+from app.commons.comet_utils import find_mpc_comet, get_mpc_comet_position
+from app.commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_dso
+from app.commons.minor_planet_utils import get_mpc_minor_planet_position, find_mpc_minor_planet
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
@@ -143,7 +145,8 @@ def session_plan_info(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
-    return render_template('main/planner/session_plan_info.html', type='info', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan, observed=observed)
+    return render_template('main/planner/session_plan_info.html', type='info', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan,
+                           observed=observed, constellation_by_id_dict=Constellation.get_id_dict())
 
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
@@ -214,11 +217,24 @@ def session_plan_edit(session_plan_id):
             session_plan.notes = form.notes.data
             session_plan.update_by = user.id
             session_plan.update_date = datetime.now()
-            if date_changed:
-                for item in session_plan.session_plan_items:
-                    if item.actualize_ra_dec(session_plan.for_date):
-                        db.session.add(item)
             db.session.add(session_plan)
+            if date_changed:
+                for_date = datetime.combine(session_plan.for_date, datetime.min.time())
+                for item in session_plan.session_plan_items:
+                    ra, dec = None, None
+                    if item.item_type == SessionPlanItemType.COMET:
+                        ra, dec = get_mpc_comet_position(find_mpc_comet(item.comet.comet_id), for_date)
+                    elif item.item_type == SessionPlanItemType.MINOR_PLANET:
+                        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(item.minor_planet.int_designation), for_date)
+                    if (ra is not None) and (dec is not None):
+                        ra = ra.radians
+                        dec = dec.radians
+                        if (ra != item.ra) or (dec != item.dec):
+                            constell = Constellation.get_constellation_by_position(ra, dec)
+                            item.ra = ra
+                            item.dec = dec
+                            item.constell_id = constell.id if constell else None
+                            db.session.add(item)
             db.session.commit()
             flash(gettext('Session plan successfully updated'), 'form-success')
             if form.goback.data == 'true':
@@ -317,10 +333,14 @@ def session_plan_item_add(session_plan_id):
             new_item = session_plan.create_new_double_star_item(double_star.id)
     if comet:
         if not session_plan.find_comet_item_by_id(comet.id):
-            new_item = session_plan.create_new_comet_item(comet, session_plan.for_date)
+            comet_ra, comet_dec = get_mpc_comet_position(find_mpc_comet(comet.comet_id), session_plan.for_date)
+            new_item = session_plan.create_new_comet_item(comet, comet_ra.radians, comet_dec.radians,
+                                                          Constellation.get_constellation_by_position(comet_ra.radians, comet_dec.radians))
     if minor_planet:
         if not session_plan.find_minor_planet_item_by_id(minor_planet.id):
-            new_item = session_plan.create_new_minor_planet_item(minor_planet, session_plan.for_date)
+            mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet.int_designation), session_plan.for_date)
+            new_item = session_plan.create_new_minor_planet_item(minor_planet, mplanet_ra.radians, mplanet_dec.radians,
+                                                                 Constellation.get_constellation_by_position(mplanet_ra.radians, mplanet_dec.radians))
     if deepsky_object:
         if not session_plan.find_dso_item_by_id(deepsky_object.id):
             new_item = session_plan.create_new_deepsky_object_item(deepsky_object.id)
@@ -571,7 +591,7 @@ def session_plan_schedule(session_plan_id):
 
     packed_constell_list = get_packed_constell_list()
 
-    Constellation.get_constellation_by_id_dict()
+    Constellation.get_id_dict()
 
     return render_template('main/planner/session_plan_info.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list_for_render,
@@ -580,7 +600,7 @@ def session_plan_schedule(session_plan_id):
                            src_pagination=src_pagination, src_table_sort=src_table_sort, dst_pagination=dst_pagination,
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
                            is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list,
-                           constellation_by_id_dict=Constellation.get_constellation_by_id_dict()
+                           constellation_by_id_dict=Constellation.get_id_dict()
                            )
 
 

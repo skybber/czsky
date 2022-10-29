@@ -37,7 +37,7 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
-from app.commons.solar_system_utils import get_mpc_minor_planets
+from ...commons.minor_planet_utils import get_all_mpc_minor_planets
 
 main_minor_planet = Blueprint('main_minor_planet', __name__)
 
@@ -96,7 +96,7 @@ def minor_planets():
 
     ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
 
-    mpc_minor_planets = get_mpc_minor_planets()
+    mpc_minor_planets = get_all_mpc_minor_planets()
 
     for minor_planet in minor_planets_for_render:
         mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
@@ -126,7 +126,7 @@ def minor_planet_info(minor_planet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    mpc_minor_planet = get_mpc_minor_planets().iloc[minor_planet.int_designation-1]
+    mpc_minor_planet = get_all_mpc_minor_planets().iloc[minor_planet.int_designation - 1]
 
     c = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 

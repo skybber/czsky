@@ -32,6 +32,9 @@
                         <thead>
                             <tr>
                                 <th>{{ _('Name') }}</th>
+                                <th class="mobile hidden">RA</th>
+                                <th class="mobile hidden">Dec</th>
+                                <th><i class="lastfm icon"></i></th>
                                 <th>{{ _('Brightness') }}</th>
                             </tr>
                         </thead>
@@ -40,6 +43,9 @@
                             {% set minor_planet_url = url_for('main_minor_planet.minor_planet_info', minor_planet_id=mp.int_designation) %}
                             <tr onclick="window.location.href = '{{ minor_planet_url }}';">
                                 <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
+                                <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>
+                                <td class="mobile hidden">{{ mp.cur_dec_str_short() }}</td>
+                                <td>{{ mp.cur_constell().iau_code if mp.cur_constell_id is not none else '' }}</td>
                                 <td>{{ magnitudes.get(mp.int_designation, '') }}</td>
                             </tr>
                         {% endfor %}

@@ -41,14 +41,14 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.comet_loader import update_comets_cobs_observations, update_evaluated_comet_brightness, update_comets_positions
+from app.commons.comet_utils import update_comets_cobs_observations, update_evaluated_comet_brightness, \
+    update_comets_positions, get_mag_coma_from_observations, get_all_comets, find_mpc_comet
 from app.commons.utils import to_float
 
 from app.models import (
     Comet,
     CometObservation,
 )
-from app.commons.solar_system_utils import get_all_comets, find_mpc_comet, get_mag_coma_from_observations
 
 main_comet = Blueprint('main_comet', __name__)
 

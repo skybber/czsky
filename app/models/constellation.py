@@ -1,4 +1,8 @@
+import numpy as np
 from datetime import datetime
+
+from skyfield.api import load_constellation_map, position_from_radec
+
 from .. import db
 
 
@@ -36,7 +40,11 @@ class Constellation(db.Model):
         return Constellation._iau_dict
 
     @classmethod
-    def get_constellation_by_id_dict(cls):
+    def get_constellation_by_iau_code(cls, iau_code):
+        return Constellation.get_iau_dict().get(iau_code.upper())
+
+    @classmethod
+    def get_id_dict(cls):
         if not Constellation._id_dict:
             Constellation._id_dict = {}
             for co in Constellation.get_all():
@@ -45,7 +53,7 @@ class Constellation(db.Model):
 
     @classmethod
     def get_constellation_by_id(cls, constellation_id):
-        return Constellation.get_constellation_by_id_dict().get(constellation_id)
+        return Constellation.get_id_dict().get(constellation_id)
 
     @classmethod
     def get_season_constell_ids(cls, season):
@@ -55,6 +63,12 @@ class Constellation(db.Model):
                 constell_ids.add(constell_id[0])
             return constell_ids
         return None
+
+    @classmethod
+    def get_constellation_by_position(cls, ra, dec):
+        constellation_at = load_constellation_map()
+        const_code = constellation_at(position_from_radec(ra / np.pi * 12.0, dec / np.pi * 180.0))
+        return Constellation.get_constellation_by_iau_code(const_code)
 
 
 class UserConsDescription(db.Model):

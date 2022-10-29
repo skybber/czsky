@@ -187,8 +187,8 @@ def _search_chart_ids(query):
 
 
 def _get_constell(costell_code):
-    constell_iau_code = costell_code.strip().upper()
+    constell_iau_code = costell_code.strip()
     if constell_iau_code:
-        constell = Constellation.get_iau_dict().get(constell_iau_code)
+        constell = Constellation.get_constellation_by_iau_code(constell_iau_code)
         return constell
     return None
