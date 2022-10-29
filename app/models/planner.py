@@ -79,26 +79,28 @@ class SessionPlan(db.Model):
         )
         return new_item
 
-    def create_new_comet_item(self, comet, ra, dec):
+    def create_new_comet_item(self, comet, ra, dec, constell):
         new_item = SessionPlanItem(
             session_plan_id=self.id,
             item_type=SessionPlanItemType.COMET,
             comet_id=comet.id,
             ra=ra,
             dec=dec,
+            constell_id=constell.id if constell else None,
             order=self._get_max_order() + 1,
             create_date=datetime.now(),
             update_date=datetime.now(),
         )
         return new_item
 
-    def create_new_minor_planet_item(self, minor_planet, ra, dec):
+    def create_new_minor_planet_item(self, minor_planet, ra, dec, constell):
         new_item = SessionPlanItem(
             session_plan_id=self.id,
             item_type=SessionPlanItemType.MINOR_PLANET,
             minor_planet_id=minor_planet.id,
             ra=ra,
             dec=dec,
+            constell_id=constell.id if constell else None,
             order=self._get_max_order() + 1,
             create_date=datetime.now(),
             update_date=datetime.now(),
