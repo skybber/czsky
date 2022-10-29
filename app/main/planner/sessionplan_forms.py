@@ -88,7 +88,7 @@ class SessionPlanScheduleFilterForm(FlaskForm):
 
 class AddToSessionPlanForm(FlaskForm):
     session_plan_id = IntegerField(widget=HiddenInput())
-    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+    object_id = StringField(lazy_gettext('Object id'), validators=[InputRequired(),])
 
 
 class AddToWishListForm(FlaskForm):

@@ -2,24 +2,18 @@ from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app.commons.dso_utils import normalize_dso_name
 from app.commons.search_sky_object_utils import (
-    normalize_double_star_name,
     search_dso,
     search_double_star,
     search_comet,
     search_minor_planet,
     search_planet
 )
+from app.commons.solar_system_utils import find_mpc_minor_planet, find_mpc_comet
 
 from app.models import (
-    DeepskyObject,
-    DoubleStar,
     ObservationTargetType,
 )
-
-from app.main.solarsystem.comet_views import find_mpc_comet
-from app.main.solarsystem.minor_planet_views import find_mpc_minor_planet
 
 
 def parse_observation_targets(targets):
@@ -28,6 +22,9 @@ def parse_observation_targets(targets):
     planet = None
     comet = None
     minor_planet = None
+
+    targets = targets.strip()
+
     double_star = search_double_star(targets, number_search=False)
 
     if double_star:

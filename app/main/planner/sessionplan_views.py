@@ -87,6 +87,7 @@ from app.commons.highlights_list_utils import common_highlights_from_session_pla
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 from .sessionplan_import import import_session_plan_items
 from .sessionplan_export import create_oal_observations_from_session_plan
+from ...commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_dso
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
@@ -201,12 +202,10 @@ def session_plan_edit(session_plan_id):
     form = SessionPlanEditForm()
     if request.method == 'POST':
         if form.validate_on_submit():
-
             user = get_anonymous_user() if current_user.is_anonymous else current_user
-
             location_id, location_position = _get_location_data_from_form(form)
-
             session_plan.title = form.title.data
+            date_changed = (session_plan.for_date != form.for_date.data)
             session_plan.for_date = form.for_date.data
             session_plan.location_id = location_id
             session_plan.location_position = location_position
@@ -215,6 +214,10 @@ def session_plan_edit(session_plan_id):
             session_plan.notes = form.notes.data
             session_plan.update_by = user.id
             session_plan.update_date = datetime.now()
+            if date_changed:
+                for item in session_plan.session_plan_items:
+                    if item.actualize_ra_dec(session_plan.for_date):
+                        db.session.add(item)
             db.session.add(session_plan)
             db.session.commit()
             flash(gettext('Session plan successfully updated'), 'form-success')
@@ -293,27 +296,40 @@ def session_plan_item_add(session_plan_id):
 
     deepsky_object = None
     form = AddToSessionPlanForm()
+    double_star, comet, minor_planet, deepsky_object = None, None, None, None
     if request.method == 'POST' and form.validate_on_submit():
-        dso_name = normalize_dso_name(form.dso_name.data)
-        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name==dso_name).first()
+        query = form.object_id.data.strip()
+        double_star = search_double_star(query, number_search=False)
+        if not double_star:
+            comet = search_comet(query)
+            if not comet:
+                minor_planet = search_minor_planet(query)
+            if not minor_planet:
+                deepsky_object = search_dso(query)
     elif request.method == 'GET':
         dso_id = request.args.get('dso_id', None)
         if dso_id is not None:
             deepsky_object = DeepskyObject.query.filter(DeepskyObject.id==dso_id).first()
 
+    new_item = None
+    if double_star:
+        if not session_plan.find_double_star_item_by_id(double_star.id):
+            new_item = session_plan.create_new_double_star_item(double_star.id)
+    if comet:
+        if not session_plan.find_comet_item_by_id(comet.id):
+            new_item = session_plan.create_new_comet_item(comet, session_plan.for_date)
+    if minor_planet:
+        if not session_plan.find_minor_planet_item_by_id(minor_planet.id):
+            new_item = session_plan.create_new_minor_planet_item(minor_planet, session_plan.for_date)
     if deepsky_object:
-        if not session_plan.find_dso_by_id(deepsky_object.id):
-            user = get_anonymous_user() if current_user.is_anonymous else current_user
+        if not session_plan.find_dso_item_by_id(deepsky_object.id):
             new_item = session_plan.create_new_deepsky_object_item(deepsky_object.id)
-            db.session.add(new_item)
-            db.session.commit()
-            flash(gettext('Object was added to session plan.'), 'form-success')
-        else:
-            flash(gettext('Object is already on session plan.'), 'form-info')
 
+    if new_item is not None:
+        db.session.add(new_item)
+        db.session.commit()
+        flash(gettext('Object was added to session plan.'), 'form-success')
         reorder_by_merid_time(session_plan)
-    else:
-        flash(gettext('Deepsky object not found.'), 'form-error')
 
     session['is_backr'] = True
 
@@ -555,13 +571,17 @@ def session_plan_schedule(session_plan_id):
 
     packed_constell_list = get_packed_constell_list()
 
+    Constellation.get_constellation_by_id_dict()
+
     return render_template('main/planner/session_plan_info.html', type='schedule', session_plan=session_plan,
                            selection_compound_list=selection_compound_list, session_plan_compound_list=session_plan_compound_list_for_render,
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, schedule_form=schedule_form, min_alt_item_list=min_alt_item_list,
                            src_pagination=src_pagination, src_table_sort=src_table_sort, dst_pagination=dst_pagination,
                            selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
-                           is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list)
+                           is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list,
+                           constellation_by_id_dict=Constellation.get_constellation_by_id_dict()
+                           )
 
 
 def _get_session_plan_tzinfo(session_plan):

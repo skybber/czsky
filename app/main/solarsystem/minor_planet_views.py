@@ -1,7 +1,4 @@
-import os
-import numpy as np
 import math
-import threading
 import json
 import base64
 
@@ -10,23 +7,16 @@ from datetime import date, datetime, timedelta
 from flask import (
     abort,
     Blueprint,
-    current_app,
-    flash,
     jsonify,
     redirect,
     render_template,
     request,
     send_file,
-    session,
     url_for,
 )
-from flask_login import current_user, login_required
-from sqlalchemy import func
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
-
-from app import db
 
 from app.models import MinorPlanet
 from app.commons.pagination import Pagination
@@ -47,25 +37,9 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
+from app.commons.solar_system_utils import get_mpc_minor_planets
 
 main_minor_planet = Blueprint('main_minor_planet', __name__)
-
-all_minor_planets = None
-
-
-def _get_mpc_minor_planets():
-    global all_minor_planets
-    if all_minor_planets is None:
-        with load.open('data/MPCORB.9999.DAT') as f:
-            all_minor_planets = mpc.load_mpcorb_dataframe(f)
-            bad_orbits = all_minor_planets.semimajor_axis_au.isnull()
-            all_minor_planets = all_minor_planets[~bad_orbits]
-            all_minor_planets['minor_planet_id'] = all_minor_planets['designation_packed']
-    return all_minor_planets
-
-
-def find_mpc_minor_planet(mplanet_int_designation):
-    return _get_mpc_minor_planets().iloc[mplanet_int_designation-1]
 
 
 def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
@@ -122,7 +96,7 @@ def minor_planets():
 
     ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
 
-    mpc_minor_planets = _get_mpc_minor_planets()
+    mpc_minor_planets = get_mpc_minor_planets()
 
     for minor_planet in minor_planets_for_render:
         mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
@@ -152,7 +126,7 @@ def minor_planet_info(minor_planet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    mpc_minor_planet = _get_mpc_minor_planets().iloc[minor_planet.int_designation-1]
+    mpc_minor_planet = get_mpc_minor_planets().iloc[minor_planet.int_designation-1]
 
     c = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 

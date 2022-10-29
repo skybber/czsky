@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from .. import db
 
 from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str

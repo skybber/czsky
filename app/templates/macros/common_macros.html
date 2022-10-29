@@ -51,7 +51,7 @@
             <i class="calendar plus outline icon"></i>
             <div class="ui menu">
                 {% for session_plan in offered_session_plans %}
-                <a id="switch_sesplan_dso_{{ session_plan.id }}_{{ dso_id  }}" class="ui {{ 'selected ' if session_plan.find_dso_by_id(dso_id) else '' }}item">{{ session_plan.title }}</a>
+                <a id="switch_sesplan_dso_{{ session_plan.id }}_{{ dso_id  }}" class="ui {{ 'selected ' if session_plan.find_dso_item_by_id(dso_id) else '' }}item">{{ session_plan.title }}</a>
                 {% endfor %}
           </div>
         </div>
@@ -77,7 +77,7 @@
             <i class="calendar plus outline icon"></i>
             <div class="ui menu">
                 {% for session_plan in offered_session_plans %}
-                <a id="switch_sesplan_dbl_{{ session_plan.id }}_{{ double_star_id  }}" class="ui {{ 'selected ' if session_plan.find_double_star_by_id(double_star_id) else '' }}item">{{ session_plan.title }}</a>
+                <a id="switch_sesplan_dbl_{{ session_plan.id }}_{{ double_star_id  }}" class="ui {{ 'selected ' if session_plan.find_double_star_item_by_id(double_star_id) else '' }}item">{{ session_plan.title }}</a>
                 {% endfor %}
           </div>
         </div>

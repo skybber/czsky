@@ -32,8 +32,9 @@ def create_session_plan_compound_list(session_plan, observer, observation_time, 
     # create session plan list
     spi = session_plan.session_plan_items.copy()
     spi.sort(key=lambda x: x.order)
+
     session_plan_rms_list = rise_merid_set_time_str(observation_time, observer, [(x.get_ra(), x.get_dec()) for x in spi], tz_info)
-    session_plan_compound_list = [ (spi[i], *session_plan_rms_list[i]) for i in range(len(spi))]
+    session_plan_compound_list = [(spi[i], *session_plan_rms_list[i]) for i in range(len(spi))]
 
     return session_plan_compound_list
 
@@ -182,9 +183,9 @@ def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
 
 
 def rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
-    coords = [ SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
+    coords = [SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
     rise_list = _ar_to_HM_format(observer.target_rise_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
-    merid_list = _ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info)  if len(coords) > 0 else []
+    merid_list = _ar_to_HM_format(observer.target_meridian_transit_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
     set_list = _ar_to_HM_format(observer.target_set_time(t, coords, n_grid_points=10), tz_info) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
