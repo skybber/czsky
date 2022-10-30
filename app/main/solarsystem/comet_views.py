@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import json
 import base64
@@ -23,7 +24,8 @@ from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from app import create_app
 
 from app.commons.pagination import Pagination
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
+    get_order_by_field
 from app import scheduler
 
 from .comet_forms import (
@@ -48,6 +50,7 @@ from app.commons.utils import to_float
 from app.models import (
     Comet,
     CometObservation,
+    Constellation,
     DB_UPDATE_COMETS_COBS_KEY,
     DB_UPDATE_COMETS_BRIGHT_KEY,
     DB_UPDATE_COMETS_POS_KEY,
@@ -92,30 +95,53 @@ def comets():
     """View comets."""
     search_form = SearchCometForm()
 
-    ret, page, _ = process_paginated_session_search('comet_search_page', None, [
-        ('comet_search', search_form.q),
-    ])
+    sort_def = { 'designation': Comet.designation,
+                 'cur_ra': Comet.cur_ra,
+                 'cur_dec': Comet.cur_dec,
+                 'constellation': Comet.cur_constell_id,
+                 'mag': Comet.mag,
+                 'coma_diameter': Comet.real_coma_diameter,
+                 }
 
-    per_page = get_items_per_page(search_form.items_per_page)
+    ret, page, sort_by = process_paginated_session_search('comet_search_page', 'comet_list_sort_by', [
+        ('comet_search', search_form.q),
+        ('comet_list_maglim', search_form.maglim),
+        ('dec_min', search_form.dec_min),
+    ])
 
     if not ret:
         return redirect(url_for('main_comet.comets'))
 
+    table_sort = create_table_sort(sort_by, sort_def.keys())
+
+    per_page = get_items_per_page(search_form.items_per_page)
+
     offset = (page - 1) * per_page
-    comets = get_all_comets()
-    comets = comets[comets['mag'] < 20.0].sort_values(by=['mag'])
+
+    comet_query = Comet.query.filter(Comet.mag < 20)
 
     if search_form.q.data:
         search_expr = search_form.q.data.replace('"', '')
-        comets = comets.query('designation.str.contains("{}")'.format(search_expr))
-
-    if len(comets) > 0:
-        comets_for_render = comets.iloc[offset:offset + per_page]
+        comet_query = comet_query.filter(Comet.designation.like('%' + search_expr + '%'))
     else:
-        comets_for_render = comets
+        if search_form.dec_min.data:
+            comet_query = comet_query.filter(Comet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
+        if search_form.maglim.data:
+            comet_query = comet_query.filter(Comet.mag <= search_form.maglim.data)
 
-    pagination = Pagination(page=page, per_page=per_page, total=len(comets), search=False, record_name='comets', css_framework='semantic', not_passed_args='back')
-    return render_template('main/solarsystem/comets.html', comets=comets_for_render, pagination=pagination, search_form=search_form)
+    order_by_field = get_order_by_field(sort_def, sort_by)
+
+    if order_by_field is None:
+        order_by_field = Comet.mag
+
+    shown_comets = comet_query.order_by(order_by_field).limit(per_page).offset(offset).all()
+
+    pagination = Pagination(page=page, per_page=per_page, total=comet_query.count(), search=False,
+                            record_name='comets',
+                            css_framework='semantic', not_passed_args='back')
+
+    return render_template('main/solarsystem/comets.html', comets=shown_comets, pagination=pagination, search_form=search_form,
+                           table_sort=table_sort)
 
 
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])

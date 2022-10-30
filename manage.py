@@ -330,7 +330,7 @@ def import_gottlieb():
 
 @manager.command
 def tmp_update_comets_cobs():
-    CometObservation.query.delete()
+    # CometObservation.query.delete()
     update_comets_cobs_observations()
 
 

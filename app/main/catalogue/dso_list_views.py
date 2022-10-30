@@ -1,11 +1,9 @@
-from datetime import datetime
 import numpy as np
 import base64
 
 from flask import (
     abort,
     Blueprint,
-    flash,
     jsonify,
     redirect,
     render_template,
@@ -14,11 +12,9 @@ from flask import (
     send_file,
     url_for,
 )
-from flask_login import current_user, login_required
-from sqlalchemy.orm import subqueryload
+from flask_login import current_user
 
 from app import db
-from posix import wait
 
 from app.models import (
     Constellation,
@@ -27,16 +23,14 @@ from app.models import (
     DsoList,
     DsoListItem,
     DsoListDescription,
-    User,
     UserDsoDescription,
     StarList,
     ObservedList,
-    ObservedListItem,
     WishList,
 )
 
 from app.commons.dso_utils import normalize_dso_name
-from app.commons.search_utils import process_session_search, process_paginated_session_search, create_table_sort, get_order_by_field
+from app.commons.search_utils import process_paginated_session_search, create_table_sort, get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,

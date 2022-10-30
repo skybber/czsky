@@ -32,7 +32,7 @@ class MinorPlanet(db.Model):
     last_observation_date = db.Column(db.String(9))
     cur_ra = db.Column(db.Float)
     cur_dec = db.Column(db.Float)
-    cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
+    cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
 
     def cur_ra_str(self):
         return ra_to_str(self.cur_ra) if self.cur_ra is not None else ''

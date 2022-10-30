@@ -83,13 +83,14 @@ def get_all_comets():
 
             import_update_comets(all_comets, False)
 
+        after = datetime.today() - timedelta(days=31)
         for comet in Comet.query.filter_by().all():
-            after = datetime.today() - timedelta(days=31)
             mag, coma_diameter = comet.eval_mag, None
             real_mag = False
             observs = CometObservation.query.filter_by(comet_id=comet.id) \
-                          .filter(CometObservation.date >= after) \
-                          .order_by(CometObservation.date.desc()).all()[:5]
+                                            .filter(CometObservation.date >= after) \
+                                            .order_by(CometObservation.date.desc()) \
+                                            .all()[:5]
 
             comet_id = comet.comet_id
             if len(observs) > 0:
@@ -285,7 +286,6 @@ def update_comets_cobs_observations():
                                         if diams.endswith('"'):
                                             coma_diameter = coma_diameter * 60.0
 
-                                    date = None
                                     try:
                                         day_tm = float(day_tms)
                                         day = int(float(day_tm))
@@ -295,7 +295,7 @@ def update_comets_cobs_observations():
                                         minute = int(minute_tm)
                                         second_tm = (minute_tm % 1) * 60
                                         second = int(second_tm)
-                                        date = datetime.datetime(year=int(year), month=month_2_index[month.lower()], day=day, hour=hour, minute=minute, second=second)
+                                        date = datetime(year=int(year), month=month_2_index[month.lower()], day=day, hour=hour, minute=minute, second=second)
                                     except ValueError:
                                         current_app.logger.error('Can\'t create datetime comet={} year={} month={} day={}'.format(comet_name, year, month, day_tms))
                                         continue
@@ -321,6 +321,31 @@ def update_comets_cobs_observations():
                                                     db.session.rollback()
                                         else:
                                             current_app.logger.warn('Can\'t find comet={}'.format(comet_name))
+
+    # update brightness from COBS
+    try:
+        db.session.commit()
+        after = datetime.today() - timedelta(days=31)
+        for comet in Comet.query.filter_by().all():
+            observs = CometObservation.query.filter_by(comet_id=comet.id) \
+                                            .filter(CometObservation.date >= after) \
+                                            .order_by(CometObservation.date.desc()) \
+                                            .all()[:5]
+
+            if len(observs) > 0:
+                mag, coma_diameter = get_mag_coma_from_observations(observs)
+                comet.mag = mag
+                comet.real_mag = mag
+                comet.real_coma_diameter = coma_diameter
+                db.session.add(comet)
+            else:
+                comet.mag = comet.eval_mag
+                comet.real_mag = None
+                comet.real_coma_diameter = None
+                db.session.add(comet)
+    except IntegrityError as err:
+        current_app.logger.error('\nIntegrity error {}'.format(err))
+        db.session.rollback()
 
     current_app.logger.info('Comets\' cobs observations loaded.')
 
