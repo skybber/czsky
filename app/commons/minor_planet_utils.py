@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from sqlalchemy.exc import IntegrityError
 
@@ -67,9 +68,8 @@ def _save_minor_planets(minor_planets, show_progress, progress_title):
         db.session.rollback()
 
 
-def update_minor_planets_positions(all_mpc_minor_planets=None, show_progress=False):
-    if all_mpc_minor_planets is None:
-        all_mpc_minor_planets = get_all_mpc_minor_planets()
+def update_minor_planets_positions(show_progress=False):
+    mpc_minor_planets = get_all_mpc_minor_planets()
 
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -82,20 +82,76 @@ def update_minor_planets_positions(all_mpc_minor_planets=None, show_progress=Fal
 
     i = 0
 
-    for db_mplanet in MinorPlanet.query.all():
-        mpc_mplanet = all_mpc_minor_planets.iloc[db_mplanet.int_designation-1]
+    for minor_planet in MinorPlanet.query.all():
+        mpc_mplanet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
         if mpc_mplanet is not None:
             skf_mplanet = sun + mpc.mpcorb_orbit(mpc_mplanet, ts, GM_SUN)
             ra_ang, dec_ang, distance = earth.at(t).observe(skf_mplanet).radec()
-            db_mplanet.cur_ra = ra_ang.radians
-            db_mplanet.cur_dec = dec_ang.radians
+            minor_planet.cur_ra = ra_ang.radians
+            minor_planet.cur_dec = dec_ang.radians
             const_code = constellation_at(position_from_radec(ra_ang.radians / np.pi * 12.0, dec_ang.radians / np.pi * 180.0))
-            db_mplanet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id if const_code else None
+            minor_planet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id if const_code else None
 
-            minor_planets.append(db_mplanet)
+            minor_planets.append(minor_planet)
             if show_progress:
-                progress(i, len(all_mpc_minor_planets), 'Evaluating minor planet positions...')
+                progress(i, len(mpc_minor_planets), 'Evaluating minor planet positions...')
                 i += 1
 
     _save_minor_planets(minor_planets, show_progress, 'Saving minor planets...')
     current_app.logger.info('Minor planets\' positions updated.')
+
+
+def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
+    beta = math.acos(
+        (body_sun_distanceAU * body_sun_distanceAU + body_earth_distanceAU * body_earth_distanceAU - earth_sun_distanceAU * earth_sun_distanceAU) /
+        (2 * body_sun_distanceAU * body_earth_distanceAU)
+    )
+
+    psi_t = math.exp(math.log(math.tan(beta / 2.0)) * 0.63)
+    Psi_1 = math.exp(-3.33 * psi_t)
+    psi_t = math.exp(math.log(math.tan(beta / 2.0)) * 1.22)
+    Psi_2 = math.exp(-1.87 * psi_t)
+
+    # Have found a combination of G_slope, Psi_1 and Psi_2 can lead to a negative value in the log calculation.
+    try:
+        apparentMagnitude = H_absolute_magnitude + \
+                            5.0 * math.log10(body_sun_distanceAU * body_earth_distanceAU) - \
+                            2.5 * math.log10((1 - G_slope) * Psi_1 + G_slope * Psi_2)
+    except:
+        apparentMagnitude = None
+
+    return apparentMagnitude
+
+
+def update_minor_planets_brightness(show_progress=False):
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    t = ts.now()
+
+    sun, earth = eph['sun'], eph['earth']
+
+    ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
+
+    mpc_minor_planets = get_all_mpc_minor_planets()
+
+    minor_planets = []
+    i = 0
+
+    for minor_planet in MinorPlanet.query.all():
+        mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation - 1]
+        body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+        ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
+        ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
+
+        apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G,
+                                                        earth_body_distance.au, sun_body_distance.au,
+                                                        earth_sun_distance.au)
+        if apparent_magnitude:
+            minor_planet.eval_mag = apparent_magnitude
+            minor_planets.append(minor_planet)
+            if show_progress:
+                progress(i, len(mpc_minor_planets), 'Evaluating minor planet brightness...')
+                i += 1
+
+    _save_minor_planets(minor_planets, show_progress, 'Saving minor planets...')
+    current_app.logger.info('Minor planets\' brightnesses updated.')

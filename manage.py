@@ -14,7 +14,7 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.commons.minor_planet_utils import update_minor_planets_positions
+from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
 from app.models import Role, User, UserDsoDescription, DeepskyObject
 from config import Config
 
@@ -204,7 +204,8 @@ def import_double_star_list():
 @manager.command
 def import_minor_planets():
     import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
-    update_minor_planets_positions(None, True)
+    update_minor_planets_positions(True)
+    update_minor_planets_brightness(True)
 
 
 @manager.command
@@ -346,7 +347,12 @@ def update_pgc_imported_dsos():
 
 @manager.command
 def tmp_update_minor_planets_positions():
-    update_minor_planets_positions(None, True)
+    update_minor_planets_positions(True)
+
+
+@manager.command
+def tmp_update_minor_planets_brightness():
+    update_minor_planets_brightness(True)
 
 
 if __name__ == '__main__':

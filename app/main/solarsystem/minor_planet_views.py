@@ -1,9 +1,10 @@
+import numpy as np
 import os
 import math
 import json
 import base64
 
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from flask import (
     abort,
@@ -23,12 +24,13 @@ from app import create_app
 from app import scheduler
 
 from app.models import (
-    DB_UPDATE_MINOR_PLANETS_POS_KEY,
     MinorPlanet,
+    DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, Constellation,
 )
 
 from app.commons.pagination import Pagination
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
+    get_order_by_field
 
 from .minor_planet_forms import (
     SearchMinorPlanetForm,
@@ -45,7 +47,7 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
-from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions
+from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 
@@ -55,8 +57,9 @@ main_minor_planet = Blueprint('main_minor_planet', __name__)
 def _update_minor_planet_positions():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_KEY, timedelta(hours=1)):
+        if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, timedelta(hours=1)):
             update_minor_planets_positions()
+            update_minor_planets_brightness()
 
 
 job1 = scheduler.add_job(_update_minor_planet_positions, 'interval', hours=24, replace_existing=True)
@@ -89,8 +92,18 @@ def minor_planets():
     """View minor_planets."""
     search_form = SearchMinorPlanetForm()
 
-    ret, page, _ = process_paginated_session_search('minor_planet_search_page', None, [
+    sort_def = { 'designation': MinorPlanet.designation,
+                 'cur_ra': MinorPlanet.cur_ra,
+                 'cur_dec': MinorPlanet.cur_dec,
+                 'constellation': MinorPlanet.cur_constell_id,
+                 'eval_mag': MinorPlanet.eval_mag,
+                 }
+
+    ret, page, sort_by = process_paginated_session_search('minor_planet_search_page', 'minor_planet_sort_by', [
         ('minor_planet_search', search_form.q),
+        ('minor_planet_season', search_form.season),
+        ('minor_planet_maglim', search_form.maglim),
+        ('dec_min', search_form.dec_min),
     ])
 
     per_page = get_items_per_page(search_form.items_per_page)
@@ -98,38 +111,35 @@ def minor_planets():
     if not ret:
         return redirect(url_for('main_minor_planet.minor_planets'))
 
+    table_sort = create_table_sort(sort_by, sort_def.keys())
+
     offset = (page - 1) * per_page
     minor_planet_query = MinorPlanet.query
 
     if search_form.q.data:
         search_expr = search_form.q.data.replace('"', '')
         minor_planet_query = minor_planet_query.filter(MinorPlanet.designation.like('%' + search_expr + '%'))
+    else:
+        if search_form.dec_min.data:
+            minor_planet_query = minor_planet_query.filter(MinorPlanet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
+        if search_form.maglim.data:
+            minor_planet_query = minor_planet_query.filter(MinorPlanet.eval_mag <= search_form.maglim.data)
+        if search_form.season.data and search_form.season.data != 'All':
+            minor_planet_query = minor_planet_query.join(Constellation) \
+                                                   .filter(Constellation.season == search_form.season.data)
 
-    magnitudes = {}
+    order_by_field = get_order_by_field(sort_def, sort_by)
 
-    minor_planets_for_render = minor_planet_query.order_by(MinorPlanet.int_designation).limit(per_page).offset(offset).all()
+    if order_by_field is None:
+        order_by_field = MinorPlanet.eval_mag
 
-    ts = load.timescale(builtin=True)
-    eph = load('de421.bsp')
-    sun, earth = eph['sun'], eph['earth']
-    t = ts.now()
+    minor_planets_for_render = minor_planet_query.order_by(order_by_field).limit(per_page).offset(offset).all()
 
-    ra, dec, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
+    pagination = Pagination(page=page, per_page=per_page, total=minor_planet_query.count(), search=False, record_name='minor_planets',
+                            css_framework='semantic', not_passed_args='back')
 
-    mpc_minor_planets = get_all_mpc_minor_planets()
-
-    for minor_planet in minor_planets_for_render:
-        mpc_minor_planet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
-        body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
-        ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
-        ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
-
-        apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G, earth_body_distance.au, sun_body_distance.au, earth_sun_distance.au)
-        if apparent_magnitude:
-            magnitudes[minor_planet.int_designation] = '{:.2f}'.format(apparent_magnitude)
-
-    pagination = Pagination(page=page, per_page=per_page, total=minor_planet_query.count(), search=False, record_name='minor_planets', css_framework='semantic', not_passed_args='back')
-    return render_template('main/solarsystem/minor_planets.html', minor_planets=minor_planets_for_render, pagination=pagination, search_form=search_form, magnitudes=magnitudes)
+    return render_template('main/solarsystem/minor_planets.html', minor_planets=minor_planets_for_render, pagination=pagination,
+                           search_form=search_form, table_sort=table_sort)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>', methods=['GET', 'POST'])
