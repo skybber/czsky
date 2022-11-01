@@ -1,6 +1,6 @@
-
 from flask_wtf import FlaskForm
 from wtforms.fields import (
+    BooleanField,
     FloatField,
     IntegerField,
     SelectField,
@@ -25,4 +25,5 @@ class SearchDsoListForm(FlaskForm):
     ], default='')
     maglim = FloatField(lazy_gettext('Limit mag'), default=None, validators=[NumberRange(min=-30.0, max=30.0), Optional()])
     dec_min = FloatField(lazy_gettext('Dec min'), default=None, validators=[NumberRange(min=-90.0, max=90.0), Optional()])
+    not_observed = BooleanField('Not observed', default=None)
     items_per_page = IntegerField(lazy_gettext('Items per page'))

@@ -1,6 +1,8 @@
 import numpy as np
 import base64
 
+from sqlalchemy import or_
+
 from flask import (
     abort,
     Blueprint,
@@ -23,9 +25,10 @@ from app.models import (
     DsoList,
     DsoListItem,
     DsoListDescription,
-    UserDsoDescription,
-    StarList,
     ObservedList,
+    ObservedListItem,
+    StarList,
+    UserDsoDescription,
     WishList,
 )
 
@@ -110,6 +113,7 @@ def dso_list_info(dso_list_id):
         ('dso_list_search', search_form.q),
         ('dso_list_season', search_form.season),
         ('dso_list_maglim', search_form.maglim),
+        ('dso_not_observed.data', search_form.not_observed),
         ('dec_min', search_form.dec_min),
     ])
 
@@ -133,6 +137,14 @@ def dso_list_info(dso_list_id):
 
         if search_form.maglim.data:
             dso_list_query = dso_list_query.filter(DeepskyObject.mag <= search_form.maglim.data)
+
+        if not current_user.is_anonymous and search_form.not_observed.data:
+            observed_subquery = db.session.query(ObservedListItem.dso_id) \
+                .join(ObservedList, aliased=True) \
+                .filter(ObservedList.user_id == current_user.id) \
+                .filter(ObservedListItem.dso_id.is_not(None))
+            dso_list_query = dso_list_query.filter(DsoListItem.dso_id.notin_(observed_subquery))
+            dso_list_query = dso_list_query.filter(or_(DeepskyObject.master_id.is_(None), DeepskyObject.master_id.notin_(observed_subquery)))
 
     order_by_field = get_order_by_field(sort_def, sort_by)
 

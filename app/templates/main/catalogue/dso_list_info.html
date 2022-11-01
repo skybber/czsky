@@ -58,6 +58,12 @@
                 {% endif %}
                 <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
             </div>
+            {% if observed %}
+                <div id="not_observed" class="ui inverted checkbox item" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
+                  <input type="checkbox" id="not_observed_data" name="{{ search_form.not_observed.name }}" {{ 'checked=checked' if search_form.not_observed.data else '' | safe  }}>
+                  <label>{{_('Unobserved objects')}}</label>
+                </div>
+            {% endif %}
             <div class="ui right search item">
                 <div class="ui action input">
                     {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
@@ -199,9 +205,17 @@
         </table>
     </div>
     <script type="text/javascript">
-        $('.ui.accordion')
-          .accordion()
-        ;
+        $(function(){
+            $('.ui.accordion')
+              .accordion()
+            ;
+            $('#not_observed')
+                .checkbox({
+                  onChange: function (value) {
+                      $(this).closest('form').submit();
+                  }
+            });
+        });
     </script>
 {% endmacro %}
 
