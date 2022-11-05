@@ -86,9 +86,7 @@ def _find_dso_list_observed(dso_list_id, dso_list_dsos):
                                       .join(ObservedList, aliased=True) \
                                       .filter(ObservedList.user_id == current_user.id) \
                                       .filter(ObservedListItem.dso_id.is_not(None))
-        observed_query = observed_query.filter(DsoListItem.dso_id.in_(observed_subquery))
-        observed_query = observed_query.filter(
-            or_(DeepskyObject.master_id.is_(None), DeepskyObject.master_id.in_(observed_subquery)))
+        observed_query = observed_query.filter(or_(DsoListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
         return set(r[0] for r in observed_query.all())
     return None
 
