@@ -52,7 +52,7 @@ from app.main.chart.chart_forms import ChartForm
 main_dso_list = Blueprint('main_dso_list', __name__)
 
 
-highlights_dso_list_cache = { }
+dso_list_dso_cache = { }
 
 
 def _find_dso_list(dso_list_id):
@@ -63,19 +63,34 @@ def _find_dso_list(dso_list_id):
         return DsoList.query.filter_by(name=dso_list_id).first()
 
 
-def _find_highlights_dso_list(dso_list_id):
-    ret = highlights_dso_list_cache.get(dso_list_id)
-    if not ret:
+def _find_dso_list_dsos(dso_list_id):
+    dso_list_dsos = dso_list_dso_cache.get(dso_list_id)
+    if not dso_list_dsos:
         dso_list = _find_dso_list(dso_list_id)
         if dso_list:
-            ret = []
+            dso_list_dsos = []
             for item in dso_list.dso_list_items:
                 dso = item.deepsky_object
                 db.session.expunge(dso)
-                ret.append(dso)
-            highlights_dso_list_cache[dso_list_id] = ret
-    return ret
+                dso_list_dsos.append(dso)
+            dso_list_dso_cache[dso_list_id] = dso_list_dsos
+    return dso_list_dsos
 
+
+def _find_dso_list_observed(dso_list_id, dso_list_dsos):
+    if not current_user.is_anonymous:
+        observed_query = db.session.query(DsoListItem.dso_id)\
+                                   .filter(DsoListItem.dso_list_id == dso_list_id) \
+                                   .join(DsoListItem.deepsky_object, aliased=True)
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+                                      .join(ObservedList, aliased=True) \
+                                      .filter(ObservedList.user_id == current_user.id) \
+                                      .filter(ObservedListItem.dso_id.is_not(None))
+        observed_query = observed_query.filter(DsoListItem.dso_id.in_(observed_subquery))
+        observed_query = observed_query.filter(
+            or_(DeepskyObject.master_id.is_(None), DeepskyObject.master_id.in_(observed_subquery)))
+        return set(r[0] for r in observed_query.all())
+    return None
 
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
@@ -216,33 +231,34 @@ def dso_list_chart(dso_list_id):
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def dso_list_chart_pos_img(dso_list_id, ra, dec):
-    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
-    if highlights_dso_list is None:
+    dso_list_dsos = _find_dso_list_dsos(dso_list_id)
+    if dso_list_dsos is None:
         abort(404)
+
+    observed_dso_ids = _find_dso_list_observed(dso_list_id, dso_list_dsos)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_dso_list=highlights_dso_list)
+    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+                                                 highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def dso_list_chart_legend_img(dso_list_id, ra, dec):
-    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
-    if highlights_dso_list is None:
-        abort(404)
-
     img_bytes = common_chart_legend_img(None, None, ra, dec, )
     return send_file(img_bytes, mimetype='image/png')
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def dso_list_chart_pdf(dso_list_id, ra, dec):
-    highlights_dso_list = _find_highlights_dso_list(dso_list_id)
-    if highlights_dso_list is None:
+    dso_list_dsos = _find_dso_list_dsos(dso_list_id)
+    if dso_list_dsos is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list)
+    observed_dso_ids = _find_dso_list_observed(dso_list_id, dso_list_dsos)
+
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
 
     return send_file(img_bytes, mimetype='application/pdf')
