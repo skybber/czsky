@@ -831,7 +831,7 @@ View = (function() {
         if (!cm) {
             return black;
         }
-        if (cm.mapName == 'native' || cm.mapName == 'grayscale') {
+        if (cm.mapName == 'native' || cm.mapName == 'grayscale' || cm.mapName == 'redlight') {
             return cm.reversed ? white : black;
         }
 

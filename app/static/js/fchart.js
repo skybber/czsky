@@ -253,6 +253,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         if (theme == 'light') {
             this.aladin.getBaseImageLayer().getColorMap().reverse()
             this.aladin.getBaseImageLayer().getColorMap().update('grayscale');
+        } else if (theme == 'night') {
+            this.aladin.getBaseImageLayer().getColorMap().update('redlight');
         }
         var t = this;
         this.aladin.on('redrawFinished', function() {

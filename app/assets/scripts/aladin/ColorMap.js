@@ -165,7 +165,7 @@ ColorMap.MAPS = {};
 
     
     ColorMap.MAPS_CUSTOM = ['cubehelix', 'eosb', 'rainbow'];
-    ColorMap.MAPS_NAMES = ['native', 'grayscale'].concat(ColorMap.MAPS_CUSTOM);
+    ColorMap.MAPS_NAMES = ['native', 'grayscale', 'redlight'].concat(ColorMap.MAPS_CUSTOM);
     
     ColorMap.prototype.reverse = function(val) {
         if (val) {
@@ -218,6 +218,9 @@ ColorMap.MAPS = {};
         if (this.mapName=='grayscale') {
             switchCase = 1;
         }
+        else if (this.mapName=='redlight') {
+            switchCase = 4;
+        }
         else if (ColorMap.MAPS_CUSTOM.indexOf(this.mapName)>=0) {
             switchCase = 2;
         }
@@ -237,6 +240,10 @@ ColorMap.MAPS = {};
                         b = ColorMap.MAPS[this.mapName].g[pixelData[i+1]];
                         c = ColorMap.MAPS[this.mapName].b[pixelData[i+2]];
                     }
+                    break;
+                case 4:
+                    a = AladinUtils.myRound((pixelData[i]+pixelData[i+1]+pixelData[i+2])/3);
+                    b = c = a * 0.3;
                     break;
                 default:
                     a = pixelData[i];
