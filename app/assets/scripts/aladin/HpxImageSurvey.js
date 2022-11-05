@@ -40,9 +40,7 @@ HpxImageSurvey = (function() {
         // new way
         if (idOrHiPSDefinition instanceof HiPSDefinition) {
             this.hipsDefinition = idOrHiPSDefinition;
-
         }
-
         else {
 // REPRENDRE LA,  EN CREANT l'OBJET HiPSDefinition ou FAIRE dans l'autre sens
             // old way, we retrofit parameters into a HiPSDefinition object
@@ -104,6 +102,9 @@ HpxImageSurvey = (function() {
     	this.alpha = 0.0; // opacity value between 0 and 1 (if this layer is an opacity layer)
     	this.allskyTextureSize = 0;
         this.lastUpdateDateNeededTiles = 0;
+
+        this.flipX = 1.0;
+        this.flipY = 1.0;
 
         var found = false;
         for (var k=0; k<HpxImageSurvey.SURVEYS.length; k++) {

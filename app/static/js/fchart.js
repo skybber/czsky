@@ -246,7 +246,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.aladin = aladin;
 
+
     if (this.aladin != null) {
+        this.aladin.view.imageSurvey.flipX = this.multRA;
+        this.aladin.view.imageSurvey.flipY = this.multDEC;
         var t = this;
         this.aladin.on('redrawFinished', function() {
             if (!t.isReloadingImage && t.zoomInterval === undefined) {

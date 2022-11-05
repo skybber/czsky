@@ -214,7 +214,7 @@ HpxKey = (function() {
 
 
             for (var k=0; k<4; k++) {
-                cornersXYView[k] = AladinUtils.xyToView(cornersXY[k].X, cornersXY[k].Y, view.width, view.height, view.largestDim, view.zoomFactor);
+                cornersXYView[k] = AladinUtils.xyToView(this.hips.flipX * cornersXY[k].X, this.hips.flipY * cornersXY[k].Y, view.width, view.height, view.largestDim, view.zoomFactor);
             }
 
             return cornersXYView;
