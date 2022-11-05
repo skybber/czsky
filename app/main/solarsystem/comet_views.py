@@ -51,43 +51,29 @@ from app.models import (
     Comet,
     CometObservation,
     Constellation,
-    DB_UPDATE_COMETS_COBS_KEY,
-    DB_UPDATE_COMETS_BRIGHT_KEY,
-    DB_UPDATE_COMETS_POS_KEY,
+    DB_UPDATE_COMETS,
 )
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 
 main_comet = Blueprint('main_comet', __name__)
 
+comet_update_counter = 0
 
-def _update_comets_cobs_observations():
-    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
-    with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_COMETS_COBS_KEY, timedelta(hours=1)):
-            update_comets_cobs_observations()
-
-
-def _update_evaluated_comet_brightness():
-    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
-    with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_COMETS_BRIGHT_KEY, timedelta(hours=1)):
-            update_evaluated_comet_brightness()
+utc = dt_module.timezone.utc
 
 
 def _update_comets_positions():
+    global comet_update_counter
+    comet_update_counter += 1
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_COMETS_POS_KEY, timedelta(hours=1)):
+        if ask_dbupdate_permit(DB_UPDATE_COMETS, timedelta(hours=1)):
             update_comets_positions()
-
-
-job1 = scheduler.add_job(_update_comets_cobs_observations, 'interval', hours=12, replace_existing=True)
-job2 = scheduler.add_job(_update_evaluated_comet_brightness, 'interval', days=5, replace_existing=True)
-job3 = scheduler.add_job(_update_comets_positions, 'interval', hours=3, replace_existing=True)
-
-
-utc = dt_module.timezone.utc
+            if (comet_update_counter % 4) == 1:
+                update_comets_cobs_observations()
+            if (comet_update_counter % 2) == 1:
+                update_evaluated_comet_brightness()
 
 
 @main_comet.route('/comets', methods=['GET', 'POST'])
