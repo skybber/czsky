@@ -773,7 +773,7 @@ FChart.prototype.syncAladinViewCenter = function () {
         var centerRA = this.viewCenter.ra - dRD.dRA;
         var centerDEC = this.viewCenter.dec - dRD.dDEC;
 
-        this.aladin.gotoPosition(centerRA * 180 / Math.PI, centerDEC * 180 / Math.PI);
+        this.aladin.gotoRaDec(centerRA * 180 / Math.PI, centerDEC * 180 / Math.PI);
     }
 }
 
