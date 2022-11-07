@@ -852,19 +852,12 @@ View = (function() {
         };
     };
 
-
-    View.prototype.redraw = function(requestAnim) {
-        this.redraw2(true);
-    }
-
     /**
      * redraw the whole view
      */
-    View.prototype.redraw2 = function(requestAnim) {
+    View.prototype.redraw = function() {
         var saveNeedRedraw = this.needRedraw;
-        if (requestAnim) {
-            requestAnimFrame(this.redraw.bind(this));
-        }
+        requestAnimationFrame(this.redraw.bind(this));
 
         var now = new Date().getTime();
         
@@ -1752,7 +1745,7 @@ View = (function() {
 
         this.forceRedraw();
         this.requestRedraw();
-        this.redraw2(false);
+        this.redraw();
         var self = this;
         setTimeout(function() {self.refreshProgressiveCats();}, 1000);
 
