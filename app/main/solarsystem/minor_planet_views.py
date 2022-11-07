@@ -207,8 +207,11 @@ def minor_planet_info(minor_planet_id):
 
     chart_control = common_prepare_chart_data(form)
 
+    embed = request.args.get('embed')
+
     return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
-                           minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
+                           minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
+                           trajectory=trajectory_b64, embed=embed)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

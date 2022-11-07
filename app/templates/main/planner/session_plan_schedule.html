@@ -234,36 +234,31 @@
             {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepsky_object.name, embed='pl') }}{% endmacro %}
             {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item[0].double_star.id, embed='pl') }}{% endmacro %}
             {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item[0].minor_planet.id, embed='pl') }}{% endmacro %}
-            {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_info', comet_id=item[0].comet.id, embed='pl') }}{% endmacro %}
+            {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_info', comet_id=item[0].comet.comet_id, embed='pl') }}{% endmacro %}
 
             {% for item in session_plan_compound_list %}
                 {% if item[0].dso_id is not none %}
-                    {% set to_url = to_dso_url2(item) %}
                     {% set item_name = item[0].deepsky_object.denormalized_name() %}
                     {% set item_type = item[0].deepsky_object.type %}
                     {% set item_constell = item[0].deepsky_object.get_constellation_iau_code() %}
                     {% set item_mag = item[0].deepsky_object.mag %}
                     {% set item_mag = commons.convert_mag(item[0].deepsky_object.mag) %}
                 {% elif item[0].double_star_id is not none %}
-                    {% set to_url = to_double_star_url2(item) %}
                     {% set item_name = item[0].double_star.common_cat_id %}
                     {% set item_type = item[0].double_star.components %}
                     {% set item_constell = item[0].double_star.get_constellation_iau_code() %}
                     {% set item_mag = (item[0].double_star.mag_first | string) + '/' + (item[0].double_star.mag_second | string) %}
                 {% elif item[0].minor_planet_id is not none %}
-                    {% set to_url = to_minor_planet_url2(item) %}
                     {% set item_name = item[0].minor_planet.designation %}
                     {% set item_type = _('Minor planet') %}
                     {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                     {% set item_mag = '' %}
                 {% elif item[0].comet_id is not none %}
-                    {% set to_url = to_comet_url2(item) %}
                     {% set item_name = item[0].comet.designation %}
                     {% set item_type = _('Comet') %}
                     {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                     {% set item_mag = '' %}
                 {% else %}
-                    {% set to_url = '' %}
                     {% set item_name = '' %}
                     {% set item_type = '' %}
                     {% set item_constell = '' %}
@@ -338,10 +333,17 @@ var srcDsoUrls = [
 var dstSkyObjUrls = [
 {% for item in session_plan_compound_list %}
     {% if item[0].dso_id is not none %}
-    '{{ to_dso_url2(item) }}',
+        {% set to_url = to_dso_url2(item) %}
     {% elif item[0].double_star_id is not none %}
-    '{{ to_double_star_url2(item) }}',
+        {% set to_url = to_double_star_url2(item) %}
+    {% elif item[0].minor_planet_id is not none %}
+        {% set to_url = to_minor_planet_url2(item) %}
+    {% elif item[0].comet_id is not none %}
+        {% set to_url = to_comet_url2(item) %}
+    {% else %}
+        {% set to_url = '' %}
     {% endif %}
+    '{{ to_url }}',
 {% endfor %}
 ];
 

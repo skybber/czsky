@@ -207,8 +207,10 @@ def comet_info(comet_id):
 
     chart_control = common_prepare_chart_data(form)
 
+    embed = request.args.get('embed')
+
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64)
+                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed)
 
 
 @main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
@@ -256,9 +258,11 @@ def comet_cobs_observations(comet_id):
     else:
         last_coma_diameter = '-'
 
+    embed = request.args.get('embed')
+
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
-                           page_offset=page_offset, pagination=pagination, search_form=search_form)
+                           page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
