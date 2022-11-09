@@ -95,12 +95,12 @@ def comets():
         ('dec_min', search_form.dec_min),
     ])
 
+    per_page = get_items_per_page(search_form.items_per_page)
+
     if not ret:
         return redirect(url_for('main_comet.comets'))
 
     table_sort = create_table_sort(sort_by, sort_def.keys())
-
-    per_page = get_items_per_page(search_form.items_per_page)
 
     offset = (page - 1) * per_page
 
@@ -123,8 +123,7 @@ def comets():
     shown_comets = comet_query.order_by(order_by_field).limit(per_page).offset(offset).all()
 
     pagination = Pagination(page=page, per_page=per_page, total=comet_query.count(), search=False,
-                            record_name='comets',
-                            css_framework='semantic', not_passed_args='back')
+                            record_name='comets', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/solarsystem/comets.html', comets=shown_comets, pagination=pagination, search_form=search_form,
                            table_sort=table_sort)
