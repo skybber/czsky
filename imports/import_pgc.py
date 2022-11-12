@@ -207,7 +207,17 @@ def create_pgc_update_file_from_simbad(pgc_file, output_file):
             try:
                 progress(line_cnt, total_lines, 'Reading {}'.format(pgc_name))
                 dso = simbad.query_object(pgc_name)
-                fout.write('{} {} {}\n'.format(pgc_name, dso[0]['GALDIM_MAJAXIS'], dso[0]['GALDIM_MINAXIS']))
+                s_ra = dso[0]['RA']
+                s_dec = dso[0]['DEC']
+
+                try:
+                    ra = float(s_ra[0:2]) * np.pi / 12.0 + float(s_ra[3:5]) * np.pi / (12.0 * 60.0) + float(s_ra[6:10]) * np.pi / (12 * 60.0 * 60)
+                    dec = float(s_dec[0] + '1') * (float(s_dec[1:3]) * np.pi / 180.0 + float(s_dec[4:6]) * np.pi / (180.0 * 60) + float(s_dec[7:9]) * np.pi / (180.0 * 60 * 60))
+                except (IndexError, ValueError) as er:
+                    ra = '-'
+                    dec = '-'
+
+                fout.write('{} {} {} {} {}\n'.format(pgc_name, ra, dec, dso[0]['GALDIM_MAJAXIS'], dso[0]['GALDIM_MINAXIS']))
                 if line_cnt % 50 == 0:
                     fout.flush()
             except TypeError:
@@ -228,15 +238,27 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
     line_cnt = 1
     total_lines = len(lines)
 
+    max_ang_diff = np.pi * 2 / (60.0 * 180.0)
+
     try:
         for line in lines:
             progress(line_cnt, total_lines, 'Updating PGC data...')
             line_cnt += 1
-            dso_name, major, minor = line.split()
+            dso_name, s_ra, s_dec, major, minor = line.split()
             dso = dso_map.get(dso_name)
             if not dso:
                 continue
             try:
+                ra = float(s_ra) if s_ra != '-' else None
+                dec = float(s_dec) if s_dec != '-' else None
+
+                if ra is not None and dec is not None:
+                    ra_diff = abs(ra - dso.ra)
+                    dec_diff = abs(dec - dso.dec)
+                    if ra_diff > max_ang_diff or dec_diff > max_ang_diff:
+                        print('Max angular diff exceeded for {} ra_diff={} dec_diff={}'.format(dso_name, ra_diff, dec_diff))
+                        continue
+
                 major = round(float(major) * 60.0)
                 if minor == '-':
                     minor = major
@@ -247,6 +269,8 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
                     major, minor = minor, major
                 if major > 0:
                     axis_ratio = minor / major
+                dso.ra = ra
+                dso.dec = dec
                 dso.major_axis = major
                 dso.minor_axis = minor
                 dso.axis_ratio = axis_ratio
@@ -257,7 +281,6 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
                     dso.master_dso.minor_axis = minor
                     dso.master_dso.axis_ratio = axis_ratio
                     db.session.add(dso.master_dso)
-
             except ValueError:
                 pass
         print('')
