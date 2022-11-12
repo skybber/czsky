@@ -63,7 +63,7 @@ comet_update_counter = 0
 utc = dt_module.timezone.utc
 
 
-def _update_comets_positions():
+def _update_comets():
     global comet_update_counter
     comet_update_counter += 1
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
@@ -74,6 +74,9 @@ def _update_comets_positions():
                 update_comets_cobs_observations()
             if (comet_update_counter % 2) == 1:
                 update_evaluated_comet_brightness()
+
+
+job1 = scheduler.add_job(_update_comets, 'interval', hours=3, replace_existing=True)
 
 
 @main_comet.route('/comets', methods=['GET', 'POST'])
