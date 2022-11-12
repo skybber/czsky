@@ -22,7 +22,7 @@ if os.path.exists('config.env'):
 
 
 class Config:
-    APP_NAME = os.environ.get('APP_NAME', 'CzSky')
+    APP_NAME = os.environ.get('APP_NAME', 'CzSkY')
 
     if os.environ.get('SECRET_KEY'):
         SECRET_KEY = os.environ.get('SECRET_KEY')
