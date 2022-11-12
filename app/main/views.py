@@ -12,7 +12,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import CHART_STAR_PREFIX, CHART_DOUBLE_STAR_PREFIX
+from app.commons.dso_utils import CHART_STAR_PREFIX, CHART_DOUBLE_STAR_PREFIX, CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
 
@@ -26,8 +26,10 @@ from app.commons.search_sky_object_utils import (
 )
 
 from app.models import (
+    Comet,
     Constellation,
     DoubleStar,
+    MinorPlanet,
     News,
     Star,
     EditableHTML,
@@ -181,6 +183,20 @@ def _search_chart_ids(query):
             double_star_id = int(query[len(CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
             return redirect(url_for('main_double_star.double_star_info', double_star_id=double_star.id, embed=request.args.get('embed')))
+        except (ValueError, TypeError):
+            pass
+    if query.startswith(CHART_COMET_PREFIX):
+        try:
+            comet_id = int(query[len(CHART_COMET_PREFIX):])
+            comet = Comet.query.filter_by(id=comet_id).first()
+            return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id, embed=request.args.get('embed')))
+        except (ValueError, TypeError):
+            pass
+    if query.startswith(CHART_MINOR_PLANET_PREFIX):
+        try:
+            minor_planet_id = int(query[len(CHART_MINOR_PLANET_PREFIX):])
+            minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
+            return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation, embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     return None

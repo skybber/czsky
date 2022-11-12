@@ -1,8 +1,5 @@
-from datetime import datetime
-
 from .. import db
 
-from skyfield.units import Angle
 from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
 from .constellation import Constellation
 
@@ -31,7 +28,9 @@ class DoubleStar(db.Model):
     def get_common_name(self):
         if self.other_designation:
             return self.other_designation
-        return self.common_cat_id
+        if self.common_cat_id:
+            return self.common_cat_id
+        return self.wds_number
 
     def get_common_norm_name(self):
         if self.norm_other_designation:

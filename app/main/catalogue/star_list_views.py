@@ -4,7 +4,6 @@ import base64
 from flask import (
     abort,
     Blueprint,
-    flash,
     jsonify,
     redirect,
     render_template,
@@ -12,10 +11,6 @@ from flask import (
     send_file,
     url_for,
 )
-from flask_login import current_user, login_required
-
-from app import db
-from posix import wait
 
 from app.models import Constellation, StarList, StarListItem, StarListDescription, User, UserDsoDescription
 from app.commons.dso_utils import CHART_STAR_PREFIX
@@ -129,7 +124,7 @@ def star_list_chart_pos_img(star_list_id, ra, dec):
         abort(404)
 
     star_list = StarList.query.filter_by(id=star_list.id).first()
-    highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id)) for x in star_list.star_list_items if star_list]
+    highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id), None) for x in star_list.star_list_items if star_list]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None

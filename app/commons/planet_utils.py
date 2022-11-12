@@ -1,48 +1,16 @@
-from flask_babel import gettext
 from skyfield.api import load
 
+import datetime as dt_module
 
-class Planet:
-    _all = None
-    _iau_dict = None
-    _id_dict = None
+utc = dt_module.timezone.utc
 
-    def __init__(self, iau_code, id, body_key, eph):
-        self.iau_code = iau_code
-        self.id = id
-        self.eph = eph[body_key]
 
-    def localized_name(self):
-        return gettext(self.iau_code)
+def get_mpc_planet_position(planet, dt):
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    earth = eph['earth']
 
-    @classmethod
-    def get_all(cls):
-        if Planet._all is None:
-            eph = load('de421.bsp')
-            Planet._all = [
-                Planet('mercury', 1, 'MERCURY', eph),
-                Planet('venus', 2, 'VENUS', eph),
-                Planet('mars', 4, 'MARS', eph),
-                Planet('jupiter', 5, 'JUPITER_BARYCENTER', eph),
-                Planet('saturn', 6, 'SATURN_BARYCENTER', eph),
-                Planet('uranus', 7, 'URANUS_BARYCENTER', eph),
-                Planet('neptune', 8, 'NEPTUNE_BARYCENTER', eph),
-                Planet('pluto', 9, 'PLUTO_BARYCENTER', eph),
-            ]
-        return Planet._all
+    t = ts.from_datetime(dt.replace(tzinfo=utc))
 
-    @classmethod
-    def get_by_iau_code(cls, iau_code):
-        if not Planet._iau_dict:
-            Planet._iau_dict = {}
-            for pl in Planet.get_all():
-                Planet._iau_dict[pl.iau_code.upper()] = pl
-        return Planet._iau_dict.get(iau_code.upper())
-
-    @classmethod
-    def get_planet_by_id(cls, planet_id):
-        if not Planet._id_dict:
-            Planet._id_dict = {}
-            for pl in Planet.get_all():
-                Planet._id_dict[pl.id] = pl
-        return Planet._id_dict.get(planet_id)
+    ra_ang, dec_ang, distance = earth.at(t).observe(planet.eph).radec()
+    return ra_ang, dec_ang

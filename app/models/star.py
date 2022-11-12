@@ -10,7 +10,7 @@ class Star(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     src_catalogue = db.Column(db.String(16))
     hr = db.Column(db.Integer, unique=True, index=True)                     # Harvard Revised Number = Bright Star Number
-    common_name = db.Column(db.String(40), index=True)                                  # Common name
+    common_name = db.Column(db.String(40), index=True)                      # Common name
     bayer = db.Column(db.String(5), index=True)                             # Bayer designation
     flamsteed = db.Column(db.String(10), index=True)                        # Flamsteed designation
     constellation_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
@@ -31,6 +31,7 @@ class Star(db.Model):
     sep = db.Column(db.Float)                                               # Separation of components in Dmag if occultation binary.
     mult_id = db.Column(db.String(4))                                       # Identifications of components in Dmag
     mult_cnt = db.Column(db.Integer)                                        # Number of components assigned to a multiple
+
 
     def ra_str(self):
         if self.ra:

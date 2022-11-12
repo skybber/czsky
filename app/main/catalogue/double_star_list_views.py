@@ -1,4 +1,3 @@
-from datetime import datetime
 import base64
 
 import numpy as np
@@ -15,10 +14,6 @@ from flask import (
     send_file,
     url_for,
 )
-from flask_login import current_user, login_required
-
-from app import db
-from posix import wait
 
 from app.models import (
     Constellation,
@@ -26,12 +21,9 @@ from app.models import (
     DoubleStarList,
     DoubleStarListItem,
     DoubleStarListDescription,
-    User,
-    UserDsoDescription,
 )
 
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
-from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -48,9 +40,7 @@ from .double_star_list_forms import (
 from app.main.chart.chart_forms import ChartForm
 from app.commons.search_utils import (
     process_paginated_session_search,
-    get_items_per_page,
     create_table_sort,
-    get_packed_constell_list,
 )
 
 
@@ -204,7 +194,8 @@ def double_star_list_chart_pos_img(double_star_list_id, ra, dec):
         abort(404)
 
     double_star_list = DoubleStarList.query.filter_by(id=double_star_list.id).first()
-    highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id)) for x in double_star_list.double_star_list_items if double_star_list]
+    highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),
+                            x.double_star.get_common_name()) for x in double_star_list.double_star_list_items if double_star_list]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None

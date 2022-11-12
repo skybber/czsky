@@ -88,8 +88,9 @@ from .session_scheduler import create_selection_coumpound_list, create_session_p
 from .sessionplan_import import import_session_plan_items
 from .sessionplan_export import create_oal_observations_from_session_plan
 from app.commons.comet_utils import find_mpc_comet, get_mpc_comet_position
-from app.commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_dso
+from app.commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_planet, search_dso
 from app.commons.minor_planet_utils import get_mpc_minor_planet_position, find_mpc_minor_planet
+from app.commons.planet_utils import get_mpc_planet_position
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 
@@ -226,6 +227,8 @@ def session_plan_edit(session_plan_id):
                         ra, dec = get_mpc_comet_position(find_mpc_comet(item.comet.comet_id), for_date)
                     elif item.item_type == SessionPlanItemType.MINOR_PLANET:
                         ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(item.minor_planet.int_designation), for_date)
+                    elif item.item_type == SessionPlanItemType.PLANET:
+                        ra, dec = get_mpc_planet_position(item.planet, for_date)
                     if (ra is not None) and (dec is not None):
                         ra = ra.radians
                         dec = dec.radians
@@ -312,16 +315,19 @@ def session_plan_item_add(session_plan_id):
 
     deepsky_object = None
     form = AddToSessionPlanForm()
-    double_star, comet, minor_planet, deepsky_object = None, None, None, None
+    double_star, comet, minor_planet, planet, deepsky_object = None, None, None, None, None
     if request.method == 'POST' and form.validate_on_submit():
         query = form.object_id.data.strip()
         double_star = search_double_star(query, number_search=False)
         if not double_star:
             comet = search_comet(query)
             if not comet:
-                minor_planet = search_minor_planet(query)
-            if not minor_planet:
-                deepsky_object = search_dso(query)
+                planet = search_planet(query)
+                if not planet:
+                    minor_planet = search_minor_planet(query)
+                    if not minor_planet:
+                        deepsky_object = search_dso(query)
+
     elif request.method == 'GET':
         dso_id = request.args.get('dso_id', None)
         if dso_id is not None:
@@ -341,6 +347,11 @@ def session_plan_item_add(session_plan_id):
             mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet.int_designation), session_plan.for_date)
             new_item = session_plan.create_new_minor_planet_item(minor_planet, mplanet_ra.radians, mplanet_dec.radians,
                                                                  Constellation.get_constellation_by_position(mplanet_ra.radians, mplanet_dec.radians))
+    if planet:
+        if not session_plan.find_planet_item_by_id(planet.id):
+            planet_ra, planet_dec = get_mpc_planet_position(planet, session_plan.for_date)
+            new_item = session_plan.create_new_planet_item(planet, planet_ra.radians, planet_dec.radians,
+                                                                 Constellation.get_constellation_by_position(planet_ra.radians, planet_dec.radians))
     if deepsky_object:
         if not session_plan.find_dso_item_by_id(deepsky_object.id):
             new_item = session_plan.create_new_deepsky_object_item(deepsky_object.id)

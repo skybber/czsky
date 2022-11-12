@@ -21,14 +21,12 @@ from flask_login import current_user
 from app.models import (
     DsoList,
     Eyepiece,
-    Lens,
     ObservingSession,
-    ObservationTargetType,
     SessionPlan,
     Telescope,
 )
 
-from .utils import to_float, to_boolean
+from .utils import to_float
 
 MOBILE_WIDTH = 768
 
@@ -243,6 +241,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     config.bayer_label_font_fac = 1.2
     config.flamsteed_label_font_fac = 0.9
     config.outlined_dso_label_font_fac = 1.1
+    config.highlight_label_font_fac = 1.0
     if is_pdf:
         font = _get_pdf_font_face()
     else:
@@ -688,7 +687,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.make_map(used_catalogs,
                     showing_dsos=showing_dsos,
-                    dso_highlights = dso_highlights,
+                    dso_highlights=dso_highlights,
                     highlights=highlights,
                     dso_hide_filter=_get_dso_hide_filter(),
                     trajectory=trajectory,
@@ -834,7 +833,7 @@ def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
     else:
         color = (0.0, 0.5, 0.0)
 
-    hl = fchart3.HighlightDefinition('cross', line_width, color, [[obj_ra, obj_dec, '']])
+    hl = fchart3.HighlightDefinition('cross', line_width, color, [[obj_ra, obj_dec, '', '']])
     return [hl]
 
 
@@ -868,8 +867,8 @@ def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mo
 
 def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
     highlight_def_items = []
-    for pos in highlights_pos_list:
-        highlight_def_items.append([pos[0], pos[1], pos[2]])
+    for hlpos in highlights_pos_list:
+        highlight_def_items.append((hlpos[0], hlpos[1], hlpos[2], hlpos[3],))
     hl = fchart3.HighlightDefinition('circle', line_width, color, highlight_def_items)
     return [hl]
 

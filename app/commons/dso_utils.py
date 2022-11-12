@@ -31,6 +31,9 @@ CATALOGS_SPECIFICATIONS = (
 
 CHART_STAR_PREFIX = '_st_'
 CHART_DOUBLE_STAR_PREFIX = '_dst_'
+CHART_PLANET_PREFIX = '_pl_'
+CHART_COMET_PREFIX = '_com_'
+CHART_MINOR_PLANET_PREFIX = '_mpl_'
 
 PK_NUM_PATTERN = re.compile(r'([+-])0+(\d+).0+(\d+)')
 

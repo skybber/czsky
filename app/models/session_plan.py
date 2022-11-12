@@ -107,6 +107,20 @@ class SessionPlan(db.Model):
         )
         return new_item
 
+    def create_new_planet_item(self, planet, ra, dec, constell):
+        new_item = SessionPlanItem(
+            session_plan_id=self.id,
+            item_type=SessionPlanItemType.PLANET,
+            planet_id=planet.id,
+            ra=ra,
+            dec=dec,
+            constell_id=constell.id if constell else None,
+            order=self._get_max_order() + 1,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+        return new_item
+
     @staticmethod
     def create_get_session_plan_by_user_id(user_id):
         session_plan = SessionPlan.query.filter_by(user_id=user_id).first()
@@ -126,6 +140,7 @@ class SessionPlanItemType(FormEnum):
     DBL_STAR = 'DBL_STAR'
     MINOR_PLANET = 'MINOR_PLANET'
     COMET = 'COMET'
+    PLANET = 'PLANET'
 
 
 class SessionPlanItem(db.Model):
@@ -141,6 +156,8 @@ class SessionPlanItem(db.Model):
     minor_planet = db.relationship("MinorPlanet")
     comet_id = db.Column(db.Integer, db.ForeignKey('comets.id'))
     comet = db.relationship("Comet")
+    planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'))
+    planet = db.relationship("Planet")
     ra = db.Column(db.Float, index=True)
     dec = db.Column(db.Float, index=True)
     constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'))
