@@ -189,6 +189,6 @@ def search_planet(query):
 def _get_constell(costell_code):
     constell_iau_code = costell_code.strip()
     if constell_iau_code:
-        constell = Constellation.get_constellation_by_iau(constell_iau_code)
+        constell = Constellation.get_constellation_by_iau_code(constell_iau_code)
         return constell
     return None
