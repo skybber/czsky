@@ -14,8 +14,16 @@ from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
+from app.commons.chart_theme_definition import BASE_THEME_TEMPL, DARK_THEME_TEMPL, NIGHT_THEME_TEMPL, LIGHT_THEME_TEMPL
 from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
-from app.models import Role, User, UserDsoDescription, DeepskyObject
+from app.models import (
+    ChartTheme,
+    Role,
+    User,
+    UserDsoDescription,
+    DeepskyObject,
+)
+
 from config import Config
 
 from app.commons.comet_utils import *
@@ -330,12 +338,6 @@ def import_gottlieb():
 
 
 @manager.command
-def tmp_update_comets_cobs():
-    # CometObservation.query.delete()
-    update_comets_cobs_observations()
-
-
-@manager.command
 def create_pgc_update_file():
     create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
 
@@ -343,6 +345,38 @@ def create_pgc_update_file():
 @manager.command
 def update_pgc_imported_dsos():
     update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
+
+
+def _create_update_theme(user, name, definition):
+    t = ChartTheme.query.filter_by(name=name)
+    if not t:
+        t = ChartTheme()
+        t.is_public = True
+        t.name = name
+        t.user_id = user.id
+        t.is_public = True
+        t.create_by = user.id
+        t.create_date = datetime.now()
+    t.definition = definition
+    t.update_by = user.id
+    t.update_date = datetime.now()
+    db.session.add(t)
+
+
+@manager.command
+def create_update_basic_chart_themes():
+    user = User.query.filter_by(user_name='admin').first()
+    _create_update_theme(user, 'base_theme', BASE_THEME_TEMPL)
+    _create_update_theme(user, 'dark_theme', DARK_THEME_TEMPL)
+    _create_update_theme(user, 'night_theme', NIGHT_THEME_TEMPL)
+    _create_update_theme(user, 'light_theme', LIGHT_THEME_TEMPL)
+    db.session.commit()
+
+
+@manager.command
+def tmp_update_comets_cobs():
+    # CometObservation.query.delete()
+    update_comets_cobs_observations()
 
 
 @manager.command

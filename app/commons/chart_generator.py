@@ -27,6 +27,7 @@ from app.models import (
 )
 
 from .utils import to_float
+from .chart_theme_definition import COMMON_THEMES
 
 MOBILE_WIDTH = 768
 
@@ -140,126 +141,83 @@ def _get_dso_hide_filter():
     return dso_hide_filter
 
 
+def _fill_config_from_chart_theme(config, theme):
+    config.show_nebula_outlines = theme.show_nebula_outlines
+    config.star_colors = theme.star_colors
+    config.light_mode = theme.light_mode
+    config.background_color = theme.background_color
+    config.draw_color = theme.draw_color
+    config.label_color = theme.label_color
+    config.constellation_lines_color = theme.constellation_lines_color
+    config.constellation_border_color = theme.constellation_border_color
+    config.constellation_hl_border_color = theme.constellation_hl_border_color
+    config.dso_color = theme.dso_color
+    config.nebula_color = theme.nebula_color
+    config.galaxy_color = theme.galaxy_color
+    config.star_cluster_color = theme.star_cluster_color
+    config.galaxy_cluster_color = theme.galaxy_cluster_color
+    config.grid_color = theme.grid_color
+    config.constellation_linewidth = theme.constellation_linewidth
+    config.constellation_border_linewidth = theme.constellation_border_linewidth
+    config.constellation_linespace = theme.constellation_linespace
+    config.open_cluster_linewidth = theme.open_cluster_linewidth
+    config.galaxy_cluster_linewidth = theme.galaxy_cluster_linewidth
+    config.nebula_linewidth = theme.nebula_linewidth
+    config.dso_linewidth = theme.dso_linewidth
+    config.legend_linewidth = theme.legend_linewidth
+    config.grid_linewidth = theme.grid_linewidth
+    config.font_size = theme.font_size
+    config.highlight_color = theme.highlight_color
+    config.highlight_linewidth = theme.highlight_linewidth
+    config.dso_dynamic_brightness = theme.dso_dynamic_brightness
+    config.legend_font_scale = theme.legend_font_scale
+    config.milky_way_color = theme.milky_way_color
+    config.enhanced_milky_way_fade = theme.enhanced_milky_way_fade
+    config.telrad_linewidth = theme.telrad_linewidth
+    config.telrad_color = theme.telrad_color
+    config.eyepiece_linewidth = theme.eyepiece_linewidth
+    config.eyepiece_color = theme.eyepiece_color
+    config.picker_radius = theme.picker_radius
+    config.picker_linewidth = theme.picker_linewidth
+    config.picker_color = theme.picker_color
+    config.ext_label_font_scale = theme.ext_label_font_scale
+    config.bayer_label_font_scale = theme.bayer_label_font_scale
+    config.flamsteed_label_font_scale = theme.flamsteed_label_font_scale
+    config.outlined_dso_label_font_scale = theme.outlined_dso_label_font_scale
+    config.highlight_label_font_scale = theme.highlight_label_font_scale
+
+
 def _setup_dark_theme(config, width):
-    if width and width <= MOBILE_WIDTH:
-        config.background_color = (0.01, 0.01, 0.01)
-    else:
-        config.background_color = (0.005, 0.005, 0.02)
-    config.constellation_lines_color = (0.12, 0.27, 0.3)
-    config.constellation_border_color = (0.3, 0.27, 0.07)
-    config.constellation_hl_border_color = (0.6, 0.5, 0.14)
-    config.draw_color = (1.0, 1.0, 1.0)
-    config.label_color = (0.7, 0.7, 0.7)
-    config.dso_color = (0.6, 0.6, 0.6)
-    config.nebula_color = (0.2, 0.6, 0.2)
-    config.nebula_linewidth = 0.25
-    config.galaxy_color = (0.6, 0.2, 0.2)
-    config.star_cluster_color = (0.6, 0.6, 0.0)
-    config.galaxy_cluster_color = (0.6, 0.6, 0.6)
-    if width and width <= MOBILE_WIDTH:
-        config.grid_color = (0.18, 0.27, 0.3)
-        config.constellation_linewidth = 0.2
-    else:
-        config.grid_color = (0.12, 0.18, 0.20)
-        config.constellation_linewidth = 0.2
-    config.constellation_border_linewidth = 0.15
-    config.grid_linewidth = 0.1
-    config.star_colors = True
-    config.dso_dynamic_brightness = True
-    config.highlight_color = (0.15, 0.3, 0.6)
-    config.highlight_linewidth = 0.3
-    config.milky_way_color = (0.05, 0.07, 0.1)
-    config.light_mode = False
-    config.picker_color = (0.5, 0.5, 0.0)
+    _fill_config_from_chart_theme(config, COMMON_THEMES['dark_theme'])
 
 
 def _setup_night_theme(config, width):
-    config.background_color = (0.01, 0.01, 0.01)
-    config.constellation_lines_color = (0.37, 0.12, 0.0)
-    if width and width <= MOBILE_WIDTH:
-        config.constellation_linewidth = 0.2
-    else:
-        config.constellation_linewidth = 0.2
-    config.constellation_border_color = (0.4, 0.19, 0.05)
-    config.constellation_hl_border_color = (0.6, 0.26, 0.06)
-    config.draw_color = (1.0, 0.5, 0.5)
-    config.label_color = (0.7, 0.3, 0.3)
-    config.dso_color = (0.6, 0.15, 0.0)
-    config.nebula_color = (0.6, 0.15, 0.0)
-    config.nebula_linewidth = 0.25
-    config.galaxy_color = (0.6, 0.15, 0.0)
-    config.star_cluster_color = (0.6, 0.15, 0.0)
-    config.galaxy_cluster_color = (0.6, 0.15, 0.0)
-    config.grid_color = (0.2, 0.06, 0.06)
-    config.constellation_border_linewidth = 0.15
-    config.grid_linewidth = 0.1
-    config.star_colors = False
-    config.dso_dynamic_brightness = True
-    config.highlight_color = (0.4, 0.2, 0.1)
-    config.highlight_linewidth = 0.3
-    config.milky_way_color = (0.075, 0.015, 0.015)
-    config.light_mode = False
-    config.picker_color = (0.5, 0.1, 0.0)
-    config.eyepiece_color = (0.5, 0.0, 0.0)
+    _fill_config_from_chart_theme(config, COMMON_THEMES['night_theme'])
 
 
 def _setup_light_theme(config, width):
-    fac = 0.8
-    config.constellation_lines_color = (0.5 * fac, 0.7 * fac, 0.8 * fac)
-    if width and width <= MOBILE_WIDTH:
-        config.constellation_linewidth = 0.2
-    else:
-        config.constellation_linewidth = 0.2
-    config.constellation_hl_border_color = (0.4, 0.4, 0.4)
-    config.constellation_border_color = (0.4, 0.35, 0.05)
-    config.draw_color = (0.0, 0.0, 0.0)
-    config.label_color = (0.2, 0.2, 0.2)
-    config.dso_color = (0.3, 0.3, 0.3)
-    config.nebula_color = (0.0, 0.3, 0.0)
-    config.nebula_linewidth = 0.25
-    config.galaxy_color = (0.3, 0.0, 0.0)
-    config.star_cluster_color = (0.3, 0.3, 0.0)
-    config.galaxy_cluster_color = (0.3, 0.3, 0.3)
-    config.grid_color = (0.7, 0.7, 0.7)
-    config.constellation_border_linewidth = 0.15
-    config.grid_linewidth = 0.1
-    config.dso_dynamic_brightness = False
-    config.milky_way_color = (0.836, 0.945, 0.992)
-    config.light_mode = True
-    config.picker_color = (0.2, 0.2, 0.0)
+    _fill_config_from_chart_theme(config, COMMON_THEMES['light_theme'])
 
 
 def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
-    config.constellation_linewidth = 0.3
-    config.open_cluster_linewidth = 0.3
-    config.galaxy_cluster_linewidth = 0.3
-    config.constellation_border_linewidth = 0.15
-    config.grid_linewidth = 0.1
-    config.dso_linewidth = 0.4
-    config.legend_linewidth = 0.2
-    config.no_margin = True
-    config.bayer_label_font_fac = 1.2
-    config.flamsteed_label_font_fac = 0.9
-    config.outlined_dso_label_font_fac = 1.1
-    config.highlight_label_font_fac = 1.0
-    if is_pdf:
-        font = _get_pdf_font_face()
-    else:
-        font = _get_chart_font_face()
-    if font is None:
-        font = 'sans'
-    config.font = font
-    config.font_size = font_size
-    config.legend_font_scale = 1.4
-    config.show_nebula_outlines = True
-    config.show_enhanced_milky_way = True
-
     if force_light_mode or session.get('theme', '') == 'light':
         _setup_light_theme(config, width)
     elif session.get('theme', '') == 'night':
         _setup_night_theme(config, width)
     else:
         _setup_dark_theme(config, width)
+
+    if is_pdf:
+        font = _get_pdf_font_face()
+    else:
+        font = _get_chart_font_face()
+    if font is None:
+        font = 'sans'
+
+    config.no_margin = True
+    config.font = font
+    config.font_size = font_size
+    config.show_enhanced_milky_way = True
 
     if fld_size >= 60 or (fld_size >= 40 and width and width <= MOBILE_WIDTH):
         config.constellation_linespace = 1.5
@@ -785,7 +743,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
+    _setup_skymap_graphics(config, fld_size, width, config.font_size)
 
     config.show_dso_legend = False
     config.show_orientation_legend = False

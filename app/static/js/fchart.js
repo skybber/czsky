@@ -389,10 +389,14 @@ FChart.prototype.adjustCanvasSize = function() {
 }
 
 FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
-    this.canvas.width = Math.max(computedWidth, 1);
-    this.canvas.height = Math.max(computedHeight, 1);
-    this.ctx.fillStyle = this.getThemeColor();
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    var newWidth = Math.max(computedWidth, 1);
+    var newHeight = Math.max(computedHeight, 1);
+    if (newWidth != this.canvas.width || newHeight != this.canvas.height) {
+        this.canvas.width = Math.max(computedWidth, 1);
+        this.canvas.height = Math.max(computedHeight, 1);
+        this.ctx.fillStyle = this.getThemeColor();
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 }
 
 FChart.prototype.onResize = function() {
@@ -424,8 +428,10 @@ FChart.prototype.doResize = function() {
 FChart.prototype.redrawAll = function () {
     var curLegendImg = this.legendImgBuf[this.legendImg.active];
     var curSkyImg = this.skyImgBuf[this.skyImg.active];
-    this.canvas.width = curLegendImg.width;
-    this.canvas.height = curLegendImg.height;
+    if (curLegendImg.width != this.canvas.width || curLegendImg.height != this.canvas.height) {
+        this.canvas.width = curLegendImg.width;
+        this.canvas.height = curLegendImg.height;
+    }
 
     if (this.imgGrid != undefined && (this.isDragging || this.kbdDragging != 0 || this.pendingMoveRequest != undefined)) {
         this.drawImgGrid(curSkyImg);
@@ -1230,3 +1236,10 @@ FChart.prototype.onFullscreenChange = function(callback) {
 FChart.prototype.onSplitViewChange = function(callback) {
     this.onSplitViewChangeCallback = callback;
 };
+
+FChart.prototype.setIFrameUrl = function(url) {
+    if (this.isInSplitView()) {
+        $(".fchart-iframe").attr('src', url);
+    }
+}
+

@@ -1,46 +1,12 @@
-import os
-from datetime import datetime
-import numpy as np
 import base64
 
-from datetime import datetime
-
 from flask import (
-    abort,
     Blueprint,
-    flash,
     jsonify,
-    redirect,
     render_template,
     request,
-    session,
-    url_for,
     send_file,
 )
-from flask_login import current_user, login_required
-from sqlalchemy import func
-
-from app import db
-
-from app.models import (
-    Catalogue,
-    Constellation,
-    DeepskyObject,
-    DsoList,
-    ObservedList,
-    ObservedListItem,
-    SHOWN_APERTURE_DESCRIPTIONS,
-    SessionPlan,
-    SkyList,
-    User,
-    UserDsoApertureDescription,
-    UserDsoDescription,
-    WishList,
-    WishListItem,
-)
-from app.commons.pagination import Pagination
-from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.utils import get_lang_and_editor_user_from_request
 
 from .chart_forms import (
     ChartForm,
@@ -51,12 +17,9 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_chart_dso_list_menu,
     common_ra_dec_fsz_from_request,
     common_set_initial_ra_dec,
 )
-
-from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 
 main_chart = Blueprint('main_chart', __name__)
 

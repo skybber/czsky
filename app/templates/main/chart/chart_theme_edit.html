@@ -1,0 +1,31 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <h2 class="ui header">
+                {{ _('Chart theme') }} - {{ chart_theme.name }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                {{ f.render_form_field(form.name) }}
+                {{ f.render_form_field(form.definition) }}
+                <p align="right"><span class="ui small text">Updated by: {{ author[0] }}, Update date: {{ author[1] }}</span></p>
+
+                <div class="two fields">
+                    {{ f.render_form_field(form.submit_button) }}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+  </div>
+{% endblock %}

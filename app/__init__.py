@@ -154,6 +154,8 @@ def create_app(config, web=True):
         app.register_blueprint(main_planet)
         from .main.chart import main_chart as main_chart
         app.register_blueprint(main_chart)
+        from .main.chart import main_chart_theme as main_chart_theme
+        app.register_blueprint(main_chart_theme)
         from .main.news import main_news as main_news
         app.register_blueprint(main_news)
         from .main.equipment import main_equipment as main_equipment

@@ -4,6 +4,7 @@ module (as opposed to just their python files)
 """
 
 from .catalogue import *
+from .chart_theme import *
 from .constellation import *
 from .comet import *
 from .db_update import *
