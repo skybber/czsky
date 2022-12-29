@@ -1222,7 +1222,7 @@ FChart.prototype.getThemeColor = function() {
     if (this.canvas.width <= 768) {
         return "#020202"; // mobile black
     }
-    return "#010107";
+    return "#02020A";
 }
 
 FChart.prototype.onFieldChange = function(callback) {

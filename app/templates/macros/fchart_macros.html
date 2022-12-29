@@ -4,7 +4,7 @@
 {% set is_splitview = True if fchart_form.splitview.data.data == 'true' else False %}
 {% set data_position='data-position="left center"' if is_fullscreen or is_splitview else '' %}
 
-<div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030D') }}">
+<div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
 
   <div  class="ui secondary menu">
   <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">

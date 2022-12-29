@@ -227,7 +227,7 @@ BASE_THEME_DEF = ChartThemeDefinition.create_from_template(BASE_THEME_TEMPL)
 DARK_THEME_TEMPL = '''
 EXTENDS base_theme
 light_mode=False
-background_color=(0.005, 0.005, 0.02)
+background_color=(0.01, 0.01, 0.04)
 draw_color=(1.0, 1.0, 1.0)
 label_color=(0.7, 0.7, 0.7)
 constellation_lines_color=(0.12, 0.27, 0.3)
