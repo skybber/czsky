@@ -675,9 +675,34 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         } else {
             movingToPos = this.mirroredPos2radec2(x, y, this.viewCenter.ra, this.viewCenter.dec);
         }
+
+        var dRA = movingToPos.ra - this.movingPos.ra;
+        var dDEC = movingToPos.dec - this.movingPos.dec;
+
+        if (this.viewCenter.dec > 0) {
+            var polePos = radec2pos(0, Math.PI/2.0, this.viewCenter.ra, this.viewCenter.dec, scale);
+            if (y > polePos.y) {
+                dDEC = -dDEC;
+            }
+        } else {
+            var polePos = radec2pos(0, -Math.PI/2.0, this.viewCenter.ra, this.viewCenter.dec, scale);
+            if (y < polePos.y) {
+                dDEC = -dDEC;
+            }
+        }
+
+        var newDEC =  this.viewCenter.dec - dDEC;
+
+        if (newDEC > Math.PI/2.0) {
+            dDEC = this.viewCenter.dec - Math.PI/2.0;
+        }
+        if (newDEC < -Math.PI/2.0) {
+            dDEC = this.viewCenter.dec + Math.PI/2.0;
+        }
+
         return {
-            'dRA' : movingToPos.ra - this.movingPos.ra,
-            'dDEC' : movingToPos.dec - this.movingPos.dec
+            'dRA' : dRA,
+            'dDEC' : dDEC
         }
     }
     return {
