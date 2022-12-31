@@ -686,6 +686,14 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
     }
 }
 
+FChart.prototype.setupMovingPos = function () {
+    var rect = this.canvas.getBoundingClientRect();
+    var scale = this.getFChartScale();
+    var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+    var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+    this.movingPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
+}
+
 FChart.prototype.onPointerDown = function(e) {
     if (this.kbdDragging == 0) {
         this.isDragging = true;
@@ -693,11 +701,7 @@ FChart.prototype.onPointerDown = function(e) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
 
-        var rect = this.canvas.getBoundingClientRect();
-        var scale = this.getFChartScale();
-        var x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
-        var y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
-        this.movingPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
+        this.setupMovingPos();
     }
 }
 
@@ -794,6 +798,7 @@ FChart.prototype.moveRaDEC = function(fromKbdMove) {
         var dRD = this.getDRaDec(fromKbdMove);
         this.viewCenter.ra -= dRD.dRA;
         this.viewCenter.dec -= dRD.dDEC;
+        this.setupMovingPos();
     }
 
     if (this.viewCenter.ra > Math.PI*2) this.viewCenter.ra = this.viewCenter.ra - 2 * Math.PI
