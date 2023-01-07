@@ -318,7 +318,7 @@ def create_prev_next_wrappers(sky_obj, tab=None):
             prev_item, next_item = _get_prev_next_from_star_list(star_list, sky_obj)
             prev_obj = prev_item.star if prev_item else None
             next_obj = next_item.star if next_item else None
-    elif back == 'double_star_list' and back_id is not None:
+    elif back == 'dbl_star_list' and back_id is not None:
         double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
         if double_star_list:
             prev_item, next_item = _get_prev_next_from_double_star_list(double_star_list, sky_obj)

@@ -96,7 +96,7 @@ def create_hightlights_lists():
         dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
             highlights_dso_list = [x.deepsky_object for x in dso_list.dso_list_items if dso_list]
-    elif back == 'double_star_list' and back_id is not None:
+    elif back == 'dbl_star_list' and back_id is not None:
         double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
         if double_star_list:
             highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),

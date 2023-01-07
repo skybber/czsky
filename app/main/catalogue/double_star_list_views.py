@@ -179,7 +179,7 @@ def double_star_list_chart(double_star_list_id):
     default_chart_iframe_url = None
     if double_star_list_item:
         default_chart_iframe_url = url_for('main_double_star.double_star_info', double_star_id=double_star_list_item.double_star_id,
-                                           back='double_star_list', back_id=double_star_list.id, embed='fc', allow_back='true')
+                                           back='dbl_star_list', back_id=double_star_list.id, embed='fc', allow_back='true')
 
     chart_control = common_prepare_chart_data(form)
 
