@@ -246,7 +246,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.aladin = aladin;
 
-
     if (this.aladin != null) {
         this.aladin.view.imageSurvey.flipX = this.multRA;
         this.aladin.view.imageSurvey.flipY = this.multDEC;
@@ -536,10 +535,12 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC) {
         this.imgField = this.fieldSizes[this.fldSizeIndex];
         this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
-            this.scaleFac = 1.0;
-            this.cumulativeScaleFac = 1.0;
-            this.syncAladinZoom();
-            this.redrawAll();
+            if (this.scaleFac == 1.0 || this.reqInProcess == 0) {
+                this.scaleFac = 1.0;
+                this.cumulativeScaleFac = 1.0;
+                this.syncAladinZoom();
+                this.redrawAll();
+            }
         } else {
             this.syncAladinZoom();
             this.backwardScale = true;
@@ -1073,10 +1074,10 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
         this.fldSizeIndexR *= zoomFac;
     }
 
-    var oldFldSizeIndex = this.fldSizeIndex;
+    let oldFldSizeIndex = this.fldSizeIndex;
 
-    this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM )
-    this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM )
+    this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM );
+    this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM );
 
     this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
@@ -1086,7 +1087,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
             this.scaleFacTotal = this.fieldSizes[oldFldSizeIndex]  / this.fieldSizes[this.fldSizeIndex];
         } else {
             //this.cumulativeScaleFac = 1.0;
-            this.scaleFacTotal = this.imgField  / this.fieldSizes[this.fldSizeIndex];
+            this.scaleFacTotal = this.imgField / this.scaleFac  / this.fieldSizes[this.fldSizeIndex];
         }
         this.backwardScale = false;
         this.zoomStep = 0;
@@ -1127,13 +1128,13 @@ FChart.prototype.nextScaleFac = function() {
         if (this.backwardScale) {
             var st = 1.0/this.scaleFacTotal;
             if (st > 1) {
-                this.scaleFac = 1 + (st-1) * (this.MAX_ZOOM_STEPS-this.zoomStep) / this.MAX_ZOOM_STEPS;
+                this.scaleFac = 1 + (st - 1) * (this.MAX_ZOOM_STEPS-this.zoomStep) / this.MAX_ZOOM_STEPS;
             } else {
                 this.scaleFac = 1 - (1 - st) * (this.MAX_ZOOM_STEPS-this.zoomStep) / this.MAX_ZOOM_STEPS;
             }
         } else {
             if (this.scaleFacTotal > 1) {
-                this.scaleFac = 1 + (this.scaleFacTotal-1) * this.zoomStep / this.MAX_ZOOM_STEPS;
+                this.scaleFac = 1 + (this.scaleFacTotal - 1) * this.zoomStep / this.MAX_ZOOM_STEPS;
             } else {
                 this.scaleFac = 1 - (1 - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
             }
