@@ -867,7 +867,7 @@ FChart.prototype.onTouchMove = function (e) {
     if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
         var distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
                                  (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
-        var zoomFac = this.initialDistance / (this.initialDistance + 0.7 * (distance - this.initialDistance));
+        var zoomFac = this.initialDistance / (this.initialDistance + 0.3 * (distance - this.initialDistance));
         this.adjustZoom(null, zoomFac);
         this.initialDistance = distance;
     } else {
