@@ -1,5 +1,6 @@
 import base64
 import os
+import json
 from datetime import timedelta
 from datetime import datetime
 from io import BytesIO
@@ -472,6 +473,43 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                         equipment_telescopes=equipment_telescopes,
                         equipment_eyepieces=equipment_eyepieces,
                         )
+
+
+def common_prepare_date_from_to(form):
+    if request.method == 'GET':
+        date_from = request.args.get('date_from')
+        date_to = request.args.get('date_to')
+        if date_from and date_to:
+            try:
+                date_from = datetime.strptime(date_from, '%d-%m-%Y').date()
+                date_to = datetime.strptime(date_to, '%d-%m-%Y').date()
+                form.date_from.data = date_from
+                form.date_to.data = date_to
+            except ValueError:
+                pass
+
+
+def get_trajectory_b64(d1, d2, ts, earth, body):
+    if d1 < d2:
+        time_delta = d2 - d1
+        if time_delta.days > 365:
+            d2 = d1 + timedelta(days=365)
+        dt, hr_step = get_trajectory_time_delta(d1, d2)
+        trajectory = []
+        hr_count = 0
+        while d1 <= d2:
+            t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
+            ra, dec, distance = earth.at(t).observe(body).radec()
+            fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
+            trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
+            d1 += dt
+            hr_count += hr_step
+        trajectory_json = json.dumps(trajectory)
+        trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
+
+    else:
+        trajectory_b64 = None
+    return trajectory_b64
 
 
 def _actualize_stars_pref_maglims(cur_maglim, magscale_index):

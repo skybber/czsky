@@ -38,8 +38,9 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
+    common_prepare_date_from_to,
     common_chart_pdf_img,
-    get_trajectory_time_delta,
+    get_trajectory_b64,
     common_ra_dec_fsz_from_request,
 )
 
@@ -50,7 +51,6 @@ from app.commons.utils import to_float
 from app.models import (
     Comet,
     CometObservation,
-    Constellation,
     DB_UPDATE_COMETS,
 )
 
@@ -146,59 +146,29 @@ def comet_info(comet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    c = sun + mpc.comet_orbit(comet, ts, GM_SUN)
+    body = sun + mpc.comet_orbit(comet, ts, GM_SUN)
 
-    if request.method == 'GET':
-        date_from = request.args.get('date_from')
-        date_to = request.args.get('date_to')
-        if date_from and date_to:
-            try:
-                date_from = datetime.strptime(date_from, '%d-%m-%Y').date()
-                date_to = datetime.strptime(date_to, '%d-%m-%Y').date()
-                form.date_from.data = date_from
-                form.date_to.data = date_to
-            except ValueError:
-                pass
+    common_prepare_date_from_to(form)
 
     if not form.date_from.data or not form.date_to.data:
         today = datetime.today()
         form.date_from.data = today
         form.date_to.data = today + timedelta(days=7)
 
-    if (form.date_from.data is None) or (form.date_to.data is None) or form.date_from.data >= form.date_to.data:
-        t = ts.now()
-        comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
-        trajectory_b64 = None
-    else:
+    t = ts.now()
+    trajectory_b64 = None
+    if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
-        t = ts.now()
         today = date.today()
         if today < d1.date():
             t = ts.from_datetime(d1.replace(tzinfo=utc))
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
 
-        comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(c).radec()
-        if d1 != d2:
-            time_delta = d2 - d1
-            if time_delta.days > 365:
-                d2 = d1 + timedelta(days=365)
-            dt, hr_step = get_trajectory_time_delta(d1, d2)
-            trajectory = []
-            hr_count = 0
-            while d1 <= d2:
-                t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
-                ra, dec, distance = earth.at(t).observe(c).radec()
-                fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
-                trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
-                d1 += dt
-                hr_count += hr_step
-            trajectory_json = json.dumps(trajectory)
-            trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
-        else:
-            trajectory_b64 = None
+        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body)
 
+    comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(body).radec()
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
 

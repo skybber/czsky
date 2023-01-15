@@ -2,6 +2,7 @@ import json
 import base64
 
 from datetime import date, datetime, timedelta
+import datetime as dt_module
 
 from flask import (
     abort,
@@ -24,11 +25,13 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    get_trajectory_time_delta,
+    get_trajectory_b64,
     common_ra_dec_fsz_from_request,
 )
 
 from app.commons.utils import to_float
+
+utc = dt_module.timezone.utc
 
 main_planet = Blueprint('main_planet', __name__)
 
@@ -58,36 +61,19 @@ def planet_info(planet_iau_code):
         form.date_from.data = today
         form.date_to.data = today + timedelta(days=7)
 
-    if (form.date_from.data is None) or (form.date_to.data is None) or form.date_from.data >= form.date_to.data:
-        t = ts.now()
-        planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
-        trajectory_b64 = None
-    else:
-        d1 = date(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
-        d2 = date(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
-        t = ts.now()
-        planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
-        if d1 != d2:
-            time_delta = d2 - d1
-            if time_delta.days > 365:
-                d2 = d1 + timedelta(days=365)
-            dt, hr_step = get_trajectory_time_delta(d1, d2)
-            trajectory = []
-            while d1 <= d2:
-                t = ts.utc(d1.year, d1.month, d1.day)
-                ra, dec, distance = earth.at(t).observe(planet.eph).radec()
-                trajectory.append((ra.radians, dec.radians, d1.strftime('%d.%m.')))
-                if d1 == d2:
-                    break
-                d1 += dt  # timedelta(days=1)
-                if d1 > d2:
-                    d1 = d2
-            t = ts.utc(d1.year, d1.month, d1.day)
-            trajectory_json = json.dumps(trajectory)
-            trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
-        else:
-            trajectory_b64 = None
+    t = ts.now()
+    trajectory_b64 = None
+    if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
+        d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
+        d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
+        today = date.today()
+        if today < d1.date():
+            t = ts.from_datetime(d1.replace(tzinfo=utc))
+        elif today > d2.date():
+            t = ts.from_datetime(d2.replace(tzinfo=utc))
+        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, planet.eph)
 
+    planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
     planet_ra = planet_ra_ang.radians
     planet_dec = planet_dec_ang.radians
 
