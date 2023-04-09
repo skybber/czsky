@@ -240,7 +240,7 @@ def update_evaluated_comet_brightness(all_mpc_comets=None, show_progress=False):
 
 
 def update_comets_cobs_observations():
-    r = requests.get('https://cobs.si/cobs/recent/')
+    r = requests.get('https://cobs.si/recent/')
 
     soup = BeautifulSoup(r.content, 'html.parser')
 
