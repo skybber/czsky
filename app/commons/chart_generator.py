@@ -9,6 +9,7 @@ from time import time
 import numpy as np
 import ctypes as ct
 import cairo
+from skyfield.api import load
 
 import fchart3
 from flask import (
@@ -74,6 +75,7 @@ chart_font_face_initialized = False
 pdf_font_face = None
 pdf_font_face_initialized = False
 
+skyfield_ts = load.timescale()
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -682,6 +684,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         transparent = True
 
     engine.make_map(used_catalogs,
+                    jd=skyfield_ts.now().tdb,
                     showing_dsos=showing_dsos,
                     dso_highlights=dso_highlights,
                     highlights=highlights,
