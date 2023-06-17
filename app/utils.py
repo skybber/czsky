@@ -1,7 +1,6 @@
 from flask import url_for
 from wtforms.fields import Field
 from wtforms.widgets import HiddenInput
-from wtforms.compat import text_type
 from app.commons.md_utils import parse_extended_commonmark
 
 
@@ -39,7 +38,7 @@ class CustomSelectField(Field):
         self.allow_custom = allow_custom
 
     def _value(self):
-        return text_type(self.data) if self.data is not None else ''
+        return str(self.data) if self.data is not None else ''
 
     def process_formdata(self, valuelist):
         if valuelist:

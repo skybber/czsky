@@ -262,7 +262,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
             text = f.read()
             udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
                                           .filter_by(lang_code=lang_code_dir) \
-                                          .join(UserDsoDescription.deepsky_object, aliased=True) \
+                                          .join(UserDsoDescription.deepsky_object) \
                                           .filter_by(name=dso_name) \
                                           .first()
             child_udd = None
@@ -270,7 +270,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
                 master_dso = DeepskyObject.query.filter_by(id=udd.deepsky_object.master_id).first()
                 master_udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
                                                .filter_by(lang_code=lang_code_dir) \
-                                               .join(UserDsoDescription.deepsky_object, aliased=True) \
+                                               .join(UserDsoDescription.deepsky_object) \
                                                .filter_by(name=master_dso.name) \
                                                .first()
                 if not master_udd:
@@ -298,7 +298,7 @@ def _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, u
                     master_dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
                     master_udd = UserDsoDescription.query.filter_by(user_id=editor_user.id)\
                             .filter_by(lang_code=lang_code_dir) \
-                            .join(UserDsoDescription.deepsky_object, aliased=True) \
+                            .join(UserDsoDescription.deepsky_object) \
                             .filter_by(name=master_dso.name) \
                             .first()
                     if not master_udd:
@@ -353,7 +353,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
             uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
                                                   .filter_by(lang_code=lang_code_dir) \
                                                   .filter_by(aperture_class=aperture_class) \
-                                                  .join(UserDsoApertureDescription.deepsky_object, aliased=True) \
+                                                  .join(UserDsoApertureDescription.deepsky_object) \
                                                   .filter_by(name=dso_name) \
                                                   .first()
             child_uad = None
@@ -362,7 +362,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                 master_uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
                     .filter_by(lang_code=lang_code_dir) \
                     .filter_by(aperture_class=aperture_class) \
-                    .join(UserDsoApertureDescription.deepsky_object, aliased=True) \
+                    .join(UserDsoApertureDescription.deepsky_object) \
                     .filter_by(name=master_dso.name) \
                     .first()
                 if not master_uad:
@@ -390,7 +390,7 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
                     master_uad = UserDsoApertureDescription.query.filter_by(user_id=editor_user.id)\
                             .filter_by(lang_code=lang_code_dir) \
                             .filter_by(aperture_class=aperture_class) \
-                            .join(UserDsoApertureDescription.deepsky_object, aliased=True) \
+                            .join(UserDsoApertureDescription.deepsky_object) \
                             .filter_by(name=master_dso.name) \
                             .first()
                     if not master_uad:
@@ -438,7 +438,7 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
             text = f.read()
             ucd = UserConsDescription.query.filter_by(user_id=editor_user.id)\
                     .filter_by(lang_code=lang_code_dir) \
-                    .join(UserConsDescription.constellation, aliased=True) \
+                    .join(UserConsDescription.constellation) \
                     .filter_by(name=constellation_name) \
                     .first()
             if not ucd:
@@ -485,7 +485,7 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
                     hr_id = int(str_hr)
                     usd = UserStarDescription.query.filter_by(user_id=editor_user.id)\
                             .filter_by(lang_code=lang_code_dir) \
-                            .join(UserStarDescription.star, aliased=True) \
+                            .join(UserStarDescription.star) \
                             .filter_by(hr=hr_id) \
                             .first()
             else:

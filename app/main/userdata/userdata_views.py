@@ -1,8 +1,5 @@
-import os
-
 from flask import (
     Blueprint,
-    current_app,
     flash,
     redirect,
     render_template,
@@ -10,7 +7,7 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from flask_rq import get_queue
+from app.compat.flask_rq import get_queue
 
 import git
 

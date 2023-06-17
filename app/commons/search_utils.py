@@ -75,13 +75,13 @@ def process_paginated_session_search(sess_page_name, sess_sortby_name, sess_arg_
 
 def _field_data_to_serializable(fld):
     if isinstance(fld, TimeField) and fld.data:
-        return fld.data.strftime(fld.format)
+        return fld.data.strftime(fld.format[0])
     return fld.data
 
 
 def _field_data_from_serializable(fld, val, set_default):
     if val is not None and isinstance(fld, TimeField):
-        fld.data = datetime.strptime(val, fld.format).date()
+        fld.data = datetime.strptime(val, fld.format[0]).date()
     if val is None and set_default:
         fld.data = fld.default
     else:

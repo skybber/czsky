@@ -1,31 +1,7 @@
-from datetime import datetime, timedelta
-
-from flask_wtf import FlaskForm
-from wtforms import ValidationError
-from wtforms.fields import (
-    BooleanField,
-    DateField,
-    FloatField,
-    FieldList,
-    FormField,
-    HiddenField,
-    IntegerField,
-    SelectField,
-    StringField,
-    SubmitField,
-    TextAreaField,
-    TimeField,
-)
-from wtforms.fields.html5 import EmailField
-from wtforms.validators import (
-    DataRequired,
-    EqualTo,
-    InputRequired,
-    Length,
-    NumberRange,
-    required
-)
 from flask_babel import lazy_gettext
+from wtforms.fields import (
+    DateField,
+)
 
 from app.main.chart.chart_forms import ChartForm
 

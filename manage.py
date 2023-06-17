@@ -8,8 +8,8 @@ from flask import (
     send_from_directory
 )
 
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager, Shell
+from flask_migrate import Migrate #, MigrateCommand
+# from flask_script import Manager, Shell
 from redis import Redis
 from rq import Connection, Queue, Worker
 
@@ -64,7 +64,7 @@ from app.main.userdata.gitstore import load_public_content_data_from_git2
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-manager = Manager(app)
+# manager = Manager(app)
 
 migrate = Migrate()
 with app.app_context():
@@ -83,11 +83,11 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 
 
-manager.add_command('shell', Shell(make_context=make_shell_context))
-manager.add_command('db', MigrateCommand)
+# manager.add_command('shell', Shell(make_context=make_shell_context))
+# manager.add_command('db', MigrateCommand)
 
 
-@manager.command
+@app.cli.command("test")
 def test():
     """Run the unit tests."""
     import unittest
@@ -96,7 +96,7 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
-@manager.command
+@app.cli.command("recreate_db")
 def recreate_db():
     """
     Recreates a local database. You probably should not use this on
@@ -107,13 +107,13 @@ def recreate_db():
     db.session.commit()
 
 
-@manager.command
+@app.cli.command("setup_dev")
 def setup_dev():
     """Runs the set-up needed for local development."""
     setup_general()
 
 
-@manager.command
+@app.cli.command("setup_prod")
 def setup_prod():
     """Runs the set-up needed for production."""
     setup_general()
@@ -137,7 +137,7 @@ def setup_general():
             print('Added administrator {}'.format(user.full_name))
 
 
-@manager.command
+@app.cli.command("run_worker")
 def run_worker():
     """Initializes a slim rq task queue."""
     listen = ['default']
@@ -148,11 +148,11 @@ def run_worker():
         password=app.config['RQ_DEFAULT_PASSWORD'])
 
     with Connection(conn):
-        worker = Worker(map(Queue, listen))
+        worker = Worker(map(Queue, listen), connection=conn)
         worker.work()
 
 
-@manager.command
+@app.cli.command("format")
 def format():
     """Runs the yapf and isort formatters over the project."""
     isort = 'isort -rc *.py app/'
@@ -165,7 +165,7 @@ def format():
     subprocess.call(yapf, shell=True)
 
 
-@manager.command
+@app.cli.command("initialize_catalogues")
 def initialize_catalogues():
     """
     Load catalogues
@@ -182,7 +182,7 @@ def initialize_catalogues():
     import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz')
 
 
-@manager.command
+@app.cli.command("import_dso_list")
 def import_dso_list():
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
@@ -199,24 +199,24 @@ def import_dso_list():
     import_deep_man_600('data/dsolist/DeepMan600.csv')
 
 
-@manager.command
+@app.cli.command("import_star_list")
 def import_star_list():
     import_carbon_stars('data/starlist/CarbonStars.txt')
 
 
-@manager.command
+@app.cli.command("import_double_star_list")
 def import_double_star_list():
     import_herschel500('data/doublestarlist/Herschel500.csv')
 
 
-@manager.command
+@app.cli.command("import_minor_planets")
 def import_minor_planets():
     import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
     update_minor_planets_positions(True)
     update_minor_planets_brightness(True)
 
 
-@manager.command
+@app.cli.command("import_comets")
 def import_comets():
     all_mpc_comets = load_all_mpc_comets()
     import_update_comets(all_mpc_comets, show_progress=True)
@@ -225,17 +225,17 @@ def import_comets():
     update_comets_positions(None, True)
 
 
-@manager.command
+@app.cli.command("import_planets")
 def import_planets():
     import_db_planets()
 
 
-@manager.command
+@app.cli.command("import_supernovae")
 def import_supernovae():
     update_supernovae_from_rochesterastronomy()
 
 
-@manager.command
+@app.cli.command("import_new_skyquality_locations")
 def import_new_skyquality_locations():
     """
     Import new skyquality locations
@@ -243,7 +243,7 @@ def import_new_skyquality_locations():
     do_import_skyquality_locations('data/skyquality.sqlite', False)
 
 
-@manager.command
+@app.cli.command("import_all_skyquality_locations")
 def import_all_skyquality_locations():
     """
     Import all skyquality locations
@@ -251,7 +251,7 @@ def import_all_skyquality_locations():
     do_import_skyquality_locations('data/skyquality.sqlite', True)
 
 
-@manager.command
+@app.cli.command("add_help_users")
 def add_help_users():
     if current_app.config.get('EDITOR_USER_NAME_CS'):
         add_help_user(current_app.config.get('EDITOR_USER_NAME_CS'), current_app.config.get('EDITOR_USER_NAME_CS'))
@@ -273,7 +273,7 @@ def add_help_user(user_name, user_email):
         db.session.commit()
 
 
-@manager.command
+@app.cli.command("add_anonymous_user")
 def add_anonymous_user():
     user_email = 'anonymous@test.test'
     if User.query.filter_by(email=user_email).first() is None:
@@ -290,7 +290,7 @@ def add_anonymous_user():
         db.session.commit()
 
 
-@manager.command
+@app.cli.command("update_dso_axis_ratio")
 def update_dso_axis_ratio():
     all_count = DeepskyObject.query.count()
     i = 0
@@ -310,7 +310,7 @@ def update_dso_axis_ratio():
     print('')
 
 
-@manager.command
+@app.cli.command("sync_en_descr_rating")
 def sync_en_descr_rating():
     editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
     editor_en = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_EN')).first()
@@ -323,7 +323,7 @@ def sync_en_descr_rating():
     db.session.commit()
 
 
-@manager.command
+@app.cli.command("import_git_content")
 def import_git_content():
     git_content_repository = os.environ.get('GIT_CONTENT_REPOSITORY')
     if git_content_repository:
@@ -332,17 +332,17 @@ def import_git_content():
         print('GIT_CONTENT_REPOSITORY is not configured.')
 
 
-@manager.command
+@app.cli.command("import_gottlieb")
 def import_gottlieb():
     import_gottlieb('data/gottlieb')
 
 
-@manager.command
+@app.cli.command("create_pgc_update_file")
 def create_pgc_update_file():
     create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
 
 
-@manager.command
+@app.cli.command("update_pgc_imported_dsos")
 def update_pgc_imported_dsos():
     update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
 
@@ -363,7 +363,7 @@ def _create_update_theme(user, name, definition):
     db.session.add(t)
 
 
-@manager.command
+@app.cli.command("create_update_basic_chart_themes")
 def create_update_basic_chart_themes():
     user = User.query.filter_by(user_name='admin').first()
     _create_update_theme(user, 'base_theme', BASE_THEME_TEMPL)
@@ -373,21 +373,21 @@ def create_update_basic_chart_themes():
     db.session.commit()
 
 
-@manager.command
+@app.cli.command("tmp_update_comets_cobs")
 def tmp_update_comets_cobs():
     # CometObservation.query.delete()
     update_comets_cobs_observations()
 
 
-@manager.command
+@app.cli.command("tmp_update_minor_planets_positions")
 def tmp_update_minor_planets_positions():
     update_minor_planets_positions(True)
 
 
-@manager.command
+@app.cli.command("tmp_update_minor_planets_brightness")
 def tmp_update_minor_planets_brightness():
     update_minor_planets_brightness(True)
 
 
-if __name__ == '__main__':
-    manager.run()
+# if __name__ == '__main__':
+#     manager.run()

@@ -17,7 +17,7 @@ from wtforms.fields import (
     TextAreaField,
     TimeField,
 )
-from wtforms.fields.html5 import EmailField
+from wtforms.fields import EmailField
 from wtforms.validators import (
     DataRequired,
     EqualTo,
@@ -25,7 +25,6 @@ from wtforms.validators import (
     Length,
     NumberRange,
     Optional,
-    required,
 )
 from flask_babel import lazy_gettext
 
@@ -79,7 +78,7 @@ class StandaloneObservationNewForm(FlaskForm, StandaloneObservationMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Create Observation'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(StandaloneObservationNewForm, self).validate():
             return False
         return self.validate_date_from_to()
@@ -89,7 +88,7 @@ class StandaloneObservationEditForm(FlaskForm, StandaloneObservationMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Observation'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(StandaloneObservationEditForm, self).validate():
             return False
         return self.validate_date_from_to()

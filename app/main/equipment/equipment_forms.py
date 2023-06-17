@@ -1,34 +1,20 @@
-from datetime import datetime
-
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
-from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
-    DateField,
     FloatField,
-    FieldList,
-    FormField,
-    HiddenField,
     IntegerField,
     SelectField,
     StringField,
     SubmitField,
     TextAreaField,
-    TimeField,
 )
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
-    DataRequired,
-    EqualTo,
     InputRequired,
     Length,
     NumberRange,
     Optional,
-    required
 )
-from flask_babel import lazy_gettext
-
-from app.commons.coordinates import lonlat_check
 
 from app.models import TelescopeType, FilterType, LensType
 
@@ -59,7 +45,7 @@ class TelescopeMixin:
 class TelescopeNewForm(FlaskForm, TelescopeMixin):
     submit = SubmitField(lazy_gettext('Add Telescope'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(TelescopeNewForm, self).validate():
             return False
         return self.validate_foc_len_fix_mag()
@@ -68,7 +54,7 @@ class TelescopeNewForm(FlaskForm, TelescopeMixin):
 class TelescopeEditForm(FlaskForm, TelescopeMixin):
     submit = SubmitField(lazy_gettext('Update Telescope'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(TelescopeEditForm, self).validate():
             return False
         return self.validate_foc_len_fix_mag()

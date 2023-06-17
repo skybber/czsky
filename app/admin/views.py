@@ -14,9 +14,9 @@ from flask_login import (
     login_required
 )
 
-from flask_rq import get_queue
+from app.compat.flask_rq import get_queue
 
-from app import db
+from app import db, get_locale
 from app.admin.forms import (
     DisableUserForm,
     ChangeAccountTypeForm,
@@ -86,6 +86,7 @@ def invite_user():
             recipient=user.email,
             subject='You Are Invited To Join',
             template='account/email/invite',
+            locale = get_locale(),
             user=user,
             invite_link=invite_link,
         )

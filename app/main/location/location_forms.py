@@ -1,33 +1,21 @@
-from datetime import datetime
 import pytz
-
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
-from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
-    DateField,
     FloatField,
-    FieldList,
-    FormField,
-    HiddenField,
     IntegerField,
     SelectField,
     StringField,
     SubmitField,
     TextAreaField,
-    TimeField,
 )
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
-    DataRequired,
-    EqualTo,
     InputRequired,
     Length,
     NumberRange,
     Optional,
-    required
 )
-from flask_babel import lazy_gettext
 
 from app.commons.coordinates import lonlat_check
 

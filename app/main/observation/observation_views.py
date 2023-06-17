@@ -7,7 +7,6 @@ import codecs
 from werkzeug.utils import secure_filename
 
 from flask import (
-    abort,
     Blueprint,
     current_app,
     flash,
@@ -15,17 +14,14 @@ from flask import (
     render_template,
     request,
     send_file,
-    session,
-    url_for,
 )
 from flask_login import current_user, login_required
 from flask_babel import gettext
-from flask_rq import get_queue
+from app.compat.flask_rq import get_queue
 
 from app import db
 
 from app.models import (
-    DeepskyObject,
     ImportHistoryRec,
     ImportHistoryRecStatus,
     ImportType,

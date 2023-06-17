@@ -91,7 +91,7 @@ def double_star_list_info(double_star_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
 
     dbl_list_query = DoubleStarListItem.query.filter(DoubleStarListItem.double_star_list_id == double_star_list.id) \
-        .join(DoubleStarListItem.double_star, aliased=True)
+        .join(DoubleStarListItem.double_star)
 
     if search_form.q.data:
         dbl_list_query = dbl_list_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,

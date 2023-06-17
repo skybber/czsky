@@ -1,17 +1,12 @@
-from datetime import datetime
-
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
-from wtforms import ValidationError
 from wtforms.fields import (
-    BooleanField,
     HiddenField,
     IntegerField,
 )
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
     Length,
 )
-from flask_babel import lazy_gettext
 
 
 class ChartForm(FlaskForm):

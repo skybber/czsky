@@ -1,38 +1,30 @@
 from datetime import datetime
 
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
-    DateField,
     DateTimeField,
     FloatField,
     FieldList,
     FormField,
     HiddenField,
-    IntegerField,
     SelectField,
     StringField,
     SubmitField,
     TextAreaField,
     TimeField,
 )
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import (
-    DataRequired,
-    EqualTo,
     InputRequired,
     Length,
-    NumberRange,
     Optional,
-    required,
 )
-from flask_babel import lazy_gettext
 
-from app.models import Seeing, Transparency
 from app.commons.observation_target_utils import parse_observation_targets
-
 from app.main.utils.validators import location_lonlat_check
+from app.models import Seeing, Transparency
 
 
 class ObservationItemForm(FlaskForm):
@@ -90,7 +82,7 @@ class ObservingSessionNewForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Create Observing Session'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(ObservingSessionNewForm, self).validate():
             return False
         return self.validate_date_from_to()
@@ -100,7 +92,7 @@ class ObservingSessionEditForm(FlaskForm, ObservingSessionMixin):
     goback = HiddenField(default='false')
     submit_button = SubmitField(lazy_gettext('Update Observing Session'))
 
-    def validate(self):
+    def validate(self, extra_validators=None):
         if not super(ObservingSessionEditForm, self).validate():
             return False
         return self.validate_date_from_to()

@@ -15,10 +15,10 @@ from flask_login import (
     login_user,
     logout_user,
 )
-from flask_rq import get_queue
+from app.compat.flask_rq import get_queue
 from flask_babel import gettext
 
-from app import db
+from app import db, get_locale
 from app.account.forms import (
     ChangeEmailForm,
     ChangePasswordForm,
@@ -85,8 +85,10 @@ def register():
             recipient=user.email,
             subject='Confirm Your Account',
             template='account/email/confirm',
+            locale=get_locale(),
             user=user,
-            confirm_link=confirm_link)
+            confirm_link=confirm_link,
+            )
         flash(gettext('A confirmation link has been sent to {}.').format(user.email), 'warning')
         return redirect(url_for('main.index'))
     return render_template('account/register.html', form=form)
@@ -125,9 +127,11 @@ def reset_password_request():
                 recipient=user.email,
                 subject='Reset Your Password',
                 template='account/email/reset_password',
+                locale=get_locale(),
                 user=user,
                 reset_link=reset_link,
-                next=request.args.get('next'))
+                next=request.args.get('next'),
+                )
         flash(gettext('A password reset link has been sent to {}.').format(form.email.data), 'warning')
         return redirect(url_for('account.login'))
     return render_template('account/reset_password.html', form=form)
@@ -186,10 +190,12 @@ def change_email_request():
                 recipient=new_email,
                 subject='Confirm Your New Email',
                 template='account/email/change_email',
+                locale = get_locale(),
                 # current_user is a LocalProxy, we want the underlying user
                 # object
                 user=current_user._get_current_object(),
-                change_email_link=change_email_link)
+                change_email_link=change_email_link,
+            )
             flash(gettext('A confirmation link has been sent to {}.').format(new_email), 'warning')
             return redirect(url_for('main.index'))
         else:
@@ -219,9 +225,11 @@ def confirm_request():
         recipient=current_user.email,
         subject='Confirm Your Account',
         template='account/email/confirm',
+        locale = get_locale(),
         # current_user is a LocalProxy, we want the underlying user object
         user=current_user._get_current_object(),
-        confirm_link=confirm_link)
+        confirm_link=confirm_link
+    )
     flash(gettext('A new confirmation link has been sent to {}.').format(current_user.email), 'warning')
     return redirect(url_for('main.index'))
 
@@ -282,8 +290,10 @@ def join_from_invite(user_id, token):
             recipient=new_user.email,
             subject='You Are Invited To Join',
             template='account/email/invite',
+            locale = get_locale(),
             user=new_user,
-            invite_link=invite_link)
+            invite_link=invite_link,
+        )
     return redirect(url_for('main.index'))
 
 

@@ -1,19 +1,15 @@
 import os
 import sys
-import werkzeug
-
-from werkzeug.utils import secure_filename
 
 from flask import (
     Flask,
     request,
-    current_app,
 )
 from flask_assets import Environment
 from flask_compress import Compress
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_rq import RQ
+from app.compat.flask_rq import RQ
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from flask_babel import Babel
@@ -37,7 +33,7 @@ naming_convention = {
 db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 csrf = CSRFProtect()
 compress = Compress()
-babel = Babel()
+babel = None
 
 # Set up Flask-Login
 login_manager = LoginManager()
@@ -49,8 +45,13 @@ scheduler = BackgroundScheduler(daemon=True)
 UPLOAD_FOLDER = 'uploads'
 
 
-def create_app(config, web=True):
+def create_app(config, web=True, default_locale=None):
+    global babel
     app = Flask(__name__)
+    if default_locale:
+        babel = Babel(app, default_locale=default_locale)
+    else:
+        babel = Babel(app, locale_selector=get_locale)
     config_name = config
 
     if not isinstance(config, str):
@@ -71,7 +72,6 @@ def create_app(config, web=True):
     login_manager.init_app(app)
     csrf.init_app(app)
     compress.init_app(app)
-    babel.init_app(app)
     RQ(app)
 
     # Register Jinja template functions
@@ -178,7 +178,6 @@ def create_app(config, web=True):
     return app
 
 
-@babel.localeselector
 def get_locale():
     # supported_languages = ["cs", "en"]
     # return werkzeug.datastructures.LanguageAccept([(al[0][0:2], al[1]) for al in request.accept_languages]).best_match(supported_languages)

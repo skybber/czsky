@@ -81,9 +81,9 @@ def _find_dso_list_observed(dso_list_id, dso_list_dsos):
     if not current_user.is_anonymous:
         observed_query = db.session.query(DsoListItem.dso_id)\
                                    .filter(DsoListItem.dso_list_id == dso_list_id) \
-                                   .join(DsoListItem.deepsky_object, aliased=True)
+                                   .join(DsoListItem.deepsky_object)
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
-                                      .join(ObservedList, aliased=True) \
+                                      .join(ObservedList) \
                                       .filter(ObservedList.user_id == current_user.id) \
                                       .filter(ObservedListItem.dso_id.is_not(None))
         observed_query = observed_query.filter(or_(DsoListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
@@ -140,7 +140,7 @@ def dso_list_info(dso_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
 
     dso_list_query = DsoListItem.query.filter(DsoListItem.dso_list_id == dso_list.id) \
-        .join(DsoListItem.deepsky_object, aliased=True)
+        .join(DsoListItem.deepsky_object)
 
     if search_form.q.data:
         dso_list_query = dso_list_query.filter(DeepskyObject.name == normalize_dso_name(search_form.q.data))
@@ -153,7 +153,7 @@ def dso_list_info(dso_list_id):
 
         if not current_user.is_anonymous and search_form.not_observed.data:
             observed_subquery = db.session.query(ObservedListItem.dso_id) \
-                .join(ObservedList, aliased=True) \
+                .join(ObservedList) \
                 .filter(ObservedList.user_id == current_user.id) \
                 .filter(ObservedListItem.dso_id.is_not(None))
             dso_list_query = dso_list_query.filter(DsoListItem.dso_id.notin_(observed_subquery))

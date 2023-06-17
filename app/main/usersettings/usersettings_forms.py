@@ -1,20 +1,18 @@
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
+from wtforms.fields import EmailField
 from wtforms.fields import (
     PasswordField,
-    StringField,
     SubmitField,
-    TextField,
+    StringField,
     TextAreaField,
 )
-from wtforms.fields.html5 import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
-
-from flask_babel import lazy_gettext
 
 
 class PublicProfileForm(FlaskForm):
-    user_name = TextField(lazy_gettext('Username'), validators=[InputRequired(), Length(1, 64)], render_kw={'readonly': True})
-    full_name = TextField(lazy_gettext('Full Name'), validators=[InputRequired(), Length(1, 256)])
+    user_name = StringField(lazy_gettext('Username'), validators=[InputRequired(), Length(1, 64)], render_kw={'readonly': True})
+    full_name = StringField(lazy_gettext('Full Name'), validators=[InputRequired(), Length(1, 256)])
     email = EmailField(lazy_gettext('Email'), validators=[InputRequired(), Length(1, 64), Email()])
     default_country_code = StringField(lazy_gettext('Default country'), validators=[InputRequired(),])
     submit = SubmitField(lazy_gettext('Update'))
@@ -33,13 +31,13 @@ class DeleteAccountForm(FlaskForm):
 
 
 class GitSSHKeyForm(FlaskForm):
-    git_repository = TextField(lazy_gettext('Git repository'), validators=[Length(1, 512)])
+    git_repository = StringField(lazy_gettext('Git repository'), validators=[Length(1, 512)])
     ssh_public_key = TextAreaField(lazy_gettext('Public key'), render_kw={'readonly': True})
     submit = SubmitField(lazy_gettext('Update'))
 
 
 class GitContentSSHKeyForm(FlaskForm):
-    git_repository = TextField(lazy_gettext('Content git repository'), validators=[Length(1, 512)])
+    git_repository = StringField(lazy_gettext('Content git repository'), validators=[Length(1, 512)])
     ssh_public_key = TextAreaField(lazy_gettext('Public key'), render_kw={'readonly': True})
     submit = SubmitField(lazy_gettext('Update'))
 
