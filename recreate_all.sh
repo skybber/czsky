@@ -16,16 +16,16 @@ confirm() {
 
 ! confirm && exit;
 
-./manage.py recreate_db
-./manage.py setup_prod
-./manage.py add_anonymous_user
-./manage.py initialize_catalogues
-./manage.py update_dso_axis_ratio
-./manage.py add_help_users
-./manage.py import_dso_list
-./manage.py import_star_list
-./manage.py import_double_star_list
-./manage.py import_planets
-./manage.py import_minor_planets
-./manage.py import_comets
-./manage.py import_supernovae
+flask recreate_db
+flask setup_prod
+flask add_anonymous_user
+flask initialize_catalogues
+flask update_dso_axis_ratio
+flask add_help_users
+flask import_dso_list
+flask import_star_list
+flask import_double_star_list
+flask import_planets
+flask import_minor_planets
+flask import_comets
+flask import_supernovae
