@@ -66,7 +66,7 @@ def _update_minor_planet_positions():
             update_minor_planets_brightness()
 
 
-job1 = scheduler.add_job(_update_minor_planet_positions, 'interval', hours=24, replace_existing=True)
+job1 = scheduler.add_job(_update_minor_planet_positions, 'cron', hour=11, replace_existing=True)
 
 
 def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
