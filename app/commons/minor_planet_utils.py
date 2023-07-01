@@ -95,7 +95,9 @@ def update_minor_planets_positions(show_progress=False):
             minor_planets.append(minor_planet)
             if show_progress:
                 progress(i, len(mpc_minor_planets), 'Evaluating minor planet positions...')
-                i += 1
+            elif i % 500 == 0:
+                current_app.logger.info('Updated {} minor planets positions.'.format(i))
+            i += 1
 
     _save_minor_planets(minor_planets, show_progress, 'Saving minor planets...')
     current_app.logger.info('Minor planets\' positions updated.')
@@ -151,7 +153,9 @@ def update_minor_planets_brightness(show_progress=False):
             minor_planets.append(minor_planet)
             if show_progress:
                 progress(i, len(mpc_minor_planets), 'Evaluating minor planet brightness...')
-                i += 1
+            elif i % 500 == 0:
+                current_app.logger.info('Updated {} minor planets brightness.'.format(i))
+        i += 1
 
     _save_minor_planets(minor_planets, show_progress, 'Saving minor planets...')
     current_app.logger.info('Minor planets\' brightnesses updated.')
