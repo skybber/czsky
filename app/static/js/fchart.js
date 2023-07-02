@@ -179,7 +179,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
-    this.reqInProcess = 0;
+    this.requestId = 0;
 
     this.isDragging = false;
     this.kbdDragging = 0;
@@ -495,15 +495,15 @@ FChart.prototype.doReloadImage = function(forceReload) {
     let reqFldSizeIndex = this.fldSizeIndex;
 
     // this.skyImgBuf[this.skyImg.background].src = url;
-    this.reqInProcess ++;
+    this.requestId ++;
+    let currRequestId = this.requestId;
     $.getJSON(url, {
         json : true
     }, function(data) {
-        this.reqInProcess --;
-        if (this.reqInProcess == 0 || forceReload) {
+        if (currRequestId == this.requestId) {
             let img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
             this.dsoRegions = data.img_map;
-            this.activateImageOnLoad(centerRA, centerDEC, reqFldSizeIndex);
+            this.activateImageOnLoad(centerRA, centerDEC, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set('ra', this.viewCenter.ra.toString());
@@ -526,7 +526,7 @@ FChart.prototype.formatUrl = function(inpUrl) {
     return url;
 }
 
-FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeIndex) {
+FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeIndex, forceReload) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = undefined;
         let old = this.skyImg.active;
@@ -536,7 +536,7 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
-            if (this.scaleFac == 1.0 || this.reqInProcess == 0) {
+            if (this.scaleFac == 1.0 || forceReload) {
                 this.scaleFac = 1.0;
                 this.syncAladinZoom();
                 this.redrawAll();
