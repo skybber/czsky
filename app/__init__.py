@@ -19,6 +19,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css, red_theme_css, aladin_js
 from config import config as Config
 
+import logging
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 mail = Mail()
@@ -47,6 +49,7 @@ UPLOAD_FOLDER = 'uploads'
 
 def create_app(config, web=True, default_locale=None):
     global babel
+    logging.basicConfig(filename='czsky.log', level=logging.INFO)
     app = Flask(__name__)
     if default_locale:
         babel = Babel(app, default_locale=default_locale)
