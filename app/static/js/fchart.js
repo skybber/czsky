@@ -452,7 +452,7 @@ FChart.prototype.reloadLegendImage = function () {
     let url = this.legendUrl;
     url = url.replace('_RA_', this.viewCenter.ra.toString());
     url = url.replace('_DEC_', this.viewCenter.dec.toString());
-    url = url.replace('_FSZ_', this.fieldSizes[this.imgFldSizeIndex]);
+    url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
     url = url.replace('_OBJ_RA_', this.obj_ra.toString());
@@ -508,7 +508,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
             let queryParams = new URLSearchParams(window.location.search);
             queryParams.set('ra', this.viewCenter.ra.toString());
             queryParams.set('dec', this.viewCenter.dec.toString());
-            queryParams.set('fsz', this.fieldSizes[this.imgFldSizeIndex]);
+            queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
         }
     }.bind(this));
