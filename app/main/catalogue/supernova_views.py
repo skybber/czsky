@@ -72,7 +72,7 @@ def _update_supernovae():
         update_supernovae_from_rochesterastronomy()
 
 
-job1 = scheduler.add_job(_update_supernovae, 'interval', hours=3, replace_existing=True)
+job1 = scheduler.add_job(_update_supernovae, 'cron', hour='2,5,8,11,14,17,20,23', replace_existing=True)
 
 
 @main_supernova.route('/supernovae', methods=['GET', 'POST'])

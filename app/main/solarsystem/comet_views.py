@@ -76,7 +76,7 @@ def _update_comets():
                 update_evaluated_comet_brightness()
 
 
-job1 = scheduler.add_job(_update_comets, 'interval', hours=3, replace_existing=True)
+job1 = scheduler.add_job(_update_comets, 'cron', hour='1,4,7,10,13,16,19,22', replace_existing=True)
 
 
 @main_comet.route('/comets', methods=['GET', 'POST'])
