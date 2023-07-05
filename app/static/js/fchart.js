@@ -200,9 +200,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     this.MAX_ZOOM = fieldSizes.length + 0.49;
     this.MIN_ZOOM = 0.5;
-    this.ZOOM_INTERVAL = 200;
-    this.MAX_ZOOM_STEPS = 10;
-    this.currentMaxZoomSteps = this.MAX_ZOOM_STEPS;
+    this.ZOOM_INTERVAL = 300;
+    this.MAX_ZOOM_STEPS = 20;
+    this.ZOOM_TIMEOUT = this.ZOOM_INTERVAL / this.MAX_ZOOM_STEPS;
 
     this.GRID_SIZE = 10;
     this.MOVE_SEC_PER_SCREEN = 2;
@@ -232,6 +232,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.splitview = splitview;
     this.zoomInterval = undefined;
     this.zoomStep = undefined;
+    this.nextZoomTime = undefined;
     this.multRA = mirror_x ? -1 : 1;
     this.multDEC = mirror_y ? -1 : 1;
     this.pendingMoveRequest = undefined;
@@ -1084,22 +1085,12 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
     if (this.fldSizeIndex != oldFldSizeIndex) {
         this.scaleFacTotal = this.imgField / this.fieldSizes[this.fldSizeIndex] / this.scaleFac;
         this.backwardScale = false;
-        if (this.zoomStep !== undefined) {
-            if (this.zoomStep > 2 * this.MAX_ZOOM_STEPS) {
-                this.zoomStep = this.MAX_ZOOM_STEPS;
-            } else if (this.zoomStep > this.MAX_ZOOM_STEPS) {
-                this.zoomStep -= this.MAX_ZOOM_STEPS;
-            }
-            this.currentMaxZoomSteps = (this.MAX_ZOOM_STEPS - this.zoomStep) + this.MAX_ZOOM_STEPS;
-        }
+
         this.zoomStep = 0;
-        this.nextScaleFac();
+        this.nextZoomTime = performance.now();
+        this.nextScaleFac(true);
         this.redrawAll();
-        if (this.zoomInterval != undefined) {
-            clearInterval(this.zoomInterval);
-        }
-        let t = this;
-        this.zoomInterval = setInterval(function(){ t.zoomFunc(); }, this.ZOOM_INTERVAL / this.MAX_ZOOM_STEPS);
+        this.setZoomInterval(this.computeZoomTimeout());
         this.zoomQueuedImgs++;
         setTimeout((function() {
             // wait some time to keep order of requests
@@ -1115,33 +1106,70 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
     }
 }
 
+FChart.prototype.computeZoomTimeout = function () {
+   let diff = performance.now() - this.nextZoomTime;
+   //console.log(this.zoomStep + ' ' + performance.now() + ' ' + diff)
+   let skipped = false;
+   while (diff >= this.ZOOM_TIMEOUT && this.zoomStep < this.MAX_ZOOM_STEPS) {
+       this.nextScaleFac(false);
+       diff = diff - this.ZOOM_TIMEOUT;
+       skipped = true;
+   }
+   let ret;
+   if (this.zoomStep == this.MAX_ZOOM_STEPS || skipped) {
+       ret = 0;
+   } else {
+       ret = this.ZOOM_TIMEOUT - diff;
+   }
+   this.nextZoomTime = performance.now() + ret;
+   return ret;
+}
+
+FChart.prototype.setZoomInterval = function (zoomTimeout) {
+    if (this.zoomInterval != undefined) {
+        clearInterval(this.zoomInterval);
+    }
+    let t = this;
+    this.zoomInterval = setInterval(function () {
+        t.zoomFunc();
+    }, zoomTimeout);
+}
+
 FChart.prototype.zoomFunc = function() {
-    this.nextScaleFac();
+    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+        this.nextScaleFac(true);
+    } else {
+        this.syncAladinZoom();
+    }
     this.redrawAll();
-    if (this.zoomStep == this.currentMaxZoomSteps) {
+    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+        this.setZoomInterval(this.computeZoomTimeout());
+    } else {
         clearInterval(this.zoomInterval);
         this.zoomInterval = undefined;
     }
 }
 
-FChart.prototype.nextScaleFac = function() {
-    if (this.zoomStep < this.currentMaxZoomSteps) {
+FChart.prototype.nextScaleFac = function(syncAladin) {
+    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.zoomStep ++;
         if (this.backwardScale) {
             let st = 1.0 / this.scaleFacTotal;
             if (st > 1) {
-                this.scaleFac = 1 + (st - 1) * (this.currentMaxZoomSteps - this.zoomStep) / this.currentMaxZoomSteps;
+                this.scaleFac = 1 + (st - 1) * (this.MAX_ZOOM_STEPS - this.zoomStep) / this.MAX_ZOOM_STEPS;
             } else {
-                this.scaleFac = 1 - (1 - st) * (this.currentMaxZoomSteps - this.zoomStep) / this.currentMaxZoomSteps;
+                this.scaleFac = 1 - (1 - st) * (this.MAX_ZOOM_STEPS - this.zoomStep) / this.MAX_ZOOM_STEPS;
             }
         } else {
             if (this.scaleFacTotal > 1) {
-                this.scaleFac = 1 + (this.scaleFacTotal - 1) * this.zoomStep / this.currentMaxZoomSteps;
+                this.scaleFac = 1 + (this.scaleFacTotal - 1) * this.zoomStep / this.MAX_ZOOM_STEPS;
             } else {
-                this.scaleFac = 1 - (1 - this.scaleFacTotal) * this.zoomStep / this.currentMaxZoomSteps;
+                this.scaleFac = 1 - (1 - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
             }
         }
-        this.syncAladinZoom();
+        if (syncAladin) {
+            this.syncAladinZoom();
+        }
     }
 }
 
