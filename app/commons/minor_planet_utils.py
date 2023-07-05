@@ -55,11 +55,15 @@ def get_mpc_minor_planet_position(mpc_minor_planet, dt):
 def _save_minor_planets(minor_planets, show_progress, progress_title):
     try:
         line_cnt = 1
+        commit_cnt = 0
         for minor_planet in minor_planets:
             if show_progress:
                 progress(line_cnt, len(minor_planets), progress_title)
             line_cnt += 1
             db.session.add(minor_planet)
+            commit_cnt += 1
+            if commit_cnt % 100 == 0:
+                db.session.commit()
         if show_progress:
             print('')
         db.session.commit()
