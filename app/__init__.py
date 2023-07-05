@@ -49,7 +49,7 @@ UPLOAD_FOLDER = 'uploads'
 
 def create_app(config, web=True, default_locale=None):
     global babel
-    logging.basicConfig(filename='czsky.log', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', filename='czsky.log', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     app = Flask(__name__)
     if default_locale:
         babel = Babel(app, default_locale=default_locale)
