@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import os
 import subprocess
-import click
 
 from flask import (
     request,
     current_app,
-    send_from_directory,
-    url_for,
+    send_from_directory
 )
 
 from flask_migrate import Migrate #, MigrateCommand
@@ -63,7 +61,6 @@ from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 from app.main.userdata.gitstore import load_public_content_data_from_git2
-from app.email import send_email
 
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
@@ -391,40 +388,6 @@ def tmp_update_minor_planets_positions():
 def tmp_update_minor_planets_brightness():
     update_minor_planets_brightness(True)
 
-@app.cli.command("send_email_en")
-@click.argument("email")
-def send_mail_en(email):
-    user = User.query.filter_by(email=email).first()
-    if user:
-        token = user.generate_confirmation_token()
-        confirm_link = url_for('account.confirm', token=token, _external=True)
-        send_email(
-            recipient=user.email,
-            subject='Confirm Your Account',
-            template='account/email/confirm',
-            locale='en',
-            user=user,
-            confirm_link=confirm_link,
-        )
-        print("Email was sent.")
-
-
-@app.cli.command("send_email_cs")
-@click.argument("email")
-def send_email_cs(email):
-    user = User.query.filter_by(email=email).first()
-    if user:
-        token = user.generate_confirmation_token()
-        confirm_link = url_for('account.confirm', token=token, _external=True)
-        send_email(
-            recipient=user.email,
-            subject='Confirm Your Account',
-            template='account/email/confirm',
-            locale='cs',
-            user=user,
-            confirm_link=confirm_link,
-        )
-        print("Email was sent.")
 
 # if __name__ == '__main__':
 #     manager.run()
