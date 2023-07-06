@@ -11,7 +11,7 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{% set endpoint_log = [ ('main_deepskyobject.deepskyobject_observation_log', _('Log'), 'obslog') ] if back == 'running_plan' else [] %}
+{% set endpoint_log = [ ('main_deepskyobject.deepskyobject_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 {% set endpoint_catalog = [ ('main_deepskyobject.deepskyobject_catalogue_data', _('Catalog'), 'table') ] %}
 {% set endpoint_observations = [ ('main_deepskyobject.deepskyobject_observations', _('Observations'), 'info') ] if has_observations else [] %}
 

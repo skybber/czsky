@@ -117,7 +117,16 @@
                     </div>
                 </div>
 
-                {{ f.render_form_field(form.is_public) }}
+                <div class="three fields">
+                    <div class="field">
+                        {{ f.render_form_field(form.is_public) }}
+                    </div>
+                    <div class="field">
+                        {{ f.render_form_field(form.is_finished) }}
+                    </div>
+                    <div class="field">
+                    </div>
+                </div>
 
                 {{ f.render_form_field(form.notes) }}
 

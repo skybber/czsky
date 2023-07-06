@@ -168,6 +168,7 @@ def new_observing_session():
             equipment=form.equipment.data,
             notes=form.notes.data,
             is_public = form.is_public.data,
+            is_finishe = form.is_finished.data,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
@@ -218,6 +219,7 @@ def observing_session_edit(observing_session_id):
             observing_session.update_by = current_user.id
             observing_session.update_date = datetime.now()
             observing_session.is_public = form.is_public.data
+            observing_session.is_finished = form.is_finished.data
 
             db.session.add(observing_session)
             db.session.commit()
@@ -241,6 +243,7 @@ def observing_session_edit(observing_session_id):
         form.equipment.data = observing_session.equipment
         form.notes.data = observing_session.notes
         form.is_public.data = observing_session.is_public
+        form.is_finished.data = observing_session.is_finished
 
     location, location_position = _get_location_data2_from_form(form)
 

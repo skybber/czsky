@@ -66,7 +66,8 @@ class ObservingSessionMixin:
     weather = StringField(lazy_gettext('Weather'))
     equipment = StringField(lazy_gettext('Equipment'))
     notes = TextAreaField(lazy_gettext('Notes'))
-    is_public = BooleanField(lazy_gettext('Plan is public'), default=False)
+    is_public = BooleanField(lazy_gettext('Session is public'), default=False)
+    is_finished = BooleanField(lazy_gettext('Session is finished'), default=False)
 
     def validate_date_from_to(self):
         if self.date_from.data and self.date_to.data and self.date_from.data > self.date_to.data:

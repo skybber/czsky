@@ -84,6 +84,7 @@ class ObservingSession(db.Model):
     sqm_records = db.relationship('SqmFullRecord', backref='observing_session', cascade="all, delete-orphan", lazy=True)
     observations = db.relationship('Observation', backref='observing_session', cascade="all, delete-orphan", lazy=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
+    is_finished = db.Column(db.Boolean, default=False)
 
     def rating_to_int(self, m):
         if not self.rating:
