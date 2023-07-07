@@ -117,6 +117,9 @@ def create_hightlights_lists():
     elif back == 'running_plan' and back_id is not None:
         observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run and allow_view_session_plan(observation_plan_run.session_plan):
-            highlights_dso_list = [x.deepsky_object for x in observation_plan_run.session_plan.session_plan_items]
+            highlights_dso_list = []
+            for item in observation_plan_run.session_plan.session_plan_items:
+                if item.deepsky_object:
+                    highlights_dso_list.append(item.deepsky_object)
 
     return highlights_dso_list, highlights_pos_list
