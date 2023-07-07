@@ -177,11 +177,12 @@ def double_star_info(double_star_id):
                 offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
 
     has_observations = _has_double_star_observations(double_star)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/double_star_info.html', type='info', double_star=double_star,
                            wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
                            embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
-                           has_observations=has_observations,)
+                           has_observations=has_observations, show_obs_log=show_obs_log)
 
 
 def _get_observations_query(double_star):
@@ -215,10 +216,11 @@ def double_star_surveys(double_star_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
     has_observations = _has_double_star_observations(double_star)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star,
                            embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
-                           has_observations=has_observations, field_size=40.0)
+                           has_observations=has_observations, show_obs_log=show_obs_log, field_size=40.0)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/observations')
@@ -242,9 +244,10 @@ def double_star_observations(double_star_id):
     if not observations:
         return _do_redirect('main_double_star.double_star_info', double_star)
 
+    show_obs_log = _show_obs_log()
     return render_template('main/catalogue/double_star_info.html', type='observations', double_star=double_star,
                            prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, has_observations=True,
-                           observations=observations,
+                           show_obs_log=show_obs_log, observations=observations,
                            )
 
 
@@ -265,9 +268,11 @@ def double_star_catalogue_data(double_star_id):
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
 
     has_observations = _has_double_star_observations(double_star)
+    show_obs_log = _show_obs_log()
+
     return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star,
                            embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
-                           has_observations=has_observations)
+                           has_observations=has_observations, show_obs_log=show_obs_log, )
 
 
 @main_double_star.route('/double-star/switch-wish-list', methods=['GET'])
@@ -399,10 +404,11 @@ def double_star_chart(double_star_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
     has_observations = _has_double_star_observations(double_star)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star,
                            chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, user_descr=user_descr,
-                           has_observations=has_observations,)
+                           has_observations=has_observations, show_obs_log=show_obs_log,)
 
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -497,10 +503,11 @@ def double_star_observation_log(double_star_id):
         session['dso_embed_seltab'] = 'obs_log'
 
     prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observation_log')
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/double_star_info.html', type='observation_log', double_star=double_star, form=form,
                            embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=False, prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           has_observations=False, show_obs_log=show_obs_log, prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -536,3 +543,19 @@ def _do_redirect(url, double_star):
     splitview = request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
+
+def _show_obs_log():
+    back = request.args.get('back')
+    if back == 'running_plan':
+        back_id = request.args.get('back_id')
+        if back_id:
+            observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
+        if observation_plan_run is None or observation_plan_run.session_plan.user_id == current_user.id:
+            return True
+    elif back == 'observation':
+        back_id = request.args.get('back_id')
+        if back_id:
+            observing_session = ObservingSession.query.filter_by(id=back_id).first()
+            if observing_session and observing_session.user_id == current_user.id and not observing_session.is_finished:
+                return True
+    return False

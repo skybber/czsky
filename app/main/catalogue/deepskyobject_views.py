@@ -385,7 +385,7 @@ def deepskyobject_info(dso_id):
                     .order_by(SessionPlan.for_date.desc()).all()
 
     has_observations = _has_dso_observations(dso, orig_dso)
-    show_obs_log = _show_obs_log(dso)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='info', dso=dso, user_descr=user_descr, apert_descriptions=apert_descriptions,
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
@@ -430,7 +430,7 @@ def deepskyobject_surveys(dso_id):
         session['dso_embed_seltab'] = 'surveys'
 
     has_observations = _has_dso_observations(dso, orig_dso)
-    show_obs_log = _show_obs_log(dso)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            field_size=field_size, embed=embed, has_observations=has_observations,
@@ -467,7 +467,7 @@ def deepskyobject_observations(dso_id):
     if not observations:
         return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
-    show_obs_log = _show_obs_log(dso)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observations', dso=dso,
                            prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
@@ -492,7 +492,7 @@ def deepskyobject_catalogue_data(dso_id):
         session['dso_embed_seltab'] = 'catalogue_data'
 
     has_observations = _has_dso_observations(dso, orig_dso)
-    show_obs_log = _show_obs_log(dso)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
                            prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
@@ -536,7 +536,7 @@ def deepskyobject_chart(dso_id):
     default_chart_iframe_url = url_for(iframe_endpoit, back=back, back_id=back_id, dso_id=dso.name, season=season, embed='fc', allow_back='true')
 
     has_observations = _has_dso_observations(dso, orig_dso)
-    show_obs_log = _show_obs_log(dso)
+    show_obs_log = _show_obs_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
@@ -815,9 +815,15 @@ def _do_redirect(url, dso):
     season = request.args.get('season')
     return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
 
-def _show_obs_log(dso):
+def _show_obs_log():
     back = request.args.get('back')
-    if back == 'observation':
+    if back == 'running_plan':
+        back_id = request.args.get('back_id')
+        if back_id:
+            observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
+        if observation_plan_run is None or observation_plan_run.session_plan.user_id == current_user.id:
+            return True
+    elif back == 'observation':
         back_id = request.args.get('back_id')
         if back_id:
             observing_session = ObservingSession.query.filter_by(id=back_id).first()

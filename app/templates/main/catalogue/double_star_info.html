@@ -11,7 +11,7 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{% set endpoint_log = [ ('main_double_star.double_star_observation_log', _('Log'), 'obslog') ] if back == 'running_plan' else [] %}
+{% set endpoint_log = [ ('main_double_star.double_star_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 {% set endpoint_observations = [ ('main_double_star.double_star_observations', _('Observations'), 'info') ] if has_observations else [] %}
 
 {% if not embed %}
