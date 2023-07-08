@@ -174,16 +174,10 @@ def search_minor_planet(query):
 
 
 def search_planet(query):
-    planet = None
-    if len(query) > 3:
-        planet = Planet.get_by_iau_code(query)
-        if not planet:
-            low_query = query.lower()
-            for pl in Planet.get_all():
-                if pl.get_localized_name().lower() == low_query:
-                    planet = pl
-                    break
-    return planet
+    if len(query) > 0:
+        planet = Planet.get_by_locale_name(query)
+        return planet
+    return None
 
 
 def _get_constell(costell_code):

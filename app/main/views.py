@@ -22,7 +22,8 @@ from app.commons.search_sky_object_utils import (
     search_star,
     search_comet,
     search_double_star,
-    search_minor_planet
+    search_minor_planet,
+    search_planet,
 )
 
 from app.models import (
@@ -136,13 +137,17 @@ def global_search():
     if comet is not None:
         return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id))
 
-    # 7. Search minor planet
-    # 5. Search comet
+    # 6. Search minor planet
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
         return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation))
 
-    # 6. search by radec
+    # 6. Search planet
+    planet = search_planet(query)
+    if planet is not None:
+        return redirect(url_for('main_planet.planet_info', planet_iau_code=planet.iau_code))
+
+    # 8. search by radec
     res = _search_by_ra_dec(query)
     if res:
         return res

@@ -14,6 +14,17 @@ BODY_KEY_DICT = {
     'pluto': 'PLUTO_BARYCENTER'
 }
 
+ALL_LOCALE_NAMES = [
+    ['mercury', ['merkur']],
+    ['venus', ['venuse','venuše']],
+    ['mars', ['mars']],
+    ['jupiter', ['jupiter']],
+    ['saturn', ['saturn']],
+    ['uranus', ['uran']],
+    ['neptun', ['neptun']],
+    ['pluto', ['pluto']],
+]
+
 
 class Planet(db.Model):
     __tablename__ = 'planets'
@@ -48,6 +59,17 @@ class Planet(db.Model):
             for pl in Planet.get_all():
                 Planet._iau_dict[pl.iau_code.upper()] = pl
         return Planet._iau_dict.get(iau_code.upper())
+
+    @classmethod
+    def get_by_locale_name(cls, planet_name):
+        planet_name = planet_name.lower()
+        for iau_code, locale_names in ALL_LOCALE_NAMES:
+            if iau_code == planet_name:
+                return Planet.get_by_iau_code(iau_code)
+            for locale_name in locale_names:
+                if locale_name == planet_name:
+                    return Planet.get_by_iau_code(iau_code)
+        return None
 
     @classmethod
     def get_planet_by_id(cls, planet_id):
