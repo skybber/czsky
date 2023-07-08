@@ -132,7 +132,15 @@ def global_search():
         else:
             return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
-    # 5. Search comet
+    # 5. Search planet
+    planet = search_planet(query)
+    if planet is not None:
+        return redirect(url_for('main_planet.planet_info',
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                planet_iau_code=planet.iau_code))
+
+    # 6. Search comet
     comet = search_comet(query)
     if comet is not None:
         return redirect(url_for('main_comet.comet_info',
@@ -140,21 +148,13 @@ def global_search():
                                 splitview=request.args.get('splitview'),
                                 comet_id=comet.comet_id))
 
-    # 6. Search minor planet
+    # 7. Search minor planet
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
         return redirect(url_for('main_minor_planet.minor_planet_info',
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
                                 minor_planet_id=minor_planet.int_designation))
-
-    # 6. Search planet
-    planet = search_planet(query)
-    if planet is not None:
-        return redirect(url_for('main_planet.planet_info',
-                                fullscreen=request.args.get('fullscreen'),
-                                splitview=request.args.get('splitview'),
-                                planet_iau_code=planet.iau_code))
 
     # 8. search by radec
     res = _search_by_ra_dec(query)
