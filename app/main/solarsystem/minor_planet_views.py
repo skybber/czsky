@@ -243,8 +243,8 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
     if minor_planet is None:
         abort(404)
 
-    minor_planet_ra = to_float(request.args.get('obj_ra'), None)
-    minor_planet_dec = to_float(request.args.get('obj_dec'), None)
+    # minor_planet_ra = to_float(request.args.get('obj_ra'), None)
+    # minor_planet_dec = to_float(request.args.get('obj_dec'), None)
 
     trajectory_b64 = request.args.get('trajectory')
     if trajectory_b64:
@@ -253,7 +253,7 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
     else:
         trajectory = None
 
-    img_bytes = common_chart_pdf_img(minor_planet_ra, minor_planet_dec, ra, dec, trajectory=trajectory)
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, trajectory=trajectory)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

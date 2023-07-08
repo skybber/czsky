@@ -131,8 +131,8 @@ def planet_chart_pdf(planet_iau_code, ra, dec):
     if planet is None:
         abort(404)
 
-    planet_ra = to_float(request.args.get('obj_ra'), None)
-    planet_dec = to_float(request.args.get('obj_dec'), None)
+    # planet_ra = to_float(request.args.get('obj_ra'), None)
+    # planet_dec = to_float(request.args.get('obj_dec'), None)
 
     trajectory_b64 = request.args.get('trajectory')
     if trajectory_b64:
@@ -141,7 +141,7 @@ def planet_chart_pdf(planet_iau_code, ra, dec):
     else:
         trajectory = None
 
-    img_bytes = common_chart_pdf_img(planet_ra, planet_dec, ra, dec, trajectory=trajectory)
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, trajectory=trajectory)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

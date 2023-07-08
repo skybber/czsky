@@ -279,8 +279,8 @@ def comet_chart_pdf(comet_id, ra, dec):
     if comet is None:
         abort(404)
 
-    comet_ra = to_float(request.args.get('obj_ra'), None)
-    comet_dec = to_float(request.args.get('obj_dec'), None)
+    # comet_ra = to_float(request.args.get('obj_ra'), None)
+    # comet_dec = to_float(request.args.get('obj_dec'), None)
 
     trajectory_b64 = request.args.get('trajectory')
     if trajectory_b64:
@@ -289,7 +289,7 @@ def comet_chart_pdf(comet_id, ra, dec):
     else:
         trajectory = None
 
-    img_bytes = common_chart_pdf_img(comet_ra, comet_dec, ra, dec, trajectory=trajectory)
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, trajectory=trajectory)
 
     return send_file(img_bytes, mimetype='application/pdf')
 
