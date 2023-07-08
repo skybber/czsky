@@ -233,6 +233,7 @@
             <tbody>
             {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepsky_object.name, embed='pl') }}{% endmacro %}
             {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item[0].double_star.id, embed='pl') }}{% endmacro %}
+            {% macro to_planet_url2(item) %}{{ url_for('main_planet.planet_info', planet_iau_code=item[0].planet.iau_code, embed='pl') }}{% endmacro %}
             {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item[0].minor_planet.id, embed='pl') }}{% endmacro %}
             {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_info', comet_id=item[0].comet.comet_id, embed='pl') }}{% endmacro %}
 
@@ -248,6 +249,11 @@
                     {% set item_type = item[0].double_star.components %}
                     {% set item_constell = item[0].double_star.get_constellation_iau_code() %}
                     {% set item_mag = (item[0].double_star.mag_first | string) + '/' + (item[0].double_star.mag_second | string) %}
+                {% elif item[0].planet_id is not none %}
+                    {% set item_name = item[0].planet.iau_code.capitalize()  %}
+                    {% set item_type = _('Planet') %}
+                    {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
+                    {% set item_mag = '' %}
                 {% elif item[0].minor_planet_id is not none %}
                     {% set item_name = item[0].minor_planet.designation %}
                     {% set item_type = _('Minor planet') %}
@@ -336,6 +342,8 @@ var dstSkyObjUrls = [
         {% set to_url = to_dso_url2(item) %}
     {% elif item[0].double_star_id is not none %}
         {% set to_url = to_double_star_url2(item) %}
+    {% elif item[0].planet_id is not none %}
+        {% set to_url = to_planet_url2(item) %}
     {% elif item[0].minor_planet_id is not none %}
         {% set to_url = to_minor_planet_url2(item) %}
     {% elif item[0].comet_id is not none %}

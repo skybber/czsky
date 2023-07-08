@@ -41,6 +41,12 @@ class SessionPlan(db.Model):
                 return item
         return None
 
+    def find_planet_item_by_id(self, planet_id):
+        for item in self.session_plan_items:
+            if item.planet_id == planet_id:
+                return item
+        return None
+
     def find_comet_item_by_id(self, comet_id):
         for item in self.session_plan_items:
             if item.comet_id == comet_id:
