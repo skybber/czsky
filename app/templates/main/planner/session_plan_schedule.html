@@ -130,14 +130,18 @@
                         </a>
                     </th>
 
-                    <th>{{ _('Type') }}</th>
+                    <th>
+                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['type'].sort) }}" style="color: inherit;">
+                            {{ _('Type') }} {{ src_table_sort['type'].icon | safe }}
+                        </a>
+                    </th>
                     <th class="right aligned collapsing">
                         <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['constellation'].sort) }}" style="color: inherit;">
                             <i class="lastfm icon"></i> {{ src_table_sort['constellation'].icon | safe }}
                         </a>
                     </th>
                     <th>
-                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, scr_sortby=src_table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
+                        <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['mag'].sort) }}" style="color: inherit;white-space: nowrap;">
                             mag {{ src_table_sort['mag'].icon | safe }}
                         </a>
                     </th>
