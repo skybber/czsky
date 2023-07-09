@@ -168,7 +168,7 @@ def new_observing_session():
             equipment=form.equipment.data,
             notes=form.notes.data,
             is_public = form.is_public.data,
-            is_finishe = form.is_finished.data,
+            is_finished = form.is_finished.data,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
