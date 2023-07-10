@@ -54,6 +54,9 @@
                 <th class="mobile hidden">Dec</th>
                 <th><i class="lastfm icon"></i></th>
                 <th class="right aligned">mag</th>
+                <th class="right aligned computer only">{{ _('Rise') }}</th>
+                <th class="right aligned">{{ _('Merid') }}</th>
+                <th class="right aligned computer only">{{ _('Set') }}</th>
                 <th class="right aligned mobile hidden">{{ _('Size') }}</th>
                 {% if observed %}
                 <th class="collapsing mobile hidden"></th>
@@ -63,33 +66,40 @@
 
         {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
-        {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.id, embed='pl') }}{% endmacro %}
-        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.id, embed='pl') }}{% endmacro %}
+        {% macro to_planet_url(item) %}{{ url_for('main_planet.planet_info', planet_iau_code=item.planet.iau_code, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
-        {% for item in session_plan.session_plan_items %}
-            {% if item.dso_id is not none %}
-                {% set to_url = to_dso_url(item) %}
-                {% set item_name = item.deepsky_object.denormalized_name() %}
-                {% set item_type = item.deepsky_object.type %}
-                {% set item_constell = item.deepsky_object.get_constellation_iau_code() %}
-                {% set item_mag = commons.convert_mag(item.deepsky_object.mag) %}
-            {% elif item.double_star_id is not none %}
-                {% set to_url = to_double_star_url(item) %}
-                {% set item_name = item.double_star.common_cat_id %}
-                {% set item_type = item.double_star.components %}
-                {% set item_constell = item.double_star.get_constellation_iau_code() %}
-                {% set item_mag = (item.double_star.mag_first | string) + '/' + (item.double_star.mag_second | string) %}
-            {% elif item.minor_planet_id is not none %}
-                {% set to_url = to_minor_planet_url(item) %}
-                {% set item_name = item.minor_planet.designation %}
-                {% set item_type = _('Minor planet') %}
-                {% set item_constell = constellation_by_id_dict[item.constell_id].iau_code if item.constell_id is not none else '' %}
+        {% for item in session_plan_compound_list %}
+            {% if item[0].dso_id is not none %}
+                {% set to_url = to_dso_url(item[0]) %}
+                {% set item_name = item[0].deepsky_object.denormalized_name() %}
+                {% set item_type = item[0].deepsky_object.type %}
+                {% set item_constell = item[0].deepsky_object.get_constellation_iau_code() %}
+                {% set item_mag = commons.convert_mag(item[0].deepsky_object.mag) %}
+            {% elif item[0].double_star_id is not none %}
+                {% set to_url = to_double_star_url(item[0]) %}
+                {% set item_name = item[0].double_star.common_cat_id %}
+                {% set item_type = item[0].double_star.components %}
+                {% set item_constell = item[0].double_star.get_constellation_iau_code() %}
+                {% set item_mag = (item[0].double_star.mag_first | string) + '/' + (item[0].double_star.mag_second | string) %}
+            {% elif item[0].planet_id is not none %}
+                {% set to_url = to_planet_url(item[0]) %}
+                {% set item_name = item[0].planet.iau_code.capitalize()  %}
+                {% set item_type = _('Planet') %}
+                {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                 {% set item_mag = '' %}
-            {% elif item.comet_id is not none %}
-                {% set to_url = to_comet_url(item) %}
-                {% set item_name = item.comet.designation %}
+            {% elif item[0].minor_planet_id is not none %}
+                {% set to_url = to_minor_planet_url(item[0]) %}
+                {% set item_name = item[0].minor_planet.designation %}
+                {% set item_type = _('Minor planet') %}
+                {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
+                {% set item_mag = '' %}
+            {% elif item[0].comet_id is not none %}
+                {% set to_url = to_comet_url(item[0]) %}
+                {% set item_name = item[0].comet.designation %}
                 {% set item_type = _('Comet') %}
-                {% set item_constell = constellation_by_id_dict[item.constell_id].iau_code if item.constell_id is not none else '' %}
+                {% set item_constell = constellation_by_id_dict[item[0].constell_id].iau_code if item[0].constell_id is not none else '' %}
                 {% set item_mag = '' %}
             {% else %}
                 {% set to_url = '' %}
@@ -101,31 +111,34 @@
         <tr onclick="window.location.href='{{ to_url }}';">
             <td>{{ item_name }}</td>
             <td>{{ item_type }}</td>
-            <td class="mobile hidden">{{ item.get_ra_str_short() }}</td>
-            <td class="mobile hidden">{{ item.get_dec_str_short() }}</td>
+            <td class="mobile hidden">{{ item[0].get_ra_str_short() }}</td>
+            <td class="mobile hidden">{{ item[0].get_dec_str_short() }}</td>
             <td>{{ item_constell }}</td>
             <td class="right aligned">
                 {{ item_mag }}
             </td>
+            <td class="right aligned computer only">{{ item[1] }}</td>
+            <td class="right aligned">{{ item[2] }}</td>
+            <td class="right aligned computer only">{{ item[3] }}</td>
             <td class="right aligned mobile hidden">
-                {% if item.dso_id is not none and item.deepsky_object.major_axis %}
-                    {% if item.deepsky_object.major_axis >= 100.0 %}
-                      {{ (item.deepsky_object.major_axis / 60.0) | round(2, 'floor') }}'
+                {% if item[0].dso_id is not none and item[0].deepsky_object.major_axis %}
+                    {% if item[0].deepsky_object.major_axis >= 100.0 %}
+                      {{ (item[0].deepsky_object.major_axis / 60.0) | round(2, 'floor') }}'
                     {% else %}
-                      {{ item.deepsky_object.major_axis | round(2, 'floor')}}''
+                      {{ item[0].deepsky_object.major_axis | round(2, 'floor')}}''
                     {% endif %}
-                    {% if item.deepsky_object.minor_axis and item.deepsky_object.major_axis != item.deepsky_object.minor_axis %}
-                    / {% if item.deepsky_object.minor_axis >= 100.0 %}
-                        {{ (item.deepsky_object.minor_axis / 60.0) | round(2, 'floor') }}'
+                    {% if item[0].deepsky_object.minor_axis and item[0].deepsky_object.major_axis != item[0].deepsky_object.minor_axis %}
+                    / {% if item[0].deepsky_object.minor_axis >= 100.0 %}
+                        {{ (item[0].deepsky_object.minor_axis / 60.0) | round(2, 'floor') }}'
                       {% else %}
-                        {{ item.deepsky_object.minor_axis | round(2, 'floor')}}''
+                        {{ item[0].deepsky_object.minor_axis | round(2, 'floor')}}''
                       {% endif %}
                     {% endif %}
                 {% endif %}
             </td>
             {% if observed %}
             <td class="collapsing mobile hidden">
-                {% if item.dso_id is not none and item.deepsky_object.id in observed %}
+                {% if item[0].dso_id is not none and item[0].deepsky_object.id in observed %}
                     <i class="eye icon"></i>
                 {% endif %}
             </td>

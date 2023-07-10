@@ -146,8 +146,11 @@ def session_plan_info(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)
     observed = { dso.id for dso in ObservedList.get_observed_dsos_by_user_id(current_user.id) } if not current_user.is_anonymous else None
+    observer, tz_info = _get_observer_tzinfo(session_plan)
+    observation_time = Time(session_plan.for_date)
+    session_plan_compound_list = create_session_plan_compound_list(session_plan, observer, observation_time, tz_info, None)
     return render_template('main/planner/session_plan_info.html', type='info', session_plan=session_plan, is_mine_session_plan=is_mine_session_plan,
-                           observed=observed, constellation_by_id_dict=Constellation.get_id_dict())
+                           observed=observed, constellation_by_id_dict=Constellation.get_id_dict(), session_plan_compound_list=session_plan_compound_list)
 
 
 @main_sessionplan.route('/new-session-plan', methods=['GET', 'POST'])
