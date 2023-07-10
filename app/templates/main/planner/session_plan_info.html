@@ -68,7 +68,7 @@
         {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_planet_url(item) %}{{ url_for('main_planet.planet_info', planet_iau_code=item.planet.iau_code, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
-        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.comet_id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
         {% for item in session_plan_compound_list %}
             {% if item[0].dso_id is not none %}
