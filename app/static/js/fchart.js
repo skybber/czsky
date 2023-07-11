@@ -1083,7 +1083,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
     this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
     if (this.fldSizeIndex != oldFldSizeIndex) {
-        this.scaleFacTotal = this.imgField / this.fieldSizes[this.fldSizeIndex] / this.scaleFac;
+        this.scaleFacTotal = Math.sin(Math.PI*this.imgField /(2*180)) / Math.sin(Math.PI*this.fieldSizes[this.fldSizeIndex]/(2*180)) / this.scaleFac;
         this.backwardScale = false;
 
         this.zoomStep = 0;
