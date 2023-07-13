@@ -712,6 +712,9 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     global free_mem_counter
     tm = time()
 
+    if flags is None:
+        flags = ''
+
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
