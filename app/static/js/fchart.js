@@ -432,9 +432,11 @@ FChart.prototype.redrawAll = function () {
         this.canvas.height = curLegendImg.height;
     }
 
+    let gridDraw = false;
     if (this.imgGrid != undefined && (this.isDragging || this.kbdDragging != 0 || this.pendingMoveRequest != undefined)) {
-        this.drawImgGrid(curSkyImg);
-    } else {
+        gridDraw = this.drawImgGrid(curSkyImg, true);
+    }
+    if (!gridDraw) {
         let img_width = curSkyImg.width * this.scaleFac;
         let img_height = curSkyImg.height * this.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
@@ -1007,11 +1009,20 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
 }
 
 FChart.prototype.drawImgGrid = function (curSkyImg) {
+   this.drawImgGrid(curSkyImg, false);
+}
+
+FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
+    let fromKbdMove = this.pendingMoveRequest != undefined && this.pendingMoveRequest.wasKbdDragging;
+    let dRD = this.getDRaDec(fromKbdMove);
+
+    if (forceDraw && dRD.dRA == 0 && dRD.dDEC == 0) {
+        return false;
+    }
+
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    let fromKbdMove = this.pendingMoveRequest != undefined && this.pendingMoveRequest.wasKbdDragging;
-    let dRD = this.getDRaDec(fromKbdMove);
     let scale = this.getFChartScale();
 
     let screenImgGrid = [];
@@ -1062,6 +1073,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
         }
         imgY += dimgY;
     }
+    return true;
 }
 
 FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
