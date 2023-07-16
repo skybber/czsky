@@ -1,107 +1,159 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/common_macros.html' as commons %}
+{% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_comet.comets', _('List'), 'list'),
+    ('main_comet.comets_chart', _('Chart'), 'chart'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro comets_list() %}
+    <form action="{{ url_for('main_comet.comets') }}" method="post" name="search">
+        <div class="ui menu">
+            <div class="ui input item">
+                {{ search_form.maglim(size=4) }}
+                {% if search_form.maglim.errors %}
+                    <div class="bottom aligned red pointing floating ui label">
+                        {{ search_form.maglim.errors[0] | safe }}
+                    </div>
+                {% endif %}
+                <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+            </div>
+
+            <div class="ui input item">
+                {{ search_form.dec_min(size=4) }}
+                {% if search_form.dec_min.errors %}
+                    <div class="bottom left aligned red pointing floating ui label">
+                        {{ search_form.dec_min.errors[0] | safe }}
+                    </div>
+                {% endif %}
+                <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+            </div>
+            <div class="ui right search item">
+                <div class="ui action input">
+                    {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                    <button class="ui icon button">
+                        <i class="search icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        {# Use overflow-x: scroll so that mobile views don't freak out
+         # when the table is too wide #}
+        <div style="overflow-x: scroll;width: 100%">
+            <table class="ui searchable unstackable selectable celled table">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['designation'].sort) }}" style="color: inherit;">
+                                {{ _('Name')}} {{ table_sort['designation'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['cur_ra'].sort) }}" style="color: inherit;">
+                                RA {{ table_sort['cur_ra'].icon | safe }}
+                            </a>
+                        </th>
+                        <th class="mobile hidden">
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['cur_dec'].sort) }}" style="color: inherit;">
+                                Dec {{ table_sort['cur_dec'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                                <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['mag'].sort) }}" style="color: inherit;">
+                                {{ _('Brightness') }} {{ table_sort['mag'].icon | safe }}
+                            </a>
+                        </th>
+                        <th>
+                            <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['coma_diameter'].sort) }}" style="color: inherit;">
+                                {{ _('Size') }} {{ table_sort['mag'].icon | safe }}
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in comets %}
+                    {% set comet_url = url_for('main_comet.comet_info', comet_id=c.comet_id) %}
+                    <tr onclick="window.location.href = '{{ comet_url }}';">
+                        <td><a href="{{ comet_url }}">{{ c.designation }}</a></td>
+                        <td class="mobile hidden">{{ c.cur_ra_str_short() }}</td>
+                        <td class="mobile hidden">{{ c.cur_dec_str_short() }}</td>
+                        <td>{{ c.cur_constell().iau_code if c.cur_constell_id is not none else '' }}</td>
+                        <td>
+                            {% if c.real_mag is not none%}{{ c.real_mag  | round(1) }}{% elif c.eval_mag is not none %}{{ c.eval_mag | round(1) }}*{% endif %}
+                        </td>
+                        <td>{% if c.real_coma_diameter is not none%}{{ c.real_coma_diameter | round(1) }}'{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
+            <p style="margin:1em 0">* {{ _('Magnitude value is evaluated') }}</p>
+        </div>
+    </form>
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro comets_chart() %}
+    {{ fchart.fchart(url_for('main_comet.comets_chart', back=back, back_id=back_id),
+                     url_for('main_comet.comets_chart_pos_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
+                     url_for('main_comet.comets_chart_legend_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_comet.comets_chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                              fchart_form)
+    }}
+{% endmacro %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
 
 {% block content %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer column">
-            <a class="ui basic computer tablet only compact button" href="{{ url_for('main_solarsystem.solarsystem_menu') }}">
-                <i class="caret left icon"></i>
-                {{ _('Solar System') }}
-            </a>
-            <h2 class="ui header" style="margin-top:0.5em">
-                {{ _('Comets') }}
-            </h2>
+            <div>
+                <div class="ui huge breadcrumb">
 
-            <form action="{{ url_for('main_comet.comets') }}" method="post" name="search">
-                <div class="ui menu">
-                    <div class="ui input item">
-                        {{ search_form.maglim(size=4) }}
-                        {% if search_form.maglim.errors %}
-                            <div class="bottom aligned red pointing floating ui label">
-                                {{ search_form.maglim.errors[0] | safe }}
-                            </div>
-                        {% endif %}
-                        <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
-                    </div>
-
-                    <div class="ui input item">
-                        {{ search_form.dec_min(size=4) }}
-                        {% if search_form.dec_min.errors %}
-                            <div class="bottom left aligned red pointing floating ui label">
-                                {{ search_form.dec_min.errors[0] | safe }}
-                            </div>
-                        {% endif %}
-                        <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
-                    </div>
-                    <div class="ui right search item">
-                        <div class="ui action input">
-                            {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
-                            <button class="ui icon button">
-                                <i class="search icon"></i>
-                            </button>
-                        </div>
+                    <a class="ui basic compact button" href="{{ url_for('main_solarsystem.solarsystem_menu') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Solar System') }}
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('Comets') }}
                     </div>
                 </div>
+            </div>
 
-
-                {# Use overflow-x: scroll so that mobile views don't freak out
-                 # when the table is too wide #}
-                <div style="overflow-x: scroll;width: 100%">
-                    <table class="ui searchable unstackable selectable celled table">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['designation'].sort) }}" style="color: inherit;">
-                                        {{ _('Name')}} {{ table_sort['designation'].icon | safe }}
-                                    </a>
-                                </th>
-                                <th class="mobile hidden">
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['cur_ra'].sort) }}" style="color: inherit;">
-                                        RA {{ table_sort['cur_ra'].icon | safe }}
-                                    </a>
-                                </th>
-                                <th class="mobile hidden">
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['cur_dec'].sort) }}" style="color: inherit;">
-                                        Dec {{ table_sort['cur_dec'].icon | safe }}
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
-                                        <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['mag'].sort) }}" style="color: inherit;">
-                                        {{ _('Brightness') }} {{ table_sort['mag'].icon | safe }}
-                                    </a>
-                                </th>
-                                <th>
-                                    <a href="{{ url_for('main_comet.comets', page=1, sortby=table_sort['coma_diameter'].sort) }}" style="color: inherit;">
-                                        {{ _('Size') }} {{ table_sort['mag'].icon | safe }}
-                                    </a>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {% for c in comets %}
-                            {% set comet_url = url_for('main_comet.comet_info', comet_id=c.comet_id) %}
-                            <tr onclick="window.location.href = '{{ comet_url }}';">
-                                <td><a href="{{ comet_url }}">{{ c.designation }}</a></td>
-                                <td class="mobile hidden">{{ c.cur_ra_str_short() }}</td>
-                                <td class="mobile hidden">{{ c.cur_dec_str_short() }}</td>
-                                <td>{{ c.cur_constell().iau_code if c.cur_constell_id is not none else '' }}</td>
-                                <td>
-                                    {% if c.real_mag is not none%}{{ c.real_mag  | round(1) }}{% elif c.eval_mag is not none %}{{ c.eval_mag | round(1) }}*{% endif %}
-                                </td>
-                                <td>{% if c.real_coma_diameter is not none%}{{ c.real_coma_diameter | round(1) }}'{% else %}-{% endif %}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    {{ pagination.links }} {{ commons.items_per_page(search_form.items_per_page) }} {{ pagination.info }}
-                    <p style="margin:1em 0">* {{ _('Magnitude value is evaluated') }}</p>
-                </div>
-            </form>
+            {{ navigation(endpoints) }}
+            {% if type == 'list' %}
+                {{ comets_list() }}
+            {% else %}
+                {{ comets_chart() }}
+            {% endif %}
         </div>
     </div>
+    <script type="text/javascript">
+        $('.ui.rating')
+        .rating();
+    </script>
+
 {% endblock %}
