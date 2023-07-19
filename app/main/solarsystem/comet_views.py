@@ -231,6 +231,8 @@ def comet_info(comet_id):
 
     chart_control = common_prepare_chart_data(form)
 
+    embed = request.args.get('embed')
+
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64, embed=embed)
 
