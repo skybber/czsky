@@ -138,28 +138,32 @@ def comets():
 def comets_chart():
     form = ChartForm()
 
-    comets = Comet.query.filter(Comet.mag < 20).order_by('mag').all()
+    comet = Comet.query.filter(Comet.mag < 17.5).order_by('mag').first()
 
     if not common_ra_dec_fsz_from_request(form):
         if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            if comets:
-                form.ra.data = comets[0].cur_ra
-                form.dec.data = comets[0].cur_dec
+            if comet:
+                form.ra.data = comet.cur_ra
+                form.dec.data = comet.cur_dec
+
+    default_chart_iframe_url = None
+    if comet:
+        default_chart_iframe_url = url_for('main_comet.comet_info', comet_id=comet.comet_id, embed='fc', allow_back='false')
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/solarsystem/comets.html', fchart_form=form, type='chart', comets=comets, chart_control=chart_control,)
+    return render_template('main/solarsystem/comets.html', fchart_form=form, type='chart', comets=comets, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_comet.route('/comets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pos_img(ra, dec):
-    comets = Comet.query.filter(Comet.mag < 20).all()
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id),
-                            x.designation) for x in comets if comets]
+    comets = Comet.query.filter(Comet.mag < 17.5).all()
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation) for x in comets if comets]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
@@ -172,9 +176,8 @@ def comets_chart_legend_img(ra, dec):
 
 @main_comet.route('/comets/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pdf(ra, dec):
-    comets = Comet.query.filter(Comet.mag < 20).all()
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.comet.id),
-                            x.designation) for x in comets if comets]
+    comets = Comet.query.filter(Comet.mag < 17.5).all()
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation) for x in comets if comets]
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
 
@@ -227,8 +230,6 @@ def comet_info(comet_id):
             form.dec.data = comet_dec
 
     chart_control = common_prepare_chart_data(form)
-
-    embed = request.args.get('embed')
 
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64, embed=embed)
@@ -350,7 +351,7 @@ def comet_catalogue_data(comet_id):
     comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
-    return render_template('main/solarsystem/comet_info.html', type='catalogue_data', user_descr=user_descr)
+    return render_template('main/solarsystem/comet_info.html', type='catalogue_data')
 
 
 def _check_in_mag_interval(mag, mag_interval):
