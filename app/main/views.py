@@ -143,10 +143,12 @@ def global_search():
     # 6. Search comet
     comet = search_comet(query)
     if comet is not None:
-        return redirect(url_for('main_comet.comet_info',
+        return redirect(url_for('main_comet.comet_seltab',
+                                comet_id=comet.comet_id,
+                                seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
-                                comet_id=comet.comet_id))
+                                embed=request.args.get('embed')))
 
     # 7. Search minor planet
     minor_planet = search_minor_planet(query)
@@ -203,7 +205,7 @@ def _search_chart_ids(query):
         try:
             comet_id = int(query[len(CHART_COMET_PREFIX):])
             comet = Comet.query.filter_by(id=comet_id).first()
-            return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id, embed=request.args.get('embed')))
+            return redirect(url_for('main_comet.comet_seltab', comet_id=comet.comet_id, embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     if query.startswith(CHART_MINOR_PLANET_PREFIX):

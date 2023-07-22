@@ -147,15 +147,15 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     $(fchartDiv).addClass("fchart-container");
 
-    var url;
+    let url = default_chart_iframe_url;
 
     if (embed == '') {
-        url = default_chart_iframe_url;
         if (url == '') {
             url = searchUrl.replace('__SEARCH__', 'M1') + "&embed=fc";
         }
+        this.embed = 'fc';
     } else {
-        url='';
+        this.embed = embed;
     }
 
     let iframe_background;
@@ -639,7 +639,7 @@ FChart.prototype.onClick = function(e) {
     let dso  = this.findDso(e)
     if (dso != null) {
         if (this.isInSplitView()) {
-            var url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + "&embed=fc";
+            var url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
         } else {
             window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso));

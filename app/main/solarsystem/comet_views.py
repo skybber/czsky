@@ -14,6 +14,7 @@ from flask import (
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
 
@@ -148,7 +149,7 @@ def comets_chart():
 
     default_chart_iframe_url = None
     if comet:
-        default_chart_iframe_url = url_for('main_comet.comet_info', comet_id=comet.comet_id, embed='fc', allow_back='false')
+        default_chart_iframe_url = url_for('main_comet.comet_seltab', comet_id=comet.comet_id, embed='comets', allow_back='false')
 
     chart_control = common_prepare_chart_data(form)
 
@@ -232,6 +233,8 @@ def comet_info(comet_id):
     chart_control = common_prepare_chart_data(form)
 
     embed = request.args.get('embed')
+    if embed:
+        session['comet_embed_seltab'] = 'info'
 
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64, embed=embed)
@@ -283,10 +286,31 @@ def comet_cobs_observations(comet_id):
         last_coma_diameter = '-'
 
     embed = request.args.get('embed')
+    if embed:
+        session['comet_embed_seltab'] = 'cobs'
 
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
                            page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed)
+
+
+@main_comet.route('/comet/<string:comet_id>/seltab')
+def comet_seltab(comet_id):
+    """View a comet seltab."""
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if not comet:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+    embed = request.args.get('embed')
+
+    if not seltab and embed:
+        seltab = session.get('comet_embed_seltab', None)
+
+    if seltab == 'cobs' or not seltab and embed == 'comets':
+        return _do_redirect('main_comet.comet_cobs_observations', comet)
+
+    return _do_redirect('main_comet.comet_info', comet)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -362,3 +386,12 @@ def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[1] < mag:
         return mag_interval[1]
     return mag
+
+def _do_redirect(url, comet):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    season = request.args.get('season')
+    return redirect(url_for(url, comet_id=comet.comet_id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

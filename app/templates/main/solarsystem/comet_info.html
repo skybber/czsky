@@ -8,16 +8,10 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 {% import 'macros/common_macros.html' as commons %}
 
-{% if embed == 'comets' %}
-    {% set endpoints = [
-        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
-    ] %}
-{% else %}
-    {% set endpoints = [
-        ('main_comet.comet_info', 'Info', 'info'),
-        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
-    ] %}
-{% endif %}
+{% set endpoints = [
+    ('main_comet.comet_info', 'Info', 'info'),
+    ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
+] %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
