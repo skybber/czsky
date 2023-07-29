@@ -591,6 +591,8 @@ def _get_fld_size_mags_from_request():
 
 
 def _check_in_mag_interval(mag, mag_interval):
+    if mag is None:
+        return mag_interval[0]
     if mag_interval[0] > mag:
         return mag_interval[0]
     if mag_interval[1] < mag:
