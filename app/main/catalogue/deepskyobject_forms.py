@@ -41,12 +41,12 @@ class SearchDsoForm(FlaskForm):
     ], default='All')
     dso_type = SelectField(lazy_gettext('Object type'), choices=[
          ('All', lazy_gettext('All types')),
-         ('GX', 'Galaxy'),
-         ('GC', 'Globular Cluster'),
-         ('OC', 'Open Cluster'),
-         ('BN', 'Nebula'),
-         ('PN', 'Planetary Nebula'),
-         ('GALCL', 'Galaxy Cluster'),
+         ('GX', lazy_gettext('Galaxy')),
+         ('GC', lazy_gettext('Globular Cluster')),
+         ('OC', lazy_gettext('Open Cluster')),
+         ('BN', lazy_gettext('Nebula')),
+         ('PN', lazy_gettext('Planetary Nebula')),
+         ('GALCL', lazy_gettext('Galaxy Cluster')),
     ], default='All')
     maglim = FloatField(lazy_gettext('Limit mag'), default=12.0, validators=[NumberRange(min=-30.0, max=30.0), Optional()])
     constellation_id = IntegerField('Constellation', default=None)
