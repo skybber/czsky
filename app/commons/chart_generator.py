@@ -621,6 +621,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     config.show_flamsteed = (fld_size <= 30)
 
+    if width and width <= MOBILE_WIDTH:
+        config.show_flamsteed = False
+
     config.show_constellation_shapes = 'C' in flags
     config.show_constellation_borders = 'B' in flags
     config.show_deepsky = 'D' in flags
