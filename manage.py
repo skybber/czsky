@@ -218,7 +218,7 @@ def import_minor_planets():
 
 @app.cli.command("import_comets")
 def import_comets():
-    all_mpc_comets = load_all_mpc_comets()
+    all_mpc_comets = load_all_mpc_comets(True)
     import_update_comets(all_mpc_comets, show_progress=True)
     update_evaluated_comet_brightness(all_comets=all_mpc_comets, show_progress=True)
     update_comets_cobs_observations()

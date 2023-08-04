@@ -47,7 +47,7 @@ from app.commons.chart_generator import (
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.comet_utils import update_comets_cobs_observations, update_evaluated_comet_brightness, \
-    update_comets_positions, get_mag_coma_from_observations, get_all_comets, find_mpc_comet
+    update_comets_positions, get_mag_coma_from_observations, find_mpc_comet
 from app.commons.utils import to_float
 
 from app.models import (
@@ -73,11 +73,12 @@ def _update_comets():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
         if ask_dbupdate_permit(DB_UPDATE_COMETS, timedelta(hours=1)):
-            update_comets_positions()
+            reload_comets = (comet_update_counter % 4) == 1
+            update_comets_positions(reload_comets=reload_comets)
             if (comet_update_counter % 4) == 1:
                 update_comets_cobs_observations()
             if (comet_update_counter % 2) == 1:
-                update_evaluated_comet_brightness()
+                update_evaluated_comet_brightness(reload_comets=False)
 
 
 job1 = scheduler.add_job(_update_comets, 'cron', hour='1,7,13,19', replace_existing=True, jitter=60)

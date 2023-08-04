@@ -129,8 +129,8 @@ def get_mpc_comet_position(mpc_comet, dt):
     return comet_ra_ang, comet_dec_ang
 
 
-def load_all_mpc_comets():
-    with load.open(mpc.COMET_URL, reload=True) as f:
+def load_all_mpc_comets(reload_comets):
+    with load.open(mpc.COMET_URL, reload=reload_comets) as f:
         all_mpc_comets = mpc.load_comets_dataframe_slow(f)
         all_mpc_comets = (all_mpc_comets.sort_values('reference')
                           .groupby('designation', as_index=False).last()
@@ -210,9 +210,9 @@ def import_update_comets(all_mpc_comets, show_progress=False):
     current_app.logger.info('Comets\' updated.')
 
 
-def update_evaluated_comet_brightness(all_mpc_comets=None, show_progress=False):
+def update_evaluated_comet_brightness(all_mpc_comets=None, show_progress=False, reload_comets=True):
     if all_mpc_comets is None:
-        all_mpc_comets = load_all_mpc_comets()
+        all_mpc_comets = load_all_mpc_comets(reload_comets)
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -246,7 +246,7 @@ def update_comets_cobs_observations():
 
     all_comets_text = soup.select('p.text-info')
 
-    month_2_index = {month.lower(): index for index, month in enumerate(calendar.month_abbr) if month}
+    month_2_index = { month.lower(): index for index, month in enumerate(calendar.month_abbr) if month }
 
     for comet_text in all_comets_text:
         parts = comet_text.find_all('strong', recursive=False)
@@ -350,9 +350,9 @@ def update_comets_cobs_observations():
     current_app.logger.info('Comets\' cobs observations loaded.')
 
 
-def update_comets_positions(all_mpc_comets=None, show_progress=False):
+def update_comets_positions(all_mpc_comets=None, show_progress=False, reload_comets=True):
     if all_mpc_comets is None:
-        all_mpc_comets = load_all_mpc_comets()
+        all_mpc_comets = load_all_mpc_comets(reload_comets)
 
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
