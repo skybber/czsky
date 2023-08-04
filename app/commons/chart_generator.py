@@ -10,6 +10,7 @@ import numpy as np
 import ctypes as ct
 import cairo
 from skyfield.api import load
+import threading
 
 import fchart3
 from flask import (
@@ -77,6 +78,8 @@ pdf_font_face_initialized = False
 
 skyfield_ts = load.timescale()
 
+catalog_lock = threading.Lock()
+
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
@@ -112,22 +115,24 @@ class ChartControl:
 
 
 def _load_used_catalogs():
-    global used_catalogs
+    global used_catalogs, catalog_lock
     if used_catalogs is None:
-        data_dir = os.path.join(fchart3.get_catalogs_dir())
-        usno_nomad_file = os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat')
-        extra_data_dir = os.path.join(os.getcwd(), 'data/')
-        used_catalogs = fchart3.UsedCatalogs(data_dir,
-                                             extra_data_dir,
-                                             usno_nomad_file=usno_nomad_file,
-                                             limiting_magnitude_deepsky=100.0,
-                                             force_asterisms=False,
-                                             force_unknown=False,
-                                             show_catalogs=ADD_SHOW_CATALOGS,
-                                             use_pgc_catalog=True,
-                                             enhanced_mw_optim_max_col_diff=18/255.0)
-        global dso_name_cache
-        dso_name_cache = {}
+        with catalog_lock:
+            if used_catalogs is None:
+                data_dir = os.path.join(fchart3.get_catalogs_dir())
+                usno_nomad_file = os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat')
+                extra_data_dir = os.path.join(os.getcwd(), 'data/')
+                used_catalogs = fchart3.UsedCatalogs(data_dir,
+                                                     extra_data_dir,
+                                                     usno_nomad_file=usno_nomad_file,
+                                                     limiting_magnitude_deepsky=100.0,
+                                                     force_asterisms=False,
+                                                     force_unknown=False,
+                                                     show_catalogs=ADD_SHOW_CATALOGS,
+                                                     use_pgc_catalog=True,
+                                                     enhanced_mw_optim_max_col_diff=18/255.0)
+                global dso_name_cache
+                dso_name_cache = {}
     return used_catalogs
 
 
