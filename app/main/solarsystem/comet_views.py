@@ -112,12 +112,12 @@ def comets():
 
     offset = (page - 1) * per_page
 
-    comet_query = Comet.query.filter(Comet.mag < 20)
 
     if search_form.q.data:
         search_expr = search_form.q.data.replace('"', '')
-        comet_query = comet_query.filter(Comet.designation.like('%' + search_expr + '%'))
+        comet_query = Comet.query.filter(Comet.designation.like('%' + search_expr + '%'))
     else:
+        comet_query = Comet.query.filter(Comet.mag < 20)
         if search_form.dec_min.data:
             comet_query = comet_query.filter(Comet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
         if search_form.maglim.data:
