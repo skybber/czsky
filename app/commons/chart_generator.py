@@ -371,12 +371,14 @@ def common_ra_dec_fsz_from_request(form):
         form.ra.data = float(ra)
         form.dec.data = float(dec)
         gui_fld_size = to_float(fsz, FIELD_SIZES[-1])
-        for i in range(len(FIELD_SIZES)-1, -1, -1):
-            if gui_fld_size >= FIELD_SIZES[i]:
-                form.radius.data = i+1
+        for i in range(len(GUI_FIELD_SIZES)-1, -1, -1):
+            if gui_fld_size >= GUI_FIELD_SIZES[i]:
+                form.radius.data = i//2+1
+                form.radius_ext.data = 1 if i % 2 == 1 else 0
                 break
         else:
             form.radius.data = len(FIELD_SIZES)
+            form.radius_ext.data = 0
         return True
     return False
 
@@ -444,7 +446,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         dso_mag_range_values.append(dml)
 
     gui_field_sizes = STR_GUI_FIELD_SIZES
-    gui_field_index = (form.radius.data-1)*2
+    gui_field_index = (form.radius.data-1)*2 + form.radius_ext.data
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 

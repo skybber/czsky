@@ -11,6 +11,7 @@ from wtforms.validators import (
 
 class ChartForm(FlaskForm):
     radius = IntegerField(lazy_gettext('Field radius'), default=9, validators=[Length(min=1, max=10)])
+    radius_ext = IntegerField(lazy_gettext('Field radius ext'), default=0, validators=[Length(min=0, max=1)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=7)
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = HiddenField('mirror_x', default='false')
