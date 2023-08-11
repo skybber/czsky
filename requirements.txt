@@ -42,7 +42,7 @@ MarkupSafe==2.1.2
 numpy==1.24.3
 packaging==23.1
 pandas==2.0.2
-Pillow==9.5.0
+Pillow==10.0.0
 pipupgrade==1.12.0
 psycopg2==2.9.6
 pycairo==1.23.0
@@ -57,6 +57,7 @@ redis==4.5.5
 requests==2.31.0
 rq==1.15.0
 six==1.16.0
+skia-python==87.5
 skyfield==1.46
 SQLAlchemy==2.0.15
 text-unidecode==1.3

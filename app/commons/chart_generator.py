@@ -125,7 +125,7 @@ def _load_used_catalogs():
                 used_catalogs = fchart3.UsedCatalogs(data_dir,
                                                      extra_data_dir,
                                                      usno_nomad_file=usno_nomad_file,
-                                                     limiting_magnitude_deepsky=100.0,
+                                                     limit_magnitude_deepsky=100.0,
                                                      force_asterisms=False,
                                                      force_unknown=False,
                                                      show_catalogs=ADD_SHOW_CATALOGS,
@@ -660,6 +660,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality)
+    # artist = fchart3.SkiaDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
+    #                               pixels=True if width else False, jpg_quality=jpg_quality)
     engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
