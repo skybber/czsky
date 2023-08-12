@@ -20,11 +20,13 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
     common_set_initial_ra_dec,
 )
+from ... import csrf
 
 main_chart = Blueprint('main_chart', __name__)
 
 
 @main_chart.route('/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def chart():
     """View a chart."""
     form = ChartForm()

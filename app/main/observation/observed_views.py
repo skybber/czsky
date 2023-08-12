@@ -23,7 +23,7 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_babel import gettext
 
-from app import db
+from app import db, csrf
 
 from .observed_forms import (
     AddToObservedListForm,
@@ -193,6 +193,7 @@ def observed_list_download():
 
 @main_observed.route('/observed-list/chart', methods=['GET', 'POST'])
 @login_required
+@csrf.exempt
 def observed_list_chart():
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     if observed_list is None:

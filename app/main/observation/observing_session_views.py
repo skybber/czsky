@@ -17,7 +17,7 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_babel import gettext
 
-from app import db
+from app import db, csrf
 
 from .observing_session_forms import (
     ObservingSessionNewForm,
@@ -345,6 +345,7 @@ def observing_session_delete(observing_session_id):
 
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def observing_session_chart(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)

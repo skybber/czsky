@@ -21,7 +21,7 @@ from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app import create_app
+from app import create_app, csrf
 from app import scheduler
 
 from app.models import (
@@ -148,6 +148,7 @@ def minor_planets():
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>', methods=['GET', 'POST'])
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
+@csrf.exempt
 def minor_planet_info(minor_planet_id):
     """View a minor_planet info."""
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()

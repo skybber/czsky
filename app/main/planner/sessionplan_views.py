@@ -34,7 +34,7 @@ from flask_login import current_user, login_required
 
 from flask_babel import gettext
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     Constellation,
@@ -677,6 +677,7 @@ def _combine_date_and_time(date_part, time_part, tz_info):
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def session_plan_chart(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     is_mine_session_plan = _check_session_plan(session_plan, allow_public=True)

@@ -22,7 +22,7 @@ from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app import create_app
+from app import create_app, csrf
 
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
@@ -137,6 +137,7 @@ def comets():
                            table_sort=table_sort)
 
 @main_comet.route('/comets/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def comets_chart():
     form = ChartForm()
 
@@ -188,6 +189,7 @@ def comets_chart_pdf(ra, dec):
 
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
 @main_comet.route('/comet/<string:comet_id>/info', methods=['GET', 'POST'])
+@csrf.exempt
 def comet_info(comet_id):
     """View a comet info."""
     comet = find_mpc_comet(comet_id)

@@ -42,7 +42,7 @@ from app.commons.search_utils import (
     process_paginated_session_search,
     create_table_sort,
 )
-
+from ... import csrf
 
 main_double_star_list = Blueprint('main_double_star_list', __name__)
 
@@ -152,6 +152,7 @@ def double_star_list_info(double_star_list_id):
 
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def double_star_list_chart(double_star_list_id):
     double_star_list = _find_double_star_list(double_star_list_id)
     if double_star_list is None:

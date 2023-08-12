@@ -16,7 +16,7 @@ from flask import (
 )
 from flask_login import current_user
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     Constellation,
@@ -192,6 +192,7 @@ def dso_list_info(dso_list_id):
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def dso_list_chart(dso_list_id):
     dso_list = _find_dso_list(dso_list_id)
     if dso_list is None:

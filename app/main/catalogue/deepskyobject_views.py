@@ -21,7 +21,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import func
 from sqlalchemy.sql.expression import literal
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     Catalogue,
@@ -501,6 +501,7 @@ def deepskyobject_catalogue_data(dso_id):
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def deepskyobject_chart(dso_id):
     """View a deepsky object chart."""
     dso, orig_dso = _find_dso(dso_id)

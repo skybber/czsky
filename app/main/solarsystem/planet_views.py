@@ -30,6 +30,7 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
+from ... import csrf
 
 utc = dt_module.timezone.utc
 
@@ -44,6 +45,7 @@ def planets():
 
 @main_planet.route('/planet/<string:planet_iau_code>', methods=['GET', 'POST'])
 @main_planet.route('/planet/<string:planet_iau_code>/info', methods=['GET', 'POST'])
+@csrf.exempt
 def planet_info(planet_iau_code):
     """View a planet info."""
     planet =Planet.get_by_iau_code(planet_iau_code)

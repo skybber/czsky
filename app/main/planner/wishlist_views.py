@@ -24,7 +24,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     Constellation,
@@ -128,6 +128,7 @@ def wish_list_item_remove(item_id):
 
 @main_wishlist.route('/wish-list/chart', methods=['GET', 'POST'])
 @login_required
+@csrf.exempt
 def wish_list_chart():
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
     if wish_list is None:

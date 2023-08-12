@@ -18,7 +18,7 @@ from flask import (
 from flask_login import current_user, login_required
 from sqlalchemy.sql.expression import literal
 
-from app import db
+from app import db, csrf
 from app import scheduler
 from app import create_app
 
@@ -198,6 +198,7 @@ def supernova_seltab(designation):
 
 
 @main_supernova.route('/supernova/<string:designation>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def supernova_chart(designation):
     """View a supernova findchart."""
     supernova = Supernova.query.filter_by(designation=designation).first()

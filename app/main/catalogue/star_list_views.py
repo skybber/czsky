@@ -29,6 +29,7 @@ from .star_list_forms import (
 )
 
 from app.main.chart.chart_forms import ChartForm
+from ... import csrf
 
 main_star_list = Blueprint('main_star_list', __name__)
 
@@ -83,6 +84,7 @@ def star_list_info(star_list_id):
 
 
 @main_star_list.route('/star-list/<string:star_list_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def star_list_chart(star_list_id):
     star_list = _find_star_list(star_list_id)
     if star_list is None:

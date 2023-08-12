@@ -15,7 +15,7 @@ from flask import (
 from flask_login import current_user, login_required
 from sqlalchemy import or_, and_
 
-from app import db
+from app import db, csrf
 
 from app.models import News
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
@@ -90,6 +90,7 @@ def news_info(news_id):
 
 @main_news.route('/news/<int:news_id>', methods=['GET', 'POST'])
 @main_news.route('/news/<int:news_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def news_chart(news_id):
     """View a comet info."""
     news = News.query.filter_by(id=news_id).first()

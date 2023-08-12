@@ -21,7 +21,7 @@ from flask import (
 from flask_login import current_user, login_required
 from sqlalchemy.sql.expression import literal
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     DoubleStar,
@@ -380,6 +380,7 @@ def double_star_seltab(double_star_id):
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def double_star_chart(double_star_id):
     """View a double star findchart."""
     double_star = DoubleStar.query.filter_by(id=double_star_id).first()

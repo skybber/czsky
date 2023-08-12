@@ -18,7 +18,7 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app import db
+from app import db, csrf
 
 from app.models import Star, UserStarDescription
 from app.commons.chart_generator import (
@@ -161,6 +161,7 @@ def star_descr_catalogue_data(star_descr_id):
 
 
 @main_star.route('/star/<int:star_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def star_chart(star_id):
     """View a star findchart."""
     star = Star.query.filter_by(id=star_id).first()
@@ -187,6 +188,7 @@ def star_chart(star_id):
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
+@csrf.exempt
 def star_descr_chart(star_descr_id):
     """View a star findchart."""
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)

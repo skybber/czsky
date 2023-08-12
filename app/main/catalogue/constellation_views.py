@@ -16,7 +16,7 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_babel import gettext
 
-from app import db
+from app import db, csrf
 
 from app.models import (
     Constellation,
@@ -223,6 +223,7 @@ def constellation_info(constellation_id):
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/chart', methods=['GET', 'POST'])
+@csrf.exempt
 def constellation_chart(constellation_id):
     """View a constellation findchart."""
     constellation = _find_constellation(constellation_id)
