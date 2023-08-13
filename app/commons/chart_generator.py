@@ -692,7 +692,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     transparent = False
     if config.show_dss:
-        config.show_milky_way = False
+        config.show_simple_milky_way = False
         config.show_enhanced_milky_way = False
         config.show_star_circles = False
         transparent = True
@@ -748,7 +748,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     config.show_deepsky = 'D' in flags
     config.show_equatorial_grid = 'E' in flags
     config.fov_telrad = 'T' in flags
-    config.show_milky_way = False
+    config.show_simple_milky_way = False
     config.show_enhanced_milky_way = False
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 0.7  # increase radius of star by 0.5 magnitude
