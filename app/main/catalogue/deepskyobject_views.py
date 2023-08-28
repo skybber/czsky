@@ -828,6 +828,6 @@ def _show_obs_log():
         back_id = request.args.get('back_id')
         if back_id:
             observing_session = ObservingSession.query.filter_by(id=back_id).first()
-            if observing_session and observing_session.user_id == current_user.id and not observing_session.is_finished:
+            if observing_session and not current_user.is_anonymous and observing_session.user_id == current_user.id and not observing_session.is_finished:
                 return True
     return False
