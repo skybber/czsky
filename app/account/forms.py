@@ -1,3 +1,5 @@
+import re
+
 from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
@@ -21,10 +23,28 @@ class LoginForm(FlaskForm):
     remember_me = BooleanField('Keep me logged in')
     submit = SubmitField('Log in')
 
+class UserCheck:
+    def __init__(self, banned, regex, message=None):
+        self.banned = banned
+        self.regex = regex
+
+        if not message:
+            message = 'Please choose another username'
+        self.message = message
+
+    def __call__(self, form, field):
+        p = re.compile(self.regex)
+        if field.data.lower() in (word.lower() for word in self.banned):
+            raise ValidationError(self.message)
+        if re.search(p, field.data.lower()):
+            raise ValidationError(self.message)
 
 class RegistrationForm(FlaskForm):
     user_name = StringField(
         'User Name', validators=[InputRequired(),
+                                 UserCheck(message="Username or special characters not allowed",
+                                           banned=['root', 'admin', 'sys', 'administrator'],
+                                           regex="^(?=.*[-+!#$%^&*, ?])"),
                                  Length(3, 40)])
     full_name = StringField(
         'Full Name', validators=[InputRequired(),
