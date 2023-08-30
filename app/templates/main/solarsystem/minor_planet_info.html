@@ -31,7 +31,9 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                     fchart_form, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string )
+                     None,
+                     fchart_form,
+                     obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string )
     }}
 {% endmacro %}
 

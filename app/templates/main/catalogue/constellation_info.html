@@ -309,7 +309,8 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_constellation.constellation_chart_pdf', constellation_id=constellation.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
-                              fchart_form,)
+                     None,
+                     fchart_form,)
     }}
 {% endmacro %}
 

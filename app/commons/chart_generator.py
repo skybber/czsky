@@ -342,8 +342,8 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     return img_bytes
 
 
-def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_dso_list=None, observed_dso_ids=None, trajectory=None,
-                         highlights_pos_list=None):
+def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
+                         observed_dso_ids=None, trajectory=None, highlights_pos_list=None):
     gui_fld_size, maglim, dso_maglim = _get_fld_size_mags_from_request()
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
@@ -355,9 +355,9 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, highlights_ds
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim,
+    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
-                      highlights_pos_list=highlights_pos_list, observed_dso_ids=None, trajectory=trajectory,
+                      highlights_pos_list=highlights_pos_list, observed_dso_ids=observed_dso_ids, trajectory=trajectory,
                       eyepiece_fov=eyepiece_fov)
     img_bytes.seek(0)
     return img_bytes
@@ -719,7 +719,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     return img_format
 
 
-def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim,
+def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
                       observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
@@ -789,7 +789,7 @@ def _create_chart_pdf(pdf_fobj, obj_ra, obj_dec, ra, dec, fld_size, star_maglim,
     dso_hide_filter = _get_dso_hide_filter()
 
     engine.make_map(used_catalogs, showing_dsos=showing_dsos, dso_highlights=dso_highlights, highlights=highlights,
-                    dso_hide_filter=dso_hide_filter, trajectory=trajectory)
+                    dso_hide_filter=dso_hide_filter, trajectory=trajectory, visible_objects=visible_objects)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 

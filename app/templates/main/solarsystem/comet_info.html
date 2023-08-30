@@ -33,7 +33,9 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                              fchart_form, obj_ra=comet_ra|string, obj_dec=comet_dec|string)
+                     None,
+                     fchart_form,
+                     obj_ra=comet_ra|string, obj_dec=comet_dec|string)
     }}
 {% endmacro %}
 

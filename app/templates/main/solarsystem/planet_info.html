@@ -26,7 +26,9 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_planet.planet_chart_pdf', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                     fchart_form, obj_ra=planet_ra|string, obj_dec=planet_dec|string )
+                     None,
+                     fchart_form,
+                     obj_ra=planet_ra|string, obj_dec=planet_dec|string )
     }}
 {% endmacro %}
 

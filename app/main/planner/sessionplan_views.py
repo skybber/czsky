@@ -78,7 +78,7 @@ from .sessionplan_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
-from app.commons.dso_utils import normalize_dso_name
+from app.commons.dso_utils import normalize_dso_name, get_norm_visible_objects_set, chart_items_to_file
 from app.commons.utils import get_anonymous_user
 from app.commons.coordinates import parse_latlon
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
@@ -463,7 +463,7 @@ def session_plan_export_csv(session_plan_id):
     mem.write(buf.getvalue().encode('utf-8'))
     mem.seek(0)
     return send_file(mem, as_attachment=True,
-                     attachment_filename='sessionplan-' + session_plan.title.replace(' ', '_') + '.csv',
+                     download_name='sessionplan-' + session_plan.title.replace(' ', '_') + '.csv',
                      mimetype='text/csv')
 
 
@@ -482,7 +482,7 @@ def session_plan_export_oal(session_plan_id):
     mem.seek(0)
 
     return send_file(mem, as_attachment=True,
-                     attachment_filename='sessionplan-' + session_plan.title.replace(' ', '_') + '.oal',
+                     download_name='sessionplan-' + session_plan.title.replace(' ', '_') + '.oal',
                      mimetype='text/xml')
 
 
@@ -739,6 +739,31 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
                                      highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-items/<string:ra>/<string:dec>', methods=['GET'])
+def session_plan_chart_items(session_plan_id, ra, dec):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan, allow_public=True)
+
+    highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
+
+    visible_objects = []
+    _ = common_chart_pdf_img(None, None, ra, dec, visible_objects=visible_objects,
+                             highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+
+    norm_dso_names = get_norm_visible_objects_set(visible_objects)
+
+    chart_items = []
+    for session_plan_item in session_plan.session_plan_items:
+        if session_plan_item.item_type == SessionPlanItemType.DSO and session_plan_item.deepsky_object.name in norm_dso_names:
+            chart_items.append((session_plan_item.deepsky_object.name, session_plan_item.deepsky_object.mag))
+
+    file = chart_items_to_file(chart_items)
+
+    return send_file(file, as_attachment=True,
+                     download_name='sessionplan-items-' + session_plan.title.replace(' ', '_') + '.csv',
+                     mimetype='text/csv')
 
 
 def _get_twighligh_component(session_plan, comp):

@@ -167,7 +167,9 @@
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_double_star_list.double_star_list_chart_pdf', double_star_list_id=double_star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags,
                               epfov=chart_control.eyepiece_fov, ),
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=double_star_list&back_id={}'.format(double_star_list.id) )
+                     None,
+                     fchart_form,
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=double_star_list&back_id={}'.format(double_star_list.id) )
     }}
 {% endmacro %}
 

@@ -187,7 +187,7 @@ def observed_list_download():
     mem.write(buf.getvalue().encode('utf-8'))
     mem.seek(0)
     return send_file(mem, as_attachment=True,
-                     attachment_filename='observed-' + current_user.user_name + '.csv',
+                     download_name='observed-' + current_user.user_name + '.csv',
                      mimetype='text/csv')
 
 

@@ -60,7 +60,7 @@ def observation_export():
         mem.write(buf.getvalue().encode('utf-8'))
         mem.seek(0)
         return send_file(mem, as_attachment=True,
-                         attachment_filename='observations-' + current_user.user_name + '.xml',
+                         download_name='observations-' + current_user.user_name + '.xml',
                          mimetype='text/xml')
     return render_template('main/observation/observation_export.html', about_oal=_get_about_oal())
 

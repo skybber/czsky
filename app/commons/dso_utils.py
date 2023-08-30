@@ -1,4 +1,5 @@
 import re
+from io import BytesIO
 
 from app.models.catalogue import Catalogue
 
@@ -192,3 +193,26 @@ def dso_name_to_simbad_id(name):
         return 'PN_' + name
     return name
 
+def dso_name_from_visible_obj_name(dso_name):
+    if dso_name.isdigit():
+        dso_name = 'NGC' + dso_name
+    elif re.match(r'^\d*_\d$', dso_name):
+        dso_name = 'NGC' + dso_name
+    return dso_name
+
+def get_norm_visible_objects_set(visible_objects):
+    result = set()
+    for dso_name in visible_objects[::5]:
+        dso_name = dso_name_from_visible_obj_name(dso_name)
+        result.add(normalize_dso_name(denormalize_dso_name(dso_name)))
+    return result
+
+def chart_items_to_file(chart_items):
+    chart_items = sorted(chart_items, key=lambda x: x[1])
+
+    mem = BytesIO()
+    for chart_item in chart_items:
+        line = chart_item[0] + ',' + str(chart_item[1]) + '\n'
+        mem.write(line.encode('utf-8'))
+    mem.seek(0)
+    return mem
