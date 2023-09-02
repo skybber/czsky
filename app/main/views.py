@@ -83,7 +83,9 @@ def global_search():
 
     if not query:
         abort(404)
+    return do_global_search(query, 1)
 
+def do_global_search(query, level):
     # 0. search by czsky chart ids
     res = _search_chart_ids(query)
     if res:
@@ -166,9 +168,12 @@ def global_search():
 
     # 9. Search Simbad
     Simbad.ROW_LIMIT=1
+    Simbad.TIMEOUT = 10
     simbad = Simbad()
     simbad_obj = simbad.query_object(query)
     if simbad_obj is not None:
+        if simbad_obj[0]['MAIN_ID'] != query and level == 1:
+            do_global_search(simbad_obj[0]['MAIN_ID'], 2)
         ra_dec_query = '{} {}'.format(simbad_obj[0]['RA'], simbad_obj[0]['DEC'])
         res = _search_by_ra_dec(ra_dec_query)
         if res:
