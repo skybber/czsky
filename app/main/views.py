@@ -1,6 +1,8 @@
 import base64
 import urllib.parse
 
+from astroquery.simbad import Simbad
+
 from flask import (
     abort,
     Blueprint,
@@ -162,6 +164,16 @@ def global_search():
     res = _search_by_ra_dec(query)
     if res:
         return res
+
+    # 9. Search Simbad
+    simbad = Simbad()
+    simbad_obj = simbad.query_object(query)
+    if simbad_obj is not None:
+        ra_dec_query = '{} {}'.format(simbad_obj[0]['RA'], simbad_obj[0]['DEC'])
+        res = _search_by_ra_dec(ra_dec_query)
+        if res:
+            return res
+
 
     back_url_enc = request.args.get('back_url')
     if back_url_enc:
