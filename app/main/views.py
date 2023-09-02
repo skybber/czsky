@@ -41,7 +41,6 @@ from app.models import (
 
 main = Blueprint('main', __name__)
 
-
 @main.route('/')
 def index():
     lang_code = get_site_lang_code()
@@ -166,6 +165,7 @@ def global_search():
         return res
 
     # 9. Search Simbad
+    Simbad.ROW_LIMIT=1
     simbad = Simbad()
     simbad_obj = simbad.query_object(query)
     if simbad_obj is not None:
