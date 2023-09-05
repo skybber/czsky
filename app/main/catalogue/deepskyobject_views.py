@@ -519,9 +519,6 @@ def deepskyobject_chart(dso_id):
 
     chart_control = common_prepare_chart_data(form, cancel_selection_url=url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name))
 
-    back = request.args.get('back')
-    back_id = request.args.get('back_id')
-
     season = request.args.get('season')
     embed = request.args.get('embed')
 
@@ -529,6 +526,8 @@ def deepskyobject_chart(dso_id):
         session['dso_embed_seltab'] = 'chart'
 
     back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
     if back == 'running_plan':
         iframe_endpoit = 'main_deepskyobject.deepskyobject_observation_log'
     else:
