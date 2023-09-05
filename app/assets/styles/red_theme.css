@@ -174,3 +174,11 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.active.toggle.button{background-color: #7d3434 !important}
 .ui.definition.table > tbody > tr > td:first-child {color:#624b4b!important}
 .ui.definition.table tr td.definition {color:#624b4b!important}
+.ui.ui.form .field.error .input,
+.ui.ui.form .field.error .ui.label:not(.corner),
+.ui.ui.form .field.error label,
+.ui.ui.form .fields.error .field .input,
+.ui.ui.form .fields.error .field .ui.label:not(.corner),
+.ui.ui.form .fields.error .field label {
+    color: #ffb6b6
+}
