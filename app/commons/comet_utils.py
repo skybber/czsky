@@ -48,7 +48,8 @@ def get_mag_coma_from_observations(observs):
             if (first_dt - o.date).days > 2:
                 break
             n += 1
-            mag += o.mag
+            if o.mag is not None:
+                mag = (mag+o.mag) if mag is not None else mag
             if o.coma_diameter is not None:
                 coma_diameter = (coma_diameter + o.coma_diameter) if coma_diameter is not None else o.coma_diameter
         if mag is not None:
