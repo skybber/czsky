@@ -1,13 +1,8 @@
-import os
-import csv
-from datetime import datetime
 import base64
 
 from sqlalchemy.orm import joinedload
+from sqlalchemy import or_
 
-from werkzeug.utils import secure_filename
-
-import numpy as np
 
 from flask import (
     abort,
@@ -29,6 +24,8 @@ from app import db, csrf
 from app.models import (
     Constellation,
     DeepskyObject,
+    ObservedList,
+    ObservedListItem,
     WishList,
     WishListItem,
 )
@@ -159,12 +156,15 @@ def wish_list_chart():
 @main_wishlist.route('/wish-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 @login_required
 def wish_list_chart_pos_img(ra, dec):
-    wish_list_items = _get_wish_list_items(current_user.id)
+    wish_list = WishList.query.filter_by(user_id=current_user.id).first()
+    wish_list_items = _get_wish_list_items(wish_list)
     highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
+    observed_dso_ids = _find_wish_list_observed(wish_list)
     img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                                                 observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
@@ -182,7 +182,8 @@ def wish_list_chart_legend_img(ra, dec):
 
 @main_wishlist.route('/wish-list/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def wish_list_chart_pdf(ra, dec):
-    wish_list_items = _get_wish_list_items(current_user.id)
+    wish_list = WishList.query.filter_by(user_id=current_user.id).first()
+    wish_list_items = _get_wish_list_items(wish_list)
     highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
@@ -191,11 +192,34 @@ def wish_list_chart_pdf(ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-def _get_wish_list_items(user_id):
-    wish_list = WishList.query.filter_by(user_id=user_id).first()
+def _get_wish_list_items(wish_list):
     if wish_list:
         return db.session.query(WishListItem).options(joinedload(WishListItem.deepsky_object)) \
             .filter(WishListItem.wish_list_id == wish_list.id) \
             .all()
     return []
 
+def _find_wish_list_observed(wish_list):
+    if wish_list:
+        observed_query = db.session.query(WishListItem.dso_id) \
+            .filter(WishListItem.wish_list_id == wish_list.id) \
+            .join(WishListItem.deepsky_object)
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id == current_user.id) \
+            .filter(ObservedListItem.dso_id.is_not(None))
+        observed_query = observed_query.filter(or_(WishListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
+        return set(r[0] for r in observed_query.all())
+    return None
+
+def common_highlights_from_wishlist_items(wish_list_items):
+    highlights_dso_list = []
+    highlights_pos_list = []
+
+    if wish_list_items:
+        for item in wish_list_items:
+            if item.dso_id is not None:
+                highlights_dso_list.append(item.deepsky_object)
+            elif item.double_star_id is not None:
+                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_common_name()])
+    return highlights_dso_list, highlights_pos_list
