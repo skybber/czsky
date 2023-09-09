@@ -122,7 +122,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
     }
 
     // ---- transform texture ----
-    var d_inv = 1/ (u0 * (v2 - v1) - u1 * v2 + u2 * v1 + (u1 - u2) * v0);
+    let d_inv = 1/ (u0 * (v2 - v1) - u1 * v2 + u2 * v1 + (u1 - u2) * v0);
     ctx.transform(
         -(v0 * (x2 - x1) -  v1 * x2  + v2 *  x1 + (v1 - v2) * x0) * d_inv, // m11
             (v1 *  y2 + v0  * (y1 - y2) - v2 *  y1 + (v2 - v1) * y0) * d_inv, // m12
@@ -319,7 +319,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     $(this.canvas).bind('keyup', this.onKeyUp.bind(this));
 
     $(this.separator).bind('mousedown',  (function(e) {
-        var md = {
+        let md = {
             e,
             offsetLeft:  this.separator.offsetLeft,
             firstWidth:  this.iframe.offsetWidth,
@@ -330,7 +330,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         $(this.iframe).css('pointer-events', 'none');
 
         $(document).bind('mousemove',  (function(e) {
-            var delta = {x: e.clientX - md.e.clientX,
+            let delta = {x: e.clientX - md.e.clientX,
                          y: e.clientY - md.e.clientY};
 
             delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
@@ -339,8 +339,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
             $(this.iframe).width(md.firstWidth + delta.x);
             $(this.fchartDiv).css('left', md.secondLeft + delta.x);
             $(this.fchartDiv).width(md.secondWidth - delta.x);
-            var computedWidth = $(this.fchartDiv).width();
-            var computedHeight = $(this.fchartDiv).height();
+            let computedWidth = $(this.fchartDiv).width();
+            let computedHeight = $(this.fchartDiv).height();
             this.adjustCanvasSizeWH(computedWidth, computedHeight);
         }).bind(this));
 
@@ -355,11 +355,11 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
     $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
-        var fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+        let fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
         if (fullscreenElt===null || fullscreenElt===undefined) {
             $(fchartDiv).removeClass('fchart-fullscreen');
 
-            var fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
+            let fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
             (typeof fullScreenToggledFn === 'function') && fullScreenToggledFn(isInFullscreen);
         }
     });
@@ -589,17 +589,17 @@ FChart.prototype.mirroredPos2radec2 = function(x, y, centerRA, centerDEC) {
 }
 
 FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
-    var dx = this.canvas.width / this.GRID_SIZE;
-    var dy = this.canvas.height / this.GRID_SIZE;
-    var screenY = 0;
+    let dx = this.canvas.width / this.GRID_SIZE;
+    let dy = this.canvas.height / this.GRID_SIZE;
+    let screenY = 0;
     this.imgGrid = [];
-    var scale = this.getFChartScale();
+    let scale = this.getFChartScale();
     for (i=0; i <= this.GRID_SIZE; i++) {
-        var screenX = 0;
-        var y = -(screenY - this.canvas.height / 2.0) / scale;
+        let screenX = 0;
+        let y = -(screenY - this.canvas.height / 2.0) / scale;
         for (j=0; j <= this.GRID_SIZE; j++) {
-            var x = -(screenX - this.canvas.width / 2.0) / scale;
-            var rd = this.mirroredPos2radec(x, y, centerRA, centerDEC);
+            let x = -(screenX - this.canvas.width / 2.0) / scale;
+            let rd = this.mirroredPos2radec(x, y, centerRA, centerDEC);
             this.imgGrid.push([rd.ra, rd.dec]);
             screenX += dx;
         }
@@ -608,7 +608,7 @@ FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
 }
 
 FChart.prototype.getEventLocation = function(e) {
-    var pos = { x: 0, y: 0 };
+    let pos = { x: 0, y: 0 };
 
     if (e.originalEvent.type == "touchstart" || e.originalEvent.type == "touchmove" || e.originalEvent.type == "touchend") {
         let touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
@@ -653,7 +653,7 @@ FChart.prototype.onClick = function(e) {
     let dso  = this.findDso(e)
     if (dso != null) {
         if (this.isInSplitView()) {
-            var url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
+            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
         } else {
             window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso));
