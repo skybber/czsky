@@ -205,6 +205,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.ZOOM_INTERVAL = 300;
     this.MAX_ZOOM_STEPS = 20;
     this.ZOOM_TIMEOUT = this.ZOOM_INTERVAL / this.MAX_ZOOM_STEPS;
+    this.SLOWDOWN_ANALYZE_MILLIS = 100;
+    this.SLOWDOWN_STEPS = 25;
+    this.SLOWDOWN_INTERVAL_MILLIS = 20;
 
     this.GRID_SIZE = 10;
     this.MOVE_SEC_PER_SCREEN = 2;
@@ -247,6 +250,15 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.imgGrid = undefined;
 
     this.aladin = aladin;
+
+    this.moveTrack = [];
+    this.moveSpeedX = 0;
+    this.moveSpeedY = 0;
+    this.moveSpeedXCoef = 0;
+    this.moveSpeedYCoef = 0;
+    this.slowdownInterval = undefined;
+    this.slowdownIntervalStep = 0;
+    this.slowdownNextTs = undefined;
 
     if (this.aladin != null) {
         this.aladin.view.imageSurvey.flipX = this.multRA;
@@ -296,13 +308,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     $(this.canvas).bind('mouseup', this.onPointerUp.bind(this));
 
-    $(this.canvas).bind('touchend',  (function(e) {
-        if (this.initialDistance != null) {
-            this.initialDistance = undefined;
-        } else {
-            this.onPointerUp(e);
-        }
-    }).bind(this));
+    $(this.canvas).bind('touchend', this.onTouchEnd.bind(this));
 
     $(this.canvas).bind('mouseout', this.onMouseOut.bind(this));
 
@@ -581,10 +587,22 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
 }
 
 FChart.prototype.mirroredPos2radec = function(x, y, centerRA, centerDEC) {
+    let r2 = x**2 + y**2;
+    if (r2 >= 1.0) {
+        let r = Math.sqrt(r2);
+        x = x / (1.001*r);
+        y = y / (1.001*r);
+    }
     return pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
 }
 
 FChart.prototype.mirroredPos2radec2 = function(x, y, centerRA, centerDEC) {
+    let r2 = x**2 + y**2;
+    if (r2 >= 1.0) {
+        let r = Math.sqrt(r2);
+        x = x / (1.001*r);
+        y = y / (1.001*r);
+    }
     return pos2radec2(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
 }
 
@@ -865,18 +883,44 @@ FChart.prototype.onPointerMove = function (e) {
     if (this.isDragging) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
-
-        this.syncAladinViewCenter();
-
-        let curLegendImg = this.legendImgBuf[this.legendImg.active];
-        let curSkyImg = this.skyImgBuf[this.skyImg.active];
-
-        if (this.imgGrid != undefined) {
-            this.drawImgGrid(curSkyImg);
-        }
-        this.ctx.drawImage(curLegendImg, 0, 0);
-        this.renderOnTimeOutFromPointerMove(false);
+        this.doDraggingMove();
+        this.recordMovePos();
     }
+}
+
+FChart.prototype.recordMovePos = function (e) {
+    let ts = Date.now();
+    this.moveTrack.push([ts, this.pointerX, this.pointerY]);
+    this.reduceMoveTrack(ts);
+}
+
+FChart.prototype.reduceMoveTrack = function (ts) {
+    let reduced = false;
+    for (i=0; i<this.moveTrack.length; i++) {
+        if (this.moveTrack[i][0] >= ts-this.SLOWDOWN_ANALYZE_MILLIS) {
+            if (i>0) {
+                this.moveTrack = this.moveTrack.splice(i);
+            }
+            reduced = true;
+            break;
+        }
+    }
+    if (!reduced) {
+        this.moveTrack = [];
+    }
+}
+
+FChart.prototype.doDraggingMove = function () {
+    this.syncAladinViewCenter();
+
+    let curLegendImg = this.legendImgBuf[this.legendImg.active];
+    let curSkyImg = this.skyImgBuf[this.skyImg.active];
+
+    if (this.imgGrid != undefined) {
+        this.drawImgGrid(curSkyImg);
+    }
+    this.ctx.drawImage(curLegendImg, 0, 0);
+    this.renderOnTimeOutFromPointerMove(false);
 }
 
 FChart.prototype.onTouchMove = function (e) {
@@ -889,6 +933,62 @@ FChart.prototype.onTouchMove = function (e) {
         this.initialDistance = distance;
     } else {
         this.onPointerMove(e);
+    }
+}
+
+FChart.prototype.onTouchEnd = function (e) {
+    if (this.initialDistance != null) {
+        this.initialDistance = undefined;
+    } else {
+        let wasDragging = this.isDragging;
+        this.onPointerUp(e);
+        if (wasDragging && this.moveTrack.length >= 2) {
+            this.setupSlowDown();
+        }
+    }
+}
+
+FChart.prototype.setupSlowDown = function (e) {
+    let len = this.moveTrack.length;
+    let now = Date.now();
+    if (len > 1 && this.moveTrack[len - 1][0] > now-50) {
+        let tmDiff = this.moveTrack[len - 1][0] - this.moveTrack[0][0];
+        if (tmDiff > 0) {
+            this.moveSpeedX = (this.moveTrack[len - 1][1] - this.moveTrack[0][1]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
+            this.moveSpeedY = (this.moveTrack[len - 1][2] - this.moveTrack[0][2]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
+            if (Math.abs(this.moveSpeedX) > 5 || Math.abs(this.moveSpeedY) > 5) {
+                this.moveSpeedXCoef = Math.pow(Math.abs(this.moveSpeedX), 1 / this.SLOWDOWN_STEPS);
+                this.moveSpeedYCoef = Math.pow(Math.abs(this.moveSpeedY), 1 / this.SLOWDOWN_STEPS);
+                this.slowdownIntervalStep = 0;
+                this.slowdownNextTs = Date.now() + 2*this.SLOWDOWN_INTERVAL_MILLIS;
+                let t = this;
+                this.slowdownInterval = setInterval(function () {
+                    t.slowDownFunc();
+                }, 20);
+            }
+        }
+    }
+}
+
+FChart.prototype.slowDownFunc = function (e) {
+    let now = Date.now();
+    while (this.slowdownIntervalStep < this.SLOWDOWN_STEPS && this.slowdownNextTs < now) {
+        
+        if (this.moveSpeedXCoef != 0) {
+            this.moveSpeedX /= this.moveSpeedXCoef;
+        }
+        if (this.moveSpeedYCoef != 0) {
+            this.moveSpeedY /= this.moveSpeedYCoef;
+        }
+        this.pointerX += this.moveSpeedX;
+        this.pointerY += this.moveSpeedY;
+        this.slowdownIntervalStep ++;
+        this.slowdownNextTs += this.SLOWDOWN_INTERVAL_MILLIS;
+    }
+    this.doDraggingMove();
+    if (this.slowdownIntervalStep >= this.SLOWDOWN_STEPS) {
+        clearInterval(this.slowdownInterval);
+        this.slowdownInterval = undefined;
     }
 }
 
