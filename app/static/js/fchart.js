@@ -962,6 +962,9 @@ FChart.prototype.setupSlowDown = function (e) {
                 this.slowdownIntervalStep = 0;
                 this.slowdownNextTs = Date.now() + 2*this.SLOWDOWN_INTERVAL_MILLIS;
                 let t = this;
+                if (this.slowdownInterval != undefined) {
+                    clearInterval(this.slowdownInterval);
+                }
                 this.slowdownInterval = setInterval(function () {
                     t.slowDownFunc();
                 }, 20);
