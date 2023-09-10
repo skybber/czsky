@@ -134,6 +134,8 @@ def new_location():
         db.session.add(location)
         db.session.commit()
         flash('Location successfully created', 'form-success')
+        return redirect(url_for('main_location.location_edit', location_id=location.id))
+
     return render_template('main/location/location_edit.html', form=form, is_new=True, countries=countries)
 
 
