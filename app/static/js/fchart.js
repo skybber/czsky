@@ -208,6 +208,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.SLOWDOWN_ANALYZE_MILLIS = 100;
     this.SLOWDOWN_STEPS = 25;
     this.SLOWDOWN_INTERVAL_MILLIS = 20;
+    this.SLOWDOWN_COEF = Math.pow(0.05, 1 / this.SLOWDOWN_STEPS);
 
     this.GRID_SIZE = 10;
     this.MOVE_SEC_PER_SCREEN = 2;
@@ -254,8 +255,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.moveTrack = [];
     this.moveSpeedX = 0;
     this.moveSpeedY = 0;
-    this.moveSpeedXCoef = 0;
-    this.moveSpeedYCoef = 0;
     this.slowdownInterval = undefined;
     this.slowdownIntervalStep = 0;
     this.slowdownNextTs = undefined;
@@ -957,8 +956,6 @@ FChart.prototype.setupSlowDown = function (e) {
             this.moveSpeedX = (this.moveTrack[len - 1][1] - this.moveTrack[0][1]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
             this.moveSpeedY = (this.moveTrack[len - 1][2] - this.moveTrack[0][2]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
             if (Math.abs(this.moveSpeedX) > 5 || Math.abs(this.moveSpeedY) > 5) {
-                this.moveSpeedXCoef = Math.pow(Math.abs(this.moveSpeedX), 1 / this.SLOWDOWN_STEPS);
-                this.moveSpeedYCoef = Math.pow(Math.abs(this.moveSpeedY), 1 / this.SLOWDOWN_STEPS);
                 this.slowdownIntervalStep = 0;
                 this.slowdownNextTs = Date.now() + 2*this.SLOWDOWN_INTERVAL_MILLIS;
                 let t = this;
@@ -977,12 +974,8 @@ FChart.prototype.slowDownFunc = function (e) {
     let now = Date.now();
     while (this.slowdownIntervalStep < this.SLOWDOWN_STEPS && this.slowdownNextTs < now) {
         
-        if (this.moveSpeedXCoef != 0) {
-            this.moveSpeedX /= this.moveSpeedXCoef;
-        }
-        if (this.moveSpeedYCoef != 0) {
-            this.moveSpeedY /= this.moveSpeedYCoef;
-        }
+        this.moveSpeedX *= this.SLOWDOWN_COEF;
+        this.moveSpeedY *= this.SLOWDOWN_COEF;
         this.pointerX += this.moveSpeedX;
         this.pointerY += this.moveSpeedY;
         this.slowdownIntervalStep ++;
