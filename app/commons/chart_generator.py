@@ -877,7 +877,7 @@ def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mo
 
     # def __init__(self, dsos, line_width, color, dash):
     hl1 = fchart3.DsoHighlightDefinition(full_highlighted_dsos, line_width, color, None)
-    hl2 = fchart3.DsoHighlightDefinition(dashed_highlighted_dsos, line_width+0.1, color, (0.3, 0.6))
+    hl2 = fchart3.DsoHighlightDefinition(dashed_highlighted_dsos, line_width+0.1, color, (0.2, 0.9))
     return [hl1, hl2]
 
 
