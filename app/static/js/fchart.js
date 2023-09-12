@@ -595,6 +595,22 @@ FChart.prototype.mirroredPos2radec = function(x, y, centerRA, centerDEC) {
     return pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
 }
 
+FChart.prototype.mirroredPos2radecK = function(x, y, centerRA, centerDEC) {
+    let r2 = x**2 + y**2;
+    let k;
+    if (r2 >= 1.0) {
+        k = 1.0 / (1.001 * Math.sqrt(r2))
+        x = x * k;
+        y = y * k;
+    } else {
+        k = 1;
+    }
+
+    let ret = pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
+    ret['k'] = k;
+    return ret;
+}
+
 FChart.prototype.mirroredPos2radec2 = function(x, y, centerRA, centerDEC) {
     let r2 = x**2 + y**2;
     if (r2 >= 1.0) {
@@ -616,8 +632,8 @@ FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
         let y = -(screenY - this.canvas.height / 2.0) / scale;
         for (j=0; j <= this.GRID_SIZE; j++) {
             let x = -(screenX - this.canvas.width / 2.0) / scale;
-            let rd = this.mirroredPos2radec(x, y, centerRA, centerDEC);
-            this.imgGrid.push([rd.ra, rd.dec]);
+            let rd = this.mirroredPos2radecK(x, y, centerRA, centerDEC);
+            this.imgGrid.push([rd.ra, rd.dec, rd.k]);
             screenX += dx;
         }
         screenY += dy;
@@ -1142,7 +1158,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let centerDEC = this.viewCenter.dec - dRD.dDEC;
     for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
         let pos = radec2pos(this.imgGrid[i][0], this.imgGrid[i][1], centerRA, centerDEC, scale);
-        screenImgGrid.push([this.multRA * pos.x * scale + w2, -this.multDEC * pos.y * scale + h2]);
+        let k = this.imgGrid[i][2];
+        screenImgGrid.push([this.multRA * pos.x * scale / k + w2, -this.multDEC * pos.y * scale / k + h2]);
     }
     let imgY = 0;
     let dimgX = curSkyImg.width / this.GRID_SIZE;
