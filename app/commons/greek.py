@@ -27,6 +27,7 @@ GREEK_TO_LAT = {
 }
 
 SHORT_LAT_TO_GREEK = {
+    "alf":"α",
     "alp":"α",
     "bet":"β",
     "gam":"γ",
