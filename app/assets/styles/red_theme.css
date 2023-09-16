@@ -61,7 +61,7 @@ footer{background:#3e2e2e;border-top:1px solid #313131}
 .ui.labeled.button:not([class*="left labeled"])>.label,.ui[class*="left labeled"].button>.button{background:#2b1919;border:1px solid #5c4c4c;color:#ab6363}
 .ui.button:hover{background-color:#2b1919;color:#dbdbdb}
 .ui.table thead th{background:#2b1919!important;color:#dbdbdb}
-.ui.table{color:#a5a5a5!important;border-color:#5c4c4c;background:#1c0e0e}
+.ui.table{color:#be9e9e!important;border-color:#5c4c4c;background:#1c0e0e}
 .ui.table tbody tr{border-color:#403333;background:#140a0a}
 .ui .text.grey{color:#848080!important}
 .ui.attached.table.segment{background:#1c0e0e;color:#dbdbdb!important}
@@ -182,3 +182,6 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.ui.form .fields.error .field label {
     color: #ffb6b6
 }
+.label{color:#be9e9e!important}
+.ui.accordion .title:not(.ui) {color:#be9e9e!important}
+/* .ui.dropdown a.item, .ui.inverted.menu .dropdown.item, .ui.inverted.menu a.item, .ui.link.inverted.menu .item {color:#be9e9e!important}*/
