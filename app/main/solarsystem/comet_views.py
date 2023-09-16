@@ -239,8 +239,12 @@ def comet_info(comet_id):
     if embed:
         session['comet_embed_seltab'] = 'info'
 
+    default_chart_iframe_url = None
+    if comet is not None:
+        default_chart_iframe_url = url_for('main_comet.comet_cobs_observations', comet_id=comet.comet_id, embed='comets', allow_back='false')
+
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed)
+                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
