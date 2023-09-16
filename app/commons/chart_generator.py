@@ -811,7 +811,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.legend_only = True
     config.show_mag_scale_legend = True
     config.show_map_scale_legend = True
-    config.show_field_border = True
+    config.show_field_border = False
     config.show_equatorial_grid = True
     config.show_dss = False
     config.show_picker = 'P' in flags
