@@ -317,7 +317,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
-        this.adjustZoom(normalizeDelta(e), null);
+        this.adjustZoom(normalizeDelta(e));
     }).bind(this));
 
     $(this.canvas).bind('keydown', this.onKeyDown.bind(this));
@@ -810,12 +810,12 @@ FChart.prototype.onKeyDown = function (e) {
 
     if (e.keyCode == 33) {
         if (this.zoomInterval === undefined) {
-            this.adjustZoom(1, null);
+            this.adjustZoom(1);
         }
         e.preventDefault();
     } else if (e.keyCode == 34) {
         if (this.zoomInterval === undefined) {
-            this.adjustZoom(-1, null);
+            this.adjustZoom(-1);
         }
         e.preventDefault();
     } else if (e.keyCode in keyMoveMap) {
@@ -943,9 +943,22 @@ FChart.prototype.onTouchMove = function (e) {
     if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
         let distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
                                  (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
-        let zoomFac = this.initialDistance / (this.initialDistance + 0.3 * (distance - this.initialDistance));
-        this.adjustZoom(null, zoomFac);
-        this.initialDistance = distance;
+        if (distance > this.initialDistance) {
+            let zoomAmount = distance / this.initialDistance;
+            if (zoomAmount > 1.15) {
+                this.adjustZoom(-1);
+                this.initialDistance = distance;
+            }
+        } else {
+            let zoomAmount = this.initialDistance / distance;
+            if (zoomAmount > 1.15) {
+                this.adjustZoom(1);
+                this.initialDistance = distance;
+            }
+        }
+        if (this.adjustZoom(null, zoomFac)) {
+            this.initialDistance = distance;
+        }
     } else {
         this.onPointerMove(e);
     }
@@ -1203,22 +1216,16 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     return true;
 }
 
-FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
+FChart.prototype.adjustZoom = function(zoomAmount) {
     if (this.isDragging) {
-        return;
+        return false;
     }
 
-    if (zoomAmount != null) {
-        this.fldSizeIndexR += zoomAmount;
-    } else {
-        this.fldSizeIndexR *= zoomFac;
-    }
-
+    this.fldSizeIndexR += zoomAmount;
     let oldFldSizeIndex = this.fldSizeIndex;
 
     this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM );
     this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM );
-
     this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
     if (this.fldSizeIndex != oldFldSizeIndex) {
@@ -1258,6 +1265,7 @@ FChart.prototype.adjustZoom = function(zoomAmount, zoomFac) {
         if (this.onFieldChangeCallback  != undefined) {
             this.onFieldChangeCallback.call(this, this.fldSizeIndex);
         }
+        return true;
     }
 }
 
