@@ -54,7 +54,10 @@ def import_collinder(collinder_data_file):
                         break
 
             if master_object:
-                master_id = master_object.id
+                if master_object.master_id is not None:
+                    master_id = master_object.master_id
+                else:
+                    master_id = master_object.id
                 ra = master_object.ra
                 dec = master_object.dec
                 constellation_id = master_object.constellation_id
