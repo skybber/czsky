@@ -4,12 +4,10 @@ import subprocess
 
 from flask import (
     request,
-    current_app,
     send_from_directory
 )
 
 from flask_migrate import Migrate #, MigrateCommand
-# from flask_script import Manager, Shell
 from redis import Redis
 from rq import Connection, Queue, Worker
 
@@ -60,6 +58,7 @@ from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
+from imports.import_collinder import import_collinder
 from app.main.userdata.gitstore import load_public_content_data_from_git2
 
 
@@ -178,6 +177,7 @@ def initialize_catalogues():
     import_vic('data/vic.csv')
     fix_cstar_from_open_ngc('data/OpenNGC.csv')
     import_pgc('data/PGC.dat')
+    import_collinder('data/collinder.txt')
     import_constellations_positions('data/constlabel.cla')
     import_wds_doubles('data/BruceMacEvoy_doubles.csv.gz')
 
@@ -388,6 +388,10 @@ def tmp_update_minor_planets_positions():
 def tmp_update_minor_planets_brightness():
     update_minor_planets_brightness(True)
 
+
+@app.cli.command("tmp_import_collinder")
+def tmp_import_collinder():
+    import_collinder('data/collinder.txt')
 
 # if __name__ == '__main__':
 #     manager.run()
