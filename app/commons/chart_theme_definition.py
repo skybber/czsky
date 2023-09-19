@@ -77,7 +77,7 @@ class ChartThemeDefinition:
         self.font_size = self._parse_font_size(defs.get('font_size'), self.font_size, errors)
         self.highlight_color = self._parse_color(defs.get('highlight_color'), self.highlight_color, errors)
         self.highlight_linewidth = self._parse_linewidth(defs.get('highlight_linewidth'), self.highlight_linewidth, errors)
-        self.dso_dynamic_brightness = self._parse_dynamic_brightness(defs.get('dso_dynamic_brightness'), self.dso_dynamic_brightness, errors)
+        self.dso_dynamic_brightness = self._parse_bool(defs.get('dso_dynamic_brightness'), self.dso_dynamic_brightness, errors)
         self.legend_font_scale = self._parse_font_scale(defs.get('legend_font_scale'), self.legend_font_scale, errors)
         self.milky_way_color = self._parse_color(defs.get('milky_way_color'), self.milky_way_color, errors)
         self.enhanced_milky_way_fade = self._parse_float(defs.get('enhanced_milky_way_fade'), self.enhanced_milky_way_fade, errors)
@@ -147,9 +147,6 @@ class ChartThemeDefinition:
         return self._parse_float(value, default_value, errors)
 
     def _parse_linewidth(self, value, default_value, errors):
-        return self._parse_float(value, default_value, errors)
-
-    def _parse_dynamic_brightness(self, value, default_value, errors):
         return self._parse_float(value, default_value, errors)
 
     def _parse_font_size(self, value, default_value, errors):
