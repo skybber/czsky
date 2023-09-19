@@ -27,5 +27,6 @@ class ChartForm(FlaskForm):
     show_equatorial_grid = HiddenField('show_equatorial_grid', default='true')
     show_dso = HiddenField('show_dso', default='true')
     show_dss = HiddenField('show_dss', default='false')
+    show_dso_mag = HiddenField('show_dso_mag', default='false')
     eyepiece_fov = HiddenField('eyepiece_fov')
     chart_theme = HiddenField('chart_theme', default='-1')

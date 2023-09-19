@@ -19,6 +19,7 @@
       <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
       <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
       <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
+      <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
       <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
       <input type="hidden" id="show_dss" name="{{ fchart_form.show_dss.name }}" value="{{ fchart_form.show_dss.data }}">
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
@@ -120,6 +121,10 @@
               <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso"
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
+              </button>
+              <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag"
+                    data-inverted="" data-tooltip="{{ _('DSO mag')}}" data-position="bottom center" data-variation="tiny basic">
+                    ☀
               </button>
               <button class="ui toggle icon button{{ ' active' if fchart_form.show_dss.data=='true' else ''}} bdss"
                     data-inverted="" data-tooltip="{{ _('DSS background')}}" data-position="bottom center" data-variation="tiny basic">
@@ -225,6 +230,12 @@
                       <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso"
                             data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                           <i class="superpowers icon"></i>
+                      </button>
+                  </div>
+                  <div class="item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag"
+                            data-inverted="" data-tooltip="{{ _('DSO mag')}}" data-position="bottom center" data-variation="tiny basic">
+                          ☀
                       </button>
                   </div>
                   <div class="item">
@@ -555,6 +566,11 @@
     $('.bdso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+    });
+
+    $('.bdsomag').click(function(){
+        $(this).toggleClass('active');
+        $('#show_dso_mag').val($('#show_dso_mag').val() == 'true' ? 'false' : 'true');
     });
 
     $('.bdss').click(function(){
