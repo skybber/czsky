@@ -205,7 +205,6 @@ legend_linewidth=0.2
 grid_linewidth=0.1
 font_size=3.3
 highlight_linewidth=0.3
-dso_dynamic_brightness=True
 legend_font_scale=1.4
 telrad_linewidth=0.3
 eyepiece_linewidth=0.3
@@ -241,6 +240,7 @@ milky_way_color=(0.05, 0.07, 0.1)
 telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.3, 0.0)
 picker_color=(0.5, 0.5, 0.0)
+dso_dynamic_brightness=True
 '''
 
 NIGHT_THEME_TEMPL = '''
@@ -264,6 +264,7 @@ milky_way_color=(0.075, 0.015, 0.015)
 telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.0, 0.0)
 picker_color=(0.5, 0.1, 0.0)
+dso_dynamic_brightness=False
 '''
 
 LIGHT_THEME_TEMPL = '''
@@ -287,6 +288,7 @@ milky_way_color=(0.836, 0.945, 0.992)
 telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.0, 0.0)
 picker_color=(0.2, 0.2, 0.0)
+dso_dynamic_brightness=False
 '''
 
 COMMON_THEME_TEMPLATES = {
