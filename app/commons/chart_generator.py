@@ -665,7 +665,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
                                   pixels=True if width else False, jpg_quality=jpg_quality)
     # artist = fchart3.SkiaDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
     #                               pixels=True if width else False, jpg_quality=jpg_quality)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
@@ -767,7 +767,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
         artist = fchart3.CairoDrawing(pdf_fobj, 267, 180, format='pdf', landscape=landscape)
     else:
         artist = fchart3.CairoDrawing(pdf_fobj, 180, 267, format='pdf', landscape=landscape)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
@@ -830,7 +830,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
         dso_maglim = -10
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format, pixels=True if width else False)
-    engine = fchart3.SkymapEngine(artist, fchart3.EN, lm_stars=star_maglim, lm_deepsky=dso_maglim)
+    engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0)
