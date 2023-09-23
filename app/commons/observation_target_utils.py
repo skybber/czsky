@@ -1,3 +1,5 @@
+from time import time
+
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
@@ -23,13 +25,9 @@ def parse_observation_targets(targets):
     planet = None
     comet = None
     minor_planet = None
+    double_star = None
 
     targets = targets.strip()
-
-    double_star = search_double_star(targets, number_search=False)
-
-    if double_star:
-        return dsos, double_star, planet, comet, minor_planet, not_found
 
     planet = search_planet(targets)
     if planet:
@@ -51,8 +49,15 @@ def parse_observation_targets(targets):
             continue
         not_found.append(target_name)
 
-    return dsos, double_star, planet, comet, minor_planet, not_found
+    if len(dsos) > 0:
+        return dsos, double_star, planet, comet, minor_planet, not_found
 
+    # double star as a last since there is slow query (.. like '%name%')
+    double_star = search_double_star(targets, number_search=False)
+
+    if double_star:
+        not_found = []
+    return dsos, double_star, planet, comet, minor_planet, not_found
 
 def set_observation_targets(observation, targets):
     observation.deepsky_objects = []
