@@ -662,7 +662,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     jpg_low_quality = int(current_app.config.get('CHART_JPEG_LOW_QUALITY'))
     jpg_high_quality = int(current_app.config.get('CHART_JPEG_HIGH_QUALITY'))
     jpg_quality = jpg_high_quality if high_quality == '1' else jpg_low_quality
+
     avif_speed = int(current_app.config.get('CHART_AVIF_SPEED'))
+    avif_low_quality = int(current_app.config.get('CHART_AVIF_LOW_QUALITY'))
+    avif_high_quality = int(current_app.config.get('CHART_AVIF_HIGH_QUALITY'))
+    avif_quality = avif_high_quality if high_quality == '1' else avif_low_quality
     avif_width_threshold = int(current_app.config.get('CHART_AVIF_THRESHOLD_WIDTH'))
 
     if 'avif' in img_formats and avif == '1' and avif_width_threshold >= width:
@@ -676,7 +680,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         img_format = 'png'
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
-                                  pixels=True if width else False, jpg_quality=jpg_quality, avif_speed=avif_speed)
+                                  pixels=True if width else False, jpg_quality=jpg_quality,
+                                  avif_quality=avif_quality, avif_speed=avif_speed)
     # artist = fchart3.SkiaDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
     #                               pixels=True if width else False, jpg_quality=jpg_quality)
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)

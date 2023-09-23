@@ -88,7 +88,9 @@ class Config:
     CHART_JPEG_LOW_QUALITY = os.environ.get('CHART_JPEG_LOW_QUALITY', 80)
     CHART_JPEG_HIGH_QUALITY = os.environ.get('CHART_JPEG_HIGH_QUALITY', 95)
 
-    CHART_AVIF_SPEED = os.environ.get('CHART_AVIF_SPEED', 7)
+    CHART_AVIF_SPEED = os.environ.get('CHART_AVIF_SPEED', 8)
+    CHART_AVIF_LOW_QUALITY = os.environ.get('CHART_AVIF_LOW_QUALITY', 55)
+    CHART_AVIF_HIGH_QUALITY = os.environ.get('CHART_AVIF_HIGH_QUALITY', 80)
     CHART_AVIF_THRESHOLD_WIDTH = os.environ.get('CHART_AVIF_THRESHOLD_WIDTH', 768)
 
     @staticmethod
