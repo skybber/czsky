@@ -6,7 +6,7 @@ from flask import url_for
 
 from .. import db
 
-from app.commons.observation_utils import deepsky_objects_to_html, astro_text_to_html
+from app.commons.observation_utils import astro_text_to_html
 from app.commons.form_utils import FormEnum
 
 
@@ -85,6 +85,7 @@ class ObservingSession(db.Model):
     observations = db.relationship('Observation', backref='observing_session', cascade="all, delete-orphan", lazy=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     is_finished = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=False)
 
     def rating_to_int(self, m):
         if not self.rating:

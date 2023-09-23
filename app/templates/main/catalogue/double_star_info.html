@@ -355,5 +355,16 @@
                 });
             {% endif %}
         {% endif %}
+        {% if not is_new_observation_log %}
+            $('.ui.modal.deleteObservationLogModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdeleteobservlog').click(function() {
+                $('.ui.modal.deleteObservationLogModal')
+                    .modal('show');
+            });
+        {% endif %}
     </script>
 {% endblock %}

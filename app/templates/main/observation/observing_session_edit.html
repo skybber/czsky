@@ -121,6 +121,9 @@
                     <div class="field">
                         {{ f.render_form_field(form.is_public) }}
                     </div>
+                    <div class="field {{ 'disabled' if observing_session.is_finished else '' }}">
+                        {{ f.render_form_field(form.is_active) }}
+                    </div>
                     <div class="field">
                         {{ f.render_form_field(form.is_finished) }}
                     </div>

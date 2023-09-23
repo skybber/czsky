@@ -170,11 +170,18 @@ def new_observing_session():
             notes=form.notes.data,
             is_public = form.is_public.data,
             is_finished = form.is_finished.data,
+            is_active = form.is_active.data,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
             update_date=datetime.now()
         )
+
+        if observing_session.is_finished:
+            observing_session.is_active = False
+
+        if observing_session.is_active:
+            _deactivate_all_user_observing_sessions()
 
         db.session.add(observing_session)
         db.session.commit()
@@ -221,6 +228,16 @@ def observing_session_edit(observing_session_id):
             observing_session.update_date = datetime.now()
             observing_session.is_public = form.is_public.data
             observing_session.is_finished = form.is_finished.data
+            if observing_session.is_finished:
+                observing_session.is_active = False
+                activated = False
+            else:
+                activated = form.is_active.data and observing_session.is_active != form.is_active.data
+                observing_session.is_active = form.is_active.data
+
+            if activated:
+                _deactivate_all_user_observing_sessions()
+                observing_session.is_active = True
 
             db.session.add(observing_session)
             db.session.commit()
@@ -245,6 +262,7 @@ def observing_session_edit(observing_session_id):
         form.notes.data = observing_session.notes
         form.is_public.data = observing_session.is_public
         form.is_finished.data = observing_session.is_finished
+        form.is_active.data = observing_session.is_active
 
     location, location_position = _get_location_data2_from_form(form)
 
@@ -519,3 +537,9 @@ def observing_session_run_plan_execute(observing_session_id, session_plan_id):
     else:
         dso_name = 'M1'  # fallback
     return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_name, back='running_plan', back_id=observing_session_plan_run.id))
+
+def _deactivate_all_user_observing_sessions():
+    for act_obs_session in ObservingSession.query.filter_by(user_id=current_user.id, is_active=True).all():
+        act_obs_session.is_active = False
+        db.session.add(act_obs_session)
+
