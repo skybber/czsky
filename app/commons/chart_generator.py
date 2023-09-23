@@ -12,6 +12,9 @@ import cairo
 from skyfield.api import load
 import threading
 
+# Do not remove - it initializes pillow avif
+import pillow_avif
+
 import fchart3
 from flask import (
     current_app,
@@ -310,14 +313,18 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     flags = request.args.get('flags')
 
     img_bytes = BytesIO()
-    img_format = current_app.config.get('CHART_IMG_FORMAT')
+    img_formats = current_app.config.get('CHART_IMG_FORMATS')
 
     img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
                                maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                                observed_dso_ids=observed_dso_ids, highlights_pos_list=highlights_pos_list, trajectory=trajectory,
-                               hl_constellation=hl_constellation, img_format=img_format)
+                               hl_constellation=hl_constellation, img_formats=img_formats)
     img_bytes.seek(0)
-    return img_bytes, ('jpeg' if img_format == 'jpg' else img_format)
+    if img_format == 'jpg':
+        out_img_format = 'jpeg'
+    else:
+        out_img_format = img_format
+    return img_bytes, out_img_format
 
 
 def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
@@ -611,7 +618,7 @@ def _check_in_mag_interval(mag, mag_interval):
 
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
                   show_legend=True, dso_names=None, flags='', highlights_dso_list=None, observed_dso_ids=None,
-                  highlights_pos_list=None, trajectory=None, hl_constellation=None, img_format='png'):
+                  highlights_pos_list=None, trajectory=None, hl_constellation=None, img_formats='png'):
     """Create chart in czsky process."""
     global free_mem_counter
     tm = time()
@@ -650,19 +657,26 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         dso_maglim = -10
 
     high_quality = request.args.get('hqual', '')
+    avif = request.args.get('avif', '')
 
-    jpg_low_quality = current_app.config.get('CHART_JPEG_LOW_QUALITY')
-    jpg_low_quality = int(jpg_low_quality)
-    jpg_high_quality = current_app.config.get('CHART_JPEG_HIGH_QUALITY')
-    jpg_high_quality = int(jpg_high_quality)
-
+    jpg_low_quality = int(current_app.config.get('CHART_JPEG_LOW_QUALITY'))
+    jpg_high_quality = int(current_app.config.get('CHART_JPEG_HIGH_QUALITY'))
     jpg_quality = jpg_high_quality if high_quality == '1' else jpg_low_quality
+    avif_speed = int(current_app.config.get('CHART_AVIF_SPEED'))
+    avif_width_threshold = int(current_app.config.get('CHART_AVIF_THRESHOLD_WIDTH'))
 
-    if config.show_dss:
+    if 'avif' in img_formats and avif == '1' and avif_width_threshold >= width:
+        img_format = 'avif'
+    elif 'jpg' in img_formats:
+        img_format = 'jpg'
+    else:
+        img_format = 'png'
+
+    if config.show_dss and img_format == 'jpg':
         img_format = 'png'
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
-                                  pixels=True if width else False, jpg_quality=jpg_quality)
+                                  pixels=True if width else False, jpg_quality=jpg_quality, avif_speed=avif_speed)
     # artist = fchart3.SkiaDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
     #                               pixels=True if width else False, jpg_quality=jpg_quality)
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)

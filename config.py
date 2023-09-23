@@ -83,10 +83,13 @@ class Config:
     CHART_FONT = os.environ.get('CHART_FONT')
     PDF_FONT = os.environ.get('PDF_FONT')
 
-    CHART_IMG_FORMAT = os.environ.get('CHART_IMG_FORMAT', 'png')
+    CHART_IMG_FORMATS = os.environ.get('CHART_IMG_FORMATS', 'avif.jpg')
 
     CHART_JPEG_LOW_QUALITY = os.environ.get('CHART_JPEG_LOW_QUALITY', 80)
     CHART_JPEG_HIGH_QUALITY = os.environ.get('CHART_JPEG_HIGH_QUALITY', 95)
+
+    CHART_AVIF_SPEED = os.environ.get('CHART_AVIF_SPEED', 7)
+    CHART_AVIF_THRESHOLD_WIDTH = os.environ.get('CHART_AVIF_THRESHOLD_WIDTH', 768)
 
     @staticmethod
     def init_app(app):
