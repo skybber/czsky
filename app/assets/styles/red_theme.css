@@ -185,3 +185,4 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .label{color:#be9e9e!important}
 .ui.accordion .title:not(.ui) {color:#be9e9e!important}
 /* .ui.dropdown a.item, .ui.inverted.menu .dropdown.item, .ui.inverted.menu a.item, .ui.link.inverted.menu .item {color:#be9e9e!important}*/
+.ui.positive.button,.ui.positive.buttons .button{background-color:#692d2d!important}
