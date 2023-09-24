@@ -7,14 +7,21 @@
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% set endpoint_log = [ ('main_minor_planet.minor_planet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
+
 {% set endpoints = [
     ('main_minor_planet.minor_planet_info', 'Info', 'info')
 ] %}
 
+{% set endpoints = endpoint_log + endpoints %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, minor_planet_id=minor_planet.id) %}
+            {% set href = url_for(route, minor_planet_id=minor_planet.id, back=back, back_id=back_id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
@@ -41,8 +48,45 @@
 {% macro minor_planet_catalogue_data() %}
 {% endmacro %}
 
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
+{% macro minor_planet_observation_log() %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    {{ f.begin_form(form, flashes) }}
+
+        {{ f.render_form_field(form.notes) }}
+
+        <div class="two fields">
+            {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                {{ field(class='positive ui button') }}
+            {% endfor %}
+            {% if not is_new_observation_log %}
+                <a id="bdeleteobservlog" class="negative ui button" href="#">{{ _('Delete Log') }}</a>
+            {% endif %}
+        </div>
+
+    {{ f.end_form() }}
+    {% if not is_new_observation_log %}
+        <div class="ui tiny modal deleteObservationLogModal">
+          <div class="header">{{ _('Delete Log') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete this observation log?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_minor_planet.minor_planet_observation_log_delete', minor_planet_id=minor_planet.id, back=back, back_id=back_id ) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+{% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -82,11 +126,25 @@
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
                 {{ minor_planet_info() }}
+            {% elif type == 'observation_log' %}
+                {{ minor_planet_observation_log() }}
             {% else %}
                 {{ minor_planet_info() }}
                 {# {{ minor_planet_catalogue_data() }} #}
             {% endif %}
         </div>
     </div>
-
+    <script type="text/javascript">
+        {% if not is_new_observation_log %}
+            $('.ui.modal.deleteObservationLogModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdeleteobservlog').click(function() {
+                $('.ui.modal.deleteObservationLogModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
 {% endblock %}

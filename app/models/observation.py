@@ -98,18 +98,36 @@ class ObservingSession(db.Model):
     def loc_transparency(self):
         return self.transparency.loc_text() if self.transparency else ''
 
-    def find_observation_by_double_star_id(self, double_star_id):
-        for o in self.observations:
-            if o.target_type == ObservationTargetType.DBL_STAR and o.double_star_id == double_star_id:
-                return o
-        return None
-
     def find_observation_by_dso_id(self, dso_id):
         for o in self.observations:
             if o.target_type == ObservationTargetType.DSO:
                 for oi_dso in o.deepsky_objects:
                     if oi_dso.id == dso_id:
                         return o
+        return None
+
+    def find_observation_by_double_star_id(self, double_star_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.DBL_STAR and o.double_star_id == double_star_id:
+                return o
+        return None
+
+    def find_observation_by_comet_id(self, comet_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.COMET and o.comet_id == comet_id:
+                return o
+        return None
+
+    def find_observation_by_planet_id(self, planet_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.PLANET and o.planet_id == planet_id:
+                return o
+        return None
+
+    def find_observation_by_minor_planet_id(self, minor_planet_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.M_PLANET and o.minor_planet_id == minor_planet_id:
+                return o
         return None
 
 

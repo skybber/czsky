@@ -10,23 +10,30 @@ import datetime as dt_module
 from flask import (
     abort,
     Blueprint,
+    flash,
     jsonify,
     redirect,
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
+
+from flask_login import current_user
+
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app import create_app, csrf
-from app import scheduler
+from app import create_app, csrf, db, scheduler
 
 from app.models import (
+    DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY,
+    Constellation,
     MinorPlanet,
-    DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, Constellation,
+    Observation,
+    ObservationTargetType,
 )
 
 from app.commons.pagination import Pagination
@@ -35,6 +42,7 @@ from app.commons.search_utils import process_paginated_session_search, get_items
 
 from .minor_planet_forms import (
     SearchMinorPlanetForm,
+    MinorPlanetObservationLogForm,
     MinorPlanetFindChartForm,
 )
 
@@ -50,6 +58,7 @@ from app.commons.chart_generator import (
 
 from app.commons.utils import to_float
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
+from app.commons.observing_session_utils import find_observing_session, show_observation_log
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 
@@ -197,9 +206,11 @@ def minor_planet_info(minor_planet_id):
 
     embed = request.args.get('embed')
 
+    show_obs_log = show_observation_log()
+
     return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
-                           trajectory=trajectory_b64, embed=embed)
+                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log,)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -267,6 +278,77 @@ def minor_planet_catalogue_data(minor_planet_id):
     if minor_planet is None:
         abort(404)
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet)
+
+
+@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log', methods=['GET', 'POST'])
+def minor_planet_observation_log(minor_planet_id):
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    if minor_planet is None:
+        abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    form = MinorPlanetObservationLogForm()
+    observation = observing_session.find_observation_by_minor_planet_id(minor_planet.id)
+    is_new_observation_log = observation is None
+
+    if is_new_observation_log:
+        now = datetime.now()
+        observation = Observation(
+            observing_session_id=observing_session.id,
+            target_type=ObservationTargetType.M_PLANET,
+            minor_planet_id=minor_planet.id,
+            date_from=now,
+            date_to=now,
+            notes=form.notes.data if form.notes.data else '',
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            observation.notes = form.notes.data
+            observation.update_by = current_user.id
+            observation.update_date = datetime.now()
+            db.session.add(observation)
+            db.session.commit()
+            flash('Observation log successfully updated', 'form-success')
+            return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id, embed=request.args.get('embed')))
+    else:
+        form.notes.data = observation.notes
+
+    embed = request.args.get('embed')
+    if embed:
+        session['minor_planet_embed_seltab'] = 'obs_log'
+
+    return render_template('main/solarsystem/minor_planet_info.html', type='observation_log', minor_planet=minor_planet, form=form,
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
+                           has_observations=False, show_obs_log=True,
+                           )
+
+
+@main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log-delete', methods=['GET', 'POST'])
+def minor_planet_observation_log_delete(minor_planet_id):
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    if minor_planet is None:
+        abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    observation = observing_session.find_observation_by_minor_planet_id(minor_planet.id)
+
+    if observation is not None:
+        db.session.delete(observation)
+        db.session.commit()
+
+    flash('Observation log deleted.', 'form-success')
+    return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id))
 
 
 def _check_in_mag_interval(mag, mag_interval):

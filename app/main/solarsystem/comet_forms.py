@@ -3,8 +3,9 @@ from wtforms.fields import (
     DateField,
     FloatField,
     IntegerField,
-    SelectField,
     StringField,
+    SubmitField,
+    TextAreaField,
 )
 
 from wtforms.validators import (
@@ -30,3 +31,8 @@ class SearchCobsForm(FlaskForm):
 class CometFindChartForm(ChartForm):
     date_from = DateField(lazy_gettext('From'), id='datefrom', format = '%d/%m/%Y', default = None)
     date_to = DateField(lazy_gettext('To'), id='dateto', format = '%d/%m/%Y', default = None)
+
+
+class CometObservationLogForm(FlaskForm):
+    notes = TextAreaField(lazy_gettext('Notes'))
+    submit = SubmitField(lazy_gettext('Update'))

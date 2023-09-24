@@ -190,7 +190,8 @@ def new_observing_session():
 
     location, location_position = _get_location_data2_from_form(form)
 
-    return render_template('main/observation/observing_session_edit.html', form=form, is_new=True, location=location, location_position=location_position)
+    return render_template('main/observation/observing_session_edit.html', form=form, is_new=True, location=location,
+                           location_position=location_position, observing_session=None)
 
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/edit', methods=['GET', 'POST'])

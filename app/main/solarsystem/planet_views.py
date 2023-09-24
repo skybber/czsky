@@ -7,18 +7,32 @@ import datetime as dt_module
 from flask import (
     abort,
     Blueprint,
+    flash,
     jsonify,
+    redirect,
     render_template,
     request,
     send_file,
+    session,
+    url_for,
 )
+
+from flask_login import current_user
+
 from skyfield.api import load
+
+from app import db
 
 from .planet_forms import (
     PlanetFindChartForm,
+    PlanetObservationLogForm,
 )
 
-from app.models import Planet
+from app.models import (
+    Observation,
+    ObservationTargetType,
+    Planet,
+)
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -30,6 +44,8 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
+from app.commons.observing_session_utils import find_observing_session, show_observation_log
+
 from ... import csrf
 
 utc = dt_module.timezone.utc
@@ -86,8 +102,11 @@ def planet_info(planet_iau_code):
 
     chart_control = common_prepare_chart_data(form)
 
+    show_obs_log = show_observation_log()
+
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
-                           planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=trajectory_b64)
+                           planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=trajectory_b64,
+                           show_obs_log=show_obs_log,)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -157,7 +176,75 @@ def planet_catalogue_data(planet_iau_code):
         abort(404)
     return render_template('main/solarsystem/planet_info.html', type='catalogue_data')
 
+@main_planet.route('/planet/<string:planet_iau_code>/observation-log', methods=['GET', 'POST'])
+def planet_observation_log(planet_iau_code):
+    planet = Planet.get_by_iau_code(planet_iau_code)
+    if planet is None:
+        abort(404)
 
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    form = PlanetObservationLogForm()
+    observation = observing_session.find_observation_by_planet_id(planet.id)
+    is_new_observation_log = observation is None
+
+    if is_new_observation_log:
+        now = datetime.now()
+        observation = Observation(
+            observing_session_id=observing_session.id,
+            target_type=ObservationTargetType.PLANET,
+            planet_id=planet.id,
+            date_from=now,
+            date_to=now,
+            notes=form.notes.data if form.notes.data else '',
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            observation.notes = form.notes.data
+            observation.update_by = current_user.id
+            observation.update_date = datetime.now()
+            db.session.add(observation)
+            db.session.commit()
+            flash('Observation log successfully updated', 'form-success')
+            return redirect(url_for('main_planet.planet_observation_log', planet_iau_code=planet_iau_code, back=back, back_id=back_id, embed=request.args.get('embed')))
+    else:
+        form.notes.data = observation.notes
+
+    embed = request.args.get('embed')
+    if embed:
+        session['planet_embed_seltab'] = 'obs_log'
+
+    return render_template('main/solarsystem/planet_info.html', type='observation_log', planet=planet, form=form,
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
+                           has_observations=False, show_obs_log=True,
+                           )
+
+
+@main_planet.route('/planet/<string:planet_iau_code>/observation-log-delete', methods=['GET', 'POST'])
+def planet_observation_log_delete(planet_iau_code):
+    planet = Planet.get_by_iau_code(planet_iau_code)
+    if planet is None:
+        abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    observation = observing_session.find_observation_by_planet_id(planet.id)
+
+    if observation is not None:
+        db.session.delete(observation)
+        db.session.commit()
+
+    flash('Observation log deleted.', 'form-success')
+    return redirect(url_for('main_planet.planet_observation_log', planet_iau_code=planet_iau_code, back=back, back_id=back_id))
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:
         return mag_interval[0]

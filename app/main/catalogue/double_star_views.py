@@ -503,11 +503,10 @@ def double_star_observation_log(double_star_id):
         session['dso_embed_seltab'] = 'obs_log'
 
     prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observation_log')
-    show_obs_log = show_observation_log()
 
     return render_template('main/catalogue/double_star_info.html', type='observation_log', double_star=double_star, form=form,
                            embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=False, show_obs_log=show_obs_log, prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           has_observations=False, show_obs_log=True, prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 

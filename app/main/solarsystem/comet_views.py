@@ -9,6 +9,7 @@ import datetime as dt_module
 from flask import (
     abort,
     Blueprint,
+    flash,
     jsonify,
     redirect,
     render_template,
@@ -18,11 +19,13 @@ from flask import (
     url_for,
 )
 
+from flask_login import current_user
+
 from skyfield.api import load
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
-from app import create_app, csrf
+from app import create_app, csrf, db
 
 from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
@@ -33,6 +36,7 @@ from .comet_forms import (
     SearchCometForm,
     SearchCobsForm,
     CometFindChartForm,
+    CometObservationLogForm,
 )
 
 from app.commons.chart_generator import (
@@ -49,11 +53,14 @@ from app.main.chart.chart_forms import ChartForm
 from app.commons.comet_utils import update_comets_cobs_observations, update_evaluated_comet_brightness, \
     update_comets_positions, get_mag_coma_from_observations, find_mpc_comet
 from app.commons.utils import to_float
+from app.commons.observing_session_utils import find_observing_session, show_observation_log
 
 from app.models import (
     Comet,
     CometObservation,
     DB_UPDATE_COMETS,
+    Observation,
+    ObservationTargetType,
 )
 
 from app.commons.dso_utils import CHART_COMET_PREFIX
@@ -243,8 +250,11 @@ def comet_info(comet_id):
     if comet is not None:
         default_chart_iframe_url = url_for('main_comet.comet_cobs_observations', comet_id=comet.comet_id, embed='comets', allow_back='false')
 
+    show_obs_log = show_observation_log()
+
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
+                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
+                           show_obs_log=show_obs_log)
 
 
 @main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
@@ -253,6 +263,9 @@ def comet_cobs_observations(comet_id):
     comet = Comet.query.filter_by(comet_id=comet_id).first()
     if comet is None:
         abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
 
     search_form = SearchCobsForm()
 
@@ -296,9 +309,12 @@ def comet_cobs_observations(comet_id):
     if embed:
         session['comet_embed_seltab'] = 'cobs'
 
+    show_obs_log = show_observation_log()
+
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
-                           page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed)
+                           page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed,
+                           show_obs_log=show_obs_log)
 
 
 @main_comet.route('/comet/<string:comet_id>/seltab')
@@ -385,6 +401,76 @@ def comet_catalogue_data(comet_id):
     if comet is None:
         abort(404)
     return render_template('main/solarsystem/comet_info.html', type='catalogue_data')
+
+@main_comet.route('/comet/<string:comet_id>/observation-log', methods=['GET', 'POST'])
+def comet_observation_log(comet_id):
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    form = CometObservationLogForm()
+    observation = observing_session.find_observation_by_comet_id(comet.id)
+    is_new_observation_log = observation is None
+
+    if is_new_observation_log:
+        now = datetime.now()
+        observation = Observation(
+            observing_session_id=observing_session.id,
+            target_type=ObservationTargetType.COMET,
+            comet_id=comet.id,
+            date_from=now,
+            date_to=now,
+            notes=form.notes.data if form.notes.data else '',
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+        )
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            observation.notes = form.notes.data
+            observation.update_by = current_user.id
+            observation.update_date = datetime.now()
+            db.session.add(observation)
+            db.session.commit()
+            flash('Observation log successfully updated', 'form-success')
+            return redirect(url_for('main_comet.comet_observation_log', comet_id=comet_id, back=back, back_id=back_id, embed=request.args.get('embed')))
+    else:
+        form.notes.data = observation.notes
+
+    embed = request.args.get('embed')
+    if embed:
+        session['comet_embed_seltab'] = 'obs_log'
+
+    return render_template('main/solarsystem/comet_info.html', type='observation_log', comet=comet, form=form,
+                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
+                           has_observations=False, show_obs_log=True,
+                           )
+
+
+@main_comet.route('/comet/<string:comet_id>/observation-log-delete', methods=['GET', 'POST'])
+def comet_observation_log_delete(comet_id):
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    observing_session = find_observing_session(back, back_id)
+
+    observation = observing_session.find_observation_by_comet_id(comet.id)
+
+    if observation is not None:
+        db.session.delete(observation)
+        db.session.commit()
+
+    flash('Observation log deleted.', 'form-success')
+    return redirect(url_for('main_comet.comet_observation_log', comet_id=comet_id, back=back, back_id=back_id))
 
 
 def _check_in_mag_interval(mag, mag_interval):
