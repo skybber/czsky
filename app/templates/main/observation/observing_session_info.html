@@ -56,9 +56,11 @@
         <tr><td class="two wide">{{ _('Transparency') }}</td><td>{{ observing_session.loc_transparency() }}</td></tr>
         <tr><td class="two wide">{{ _('Weather') }}</td><td>{{ observing_session.weather if observing_session.weather else '' }}</td></tr>
         <tr><td class="two wide">{{ _('Equipment') }}</td><td>{{ observing_session.equipment if observing_session.equipment else '' }}</td></tr>
-        <tr><td class="two wide">{{ _('Is public') }}</td><td>{% if observing_session.is_public %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
-        <tr><td class="two wide">{{ _('Is active') }}</td><td>{% if observing_session.is_active %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
-        <tr><td class="two wide">{{ _('Is archived') }}</td><td>{% if observing_session.is_finished %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+        {% if is_mine_observing_session %}
+            <tr><td class="two wide">{{ _('Is public') }}</td><td>{% if observing_session.is_public %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+            <tr><td class="two wide">{{ _('Is active') }}</td><td>{% if observing_session.is_active %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+            <tr><td class="two wide">{{ _('Is archived') }}</td><td>{% if observing_session.is_finished %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+        {% endif %}
         </tr>
 
         <tr>
