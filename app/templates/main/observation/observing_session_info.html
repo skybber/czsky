@@ -66,9 +66,9 @@
         </tr>
         {% if is_mine_observing_session %}
             <tr>
-                <td class="two wide">{{ _('Is public') }}</td><td>{% if observing_session.is_public %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
-                <td class="two wide">{{ _('Is active') }}</td><td>{% if observing_session.is_active %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
-                <td class="two wide">{{ _('Is archived') }}</td><td>{% if observing_session.is_finished %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+                <td class="two wide">{{ _('Session is public') }}</td><td>{% if observing_session.is_public %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+                <td class="two wide">{{ _('Session is active') }}</td><td>{% if observing_session.is_active %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+                <td class="two wide">{{ _('Session is finished') }}</td><td>{% if observing_session.is_finished %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
             </tr>
         {% endif %}
         </tr>
