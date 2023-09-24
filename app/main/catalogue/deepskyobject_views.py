@@ -746,8 +746,8 @@ def deepskyobject_observation_log(dso_id):
     has_observations = _has_dso_observations(dso, orig_dso)
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
-                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=has_observations, show_obs_log=True,
+                           embed=embed, observing_session=observing_session, is_new_observation_log=is_new_observation_log,
+                           back=back, back_id=back_id, has_observations=has_observations, show_obs_log=True,
                            prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 

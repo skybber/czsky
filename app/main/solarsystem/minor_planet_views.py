@@ -326,8 +326,8 @@ def minor_planet_observation_log(minor_planet_id):
         session['minor_planet_embed_seltab'] = 'obs_log'
 
     return render_template('main/solarsystem/minor_planet_info.html', type='observation_log', minor_planet=minor_planet, form=form,
-                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=False, show_obs_log=True,
+                           embed=embed, is_new_observation_log=is_new_observation_log, observing_session=observing_session,
+                           back=back, back_id=back_id, has_observations=False, show_obs_log=True,
                            )
 
 

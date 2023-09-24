@@ -505,8 +505,8 @@ def double_star_observation_log(double_star_id):
     prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observation_log')
 
     return render_template('main/catalogue/double_star_info.html', type='observation_log', double_star=double_star, form=form,
-                           embed=embed, is_new_observation_log=is_new_observation_log, back=back, back_id=back_id,
-                           has_observations=False, show_obs_log=True, prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           embed=embed, is_new_observation_log=is_new_observation_log, observing_session=observing_session,
+                           back=back, back_id=back_id, has_observations=False, show_obs_log=True, prev_wrap=prev_wrap, next_wrap=next_wrap,
                            )
 
 

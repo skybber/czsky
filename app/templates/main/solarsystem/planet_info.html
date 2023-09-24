@@ -52,6 +52,9 @@
 
     {{ f.display_standard_flashes(flashes) }}
 
+    {{ _('Active observation:')}} <a href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id)}}">{{ observing_session.title }}</a>
+    <br/><br/>
+
     {{ f.begin_form(form, flashes) }}
 
         {{ f.render_form_field(form.notes) }}
