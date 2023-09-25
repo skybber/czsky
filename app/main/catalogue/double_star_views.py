@@ -58,7 +58,7 @@ from app.commons.dso_utils import normalize_double_star_name
 from app.main.chart.chart_forms import ChartForm
 from app.commons.prevnext_utils import create_prev_next_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
-from app.commons.observing_session_utils import find_observing_session, show_observation_log
+from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 
 from .double_star_forms import SearchDoubleStarForm, DoubleStarObservationLogForm
 
@@ -472,13 +472,16 @@ def double_star_observation_log(double_star_id):
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
-        now = datetime.now()
+        date_from = datetime.now()
+        if date_from.date() != observing_session.date_from.date() and date_from.date() != observing_session.date_to.date():
+            date_from = observing_session.date_from
+
         observation = Observation(
             observing_session_id=observing_session.id,
             double_star_id=double_star.id,
             target_type=ObservationTargetType.DBL_STAR,
-            date_from=now,
-            date_to=now,
+            date_from=date_from,
+            date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
             create_by=current_user.id,
             update_by=current_user.id,
@@ -489,6 +492,7 @@ def double_star_observation_log(double_star_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
             db.session.add(observation)
@@ -497,6 +501,8 @@ def double_star_observation_log(double_star_id):
             return redirect(url_for('main_double_star.double_star_observation_log', double_star_id=double_star_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.date_from.data = observation.date_from
+        form.time_from.data = observation.date_from
 
     embed = request.args.get('embed')
     if embed:

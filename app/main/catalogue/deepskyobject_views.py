@@ -65,8 +65,8 @@ from app.commons.chart_generator import (
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 from app.commons.prevnext_utils import create_prev_next_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
-from app.commons.observing_session_utils import find_observing_session, show_observation_log
 
+from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
 
 ALADIN_ANG_SIZES = (5/60, 10/60, 15/60, 30/60, 1, 2, 5, 10)
@@ -696,7 +696,6 @@ def deepskyobject_edit(dso_id):
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors, is_new=False)
 
-
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/observation-log', methods=['GET', 'POST'])
 def deepskyobject_observation_log(dso_id):
     dso, orig_dso = _find_dso(dso_id)
@@ -712,12 +711,15 @@ def deepskyobject_observation_log(dso_id):
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
-        now = datetime.now()
+        date_from = datetime.now()
+        if date_from.date() != observing_session.date_from.date() and date_from.date() != observing_session.date_to.date():
+            date_from = observing_session.date_from
+
         observation = Observation(
             observing_session_id=observing_session.id,
             target_type=ObservationTargetType.DSO,
-            date_from=now,
-            date_to=now,
+            date_from=date_from,
+            date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
             create_by=current_user.id,
             update_by=current_user.id,
@@ -729,6 +731,7 @@ def deepskyobject_observation_log(dso_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
             db.session.add(observation)
@@ -737,6 +740,8 @@ def deepskyobject_observation_log(dso_id):
             return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.date_from.data = observation.date_from
+        form.time_from.data = observation.date_from
 
     embed = request.args.get('embed')
     if embed:

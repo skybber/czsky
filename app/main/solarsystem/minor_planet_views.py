@@ -58,7 +58,7 @@ from app.commons.chart_generator import (
 
 from app.commons.utils import to_float
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
-from app.commons.observing_session_utils import find_observing_session, show_observation_log
+from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 
@@ -295,13 +295,15 @@ def minor_planet_observation_log(minor_planet_id):
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
-        now = datetime.now()
+        date_from = datetime.now()
+        if date_from.date() != observing_session.date_from.date() and date_from.date() != observing_session.date_to.date():
+            date_from = observing_session.date_from
         observation = Observation(
             observing_session_id=observing_session.id,
             target_type=ObservationTargetType.M_PLANET,
             minor_planet_id=minor_planet.id,
-            date_from=now,
-            date_to=now,
+            date_from=date_from,
+            date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
             create_by=current_user.id,
             update_by=current_user.id,
@@ -312,6 +314,7 @@ def minor_planet_observation_log(minor_planet_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
             db.session.add(observation)
@@ -320,6 +323,8 @@ def minor_planet_observation_log(minor_planet_id):
             return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.date_from.data = observation.date_from
+        form.time_from.data = observation.date_from
 
     embed = request.args.get('embed')
     if embed:

@@ -99,6 +99,41 @@
 
     {{ f.begin_form(form, flashes) }}
 
+        <div class="two fields">
+            <div class="field">
+                <label for="odate-from">{{ form.date_from.label }}</label>
+                <div class="two fields">
+                    <div class="field">
+                        <div class="ui calendar" id="odate-from">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate-from" name="{{form.date_from.name}}" placeholder="Date" type="text"
+                                    value="{{form.date_from.data.strftime('%d/%m/%Y') if form.date_from.data else ''}}">
+                          </div>
+                        </div>
+                        {% if form.date_from.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.date_from.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <div class="ui calendar" id="odtime-from">
+                          <div class="ui input left icon">
+                            <i class="time icon"></i>
+                            <input id="otime-from" placeholder="Time" type="text" name="{{ form.time_from.name }}" value="{{ form.time_from.data }}">
+                          </div>
+                        </div>
+                        {% if form.time_from.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.time_from.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{ f.render_form_field(form.notes) }}
 
         <div class="two fields">
@@ -126,6 +161,27 @@
           </div>
         </div>
     {% endif %}
+    <script type="text/javascript">
+        $('#odtime-from')
+          .calendar({
+            type: 'time',
+            ampm: false
+          })
+        ;
+        $('#odate-from').calendar({
+            type: 'date',
+            monthFirst: false,
+            formatter: {
+                date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                }
+            }
+        });
+    </script>
 {% endmacro %}
 
 {% block content %}

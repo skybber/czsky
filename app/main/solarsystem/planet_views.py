@@ -44,7 +44,7 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float
-from app.commons.observing_session_utils import find_observing_session, show_observation_log
+from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 
 from ... import csrf
 
@@ -191,13 +191,15 @@ def planet_observation_log(planet_iau_code):
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
-        now = datetime.now()
+        date_from = datetime.now()
+        if date_from.date() != observing_session.date_from.date() and date_from.date() != observing_session.date_to.date():
+            date_from = observing_session.date_from
         observation = Observation(
             observing_session_id=observing_session.id,
             target_type=ObservationTargetType.PLANET,
             planet_id=planet.id,
-            date_from=now,
-            date_to=now,
+            date_from=date_from,
+            date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
             create_by=current_user.id,
             update_by=current_user.id,
@@ -208,6 +210,7 @@ def planet_observation_log(planet_iau_code):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
             db.session.add(observation)
@@ -216,6 +219,8 @@ def planet_observation_log(planet_iau_code):
             return redirect(url_for('main_planet.planet_observation_log', planet_iau_code=planet_iau_code, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.date_from.data = observation.date_from
+        form.time_from.data = observation.date_from
 
     embed = request.args.get('embed')
     if embed:

@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from flask import (
     abort,
     request,
@@ -43,3 +46,7 @@ def show_observation_log():
         if active_observing_session:
             return True
     return False
+
+def combine_observing_session_date_time(observing_session, date_part, time_part):
+    tz_info = pytz.timezone('Europe/Prague')
+    return datetime.combine(date_part, time_part, tz_info)
