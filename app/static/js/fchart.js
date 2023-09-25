@@ -205,6 +205,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.ZOOM_INTERVAL = 300;
     this.MAX_ZOOM_STEPS = 20;
     this.ZOOM_TIMEOUT = this.ZOOM_INTERVAL / this.MAX_ZOOM_STEPS;
+    this.DRAGGING_START_TIMEOUT = 100;
     this.SLOWDOWN_ANALYZE_MILLIS = 100;
     this.SLOWDOWN_STEPS = 25;
     this.SLOWDOWN_INTERVAL_MILLIS = 20;
@@ -904,7 +905,7 @@ FChart.prototype.onPointerMove = function (e) {
     if (this.isDragging) {
         this.pointerX = this.getEventLocation(e).x;
         this.pointerY = this.getEventLocation(e).y;
-        this.doDraggingMove();
+        this.doDraggingMove(false);
         this.recordMovePos();
     }
 }
@@ -931,7 +932,7 @@ FChart.prototype.reduceMoveTrack = function (ts) {
     }
 }
 
-FChart.prototype.doDraggingMove = function () {
+FChart.prototype.doDraggingMove = function (isPointerUp) {
     this.syncAladinViewCenter();
 
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
@@ -941,7 +942,7 @@ FChart.prototype.doDraggingMove = function () {
         this.drawImgGrid(curSkyImg);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
-    this.renderOnTimeOutFromPointerMove(false);
+    this.renderOnTimeOutFromPointerMove(isPointerUp);
 }
 
 FChart.prototype.onTouchMove = function (e) {
@@ -1016,10 +1017,12 @@ FChart.prototype.slowDownFunc = function (e) {
         this.slowdownIntervalStep ++;
         this.slowdownNextTs += this.SLOWDOWN_INTERVAL_MILLIS;
     }
-    this.doDraggingMove();
     if (this.slowdownIntervalStep >= this.SLOWDOWN_STEPS) {
+        this.doDraggingMove(true);
         clearInterval(this.slowdownInterval);
         this.slowdownInterval = undefined;
+    } else {
+        this.doDraggingMove(false);
     }
 }
 
@@ -1120,7 +1123,7 @@ FChart.prototype.kbdSmoothMove = function() {
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
     if (!this.pointerMoveTimeout || isPointerUp) {
-        let timeout = this.draggingStart ? 0 : this.FREQ_60_HZ_TIMEOUT/2;
+        let timeout = this.draggingStart ? this.DRAGGING_START_TIMEOUT : this.FREQ_60_HZ_TIMEOUT/2;
 
         this.draggingStart = false;
         this.pointerMoveTimeout = true;
