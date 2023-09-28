@@ -44,7 +44,7 @@ from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
     get_order_by_field
-from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
@@ -324,23 +324,28 @@ def deepskyobject_info(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'info'
 
-    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
+    lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
     user_descr = None
     apert_descriptions = []
     title_img = None
-    if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
-        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-            .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
-            .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
-        for apdescr in user_apert_descrs:
-            if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
-                if apdescr.aperture_class == '<100':
-                    apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
-                else:
-                    apert_descriptions.append((apdescr.aperture_class, apdescr.text))
+    if all_editor_users:
+        used_apert_classes = set()
+        for editor_user in all_editor_users:
+            if not user_descr:
+                user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+            user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
+                .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
+                .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
+            for apdescr in user_apert_descrs:
+                if apdescr.aperture_class not in used_apert_classes:
+                    if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
+                        if apdescr.aperture_class == '<100':
+                            apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
+                        else:
+                            apert_descriptions.append((apdescr.aperture_class, apdescr.text))
+                        used_apert_classes.add(apdescr.aperture_class)
 
-        if user_descr and (not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/')):
+        if not user_descr or not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/'):
             image_info = get_dso_image_info_with_imgdir(dso.normalized_name_for_img())
             if image_info is not None:
                 title_img = image_info[0]

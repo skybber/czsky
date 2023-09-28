@@ -74,6 +74,9 @@ class Config:
     EDITOR_USER_NAME_CS = os.environ.get('EDITOR_USER_NAME_CS')
     EDITOR_USER_NAME_EN = os.environ.get('EDITOR_USER_NAME_EN')
 
+    ALL_EDITORS_USER_NAMES_CS = os.environ.get('ALL_EDITORS_USER_NAMES_CS')
+    ALL_EDITORS_USER_NAMES_EN = os.environ.get('ALL_EDITORS_USER_NAMES_EN')
+
     ANONYMOUS_USER_NAME = os.environ.get('ANONYMOUS_USER_NAME')
 
     DEFAULT_IMG_DIR = os.environ.get('DEFAULT_IMG_DIR')
