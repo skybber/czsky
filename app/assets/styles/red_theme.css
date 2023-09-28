@@ -186,3 +186,15 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.accordion .title:not(.ui) {color:#be9e9e!important}
 /* .ui.dropdown a.item, .ui.inverted.menu .dropdown.item, .ui.inverted.menu a.item, .ui.link.inverted.menu .item {color:#be9e9e!important}*/
 .ui.positive.button,.ui.positive.buttons .button{background-color:#692d2d!important}
+
+.markdown.inverted-img img {
+    max-width: 100%;
+    height: auto;
+    filter: invert(100%) sepia(1) hue-rotate(320deg) saturate(3);
+}
+
+.markdown img {
+  max-width: 100%;
+  height: auto;
+  filter: sepia(1) hue-rotate(320deg) saturate(3);
+}
