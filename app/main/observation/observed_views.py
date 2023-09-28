@@ -47,6 +47,9 @@ from app.main.chart.chart_forms import ChartForm
 
 main_observed = Blueprint('main_observed', __name__)
 
+from cachetools import TTLCache
+
+observed_items_cache = TTLCache(maxsize=10, ttl=30)
 
 @main_observed.route('/observed-list', methods=['GET'])
 @main_observed.route('/observed-list/info', methods=['GET', 'POST'])
@@ -245,7 +248,13 @@ def observed_list_chart_legend_img(ra, dec):
 def _get_observed_list_items(user_id):
     observed_list = ObservedList.query.filter_by(user_id=user_id).first()
     if observed_list:
-        return db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepsky_object)) \
-                .filter(ObservedListItem.observed_list_id == observed_list.id) \
-                .all()
+        try:
+            ret = observed_items_cache[observed_list.id]
+        except KeyError:
+            ret = db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepsky_object)) \
+                    .filter(ObservedListItem.observed_list_id == observed_list.id) \
+                    .all()
+            db.session.expunge_all()
+            observed_items_cache[observed_list.id] = ret
+        return ret
     return []
