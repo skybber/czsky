@@ -179,6 +179,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.zoomImg = new Image();
     this.zoomImgActive = false;
     this.zoomImgLoaded = false;
+    this.zoomEnding = false;
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
@@ -558,20 +559,17 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setupImgGrid(centerRA, centerDEC);
         if (this.zoomInterval === undefined) {
+            if (this.zoomEnding) {
+                this.zoomEnding = false;
+                this.zoomImgActive = false;
+                this.scaleFac = 1.0;
+            }
             if (this.scaleFac == 1.0 || forceReload) {
                 this.scaleFac = 1.0;
                 this.syncAladinZoom();
                 this.redrawAll();
             }
         } else {
-            /*
-            if (this.zoomImg.src != this.skyImgBuf[this.skyImg.active].src) {
-                this.zoomImg.onload = (function () {
-                    this.scaleFacTotal = this.scaleFac * Math.sin(Math.PI*this.imgField /(2*180)) / Math.sin(Math.PI*this.fieldSizes[this.fldSizeIndex]/(2*180)) / this.scaleFac;
-                }).bind(this);
-                this.zoomImg.src = this.skyImgBuf[this.skyImg.active].src;
-            }
-            */
             this.syncAladinZoom();
         }
         this.isReloadingImage = false;
@@ -1319,8 +1317,7 @@ FChart.prototype.zoomFunc = function() {
     } else {
         if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
             this.redrawAll();
-            this.zoomImgActive = false;
-            this.scaleFac = 1.0;
+            this.zoomEnding = true;
         } else {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
