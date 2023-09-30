@@ -1,3 +1,4 @@
+from datetime import datetime
 from .. import db
 
 from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
@@ -61,3 +62,24 @@ class DoubleStar(db.Model):
         if self.constellation_id:
             return Constellation.get_constellation_by_id(self.constellation_id).iau_code
         return ''
+
+
+class UserDoubleStarDescription(db.Model):
+    __tablename__ = 'user_double_star_descriptions'
+    id = db.Column(db.Integer, primary_key=True)
+    double_star_id = db.Column(db.Integer, db.ForeignKey('double_stars.id'), nullable=False, index=True)
+    double_star = db.relationship("DoubleStar")
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer)
+    lang_code = db.Column(db.String(2))
+    common_name = db.Column(db.String(256))
+    text = db.Column(db.Text)
+    references = db.Column(db.Text)
+    cons_order = db.Column(db.Integer) # TODO: remove
+    create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_date = db.Column(db.DateTime, default=datetime.now())
+    update_date = db.Column(db.DateTime, default=datetime.now())
+
+    def rating_to_int(self, m):
+        return int(round(self.rating * m / 10)) if self.rating else m//2

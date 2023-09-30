@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms.fields import (
     DateField,
     FloatField,
+    HiddenField,
     IntegerField,
     StringField,
     SubmitField,
@@ -14,6 +15,7 @@ from wtforms.fields import (
 
 from wtforms.validators import (
     InputRequired,
+    Length,
 )
 
 class SearchDoubleStarForm(FlaskForm):
@@ -32,3 +34,9 @@ class DoubleStarObservationLogForm(FlaskForm):
     submit = SubmitField(lazy_gettext('Update'))
     date_from = DateField(lazy_gettext('Date From'), id='odate-from', format='%d/%m/%Y', default=datetime.today, validators=[InputRequired(), ])
     time_from = TimeField(lazy_gettext('Time From'), format='%H:%M', default=datetime.now().time(), validators=[InputRequired(), ])
+
+class DoubleStarEditForm(FlaskForm):
+    common_name = StringField(lazy_gettext('Common Name'), validators=[Length(max=256)])
+    text = TextAreaField(lazy_gettext('Text'))
+    goback = HiddenField(default='false')
+    submit_button = SubmitField(lazy_gettext('Update'))

@@ -13,6 +13,7 @@
 
 {% set endpoint_log = [ ('main_double_star.double_star_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 {% set endpoint_observations = [ ('main_double_star.double_star_observations', _('Observations'), 'info') ] if has_observations else [] %}
+{% set endpoint_catalog_data = [ ('main_double_star.double_star_catalogue_data', _('Catalog'), 'table') ] if user_descr else [] %}
 
 {% if not embed %}
     {% set endpoints = [
@@ -27,7 +28,7 @@
     ] %}
 {% endif %}
 
-{% set endpoints = endpoint_log + endpoints + endpoint_observations %}
+{% set endpoints = endpoint_log + endpoints + endpoint_observations + endpoint_catalog_data %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -39,76 +40,7 @@
     </div>
 {% endmacro %}
 
-{% macro double_star_info(user_descr) %}
-    <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
-        <div class="ui blue segment" style="display: inline-block; width:100%">
-            <h3>&nbsp;
-                {% if double_star.constellation is not none %}
-                    <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=double_star.constellation.iau_code) }}">
-                        <i class="lastfm icon"></i>
-                        <span class="mobile hidden tablet hidden">{{ double_star.constellation.name.capitalize() }}</span>
-                        <span class="mobile only tablet only">{{ double_star.constellation.iau_code.capitalize() }}</span>
-                    </a>
-                {% endif %}
-                {% if double_star.components is not none %}
-                <div class="tablet hidden computer hidden" style="float:left">
-                    <div class="ui label" style="float:left;">
-                        <i class="info icon"></i>{{ double_star.components }}
-                    </div>
-                </div>
-                {% endif %}
-                <div class="mobile hidden" style="float:left">
-                    <div class="ui label" style="float:left;">
-                        &#8982; {{ double_star.ra_first_str_short() }}/{{ double_star.dec_first_str_short() }}
-                    </div>
-                </div>
-                {% if double_star.mag_first is not none and double_star.mag_second is not none %}
-                <div class="ui label" style="float:left;">
-                    &#9728;{{ commons.convert_mag(double_star.mag_first) }}/{{ commons.convert_mag(double_star.mag_second) }}mag
-                </div>
-                {% endif %}
-                {% if double_star.separation %}
-                    <div class="ui label" style="float:left;">
-                        Ø {{ commons.convert_double_star_separation(double_star.separation) }}
-                    </div>
-                {% endif %}
-
-                {{ commons.wish_observed_double_star_toolbar(current_user, double_star.id, wish_list, observed_list) }}
-                {{ commons.offered_session_plans_double_star_toolbar(double_star.id, offered_session_plans) }}
-            </h3>
-
-            {% if user_descr %}
-            <div class="markdown">
-                {% if editable %}
-                    <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">
-                        <i class="caret edit icon"></i>
-                    </a>
-                {% endif %}
-                {% filter extended_commonmark('') %}
-{{ user_descr.text }}
-                {% endfilter %}
-            </div>
-            {% endif %}
-
-            {% if double_star is not none %}
-            <table class="ui compact striped definition unstackable table">
-                <tr><td class="three wide">{{ _('WDS ID') }}</td><td>{{ double_star.wds_number }}</td></tr>
-                <tr><td class="three wide">{{ _('Common catalogue ID') }}</td><td>{{ double_star.common_cat_id }}</td></tr>
-                <tr><td class="three wide">{{ _('Components') }}</td><td>{{ double_star.components }}</td></tr>
-                <tr><td class="three wide">{{ _('Other Designation') }}</td><td>{{ double_star.other_designation }}</td></tr>
-                <tr><td class="three wide">{{ _('Position angle') }}</td><td>{{ double_star.pos_angle }}</td></tr>
-                <tr><td class="three wide">{{ _('Separation') }}</td><td>{{ double_star.separation }}</td></tr>
-                <tr><td class="three wide">{{ _('Mag First') }}</td><td>{{ double_star.mag_first }}</td></tr>
-                <tr><td class="three wide">{{ _('Mag Second') }}</td><td>{{ double_star.mag_second }}</td></tr>
-                <tr><td class="three wide">{{ _('Delta mag') }}</td><td>{{ double_star.delta_mag }}</td></tr>
-                <tr><td class="three wide">{{ _('Spectral Type') }}</td><td>{{ double_star.spectral_type }}</td></tr>
-                <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ double_star.constellation.name.capitalize() if double_star.constellation else '' }}</td></tr>
-                <tr><td class="three wide">RA</td><td>{{ double_star.ra_first_str() }}</td></tr>
-                <tr><td class="three wide">Dec</td><td>{{ double_star.dec_first_str() }}</td></tr>
-            </table>
-            {% endif %}
-        </div>
-    </div>
+{% macro double_star_toolbar_js() %}
     <script type=text/javascript>
         $(function() {
             $("a[id^='switch_wishlist_dbl_']").click(function() {
@@ -162,6 +94,65 @@
         });
     </script>
 {% endmacro %}
+
+{% macro double_star_info(user_descr) %}
+    <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
+        <div class="ui blue segment" style="display: inline-block; width:100%">
+            <h3>&nbsp;
+                {% if double_star.constellation is not none %}
+                    <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=double_star.constellation.iau_code) }}">
+                        <i class="lastfm icon"></i>
+                        <span class="mobile hidden tablet hidden">{{ double_star.constellation.name.capitalize() }}</span>
+                        <span class="mobile only tablet only">{{ double_star.constellation.iau_code.capitalize() }}</span>
+                    </a>
+                {% endif %}
+                {% if double_star.components is not none %}
+                <div class="tablet hidden computer hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        <i class="info icon"></i>{{ double_star.components }}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="mobile hidden" style="float:left">
+                    <div class="ui label" style="float:left;">
+                        &#8982; {{ double_star.ra_first_str_short() }}/{{ double_star.dec_first_str_short() }}
+                    </div>
+                </div>
+                {% if double_star.mag_first is not none and double_star.mag_second is not none %}
+                <div class="ui label" style="float:left;">
+                    &#9728;{{ commons.convert_mag(double_star.mag_first) }}/{{ commons.convert_mag(double_star.mag_second) }}mag
+                </div>
+                {% endif %}
+                {% if double_star.separation %}
+                    <div class="ui label" style="float:left;">
+                        Ø {{ commons.convert_double_star_separation(double_star.separation) }}
+                    </div>
+                {% endif %}
+
+                {{ commons.wish_observed_double_star_toolbar(current_user, double_star.id, wish_list, observed_list) }}
+                {{ commons.offered_session_plans_double_star_toolbar(double_star.id, offered_session_plans) }}
+                {% if editable %}
+                    <a class="ui icon mini button mobile hidden" style="float:left;margin-left:5px;" href="{{ url_for('main_double_star.double_star_edit', double_star_id=double_star.id, back=back, back_id=back_id) }}">
+                        <i class="caret edit icon"></i>
+                    </a>
+                {% endif %}
+            </h3>
+
+            {% if user_descr %}
+            <div class="markdown">
+                {% filter extended_commonmark('') %}
+{{ user_descr.text }}
+                {% endfilter %}
+            </div>
+            {% else %}
+                {{ double_star_data_table(double_star, False) }}
+            {% endif %}
+
+        </div>
+    </div>
+    {{ double_star_toolbar_js() }}
+{% endmacro %}
+
 
 {# --- Chart --- #}
 {% macro double_star_chart(double_star) %}
@@ -310,6 +301,31 @@
     </script>
 {% endmacro %}
 
+{# --- Catalog Data --- #}
+{% macro double_star_catalogue_data() %}
+    {{ double_star_data_table(double_star, True) }}
+{% endmacro %}
+
+{% macro double_star_data_table(double_star, full_table) %}
+    {% if double_star is not none %}
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('WDS ID') }}</td><td>{{ double_star.wds_number }}</td></tr>
+        <tr><td class="three wide">{{ _('Common catalogue ID') }}</td><td>{{ double_star.common_cat_id }}</td></tr>
+        <tr><td class="three wide">{{ _('Components') }}</td><td>{{ double_star.components }}</td></tr>
+        <tr><td class="three wide">{{ _('Other Designation') }}</td><td>{{ double_star.other_designation }}</td></tr>
+        <tr><td class="three wide">{{ _('Position angle') }}</td><td>{{ double_star.pos_angle }}</td></tr>
+        <tr><td class="three wide">{{ _('Separation') }}</td><td>{{ double_star.separation }}</td></tr>
+        <tr><td class="three wide">{{ _('Mag First') }}</td><td>{{ double_star.mag_first }}</td></tr>
+        <tr><td class="three wide">{{ _('Mag Second') }}</td><td>{{ double_star.mag_second }}</td></tr>
+        <tr><td class="three wide">{{ _('Delta mag') }}</td><td>{{ double_star.delta_mag }}</td></tr>
+        <tr><td class="three wide">{{ _('Spectral Type') }}</td><td>{{ double_star.spectral_type }}</td></tr>
+        <tr><td class="three wide">{{ _('Constellation') }}</td><td>{{ double_star.constellation.name.capitalize() if double_star.constellation else '' }}</td></tr>
+        <tr><td class="three wide">RA</td><td>{{ double_star.ra_first_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ double_star.dec_first_str() }}</td></tr>
+    </table>
+    {% endif %}
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
@@ -393,6 +409,8 @@
                 {{ double_star_observations() }}
             {% elif type == 'observation_log' %}
                 {{ double_star_observation_log() }}
+            {% elif type == 'catalogue_data' %}
+                {{ double_star_catalogue_data() }}
             {% else %}
                 {{ double_star_surveys(double_star) }}
             {% endif %}

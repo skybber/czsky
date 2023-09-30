@@ -1,0 +1,63 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if back == 'constell' %}
+                <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}">
+                    <i class="caret left icon"></i>
+                    {{ _('Constellation') }}
+                </a>
+            {% else %}
+                <a class="ui basic compact button" href="{{ url_for('main_double_star.double_star_info', double_star_id=double_star.id, back=back, back_id=back_id) }}">
+                    <i class="caret left icon"></i>
+                    {{ _('Back To Star') }}
+                </a>
+            {% endif %}
+            <h2 class="ui header">
+                {{ double_star.common_cat_id }} {{ ' / {}'.format(double_star.components) if double_star.components is not none else '' }}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+                <input id="goback" type="hidden" value="false">
+
+                {{ f.render_form_field(form.common_name) }}
+                {{ f.render_form_field(form.text) }}
+
+                <div class="two fields">
+                    {% if not is_new %}
+                        <button class="ui button bupdateback">{{ _('Update and back')}}</button>
+                    {% endif %}
+                    {{ f.render_form_field(form.submit_button) }}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+  </div>
+    <script type="text/javascript">
+        $('.bupdateback' ).click(function() {
+            $('#goback').val('true');
+            $(this).closest('form').submit();
+            return false;
+        });
+        var contentMDE = new EasyMDE({element: document.getElementById('text'),
+                minHeight: "500px",
+                spellChecker: false,
+                status : false,
+            });
+    </script>
+    <style>
+    </style>
+{% endblock %}
