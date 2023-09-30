@@ -56,11 +56,13 @@ from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
 from imports.import_constellations_positions import import_constellations_positions
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
+from imports.import_gottlieb_translate import import_translated_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 from imports.import_collinder import import_collinder
-from app.main.userdata.gitstore import load_public_content_data_from_git2
+from imports.import_wiki_ngc_ic import import_wikipedia_ngc
 
+from app.main.userdata.gitstore import load_public_content_data_from_git2
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 # manager = Manager(app)
@@ -257,6 +259,8 @@ def add_help_users():
         add_help_user(current_app.config.get('EDITOR_USER_NAME_CS'), current_app.config.get('EDITOR_USER_NAME_CS'))
     if current_app.config.get('EDITOR_USER_NAME_EN'):
         add_help_user(current_app.config.get('EDITOR_USER_NAME_EN'), current_app.config.get('EDITOR_USER_NAME_EN'))
+    if current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'):
+        add_help_user(current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'), current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'))
     add_help_user('skyquality', 'skyquality')
 
 
@@ -336,7 +340,6 @@ def import_git_content():
 def import_gottlieb():
     import_gottlieb('data/gottlieb')
 
-
 @app.cli.command("create_pgc_update_file")
 def create_pgc_update_file():
     create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
@@ -392,6 +395,27 @@ def tmp_update_minor_planets_brightness():
 @app.cli.command("tmp_import_collinder")
 def tmp_import_collinder():
     import_collinder('data/collinder.txt')
+
+@app.cli.command("tmp_import_translated_gottlieb")
+def tmp_import_translated_gottlieb():
+    gpt_prompt = '''Přelož následující text astronomického pozorování do češtiny. Anglické zkratky světových stran (N,W,S,E) a přelož do českých zkratek (S,Z,J,V). 
+Zkratky světových stran nikdy nepřekládej do jejich slovních ekvivalentů. Kombinace zkratek světových stran překládej vždy na kombinace zkratek v češtině, například 
+WNW přelož na ZSZ, ESE na VJV, SE na JV, WSW na ZJZ, ENE na VSV, NW na SZ, SSW na JJZ, NNE na SSV, NE na SV. Kombinace směrů typu NNW-SSE překládej jako kompinaci 
+typu SSZ-JJV, SW-NE jako JZ-SV, WSW-ENE jako ZJZ-VSV. Nepřekládej IAU kód souhvězdí. Používej rod ženský jako výchozí rod - tedy místo "malý" piš "malá". 
+Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__. 
+"Averted vision" překládej na "boční pohled". "tidal tail" na "slapový chvost", "edge on" na "viděna z boku", "bar" na "přička","seeing" na "seeing", "halo" na "halo":
+
+'''
+    import_translated_gottlieb('data/gottlieb', 'cs', 'Autor textu: ', gpt_prompt)
+
+@app.cli.command("tmp_add_user_wikipedia")
+def tmp_add_user_wikipedia():
+    if current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'):
+        add_help_user(current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'), current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'))
+
+@app.cli.command("tmp_import_wikipedia_ngc")
+def tmp_import_wikipedia_ngc():
+    import_wikipedia_ngc()
 
 # if __name__ == '__main__':
 #     manager.run()
