@@ -1,6 +1,8 @@
 from datetime import datetime
 import re
 
+from flask import current_app
+
 from os import listdir
 from os.path import isfile, join
 
@@ -95,8 +97,8 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor
 
 def import_gottlieb(gottlieb_dir):
 
-    user_editor_en = User.query.filter_by(user_name='editor.en').first()
-    user_editor_cs = User.query.filter_by(user_name='editor.cs').first()
+    user_editor_en = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_EN')).first()
+    user_editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
 
     gottlieb_files = [f for f in listdir(gottlieb_dir) if isfile(join(gottlieb_dir, f))]
 

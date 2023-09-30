@@ -4,6 +4,8 @@ import time
 import openai
 import tiktoken
 
+from flask import current_app
+
 from os import listdir, getenv
 from os.path import isfile, join
 
@@ -206,8 +208,8 @@ def import_translated_gottlieb(gottlieb_dir, lang_code, ref_prefix, gpt_prompt):
 
     openai.api_key = getenv("OPENAI_API_KEY")
 
-    user_editor_en = User.query.filter_by(user_name='editor.en').first()
-    user_editor_cs = User.query.filter_by(user_name='editor.cs').first()
+    user_editor_en = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_EN')).first()
+    user_editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
 
     gottlieb_files = [f for f in listdir(gottlieb_dir) if isfile(join(gottlieb_dir, f))]
 
