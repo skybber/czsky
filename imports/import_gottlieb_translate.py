@@ -155,18 +155,6 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor
             )
             tholder.add_descr(dso_name, udd, apert_descr)
 
-            completion = openai.ChatCompletion.create(
-                model='gpt-3.5-turbo',
-                messages=messages,
-                temperature=0.001
-            )
-
-            translated = completion.choices[0].message.content
-
-            if translated:
-                print('{} {}'.format(dso_name, dso_descr.strip()))
-                print('{} {}'.format(dso_name, translated.strip()))
-                db.session.add(udd)
 
         for apert, apert_descr in dso_apert_descr.items():
             if apert == 'Naked-eye':

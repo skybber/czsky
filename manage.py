@@ -60,7 +60,7 @@ from imports.import_gottlieb_translate import import_translated_gottlieb
 from imports.import_double_star_list import import_herschel500
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 from imports.import_collinder import import_collinder
-from imports.import_wiki_ngc_ic import import_wikipedia_ngc
+from imports.import_wiki_ngc_ic import import_wikipedia_ngc, translate_wikipedia_ngc
 
 from app.main.userdata.gitstore import load_public_content_data_from_git2
 
@@ -416,6 +416,13 @@ def tmp_add_user_wikipedia():
 @app.cli.command("tmp_import_wikipedia_ngc")
 def tmp_import_wikipedia_ngc():
     import_wikipedia_ngc()
+
+@app.cli.command("tmp_translate_wikipedia_ngc")
+def tmp_translate_wikipedia_ngc():
+    gpt_prompt = '''Přelož následující text popisu astronomického objektu češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+
+'''
+    translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
 # if __name__ == '__main__':
 #     manager.run()
