@@ -562,11 +562,16 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
             if (this.zoomEnding) {
                 this.zoomEnding = false;
                 this.zoomImgActive = false;
-                this.scaleFac = 1.0;
+                if (this.scaleFac != 1.0) {
+                    this.scaleFac = 1.0;
+                    this.syncAladinZoom();
+                }
             }
             if (this.scaleFac == 1.0 || forceReload) {
-                this.scaleFac = 1.0;
-                this.syncAladinZoom();
+                if (this.scaleFac != 1.0) {
+                    this.scaleFac = 1.0;
+                    this.syncAladinZoom();
+                }
                 this.redrawAll();
             }
         } else {
@@ -1321,6 +1326,7 @@ FChart.prototype.zoomFunc = function() {
         } else {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
+            this.syncAladinZoom();
             this.redrawAll();
         }
         clearInterval(this.zoomInterval);
