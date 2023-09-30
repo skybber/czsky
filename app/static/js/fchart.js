@@ -230,6 +230,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.isReloadingImage = false;
 
     this.imgField = this.fieldSizes[this.imgFldSizeIndex];
+    this.aladinImgField = this.imgField;
     this.scaleFac = 1.0;
     this.zoomImgField = undefined;
 
@@ -564,12 +565,14 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
                 this.zoomImgActive = false;
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
+                    this.aladinImgField = this.imgField;
                     this.syncAladinZoom();
                 }
             }
             if (this.scaleFac == 1.0 || forceReload) {
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
+                    this.aladinImgField = this.imgField;
                     this.syncAladinZoom();
                 }
                 this.redrawAll();
@@ -875,7 +878,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 
 FChart.prototype.syncAladinZoom = function () {
     if (this.aladin != null) {
-        this.aladin.setZoom(this.imgField / this.scaleFac);
+        this.aladin.setZoom(this.aladinImgField / this.scaleFac);
     }
 }
 
@@ -1326,6 +1329,7 @@ FChart.prototype.zoomFunc = function() {
         } else {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
+            this.aladinImgField = this.imgField;
             this.syncAladinZoom();
             this.redrawAll();
         }
