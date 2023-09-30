@@ -27,7 +27,11 @@ def search_constellation(query):
 
 
 def search_dso(query):
-    if query.isdigit():
+    if (query.endswith('_1') or query.endswith('_2')) and query[:-2].isdigit():
+        query = 'NGC' + query
+    if (query.endswith('A') or query.endswith('B')) and query[:-1].isdigit():
+        query = 'NGC' + query
+    elif query.isdigit():
         query = 'NGC' + query
     elif re.match(r'^\d*_\d$', query):
         query = 'NGC' + query
