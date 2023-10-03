@@ -15,9 +15,11 @@ from app import db
 from app.models import (
     Constellation,
     DeepskyObject,
+    DoubleStar,
     Star,
     User,
     UserConsDescription,
+    UserDoubleStarDescription,
     UserDsoDescription,
     UserDsoApertureDescription,
     UserStarDescription
@@ -198,6 +200,26 @@ def save_public_content_data_to_git(user_name, commit_message):
             f.write('updated_date: ' + (str(usd.update_date) if usd.create_date else '') + '\n')
             f.write('---\n')
             f.write(usd.text)
+
+    for udsd in UserDoubleStarDescription.query.filter_by(user_id=editor_user.id):
+        fn_prefix = udsd.double_star.common_cat_id.replace(' ', '_')
+        fn_appendix = udsd.double_star.components.replace(',', '_') if udsd.double_star.components else ''
+        double_star_file_name = fn_prefix + '-' + fn_appendix
+        repo_file_name = os.path.join(udsd.lang_code, 'doublestar', double_star_file_name + '.md')
+        filename = os.path.join(repository_path, repo_file_name)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w") as f:
+            f.write('---\n')
+            str_components_appendix = '-' + udsd.double_star.components  if udsd.double_star.components else ''
+            f.write('name: ' + '{}'.format(udsd.double_star.common_cat_id) + str_components_appendix + '\n')
+            f.write('rating: ' + (str(udsd.rating) if udd.rating else '') + '\n')
+            f.write('references: ' + _convert_to_multiline(udsd.references) + '\n')
+            f.write('created_by: ' + _get_user_name(udsd.create_by, user_name_cache) + '\n')
+            f.write('created_date: ' + (str(udsd.create_date) if udsd.create_date else '') + '\n')
+            f.write('updated_by: ' + _get_user_name(udsd.update_by, user_name_cache) + '\n')
+            f.write('updated_date: ' + (str(udsd.update_date) if udsd.create_date else '') + '\n')
+            f.write('---\n')
+            f.write(udsd.text)
 
     repo = git.Repo(repository_path)
     try:
@@ -518,6 +540,67 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
             usd.update_by = updated_by.id
             usd.update_date = updated_date
             db.session.add(usd)
+
+
+def _load_double_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
+    double_star_dir = os.path.join(repository_path, lang_code_dir, 'doublestar')
+    files = [f for f in os.listdir(double_star_dir) if os.path.isfile(os.path.join(double_star_dir, f))]
+    for double_star_name_md in files:
+        # current_app.logger.info('Reading doublestar description {}'.format(double_star_name_md))
+        with open(os.path.join(double_star_dir, double_star_name_md), 'r') as f:
+            if not double_star_name_md.endswith('.md'):
+                continue
+            double_star_name = double_star_name_md[:-3]
+            header_map = _read_header(f)
+            created_by = _get_user_from_username(user_cache, header_map.get('created_by', ''), owner)
+            created_date = _get_get_date_from_str(header_map.get('created_date', ''))
+            updated_by = _get_user_from_username(user_cache, header_map.get('updated_by', ''), owner)
+            updated_date = _get_get_date_from_str(header_map.get('updated_date', ''))
+            created_by = created_by or editor_user
+            updated_by = updated_by or owner
+            text = f.read()
+
+            if '-' in double_star_name:
+                common_cat_id = double_star_name[:double_star_name_md.index('-')].replace('_', ' ')
+                components = double_star_name[double_star_name_md.index('-')+1:].replace('_', ',')
+            else:
+                common_cat_id = double_star_name.replace('_', ' ')
+                components = None
+
+            if not common_cat_id:
+                continue
+
+            udsd_query = UserDoubleStarDescription.query.filter_by(user_id=editor_user.id)\
+                    .filter_by(lang_code=lang_code_dir) \
+                    .join(UserDoubleStarDescription.double_star) \
+                    .filter_by(common_cat_id=common_cat_id)
+            if components:
+                udsd_query = udsd_query.filter_by(components=components)
+
+            udsd = udsd_query.first()
+
+            if components:
+                double_star = DoubleStar.query.filter_by(common_cat_id=common_cat_id, components=components).first()
+            else:
+                double_star = DoubleStar.query.filter_by(common_cat_id=common_cat_id).first()
+            if not double_star:
+                continue
+
+            if not udsd:
+                udsd = UserDoubleStarDescription(
+                    double_star_id=double_star.id,
+                    user_id=editor_user.id,
+                    lang_code=lang_code_dir,
+                    create_by=created_by.id,
+                    create_date=created_date,
+                )
+            else:
+                udsd.double_star_id = double_star.id
+            udsd.common_name = header_map.get('name', '')
+            udsd.text = text
+            udsd.update_by = updated_by.id
+            udsd.update_date = updated_date
+            db.session.add(udsd)
 
 
 def _read_header(f):

@@ -2740,27 +2740,27 @@ msgstr "Git repozitář pro společný obsah"
 
 #: app/templates/main/userdata/data_store.html:55
 msgid "This operation stores user data to Git repository: "
-msgstr "Synchronizace s git repozitáři"
+msgstr "Tato operace uloží uživatelská data do git repozitáře: "
 
 #: app/templates/main/userdata/data_store.html:57
 msgid "This operation stores content data to Git repository: "
-msgstr "Synchronizace s git repozitáři"
+msgstr "Tato akce uloží obsah czsky do git repozitáře: "
 
 #: app/templates/main/userdata/data_store.html:60
 msgid "Git repository is not set up."
-msgstr "Git repozitář"
+msgstr "Git repozitář není nastaven"
 
 #: app/templates/main/userdata/data_store.html:67
 msgid "Save data to Git"
-msgstr ""
+msgstr "Uložit data do GITu"
 
 #: app/templates/main/userdata/data_store.html:69
 msgid "Save content data to Git"
-msgstr ""
+msgstr "Uložit obsah do GITu"
 
 #: app/templates/main/userdata/data_store.html:77
 msgid "Load from Git"
-msgstr ""
+msgstr "Nahr8t z GITu"
 
 #: app/templates/main/userdata/data_store.html:79
 msgid "Load content from Git content repository"
@@ -2768,15 +2768,15 @@ msgstr "Git repozitář pro společný obsah"
 
 #: app/templates/main/userdata/data_store.html:88
 msgid "This operation loads user data from Git repository: "
-msgstr "Synchronizace s git repozitáři"
+msgstr "Tato operace nahraje uživatelská data z GIT repozitáře: "
 
 #: app/templates/main/userdata/data_store.html:90
 msgid "This operation loads content data from Git repository: "
-msgstr "Synchronizace s git repozitáři"
+msgstr "Tato operace nahraje obsah czsky z GIT repozitáře: "
 
 #: app/templates/main/userdata/data_store.html:91
 msgid "All not pushed data will be lost!"
-msgstr ""
+msgstr "Všechna neuložená data pomocí git-push budou ztracena!"
 
 #: app/templates/main/userdata/data_store.html:99
 msgid "Load data from Git"
