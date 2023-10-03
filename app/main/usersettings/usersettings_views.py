@@ -145,7 +145,7 @@ def git_content_repository():
 @main_usersettings.route('/user-settings/git-ssh-key-create', methods=['GET'])
 @login_required
 def git_ssh_key_create():
-    key = RSA.generate(2048)
+    key = RSA.generate(3072)
     current_user.git_ssh_private_key = key.export_key().decode("ascii")
     current_user.git_ssh_public_key = key.publickey().export_key('OpenSSH').decode("ascii")
     db.session.add(current_user)
@@ -157,7 +157,7 @@ def git_ssh_key_create():
 @main_usersettings.route('/user-settings/git-content-ssh-key-create', methods=['GET'])
 @login_required
 def git_content_ssh_key_create():
-    key = RSA.generate(2048)
+    key = RSA.generate(3072)
     current_user.git_content_ssh_private_key = key.export_key().decode("ascii")
     current_user.git_content_ssh_public_key = key.publickey().export_key('OpenSSH').decode("ascii")
     db.session.add(current_user)
