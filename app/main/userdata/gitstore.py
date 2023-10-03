@@ -204,7 +204,9 @@ def save_public_content_data_to_git(user_name, commit_message):
     for udsd in UserDoubleStarDescription.query.filter_by(user_id=editor_user.id):
         fn_prefix = udsd.double_star.common_cat_id.replace(' ', '_')
         fn_appendix = udsd.double_star.components.replace(',', '_') if udsd.double_star.components else ''
-        double_star_file_name = fn_prefix + '-' + fn_appendix
+        double_star_file_name = fn_prefix
+        if fn_appendix:
+            double_star_file_name += '-' + fn_appendix
         repo_file_name = os.path.join(udsd.lang_code, 'doublestar', double_star_file_name + '.md')
         filename = os.path.join(repository_path, repo_file_name)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -258,6 +260,7 @@ def load_public_content_data_from_git2(user_name, git_content_repository=None):
         _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
         _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
         _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
+        _load_double_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
 
     db.session.commit()
     current_app.logger.info('Public content data loading succeeded.')
@@ -544,7 +547,10 @@ def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, 
 
 def _load_double_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     double_star_dir = os.path.join(repository_path, lang_code_dir, 'doublestar')
+    if not os.path.exists(double_star_dir):
+        return
     files = [f for f in os.listdir(double_star_dir) if os.path.isfile(os.path.join(double_star_dir, f))]
+    print('{}'.format(files), flush=True)
     for double_star_name_md in files:
         # current_app.logger.info('Reading doublestar description {}'.format(double_star_name_md))
         with open(os.path.join(double_star_dir, double_star_name_md), 'r') as f:
@@ -584,6 +590,7 @@ def _load_double_star_descriptions(owner, editor_user, repository_path, lang_cod
             else:
                 double_star = DoubleStar.query.filter_by(common_cat_id=common_cat_id).first()
             if not double_star:
+                current_app.logger.warn('doublestar={} {} not found!'.format(common_cat_id, components))
                 continue
 
             if not udsd:
