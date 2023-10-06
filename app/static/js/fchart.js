@@ -1,56 +1,13 @@
-function pos2radec(x, y, centerRA, centerDEC) {
-    return {
-        "ra" : centerRA + Math.atan2(x, (Math.cos(centerDEC) * Math.sqrt(1 - x*x - y*y) - y*Math.sin(centerDEC))),
-        "dec" : Math.asin((y*Math.cos(centerDEC) + Math.sin(centerDEC) * Math.sqrt(1 - x*x - y*y)))
-    }
+function rad2deg(r) {
+    return r * 180 / Math.PI;
 }
 
-function pos2radec2(x, y, centerRA, centerDEC) {
-    return {
-        "ra" : centerRA + Math.atan2(x, (Math.cos(centerDEC) * Math.sqrt(1 - x*x - y*y) - y*Math.sin(centerDEC))),
-        "dec" : Math.asin((y*Math.cos(centerDEC) + Math.sin(centerDEC) * Math.sqrt(1 - y*y)))
-    }
+function deg2rad(d) {
+    return d * Math.PI / 180;
 }
 
-function radec2pos(ra, dec, centerRA, centerDEC) {
-    let deltaRA = ra - centerRA
-
-    let sinDEC = Math.sin(dec)
-    let cosDEC = Math.cos(dec)
-    let sinDEC0 = Math.sin(centerDEC)
-    let cosDEC0 = Math.cos(centerDEC)
-
-    let cos_deltaRA = Math.cos(deltaRA)
-
-    return {
-        'x' : -cosDEC*Math.sin(deltaRA),
-        'y' : (sinDEC*cosDEC0 - cosDEC*cos_deltaRA*sinDEC0)
-    }
-}
-
-function ra2hms(ra) {
-    let h = ra / (2 * Math.PI) * 24;
-    let h_int = parseInt(h);
-    let m = (h - h_int) * 60;
-    let m_int = parseInt(m);
-    let s = (m - m_int) * 60;
-    let s_int = parseInt(s);
-    return {
-        "h" : h_int,
-        "m" : m_int,
-        "s" : s_int
-    }
-}
-
-function dec2deg(dec) {
-    let dec_deg = dec / (Math.PI) * 180;
-    let int_dec_deg = parseInt(dec_deg);
-    let dec_min = (dec_deg - int_dec_deg) * 60;
-    let int_dec_min = parseInt(dec_min);
-    return {
-        "deg": int_dec_deg,
-        "min": int_dec_min
-    }
+function radecDeg2Rad(pos) {
+    return { ra: deg2rad(pos.ra), dec: deg2rad(pos.dec) };
 }
 
 function normalizeDelta(e) {
@@ -141,7 +98,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, fullScreen, splitview,
-                 mirror_x, mirror_y, default_chart_iframe_url, embed, aladin) {
+                 mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, projection) {
 
     this.fchartDiv = fchartDiv;
 
@@ -173,6 +130,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.separator = $('<div class="fchart-separator" style="display:none"></div>').appendTo(this.fchartDiv)[0];
     this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1" style="outline: 0;"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
+
+    this.projection = projection;
 
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
@@ -216,7 +175,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.MOVE_SEC_PER_SCREEN = 2;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
 
-    this.viewCenter = {ra: ra, dec: dec}
+    this.viewCenter = {ra: 0, dec: 0}
+    this.setViewCenter(ra, dec);
     this.obj_ra = obj_ra != '' ? obj_ra : ra;
     this.obj_dec = obj_dec != '' ? obj_dec : dec;
 
@@ -378,6 +338,21 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         }
     });
 
+}
+
+FChart.prototype.setViewCenter = function (ra, dec) {
+    if (ra > Math.PI*2) ra = ra - 2 * Math.PI
+    if (ra < 0) ra = ra + 2 * Math.PI
+
+    if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
+    if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
+
+    this.viewCenter.ra = ra;
+    this.viewCenter.dec = dec;
+}
+
+FChart.prototype.setProjectionToViewCenter = function() {
+    this.projection.setCenter(rad2deg(this.viewCenter.ra), rad2deg(this.viewCenter.dec));
 }
 
 FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
@@ -598,40 +573,66 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
     }.bind(this);
 }
 
-FChart.prototype.mirroredPos2radec = function(x, y, centerRA, centerDEC) {
-    let r2 = x**2 + y**2;
-    if (r2 >= 1.0) {
-        let r = Math.sqrt(r2);
-        x = x / (1.001*r);
-        y = y / (1.001*r);
+FChart.prototype.mirroredPos2radec = function(x, y, setViewCenter=true) {
+    if (this.projection.getProjection() == Projection.PROJ_SIN) {
+        let r2 = x ** 2 + y ** 2;
+        if (r2 >= 1.0) {
+            let r = Math.sqrt(r2);
+            x = x / (1.001 * r);
+            y = y / (1.001 * r);
+        }
     }
-    return pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
+
+    if (setViewCenter) {
+        this.setProjectionToViewCenter();
+    }
+    return radecDeg2Rad(this.projection.unproject(this.multRA * x, this.multDEC * y));
 }
 
-FChart.prototype.mirroredPos2radecK = function(x, y, centerRA, centerDEC) {
-    let r2 = x**2 + y**2;
-    let k;
-    if (r2 >= 1.0) {
-        k = 1.0 / (1.001 * Math.sqrt(r2))
-        x = x * k;
-        y = y * k;
+FChart.prototype.mirroredPos2radecK = function(x, y, setViewCenter=true) {
+    let k = 1;
+
+    if (this.projection.getProjection() == Projection.PROJ_SIN) {
+        let r2 = x ** 2 + y ** 2;
+        if (r2 >= 1.0) {
+            k = 1.0 / (1.001 * Math.sqrt(r2))
+            x = x * k;
+            y = y * k;
+        }
+    }
+
+    if (setViewCenter) {
+        this.setProjectionToViewCenter();
+    }
+    let pos = radecDeg2Rad(this.projection.unproject(this.multRA * x, this.multDEC * y));
+    return { ra: pos.ra, dec: pos.dec, k: k };
+}
+
+FChart.prototype.mirroredPos2radec2 = function(x, y, setViewCenter=true) {
+    if (this.projection.getProjection() != Projection.PROJ_SIN) {
+        return this.mirroredPos2radec(x, y, setViewCenter);
     } else {
-        k = 1;
-    }
+        let r2 = x**2 + y**2;
+        if (r2 >= 1.0) {
+            let r = Math.sqrt(r2);
+            x = x / (1.001*r);
+            y = y / (1.001*r);
+        }
 
-    let ret = pos2radec(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
-    ret['k'] = k;
-    return ret;
-}
+        if (setViewCenter) {
+            this.setProjectionToViewCenter();
+        }
 
-FChart.prototype.mirroredPos2radec2 = function(x, y, centerRA, centerDEC) {
-    let r2 = x**2 + y**2;
-    if (r2 >= 1.0) {
-        let r = Math.sqrt(r2);
-        x = x / (1.001*r);
-        y = y / (1.001*r);
+        let cDEC = this.viewCenter.dec;
+        let cRA = this.viewCenter.ra;
+        x = this.multRA * x;
+        y = this.multDEC * y;
+
+        return {
+            "ra" : cRA + Math.atan2(x, (Math.cos(cDEC) * Math.sqrt(1 - x*x - y*y) - y*Math.sin(cDEC))),
+            "dec" : Math.asin((y*Math.cos(cDEC) + Math.sin(cDEC) * Math.sqrt(1 - y*y)))
+        }
     }
-    return pos2radec2(this.multRA * x, this.multDEC * y, centerRA, centerDEC);
 }
 
 FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
@@ -640,17 +641,20 @@ FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
     let screenY = 0;
     this.imgGrid = [];
     let scale = this.getFChartScale();
+    this.projection.setCenter(rad2deg(centerRA), rad2deg(centerDEC));
     for (i=0; i <= this.GRID_SIZE; i++) {
         let screenX = 0;
-        let y = -(screenY - this.canvas.height / 2.0) / scale;
+        let y = (screenY - this.canvas.height / 2.0) / scale;
         for (j=0; j <= this.GRID_SIZE; j++) {
-            let x = -(screenX - this.canvas.width / 2.0) / scale;
-            let rd = this.mirroredPos2radecK(x, y, centerRA, centerDEC);
+            let x = (screenX - this.canvas.width / 2.0) / scale;
+
+            let rd = this.mirroredPos2radecK(x, y, false);
             this.imgGrid.push([rd.ra, rd.dec, rd.k]);
             screenX += dx;
         }
         screenY += dy;
     }
+    this.setProjectionToViewCenter();
 }
 
 FChart.prototype.getEventLocation = function(e) {
@@ -677,8 +681,15 @@ FChart.prototype.getFChartScale = function() {
     // Compute scale as FChart3 does
     let wh = Math.max(this.canvas.width, this.canvas.height);
     let fldSize = this.fieldSizes[this.imgFldSizeIndex];
-    let fieldradius = fldSize * Math.PI / 180.0 / 2.0;
-    return wh / 2.0 / Math.sin(fieldradius);
+    let fieldradius = deg2rad(fldSize) / 2.0;
+    return wh / 2.0 / this.projectAngle2Screen(fieldradius);
+}
+
+
+FChart.prototype.projectAngle2Screen = function(fldRadiue) {
+    this.projection.setCenter(0, 0);
+    let screenPos = this.projection.project(rad2deg(fldRadiue), 0);
+    return Math.abs(screenPos.X - screenPos.Y);
 }
 
 FChart.prototype.findDso = function(e) {
@@ -731,26 +742,28 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
     if (this.movingPos != undefined) {
         let rect = this.canvas.getBoundingClientRect();
         let scale = this.getFChartScale();
-        let x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+        let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
         let y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
         let movingToPos;
         if (this.kbdDragging == 0 && !fromKbdMove) {
-            movingToPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
+            movingToPos = this.mirroredPos2radec(x, y);
         } else {
-            movingToPos = this.mirroredPos2radec2(x, y, this.viewCenter.ra, this.viewCenter.dec);
+            movingToPos = this.mirroredPos2radec2(x, y);
         }
 
         let dRA = movingToPos.ra - this.movingPos.ra;
         let dDEC = movingToPos.dec - this.movingPos.dec;
 
         if (this.viewCenter.dec > 0) {
-            let polePos = radec2pos(0, Math.PI/2.0, this.viewCenter.ra, this.viewCenter.dec, scale);
-            if (y > polePos.y) {
+            this.setProjectionToViewCenter();
+            let polePos = this.projection.project(0, 90.0);
+            if (y > polePos.Y) {
                 dDEC = -dDEC;
             }
         } else {
-            let polePos = radec2pos(0, -Math.PI/2.0, this.viewCenter.ra, this.viewCenter.dec, scale);
-            if (y < polePos.y) {
+            this.setProjectionToViewCenter();
+            let polePos = this.projection.project(0, -90.0);
+            if (y < polePos.Y) {
                 dDEC = -dDEC;
             }
         }
@@ -778,9 +791,9 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
 FChart.prototype.setupMovingPos = function () {
     let rect = this.canvas.getBoundingClientRect();
     let scale = this.getFChartScale();
-    let x = -(this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+    let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
     let y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
-    this.movingPos = this.mirroredPos2radec(x, y, this.viewCenter.ra, this.viewCenter.dec);
+    this.movingPos = this.mirroredPos2radec(x, y);
 }
 
 FChart.prototype.onPointerDown = function(e) {
@@ -872,7 +885,7 @@ FChart.prototype.syncAladinViewCenter = function () {
         let centerRA = this.viewCenter.ra - dRD.dRA;
         let centerDEC = this.viewCenter.dec - dRD.dDEC;
 
-        this.aladin.gotoRaDec(centerRA * 180 / Math.PI, centerDEC * 180 / Math.PI);
+        this.aladin.gotoRaDec(rad2deg(centerRA), rad2deg(centerDEC));
     }
 }
 
@@ -885,16 +898,9 @@ FChart.prototype.syncAladinZoom = function () {
 FChart.prototype.moveRaDEC = function(fromKbdMove) {
     if (this.movingPos != undefined) {
         let dRD = this.getDRaDec(fromKbdMove);
-        this.viewCenter.ra -= dRD.dRA;
-        this.viewCenter.dec -= dRD.dDEC;
+        this.setViewCenter(this.viewCenter.ra-dRD.dRA, this.viewCenter.dec-dRD.dDEC)
         this.setupMovingPos();
     }
-
-    if (this.viewCenter.ra > Math.PI*2) this.viewCenter.ra = this.viewCenter.ra - 2 * Math.PI
-    if (this.viewCenter.ra < 0) this.viewCenter.ra = this.viewCenter.ra + 2 * Math.PI
-
-    if (this.viewCenter.dec > Math.PI / 2.0) this.viewCenter.dec = Math.PI/2.0;
-    if (this.viewCenter.dec < -Math.PI / 2.0) this.viewCenter.dec = -Math.PI/2.0;
 
     $('#ra').val(this.viewCenter.ra);
     $('#dec').val(this.viewCenter.dec);
@@ -1184,11 +1190,17 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let h2 = curSkyImg.height / 2;
     let centerRA = this.viewCenter.ra - dRD.dRA;
     let centerDEC = this.viewCenter.dec - dRD.dDEC;
+    this.projection.setCenter(rad2deg(centerRA), rad2deg(centerDEC));
     for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
-        let pos = radec2pos(this.imgGrid[i][0], this.imgGrid[i][1], centerRA, centerDEC, scale);
-        let k = this.imgGrid[i][2];
-        screenImgGrid.push([this.multRA * pos.x * scale / k + w2, -this.multDEC * pos.y * scale / k + h2]);
+        let pos = this.projection.project(rad2deg(this.imgGrid[i][0]), rad2deg(this.imgGrid[i][1]));
+        if (pos != null) {
+            let k = this.imgGrid[i][2];
+            screenImgGrid.push([this.multRA * pos.X * scale / k + w2, this.multDEC * pos.Y * scale / k + h2]);
+        } else {
+            screenImgGrid.push(null);
+        }
     }
+    this.projection.setCenter(rad2deg(this.viewCenter.ra), rad2deg(this.viewCenter.dec));
     let imgY = 0;
     let dimgX = curSkyImg.width / this.GRID_SIZE;
     let dimgY = curSkyImg.height / this.GRID_SIZE;
@@ -1206,24 +1218,29 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
             let p2 = screenImgGrid[i + 1 + j * (this.GRID_SIZE + 1)];
             let p3 = screenImgGrid[i + (j  + 1) * (this.GRID_SIZE + 1)];
             let p4 = screenImgGrid[i + 1 + (j  + 1) * (this.GRID_SIZE + 1)];
-            drawTexturedTriangle(this.ctx, curSkyImg,
-                                    p1[0], p1[1],
-                                    p2[0], p2[1],
-                                    p3[0], p3[1],
-                                    imgX, imgY,
-                                    imgX + dimgX, imgY,
-                                    imgX, imgY + dimgY,
-                                    false,
-                                    0, 0, false);
-            drawTexturedTriangle(this.ctx, curSkyImg,
-                                    p2[0], p2[1],
-                                    p4[0], p4[1],
-                                    p3[0], p3[1],
-                                    imgX + dimgX, imgY,
-                                    imgX + dimgX, imgY + dimgY,
-                                    imgX, imgY + dimgY,
-                                    false,
-                                    0, 0, false);
+            if (p1 != null && p2 != null && p3 != null) {
+                drawTexturedTriangle(this.ctx, curSkyImg,
+                    p1[0], p1[1],
+                    p2[0], p2[1],
+                    p3[0], p3[1],
+                    imgX, imgY,
+                    imgX + dimgX, imgY,
+                    imgX, imgY + dimgY,
+                    false,
+                    0, 0, false);
+            }
+
+            if (p2 != null && p3 != null && p4 != null) {
+                drawTexturedTriangle(this.ctx, curSkyImg,
+                    p2[0], p2[1],
+                    p4[0], p4[1],
+                    p3[0], p3[1],
+                    imgX + dimgX, imgY,
+                    imgX + dimgX, imgY + dimgY,
+                    imgX, imgY + dimgY,
+                    false,
+                    0, 0, false);
+            }
             imgX += dimgX;
         }
         imgY += dimgY;
@@ -1248,8 +1265,8 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         if (this.zoomImgField === undefined) {
             this.zoomImgField = this.imgField;
         }
-        let imgFieldSize = Math.sin(Math.PI * this.zoomImgField / (2 * 180)) /  this.scaleFac;
-        let newFldSize = Math.sin(Math.PI * this.fieldSizes[this.fldSizeIndex] / (2 * 180));
+        let imgFieldSize = this.projectAngle2Screen(Math.PI * this.zoomImgField / (2 * 180)) /  this.scaleFac;
+        let newFldSize = this.projectAngle2Screen(Math.PI * this.fieldSizes[this.fldSizeIndex] / (2 * 180));
         this.scaleFacTotal = imgFieldSize / newFldSize;
 
         this.zoomStep = 0;
@@ -1482,4 +1499,3 @@ FChart.prototype.setIFrameUrl = function(url) {
         $(".fchart-iframe").attr('src', url);
     }
 }
-

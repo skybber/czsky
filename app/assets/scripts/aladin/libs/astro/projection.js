@@ -71,6 +71,10 @@ Projection.prototype = {
 		this.PROJECTION = p;
 	},
 
+	getProjection: function() {
+		return this.PROJECTION;
+	},
+
 
 	/**
 	 * Computes the projection of 1 point : ra,dec => X,Y
