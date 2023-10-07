@@ -1172,6 +1172,23 @@ FChart.prototype.drawImgGrid = function (curSkyImg) {
    this.drawImgGrid(curSkyImg, false);
 }
 
+FChart.prototype.cohenSutherlandEnc = function (p, curSkyImg) {
+    let code = 0;
+    if (p != null) {
+        if (p[0] < 0) code |= 1;
+        if (p[0] > curSkyImg.width) code |= 2;
+        if (p[1] > curSkyImg.height) code |= 4;
+        if (p[1] < 0) code |= 8;
+    }
+    return code;
+}
+
+FChart.prototype.isNeighbCH = function (c1, c2) {
+    let c = c1 | c2;
+    return ((c & 12) != 12) && ((c & 3) != 3);
+
+}
+
 FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let fromKbdMove = this.pendingMoveRequest != undefined && this.pendingMoveRequest.wasKbdDragging;
     let dRD = this.getDRaDec(fromKbdMove);
@@ -1218,28 +1235,36 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
             let p2 = screenImgGrid[i + 1 + j * (this.GRID_SIZE + 1)];
             let p3 = screenImgGrid[i + (j  + 1) * (this.GRID_SIZE + 1)];
             let p4 = screenImgGrid[i + 1 + (j  + 1) * (this.GRID_SIZE + 1)];
+            let c1 = this.cohenSutherlandEnc(p1, curSkyImg);
+            let c2 = this.cohenSutherlandEnc(p2, curSkyImg);
+            let c3 = this.cohenSutherlandEnc(p3, curSkyImg);
+            let c4 = this.cohenSutherlandEnc(p4, curSkyImg);
             if (p1 != null && p2 != null && p3 != null) {
-                drawTexturedTriangle(this.ctx, curSkyImg,
-                    p1[0], p1[1],
-                    p2[0], p2[1],
-                    p3[0], p3[1],
-                    imgX, imgY,
-                    imgX + dimgX, imgY,
-                    imgX, imgY + dimgY,
-                    false,
-                    0, 0, false);
+                if (this.isNeighbCH(c1, c2) && this.isNeighbCH(c2, c3) && this.isNeighbCH(c3, c1)) {
+                    drawTexturedTriangle(this.ctx, curSkyImg,
+                        p1[0], p1[1],
+                        p2[0], p2[1],
+                        p3[0], p3[1],
+                        imgX, imgY,
+                        imgX + dimgX, imgY,
+                        imgX, imgY + dimgY,
+                        false,
+                        0, 0, false);
+                }
             }
 
             if (p2 != null && p3 != null && p4 != null) {
-                drawTexturedTriangle(this.ctx, curSkyImg,
-                    p2[0], p2[1],
-                    p4[0], p4[1],
-                    p3[0], p3[1],
-                    imgX + dimgX, imgY,
-                    imgX + dimgX, imgY + dimgY,
-                    imgX, imgY + dimgY,
-                    false,
-                    0, 0, false);
+                if (this.isNeighbCH(c2, c3) && this.isNeighbCH(c3, c4) && this.isNeighbCH(c4, c2)) {
+                    drawTexturedTriangle(this.ctx, curSkyImg,
+                        p2[0], p2[1],
+                        p4[0], p4[1],
+                        p3[0], p3[1],
+                        imgX + dimgX, imgY,
+                        imgX + dimgX, imgY + dimgY,
+                        imgX, imgY + dimgY,
+                        false,
+                        0, 0, false);
+                }
             }
             imgX += dimgX;
         }
