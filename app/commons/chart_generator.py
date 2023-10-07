@@ -59,7 +59,7 @@ GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
 
 MAG_SCALES = [(14, 16), (13, 16), (12, 16), (11, 15), (10, 13), (8, 11), (7, 10), (6, 9), (6, 8), (5, 7), (5, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 12), (7, 11), (6, 10), (6, 10)]
+DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 12), (7, 11), (6, 10), (5, 9)]
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 200
