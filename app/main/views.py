@@ -173,12 +173,12 @@ def do_global_search(query, level):
     simbad_obj = simbad.query_object(query)
     if simbad_obj is not None:
         if simbad_obj[0]['MAIN_ID'] != query and level == 1:
-            do_global_search(simbad_obj[0]['MAIN_ID'], 2)
-        ra_dec_query = '{} {}'.format(simbad_obj[0]['RA'], simbad_obj[0]['DEC'])
-        res = _search_by_ra_dec(ra_dec_query)
+            res = do_global_search(simbad_obj[0]['MAIN_ID'], 2)
+        if not res:
+            ra_dec_query = '{} {}'.format(simbad_obj[0]['RA'], simbad_obj[0]['DEC'])
+            res = _search_by_ra_dec(ra_dec_query)
         if res:
             return res
-
 
     back_url_enc = request.args.get('back_url')
     if back_url_enc:
