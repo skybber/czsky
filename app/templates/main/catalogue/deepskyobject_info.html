@@ -432,6 +432,13 @@
         </div>
 
     {{ f.end_form() }}
+    <div class="markdown" style="clear:both;">
+        {% for ap_class, app_descr in apert_descriptions %}
+            {% filter extended_commonmark(dso.name) %}
+**{{ commons.norm_aperture_class(ap_class) }}** - {{ app_descr }}
+            {% endfilter %}
+        {% endfor %}
+    </div>
     {% if not is_new_observation_log %}
         <div class="ui tiny modal deleteObservationLogModal">
           <div class="header">{{ _('Delete Log') }}</div>

@@ -311,7 +311,6 @@ def deepskyobject_seltab(dso_id):
 
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
-
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
 def deepskyobject_info(dso_id):
@@ -324,31 +323,7 @@ def deepskyobject_info(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'info'
 
-    lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
-    user_descr = None
-    apert_descriptions = []
-    title_img = None
-    if all_editor_users:
-        used_apert_classes = set()
-        for editor_user in all_editor_users:
-            if not user_descr:
-                user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
-            user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-                .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
-                .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
-            for apdescr in user_apert_descrs:
-                if apdescr.aperture_class not in used_apert_classes:
-                    if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
-                        if apdescr.aperture_class == '<100':
-                            apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
-                        else:
-                            apert_descriptions.append((apdescr.aperture_class, apdescr.text))
-                        used_apert_classes.add(apdescr.aperture_class)
-
-        if not user_descr or not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/'):
-            image_info = get_dso_image_info_with_imgdir(dso.normalized_name_for_img())
-            if image_info is not None:
-                title_img = image_info[0]
+    user_descr, apert_descriptions, title_img  = _get_dso_descriptions(dso)
 
     prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='info')
 
@@ -755,10 +730,12 @@ def deepskyobject_observation_log(dso_id):
     prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='observation_log')
     has_observations = _has_dso_observations(dso, orig_dso)
 
+    _, apert_descriptions, _  = _get_dso_descriptions(dso)
+
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
                            embed=embed, observing_session=observing_session, is_new_observation_log=is_new_observation_log,
                            back=back, back_id=back_id, has_observations=has_observations, show_obs_log=True,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, apert_descriptions=apert_descriptions,
                            )
 
 
@@ -780,6 +757,35 @@ def deepskyobject_observation_log_delete(dso_id):
 
     flash('Observation log deleted.', 'form-success')
     return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_id, back=back, back_id=back_id))
+
+
+def _get_dso_descriptions(dso):
+    lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
+    user_descr = None
+    apert_descriptions = []
+    title_img = None
+    if all_editor_users:
+        used_apert_classes = set()
+        for editor_user in all_editor_users:
+            if not user_descr:
+                user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+            user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
+                .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
+                .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
+            for apdescr in user_apert_descrs:
+                if apdescr.aperture_class not in used_apert_classes:
+                    if apdescr.aperture_class not in [cl[0] for cl in apert_descriptions] and apdescr.text:
+                        if apdescr.aperture_class == '<100':
+                            apert_descriptions.insert(0, (apdescr.aperture_class, apdescr.text))
+                        else:
+                            apert_descriptions.append((apdescr.aperture_class, apdescr.text))
+                        used_apert_classes.add(apdescr.aperture_class)
+
+        if not user_descr or not user_descr.text or not user_descr.text.startswith('![<]($IMG_DIR/'):
+            image_info = get_dso_image_info_with_imgdir(dso.normalized_name_for_img())
+            if image_info is not None:
+                title_img = image_info[0]
+    return user_descr, apert_descriptions, title_img
 
 
 def _create_author_entry(update_by, update_date):
