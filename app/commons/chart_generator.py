@@ -419,6 +419,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_dss.data = session.get('chart_show_dss', form.show_dss.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
         form.show_dso_mag.data = session.get('chart_show_dso_mag', form.show_dso_mag.data)
+        form.show_star_mag.data = session.get('chart_show_star_mag', form.show_star_mag.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
     else:
@@ -433,6 +434,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_mirror_x'] = form.mirror_x.data
         session['chart_mirror_y'] = form.mirror_y.data
         session['chart_show_dso_mag'] = form.show_dso_mag.data
+        session['chart_show_star_mag'] = form.show_star_mag.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
@@ -642,6 +644,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_equatorial_grid = 'E' in flags
     config.show_dss = 'S' in flags
     config.show_dso_mag = 'M' in flags
+    config.show_star_mag = 'N' in flags
     config.show_picker = False  # do not show picker, only activate it
     if 'P' in flags:
         config.picker_radius = PICKER_RADIUS
@@ -772,6 +775,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     config.show_simple_milky_way = False
     config.show_enhanced_milky_way = False
     config.show_dso_mag = 'M' in flags
+    config.show_star_mag = 'N' in flags
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 0.7  # increase radius of star by 0.5 magnitude
 
@@ -954,6 +958,9 @@ def get_chart_legend_flags(form):
 
     if form.show_dso_mag.data == 'true':
         chart_flags += 'M'
+
+    if form.show_star_mag.data == 'true':
+        chart_flags += 'N'
 
     if form.mirror_x.data == 'true':
         legend_flags += 'X'
