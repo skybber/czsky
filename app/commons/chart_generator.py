@@ -630,8 +630,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
-    config.mirror_x = 'X' in flags
-    config.mirror_y = 'Y' in flags
 
     config.show_flamsteed = (fld_size <= 30)
 
@@ -689,7 +687,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, projection)
+    mirror_x = 'X' in flags
+    mirror_y = 'Y' in flags
+
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -758,8 +759,6 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
-    config.mirror_x = 'X' in flags
-    config.mirror_y = 'Y' in flags
     config.show_equatorial_grid = True
     config.show_dss = False
 
@@ -791,7 +790,10 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fchart3.ProjectionType.STEREOGRAPHIC)
+    mirror_x = 'X' in flags
+    mirror_y = 'Y' in flags
+
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -828,8 +830,6 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     config.show_dso_legend = False
     config.show_orientation_legend = False
-    config.mirror_x = 'X' in flags
-    config.mirror_y = 'Y' in flags
 
     config.legend_only = True
     config.show_mag_scale_legend = True
@@ -856,7 +856,10 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, projection)
+    mirror_x = 'X' in flags
+    mirror_y = 'Y' in flags
+
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
 
     engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
