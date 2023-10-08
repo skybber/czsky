@@ -36,7 +36,9 @@ $ xcode-select --install
 
 ##### Add Environment Variables
 
-Create a file called `config.env` that contains environment variables. **Very important: do not include the `config.env` file in any commits. This should remain private.** You will manually maintain this file locally, and keep it in sync on your host.
+Create a file called `config.env` that contains environment variables. **Very important: do not include the `config.env` 
+file in any commits. This should remain private.** You will manually maintain this file locally, and keep it in sync on your host.
+To make it easy to set up this file with the required values, you can use config.env.example as a configuration template.
 
 Variables declared in file have the following format: `ENVIRONMENT_VARIABLE=value`. You may also wrap values in double quotes like `ENVIRONMENT_VARIABLE="value with spaces"`.
 
