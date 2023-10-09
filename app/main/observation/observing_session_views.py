@@ -363,6 +363,22 @@ def observing_session_delete(observing_session_id):
     return redirect(url_for('main_observing_session.observing_sessions'))
 
 
+@main_observing_session.route('/observing-session/<int:observing_session_id>/set-activity/<int:activity>')
+@login_required
+def observing_session_set_activity(observing_session_id, activity):
+    """Request activation of a observing_session."""
+    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
+    _check_observing_session(observing_session)
+    if activity == 1:
+        _deactivate_all_user_observing_sessions()
+        observing_session.is_active = True
+    else:
+        observing_session.is_active = False
+    db.session.add(observing_session)
+    db.session.commit()
+    return redirect(url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id))
+
+
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart', methods=['GET', 'POST'])
 @csrf.exempt
 def observing_session_chart(observing_session_id):
