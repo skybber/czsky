@@ -93,6 +93,17 @@
         </div>
 
         {{ f.render_form_field(form.notes) }}
+        <div class="three fields">
+            <div class="field">
+                {{ f.render_form_field(form.telescope) }}
+            </div>
+            <div class="field">
+                {{ f.render_form_field(form.eyepiece) }}
+            </div>
+            <div class="field">
+                {{ f.render_form_field(form.filter) }}
+            </div>
+        </div>
 
         <div class="two fields">
             {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}

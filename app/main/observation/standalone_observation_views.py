@@ -4,7 +4,6 @@ from flask import (
     abort,
     Blueprint,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
@@ -48,6 +47,8 @@ from app.models import (
 )
 
 from app.commons.observation_target_utils import set_observation_targets
+
+from app.commons.observation_form_utils import assign_equipment_choices
 
 main_standalone_observation = Blueprint('main_standalone_observation', __name__)
 
@@ -135,7 +136,7 @@ def standalone_observation_info(observation_id):
 def new_standalone_observation():
     """Create new standalone observation"""
     form = StandaloneObservationNewForm()
-    _assign_equipment_choices(form)
+    assign_equipment_choices(form)
     if request.method == 'POST' and form.validate_on_submit():
         location_position = None
         location_id = None
@@ -183,7 +184,7 @@ def standalone_observation_edit(observation_id):
     _check_observation(observation)
 
     form = StandaloneObservationEditForm()
-    _assign_equipment_choices(form)
+    assign_equipment_choices(form)
     if request.method == 'POST':
         if form.validate_on_submit():
             location_position = None
@@ -268,12 +269,3 @@ def _check_observation(observation):
         abort(404)
     elif observation.user_id != current_user.id:
         abort(404)
-
-
-def _assign_equipment_choices(form):
-    telescopes = Telescope.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
-    eyepieces = Eyepiece.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
-    filters = Filter.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
-    form.telescope.choices = [(-1, "---")] + [(t.id, t.name) for t in telescopes]
-    form.eyepiece.choices = [(-1, "---")] + [(e.id, e.name) for e in eyepieces]
-    form.filter.choices = [(-1, "---")] + [(f.id, f.name) for f in filters]

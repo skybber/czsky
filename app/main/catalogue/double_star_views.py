@@ -59,8 +59,11 @@ from app.main.chart.chart_forms import ChartForm
 from app.commons.prevnext_utils import create_prev_next_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
+from app.commons.observation_form_utils import assign_equipment_choices
 
-from .double_star_forms import SearchDoubleStarForm, DoubleStarObservationLogForm, DoubleStarEditForm
+from .double_star_forms import SearchDoubleStarForm, DoubleStarEditForm
+
+from app.main.forms import ObservationLogNoFilterForm
 
 main_double_star = Blueprint('main_double_star', __name__)
 
@@ -463,9 +466,11 @@ def double_star_observation_log(double_star_id):
     back_id = request.args.get('back_id')
     observing_session = find_observing_session(back, back_id)
 
-    form = DoubleStarObservationLogForm()
+    form = ObservationLogNoFilterForm()
+    assign_equipment_choices(form, False)
 
     observation = observing_session.find_observation_by_double_star_id(double_star.id)
+
     is_new_observation_log = observation is None
 
     if is_new_observation_log:
@@ -480,6 +485,8 @@ def double_star_observation_log(double_star_id):
             date_from=date_from,
             date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
+            telescope_id = form.telescope.data if form.telescope.data != -1 else None,
+            eyepiece_id = form.eyepiece.data if form.eyepiece.data != -1 else None,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
@@ -489,6 +496,8 @@ def double_star_observation_log(double_star_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            form.telescope.data = observation.telescope_id if observation.telescope_id is not None else -1
+            form.eyepiece.data = observation.eyepiece_id if observation.eyepiece_id is not None else -1
             observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
@@ -498,6 +507,8 @@ def double_star_observation_log(double_star_id):
             return redirect(url_for('main_double_star.double_star_observation_log', double_star_id=double_star_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.telescope.data = observation.telescope_id if observation.telescope_id is not None else -1
+        form.eyepiece.data = observation.eyepiece_id if observation.eyepiece_id is not None else -1
         form.date_from.data = observation.date_from
         form.time_from.data = observation.date_from
 

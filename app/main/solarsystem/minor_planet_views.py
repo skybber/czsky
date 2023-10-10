@@ -42,9 +42,10 @@ from app.commons.search_utils import process_paginated_session_search, get_items
 
 from .minor_planet_forms import (
     SearchMinorPlanetForm,
-    MinorPlanetObservationLogForm,
     MinorPlanetFindChartForm,
 )
+
+from app.main.forms import ObservationLogNoFilterForm
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -59,6 +60,7 @@ from app.commons.chart_generator import (
 from app.commons.utils import to_float
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
+from app.commons.observation_form_utils import assign_equipment_choices
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 
@@ -290,7 +292,8 @@ def minor_planet_observation_log(minor_planet_id):
     back_id = request.args.get('back_id')
     observing_session = find_observing_session(back, back_id)
 
-    form = MinorPlanetObservationLogForm()
+    form = ObservationLogNoFilterForm()
+    assign_equipment_choices(form, False)
     observation = observing_session.find_observation_by_minor_planet_id(minor_planet.id)
     is_new_observation_log = observation is None
 
@@ -305,6 +308,8 @@ def minor_planet_observation_log(minor_planet_id):
             date_from=date_from,
             date_to=date_from,
             notes=form.notes.data if form.notes.data else '',
+            telescope_id = form.telescope.data if form.telescope.data != -1 else None,
+            eyepiece_id = form.eyepiece.data if form.eyepiece.data != -1 else None,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
@@ -314,6 +319,8 @@ def minor_planet_observation_log(minor_planet_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
+            observation.telescope_id = form.telescope.data if form.telescope.data != -1 else None
+            observation.eyepiece_id = form.eyepiece.data if form.eyepiece.data != -1 else None
             observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
@@ -323,6 +330,8 @@ def minor_planet_observation_log(minor_planet_id):
             return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
+        form.telescope.data = observation.telescope_id if observation.telescope_id is not None else -1
+        form.eyepiece.data = observation.eyepiece_id if observation.eyepiece_id is not None else -1
         form.date_from.data = observation.date_from
         form.time_from.data = observation.date_from
 
