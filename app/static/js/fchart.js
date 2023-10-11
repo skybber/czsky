@@ -712,6 +712,10 @@ FChart.prototype.onClick = function(e) {
         if (this.isInSplitView()) {
             let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
+        } else if (this.isInFullScreen()) {
+            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=fc';
+            $(".fchart-iframe").attr('src', url);
+            this.toggleSplitView();
         } else {
             window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso));
         }
