@@ -20,6 +20,7 @@ from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css
 from config import config as Config
 
 import logging
+from logging.handlers import RotatingFileHandler
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -49,7 +50,16 @@ UPLOAD_FOLDER = 'uploads'
 
 def create_app(config, web=True, default_locale=None):
     global babel
-    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', filename='czsky.log', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+    rfh = RotatingFileHandler(
+        filename='czsky.log',
+        mode='a',
+        maxBytes=50 * 1024 * 1024,
+        backupCount=5,
+        encoding=None,
+        delay=0
+    )
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO,
+                        datefmt='%Y-%m-%d %H:%M:%S', handlers=[rfh])
     app = Flask(__name__)
     if default_locale:
         babel = Babel(app, default_locale=default_locale)
