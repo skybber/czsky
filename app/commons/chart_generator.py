@@ -680,7 +680,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     if config.show_dss and img_format == 'jpg':
         img_format = 'png'
 
-    projection = fchart3.ProjectionType.ORTHOGRAPHIC if config.show_dss else fchart3.ProjectionType.ORTHOGRAPHIC
+    projection = fchart3.ProjectionType.ORTHOGRAPHIC if config.show_dss else fchart3.ProjectionType.STEREOGRAPHIC
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality,
@@ -797,7 +797,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     mirror_x = 'X' in flags
     mirror_y = 'Y' in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, fchart3.ProjectionType.ORTHOGRAPHIC)
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -858,7 +858,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.ORTHOGRAPHIC
+    projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
 
     mirror_x = 'X' in flags
     mirror_y = 'Y' in flags
