@@ -522,7 +522,7 @@
 {% if fchart_form.show_dss.data == 'true' %}
     projection.setProjection(Projection.PROJ_SIN);
 {% else %}
-    projection.setProjection(Projection.PROJ_TAN2);
+    projection.setProjection(Projection.PROJ_SIN);
 {% endif %}
     var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
