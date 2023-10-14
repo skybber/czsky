@@ -341,14 +341,14 @@
                 <div class="ui huge breadcrumb">
                     {% if not embed %}
                         {% if back=='constell' %}
-                            <a class="ui basic compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#star{{ double_star.star_id }}">
                                 <i class="caret left icon"></i>
                                 <i class="lastfm icon"></i>
                             </a>
                         {% elif back=='observation' %}
-                            <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
                                 <i class="caret left icon"></i>
-                                <i class="eye icon"></i>
+                                <i class="eye icon mobile hidden"></i>
                             </a>
                         {% elif back == 'stobservation' %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
@@ -376,12 +376,12 @@
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% elif back=='dbl_star_list' %}
-                            <a class="ui basic compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% else %}
-                            <a class="ui basic compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
                             </a>

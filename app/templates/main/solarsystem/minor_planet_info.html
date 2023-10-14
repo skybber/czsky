@@ -162,9 +162,9 @@
                 <div class="ui huge breadcrumb">
                     {% if not embed %}
                         {% if back == 'observation' %}
-                            <a class="ui basic compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
                                 <i class="caret left icon"></i>
-                                <i class="eye icon"></i>
+                                <i class="eye icon mobile hidden"></i>
                             </a>
                         {% elif back == 'session_plan' %}
                             <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}">
@@ -177,7 +177,7 @@
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% else %}
-                            <a class="ui basic compact button" href="{{ url_for('main_minor_planet.minor_planets') }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_minor_planet.minor_planets') }}">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
                             </a>
