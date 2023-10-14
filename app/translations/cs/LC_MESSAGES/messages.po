@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-30 20:02+0200\n"
+"POT-Creation-Date: 2023-10-14 13:30+0200\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -105,23 +105,80 @@ msgstr "Přistup byl odepřen."
 msgid "Not a valid choice"
 msgstr "Neplatná volba"
 
-#: app/main/catalogue/deepskyobject_forms.py:55
-#: app/main/catalogue/double_star_forms.py:20
+#: app/main/catalogue/deepskyobject_forms.py:59
+#: app/main/catalogue/double_star_forms.py:30
 #: app/main/catalogue/dso_list_forms.py:29
-#: app/main/catalogue/supernova_forms.py:15 app/main/forms.py:11
+#: app/main/catalogue/supernova_forms.py:15 app/main/forms.py:20
 #: app/main/import_history/import_history_forms.py:13
 #: app/main/location/location_forms.py:46 app/main/news/news_forms.py:37
 #: app/main/observation/observed_forms.py:18
 #: app/main/observation/standalone_observation_forms.py:99
 #: app/main/planner/sessionplan_forms.py:59
 #: app/main/planner/sessionplan_forms.py:73
-#: app/main/solarsystem/comet_forms.py:23
-#: app/main/solarsystem/comet_forms.py:27
-#: app/main/solarsystem/minor_planet_forms.py:31
+#: app/main/solarsystem/comet_forms.py:29
+#: app/main/solarsystem/comet_forms.py:33
+#: app/main/solarsystem/minor_planet_forms.py:37
 #: app/templates/macros/common_macros.html:102
 #: app/templates/macros/common_macros.html:121
 msgid "Items per page"
 msgstr "Položek na stránku"
+
+#: app/main/equipment/equipment_forms.py:28
+#: app/main/equipment/equipment_forms.py:67
+#: app/main/equipment/equipment_forms.py:86
+#: app/main/equipment/equipment_forms.py:104 app/main/forms.py:23
+#: app/main/forms.py:32 app/main/location/location_forms.py:26
+#: app/main/observation/observing_session_forms.py:68
+#: app/main/observation/standalone_observation_forms.py:52
+#: app/main/planner/sessionplan_forms.py:43
+#: app/templates/main/observation/observing_session_info.html:60
+#: app/templates/main/observation/standalone_observation_info.html:85
+#: app/templates/main/observation/standalone_observations.html:41
+#: app/templates/main/planner/session_plan_info.html:40
+#: app/templates/main/solarsystem/comet_info.html:64
+msgid "Notes"
+msgstr "Poznámky"
+
+#: app/main/forms.py:24 app/main/forms.py:33
+#: app/main/observation/standalone_observation_forms.py:49
+msgid "Telescope"
+msgstr "Dalekohled"
+
+#: app/main/forms.py:25 app/main/forms.py:34
+#: app/main/observation/standalone_observation_forms.py:50
+#: app/templates/main/observation/standalone_observation_info.html:77
+msgid "Eyepiece"
+msgstr "Okulár"
+
+#: app/main/forms.py:26 app/main/observation/standalone_observation_forms.py:51
+#: app/templates/main/observation/standalone_observation_info.html:81
+msgid "Filter"
+msgstr "Filtr"
+
+#: app/main/catalogue/constellation_forms.py:31
+#: app/main/catalogue/deepskyobject_forms.py:76
+#: app/main/catalogue/double_star_forms.py:36
+#: app/main/catalogue/star_forms.py:18 app/main/chart/chart_theme_forms.py:17
+#: app/main/forms.py:27 app/main/forms.py:35
+#: app/main/usersettings/usersettings_forms.py:18
+#: app/main/usersettings/usersettings_forms.py:36
+#: app/main/usersettings/usersettings_forms.py:42
+msgid "Update"
+msgstr "Uložit"
+
+#: app/main/forms.py:28 app/main/forms.py:36
+#: app/main/observation/observation_forms.py:15
+#: app/main/observation/observing_session_forms.py:55
+#: app/main/observation/standalone_observation_forms.py:40
+#: app/templates/macros/fchart_macros.html:32
+#: app/templates/main/observation/observing_session_info.html:37
+msgid "Date From"
+msgstr "Čas od"
+
+#: app/main/forms.py:29 app/main/forms.py:37
+#: app/main/observation/observing_session_forms.py:33
+msgid "Time From"
+msgstr "Čas od"
 
 #: app/main/catalogue/constellation_forms.py:16
 #: app/main/import_history/import_history_forms.py:12
@@ -139,7 +196,7 @@ msgstr "Hledat"
 #: app/main/catalogue/star_list_forms.py:9
 #: app/main/planner/sessionplan_forms.py:90
 #: app/main/planner/wishlist_forms.py:17
-#: app/main/solarsystem/minor_planet_forms.py:21
+#: app/main/solarsystem/minor_planet_forms.py:27
 #: app/templates/main/catalogue/constellations.html:17
 #: app/templates/main/catalogue/double_star_list_info.html:40
 #: app/templates/main/catalogue/dso_list_info.html:40
@@ -156,7 +213,7 @@ msgstr "Roční období"
 #: app/main/planner/sessionplan_forms.py:33
 #: app/main/planner/sessionplan_forms.py:91
 #: app/main/planner/wishlist_forms.py:18
-#: app/main/solarsystem/minor_planet_forms.py:22
+#: app/main/solarsystem/minor_planet_forms.py:28
 #: app/templates/main/catalogue/double_stars.html:24
 #: app/templates/main/catalogue/supernovae.html:24
 #: app/templates/main/planner/session_plan_schedule.html:52
@@ -169,7 +226,7 @@ msgstr "Všechna"
 #: app/main/catalogue/star_list_forms.py:11
 #: app/main/planner/sessionplan_forms.py:92
 #: app/main/planner/wishlist_forms.py:19
-#: app/main/solarsystem/minor_planet_forms.py:23
+#: app/main/solarsystem/minor_planet_forms.py:29
 msgid "Winter"
 msgstr "zima"
 
@@ -179,7 +236,7 @@ msgstr "zima"
 #: app/main/catalogue/star_list_forms.py:12
 #: app/main/planner/sessionplan_forms.py:93
 #: app/main/planner/wishlist_forms.py:20
-#: app/main/solarsystem/minor_planet_forms.py:24
+#: app/main/solarsystem/minor_planet_forms.py:30
 msgid "Spring"
 msgstr "jaro"
 
@@ -189,7 +246,7 @@ msgstr "jaro"
 #: app/main/catalogue/star_list_forms.py:13
 #: app/main/planner/sessionplan_forms.py:94
 #: app/main/planner/wishlist_forms.py:21
-#: app/main/solarsystem/minor_planet_forms.py:25
+#: app/main/solarsystem/minor_planet_forms.py:31
 msgid "Summer"
 msgstr "léto"
 
@@ -199,7 +256,7 @@ msgstr "léto"
 #: app/main/catalogue/star_list_forms.py:14
 #: app/main/planner/sessionplan_forms.py:95
 #: app/main/planner/wishlist_forms.py:22
-#: app/main/solarsystem/minor_planet_forms.py:26
+#: app/main/solarsystem/minor_planet_forms.py:32
 msgid "Autumn"
 msgstr "podzim"
 
@@ -209,85 +266,76 @@ msgstr "podzim"
 #: app/main/catalogue/star_list_forms.py:15
 #: app/main/planner/sessionplan_forms.py:96
 #: app/main/planner/wishlist_forms.py:23
-#: app/main/solarsystem/minor_planet_forms.py:27
+#: app/main/solarsystem/minor_planet_forms.py:33
 msgid "Southern"
 msgstr "jižní souhvězdí"
 
 #: app/main/catalogue/constellation_forms.py:28
-#: app/main/catalogue/deepskyobject_forms.py:66
+#: app/main/catalogue/deepskyobject_forms.py:70
+#: app/main/catalogue/double_star_forms.py:33
 #: app/main/catalogue/star_forms.py:15
 msgid "Common Name"
 msgstr "Obecné jméno"
 
 #: app/main/catalogue/constellation_forms.py:29
-#: app/main/catalogue/deepskyobject_forms.py:67
+#: app/main/catalogue/deepskyobject_forms.py:71
+#: app/main/catalogue/double_star_forms.py:34
 #: app/main/catalogue/star_forms.py:16
 msgid "Text"
 msgstr "Text"
 
-#: app/main/catalogue/constellation_forms.py:31
-#: app/main/catalogue/deepskyobject_forms.py:72
-#: app/main/catalogue/deepskyobject_forms.py:77
-#: app/main/catalogue/double_star_forms.py:25
-#: app/main/catalogue/star_forms.py:18 app/main/chart/chart_theme_forms.py:17
-#: app/main/usersettings/usersettings_forms.py:18
-#: app/main/usersettings/usersettings_forms.py:36
-#: app/main/usersettings/usersettings_forms.py:42
-msgid "Update"
-msgstr "Uložit"
-
-#: app/main/catalogue/constellation_views.py:320
+#: app/main/catalogue/constellation_views.py:319
 #: app/main/chart/chart_theme_views.py:53
 msgid "Constellation successfully updated"
 msgstr "Souhvězdí bylo zaktualizováno."
 
-#: app/main/catalogue/deepskyobject_forms.py:24
+#: app/main/catalogue/deepskyobject_forms.py:28
 msgid "Catalogue"
 msgstr "Katalog"
 
-#: app/main/catalogue/deepskyobject_forms.py:25
+#: app/main/catalogue/deepskyobject_forms.py:29
 msgid "All catalogues"
 msgstr "Všechny katalogy"
 
-#: app/main/catalogue/deepskyobject_forms.py:42
+#: app/main/catalogue/deepskyobject_forms.py:46
 #: app/main/planner/sessionplan_forms.py:63
 msgid "Object type"
 msgstr "Typ Objektu"
 
-#: app/main/catalogue/deepskyobject_forms.py:43
+#: app/main/catalogue/deepskyobject_forms.py:47
 msgid "All types"
 msgstr "Všechny typy"
 
-#: app/main/catalogue/deepskyobject_forms.py:44
+#: app/main/catalogue/deepskyobject_forms.py:48
 msgid "Galaxy"
 msgstr "Galaxie"
 
-#: app/main/catalogue/deepskyobject_forms.py:45
+#: app/main/catalogue/deepskyobject_forms.py:49
 msgid "Globular Cluster"
 msgstr "Kulová hvězdokupa"
 
-#: app/main/catalogue/deepskyobject_forms.py:46
+#: app/main/catalogue/deepskyobject_forms.py:50
 msgid "Open Cluster"
 msgstr "Otevřená hvězdokupa"
 
-#: app/main/catalogue/deepskyobject_forms.py:47
+#: app/main/catalogue/deepskyobject_forms.py:51
 msgid "Nebula"
 msgstr "Mlhovina"
 
-#: app/main/catalogue/deepskyobject_forms.py:48
+#: app/main/catalogue/deepskyobject_forms.py:52
 msgid "Planetary Nebula"
 msgstr "Planetární mlhovina"
 
-#: app/main/catalogue/deepskyobject_forms.py:49
+#: app/main/catalogue/deepskyobject_forms.py:53
 msgid "Galaxy Cluster"
 msgstr "Kupa galaxií"
 
-#: app/main/catalogue/deepskyobject_forms.py:51
-#: app/main/catalogue/dso_list_forms.py:26 app/main/chart/chart_forms.py:14
+#: app/main/catalogue/deepskyobject_forms.py:55
+#: app/main/catalogue/dso_list_forms.py:26 app/main/chart/chart_forms.py:15
 #: app/main/planner/sessionplan_forms.py:71
-#: app/main/solarsystem/comet_forms.py:21
-#: app/main/solarsystem/minor_planet_forms.py:29
-#: app/templates/macros/fchart_macros.html:211
+#: app/main/solarsystem/comet_forms.py:27
+#: app/main/solarsystem/minor_planet_forms.py:35
+#: app/templates/macros/fchart_macros.html:301
 #: app/templates/main/catalogue/deepskyobjects.html:52
 #: app/templates/main/catalogue/dso_list_info.html:49
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -296,75 +344,57 @@ msgstr "Kupa galaxií"
 msgid "Limit mag"
 msgstr "Limitní mag"
 
-#: app/main/catalogue/deepskyobject_forms.py:53
-#: app/main/catalogue/double_star_forms.py:18
+#: app/main/catalogue/deepskyobject_forms.py:57
+#: app/main/catalogue/double_star_forms.py:28
 #: app/main/catalogue/double_star_list_forms.py:24
 #: app/main/catalogue/dso_list_forms.py:27
 #: app/main/catalogue/supernova_forms.py:13
-#: app/main/solarsystem/comet_forms.py:22
-#: app/main/solarsystem/minor_planet_forms.py:30
+#: app/main/solarsystem/comet_forms.py:28
+#: app/main/solarsystem/minor_planet_forms.py:36
 msgid "Dec min"
 msgstr "Deklinace min"
 
-#: app/main/catalogue/deepskyobject_forms.py:54
+#: app/main/catalogue/deepskyobject_forms.py:58
 #: app/templates/main/catalogue/deepskyobjects.html:72
 msgid "Max axis ratio"
 msgstr "Max. poměr os"
 
-#: app/main/catalogue/deepskyobject_forms.py:68
+#: app/main/catalogue/deepskyobject_forms.py:72
 msgid "References"
 msgstr "Reference"
 
-#: app/main/catalogue/deepskyobject_forms.py:69
+#: app/main/catalogue/deepskyobject_forms.py:73
 #: app/main/location/location_forms.py:28 app/main/news/news_forms.py:23
 #: app/main/observation/observing_session_forms.py:54
 #: app/templates/main/location/location_info.html:45
 #: app/templates/main/location/locations.html:48
 #: app/templates/main/news/news_list.html:45
-#: app/templates/main/observation/observing_sessions.html:28
+#: app/templates/main/observation/observing_sessions.html:29
 msgid "Rating"
 msgstr "Hodnocení"
 
-#: app/main/catalogue/deepskyobject_forms.py:76
 #: app/main/catalogue/double_star_forms.py:24
-#: app/main/equipment/equipment_forms.py:28
-#: app/main/equipment/equipment_forms.py:67
-#: app/main/equipment/equipment_forms.py:86
-#: app/main/equipment/equipment_forms.py:104
-#: app/main/location/location_forms.py:26
-#: app/main/observation/observing_session_forms.py:68
-#: app/main/observation/standalone_observation_forms.py:52
-#: app/main/planner/sessionplan_forms.py:43
-#: app/templates/main/observation/observing_session_info.html:60
-#: app/templates/main/observation/standalone_observation_info.html:85
-#: app/templates/main/observation/standalone_observations.html:41
-#: app/templates/main/planner/session_plan_info.html:40
-#: app/templates/main/solarsystem/comet_info.html:55
-msgid "Notes"
-msgstr "Poznámky"
-
-#: app/main/catalogue/double_star_forms.py:14
 #: app/main/catalogue/double_star_list_forms.py:20
 #: app/templates/main/catalogue/double_star_list_info.html:44
 #: app/templates/main/catalogue/double_stars.html:42
 msgid "Mag max"
 msgstr "Max mag"
 
-#: app/main/catalogue/double_star_forms.py:15
+#: app/main/catalogue/double_star_forms.py:25
 #: app/main/catalogue/double_star_list_forms.py:21
 #: app/templates/main/catalogue/double_star_list_info.html:48
 #: app/templates/main/catalogue/double_stars.html:46
 msgid "Delta mag min"
 msgstr "Delta mag min"
 
-#: app/main/catalogue/double_star_forms.py:16
+#: app/main/catalogue/double_star_forms.py:26
 #: app/main/catalogue/double_star_list_forms.py:22
 #: app/templates/main/catalogue/double_star_list_info.html:52
 #: app/templates/main/catalogue/double_stars.html:50
 msgid "Separation min"
 msgstr "Separace min"
 
-#: app/main/catalogue/double_star_forms.py:17
+#: app/main/catalogue/double_star_forms.py:27
 #: app/main/catalogue/double_star_list_forms.py:23
 #: app/templates/main/catalogue/double_star_list_info.html:56
 #: app/templates/main/catalogue/double_stars.html:54
@@ -380,7 +410,11 @@ msgstr "Max. poslední mag"
 msgid "Field radius"
 msgstr "Zorné pole"
 
-#: app/main/chart/chart_forms.py:15 app/templates/macros/fchart_macros.html:226
+#: app/main/chart/chart_forms.py:14
+msgid "Field radius ext"
+msgstr "Zorné pole"
+
+#: app/main/chart/chart_forms.py:16 app/templates/macros/fchart_macros.html:316
 msgid "DSO limit mag"
 msgstr "Limitní magnituda DSO"
 
@@ -392,12 +426,12 @@ msgstr "Limitní magnituda DSO"
 #: app/main/location/location_forms.py:24
 #: app/main/planner/sessionplan_views.py:455
 #: app/templates/main/catalogue/constellation_info.html:121
-#: app/templates/main/catalogue/constellation_info.html:380
+#: app/templates/main/catalogue/constellation_info.html:381
 #: app/templates/main/catalogue/constellations.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:315
+#: app/templates/main/catalogue/deepskyobject_info.html:317
 #: app/templates/main/catalogue/dso_list_info.html:93
 #: app/templates/main/catalogue/dso_list_menu.html:18
-#: app/templates/main/catalogue/star_info.html:116
+#: app/templates/main/catalogue/star_info.html:117
 #: app/templates/main/equipment/eyepiece_info.html:29
 #: app/templates/main/equipment/eyepieces.html:33
 #: app/templates/main/equipment/filter_info.html:29
@@ -408,7 +442,7 @@ msgstr "Limitní magnituda DSO"
 #: app/templates/main/equipment/telescopes.html:35
 #: app/templates/main/location/location_info.html:30
 #: app/templates/main/location/locations.html:44
-#: app/templates/main/observation/observing_session_info.html:142
+#: app/templates/main/observation/observing_session_info.html:153
 #: app/templates/main/planner/session_plan_info.html:51
 #: app/templates/main/planner/session_plan_schedule.html:129
 #: app/templates/main/planner/session_plan_schedule.html:227
@@ -476,6 +510,7 @@ msgstr "Je výchozí"
 #: app/templates/main/equipment/filter_info.html:38
 #: app/templates/main/equipment/lens_info.html:39
 #: app/templates/main/equipment/telescope_info.html:48
+#: app/templates/main/observation/observing_sessions.html:28
 msgid "Is active"
 msgstr "Je aktivní"
 
@@ -672,18 +707,10 @@ msgstr "Přidat novinku"
 msgid "Update news"
 msgstr "Uložit novinku"
 
-#: app/main/observation/observation_forms.py:15
-#: app/main/observation/observing_session_forms.py:55
-#: app/main/observation/standalone_observation_forms.py:40
-#: app/templates/macros/fchart_macros.html:29
-#: app/templates/main/observation/observing_session_info.html:37
-msgid "Date From"
-msgstr "Čas od"
-
 #: app/main/observation/observation_forms.py:17
 #: app/main/observation/observing_session_forms.py:57
 #: app/main/observation/standalone_observation_forms.py:42
-#: app/templates/macros/fchart_macros.html:36
+#: app/templates/macros/fchart_macros.html:39
 #: app/templates/main/observation/observing_session_info.html:38
 msgid "Date To"
 msgstr "Čas do"
@@ -714,13 +741,13 @@ msgstr ""
 "uživatelem."
 
 #: app/main/observation/observation_views.py:78
-#: app/main/observation/observed_views.py:142
+#: app/main/observation/observed_views.py:145
 #: app/main/planner/sessionplan_views.py:399
 msgid "No file part"
 msgstr "Soubor nebyl nalezen"
 
 #: app/main/observation/observation_views.py:82
-#: app/main/observation/observed_views.py:146
+#: app/main/observation/observed_views.py:149
 msgid "No selected file"
 msgstr "Soubor nebyl vybrán"
 
@@ -809,43 +836,39 @@ msgstr ""
 "\n"
 
 #: app/main/observation/observed_forms.py:13
-#: app/main/observation/observing_session_forms.py:109
+#: app/main/observation/observing_session_forms.py:110
 #: app/main/planner/sessionplan_forms.py:86
 #: app/main/planner/wishlist_forms.py:13
 msgid "DSO name"
 msgstr "Jméno DSO"
 
-#: app/main/observation/observed_views.py:101
+#: app/main/observation/observed_views.py:104
 msgid "Object was added to observed list."
 msgstr "Objekt byl zařazen do seznamu pozorovaných objektů"
 
-#: app/main/observation/observed_views.py:103
+#: app/main/observation/observed_views.py:106
 msgid "Object is already on observed list."
 msgstr "Objekt je již zahrnut do seznamu pozorovaných objektů"
 
-#: app/main/observation/observed_views.py:105
+#: app/main/observation/observed_views.py:108
 msgid "Deepsky object not found."
 msgstr "Deepsky objekt nebyl nalezen"
 
-#: app/main/observation/observed_views.py:121
+#: app/main/observation/observed_views.py:124
 msgid "Observed list item was deleted"
 msgstr "Objekt byl odstraněn ze seznamu pozorovaných objektů"
 
-#: app/main/observation/observed_views.py:133
+#: app/main/observation/observed_views.py:136
 msgid "Observed list deleted"
 msgstr "Seznam pozorovaných objeků byl vymazán"
 
-#: app/main/observation/observed_views.py:173
+#: app/main/observation/observed_views.py:176
 msgid "Observed list updated."
 msgstr "Seznam pozorovaných objektů byl uložen"
 
 #: app/main/observation/observing_session_forms.py:31
 msgid "DSO list with comment. (e.g. M3,M5:nice globulars!)"
 msgstr "DSO seznam s volitelným komentářem. (př. M3,M4: pěkně kulaté!)"
-
-#: app/main/observation/observing_session_forms.py:33
-msgid "Time From"
-msgstr "Čas od"
 
 #: app/main/observation/observing_session_forms.py:34
 #: app/main/observation/observing_session_forms.py:61
@@ -914,46 +937,53 @@ msgid "Equipment"
 msgstr "Výbava"
 
 #: app/main/observation/observing_session_forms.py:69
+#: app/templates/main/observation/observing_session_info.html:69
 msgid "Session is public"
 msgstr "Je veřejný"
 
 #: app/main/observation/observing_session_forms.py:70
+#: app/templates/main/observation/observing_session_info.html:71
 msgid "Session is finished"
 msgstr "Je ukončeno."
 
-#: app/main/observation/observing_session_forms.py:74
+#: app/main/observation/observing_session_forms.py:71
+#: app/templates/main/observation/observing_session_info.html:70
+msgid "Session is active"
+msgstr "Právě probíhá"
+
+#: app/main/observation/observing_session_forms.py:75
 #: app/main/observation/standalone_observation_forms.py:69
 msgid "Date from must be before date to."
 msgstr "Datum OD musí být po před datem DO."
 
-#: app/main/observation/observing_session_forms.py:76
+#: app/main/observation/observing_session_forms.py:77
 #: app/main/observation/standalone_observation_forms.py:71
 msgid "Date to must be after date from."
 msgstr "Datum DO musí být po datu OD."
 
-#: app/main/observation/observing_session_forms.py:84
+#: app/main/observation/observing_session_forms.py:85
 #: app/templates/main/observation/observation_menu.html:16
 msgid "Create Observing Session"
 msgstr "Přidat pozorování"
 
-#: app/main/observation/observing_session_forms.py:94
+#: app/main/observation/observing_session_forms.py:95
 msgid "Update Observing Session"
 msgstr "Uložit pozorování"
 
-#: app/main/observation/observing_session_forms.py:105
+#: app/main/observation/observing_session_forms.py:106
 msgid "Update Items"
 msgstr "Uložit položky"
 
-#: app/main/observation/observing_session_views.py:180
+#: app/main/observation/observing_session_views.py:188
 msgid "Observing session successfully created"
 msgstr "Pozorování bylo vytvořeno"
 
-#: app/main/observation/observing_session_views.py:227
+#: app/main/observation/observing_session_views.py:246
 msgid "Observing session successfully updated"
 msgstr "Pozorování bylo uloženo"
 
-#: app/main/observation/observing_session_views.py:342
-#: app/main/observation/standalone_observation_views.py:249
+#: app/main/observation/observing_session_views.py:362
+#: app/main/observation/standalone_observation_views.py:250
 msgid "Observation was deleted"
 msgstr "Pozorování bylo odstraněno"
 
@@ -963,20 +993,6 @@ msgstr "Pozorování bylo odstraněno"
 msgid "Target"
 msgstr "Cíl pozorování"
 
-#: app/main/observation/standalone_observation_forms.py:49
-msgid "Telescope"
-msgstr "Dalekohled"
-
-#: app/main/observation/standalone_observation_forms.py:50
-#: app/templates/main/observation/standalone_observation_info.html:77
-msgid "Eyepiece"
-msgstr "Okulár"
-
-#: app/main/observation/standalone_observation_forms.py:51
-#: app/templates/main/observation/standalone_observation_info.html:81
-msgid "Filter"
-msgstr "Filtr"
-
 #: app/main/observation/standalone_observation_forms.py:79
 msgid "Create Observation"
 msgstr "Vytvořit pozorování"
@@ -985,11 +1001,11 @@ msgstr "Vytvořit pozorování"
 msgid "Update Observation"
 msgstr "Uložit pozorování"
 
-#: app/main/observation/standalone_observation_views.py:170
+#: app/main/observation/standalone_observation_views.py:171
 msgid "Observation successfully created"
 msgstr "Pozorování bylo vytvořeno"
 
-#: app/main/observation/standalone_observation_views.py:216
+#: app/main/observation/standalone_observation_views.py:217
 msgid "Observation successfully updated"
 msgstr "Pozorování bylo uloženo"
 
@@ -1016,7 +1032,7 @@ msgstr "Je archivní"
 #: app/templates/main/planner/session_plan_info.html:37
 #: app/templates/main/planner/session_plans.html:33
 #: app/templates/main/planner/session_plans.html:58
-#: app/templates/main/solarsystem/comet_info.html:52
+#: app/templates/main/solarsystem/comet_info.html:61
 msgid "Date"
 msgstr "Datum"
 
@@ -1088,18 +1104,18 @@ msgstr "Plán pozorování byl nahrán"
 
 #: app/main/planner/sessionplan_views.py:455
 #: app/templates/main/catalogue/constellation_info.html:35
-#: app/templates/main/catalogue/constellation_info.html:382
-#: app/templates/main/catalogue/deepskyobject_info.html:316
+#: app/templates/main/catalogue/constellation_info.html:383
+#: app/templates/main/catalogue/deepskyobject_info.html:318
 #: app/templates/main/catalogue/deepskyobjects.html:96
 #: app/templates/main/catalogue/dso_list_info.html:106
 #: app/templates/main/catalogue/supernova_info.html:75
-#: app/templates/main/catalogue/supernovae.html:105
+#: app/templates/main/catalogue/supernovae.html:107
 #: app/templates/main/equipment/filters.html:34
 #: app/templates/main/equipment/lenses.html:34
 #: app/templates/main/equipment/telescopes.html:36
 #: app/templates/main/import_history/import_history_record_info.html:32
 #: app/templates/main/observation/observed_list.html:78
-#: app/templates/main/observation/observing_session_info.html:143
+#: app/templates/main/observation/observing_session_info.html:154
 #: app/templates/main/planner/session_plan_info.html:52
 #: app/templates/main/planner/session_plan_schedule.html:135
 #: app/templates/main/planner/session_plan_schedule.html:228
@@ -1110,11 +1126,12 @@ msgstr "Typ"
 #: app/main/planner/sessionplan_views.py:455
 #: app/templates/main/catalogue/constellation_edit.html:9
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
-#: app/templates/main/catalogue/deepskyobject_info.html:321
-#: app/templates/main/catalogue/double_star_info.html:105
+#: app/templates/main/catalogue/deepskyobject_info.html:323
+#: app/templates/main/catalogue/double_star_edit.html:13
+#: app/templates/main/catalogue/double_star_info.html:330
 #: app/templates/main/catalogue/double_stars.html:38
 #: app/templates/main/catalogue/star_edit.html:13
-#: app/templates/main/catalogue/star_info.html:117
+#: app/templates/main/catalogue/star_info.html:118
 #: app/templates/main/catalogue/supernovae.html:38
 #: app/templates/main/observation/observed_list.html:79
 #: app/templates/main/planner/session_plan_schedule.html:47
@@ -1143,15 +1160,15 @@ msgstr "Merid."
 msgid "Set"
 msgstr "Západ"
 
-#: app/main/solarsystem/comet_forms.py:31
-#: app/main/solarsystem/minor_planet_forms.py:35
-#: app/main/solarsystem/planet_forms.py:10
+#: app/main/solarsystem/comet_forms.py:37
+#: app/main/solarsystem/minor_planet_forms.py:41
+#: app/main/solarsystem/planet_forms.py:22
 msgid "From"
 msgstr "Čas od"
 
-#: app/main/solarsystem/comet_forms.py:32
-#: app/main/solarsystem/minor_planet_forms.py:36
-#: app/main/solarsystem/planet_forms.py:11
+#: app/main/solarsystem/comet_forms.py:38
+#: app/main/solarsystem/minor_planet_forms.py:42
+#: app/main/solarsystem/planet_forms.py:23
 msgid "To"
 msgstr "Čas do"
 
@@ -1347,17 +1364,17 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr "Pokud jste o obnovení hesla nepožádali, tuto zprávu ignorujte."
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:338
+#: app/templates/macros/fchart_macros.html:445
 msgid "Object not found"
 msgstr "Objekt neby nalezen."
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:340
+#: app/templates/macros/fchart_macros.html:447
 msgid "Specified object was not found."
 msgstr "Požadovaný objekt nebyl nalezen."
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:344
+#: app/templates/macros/fchart_macros.html:451
 msgid "Close"
 msgstr "Zavřít"
 
@@ -1376,22 +1393,27 @@ msgstr "Přidat na wishlist"
 msgid "Add to observed"
 msgstr "Přidat do pozorovaných"
 
-#: app/templates/macros/fchart_macros.html:49
-#: app/templates/macros/fchart_macros.html:153
+#: app/templates/macros/fchart_macros.html:52
+#: app/templates/macros/fchart_macros.html:169
+#: app/templates/macros/fchart_macros.html:221
 #: app/templates/main/equipment/equipment_menu.html:10
 #: app/templates/main/location/locations.html:10
 #: app/templates/main/news/news_list.html:10
 msgid "Settings"
 msgstr "Nastavení"
 
-#: app/templates/macros/fchart_macros.html:54
-#: app/templates/macros/fchart_macros.html:56
-#: app/templates/macros/fchart_macros.html:98
-#: app/templates/macros/fchart_macros.html:146
+#: app/templates/macros/fchart_macros.html:57
+#: app/templates/macros/fchart_macros.html:59
+#: app/templates/macros/fchart_macros.html:101
+#: app/templates/macros/fchart_macros.html:103
+#: app/templates/macros/fchart_macros.html:174
+#: app/templates/macros/fchart_macros.html:176
+#: app/templates/macros/fchart_macros.html:212
+#: app/templates/macros/fchart_macros.html:214
 msgid "Telrad"
 msgstr "Telrad"
 
-#: app/templates/macros/fchart_macros.html:67
+#: app/templates/macros/fchart_macros.html:70
 #: app/templates/main/equipment/equipment_menu.html:16
 #: app/templates/main/equipment/telescope_edit.html:13
 #: app/templates/main/equipment/telescope_info.html:16
@@ -1399,74 +1421,102 @@ msgstr "Telrad"
 msgid "Telescopes"
 msgstr "Dalekohledy"
 
-#: app/templates/macros/fchart_macros.html:88
+#: app/templates/macros/fchart_macros.html:91
+#: app/templates/macros/fchart_macros.html:202
 msgid "Reset FOV"
 msgstr "Resetovat FOV"
 
-#: app/templates/macros/fchart_macros.html:91
+#: app/templates/macros/fchart_macros.html:94
+#: app/templates/macros/fchart_macros.html:205
 msgid "Unselect"
 msgstr "Zrušit výběr"
 
-#: app/templates/macros/fchart_macros.html:104
-#: app/templates/macros/fchart_macros.html:158
+#: app/templates/macros/fchart_macros.html:108
+#: app/templates/macros/fchart_macros.html:226
+#: app/templates/macros/fchart_macros.html:228
 msgid "Picker"
 msgstr "Picker"
 
-#: app/templates/macros/fchart_macros.html:108
-#: app/templates/macros/fchart_macros.html:164
+#: app/templates/macros/fchart_macros.html:112
+#: app/templates/macros/fchart_macros.html:233
+#: app/templates/macros/fchart_macros.html:235
 msgid "Constellation lines"
 msgstr "Tvary souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:112
-#: app/templates/macros/fchart_macros.html:170
+#: app/templates/macros/fchart_macros.html:116
+#: app/templates/macros/fchart_macros.html:240
+#: app/templates/macros/fchart_macros.html:242
 msgid "Constellation borders"
 msgstr "Hranice souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:116
-#: app/templates/macros/fchart_macros.html:176
+#: app/templates/macros/fchart_macros.html:120
+#: app/templates/macros/fchart_macros.html:247
+#: app/templates/macros/fchart_macros.html:249
 msgid "Equatorial grid"
 msgstr "Rovníkové souřadnice"
 
-#: app/templates/macros/fchart_macros.html:120
-#: app/templates/macros/fchart_macros.html:182
+#: app/templates/macros/fchart_macros.html:124
+#: app/templates/macros/fchart_macros.html:254
+#: app/templates/macros/fchart_macros.html:256
 msgid "Deepsky objects"
 msgstr "Deepsky objekty"
 
-#: app/templates/macros/fchart_macros.html:124
-#: app/templates/macros/fchart_macros.html:188
+#: app/templates/macros/fchart_macros.html:128
+#: app/templates/macros/fchart_macros.html:275
+#: app/templates/macros/fchart_macros.html:277
 msgid "DSS background"
 msgstr "DSS vrstva"
 
-#: app/templates/macros/fchart_macros.html:133
-#: app/templates/macros/fchart_macros.html:194
+#: app/templates/macros/fchart_macros.html:131
+msgid "Show magnitudes"
+msgstr "Zobrazit magnitudy"
+
+#: app/templates/macros/fchart_macros.html:136
+#: app/templates/macros/fchart_macros.html:138
+#: app/templates/macros/fchart_macros.html:261
+#: app/templates/macros/fchart_macros.html:263
+msgid "DSO mag"
+msgstr "DSO mag"
+
+#: app/templates/macros/fchart_macros.html:143
+#: app/templates/macros/fchart_macros.html:145
+#: app/templates/macros/fchart_macros.html:268
+#: app/templates/macros/fchart_macros.html:270
+msgid "Star mag"
+msgstr "Hvězdy mag"
+
+#: app/templates/macros/fchart_macros.html:156
+#: app/templates/macros/fchart_macros.html:282
+#: app/templates/macros/fchart_macros.html:284
 msgid "Flip horizontally"
 msgstr "Otočit horizontálně"
 
-#: app/templates/macros/fchart_macros.html:137
-#: app/templates/macros/fchart_macros.html:200
+#: app/templates/macros/fchart_macros.html:160
+#: app/templates/macros/fchart_macros.html:289
+#: app/templates/macros/fchart_macros.html:291
 msgid "Flip vertically"
 msgstr "Otočit vertikálně"
 
-#: app/templates/macros/fchart_macros.html:240
+#: app/templates/macros/fchart_macros.html:330
 msgid "Object List"
 msgstr "Seznam objektů"
 
-#: app/templates/macros/fchart_macros.html:243
+#: app/templates/macros/fchart_macros.html:333
 msgid "None"
 msgstr "Žádný"
 
-#: app/templates/macros/fchart_macros.html:247
+#: app/templates/macros/fchart_macros.html:337
 #: app/templates/main/planner/session_plan_schedule.html:20
-#: app/templates/main/planner/wish_list.html:137
+#: app/templates/main/planner/wish_list.html:139
 msgid "Wish List"
 msgstr "Wishlist"
 
-#: app/templates/macros/fchart_macros.html:252
-#: app/templates/main/observation/observing_session_info.html:110
+#: app/templates/macros/fchart_macros.html:342
+#: app/templates/main/observation/observing_session_info.html:121
 msgid "Session plans"
 msgstr "Plány pozorování"
 
-#: app/templates/macros/fchart_macros.html:265
+#: app/templates/macros/fchart_macros.html:355
 #: app/templates/main/catalogue/deepskyobject_info.html:16
 #: app/templates/main/catalogue/double_star_info.html:15
 #: app/templates/main/import_history/import_history_records.html:10
@@ -1477,21 +1527,21 @@ msgstr "Plány pozorování"
 msgid "Observations"
 msgstr "Pozorování"
 
-#: app/templates/macros/fchart_macros.html:278
+#: app/templates/macros/fchart_macros.html:368
 #: app/templates/main/planner/session_plan_schedule.html:24
 msgid "DSO List"
 msgstr "DSO List"
 
-#: app/templates/macros/fchart_macros.html:300
+#: app/templates/macros/fchart_macros.html:388
 msgid "PDF export"
 msgstr "Export do PDF"
 
-#: app/templates/macros/fchart_macros.html:311
+#: app/templates/macros/fchart_macros.html:418
 #: app/templates/macros/nav_macros.html:127
 msgid "Search..."
 msgstr "Hledat"
 
-#: app/templates/macros/fchart_macros.html:317
+#: app/templates/macros/fchart_macros.html:424
 msgid "Split view"
 msgstr ""
 
@@ -1531,7 +1581,7 @@ msgstr "Tmavý mód"
 
 #: app/templates/main/index.html:15 app/templates/main/index.html:47
 #: app/templates/main/news/news_edit.html:13
-#: app/templates/main/news/news_info.html:52
+#: app/templates/main/news/news_info.html:53
 msgid "News"
 msgstr "Novinky"
 
@@ -1558,7 +1608,7 @@ msgid "View deepsky objects"
 msgstr "Zobrazit deepsky objekty"
 
 #: app/templates/main/index.html:74
-#: app/templates/main/solarsystem/comets.html:137
+#: app/templates/main/solarsystem/comets.html:139
 #: app/templates/main/solarsystem/minor_planets.html:9
 #: app/templates/main/solarsystem/planets.html:9
 msgid "Solar System"
@@ -1570,14 +1620,14 @@ msgstr "Zobrazit sluneční soustavu"
 
 #: app/templates/main/catalogue/constellation_info.html:8
 #: app/templates/main/catalogue/deepskyobject_info.html:21
-#: app/templates/main/catalogue/double_star_info.html:20
+#: app/templates/main/catalogue/double_star_info.html:21
 #: app/templates/main/catalogue/double_star_list_info.html:8
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:15
 #: app/templates/main/catalogue/star_info.html:34
 #: app/templates/main/catalogue/star_list_info.html:8
 #: app/templates/main/catalogue/supernova_info.html:17
-#: app/templates/main/chart/chart.html:37 app/templates/main/index.html:76
+#: app/templates/main/chart/chart.html:38 app/templates/main/index.html:76
 #: app/templates/main/news/news_info.html:8
 #: app/templates/main/observation/observed_list.html:8
 #: app/templates/main/observation/observing_session_info.html:8
@@ -1635,6 +1685,7 @@ msgstr "Zobrazit sekci moje data a nastavení"
 #: app/templates/main/catalogue/constellation_edit.html:30
 #: app/templates/main/catalogue/deepskyobject_edit.html:37
 #: app/templates/main/catalogue/deepskyobject_edit.html:79
+#: app/templates/main/catalogue/double_star_edit.html:41
 #: app/templates/main/catalogue/star_edit.html:40
 msgid "Update and back"
 msgstr "Uložit a zpět"
@@ -1642,8 +1693,8 @@ msgstr "Uložit a zpět"
 #: app/templates/main/catalogue/constellation_info.html:7
 #: app/templates/main/catalogue/deepskyobject_info.html:20
 #: app/templates/main/catalogue/deepskyobject_info.html:26
-#: app/templates/main/catalogue/double_star_info.html:19
-#: app/templates/main/catalogue/double_star_info.html:25
+#: app/templates/main/catalogue/double_star_info.html:20
+#: app/templates/main/catalogue/double_star_info.html:26
 #: app/templates/main/catalogue/double_star_list_info.html:7
 #: app/templates/main/catalogue/dso_list_info.html:7
 #: app/templates/main/catalogue/star_info.html:14
@@ -1671,13 +1722,13 @@ msgid "DSO"
 msgstr "DSO"
 
 #: app/templates/main/catalogue/constellation_info.html:36
-#: app/templates/main/catalogue/deepskyobject_info.html:317
+#: app/templates/main/catalogue/deepskyobject_info.html:319
 #: app/templates/main/catalogue/dso_list_info.html:99
 msgid "Common name"
 msgstr "Obecné jméno"
 
 #: app/templates/main/catalogue/constellation_info.html:37
-#: app/templates/main/catalogue/deepskyobject_info.html:331
+#: app/templates/main/catalogue/deepskyobject_info.html:333
 msgid "descr"
 msgstr "popis"
 
@@ -1698,23 +1749,23 @@ msgstr "Obrázek"
 msgid "Description"
 msgstr "Popis"
 
-#: app/templates/main/catalogue/constellation_info.html:381
+#: app/templates/main/catalogue/constellation_info.html:382
 msgid "Alternative name"
 msgstr "Alternativí název"
 
-#: app/templates/main/catalogue/constellation_info.html:387
+#: app/templates/main/catalogue/constellation_info.html:388
 msgid "Sketch"
 msgstr "Kresba"
 
 #: app/templates/main/catalogue/constellations.html:8
 #: app/templates/main/catalogue/dso_menu.html:10
-#: app/templates/main/chart/chart.html:30
+#: app/templates/main/chart/chart.html:31
 #: app/templates/main/observation/observation_menu.html:10
-#: app/templates/main/observation/observing_session_info.html:283
+#: app/templates/main/observation/observing_session_info.html:294
 #: app/templates/main/planner/planner_menu.html:10
 #: app/templates/main/planner/session_plan_edit.html:14
 #: app/templates/main/planner/session_plan_edit.html:29
-#: app/templates/main/planner/session_plan_info.html:185
+#: app/templates/main/planner/session_plan_info.html:187
 #: app/templates/main/solarsystem/solarsystem_menu.html:10
 #: app/templates/main/userdata/userdata_menu.html:10
 msgid "Dashboard"
@@ -1723,18 +1774,22 @@ msgstr "Dashboard"
 #: app/templates/main/catalogue/deepskyobject_info.html:14
 #: app/templates/main/catalogue/double_star_info.html:14
 #: app/templates/main/import_history/import_history_record_info.html:34
+#: app/templates/main/solarsystem/comet_info.html:14
+#: app/templates/main/solarsystem/minor_planet_info.html:13
+#: app/templates/main/solarsystem/planet_info.html:8
 msgid "Log"
 msgstr "Log"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:15
 #: app/templates/main/catalogue/deepskyobjects.html:28
+#: app/templates/main/catalogue/double_star_info.html:16
 msgid "Catalog"
 msgstr "Katalog"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:22
 #: app/templates/main/catalogue/deepskyobject_info.html:27
-#: app/templates/main/catalogue/double_star_info.html:21
-#: app/templates/main/catalogue/double_star_info.html:26
+#: app/templates/main/catalogue/double_star_info.html:22
+#: app/templates/main/catalogue/double_star_info.html:27
 #: app/templates/main/catalogue/star_info.html:16
 #: app/templates/main/catalogue/star_info.html:22
 #: app/templates/main/catalogue/star_info.html:35
@@ -1744,28 +1799,45 @@ msgstr "Katalog"
 msgid "Aladin"
 msgstr "Aladin"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:318
+#: app/templates/main/catalogue/deepskyobject_info.html:320
 msgid "Other names"
 msgstr "Další názvy"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:366
+#: app/templates/main/catalogue/deepskyobject_info.html:368
 msgid "distance"
 msgstr "vzdálenost"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:390
-#: app/templates/main/catalogue/deepskyobject_info.html:397
-#: app/templates/main/catalogue/double_star_info.html:230
-#: app/templates/main/catalogue/double_star_info.html:237
+#: app/templates/main/catalogue/deepskyobject_info.html:383
+#: app/templates/main/catalogue/double_star_info.html:214
+#: app/templates/main/solarsystem/comet_info.html:97
+#: app/templates/main/solarsystem/minor_planet_info.html:60
+#: app/templates/main/solarsystem/planet_info.html:55
+msgid "Active observation:"
+msgstr "Probíhající pozorování:"
+
+#: app/templates/main/catalogue/deepskyobject_info.html:442
+#: app/templates/main/catalogue/deepskyobject_info.html:456
+#: app/templates/main/catalogue/double_star_info.html:269
+#: app/templates/main/catalogue/double_star_info.html:276
+#: app/templates/main/solarsystem/comet_info.html:155
+#: app/templates/main/solarsystem/comet_info.html:162
+#: app/templates/main/solarsystem/minor_planet_info.html:115
+#: app/templates/main/solarsystem/minor_planet_info.html:122
+#: app/templates/main/solarsystem/planet_info.html:113
+#: app/templates/main/solarsystem/planet_info.html:120
 msgid "Delete Log"
 msgstr "Odstranit záznam"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:399
-#: app/templates/main/catalogue/double_star_info.html:239
+#: app/templates/main/catalogue/deepskyobject_info.html:458
+#: app/templates/main/catalogue/double_star_info.html:278
+#: app/templates/main/solarsystem/comet_info.html:164
+#: app/templates/main/solarsystem/minor_planet_info.html:124
+#: app/templates/main/solarsystem/planet_info.html:122
 msgid "Are you sure you want to delete this observation log?"
 msgstr "Skutečně chcete odstranit tento záznam z pozorování?"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:404
-#: app/templates/main/catalogue/double_star_info.html:244
+#: app/templates/main/catalogue/deepskyobject_info.html:463
+#: app/templates/main/catalogue/double_star_info.html:283
 #: app/templates/main/equipment/eyepiece_edit.html:91
 #: app/templates/main/equipment/filter_edit.html:88
 #: app/templates/main/equipment/lens_edit.html:91
@@ -1775,16 +1847,19 @@ msgstr "Skutečně chcete odstranit tento záznam z pozorování?"
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:139
 #: app/templates/main/observation/observed_list.html:154
-#: app/templates/main/observation/observing_session_edit.html:158
+#: app/templates/main/observation/observing_session_edit.html:161
 #: app/templates/main/observation/standalone_observation_edit.html:144
 #: app/templates/main/planner/session_plan_edit.html:129
 #: app/templates/main/planner/session_plan_schedule.html:309
 #: app/templates/main/planner/session_plan_schedule.html:324
+#: app/templates/main/solarsystem/comet_info.html:169
+#: app/templates/main/solarsystem/minor_planet_info.html:129
+#: app/templates/main/solarsystem/planet_info.html:127
 #: app/templates/main/userdata/data_store.html:119
 msgid "Yes"
 msgstr "Ano"
 
-#: app/templates/main/catalogue/deepskyobject_info.html:472
+#: app/templates/main/catalogue/deepskyobject_info.html:552
 msgid "Observation recording"
 msgstr "Záznam pozorování"
 
@@ -1815,83 +1890,88 @@ msgstr "Typ Objektu"
 msgid "Declination min"
 msgstr "Deklinace min"
 
-#: app/templates/main/catalogue/double_star_info.html:95
+#: app/templates/main/catalogue/double_star_edit.html:18
+#: app/templates/main/catalogue/star_edit.html:18
+msgid "Back To Star"
+msgstr "Zpět na hvězdy"
+
+#: app/templates/main/catalogue/double_star_info.html:320
 msgid "WDS ID"
 msgstr "WDS ID"
 
-#: app/templates/main/catalogue/double_star_info.html:96
+#: app/templates/main/catalogue/double_star_info.html:321
 msgid "Common catalogue ID"
 msgstr "Katalogové ID"
 
-#: app/templates/main/catalogue/double_star_info.html:97
+#: app/templates/main/catalogue/double_star_info.html:322
 msgid "Components"
 msgstr "Komponenty"
 
-#: app/templates/main/catalogue/double_star_info.html:98
+#: app/templates/main/catalogue/double_star_info.html:323
 msgid "Other Designation"
 msgstr "Jiná označení"
 
-#: app/templates/main/catalogue/double_star_info.html:99
+#: app/templates/main/catalogue/double_star_info.html:324
 msgid "Position angle"
 msgstr "Poziční úhel"
 
-#: app/templates/main/catalogue/double_star_info.html:100
+#: app/templates/main/catalogue/double_star_info.html:325
 msgid "Separation"
 msgstr "Separace"
 
-#: app/templates/main/catalogue/double_star_info.html:101
+#: app/templates/main/catalogue/double_star_info.html:326
 msgid "Mag First"
 msgstr "Mag 1"
 
-#: app/templates/main/catalogue/double_star_info.html:102
+#: app/templates/main/catalogue/double_star_info.html:327
 msgid "Mag Second"
 msgstr "Mag 2"
 
-#: app/templates/main/catalogue/double_star_info.html:103
+#: app/templates/main/catalogue/double_star_info.html:328
 msgid "Delta mag"
 msgstr "Delta mag"
 
-#: app/templates/main/catalogue/double_star_info.html:104
+#: app/templates/main/catalogue/double_star_info.html:329
 msgid "Spectral Type"
 msgstr "Spektrální typ"
 
 #: app/templates/main/catalogue/double_star_list_info.html:67
-#: app/templates/main/catalogue/double_stars.html:65
+#: app/templates/main/catalogue/double_stars.html:67
 msgid "WDS or Cat. ID"
 msgstr "WDS nebo Kat. ID "
 
 #: app/templates/main/catalogue/double_star_list_info.html:84
-#: app/templates/main/catalogue/double_stars.html:82
+#: app/templates/main/catalogue/double_stars.html:84
 msgid "Catalog ID"
 msgstr "Katalogové ID"
 
 #: app/templates/main/catalogue/double_star_list_info.html:89
-#: app/templates/main/catalogue/double_stars.html:87
+#: app/templates/main/catalogue/double_stars.html:89
 msgid "Co."
 msgstr "Komp."
 
 #: app/templates/main/catalogue/double_star_list_info.html:94
-#: app/templates/main/catalogue/double_stars.html:92
+#: app/templates/main/catalogue/double_stars.html:94
 msgid "Other designation"
 msgstr "Jiná označení"
 
 #: app/templates/main/catalogue/double_star_list_info.html:99
-#: app/templates/main/catalogue/double_stars.html:97
+#: app/templates/main/catalogue/double_stars.html:99
 msgid "Mag1"
 msgstr "Mag1"
 
 #: app/templates/main/catalogue/double_star_list_info.html:104
-#: app/templates/main/catalogue/double_stars.html:102
+#: app/templates/main/catalogue/double_stars.html:104
 msgid "Mag2"
 msgstr "Mag2"
 
 #: app/templates/main/catalogue/double_star_list_info.html:109
-#: app/templates/main/catalogue/double_stars.html:107
+#: app/templates/main/catalogue/double_stars.html:109
 msgid "Sep."
 msgstr "Sep."
 
 #: app/templates/main/catalogue/double_star_list_info.html:124
-#: app/templates/main/catalogue/double_stars.html:122
+#: app/templates/main/catalogue/double_stars.html:124
 msgid "Spec."
 msgstr "Spekt."
 
@@ -1912,10 +1992,8 @@ msgid "Hide observed objects"
 msgstr "Nenabízet pozorované objekty"
 
 #: app/templates/main/catalogue/dso_list_info.html:64
-#: app/templates/main/observation/observing_session_info.html:137
-#: app/templates/main/planner/session_plan_schedule.html:115
-msgid "Unobserved objects"
-msgstr "Dosud nepozorové objekty"
+msgid "Unobserved"
+msgstr "Nepozorované"
 
 #: app/templates/main/catalogue/dso_list_info.html:140
 msgid "Distance"
@@ -1954,10 +2032,6 @@ msgstr "Supernovy"
 msgid "View latest supernovae"
 msgstr "Zobrazit poslední supernovy"
 
-#: app/templates/main/catalogue/star_edit.html:18
-msgid "Back To Star"
-msgstr "Zpět na hvězdy"
-
 #: app/templates/main/catalogue/star_info.html:17
 #: app/templates/main/catalogue/star_info.html:23
 #: app/templates/main/catalogue/star_info.html:36
@@ -1965,22 +2039,22 @@ msgstr "Zpět na hvězdy"
 msgid "Catalogue data"
 msgstr "Katalogové údaje"
 
-#: app/templates/main/catalogue/star_info.html:123
+#: app/templates/main/catalogue/star_info.html:124
 msgid "Spectral type"
 msgstr "Spektrální typ"
 
 #: app/templates/main/catalogue/supernova_info.html:69
-#: app/templates/main/catalogue/supernovae.html:70
+#: app/templates/main/catalogue/supernovae.html:72
 msgid "Host Galaxy"
 msgstr "Galaxie"
 
 #: app/templates/main/catalogue/supernova_info.html:72
-#: app/templates/main/catalogue/supernovae.html:90
+#: app/templates/main/catalogue/supernovae.html:92
 msgid "Offset"
 msgstr "Ofset"
 
 #: app/templates/main/catalogue/supernova_info.html:73
-#: app/templates/main/catalogue/supernovae.html:95
+#: app/templates/main/catalogue/supernovae.html:97
 msgid "Latest Mag"
 msgstr "Poslední mag"
 
@@ -1989,17 +2063,17 @@ msgid "Last Observed"
 msgstr "Poslední pozorování"
 
 #: app/templates/main/catalogue/supernova_info.html:77
-#: app/templates/main/catalogue/supernovae.html:115
+#: app/templates/main/catalogue/supernovae.html:117
 msgid "Max Mag"
 msgstr "Max Mag"
 
 #: app/templates/main/catalogue/supernova_info.html:78
-#: app/templates/main/catalogue/supernovae.html:120
+#: app/templates/main/catalogue/supernovae.html:122
 msgid "Max Mag Date"
 msgstr "Datum max. jasu"
 
 #: app/templates/main/catalogue/supernova_info.html:79
-#: app/templates/main/catalogue/supernovae.html:125
+#: app/templates/main/catalogue/supernovae.html:127
 msgid "First Observed"
 msgstr "První pozorování"
 
@@ -2007,11 +2081,11 @@ msgstr "První pozorování"
 msgid "Discoverer"
 msgstr "Objevitel"
 
-#: app/templates/main/catalogue/supernovae.html:53
+#: app/templates/main/catalogue/supernovae.html:55
 msgid "SN designation"
 msgstr "SN označení"
 
-#: app/templates/main/catalogue/supernovae.html:100
+#: app/templates/main/catalogue/supernovae.html:102
 msgid "Latest Observed"
 msgstr "Poslední pozorování"
 
@@ -2292,7 +2366,7 @@ msgid "Add New News"
 msgstr "Přidat novou novinku"
 
 #: app/templates/main/news/news_edit.html:26
-#: app/templates/main/news/news_info.html:58
+#: app/templates/main/news/news_info.html:59
 msgid "Edit News"
 msgstr "Upravit novinku"
 
@@ -2419,7 +2493,7 @@ msgstr "Všechny položky ze seznamu pozorovaných objektů budou odstraněny."
 msgid "Are you sure you want to clear observed list?"
 msgstr "Skutečně chcete vyčistit seznamu pozorovaných objektů?"
 
-#: app/templates/main/observation/observed_list.html:222
+#: app/templates/main/observation/observed_list.html:223
 msgid "List of observed objects"
 msgstr "Seznam pozorovaných objektů"
 
@@ -2438,53 +2512,66 @@ msgstr "Přidat nové pozorování"
 msgid "Edit Observing Session"
 msgstr "Upravit pozorování"
 
-#: app/templates/main/observation/observing_session_edit.html:135
+#: app/templates/main/observation/observing_session_edit.html:138
 #: app/templates/main/observation/observing_session_items_edit.html:77
 #: app/templates/main/observation/standalone_observation_edit.html:121
 #: app/templates/main/planner/session_plan_edit.html:106
 msgid "Update and go back"
 msgstr "Uložit a zpět"
 
-#: app/templates/main/observation/observing_session_edit.html:141
-#: app/templates/main/observation/observing_session_edit.html:151
+#: app/templates/main/observation/observing_session_edit.html:144
+#: app/templates/main/observation/observing_session_edit.html:154
 msgid "Delete Observing Session"
 msgstr "Smazat pozorování"
 
-#: app/templates/main/observation/observing_session_edit.html:153
+#: app/templates/main/observation/observing_session_edit.html:156
 msgid "Are you sure you want to delete observing session?"
 msgstr "Skutečně chcete odstranit toto pozorování?"
 
 #: app/templates/main/observation/observing_session_info.html:9
-#: app/templates/main/observation/observing_session_info.html:129
+#: app/templates/main/observation/observing_session_info.html:140
 msgid "Run plan"
 msgstr "Spustit plán"
 
-#: app/templates/main/observation/observing_session_info.html:112
+#: app/templates/main/observation/observing_session_info.html:123
 msgid "Choose current session plan"
 msgstr "Vybrat plán pozorování"
 
 #: app/templates/main/observation/observing_session_info.html:148
+#: app/templates/main/planner/session_plan_schedule.html:115
+msgid "Unobserved objects"
+msgstr "Nepozorové objekty"
+
+#: app/templates/main/observation/observing_session_info.html:159
 #: app/templates/main/planner/session_plan_info.html:60
-#: app/templates/main/solarsystem/comet_info.html:54
+#: app/templates/main/solarsystem/comet_info.html:63
 #: app/templates/main/solarsystem/comets.html:87
 msgid "Size"
 msgstr "Velikost"
 
-#: app/templates/main/observation/observing_session_info.html:218
+#: app/templates/main/observation/observing_session_info.html:229
 msgid "No object has been observed from this plan yet."
 msgstr "Z plánu ještě nebyl pozorován žádný objekt."
 
-#: app/templates/main/observation/observing_session_info.html:224
+#: app/templates/main/observation/observing_session_info.html:235
 msgid "Observed"
 msgstr "Pozorované položky z plánu"
 
-#: app/templates/main/observation/observing_session_info.html:311
+#: app/templates/main/observation/observing_session_info.html:322
 msgid "Edit Header"
 msgstr "Upravit hlavičku"
 
-#: app/templates/main/observation/observing_session_info.html:314
+#: app/templates/main/observation/observing_session_info.html:325
 msgid "Edit Items"
 msgstr "Upravit položky pozorování"
+
+#: app/templates/main/observation/observing_session_info.html:329
+msgid "Activate observing session"
+msgstr "Nastavit jako probíhající"
+
+#: app/templates/main/observation/observing_session_info.html:334
+msgid "Deactivate observing session"
+msgstr "Nastavit jako neprobíhající"
 
 #: app/templates/main/observation/observing_session_items_edit.html:15
 msgid "Edit Observing Session Items"
@@ -2597,7 +2684,7 @@ msgstr "Planetky"
 msgid "Comet"
 msgstr "Komety"
 
-#: app/templates/main/planner/session_plan_info.html:204
+#: app/templates/main/planner/session_plan_info.html:206
 msgid "Edit Session Plan Header"
 msgstr "Upravit hlavičku pozorování"
 
@@ -2677,15 +2764,15 @@ msgstr "Všechny položky z plánu budou odstraněny."
 msgid "Are you sure you want to clear session plan?"
 msgstr "Skutečně chcete smazat položky plánu pozorování?"
 
-#: app/templates/main/solarsystem/comet_info.html:44
+#: app/templates/main/solarsystem/comet_info.html:53
 msgid "Mag"
 msgstr "Mag"
 
-#: app/templates/main/solarsystem/comet_info.html:45
+#: app/templates/main/solarsystem/comet_info.html:54
 msgid "Coma diameter"
 msgstr "Průměr komy"
 
-#: app/templates/main/solarsystem/comet_info.html:53
+#: app/templates/main/solarsystem/comet_info.html:62
 #: app/templates/main/solarsystem/comets.html:82
 #: app/templates/main/solarsystem/minor_planets.html:79
 msgid "Brightness"
@@ -2699,7 +2786,7 @@ msgstr "Seznam"
 msgid "Magnitude value is evaluated"
 msgstr "Magnituda je numericky vypočítána."
 
-#: app/templates/main/solarsystem/comets.html:141
+#: app/templates/main/solarsystem/comets.html:143
 #: app/templates/main/solarsystem/solarsystem_menu.html:20
 msgid "Comets"
 msgstr "Komety"
