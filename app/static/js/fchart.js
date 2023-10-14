@@ -26,7 +26,6 @@ function normalizeDelta(e) {
     return delta;
 }
 
-
 // uses affine texture mapping to draw a textured triangle
 // at screen coordinates [x0, y0], [x1, y1], [x2, y2] from
 // img *pixel* coordinates [u0, v0], [u1, v1], [u2, v2]
@@ -747,7 +746,8 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         let rect = this.canvas.getBoundingClientRect();
         let scale = this.getFChartScale();
         let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
-        let y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+        let y = (this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+
         let movingToPos;
         if (this.kbdDragging == 0 && !fromKbdMove) {
             movingToPos = this.mirroredPos2radec(x, y);
@@ -761,13 +761,13 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         if (this.viewCenter.dec > 0) {
             this.setProjectionToViewCenter();
             let polePos = this.projection.project(0, 90.0);
-            if (y > polePos.Y) {
+            if (y < polePos.Y) {
                 dDEC = -dDEC;
             }
         } else {
             this.setProjectionToViewCenter();
             let polePos = this.projection.project(0, -90.0);
-            if (y < polePos.Y) {
+            if (y > polePos.Y) {
                 dDEC = -dDEC;
             }
         }
@@ -796,7 +796,7 @@ FChart.prototype.setupMovingPos = function () {
     let rect = this.canvas.getBoundingClientRect();
     let scale = this.getFChartScale();
     let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
-    let y = -(this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+    let y = (this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
     this.movingPos = this.mirroredPos2radec(x, y);
 }
 
