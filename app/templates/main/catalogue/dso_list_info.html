@@ -36,38 +36,38 @@
     <form action="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id) }}" method="post" name="search">
         <div class="ui menu">
             <div class="ui item">
-                {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-                <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+                {{ search_form.season(class='ui dropdown tiny compact button',onchange='this.form.submit()') }}
+                <div class="top right aligned floating ui tiny label">{{ _('Season') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.maglim(size=4) }}
+                {{ search_form.maglim(class='ui tiny input', size=3) }}
                 {% if search_form.maglim.errors %}
                     <div class="bottom aligned red pointing floating ui label">
                         {{ search_form.maglim.errors[0] | safe }}
                     </div>
                 {% endif %}
-                <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+                <div class="top right aligned floating ui tiny label">{{ _('Limit mag') }}</div>
             </div>
 
             <div class="ui input item">
-                {{ search_form.dec_min(size=4) }}
+                {{ search_form.dec_min(class='ui tiny input', size=3) }}
                 {% if search_form.dec_min.errors %}
                     <div class="bottom left aligned red pointing floating ui label">
                         {{ search_form.dec_min.errors[0] | safe }}
                     </div>
                 {% endif %}
-                <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+                <div class="top right aligned floating ui tiny label">{{ _('Declination min') }}</div>
             </div>
             {% if observed %}
                 <div id="not_observed" class="ui inverted checkbox item" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
                   <input type="checkbox" id="not_observed_data" name="{{ search_form.not_observed.name }}" {{ 'checked=checked' if search_form.not_observed.data else '' | safe  }}>
-                  <label>{{_('Unobserved objects')}}</label>
+                  <label>{{_('Unobserved')}}</label>
                 </div>
             {% endif %}
             <div class="ui right search item">
-                <div class="ui action input">
-                    {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
-                    <button class="ui icon button">
+                <div class="ui action tiny input">
+                    {{ search_form.hidden_tag() }}{{ search_form.q(size=10) }}
+                    <button class="ui tiny icon button">
                         <i class="search icon"></i>
                     </button>
                 </div>

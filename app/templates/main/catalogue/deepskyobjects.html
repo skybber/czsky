@@ -25,7 +25,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <div class="top right aligned floating ui label">{{ _('Catalog') }}</div>
+                        <div class="top right aligned floating ui tiny label">{{ _('Catalog') }}</div>
                     </div>
 
                     <div class="ui item">
@@ -39,43 +39,43 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <div class="top right aligned floating ui label">{{ _('Object Type') }}</div>
+                        <div class="top right aligned floating ui tiny label">{{ _('Object Type') }}</div>
                     </div>
 
                     <div class="ui input item">
-                        {{ search_form.maglim(size=4) }}
+                        {{ search_form.maglim(class='ui tiny input', size=4) }}
                         {% if search_form.maglim.errors %}
                             <div class="bottom aligned red pointing floating ui label">
                                 {{ search_form.maglim.errors[0] | safe }}
                             </div>
                         {% endif %}
-                        <div class="top right aligned floating ui label">{{ _('Limit mag') }}</div>
+                        <div class="top right aligned floating ui tiny label">{{ _('Limit mag') }}</div>
                     </div>
 
                     <div class="ui input item">
-                        {{ search_form.dec_min(size=4) }}
+                        {{ search_form.dec_min(class='ui tiny input', size=4) }}
                         {% if search_form.dec_min.errors %}
                             <div class="bottom left aligned red pointing floating ui label">
                                 {{ search_form.dec_min.errors[0] | safe }}
                             </div>
                         {% endif %}
-                        <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+                        <div class="top right aligned floating ui tiny label">{{ _('Declination min') }}</div>
                     </div>
 
                     <div class="ui input item">
-                        {{ search_form.max_axis_ratio(size=4) }}
+                        {{ search_form.max_axis_ratio(class='ui tiny input', size=4) }}
                         {% if search_form.max_axis_ratio.errors %}
                             <div class="bottom left aligned red pointing floating ui label">
                                 {{ search_form.max_axis_ratio.errors[0] | safe }}
                             </div>
                         {% endif %}
-                        <div class="top right aligned floating ui label">{{ _('Max axis ratio') }}</div>
+                        <div class="top right aligned floating ui tiny label">{{ _('Max axis ratio') }}</div>
                     </div>
 
                     <div class="ui right search item">
-                        <div class="ui action input">
-                            {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
-                            <button class="ui icon button">
+                        <div class="ui tiny action input">
+                            {{ search_form.hidden_tag() }}{{ search_form.q(size=12) }}
+                            <button class="ui tiny icon button">
                                 <i class="search icon"></i>
                             </button>
                         </div>
