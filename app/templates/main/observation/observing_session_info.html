@@ -315,27 +315,27 @@ $(function(){
                     </div>
                 </div>
                 {% if is_mine_observing_session %}
-                <div class="ui right floated floating dropdown icon mini button">
-                    <i class="caret edit icon"></i>
-                    <div class="menu">
-                        <a class="item" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}">
-                            {{ _('Edit Header')}}
-                        </a>
-                        <a class="item" href="{{ url_for('main_observing_session.observing_session_items_edit', observing_session_id=observing_session.id) }}">
-                            {{ _('Edit Items')}}
-                        </a>
-                        {% if not observing_session.is_finished and not observing_session.is_active %}
-                            <a class="item" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=1) }}">
-                                {{ _('Activate observing session')}}
+                    <div class="ui right floated floating dropdown icon mini button">
+                        <i class="caret edit icon"></i>
+                        <div class="menu">
+                            <a class="item" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}">
+                                {{ _('Edit Header')}}
                             </a>
-                        {% endif %}
-                        {% if not observing_session.is_finished and observing_session.is_active %}
-                            <a class="item" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=0) }}">
-                                {{ _('Deactivate observing session')}}
+                            <a class="item" href="{{ url_for('main_observing_session.observing_session_items_edit', observing_session_id=observing_session.id) }}">
+                                {{ _('Edit Items')}}
                             </a>
-                        {% endif %}
+                        </div>
                     </div>
-                </div>
+                    {% if not observing_session.is_finished and not observing_session.is_active %}
+                        <a class="ui right floated icon mini button" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=1) }}">
+                            {{ _('Activate observing session')}}
+                        </a>
+                    {% endif %}
+                    {% if not observing_session.is_finished and observing_session.is_active %}
+                        <a class="ui right floated icon orange mini button" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=0) }}">
+                            {{ _('Deactivate observing session')}}
+                        </a>
+                    {% endif %}
                 {% endif %}
             </div>
 
