@@ -96,7 +96,7 @@
             {{ header_items_mobile(current_user) }}
             <div class="right menu">
                 {{ switch_theme_mobile() }}
-                {% if current_user.active_observing_session is not none %}
+                {% if current_user.is_authenticated and current_user.active_observing_session is not none %}
                     <a class="item {% if request.endpoint == endpoint %}active{% endif %}"
                        href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=current_user.active_observing_session.id) }}">
                         <img style="width: 20px; height: auto;" src="/static/images/telescope_{{ session.get('theme', 'dark') }}.png">
@@ -127,7 +127,7 @@
             <div class="ui container">
                 {{ header_items(current_user) }}
                 {{ switch_theme() }}
-                {% if current_user.active_observing_session is not none %}
+                {% if current_user.is_authenticated and current_user.active_observing_session is not none %}
                     <a class="item {% if request.endpoint == endpoint %}active{% endif %}"
                        href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=current_user.active_observing_session.id) }}">
                         <img style="width: 20px; height: auto;" src="/static/images/telescope_{{ session.get('theme', 'dark') }}.png">
