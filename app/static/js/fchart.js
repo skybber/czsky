@@ -711,7 +711,7 @@ FChart.prototype.onClick = function(e) {
         if (this.isInSplitView()) {
             let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
-        } else if (this.isInFullScreen()) {
+        } else if (this.isInFullScreen() && $(this.fchartDiv).width() >= 768) {
             let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=fc';
             $(".fchart-iframe").attr('src', url);
             this.toggleSplitView();
