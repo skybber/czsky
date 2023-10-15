@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from .. import db, login_manager
 
+from .observation import ObservingSession
 
 class Permission:
     GENERAL = 0x01
@@ -179,6 +180,11 @@ class User(UserMixin, db.Model):
     def get_last_name(self):
         spl = self.full_name.rsplit(' ', 1)
         return spl[1] if len(spl) > 1 else spl[0]
+
+    @property
+    def active_observing_session(self):
+        session = ObservingSession.query.filter_by(user_id=self.id, is_active=True).first()
+        return session
 
     @staticmethod
     def generate_fake(count=100, **kwargs):

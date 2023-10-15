@@ -85,7 +85,7 @@ class ObservingSession(db.Model):
     observations = db.relationship('Observation', backref='observing_session', cascade="all, delete-orphan", lazy=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
     is_finished = db.Column(db.Boolean, default=False)
-    is_active = db.Column(db.Boolean, default=False)
+    is_active = db.Column(db.Boolean, default=False, index=True)
 
     def rating_to_int(self, m):
         if not self.rating:
