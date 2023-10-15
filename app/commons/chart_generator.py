@@ -648,6 +648,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_picker = False  # do not show picker, only activate it
     if 'P' in flags:
         config.picker_radius = PICKER_RADIUS
+    else:
+        config.picker_radius = -1
 
     if show_legend:
         config.show_mag_scale_legend = True
