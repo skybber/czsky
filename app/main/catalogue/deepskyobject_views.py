@@ -66,7 +66,7 @@ from app.commons.chart_generator import (
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
 from app.commons.prevnext_utils import create_prev_next_wrappers
-from app.commons.highlights_list_utils import create_hightlights_lists
+from app.commons.highlights_list_utils import create_hightlights_lists, create_observed_dso_ids_list
 
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 main_deepskyobject = Blueprint('main_deepskyobject', __name__)
@@ -531,13 +531,12 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     flags = request.args.get('json')
     visible_objects = [] if flags else None
 
-    highlights_dso_list = None
-    highlights_pos_list = None
-
     highlights_dso_list, highlights_pos_list = create_hightlights_lists()
+    observed_dso_ids = create_observed_dso_ids_list()
 
     img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                                                 observed_dso_ids=observed_dso_ids)
 
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)

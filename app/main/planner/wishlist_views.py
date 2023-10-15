@@ -1,20 +1,17 @@
 import base64
 
 from sqlalchemy.orm import joinedload
-from sqlalchemy import or_
 
 
 from flask import (
     abort,
     Blueprint,
-    current_app,
     flash,
     jsonify,
     redirect,
     render_template,
     request,
     send_file,
-    session,
     url_for,
 )
 from flask_login import current_user, login_required
@@ -24,13 +21,10 @@ from app import db, csrf
 from app.models import (
     Constellation,
     DeepskyObject,
-    ObservedList,
-    ObservedListItem,
     WishList,
     WishListItem,
 )
 
-from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.search_utils import process_session_search
 from app.commons.chart_generator import (
     common_chart_pdf_img,
@@ -50,7 +44,7 @@ from app.main.chart.chart_forms import ChartForm
 
 from app.commons.dso_utils import normalize_dso_name, CHART_DOUBLE_STAR_PREFIX
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
-from app.commons.highlights_list_utils import common_highlights_from_wishlist_items
+from app.commons.highlights_list_utils import common_highlights_from_wishlist_items, find_wish_list_observed
 
 main_wishlist = Blueprint('main_wishlist', __name__)
 
@@ -161,7 +155,7 @@ def wish_list_chart_pos_img(ra, dec):
     highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    observed_dso_ids = _find_wish_list_observed(wish_list)
+    observed_dso_ids = find_wish_list_observed(wish_list)
     img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
                                                  observed_dso_ids=observed_dso_ids)
@@ -199,18 +193,6 @@ def _get_wish_list_items(wish_list):
             .all()
     return []
 
-def _find_wish_list_observed(wish_list):
-    if wish_list:
-        observed_query = db.session.query(WishListItem.dso_id) \
-            .filter(WishListItem.wish_list_id == wish_list.id) \
-            .join(WishListItem.deepsky_object)
-        observed_subquery = db.session.query(ObservedListItem.dso_id) \
-            .join(ObservedList) \
-            .filter(ObservedList.user_id == current_user.id) \
-            .filter(ObservedListItem.dso_id.is_not(None))
-        observed_query = observed_query.filter(or_(WishListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
-        return set(r[0] for r in observed_query.all())
-    return None
 
 def common_highlights_from_wishlist_items(wish_list_items):
     highlights_dso_list = []

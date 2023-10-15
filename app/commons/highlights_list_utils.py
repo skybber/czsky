@@ -4,17 +4,25 @@ from flask import (
 
 from flask_login import current_user
 
+from sqlalchemy import or_
+
 from app.models import (
+    DeepskyObject,
     DoubleStarList,
     DsoList,
+    DsoListItem,
     ObservingSession,
     ObservedList,
+    ObservedListItem,
     ObsSessionPlanRun,
     ObservationTargetType,
     SessionPlan,
     SessionPlanItemType,
     WishList,
+    WishListItem,
 )
+
+from app import db
 
 from app.commons.permission_utils import allow_view_session_plan
 from .dso_utils import CHART_DOUBLE_STAR_PREFIX, CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX, CHART_PLANET_PREFIX
@@ -123,3 +131,42 @@ def create_hightlights_lists():
                     highlights_dso_list.append(item.deepsky_object)
 
     return highlights_dso_list, highlights_pos_list
+
+
+def create_observed_dso_ids_list():
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
+    if back == 'dso_list' and back_id is not None:
+        return find_dso_list_observed(back_id)
+    if back == 'wishlist' and current_user.is_authenticated:
+        wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+        return find_wish_list_observed(wish_list)
+    return None
+
+
+def find_wish_list_observed(wish_list):
+    if wish_list:
+        observed_query = db.session.query(WishListItem.dso_id) \
+            .filter(WishListItem.wish_list_id == wish_list.id) \
+            .join(WishListItem.deepsky_object)
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id == current_user.id) \
+            .filter(ObservedListItem.dso_id.is_not(None))
+        observed_query = observed_query.filter(or_(WishListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
+        return set(r[0] for r in observed_query.all())
+    return None
+
+def find_dso_list_observed(dso_list_id):
+    if not current_user.is_anonymous:
+        observed_query = db.session.query(DsoListItem.dso_id) \
+            .filter(DsoListItem.dso_list_id == dso_list_id) \
+            .join(DsoListItem.deepsky_object)
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id == current_user.id) \
+            .filter(ObservedListItem.dso_id.is_not(None))
+        observed_query = observed_query.filter(or_(DsoListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
+        return set(r[0] for r in observed_query.all())
+    return None

@@ -33,6 +33,7 @@ from app.models import (
 )
 
 from app.commons.dso_utils import normalize_dso_name
+from app.commons.highlights_list_utils import find_dso_list_observed
 from app.commons.search_utils import process_paginated_session_search, create_table_sort, get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
@@ -76,19 +77,6 @@ def _find_dso_list_dsos(dso_list_id):
             dso_list_dso_cache[dso_list_id] = dso_list_dsos
     return dso_list_dsos
 
-
-def _find_dso_list_observed(dso_list_id, dso_list_dsos):
-    if not current_user.is_anonymous:
-        observed_query = db.session.query(DsoListItem.dso_id)\
-                                   .filter(DsoListItem.dso_list_id == dso_list_id) \
-                                   .join(DsoListItem.deepsky_object)
-        observed_subquery = db.session.query(ObservedListItem.dso_id) \
-                                      .join(ObservedList) \
-                                      .filter(ObservedList.user_id == current_user.id) \
-                                      .filter(ObservedListItem.dso_id.is_not(None))
-        observed_query = observed_query.filter(or_(DsoListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
-        return set(r[0] for r in observed_query.all())
-    return None
 
 @main_dso_list.route('/dso-lists-menu', methods=['GET'])
 def dso_lists_menu():
@@ -234,7 +222,7 @@ def dso_list_chart_pos_img(dso_list_id, ra, dec):
     if dso_list_dsos is None:
         abort(404)
 
-    observed_dso_ids = _find_dso_list_observed(dso_list_id, dso_list_dsos)
+    observed_dso_ids = find_dso_list_observed(dso_list_id)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
@@ -256,7 +244,7 @@ def dso_list_chart_pdf(dso_list_id, ra, dec):
     if dso_list_dsos is None:
         abort(404)
 
-    observed_dso_ids = _find_dso_list_observed(dso_list_id, dso_list_dsos)
+    observed_dso_ids = find_dso_list_observed(dso_list_id)
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
 
