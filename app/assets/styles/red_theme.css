@@ -182,6 +182,9 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 .ui.ui.form .fields.error .field label {
     color: #ffb6b6
 }
+.ui.menu a.item {color:#be9e9e!important}
+.ui.dropdown .text {color:#be9e9e!important}
+.icon {color:#be9e9e!important}
 .label{color:#be9e9e!important}
 .ui.accordion .title:not(.ui) {color:#be9e9e!important}
 /* .ui.dropdown a.item, .ui.inverted.menu .dropdown.item, .ui.inverted.menu a.item, .ui.link.inverted.menu .item {color:#be9e9e!important}*/
