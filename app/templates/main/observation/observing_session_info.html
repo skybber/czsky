@@ -328,12 +328,12 @@ $(function(){
                     </div>
                     {% if not observing_session.is_finished and not observing_session.is_active %}
                         <a class="ui right floated icon mini button" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=1) }}">
-                            {{ _('Activate observing session')}}
+                            {{ _('Activate')}}
                         </a>
                     {% endif %}
                     {% if not observing_session.is_finished and observing_session.is_active %}
                         <a class="ui right floated icon orange mini button" href="{{ url_for('main_observing_session.observing_session_set_activity', observing_session_id=observing_session.id, activity=0) }}">
-                            {{ _('Deactivate observing session')}}
+                            {{ _('Deactivate')}}
                         </a>
                     {% endif %}
                 {% endif %}

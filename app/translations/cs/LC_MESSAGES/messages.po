@@ -2566,12 +2566,12 @@ msgid "Edit Items"
 msgstr "Upravit položky pozorování"
 
 #: app/templates/main/observation/observing_session_info.html:329
-msgid "Activate observing session"
+msgid "Activate"
 msgstr "Nastavit jako probíhající"
 
 #: app/templates/main/observation/observing_session_info.html:334
-msgid "Deactivate observing session"
-msgstr "Nastavit jako neprobíhající"
+msgid "Deactivate"
+msgstr "Deaktivovat"
 
 #: app/templates/main/observation/observing_session_items_edit.html:15
 msgid "Edit Observing Session Items"
