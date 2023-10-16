@@ -14,7 +14,14 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app.commons.dso_utils import CHART_STAR_PREFIX, CHART_DOUBLE_STAR_PREFIX, CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX
+from app.commons.dso_utils import (
+    CHART_STAR_PREFIX,
+    CHART_DOUBLE_STAR_PREFIX,
+    CHART_COMET_PREFIX,
+    CHART_MINOR_PLANET_PREFIX,
+    dso_name_to_simbad_id,
+)
+
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
 
@@ -170,7 +177,7 @@ def do_global_search(query, level):
     Simbad.ROW_LIMIT=1
     Simbad.TIMEOUT = 10
     simbad = Simbad()
-    simbad_obj = simbad.query_object(query)
+    simbad_obj = simbad.query_object(dso_name_to_simbad_id(query))
     if simbad_obj is not None:
         if simbad_obj[0]['MAIN_ID'] != query and level == 1:
             res = do_global_search(simbad_obj[0]['MAIN_ID'], 2)
