@@ -201,3 +201,5 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
   height: auto;
   filter: sepia(1) hue-rotate(320deg) saturate(3);
 }
+.ui.success.message{background-color:#cc7575;color:#3e3e3e}
+.ui.success.message .header{color: #3e1414}
