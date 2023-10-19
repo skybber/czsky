@@ -779,7 +779,9 @@ def _get_dso_descriptions(dso):
         used_apert_classes = set()
         for editor_user in all_editor_users:
             if not user_descr:
-                user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+                check_udescr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+                if check_udescr and (check_udescr.text or check_udescr.common_name):
+                    user_descr = check_udescr
             user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
                 .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
                 .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code)
