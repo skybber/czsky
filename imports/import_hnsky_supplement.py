@@ -90,7 +90,6 @@ def import_hnsky_supplement(hnsky_supplement_file, allowed_cat_prefixes=None):
 
     dso_set = set()
     master_dso_map = {}
-    main_dso_list = []
 
     pref_cats = [None] * 1000
     cat_codes = {}
@@ -112,13 +111,13 @@ def import_hnsky_supplement(hnsky_supplement_file, allowed_cat_prefixes=None):
             if items[1].strip():
                 ra += np.pi * float(items[1]) / (12.0 * 60.0)
             if items[2].strip():
-                ra += np.pi * float(items[1]) / (12.0 * 60.0 * 60)
+                ra += np.pi * float(items[2]) / (12.0 * 60.0 * 60)
             dec = np.pi * float(items[3]) / 180.0
             mul_dec = 1 if dec >= 0 else -1
             if items[4].strip():
                 dec += mul_dec * np.pi * float(items[4]) / (180.0 * 60)
             if items[5].strip():
-                dec += mul_dec * np.pi * float(items[5]) / (180.0 * 60)
+                dec += mul_dec * np.pi * float(items[5]) / (180.0 * 60 * 60)
 
             const_code = constellation_at(position_from_radec(ra / np.pi * 12.0, dec / np.pi * 180.0))
             constellation_id = constell_dict[const_code.upper()] if const_code else None
