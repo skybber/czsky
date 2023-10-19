@@ -185,8 +185,7 @@ def create_pgc_update_file_from_simbad(pgc_file, output_file):
         last_pgc = 0
 
     simbad = Simbad()
-    simbad.add_votable_fields('dim_majaxis')
-    simbad.add_votable_fields('dim_minaxis')
+    simbad.add_votable_fields('dim_majaxis', 'dim_minaxis', 'dim_angle')
 
     line_cnt = 1
     total_lines = len(inp_lines)
@@ -217,7 +216,7 @@ def create_pgc_update_file_from_simbad(pgc_file, output_file):
                     ra = '-'
                     dec = '-'
 
-                fout.write('{} {} {} {} {}\n'.format(pgc_name, ra, dec, dso[0]['GALDIM_MAJAXIS'], dso[0]['GALDIM_MINAXIS']))
+                fout.write('{} {} {} {} {} {}\n'.format(pgc_name, ra, dec, dso[0]['GALDIM_MAJAXIS'], dso[0]['GALDIM_MINAXIS'], dso[0]['GALDIM_ANGLE']))
                 if line_cnt % 50 == 0:
                     fout.flush()
             except TypeError:
@@ -238,13 +237,13 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
     line_cnt = 1
     total_lines = len(lines)
 
-    max_ang_diff = np.pi * 2 / (60.0 * 180.0)
+    max_ang_diff = np.pi / (60.0 * 180.0)
 
     try:
         for line in lines:
             progress(line_cnt, total_lines, 'Updating PGC data...')
             line_cnt += 1
-            dso_name, s_ra, s_dec, major, minor = line.split()
+            dso_name, s_ra, s_dec, major, minor, angle = line.split()
             dso = dso_map.get(dso_name)
             if not dso:
                 continue
@@ -269,11 +268,16 @@ def update_pgc_imported_dsos_from_updatefile(pgc_update_file):
                     major, minor = minor, major
                 if major > 0:
                     axis_ratio = minor / major
+                if angle != '-':
+                    position_angle = np.pi * float(angle) / 180
+                else:
+                    position_angle = None
                 dso.ra = ra
                 dso.dec = dec
                 dso.major_axis = major
                 dso.minor_axis = minor
                 dso.axis_ratio = axis_ratio
+                dso.position_angle = position_angle
                 db.session.add(dso)
                 if dso.master_dso is not None and dso.master_dso.import_source == IMPORT_SOURCE_PGC \
                         and dso.master_dso.name.startswith('UGC') and dso.master_dso.major_axis is None:
