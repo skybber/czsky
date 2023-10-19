@@ -1,6 +1,6 @@
-Katalog tenkých galaxií
+Palačinky
 
-Projekt supertenkých galaxií od U.Glahna a Statis Kafalise
+Projekt supertenkých galaxií (palačinek) od U.Glahna a Statis Kafalise
 
 [Projekt](http://www.deepsky-visuell.de/Projekte/SuperthinG.htm) supertenkých galaxií nebo jak jim v Německu říkají, palačinky, jehož autorem je U.Glahn a Statis Kafalis.
 

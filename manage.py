@@ -376,26 +376,6 @@ def create_update_basic_chart_themes():
     db.session.commit()
 
 
-@app.cli.command("tmp_update_comets_cobs")
-def tmp_update_comets_cobs():
-    # CometObservation.query.delete()
-    update_comets_cobs_observations()
-
-
-@app.cli.command("tmp_update_minor_planets_positions")
-def tmp_update_minor_planets_positions():
-    update_minor_planets_positions(True)
-
-
-@app.cli.command("tmp_update_minor_planets_brightness")
-def tmp_update_minor_planets_brightness():
-    update_minor_planets_brightness(True)
-
-
-@app.cli.command("tmp_import_collinder")
-def tmp_import_collinder():
-    import_collinder('data/collinder.txt')
-
 @app.cli.command("tmp_import_translated_gottlieb")
 def tmp_import_translated_gottlieb():
     gpt_prompt = '''Přelož následující text astronomického pozorování do češtiny. Anglické zkratky světových stran (N,W,S,E) a přelož do českých zkratek (S,Z,J,V). 
@@ -416,6 +396,10 @@ def tmp_add_user_wikipedia():
 @app.cli.command("tmp_import_wikipedia_ngc")
 def tmp_import_wikipedia_ngc():
     import_wikipedia_ngc()
+
+@app.cli.command("tmp_import_superthin_gx")
+def tmp_import_superthin_gx():
+    import_superthin_gx('data/dsolist/SuperthinGX.csv')
 
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
