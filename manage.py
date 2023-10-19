@@ -28,6 +28,7 @@ from app.commons.comet_utils import *
 from app.commons.supernova_loader import *
 from imports.import_catalogues import import_catalogues
 from imports.import_constellations import import_constellations
+from imports.import_hnsky_supplement import import_hnsky_supplement
 from imports.import_planets import import_db_planets
 from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
 from imports.import_vic import import_vic
@@ -397,10 +398,6 @@ def tmp_add_user_wikipedia():
 def tmp_import_wikipedia_ngc():
     import_wikipedia_ngc()
 
-@app.cli.command("tmp_import_superthin_gx")
-def tmp_import_superthin_gx():
-    import_superthin_gx('data/dsolist/SuperthinGX.csv')
-
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
     gpt_prompt = '''Přelož následující text popisu astronomického objektu češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
@@ -408,5 +405,16 @@ def tmp_translate_wikipedia_ngc():
 '''
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
+
+@app.cli.command("tmp_import_hnsky_supplements")
+def tmp_import_hnsky_supplements():
+    import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['BOL', 'SKHB'])
+    import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
+    import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
+
 # if __name__ == '__main__':
+@app.cli.command("tmp_import_catalogues")
+def tmp_import_catalogues():
+    import_catalogues('data/astro_catalogues.csv')
+
 #     manager.run()

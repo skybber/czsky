@@ -12,17 +12,19 @@ def import_catalogues(data_file):
     with open(data_file) as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         try:
-            Catalogue.query.delete()
-            db.session.commit()
             for row in reader:
-                c = Catalogue(
-                    id = row['id'],
-                    code = row['code'],
-                    name = row['name'],
-                    descr = row['description'],
+                c = Catalogue.query.filter_by(code=row['code'], name=row['name']).first()
+                if c is None:
+                    c = Catalogue(
+                        id = row['id'],
+                        code = row['code'],
+                        name = row['name'],
+                        descr = row['description'],
                     )
+                else:
+                    c.descr = row['description']
                 db.session.add(c)
             db.session.commit()
-        except IntegrityError:
+        except IntegrityError as err:
             print('\nIntegrity error {}'.format(err))
             db.session.rollback()

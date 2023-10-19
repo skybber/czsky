@@ -123,11 +123,16 @@ def _load_used_catalogs():
         with catalog_lock:
             if used_catalogs is None:
                 data_dir = os.path.join(fchart3.get_catalogs_dir())
-                usno_nomad_file = os.path.join(os.getcwd(), 'data/USNO-NOMAD-1e8.dat')
                 extra_data_dir = os.path.join(os.getcwd(), 'data/')
+                supplements = [
+                                # LDN replaces some outlines with some DSO (Veil) with rect
+                                # 'Lynds Catalogue of Bright Nebulae.sup',
+                                'M31 global clusters, Revised Bologna Catalogue v5.sup',
+                                'M33 global clusters,  2007 catalog.sup',
+                                'VDB, catalogue of reflection nebulae.sup']
                 used_catalogs = fchart3.UsedCatalogs(data_dir,
                                                      extra_data_dir,
-                                                     usno_nomad_file=usno_nomad_file,
+                                                     supplements=[ os.path.join(extra_data_dir, 'supplements', s) for s in supplements ],
                                                      limit_magnitude_deepsky=100.0,
                                                      force_asterisms=False,
                                                      force_unknown=False,
