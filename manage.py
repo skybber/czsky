@@ -202,6 +202,13 @@ def import_dso_list():
     import_deep_man_600('data/dsolist/DeepMan600.csv')
 
 
+@app.cli.command("import_hnsky_supplements")
+def import_hnsky_supplements():
+    import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['Bol', 'SKHB'])
+    import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
+    import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
+
+
 @app.cli.command("import_star_list")
 def import_star_list():
     import_carbon_stars('data/starlist/CarbonStars.txt')
@@ -405,12 +412,6 @@ def tmp_translate_wikipedia_ngc():
 '''
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
-
-@app.cli.command("tmp_import_hnsky_supplements")
-def tmp_import_hnsky_supplements():
-    import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['BOL', 'SKHB'])
-    import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
-    import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
 
 # if __name__ == '__main__':
 @app.cli.command("tmp_import_catalogues")

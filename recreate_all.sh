@@ -25,6 +25,7 @@ flask add_help_users
 flask import_dso_list
 flask import_star_list
 flask import_double_star_list
+flask import_hnsky_supplements
 flask import_planets
 flask import_minor_planets
 flask import_comets
