@@ -46,20 +46,55 @@ MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
 
-FIELD_SIZES = (0.25, 0.5, 1, 2, 4, 8, 16, 30, 60, 100, 180)
+FIELD_SIZES = (0.25, 0.375, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 23, 30, 45, 60, 80, 100, 140, 180)
 
-GUI_FIELD_SIZES = []
+STR_GUI_FIELD_SIZES = ','.join(str(x) for x in FIELD_SIZES)
 
-for i in range(0, len(FIELD_SIZES)-1):
-    GUI_FIELD_SIZES.append(FIELD_SIZES[i])
-    GUI_FIELD_SIZES.append((FIELD_SIZES[i] + FIELD_SIZES[i+1]) / 2)
+MAG_SCALES = [(14, 16), # 0.25
+              (14, 16), # 0.375
+              (13, 16), # 0.5
+              (13, 16), # 0.75
+              (12, 16), # 1
+              (12, 16), # 1.5
+              (11, 15), # 2
+              (11, 15), # 3
+              (10, 13), # 4
+              (10, 13), # 6
+              (8, 11), # 8
+              (8, 11), # 12
+              (7, 10), # 16
+              (7, 10), # 23
+              (6, 9), # 30
+              (6, 9), # 45
+              (6, 8), # 60
+              (6, 8), # 80
+              (5, 7), # 100
+              (5, 7), # 140
+              (5, 7), # 180
+              ]
 
-GUI_FIELD_SIZES.append(FIELD_SIZES[-1])
-
-STR_GUI_FIELD_SIZES = ','.join(str(x) for x in GUI_FIELD_SIZES)
-
-MAG_SCALES = [(14, 16), (13, 16), (12, 16), (11, 15), (10, 13), (8, 11), (7, 10), (6, 9), (6, 8), (5, 7), (5, 7)]
-DSO_MAG_SCALES = [(10, 18), (10, 18), (10, 18), (10, 18), (10, 18), (7, 15), (7, 13), (7, 12), (7, 11), (6, 10), (5, 9)]
+DSO_MAG_SCALES = [(10, 18), # 0.25
+                  (10, 18), # 0.375
+                  (10, 18), # 0.5
+                  (10, 18), # 0.75
+                  (10, 18), # 1
+                  (10, 18), # 1.5
+                  (10, 18), # 2
+                  (10, 18), # 3
+                  (10, 18), # 4
+                  (10, 18), # 6
+                  (9, 16), # 8
+                  (8, 15), # 12
+                  (7, 14), # 16
+                  (7, 13), # 23
+                  (7, 12), # 30
+                  (7, 12), # 45
+                  (7, 11), # 60
+                  (7, 11), # 80
+                  (6, 10), # 100
+                  (6, 10), # 140
+                  (5, 9),  # 180
+                  ]
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 200
@@ -85,8 +120,7 @@ catalog_lock = threading.Lock()
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
-                 dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None,
-                 theme=None, gui_field_sizes=None, gui_field_index=None,
+                 dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None, theme=None, gui_field_sizes=None,
                  chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None, cancel_selection_url=None, equipment_telescopes=None, equipment_eyepieces=None,
@@ -100,7 +134,6 @@ class ChartControl:
         self.dso_mag_range_values = dso_mag_range_values
         self.theme = theme
         self.gui_field_sizes = gui_field_sizes
-        self.gui_field_index = gui_field_index
         self.chart_mlim = chart_mlim
         self.chart_flags = chart_flags
         self.legend_flags = legend_flags
@@ -383,26 +416,24 @@ def common_ra_dec_fsz_from_request(form):
         form.ra.data = float(ra)
         form.dec.data = float(dec)
         gui_fld_size = to_float(fsz, FIELD_SIZES[-1])
-        for i in range(len(GUI_FIELD_SIZES)-1, -1, -1):
-            if gui_fld_size >= GUI_FIELD_SIZES[i]:
-                form.radius.data = i//2+1
-                form.radius_ext.data = 1 if i % 2 == 1 else 0
+        for i in range(len(FIELD_SIZES)-1, -1, -1):
+            if gui_fld_size >= FIELD_SIZES[i]:
+                form.radius.data = i
                 break
         else:
             form.radius.data = len(FIELD_SIZES)
-            form.radius_ext.data = 0
         return True
     return False
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
-    fld_size = FIELD_SIZES[form.radius.data-1]
+    fld_size = FIELD_SIZES[form.radius.data]
 
-    cur_mag_scale = MAG_SCALES[form.radius.data - 1]
-    cur_dso_mag_scale = DSO_MAG_SCALES[form.radius.data - 1]
+    cur_mag_scale = MAG_SCALES[form.radius.data]
+    cur_dso_mag_scale = DSO_MAG_SCALES[form.radius.data]
 
     if request.method == 'GET':
-        _, pref_maglim, pref_dso_maglim = _get_fld_size_maglim(form.radius.data-1)
+        _, pref_maglim, pref_dso_maglim = _get_fld_size_maglim(form.radius.data)
         form.maglim.data = pref_maglim
         form.dso_maglim.data = pref_dso_maglim
 
@@ -445,13 +476,13 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
     session['pref_maglim' + str(fld_size)] = form.maglim.data
 
     if request.method == 'POST':
-        _actualize_stars_pref_maglims(form.maglim.data, form.radius.data - 1)
+        _actualize_stars_pref_maglims(form.maglim.data, form.radius.data)
 
     form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
     session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
 
     if request.method == 'POST':
-        _actualize_dso_pref_maglims(form.dso_maglim.data, form.radius.data - 1)
+        _actualize_dso_pref_maglims(form.dso_maglim.data, form.radius.data)
 
     mag_range_values = []
     dso_mag_range_values = []
@@ -462,7 +493,6 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         dso_mag_range_values.append(dml)
 
     gui_field_sizes = STR_GUI_FIELD_SIZES
-    gui_field_index = (form.radius.data-1)*2 + form.radius_ext.data
 
     chart_flags, legend_flags = get_chart_legend_flags(form)
 
@@ -485,7 +515,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
                         dso_mag_scale=cur_dso_mag_scale, dso_mag_ranges=DSO_MAG_SCALES, dso_mag_range_values=dso_mag_range_values,
                         theme=theme,
-                        gui_field_sizes=gui_field_sizes, gui_field_index=gui_field_index,
+                        gui_field_sizes=gui_field_sizes,
                         chart_mlim=str(form.maglim.data),
                         chart_flags=chart_flags, legend_flags=legend_flags, chart_pdf_flags=(chart_flags + legend_flags),
                         chart_dso_list_menu=chart_dso_list_menu,
@@ -573,14 +603,14 @@ def _get_fld_size_maglim(fld_size_index):
 
     maglim = session.get('pref_maglim' + str(fld_size))
     if maglim is None:
-        maglim = (mag_scale[0] + mag_scale[1] + 1) // 2
+        maglim = (mag_scale[0] + mag_scale[1]) // 2
 
     dso_maglim = session.get('pref_dso_maglim' + str(fld_size))
     if dso_maglim is None:
         if fld_size_index == len(MAG_SCALES) - 1:
-            dso_maglim = dso_mag_scale[0] + 1  # use second lowest mag to decrease number of DSO in largest field
+            dso_maglim = dso_mag_scale[0] + 1  # use the second lowest mag to decrease number of DSO in the largest field
         else:
-            dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1] + 1) // 2
+            dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1]) // 2
         for i in range(fld_size_index+1, len(DSO_MAG_SCALES)):
             prev_dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
             if prev_dso_maglim is not None and prev_dso_maglim > dso_maglim:
@@ -594,7 +624,7 @@ def _get_fld_size_maglim(fld_size_index):
 
 
 def _get_fld_size_mags_from_request():
-    gui_fld_size = to_float(request.args.get('fsz'), 20.0)
+    gui_fld_size = to_float(request.args.get('fsz'), 23.0)
 
     for i in range(len(FIELD_SIZES)-1, -1, -1):
         if gui_fld_size >= FIELD_SIZES[i]:
@@ -604,11 +634,6 @@ def _get_fld_size_mags_from_request():
         fld_size_index = 0
 
     fld_size, maglim, dso_maglim = _get_fld_size_maglim(fld_size_index)
-
-    if gui_fld_size > fld_size and (fld_size_index + 1) < len(FIELD_SIZES):
-        next_fld_size, next_maglim, next_dso_maglim = _get_fld_size_maglim(fld_size_index+1)
-        maglim = (maglim + next_maglim) / 2
-        dso_maglim = (dso_maglim + next_dso_maglim) / 2
 
     return gui_fld_size, maglim, dso_maglim
 

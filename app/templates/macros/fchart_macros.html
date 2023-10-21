@@ -13,7 +13,6 @@
       <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
       <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
       <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
-      <input type="hidden" id="radius_ext" name="{{ fchart_form.radius_ext.name }}" value="{{ fchart_form.radius_ext.data }}">
       <input type="hidden" id="show_telrad" name="{{ fchart_form.show_telrad.name }}" value="{{ fchart_form.show_telrad.data }}">
       <input type="hidden" id="show_picker" name="{{ fchart_form.show_picker.name }}" value="{{ fchart_form.show_picker.data }}">
       <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
@@ -26,6 +25,17 @@
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
       <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
       <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
+
+       <!--
+      <div class="ui item" style="z-index:100;">
+          <div class="ui small buttons">
+              <a class="ui icon button" href="{{ url_for('main.index') }}">
+                  <i class="home icon"></i>
+                  CzSky
+              </a>
+          </div>
+      </div>
+      -->
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100;">
@@ -522,7 +532,7 @@
 {% else %}
     projection.setProjection(Projection.PROJ_TAN2);
 {% endif %}
-    var fchart = new FChart('#fchart-div', {{ chart_control.gui_field_index }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
+    var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -540,22 +550,21 @@
 
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
-        var index = Math.ceil((fldSizeIndex+1) / 2);
-        $('#radius').val(index);
-        $('#maglim').val(magRangeValues[index-1]);
-        $('#dso_maglim').val(dsoMagRangeValues[index-1]);
-        $('#smaglim').text(magRangeValues[index-1].toString());
-        $('#sdso_maglim').text(dsoMagRangeValues[index-1].toString());
+        $('#radius').val(fldSizeIndex);
+        $('#maglim').val(magRangeValues[fldSizeIndex]);
+        $('#dso_maglim').val(dsoMagRangeValues[fldSizeIndex]);
+        $('#smaglim').text(magRangeValues[fldSizeIndex].toString());
+        $('#sdso_maglim').text(dsoMagRangeValues[fldSizeIndex].toString());
 
         $('#maglim_menu').empty();
         var i;
-        for (i=magRanges[index-1][0]; i<=magRanges[index-1][1]; i++) {
+        for (i=magRanges[fldSizeIndex][0]; i<=magRanges[fldSizeIndex][1]; i++) {
             $('<div class="item">' + i +'</div>')
                 .appendTo('#maglim_menu');
         }
 
         $('#dso_maglim_menu').empty();
-        for (i=dsoMagRanges[index-1][0]; i<=dsoMagRanges[index-1][1]; i++) {
+        for (i=dsoMagRanges[fldSizeIndex][0]; i<=dsoMagRanges[fldSizeIndex][1]; i++) {
             $('<div class="item">' + i +'</div>')
                 .appendTo('#dso_maglim_menu');
         }
