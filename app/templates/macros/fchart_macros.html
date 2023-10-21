@@ -7,6 +7,16 @@
 <div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
 
   <div  class="ui secondary menu">
+
+      <div id="bhome" class="ui item" style="z-index:100;display:none;">
+          <div class="ui small buttons">
+              <a class="ui icon button" href="{{ url_for('main.index') }}">
+                  <i class="home icon"></i>
+                  CzSky
+              </a>
+          </div>
+      </div>
+
   <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
       <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
       <input type="hidden" id="dec" name="dec" value="{{ fchart_form.dec.data }}" >
@@ -25,17 +35,6 @@
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
       <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
       <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
-
-       <!--
-      <div class="ui item" style="z-index:100;">
-          <div class="ui small buttons">
-              <a class="ui icon button" href="{{ url_for('main.index') }}">
-                  <i class="home icon"></i>
-                  CzSky
-              </a>
-          </div>
-      </div>
-      -->
 
       {% if chart_control.has_date_from_to %}
           <div class="ui right horizontally fitted item" style="z-index:100;">
@@ -546,6 +545,7 @@
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
         $("#isearch").show();
+        $("#bhome").show();
     }
 
     fchart.onFieldChange(function(fldSizeIndex) {
@@ -576,8 +576,10 @@
         $('#fullscreen').val(fullScreen);
         if (fullScreen) {
             $("#isearch").show();
+            $("#bhome").show();
         } else {
             $("#isearch").hide();
+            $("#bhome").hide();
         }
     });
 
@@ -585,8 +587,10 @@
         $('#splitview').val(splitViewVisible);
         if (splitViewVisible) {
             $("#isearch").show();
+            $("#bhome").show();
         } else {
             $("#isearch").hide();
+            $("#bhome").hide();
         }
     });
 

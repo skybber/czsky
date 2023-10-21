@@ -3,9 +3,11 @@ import base64
 from flask import (
     Blueprint,
     jsonify,
+    redirect,
     render_template,
     request,
     send_file,
+    url_for,
 )
 
 from .chart_forms import (
@@ -23,6 +25,13 @@ from app.commons.chart_generator import (
 from ... import csrf
 
 main_chart = Blueprint('main_chart', __name__)
+
+
+@main_chart.route('/chart-fullscreen', methods=['GET'])
+@csrf.exempt
+def chart_fullscreen():
+    """View a fullscreen chart."""
+    return redirect(url_for('main_chart.chart', fullscreen='true'))
 
 
 @main_chart.route('/chart', methods=['GET', 'POST'])
