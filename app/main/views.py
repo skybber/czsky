@@ -1,8 +1,6 @@
 import base64
 import urllib.parse
 
-from astroquery.simbad import Simbad
-
 from flask import (
     abort,
     Blueprint,
@@ -14,6 +12,8 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
+from app import db
+
 from app.commons.dso_utils import (
     CHART_STAR_PREFIX,
     CHART_DOUBLE_STAR_PREFIX,
@@ -21,6 +21,7 @@ from app.commons.dso_utils import (
     CHART_MINOR_PLANET_PREFIX,
     dso_name_to_simbad_id,
 )
+from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_otype_from_simbad
 
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
@@ -38,6 +39,7 @@ from app.commons.search_sky_object_utils import (
 from app.models import (
     Comet,
     Constellation,
+    DeepskyObject,
     DoubleStar,
     MinorPlanet,
     News,
@@ -174,16 +176,21 @@ def do_global_search(query, level):
         return res
 
     # 9. Search Simbad
-    Simbad.ROW_LIMIT=1
-    Simbad.TIMEOUT = 10
-    simbad = Simbad()
-    simbad_obj = simbad.query_object(dso_name_to_simbad_id(query))
+    simbad_obj = simbad_query(dso_name_to_simbad_id(query))
     if simbad_obj is not None:
-        if simbad_obj[0]['MAIN_ID'] != query and level == 1:
-            res = do_global_search(simbad_obj[0]['MAIN_ID'], 2)
+        simbad_obj = simbad_obj[0]
+        if simbad_obj['MAIN_ID'] != query and level == 1:
+            res = do_global_search(simbad_obj['MAIN_ID'], 2)
         if not res:
-            ra_dec_query = '{} {}'.format(simbad_obj[0]['RA'], simbad_obj[0]['DEC'])
-            res = _search_by_ra_dec(ra_dec_query)
+            if get_otype_from_simbad(simbad_obj) is not None:
+                dso = DeepskyObject()
+                simbad_obj_to_deepsky(simbad_obj, dso)
+                db.session.add(dso)
+                db.session.commit()
+                res = do_global_search(simbad_obj['MAIN_ID'], 2)
+            else:
+                ra_dec_query = '{} {}'.format(simbad_obj['RA'], simbad_obj['DEC'])
+                res = _search_by_ra_dec(ra_dec_query)
         if res:
             return res
 
