@@ -358,8 +358,8 @@
             </tr>
         {% endif %}
         {% if dso.position_angle %}<tr><td class="three wide">position_angle</td><td>{{ dso.position_angle }}</td></tr>{% endif %}
-        {% if dso.mag %}<tr><td class="three wide">mag</td><td>{{ dso.mag }}</td></tr>{% endif %}
-        {% if dso.surface_bright %}<tr><td class="three wide">surface_bright</td><td>{{ dso.surface_bright }}</td></tr>{% endif %}
+        {% if dso.mag %}<tr><td class="three wide">mag</td><td>{{ commons.convert_mag(dso.mag) }}</td></tr>{% endif %}
+        {% if dso.surface_bright %}<tr><td class="three wide">surface_bright</td><td>{{ commons.convert_mag(dso.surface_bright) }}</td></tr>{% endif %}
         {# {% if dso.hubble_type %}<tr><td class="three wide">hubble_type</td><td>{{ dso.hubble_type }}</td></tr>{% endif %} #}
         {% if dso.type == 'PN' %}
             {# {% if dso.c_star_b_mag %}<tr><td class="three wide">c_star_b_mag</td><td>{{ dso.c_star_b_mag }}</td></tr>{% endif %} #}
