@@ -123,9 +123,6 @@ def deepskyobjects():
 
         table_sort = create_table_sort(sort_by, sort_def.keys())
 
-        if search_form.maglim.data is None:
-            search_form.maglim.data = search_form.maglim.default
-
         per_page = get_items_per_page(search_form.items_per_page)
 
         offset = (page - 1) * per_page
