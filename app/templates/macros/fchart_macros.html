@@ -31,7 +31,7 @@
       <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
       <input type="hidden" id="show_star_mag" name="{{ fchart_form.show_star_mag.name }}" value="{{ fchart_form.show_star_mag.data }}">
       <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
-      <input type="hidden" id="show_dss" name="{{ fchart_form.show_dss.name }}" value="{{ fchart_form.show_dss.data }}">
+      <input type="hidden" id="dss_layer" name="{{ fchart_form.dss_layer.name }}" value="{{ fchart_form.dss_layer.data }}">
       <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
       <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
       <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
@@ -132,10 +132,25 @@
                     data-inverted="" data-tooltip="{{ _('Deepsky objects')}}" data-position="bottom center" data-variation="tiny basic">
                   <i class="superpowers icon"></i>
               </button>
-              <button class="ui toggle icon button{{ ' active' if fchart_form.show_dss.data=='true' else ''}} bdss"
-                    data-inverted="" data-tooltip="{{ _('DSS background')}}" data-position="bottom center" data-variation="tiny basic">
+              <div class="ui icon dropdown icon button" data-inverted="" data-tooltip="{{ _('DSS background') }}" data-position="left center" data-variation="tiny basic">
                   <i class="image outline icon"></i>
-              </button>
+                  <div class="menu">
+                      <div class="item">
+                          <button class="ui toggle icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored"
+                                data-inverted="" data-tooltip="{{ _('DSS colored')}}" data-position="bottom center" data-variation="tiny basic">
+                              {{ _('DSS colored') }}
+                          </button>
+                      </div>
+                      {% if chart_control.theme!='night' %}
+                      <div class="item">
+                          <button class="ui toggle icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue"
+                                data-inverted="" data-tooltip="{{ _('DSS blue')}}" data-position="bottom center" data-variation="tiny basic">
+                              {{ _('DSS blue') }}
+                          </button>
+                      </div>
+                      {% endif %}
+                  </div>
+              </div>
               <div class="ui icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Show magnitudes') }}" data-position="left center" data-variation="tiny basic">
                   <i class="star of life icon"></i>
                   <div class="menu">
@@ -264,6 +279,22 @@
                       </button>
                   </div>
                   <div class="left item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored"
+                            data-inverted="" data-tooltip="{{ _('DSS colored')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="image outline icon"></i>
+                          {{ _('DSS colored') }}
+                      </button>
+                  </div>
+                  {% if chart_control.theme!='night' %}
+                  <div class="left item">
+                      <button class="ui toggle icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue"
+                            data-inverted="" data-tooltip="{{ _('DSS blue')}}" data-position="bottom center" data-variation="tiny basic">
+                          <i class="image outline icon"></i>
+                          {{ _('DSS blue') }}
+                      </button>
+                  </div>
+                  {% endif %}
+                  <div class="left item">
                       <button class="ui toggle icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag"
                             data-inverted="" data-tooltip="{{ _('DSO mag')}}" data-position="bottom center" data-variation="tiny basic">
                           <i class="star of life icon"></i>
@@ -275,13 +306,6 @@
                             data-inverted="" data-tooltip="{{ _('Star mag')}}" data-position="bottom center" data-variation="tiny basic">
                             <i class="star outline icon"></i>
                             {{ _('Star mag')}}
-                      </button>
-                  </div>
-                  <div class="left item">
-                      <button class="ui toggle icon button{{ ' active' if fchart_form.show_dss.data=='true' else ''}} bdss"
-                            data-inverted="" data-tooltip="{{ _('DSS background')}}" data-position="bottom center" data-variation="tiny basic">
-                          <i class="image outline icon"></i>
-                          {{ _('DSS background')}}
                       </button>
                   </div>
                   <div class="left item">
@@ -501,10 +525,11 @@
 
     var chartUrl = "{{ fchart_img_url | safe }}";
     var legendUrl = "{{ fchart_legend_url | safe }}";
+    var projection = new Projection();
 
-{% if fchart_form.show_dss.data == 'true' %}
+{% if fchart_form.dss_layer.data != '' %}
     var aladin = A.aladin('#fchart-aladin-div', {
-            survey: "P/DSS2/color",
+            survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
             fov:60,
             target: "0 0 0 0 0 0",
             fullScreen: false,
@@ -522,13 +547,9 @@
             log:                      true
     });
     aladin.view.changeProjection(Projection.PROJ_SIN)
-{% else %}
-    var aladin = null;
-{% endif %}
-    var projection = new Projection();
-{% if fchart_form.show_dss.data == 'true' %}
     projection.setProjection(Projection.PROJ_SIN);
 {% else %}
+    var aladin = null;
     projection.setProjection(Projection.PROJ_TAN2);
 {% endif %}
     var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
@@ -630,9 +651,14 @@
         $('#show_star_mag').val($('#show_star_mag').val() == 'true' ? 'false' : 'true');
     });
 
-    $('.bdss').click(function(){
+    $('.bdsscolored').click(function(){
         $(this).toggleClass('active');
-        $('#show_dss').val($('#show_dss').val() == 'true' ? 'false' : 'true');
+        $('#dss_layer').val($('#dss_layer').val() != 'colored' ? 'colored' : '');
+    });
+
+    $('.bdssblue').click(function(){
+        $(this).toggleClass('active');
+        $('#dss_layer').val($('#dss_layer').val() != 'blue' ? 'blue' : '');
     });
 
     $('.mirrorx').click(function(){

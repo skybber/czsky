@@ -10,6 +10,7 @@ import numpy as np
 import ctypes as ct
 import cairo
 from skyfield.api import load
+from enum import Enum
 import threading
 
 # Do not remove - it initializes pillow avif
@@ -95,6 +96,20 @@ DSO_MAG_SCALES = [(10, 18), # 0.25
                   (6, 10), # 140
                   (5, 9),  # 180
                   ]
+
+class FlagValue(Enum):
+    CONSTELL_BORDERS = 'B'
+    CONSTELL_SHAPES = 'C'
+    SHOW_DEEPSKY = 'D'
+    SHOW_EQUATORIAL_GRID = 'E'
+    SHOW_DSO_MAG = 'M'
+    SHOW_STAR_MAG = 'N'
+    SHOW_PICKER = 'P'
+    DSS_COLORED = 'Sc'
+    DSS_BLUE = 'Sb'
+    FOV_TELRAD = 'T'
+    MIRROR_X = 'X'
+    MIRROR_Y = 'Y'
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 200
@@ -445,14 +460,18 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
             form.eyepiece_fov.data = request.args.get('epfov')
         else:
             form.eyepiece_fov.data = session.get('chart_eyepiece_fov', form.eyepiece_fov.data)
+
         if request.args.get('dss', 'false') == 'true':
-            form.show_dss.data = 'true'
+            session['chart_dss_layer'] = 'blue' if session.get('theme', '') == 'night' else 'colored'
+
+        if session.get('theme', '') == 'night' and session['chart_dss_layer'] == 'blue':
+            session['chart_dss_layer'] = 'colored'
+
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
         form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
         form.show_constell_borders.data = session.get('chart_show_constell_borders', form.show_constell_borders.data)
-        form.show_dso.data = session.get('chart_show_dso', form.show_dso.data)
-        form.show_dss.data = session.get('chart_show_dss', form.show_dss.data)
+        form.dss_layer.data = session.get('chart_dss_layer', form.dss_layer.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
         form.show_dso_mag.data = session.get('chart_show_dso_mag', form.show_dso_mag.data)
         form.show_star_mag.data = session.get('chart_show_star_mag', form.show_star_mag.data)
@@ -465,7 +484,9 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_constell_shapes'] = form.show_constell_shapes.data
         session['chart_show_constell_borders'] = form.show_constell_borders.data
         session['chart_show_dso'] = form.show_dso.data
-        session['chart_show_dss'] = form.show_dss.data
+        session['chart_dss_layer'] = form.dss_layer.data
+        if session.get('theme', '') == 'night' and session['chart_dss_layer'] == 'blue':
+            session['chart_dss_layer'] = 'colored'
         session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
         session['chart_mirror_x'] = form.mirror_x.data
         session['chart_mirror_y'] = form.mirror_y.data
@@ -668,15 +689,14 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     if width and width <= MOBILE_WIDTH:
         config.show_flamsteed = False
 
-    config.show_constellation_shapes = 'C' in flags
-    config.show_constellation_borders = 'B' in flags
-    config.show_deepsky = 'D' in flags
-    config.show_equatorial_grid = 'E' in flags
-    config.show_dss = 'S' in flags
-    config.show_dso_mag = 'M' in flags
-    config.show_star_mag = 'N' in flags
+    config.show_constellation_shapes = FlagValue.CONSTELL_SHAPES.value in flags
+    config.show_constellation_borders = FlagValue.CONSTELL_BORDERS.value in flags
+    config.show_deepsky = FlagValue.SHOW_DEEPSKY.value in flags
+    config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
+    config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
+    config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
     config.show_picker = False  # do not show picker, only activate it
-    if 'P' in flags:
+    if FlagValue.SHOW_PICKER.value in flags:
         config.picker_radius = PICKER_RADIUS
     else:
         config.picker_radius = -1
@@ -709,10 +729,12 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     else:
         img_format = 'png'
 
-    if config.show_dss and img_format == 'jpg':
+    show_dss = FlagValue.DSS_COLORED.value in flags or FlagValue.DSS_BLUE.value in flags
+
+    if show_dss and img_format == 'jpg':
         img_format = 'png'
 
-    projection = fchart3.ProjectionType.ORTHOGRAPHIC if config.show_dss else fchart3.ProjectionType.STEREOGRAPHIC
+    projection = fchart3.ProjectionType.ORTHOGRAPHIC if show_dss else fchart3.ProjectionType.STEREOGRAPHIC
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality,
@@ -722,8 +744,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    mirror_x = 'X' in flags
-    mirror_y = 'Y' in flags
+    mirror_x = FlagValue.MIRROR_X.value in flags
+    mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
 
@@ -749,7 +771,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     dso_highlights = _create_dso_highlights(highlights_dso_list, observed_dso_ids) if highlights_dso_list else None
 
     transparent = False
-    if config.show_dss:
+    if show_dss:
         config.show_simple_milky_way = False
         config.show_enhanced_milky_way = False
         config.show_star_circles = False
@@ -795,19 +817,18 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     config.show_dso_legend = False
     config.show_orientation_legend = True
     config.show_equatorial_grid = True
-    config.show_dss = False
 
     config.show_flamsteed = (fld_size <= 20)
 
-    config.show_constellation_shapes = 'C' in flags
-    config.show_constellation_borders = 'B' in flags
-    config.show_deepsky = 'D' in flags
-    config.show_equatorial_grid = 'E' in flags
-    config.fov_telrad = 'T' in flags
+    config.show_constellation_shapes = FlagValue.CONSTELL_SHAPES.value in flags
+    config.show_constellation_borders = FlagValue.CONSTELL_BORDERS.value in flags
+    config.show_deepsky = FlagValue.SHOW_DEEPSKY.value in flags
+    config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
+    config.fov_telrad = FlagValue.FOV_TELRAD.value in flags
     config.show_simple_milky_way = False
     config.show_enhanced_milky_way = False
-    config.show_dso_mag = 'M' in flags
-    config.show_star_mag = 'N' in flags
+    config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
+    config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 0.7  # increase radius of star by 0.5 magnitude
 
@@ -826,8 +847,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    mirror_x = 'X' in flags
-    mirror_y = 'Y' in flags
+    mirror_x = FlagValue.MIRROR_X.value in flags
+    mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
@@ -872,11 +893,10 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     config.show_map_scale_legend = True
     config.show_field_border = False
     config.show_equatorial_grid = True
-    config.show_dss = False
-    config.show_picker = 'P' in flags
+    config.show_picker = FlagValue.SHOW_PICKER.value in flags
     config.picker_radius = PICKER_RADIUS
 
-    config.fov_telrad = 'T' in flags
+    config.fov_telrad = FlagValue.FOV_TELRAD.value in flags
 
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.0  # increase radius of star by 1 magnitude
@@ -892,8 +912,8 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
 
-    mirror_x = 'X' in flags
-    mirror_y = 'Y' in flags
+    mirror_x = FlagValue.MIRROR_X.value in flags
+    mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
 
@@ -967,40 +987,43 @@ def get_chart_legend_flags(form):
     legend_flags = ''
 
     if form.show_telrad.data == 'true':
-        legend_flags += 'T'
+        legend_flags += FlagValue.FOV_TELRAD.value
 
     if form.show_picker.data == 'true':
-        legend_flags += 'P'
-        chart_flags += 'P'
+        legend_flags += FlagValue.SHOW_PICKER.value
+        chart_flags += FlagValue.SHOW_PICKER.value
 
     if form.show_constell_shapes.data == 'true':
-        chart_flags += 'C'
+        chart_flags += FlagValue.CONSTELL_SHAPES.value
 
     if form.show_constell_borders.data == 'true':
-        chart_flags += 'B'
+        chart_flags += FlagValue.CONSTELL_BORDERS.value
 
     if form.show_dso.data == 'true':
-        chart_flags += 'D'
+        chart_flags += FlagValue.SHOW_DEEPSKY.value
 
     if form.show_equatorial_grid.data == 'true':
-        chart_flags += 'E'
+        chart_flags += FlagValue.SHOW_EQUATORIAL_GRID.value
 
-    if form.show_dss.data == 'true':
-        chart_flags += 'S'
+    if form.dss_layer.data == 'colored':
+        chart_flags += FlagValue.DSS_COLORED.value
+
+    if form.dss_layer.data == 'blue':
+        chart_flags += FlagValue.DSS_BLUE.value
 
     if form.show_dso_mag.data == 'true':
-        chart_flags += 'M'
+        chart_flags += FlagValue.SHOW_DSO_MAG.value
 
     if form.show_star_mag.data == 'true':
-        chart_flags += 'N'
+        chart_flags += FlagValue.SHOW_STAR_MAG.value
 
     if form.mirror_x.data == 'true':
-        legend_flags += 'X'
-        chart_flags += 'X'
+        legend_flags += FlagValue.MIRROR_X.value
+        chart_flags += FlagValue.MIRROR_X.value
 
     if form.mirror_y.data == 'true':
-        legend_flags += 'Y'
-        chart_flags += 'Y'
+        legend_flags += FlagValue.MIRROR_Y.value
+        chart_flags += FlagValue.MIRROR_Y.value
 
     return chart_flags, legend_flags
 
