@@ -464,7 +464,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if request.args.get('dss', 'false') == 'true':
             session['chart_dss_layer'] = 'blue' if session.get('theme', '') == 'night' else 'colored'
 
-        if session.get('theme', '') == 'night' and session['chart_dss_layer'] == 'blue':
+        if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') == 'blue':
             session['chart_dss_layer'] = 'colored'
 
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
@@ -485,7 +485,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_constell_borders'] = form.show_constell_borders.data
         session['chart_show_dso'] = form.show_dso.data
         session['chart_dss_layer'] = form.dss_layer.data
-        if session.get('theme', '') == 'night' and session['chart_dss_layer'] == 'blue':
+        if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') == 'blue':
             session['chart_dss_layer'] = 'colored'
         session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
         session['chart_mirror_x'] = form.mirror_x.data

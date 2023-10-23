@@ -527,7 +527,7 @@
     var legendUrl = "{{ fchart_legend_url | safe }}";
     var projection = new Projection();
 
-{% if fchart_form.dss_layer.data != '' %}
+{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
     var aladin = A.aladin('#fchart-aladin-div', {
             survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
             fov:60,
