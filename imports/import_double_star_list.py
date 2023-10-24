@@ -48,26 +48,25 @@ def _load_descriptions(dirname, base_name, double_star_list, editor_user):
         result.append(double_star_list_descr)
     return result
 
-
-def import_herschel500(herschel500_data_file):
-    sf = open(herschel500_data_file, 'r')
+def import_double_star_list(dbl_star_data_file, list_name, description, by_wds):
+    sf = open(dbl_star_data_file, 'r')
     lines = sf.readlines()
     sf.close()
 
     try:
         editor_user = User.get_editor_user()
-        double_star_list = DoubleStarList.query.filter_by(name='Herschel500').first()
+        double_star_list = DoubleStarList.query.filter_by(name=list_name).first()
         if double_star_list:
-            double_star_list.name = 'Herschel500'
-            double_star_list.long_name = 'The Herschel 500 Double Stars'
+            double_star_list.name = list_name
+            double_star_list.long_name = description
             double_star_list.update_by = editor_user.id
             double_star_list.create_date = datetime.now()
             double_star_list.double_star_list_items[:] = []
             double_star_list.double_star_list_descriptions[:] = []
         else:
             double_star_list = DoubleStarList(
-                name='Herschel500',
-                long_name='The Herschel 500 Double Stars',
+                name=list_name,
+                long_name=description,
                 create_by=editor_user.id,
                 update_by=editor_user.id,
                 create_date=datetime.now(),
@@ -77,8 +76,9 @@ def import_herschel500(herschel500_data_file):
         db.session.add(double_star_list)
         db.session.flush()
 
-        base_name = os.path.basename(herschel500_data_file)
-        descr_list = _load_descriptions(os.path.dirname(herschel500_data_file), base_name[:-len('.txt')], double_star_list, editor_user)
+
+        base_name = os.path.basename(dbl_star_data_file)
+        descr_list = _load_descriptions(os.path.dirname(dbl_star_data_file), base_name[:-len('.txt')], double_star_list, editor_user)
 
         for descr in descr_list:
             db.session.add(descr)
@@ -89,23 +89,40 @@ def import_herschel500(herschel500_data_file):
         row_id = 0
         for line in lines:
             row_id += 1
-            progress(row_id, row_count, 'Importing Herschel500 catalog')
+            progress(row_id, row_count, 'Importing {} double star list'.format(list_name))
 
-            double_star = DoubleStar.query.filter_by(wds_number=line.strip()).first()
+            if by_wds:
+                double_star = DoubleStar.query.filter_by(wds_number=line.strip()).first()
 
-            if double_star:
-                item = DoubleStarListItem.query.filter_by(double_star_list_id=double_star_list.id, double_star_id=double_star.id).first()
-                if not item:
-                    item = DoubleStarListItem(
-                        double_star_list_id=double_star_list.id,
-                        double_star_id=double_star.id,
-                        item_id=row_id,
-                        create_by=editor_user.id,
-                        create_date=datetime.now(),
-                    )
-                db.session.add(item)
+                if double_star:
+                    item = DoubleStarListItem.query.filter_by(double_star_list_id=double_star_list.id, double_star_id=double_star.id).first()
+                    if not item:
+                        item = DoubleStarListItem(
+                            double_star_list_id=double_star_list.id,
+                            double_star_id=double_star.id,
+                            item_id=row_id,
+                            create_by=editor_user.id,
+                            create_date=datetime.now(),
+                        )
+                    db.session.add(item)
+                else:
+                    print('Double star wds={} not found'.format(line.strip()))
             else:
-                print('Double star wds={} not found'.format(line.strip()))
+                double_star = DoubleStar.query.filter_by(common_cat_id=line.strip()).first()
+
+                if double_star:
+                    item = DoubleStarListItem.query.filter_by(double_star_list_id=double_star_list.id, double_star_id=double_star.id).first()
+                    if not item:
+                        item = DoubleStarListItem(
+                            double_star_list_id=double_star_list.id,
+                            double_star_id=double_star.id,
+                            item_id=row_id,
+                            create_by=editor_user.id,
+                            create_date=datetime.now(),
+                        )
+                    db.session.add(item)
+                else:
+                    print('Double star common_cat_id={} not found'.format(line.strip()))
 
         db.session.commit()
 
@@ -116,3 +133,9 @@ def import_herschel500(herschel500_data_file):
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
     print('') # finish on new line
+
+def import_herschel500(herschel500_data_file):
+    import_double_star_list(herschel500_data_file, 'Herschel500', 'The Herschel 500 Double Stars', True)
+
+def import_dmichalko(dmichalko_data_file):
+    import_double_star_list(dmichalko_data_file, 'DMichalko', 'The David1 Double Stars', False)

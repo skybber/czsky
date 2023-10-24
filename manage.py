@@ -58,7 +58,7 @@ from imports.import_constellations_positions import import_constellations_positi
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_gottlieb_translate import import_translated_gottlieb
-from imports.import_double_star_list import import_herschel500
+from imports.import_double_star_list import import_herschel500, import_dmichalko
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 from imports.import_collinder import import_collinder
 from imports.import_wiki_ngc_ic import import_wikipedia_ngc, translate_wikipedia_ngc
@@ -217,6 +217,7 @@ def import_star_list():
 @app.cli.command("import_double_star_list")
 def import_double_star_list():
     import_herschel500('data/doublestarlist/Herschel500.csv')
+    import_dmichalko('data/doublestarlist/DMichalko.csv')
 
 
 @app.cli.command("import_minor_planets")
@@ -418,4 +419,7 @@ def tmp_translate_wikipedia_ngc():
 def tmp_import_catalogues():
     import_catalogues('data/astro_catalogues.csv')
 
-#     manager.run()
+@app.cli.command("tmp_dmichalko")
+def tmp_dmichalko():
+    import_dmichalko('data/doublestarlist/DMichalko.csv')
+
