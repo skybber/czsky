@@ -2004,8 +2004,8 @@ msgid "Distance"
 msgstr "Vzdálenost"
 
 #: app/templates/main/catalogue/dso_list_menu.html:42
-msgid "CzSky lists"
-msgstr "CzSky seznamy"
+msgid "CzSkY lists"
+msgstr "CzSkY seznamy"
 
 #: app/templates/main/catalogue/dso_list_menu.html:47
 msgid "Classic list"
