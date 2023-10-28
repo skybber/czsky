@@ -18,6 +18,7 @@ from app.models import (
     ObservationTargetType,
     SessionPlan,
     SessionPlanItemType,
+    StarList,
     WishList,
     WishListItem,
 )
@@ -25,7 +26,13 @@ from app.models import (
 from app import db
 
 from app.commons.permission_utils import allow_view_session_plan
-from .dso_utils import CHART_DOUBLE_STAR_PREFIX, CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX, CHART_PLANET_PREFIX
+from .dso_utils import (
+    CHART_DOUBLE_STAR_PREFIX,
+    CHART_COMET_PREFIX,
+    CHART_MINOR_PLANET_PREFIX,
+    CHART_PLANET_PREFIX,
+    CHART_STAR_PREFIX,
+)
 
 
 def common_highlights_from_wishlist_items(wish_list_items):
@@ -109,6 +116,11 @@ def create_hightlights_lists():
         if double_star_list:
             highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),
                                     x.double_star.get_common_name()) for x in double_star_list.double_star_list_items if double_star_list]
+    elif back == 'star_list' and back_id is not None:
+        star_list = StarList.query.filter_by(id=back_id).first()
+        if star_list:
+            highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id),
+                                    x.star.get_name()) for x in star_list.star_list_items if star_list]
     elif back == 'wishlist' and current_user.is_authenticated:
         wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
         highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list.wish_list_items if wish_list else None)

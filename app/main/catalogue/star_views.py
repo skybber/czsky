@@ -31,6 +31,7 @@ from app.commons.chart_generator import (
 
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.highlights_list_utils import create_hightlights_lists
 
 main_star = Blueprint('main_star', __name__)
 
@@ -180,11 +181,14 @@ def star_chart(star_id):
             form.dec.data = star.dec
 
     chart_control = common_prepare_chart_data(form)
-
     prev_wrap, next_wrap = create_prev_next_wrappers(star)
 
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
+
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, )
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url, embed=embed, )
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
@@ -218,8 +222,13 @@ def star_descr_chart(star_descr_id):
     else:
         prev_wrap, next_wrap = None, None
 
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
+
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, )
+                           prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
+                           embed=embed, )
 
 
 @main_star.route('/star/<string:star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -230,7 +239,9 @@ def star_chart_pos_img(star_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(star.ra, star.dec, ra, dec, visible_objects=visible_objects)
+    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
+    img_bytes, img_format = common_chart_pos_img(star.ra, star.dec, ra, dec, visible_objects=visible_objects,
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 

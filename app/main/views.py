@@ -222,14 +222,23 @@ def _search_chart_ids(query):
         try:
             star_id = int(query[len(CHART_STAR_PREFIX):])
             star = Star.query.filter_by(id=star_id).first()
-            return redirect(url_for('main_star.star_catalogue_data', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+            return redirect(url_for('main_star.star_catalogue_data',
+                                    star_id=star.id,
+                                    back=request.args.get('back'),
+                                    back_id=request.args.get('back_id'),
+                                    splitview=request.args.get('splitview'),
+                                    embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     if query.startswith(CHART_DOUBLE_STAR_PREFIX):
         try:
             double_star_id = int(query[len(CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-            return redirect(url_for('main_double_star.double_star_info', double_star_id=double_star.id, embed=request.args.get('embed')))
+            return redirect(url_for('main_double_star.double_star_info',
+                                    double_star_id=double_star.id,
+                                    back=request.args.get('back'),
+                                    back_id=request.args.get('back_id'),
+                                    embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     if query.startswith(CHART_COMET_PREFIX):

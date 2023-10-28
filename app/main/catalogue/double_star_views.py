@@ -405,7 +405,6 @@ def double_star_chart(double_star_id):
     has_observations = _has_double_star_observations(double_star)
     show_obs_log = show_observation_log()
 
-
     back = request.args.get('back')
     back_id = request.args.get('back_id')
 

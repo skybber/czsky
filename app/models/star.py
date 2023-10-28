@@ -33,6 +33,21 @@ class Star(db.Model):
     mult_cnt = db.Column(db.Integer)                                        # Number of components assigned to a multiple
 
 
+    def get_name(self):
+        if self.common_name:
+            return self.common_name
+        if self.bayer:
+            return self.bayer + ' ' + self.constellation.iau_code
+        if self.flamsteed:
+            return self.flamsteed + ' ' + self.constellation.iau_code
+        if self.var_id:
+            return self.var_id
+        if self.hd:
+            return 'HD{}'.format(self.hd)
+        if self.hd:
+            return 'SAO{}'.format(self.hd)
+        return ''
+
     def ra_str(self):
         if self.ra:
             return '%02d:%02d:%04.1f' % Angle(radians=self.ra).hms(warn=False)

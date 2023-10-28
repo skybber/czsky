@@ -126,7 +126,7 @@ def star_list_chart_pos_img(star_list_id, ra, dec):
         abort(404)
 
     star_list = StarList.query.filter_by(id=star_list.id).first()
-    highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id), None) for x in star_list.star_list_items if star_list]
+    highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id), x.star.get_name()) for x in star_list.star_list_items if star_list]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
