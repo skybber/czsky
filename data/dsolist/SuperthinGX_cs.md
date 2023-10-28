@@ -1,8 +1,8 @@
 Palačinky
 
-Projekt supertenkých galaxií (palačinek) od U.Glahna a Statis Kafalise
+Projekt supertenkých galaxií (palačinek) od U. Glahna a Statis Kafalise
 
-[Projekt](http://www.deepsky-visuell.de/Projekte/SuperthinG.htm) supertenkých galaxií nebo jak jim v Německu říkají, palačinky, jehož autorem je U.Glahn a Statis Kafalis.
+[Projekt](http://www.deepsky-visuell.de/Projekte/SuperthinG.htm) supertenkých galaxií nebo jak jim v Německu říkají, palačinky, jehož autorem je U. Glahn a Statis Kafalis.
 
 Kdo je nezná fantastické galaxie NGC 4565 nebo NGC 5907, často nazývané „jehly“. Jsou to nádherné exempláře galaxií, na které se díváte z boku.
 

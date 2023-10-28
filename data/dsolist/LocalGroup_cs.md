@@ -1,8 +1,8 @@
 Galaxie z Místní skupiny galaxií
 
-Projekt "Galaxie z Místní skupiny galaxií" od U.Glahna
+Projekt "Galaxie z Místní skupiny galaxií" od U. Glahna
 
-Projekt [Galaxie z Místní skupiny galaxií](http://www.deepsky-visuell.de/Projekte/Lokale_Gruppe.htm), jehož autorem je U.Glahn.
+Projekt [Galaxie z Místní skupiny galaxií](http://www.deepsky-visuell.de/Projekte/Lokale_Gruppe.htm), jehož autorem je U. Glahn.
 
 "Místní skupina" je označení pro galaxie, které se nacházejí v bezprostřední blízkosti naší Galaxie Mléčné dráhy. Galaxie z místní skupiny jsou gravitačně propojeny, jsou rozděleny do čtyr podskupin.
 

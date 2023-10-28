@@ -1,6 +1,6 @@
 Na lovu miliardy let starého světla 
 
-Na lovu miliardy let starého světla od Jimi Lowreyho
+Na lovu miliardy let starého světla od Jimi Lowreye
 
 Projekt [Chasing Billion Year Old Light](https://www.astronomy-mall.com/Adventures.In.Deep.Space/Farout%20NGC-IC.pdf)
 
