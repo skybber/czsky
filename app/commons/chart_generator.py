@@ -749,7 +749,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
 
-    if obj_ra is not None and obj_dec is not None:
+    if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
         highlights = _create_highlights_from_pos_list(highlights_pos_list, config.highlight_color, config.highlight_linewidth)
