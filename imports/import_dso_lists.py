@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from app import db
+from app.models import DeepskyListType
 from app.models.dso_list import DsoList, DsoListDescription, DsoListItem
 from app.models.user import User
 from app.models.deepskyobject import DeepskyObject
@@ -61,6 +62,7 @@ def import_herschel400(herschel400_data_file):
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
                 dso_list.show_minor_axis = True
+                dso_list.list_type = DeepskyListType.CLASSIC
                 dso_list.update_by=editor_user.id
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
@@ -73,10 +75,11 @@ def import_herschel400(herschel400_data_file):
                     show_dso_type = True,
                     show_angular_size = True,
                     show_minor_axis = True,
+                    list_type = DeepskyListType.CLASSIC,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
                     create_date=datetime.now(),
-                    update_date=datetime.now()
+                    update_date=datetime.now(),
                 )
 
             db.session.add(dso_list)
@@ -135,6 +138,7 @@ def import_caldwell(caldwell_data_file):
                 dso_list.show_dso_type = True
                 dso_list.show_angular_size = True
                 dso_list.show_minor_axis = True
+                dso_list.list_type = DeepskyListType.CLASSIC
                 dso_list.update_by=editor_user.id
                 dso_list.create_date=datetime.now()
                 dso_list.dso_list_items[:] = []
@@ -149,6 +153,7 @@ def import_caldwell(caldwell_data_file):
                     show_dso_type = True,
                     show_angular_size = True,
                     show_minor_axis = True,
+                    list_type = DeepskyListType.CLASSIC,
                     create_date=datetime.now(),
                     update_date=datetime.now()
                 )
@@ -196,7 +201,7 @@ def import_caldwell(caldwell_data_file):
         print('') # finish on new line
 
 
-def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show_common_name=True, show_dso_type=False,
+def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, list_type, show_common_name=True, show_dso_type=False,
                           show_angular_size=True, show_minor_axis=True, show_descr_name=False, hidden=False,
                           show_distance=False, distance_mult=0.0):
     row_count = sum(1 for line in open(csv_data_file)) - 1
@@ -214,6 +219,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                 dso_list.long_name = dso_list_long_name
                 dso_list.show_common_name = show_common_name
                 dso_list.show_descr_name = show_descr_name
+                dso_list.list_type = list_type
                 dso_list.update_by = editor_user.id
                 dso_list.show_dso_type = show_dso_type
                 dso_list.show_angular_size = show_angular_size
@@ -229,6 +235,7 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
                     long_name=dso_list_long_name,
                     show_common_name=show_common_name,
                     show_descr_name=show_descr_name,
+                    list_type=list_type,
                     create_by=editor_user.id,
                     update_by=editor_user.id,
                     show_dso_type=show_dso_type,
@@ -295,37 +302,37 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, show
 
 
 def import_superthin_gx(superthingx_data_file):
-    _do_import_simple_csv(superthingx_data_file, 'thin-glx', 'Superthin Galaxies', show_common_name=False)
+    _do_import_simple_csv(superthingx_data_file, 'thin-glx', 'Superthin Galaxies', DeepskyListType.EXOTIC, show_common_name=False)
 
 
 def import_holmberg(holmberg_data_file):
-    _do_import_simple_csv(holmberg_data_file, 'holberg-glx', 'Galaxies from Holmberg catalog', show_common_name=False)
+    _do_import_simple_csv(holmberg_data_file, 'holberg-glx', 'Galaxies from Holmberg catalog', DeepskyListType.EXOTIC, show_common_name=False)
 
 
 def import_abell_pn(abell_pn_data_file):
-    _do_import_simple_csv(abell_pn_data_file, 'abell-pn', 'Abell Catalog of Planetary Nebulae', show_common_name=False, show_minor_axis=False)
+    _do_import_simple_csv(abell_pn_data_file, 'abell-pn', 'Abell Catalog of Planetary Nebulae', DeepskyListType.TYPED, show_common_name=False, show_minor_axis=False)
 
 
 def import_vic_list(vic_data_file):
-    _do_import_simple_csv(vic_data_file, 'vic-aster', 'VIC list of asterism', show_angular_size=False, show_descr_name=True)
+    _do_import_simple_csv(vic_data_file, 'vic-aster', 'VIC list of asterism', DeepskyListType.CZSKY, show_angular_size=False, show_descr_name=True)
 
 
 def import_rosse(rosse_data_file):
-    _do_import_simple_csv(rosse_data_file, 'rosse-spirals', 'Rosse Spirals', show_dso_type=True)
+    _do_import_simple_csv(rosse_data_file, 'rosse-spirals', 'Rosse Spirals', DeepskyListType.EXOTIC, show_dso_type=True)
 
 
 def import_glahn_pns(glahn_pn_data_file):
-    _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetary nebulas of northern hemisphere', show_minor_axis=False)
+    _do_import_simple_csv(glahn_pn_data_file, 'glahn-pn', 'Planetary nebulas of northern hemisphere', DeepskyListType.TYPED, show_minor_axis=False)
 
 
 def import_glahn_palomar_gc(glahn_palomar_gc_data_file):
     _do_import_simple_csv(
-        glahn_palomar_gc_data_file, 'palomar-gc', 'Palomar globular clusters', show_common_name=False, show_minor_axis=False)
+        glahn_palomar_gc_data_file, 'palomar-gc', 'Palomar globular clusters', DeepskyListType.TYPED, show_common_name=False, show_minor_axis=False)
 
 
 def import_glahn_local_group(glahn_local_group_data_file):
     _do_import_simple_csv(
-        glahn_local_group_data_file, 'local-group', 'Local group of galaxies', show_minor_axis=False)
+        glahn_local_group_data_file, 'local-group', 'Local group of galaxies', DeepskyListType.EXOTIC, show_minor_axis=False)
 
 
 def import_corstjens(corstjens_file):
@@ -334,14 +341,14 @@ def import_corstjens(corstjens_file):
 
 
 def import_hickson(hickson_data_file):
-    _do_import_simple_csv(hickson_data_file, 'hickson', 'Hickson Compact Group', show_common_name=False, show_minor_axis=False)
+    _do_import_simple_csv(hickson_data_file, 'hickson', 'Hickson Compact Group', DeepskyListType.TYPED, show_common_name=False, show_minor_axis=False)
 
 
 def import_billionaries_club(billionaries_club_data_file):
     _do_import_simple_csv(
-        billionaries_club_data_file, 'billionaries-club', 'Billionaries Club', show_minor_axis=True, show_distance=True, distance_mult=1000000000.0)
+        billionaries_club_data_file, 'billionaries-club', 'Billionaries Club', DeepskyListType.EXOTIC, show_minor_axis=True, show_distance=True, distance_mult=1000000000.0)
 
 def import_deep_man_600(deep_man_600_data_file):
     _do_import_simple_csv(
-        deep_man_600_data_file, 'deep-man-600', 'Deep Man 600', show_minor_axis=True)
+        deep_man_600_data_file, 'deep-man-600', 'Deep Man 600', DeepskyListType.CLASSIC, show_minor_axis=True)
 

@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from app import db
+from app.models import DeepskyListType
 from app.models.constellation import Constellation
 from app.models.star import Star
 from app.models.star_list import StarList, StarListDescription, StarListItem
@@ -67,6 +68,7 @@ def import_carbon_stars(carbon_stars_data_file):
         if star_list:
             star_list.name='carbon-stars'
             star_list.long_name='Carbon Stars'
+            star_list.list_type = DeepskyListType.TYPED
             star_list.update_by=editor_user.id
             star_list.create_date=datetime.now()
             star_list.star_list_items[:] = []
@@ -75,6 +77,7 @@ def import_carbon_stars(carbon_stars_data_file):
             star_list = StarList(
                 name='carbon-stars',
                 long_name='Carbon Stars',
+                list_type = DeepskyListType.TYPED,
                 create_by=editor_user.id,
                 update_by=editor_user.id,
                 create_date=datetime.now(),

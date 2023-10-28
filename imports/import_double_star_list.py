@@ -1,13 +1,17 @@
 import sys, os, glob
-import numpy as np
 from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models.constellation import Constellation
+from app.models import DeepskyListType
 from app.models.double_star import DoubleStar
-from app.models.double_star_list import DoubleStarList, DoubleStarListDescription, DoubleStarListItem
+from app.models.double_star_list import (
+    DoubleStarList,
+    DoubleStarListDescription,
+    DoubleStarListItem
+)
+
 from app.models.user import User
 from skyfield.api import position_from_radec, load_constellation_map
 
@@ -48,7 +52,7 @@ def _load_descriptions(dirname, base_name, double_star_list, editor_user):
         result.append(double_star_list_descr)
     return result
 
-def import_double_star_list(dbl_star_data_file, list_name, description, by_wds):
+def import_double_star_list(dbl_star_data_file, list_name, description, list_type, by_wds):
     sf = open(dbl_star_data_file, 'r')
     lines = sf.readlines()
     sf.close()
@@ -59,6 +63,7 @@ def import_double_star_list(dbl_star_data_file, list_name, description, by_wds):
         if double_star_list:
             double_star_list.name = list_name
             double_star_list.long_name = description
+            double_star_list.list_type = list_type
             double_star_list.update_by = editor_user.id
             double_star_list.create_date = datetime.now()
             double_star_list.double_star_list_items[:] = []
@@ -67,6 +72,7 @@ def import_double_star_list(dbl_star_data_file, list_name, description, by_wds):
             double_star_list = DoubleStarList(
                 name=list_name,
                 long_name=description,
+                list_type = list_type,
                 create_by=editor_user.id,
                 update_by=editor_user.id,
                 create_date=datetime.now(),
@@ -135,7 +141,7 @@ def import_double_star_list(dbl_star_data_file, list_name, description, by_wds):
     print('') # finish on new line
 
 def import_herschel500(herschel500_data_file):
-    import_double_star_list(herschel500_data_file, 'Herschel500', 'The Herschel 500 Double Stars', True)
+    import_double_star_list(herschel500_data_file, 'Herschel500', 'The Herschel 500 Double Stars', DeepskyListType.CLASSIC, True)
 
 def import_dmichalko(dmichalko_data_file):
-    import_double_star_list(dmichalko_data_file, 'DMichalko', 'The David1 Double Stars', False)
+    import_double_star_list(dmichalko_data_file, 'DMichalko', 'The David1 Double Stars', DeepskyListType.CZSKY, False)

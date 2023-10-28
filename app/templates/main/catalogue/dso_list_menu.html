@@ -1,5 +1,36 @@
 {% extends 'layouts/base.html' %}
 
+{% macro show_lists(list_type) %}
+    <table class="ui searchable sortable unstackable selectable celled table">
+        <tbody>
+            {% for l in dso_lists %}
+                {% if l.list_type.value == list_type %}
+                <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.name) }}';">
+                    <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
+                    <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            {% for l in star_lists %}
+                {% if l.list_type.value == list_type %}
+                <tr onclick="window.location.href = '{{ url_for('main_star_list.star_list_info', star_list_id=l.name) }}';">
+                    <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
+                    <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            {% for l in double_star_lists %}
+                {% if l.list_type.value == list_type %}
+                <tr onclick="window.location.href = '{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=l.name) }}';">
+                    <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
+                    <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
@@ -7,40 +38,25 @@
                 <i class="caret left icon"></i>
                 {{ _('Deepsky') }}
             </a>
-            <h2 class="ui header">
-                {{ _('Deepsky Object Lists') }}
-            </h2>
+            <h3 class="ui header">
+                {{ _('CzSky lists') }}
+            </h3>
+            {{ show_lists('CZSKY') }}
 
-            <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending">{{ _('Name') }}</th>
-                            <th class="sorted ascending">{{ _('Description') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for l in dso_lists %}
-                        <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.name) }}';">
-                            <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
-                            <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
-                        </tr>
-                    {% endfor %}
-                    {% for l in star_lists %}
-                        <tr onclick="window.location.href = '{{ url_for('main_star_list.star_list_info', star_list_id=l.name) }}';">
-                            <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
-                            <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
-                        </tr>
-                    {% endfor %}
-                    {% for d in double_star_lists %}
-                        <tr onclick="window.location.href = '{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=d.name) }}';">
-                            <td>{{ d.get_descr_by_lang_code(lang_code).long_name }}</td>
-                            <td>{{ d.get_descr_by_lang_code(lang_code).short_descr }}</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <h3 class="ui header">
+                {{ _('Classic list') }}
+            </h3>
+            {{ show_lists('CLASSIC') }}
+
+            <h3 class="ui header">
+                {{ _('Typed lists') }}
+            </h3>
+            {{ show_lists('TYPED') }}
+
+            <h3 class="ui header">
+                {{ _('Exotic lists') }}
+            </h3>
+            {{ show_lists('EXOTIC') }}
         </div>
     </div>
 

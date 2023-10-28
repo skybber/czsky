@@ -49,8 +49,13 @@ from imports.import_dso_lists import (
     import_glahn_palomar_gc,
     import_glahn_local_group,
 )
-from imports.import_utils import progress
 
+from imports.import_double_star_list import (
+    import_herschel500,
+    import_dmichalko,
+)
+
+from imports.import_utils import progress
 from imports.import_star_lists import import_carbon_stars
 from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
 from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
@@ -58,7 +63,6 @@ from imports.import_constellations_positions import import_constellations_positi
 from imports.import_minor_planets import import_mpcorb_minor_planets
 from imports.import_gottlieb import import_gottlieb
 from imports.import_gottlieb_translate import import_translated_gottlieb
-from imports.import_double_star_list import import_herschel500, import_dmichalko
 from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
 from imports.import_collinder import import_collinder
 from imports.import_wiki_ngc_ic import import_wikipedia_ngc, translate_wikipedia_ngc

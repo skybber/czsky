@@ -1,14 +1,17 @@
 from datetime import datetime
 from sqlalchemy import Index
+import sqlalchemy
 
 from .. import db
 
+from app.models.commons import DeepskyListType
 
 class DoubleStarList(db.Model):
     __tablename__ = 'double_star_lists'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
     long_name = db.Column(db.String(256), index=True)
+    list_type = db.Column(sqlalchemy.Enum(DeepskyListType))
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())

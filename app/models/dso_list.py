@@ -1,8 +1,10 @@
 from datetime import datetime
 from sqlalchemy import Index
+import sqlalchemy
 
 from .. import db
 
+from app.models.commons import DeepskyListType
 
 class DsoList(db.Model):
     __tablename__ = 'dso_lists'
@@ -16,6 +18,7 @@ class DsoList(db.Model):
     show_minor_axis = db.Column(db.Boolean, default=True)
     show_distance = db.Column(db.Boolean, default=False)
     hidden = db.Column(db.Boolean, default=False)
+    list_type = db.Column(sqlalchemy.Enum(DeepskyListType))
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
