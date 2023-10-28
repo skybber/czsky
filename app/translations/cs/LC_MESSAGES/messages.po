@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-10-28 12:38+0200\n"
+"POT-Creation-Date: 2023-10-28 17:15+0200\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -426,7 +426,7 @@ msgstr "Limitní magnituda DSO"
 #: app/templates/main/catalogue/constellations.html:36
 #: app/templates/main/catalogue/deepskyobject_info.html:317
 #: app/templates/main/catalogue/dso_list_info.html:93
-#: app/templates/main/catalogue/star_info.html:117
+#: app/templates/main/catalogue/star_info.html:125
 #: app/templates/main/equipment/eyepiece_info.html:29
 #: app/templates/main/equipment/eyepieces.html:33
 #: app/templates/main/equipment/filter_info.html:29
@@ -1123,10 +1123,10 @@ msgstr "Typ"
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
 #: app/templates/main/catalogue/deepskyobject_info.html:323
 #: app/templates/main/catalogue/double_star_edit.html:13
-#: app/templates/main/catalogue/double_star_info.html:330
+#: app/templates/main/catalogue/double_star_info.html:338
 #: app/templates/main/catalogue/double_stars.html:38
 #: app/templates/main/catalogue/star_edit.html:13
-#: app/templates/main/catalogue/star_info.html:118
+#: app/templates/main/catalogue/star_info.html:126
 #: app/templates/main/catalogue/supernovae.html:38
 #: app/templates/main/observation/observed_list.html:79
 #: app/templates/main/planner/session_plan_schedule.html:47
@@ -1812,7 +1812,7 @@ msgid "distance"
 msgstr "vzdálenost"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:383
-#: app/templates/main/catalogue/double_star_info.html:214
+#: app/templates/main/catalogue/double_star_info.html:222
 #: app/templates/main/solarsystem/comet_info.html:97
 #: app/templates/main/solarsystem/minor_planet_info.html:60
 #: app/templates/main/solarsystem/planet_info.html:55
@@ -1821,8 +1821,8 @@ msgstr "Probíhající pozorování:"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:442
 #: app/templates/main/catalogue/deepskyobject_info.html:456
-#: app/templates/main/catalogue/double_star_info.html:269
-#: app/templates/main/catalogue/double_star_info.html:276
+#: app/templates/main/catalogue/double_star_info.html:277
+#: app/templates/main/catalogue/double_star_info.html:284
 #: app/templates/main/solarsystem/comet_info.html:155
 #: app/templates/main/solarsystem/comet_info.html:162
 #: app/templates/main/solarsystem/minor_planet_info.html:115
@@ -1833,7 +1833,7 @@ msgid "Delete Log"
 msgstr "Odstranit záznam"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:458
-#: app/templates/main/catalogue/double_star_info.html:278
+#: app/templates/main/catalogue/double_star_info.html:286
 #: app/templates/main/solarsystem/comet_info.html:164
 #: app/templates/main/solarsystem/minor_planet_info.html:124
 #: app/templates/main/solarsystem/planet_info.html:122
@@ -1841,7 +1841,7 @@ msgid "Are you sure you want to delete this observation log?"
 msgstr "Skutečně chcete odstranit tento záznam z pozorování?"
 
 #: app/templates/main/catalogue/deepskyobject_info.html:463
-#: app/templates/main/catalogue/double_star_info.html:283
+#: app/templates/main/catalogue/double_star_info.html:291
 #: app/templates/main/equipment/eyepiece_edit.html:91
 #: app/templates/main/equipment/filter_edit.html:88
 #: app/templates/main/equipment/lens_edit.html:91
@@ -1899,43 +1899,43 @@ msgstr "Deklinace min"
 msgid "Back To Star"
 msgstr "Zpět na hvězdy"
 
-#: app/templates/main/catalogue/double_star_info.html:320
+#: app/templates/main/catalogue/double_star_info.html:328
 msgid "WDS ID"
 msgstr "WDS ID"
 
-#: app/templates/main/catalogue/double_star_info.html:321
+#: app/templates/main/catalogue/double_star_info.html:329
 msgid "Common catalogue ID"
 msgstr "Katalogové ID"
 
-#: app/templates/main/catalogue/double_star_info.html:322
+#: app/templates/main/catalogue/double_star_info.html:330
 msgid "Components"
 msgstr "Komponenty"
 
-#: app/templates/main/catalogue/double_star_info.html:323
+#: app/templates/main/catalogue/double_star_info.html:331
 msgid "Other Designation"
 msgstr "Jiná označení"
 
-#: app/templates/main/catalogue/double_star_info.html:324
+#: app/templates/main/catalogue/double_star_info.html:332
 msgid "Position angle"
 msgstr "Poziční úhel"
 
-#: app/templates/main/catalogue/double_star_info.html:325
+#: app/templates/main/catalogue/double_star_info.html:333
 msgid "Separation"
 msgstr "Separace"
 
-#: app/templates/main/catalogue/double_star_info.html:326
+#: app/templates/main/catalogue/double_star_info.html:334
 msgid "Mag First"
 msgstr "Mag 1"
 
-#: app/templates/main/catalogue/double_star_info.html:327
+#: app/templates/main/catalogue/double_star_info.html:335
 msgid "Mag Second"
 msgstr "Mag 2"
 
-#: app/templates/main/catalogue/double_star_info.html:328
+#: app/templates/main/catalogue/double_star_info.html:336
 msgid "Delta mag"
 msgstr "Delta mag"
 
-#: app/templates/main/catalogue/double_star_info.html:329
+#: app/templates/main/catalogue/double_star_info.html:337
 msgid "Spectral Type"
 msgstr "Spektrální typ"
 
@@ -2012,8 +2012,8 @@ msgid "Classic list"
 msgstr "Klasické seznamy"
 
 #: app/templates/main/catalogue/dso_list_menu.html:52
-msgid "Typed lists"
-msgstr "Typové seznamy"
+msgid "Categorized Lists"
+msgstr "Kategorizované seznamy"
 
 #: app/templates/main/catalogue/dso_list_menu.html:57
 msgid "Exotic lists"
@@ -2055,7 +2055,7 @@ msgstr "Zobrazit poslední supernovy"
 msgid "Catalogue data"
 msgstr "Katalogové údaje"
 
-#: app/templates/main/catalogue/star_info.html:124
+#: app/templates/main/catalogue/star_info.html:132
 msgid "Spectral type"
 msgstr "Spektrální typ"
 
