@@ -5,7 +5,6 @@
 {% set data_position='data-position="left center"' if is_fullscreen or is_splitview else '' %}
 
 <div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
-
   <div  class="ui secondary menu">
 
       <div id="bhome" class="ui item" style="z-index:100;display:none;">
@@ -357,61 +356,6 @@
               </div>
           </div>
       </div>
-      <div class="ui horizontally fitted item mobile hidden" style="z-index:100">
-          <div class="ui floating small dropdown icon button" data-inverted="" data-tooltip="{{ _('Object List') }}" data-position="left center" data-variation="tiny basic">
-              <i class="list icon"></i>
-              <div class="menu">
-                  <div class="item" onclick="callDsoListUrl('{{ chart_control.cancel_selection_url }}')">{{ _('None') }}</div>
-                  {% set dso_list_menu=chart_control.chart_dso_list_menu %}
-                  {% if dso_list_menu and (dso_list_menu.is_wish_list or dso_list_menu.session_plans or dso_list_menu.observations) %}
-                      {% if dso_list_menu.is_wish_list %}
-                          <div class="item" onclick="callDsoListUrl('{{ url_for('main_wishlist.wish_list_chart') }}')">{{ _('Wish List') }}</div>
-                      {% endif %}
-                      {% if dso_list_menu.session_plans %}
-                          <div class="item">
-                              <i class="dropdown icon"></i>
-                              <span class="text">{{ _('Session plans')}}</span>
-                              <div class="right menu">
-                                  {% for spl in dso_list_menu.session_plans %}
-                                      <div class="item" onclick="callDsoListUrl('{{ url_for('main_sessionplan.session_plan_chart', session_plan_id=spl.id) }}')">
-                                        {{ spl.for_date.strftime('%Y-%m-%d') }} {{ spl.location.name if spl.location else spl.location_position }}
-                                      </div>
-                                  {% endfor %}
-                              </div>
-                          </div>
-                      {% endif %}
-                      {% if dso_list_menu.observations %}
-                          <div class="item">
-                              <i class="dropdown icon"></i>
-                              <span class="text">{{ _('Observations')}}</span>
-                              <div class="right menu">
-                                  {% for obs in dso_list_menu.observations %}
-                                      <div class="item" onclick="callDsoListUrl('{{ url_for('main_observation.observation_chart', observation_id=obs.id) }}')">
-                                        {{ obs.date_from.strftime('%Y-%m-%d') }} {{ obs.location.name if obs.location else obs.location_position }}
-                                      </div>
-                                  {% endfor %}
-                              </div>
-                          </div>
-                      {% endif %}
-                      {% if dso_list_menu.dso_lists %}
-                          <div class="item">
-                              <i class="dropdown icon"></i>
-                              <span class="text">{{ _('DSO List')}}</span>
-                              <div class="right menu">
-                                  {% for dsol in dso_list_menu.dso_lists %}
-                                      <div class="item" onclick="callDsoListUrl('{{ url_for('main_dso_list.dso_list_chart', dso_list_id=dsol.id) }}')">{{ dsol.long_name }}</div>
-                                  {% endfor %}
-                              </div>
-                          </div>
-                      {% endif %}
-                  {% elif dso_list_menu and chart_control.chart_dso_list_menu.dso_lists %}
-                      {% for dsol in dso_list_menu.dso_lists %}
-                          <div class="item" onclick="callDsoListUrl('{{ url_for('main_dso_list.dso_list_chart', dso_list_id=dsol.id) }}')">{{ dsol.long_name }}</div>
-                      {% endfor %}
-                  {% endif %}
-              </div>
-          </div>
-      </div>
   </form>
   <!-- Export to PDF -->
   {% if fchart_pdf_url is not none %}
@@ -464,6 +408,14 @@
           </button>
       </div>
   </div>
+  </div>
+
+  <div style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
+      <div class="ui small buttons">
+            <button id="bhideleftpanel" type="button" class="ui compact icon button"  style="z-index:100;display:none">
+                <i class="angle left icon"></i>
+            </button>
+      </div>
   </div>
 
 </div>
@@ -569,6 +521,10 @@
         $("#bhome").show();
     }
 
+    if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
+        $("#bhideleftpanel").show();
+    }
+
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
         $('#radius').val(fldSizeIndex);
@@ -609,9 +565,11 @@
         if (splitViewVisible) {
             $("#isearch").show();
             $("#bhome").show();
+            $("#bhideleftpanel").show();
         } else {
             $("#isearch").hide();
             $("#bhome").hide();
+            $("#bhideleftpanel").hide();
         }
     });
 
@@ -682,6 +640,10 @@
 
     $('#bsplitview').click(function(){
         fchart.toggleSplitView();
+    });
+
+    $('#bhideleftpanel').click(function(){
+        fchart.toggleFullscreen();
     });
 
     $('.ui.dropdown').dropdown();
