@@ -107,7 +107,8 @@
             {% for item in double_star_list.double_star_list_items %}
                 {% set double_star = item.double_star %}
                 {% set user_descr = user_descrs[item.double_star_id] %}
-                <h3>&nbsp;
+                <div style="clear:both;">
+                <div style="float:right;">
                     {% if double_star.constellation is not none %}
                         <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=double_star.constellation.iau_code) }}">
                             <i class="lastfm icon"></i>
@@ -145,12 +146,18 @@
                             <i class="caret edit icon"></i>
                         </a>
                     {% endif %}
-                </h3>
+                </div>
+
+                <a href="{{ url_for('main_double_star.double_star_chart', double_star_id=double_star.id, back='dbl_star_list', back_id=double_star_list.id) }}">
+                    <h3 style="margin-bottom:0.8em;">
+                        {{ double_star.get_common_name() }}
+                    </h3>
+                </a>
 
                 {% if user_descr %}
                 <div class="markdown">
                     {% filter extended_commonmark('') %}
-    {{ user_descr.text }}
+{{ user_descr.text }}
                     {% endfilter %}
                 </div>
                 {% else %}

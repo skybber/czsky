@@ -139,7 +139,7 @@
             </h3>
 
             {% if user_descr %}
-            <div class="markdown">
+            <div class="markdown" style="clear:both;">
                 {% filter extended_commonmark('') %}
 {{ user_descr.text }}
                 {% endfilter %}
@@ -147,7 +147,6 @@
             {% else %}
                 {{ double_star_data_table(double_star, False) }}
             {% endif %}
-
         </div>
     </div>
     {{ double_star_toolbar_js() }}
