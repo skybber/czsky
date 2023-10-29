@@ -21,6 +21,7 @@ from app.models import (
     DoubleStarList,
     DoubleStarListItem,
     DoubleStarListDescription,
+    UserDoubleStarDescription,
 )
 
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
@@ -61,6 +62,38 @@ def double_star_lists_menu():
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     return render_template('main/catalogue/double_star_list_menu.html', double_star_lists=double_star_lists, lang_code=lang)
 
+@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/seltab')
+def double_star_list_seltab(double_star_list_id):
+    """View a double star list seltab."""
+    double_star_list = _find_double_star_list(double_star_list_id)
+    if double_star_list is None:
+        abort(404)
+
+    if double_star_list.has_detail_view:
+        return redirect(url_for('main_double_star_list.double_star_list_detail', double_star_list_id=double_star_list_id))
+
+    return redirect(url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list_id))
+
+
+@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/detail', methods=['GET','POST'])
+def double_star_list_detail(double_star_list_id):
+    """View a double star list detail."""
+    double_star_list = _find_double_star_list(double_star_list_id)
+    if double_star_list is None:
+        abort(404)
+
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+
+    double_star_list_descr = DoubleStarListDescription.query.filter_by(double_star_list_id=double_star_list.id, lang_code=lang).first()
+
+    user_descrs = {}
+    for item in double_star_list.double_star_list_items:
+        ud = UserDoubleStarDescription.query.filter_by(double_star_id=item.double_star_id, user_id=editor_user.id, lang_code=lang).first()
+        if ud:
+            user_descrs[item.double_star_id] = ud
+
+    return render_template('main/catalogue/double_star_list_info.html', double_star_list=double_star_list, type='detail',
+                           double_star_list_descr=double_star_list_descr, user_descrs=user_descrs)
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>', methods=['GET','POST'])
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/info', methods=['GET','POST'])
@@ -147,7 +180,8 @@ def double_star_list_info(double_star_list_id):
     theme = request.args.get('theme', '')
     inverted_accordion = theme in ['dark', 'night']
 
-    return render_template('main/catalogue/double_star_list_info.html', double_star_list=double_star_list, type='info', double_star_list_descr=double_star_list_descr, double_star_list_items=double_star_list_items,
+    return render_template('main/catalogue/double_star_list_info.html', double_star_list=double_star_list, type='info',
+                           double_star_list_descr=double_star_list_descr, double_star_list_items=double_star_list_items,
                            search_form=search_form, inverted_accordion=inverted_accordion, table_sort=table_sort)
 
 

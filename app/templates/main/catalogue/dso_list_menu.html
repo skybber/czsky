@@ -21,7 +21,7 @@
             {% endfor %}
             {% for l in double_star_lists %}
                 {% if l.list_type.value == list_type %}
-                <tr onclick="window.location.href = '{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=l.name) }}';">
+                <tr onclick="window.location.href = '{{ url_for('main_double_star_list.double_star_list_seltab', double_star_list_id=l.name) }}';">
                     <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
                     <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
                 </tr>

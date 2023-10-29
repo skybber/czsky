@@ -12,6 +12,7 @@ class DoubleStarList(db.Model):
     name = db.Column(db.String(64), index=True)
     long_name = db.Column(db.String(256), index=True)
     list_type = db.Column(sqlalchemy.Enum(DeepskyListType))
+    has_detail_view = db.Column(db.Boolean, default=False)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     create_date = db.Column(db.DateTime, default=datetime.now())
