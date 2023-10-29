@@ -412,7 +412,7 @@
 
   <div style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
       <div class="ui small buttons">
-            <button id="bhideleftpanel" type="button" class="ui compact icon inverted secondary basic button"  style="z-index:100;display:none">
+            <button id="bhideleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
                 <i class="angle left icon"></i>
             </button>
       </div>
