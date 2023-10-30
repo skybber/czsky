@@ -60,8 +60,9 @@ def index():
 @main.route('/about')
 def about():
     editable_html_obj = EditableHTML.get_editable_html('about')
+    lang_code = get_site_lang_code()
     return render_template(
-        'main/about.html', editable_html_obj=editable_html_obj)
+        'main/about.html', editable_html_obj=editable_html_obj, lang_code=lang_code)
 
 
 @main.route('/theme_dark')
