@@ -5,17 +5,25 @@
     <div class="ui text container">
         <h1 class="ui header">About</h1>
 <p>
+{% if lang_code == 'cs' %}
+Posláním tohoto webu je budovat aktivní komunitu pozorovatelů vesmíru a hledat nové způsoby, jak je inspirovat a učinit jejich koníček ještě zábavnějším.
+{% else %}
 Mission of this web is to build the engaged community of deepsky observers and to search for new ways to inspire astronomers and make
 the hobby they love even more fun.
+{% endif %}
 </p>
 <p>
 <i>
+{% if lang_code == 'cs' %}
+... vzdálená Edelweissspitze je hranicí dvou odlišných světů. Hranicí, kde kámen opírá se o nebeskou klenbu. O tu, ze které ve dne naše Slunce bíle rozzáří věčně zasněžené hřebeny Vysokých Taur. V noci, poté, jasné paprsky vystřídá stříbrná slabá zář prastarého světla z miliard nepředstavitelně dalekých hvězd. To světlo stále ještě svítí na nedotčeném černém sametu noční tmy v prapůvodní kráse. Svítilo tak mnohem dřív, než se objevili první lidé, a bude svítit i poté, co zmizi poslední. Ty hvězdy svítí právě teď i proto, abychom znovu a znovu přicházeli a byli diváky v jejich tichém jevišti věčnosti.
+{% else %}
 ... the distant Edelweissspitze is on the border of two different worlds.
 The boundary where the stone rests on the celestial vault, the one from which our Sun will shine white on the eternally snow-covered ridges of the Hohe Tauern. At night, the bright rays are replaced by a faint silver glow of ancient light from billions of unimaginably distant stars. That light still shines on the pristine black velvet of the night darkness in its primordial beauty. It shone long before the first humans appeared, and it will shine even after the last disappears. Those stars are shining even now, and we can come again and again and behold this silent stage of eternity.
+{% endif %}
 </i>
 </p>
 
-<h1 class="ui header">News</h1>
+<h1 class="ui header">{% if lang_code == 'cs' %}Novinky{% else %}News{% endif %}</h1>
 {% filter commonmark() %}
 * 22.10.2023 - DSS blue layer
 * 21.10.2023 - M31, M33 globular clusters, vdB catalogue
