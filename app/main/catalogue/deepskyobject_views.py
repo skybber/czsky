@@ -304,8 +304,7 @@ def deepskyobject_seltab(dso_id):
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
 
-    back = request.args.get('back')
-    if back == 'running_plan':
+    if show_observation_log():
         return _do_redirect('main_deepskyobject.deepskyobject_observation_log', dso)
 
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
