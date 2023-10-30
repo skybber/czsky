@@ -284,7 +284,7 @@
                 </thead>
                 <tbody>
                 {% for d in double_star_list_items %}
-                    <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_chart', double_star_id=d.double_star_id, back='dbl_star_list', back_id=double_star_list.id) }}';">
+                    <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_seltab', double_star_id=d.double_star_id, back='dbl_star_list', back_id=double_star_list.id) }}';">
                         <td class="mobile hidden">{{ d.double_star.wds_number }}</td>
                         <td>{{ d.double_star.common_cat_id }}</td>
                         <td>{{ d.double_star.components }}</td>

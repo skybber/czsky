@@ -234,7 +234,7 @@ def _search_chart_ids(query):
         try:
             double_star_id = int(query[len(CHART_DOUBLE_STAR_PREFIX):])
             double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-            return redirect(url_for('main_double_star.double_star_info',
+            return redirect(url_for('main_double_star.double_star_seltab',
                                     double_star_id=double_star.id,
                                     back=request.args.get('back'),
                                     back_id=request.args.get('back_id'),

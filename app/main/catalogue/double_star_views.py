@@ -371,8 +371,7 @@ def double_star_seltab(double_star_id):
         if seltab == 'observations':
             return _do_redirect('main_double_star.double_star_observations', double_star)
 
-    back = request.args.get('back')
-    if back == 'running_plan':
+    if show_observation_log():
         return _do_redirect('main_double_star.double_star_observation_log', double_star)
 
     return _do_redirect('main_double_star.double_star_info', double_star)
