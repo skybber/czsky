@@ -35,7 +35,7 @@ from app.models import (
 from app.commons.search_utils import process_session_search
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir, get_ug_bl_dsos
-from app.commons.utils import get_cs_editor_user, get_lang_and_editor_user_from_request
+from app.commons.utils import get_cs_editor_user, get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -173,22 +173,25 @@ def constellation_info(constellation_id):
                 if image_info is not None:
                     title_images[dsod.dso_id] = image_info[0]
 
-        dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=editor_user_dso.id, lang_code=lang)\
-                                                                 .join(UserDsoApertureDescription.deepsky_object) \
-                                                                 .filter_by(constellation_id=constellation.id) \
-                                                                 .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
-                                                                 .all()
+        lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
 
         aperture_descr_map = {}
-        for apdescr in dso_apert_descriptions:
-            if apdescr.dso_id not in aperture_descr_map:
-                aperture_descr_map[apdescr.dso_id] = []
-            dsoapd = aperture_descr_map[apdescr.dso_id]
-            if apdescr.aperture_class not in [cl[0] for cl in dsoapd] and apdescr.text:
-                if apdescr.aperture_class == '<100':
-                    dsoapd.insert(0, (apdescr.aperture_class, apdescr.text))
-                else:
-                    dsoapd.append((apdescr.aperture_class, apdescr.text))
+
+        for apert_editor_user in all_editor_users:
+            dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=apert_editor_user.id, lang_code=lang)\
+                                                                     .join(UserDsoApertureDescription.deepsky_object) \
+                                                                     .filter_by(constellation_id=constellation.id) \
+                                                                     .order_by(UserDsoApertureDescription.aperture_class, UserDsoApertureDescription.lang_code) \
+                                                                     .all()
+            for apdescr in dso_apert_descriptions:
+                if apdescr.dso_id not in aperture_descr_map:
+                    aperture_descr_map[apdescr.dso_id] = []
+                dsoapd = aperture_descr_map[apdescr.dso_id]
+                if apdescr.aperture_class not in [cl[0] for cl in dsoapd] and apdescr.text:
+                    if apdescr.aperture_class == '<100':
+                        dsoapd.insert(0, (apdescr.aperture_class, apdescr.text))
+                    else:
+                        dsoapd.append((apdescr.aperture_class, apdescr.text))
 
         ug_bl_dsos = []
         constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
