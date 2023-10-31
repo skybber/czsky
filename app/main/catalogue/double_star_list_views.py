@@ -12,8 +12,11 @@ from flask import (
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
+
+from flask_login import current_user
 
 from app.models import (
     Constellation,
@@ -21,7 +24,10 @@ from app.models import (
     DoubleStarList,
     DoubleStarListItem,
     DoubleStarListDescription,
+    ObservedList,
+    SessionPlan,
     UserDoubleStarDescription,
+    WishList,
 )
 
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
@@ -92,8 +98,21 @@ def double_star_list_detail(double_star_list_id):
         if ud:
             user_descrs[item.double_star_id] = ud
 
+    wish_list = None
+    observed_list = None
+    offered_session_plans = None
+    if current_user.is_authenticated:
+        wish_list = [item.double_star_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items]
+        observed_list = [item.double_star_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items]
+        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+    else:
+        session_plan_id = session.get('session_plan_id')
+        if session_plan_id:
+            offered_session_plans = SessionPlan.query.filter_by(id=session_plan_id).all()
+
     return render_template('main/catalogue/double_star_list_info.html', double_star_list=double_star_list, type='detail',
-                           double_star_list_descr=double_star_list_descr, user_descrs=user_descrs)
+                           double_star_list_descr=double_star_list_descr, user_descrs=user_descrs,
+                           wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans, )
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>', methods=['GET','POST'])
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/info', methods=['GET','POST'])
