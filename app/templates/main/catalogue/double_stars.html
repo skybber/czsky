@@ -46,6 +46,10 @@
                         <div class="top right aligned floating ui tiny label">{{ _('Delta mag min') }}</div>
                     </div>
                     <div class="ui input item">
+                        {{ search_form.delta_mag_max(class='ui tiny input', size=3) }}
+                        <div class="top right aligned floating ui tiny label">{{ _('Delta mag max') }}</div>
+                    </div>
+                    <div class="ui input item">
                         {{ search_form.separation_min(class='ui tiny input', size=3) }}
                         <div class="top right aligned floating ui tiny label">{{ _('Separation min') }}</div>
                     </div>

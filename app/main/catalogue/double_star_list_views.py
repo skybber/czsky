@@ -113,6 +113,7 @@ def double_star_list_info(double_star_list_id):
         ('dbl_list_season', search_form.season),
         ('dbl_list_mag_max', search_form.mag_max),
         ('dbl_list_delta_mag_min', search_form.delta_mag_min),
+        ('dbl_list_delta_mag_max', search_form.delta_mag_max),
         ('dbl_list_separation_min', search_form.separation_min),
         ('dbl_list_separation_max', search_form.separation_max),
         ('dec_list_min', search_form.dec_min),
@@ -136,6 +137,8 @@ def double_star_list_info(double_star_list_id):
             dbl_list_query = dbl_list_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
         if search_form.delta_mag_min.data is not None:
             dbl_list_query = dbl_list_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
+        if search_form.delta_mag_max.data is not None:
+            dbl_list_query = dbl_list_query.filter(DoubleStar.delta_mag < search_form.delta_mag_max.data)
         if search_form.separation_min.data is not None:
             dbl_list_query = dbl_list_query.filter(DoubleStar.separation > search_form.separation_min.data)
         if search_form.separation_max.data is not None:

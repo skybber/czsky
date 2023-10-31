@@ -78,6 +78,7 @@ def double_stars():
         ('constellation_id', search_form.constellation_id),
         ('dbl_mag_max', search_form.mag_max),
         ('dbl_delta_mag_min', search_form.delta_mag_min),
+        ('dbl_delta_mag_max', search_form.delta_mag_max),
         ('dbl_separation_min', search_form.separation_min),
         ('dbl_separation_max', search_form.separation_max),
         ('dec_min', search_form.dec_min),
@@ -105,6 +106,8 @@ def double_stars():
             dbl_star_query = dbl_star_query.filter(DoubleStar.mag_first < search_form.mag_max.data, DoubleStar.mag_second < search_form.mag_max.data)
         if search_form.delta_mag_min.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag > search_form.delta_mag_min.data)
+        if search_form.delta_mag_max.data is not None:
+            dbl_star_query = dbl_star_query.filter(DoubleStar.delta_mag < search_form.delta_mag_max.data)
         if search_form.separation_min.data is not None:
             dbl_star_query = dbl_star_query.filter(DoubleStar.separation > search_form.separation_min.data)
         if search_form.separation_max.data is not None:
