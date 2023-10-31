@@ -7,6 +7,8 @@ from flask import (
     send_from_directory
 )
 
+from sqlalchemy import func
+
 from flask_migrate import Migrate #, MigrateCommand
 from redis import Redis
 from rq import Connection, Queue, Worker
@@ -15,11 +17,13 @@ from app import create_app, db
 from app.commons.chart_theme_definition import BASE_THEME_TEMPL, DARK_THEME_TEMPL, NIGHT_THEME_TEMPL, LIGHT_THEME_TEMPL
 from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
 from app.models import (
+    Constellation,
     ChartTheme,
     Role,
     User,
     UserDsoDescription,
     DeepskyObject,
+    UserDsoApertureDescription,
 )
 
 from config import Config
@@ -68,6 +72,7 @@ from imports.import_collinder import import_collinder
 from imports.import_wiki_ngc_ic import import_wikipedia_ngc, translate_wikipedia_ngc
 
 from app.main.userdata.gitstore import load_public_content_data_from_git2
+from app.commons.auto_img_utils import get_ug_bl_dsos
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 # manager = Manager(app)
@@ -427,3 +432,50 @@ def tmp_import_catalogues():
 def tmp_dmichalko():
     import_dmichalko('data/doublestarlist/DMichalko.csv')
 
+@app.cli.command("tmp_add_ug_bl_user_dso_desc")
+def tmp_add_ug_bl_user_dso_desc():
+    editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
+
+    str_all_editors = current_app.config.get('ALL_EDITORS_USER_NAMES_CS')
+    if str_all_editors:
+        all_editors_ar = [x.strip() for x in str_all_editors.split(',')]
+        all_editors = User.query.filter(User.user_name.in_(all_editors_ar)).all()
+    else:
+        all_editors = ( editor_cs, )
+
+    if editor_cs:
+        for constellation in Constellation.get_all():
+            constell_ug_bl_dsos = get_ug_bl_dsos()[constellation.id]
+            for dso_id in constell_ug_bl_dsos:
+                dso = constell_ug_bl_dsos[dso_id]
+                udd = UserDsoDescription.query.filter_by(user_id=editor_cs.id, dso_id=dso_id, lang_code='cs').first()
+                if not udd:
+                    has_descr = False
+                    for editor_user in all_editors:
+                        user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id,
+                                                                                       user_id=editor_user.id,
+                                                                                       lang_code='cs') \
+                            .filter(func.coalesce(UserDsoApertureDescription.text, '') != '') \
+                            .all()
+                        if user_apert_descrs:
+                            has_descr = True
+
+                    if has_descr:
+                        print('Adding {}'.format(dso.name))
+                        udd = UserDsoDescription(
+                            dso_id=dso.id,
+                            user_id=editor_cs.id,
+                            rating=0,
+                            lang_code='cs',
+                            cons_order=100000,
+                            text='',
+                            references=None,
+                            common_name=dso.common_name,
+                            create_by=editor_cs.id,
+                            update_by=editor_cs.id,
+                            create_date=datetime.now(),
+                            update_date=datetime.now(),
+                        )
+                        db.session.add(udd)
+                        db.session.flush()
+                        db.session.commit()
