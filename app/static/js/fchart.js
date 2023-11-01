@@ -1415,9 +1415,9 @@ FChart.prototype.toggleFullscreen = function() {
         $(".fchart-separator").hide();
         this.onSplitViewChangeCallback.call(this, false);
         queryParams.delete('splitview');
+    } else {
+        $(this.fchartDiv).toggleClass('fchart-fullscreen');
     }
-
-    $(this.fchartDiv).toggleClass('fchart-fullscreen');
 
     if (!this.isInFullScreen()) {
         $(this.fchartDiv).css('left', 0);
