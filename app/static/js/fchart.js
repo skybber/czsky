@@ -1407,7 +1407,15 @@ FChart.prototype.isInSplitView = function() {
     return $(this.fchartDiv).hasClass('fchart-splitview');
 }
 
+FChart.prototype.setupFullscreen = function () {
+   this.doToggleFullscreen(true);
+}
+
 FChart.prototype.toggleFullscreen = function() {
+    this.doToggleFullscreen(false);
+}
+
+FChart.prototype.doToggleFullscreen = function(toggleClass) {
     let queryParams = new URLSearchParams(window.location.search);
     if (this.isInSplitView()) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
@@ -1415,6 +1423,9 @@ FChart.prototype.toggleFullscreen = function() {
         $(".fchart-separator").hide();
         this.onSplitViewChangeCallback.call(this, false);
         queryParams.delete('splitview');
+        if (toggleClass) {
+            $(this.fchartDiv).toggleClass('fchart-fullscreen');
+        }
     } else {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
     }
