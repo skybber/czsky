@@ -177,23 +177,24 @@ def do_global_search(query, level):
         return res
 
     # 9. Search Simbad
-    simbad_obj = simbad_query(dso_name_to_simbad_id(query))
-    if simbad_obj is not None:
-        simbad_obj = simbad_obj[0]
-        if simbad_obj['MAIN_ID'] != query and level == 1:
-            res = do_global_search(simbad_obj['MAIN_ID'], 2)
-        if not res:
-            if get_otype_from_simbad(simbad_obj) is not None:
-                dso = DeepskyObject()
-                simbad_obj_to_deepsky(simbad_obj, dso)
-                db.session.add(dso)
-                db.session.commit()
+    if level != 2:
+        simbad_obj = simbad_query(dso_name_to_simbad_id(query))
+        if simbad_obj is not None:
+            simbad_obj = simbad_obj[0]
+            if simbad_obj['MAIN_ID'] != query and level == 1:
                 res = do_global_search(simbad_obj['MAIN_ID'], 2)
-            else:
-                ra_dec_query = '{} {}'.format(simbad_obj['RA'], simbad_obj['DEC'])
-                res = _search_by_ra_dec(ra_dec_query)
-        if res:
-            return res
+            if not res:
+                if get_otype_from_simbad(simbad_obj) is not None:
+                    dso = DeepskyObject()
+                    simbad_obj_to_deepsky(simbad_obj, dso)
+                    db.session.add(dso)
+                    db.session.commit()
+                    res = do_global_search(simbad_obj['MAIN_ID'], 2)
+                else:
+                    ra_dec_query = '{} {}'.format(simbad_obj['RA'], simbad_obj['DEC'])
+                    res = _search_by_ra_dec(ra_dec_query)
+            if res:
+                return res
 
     back_url_enc = request.args.get('back_url')
     if back_url_enc:

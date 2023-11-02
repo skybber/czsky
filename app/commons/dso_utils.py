@@ -12,6 +12,8 @@ CATALOG_SPECS0 = {'sh2'}
 # catalog_specs1 = {'Cannon', 'Haro', 'He', 'Hoffleit', 'Hu', 'K', 'Merrill', 'PK', 'Peimbert', 'Perek', 'Vy'}
 CATALOGS_SPEC2 = ['vdb-ha']
 
+CATALOG_NO_UNZERO = ['IRAS']
+
 CATALOGS_SPECIFICATIONS = (
     ('Abell', 3),
     ('B', 3),
@@ -156,7 +158,14 @@ def _unzero(name):
 
 
 def denormalize_dso_name(name):
-    norm = _unzero(name.strip())
+    name = name.strip()
+    upper_name = name.upper()
+    for cat in CATALOG_NO_UNZERO:
+        if upper_name.startswith(cat):
+            norm = name
+            break
+    else:
+        norm = _unzero(name)
     if norm.startswith('Sh2-'):
         return norm
     m = re.search("\\d", norm)
@@ -189,7 +198,7 @@ def dso_name_to_simbad_id(name):
     if name.startswith('K1-') or name.startswith('K2-') or name.startswith('K3-') or \
        name.startswith('M1-') or name.startswith('M2-') or name.startswith('M3-') or name.startswith('M4-') or \
        name.startswith('DeHt') or name.startswith('Hoffleit')  or name.startswith('Hu') or name.startswith('Sa') or name.startswith('Vy') or \
-       name.startswith('IRAS') or name.startswith('Kr'):
+       name.startswith('Kr'):
         return 'PN_' + name
     return name
 
