@@ -102,8 +102,22 @@
 {% endmacro %}
 
 {% macro double_star_list_detail(double_star_list) %}
+            <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+                <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+                  <div class="title">
+                    <i class="dropdown icon"></i>
+                    {{ _('Description') }}
+                  </div>
+                  <div class="content markdown">
+                        {% filter extended_commonmark('') %}
+{{ double_star_list_descr.text }}
+                        {% endfilter %}
+                  </div>
+                </div>
+            </div>
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
         <div class="ui blue segment" style="display: inline-block; width:100%">
+
             {% for item in double_star_list.double_star_list_items %}
                 {% set double_star = item.double_star %}
                 {% set user_descr = user_descrs[item.double_star_id] %}
@@ -167,9 +181,15 @@
         </div>
     </div>
     {{ double_star_toolbar_js() }}
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
 {% endmacro %}
 
 {% macro double_star_list_info(double_star_list) %}
+{% if not double_star_list.has_detail_view %}
     <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
         <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
           <div class="title">
@@ -183,43 +203,46 @@
           </div>
         </div>
     </div>
+{% endif %}
 
     <form action="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id) }}" method="post" name="search">
         <div class="ui menu">
             <div class="ui item">
                 {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-                <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+                <div class="top right aligned floating ui tiny label">{{ _('Season') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.mag_max(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Mag max') }}</div>
+                {{ search_form.mag_max(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Mag max') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.delta_mag_min(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Delta mag min') }}</div>
+                {{ search_form.delta_mag_min(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Delta mag min') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.delta_mag_max(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Delta mag max') }}</div>
+                {{ search_form.delta_mag_max(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Delta mag max') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.separation_min(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Separation min') }}</div>
+                {{ search_form.separation_min(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Separation min') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.separation_max(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Separation max') }}</div>
+                {{ search_form.separation_max(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Separation max') }}</div>
             </div>
             <div class="ui input item">
-                {{ search_form.dec_min(size=4) }}
-                <div class="top right aligned floating ui label">{{ _('Declination min') }}</div>
+                {{ search_form.dec_min(class='ui tiny input', size=3) }}
+                <div class="top right aligned floating ui tiny label">{{ _('Declination min') }}</div>
             </div>
-            <div class="ui right action small input item">
-                {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
-                <button class="ui small icon button">
-                    <i class="search icon"></i>
-                </button>
-                <div class="top right aligned floating ui label">{{ _('WDS or Cat. ID') }}</div>
+            <div class="ui right search item">
+                <div class="ui tiny action input">
+                    {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
+                    <button class="ui small icon button">
+                        <i class="search icon"></i>
+                    </button>
+                    <div class="top right aligned floating ui tiny label">{{ _('WDS or Cat. ID') }}</div>
+                </div>
             </div>
         </div>
         
