@@ -1,21 +1,22 @@
 #!/usr/bin/env python
+
 import os
 import subprocess
+from datetime import datetime
 
 from flask import (
+    current_app,
     request,
     send_from_directory
 )
 
+from config import Config
 from sqlalchemy import func
 
 from flask_migrate import Migrate #, MigrateCommand
-from redis import Redis
-from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.commons.chart_theme_definition import BASE_THEME_TEMPL, DARK_THEME_TEMPL, NIGHT_THEME_TEMPL, LIGHT_THEME_TEMPL
-from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
+
 from app.models import (
     Constellation,
     ChartTheme,
@@ -26,56 +27,9 @@ from app.models import (
     UserDsoApertureDescription,
 )
 
-from config import Config
-
-from app.commons.comet_utils import *
-from app.commons.supernova_loader import *
-from imports.import_catalogues import import_catalogues
-from imports.import_constellations import import_constellations
-from imports.import_hnsky_supplement import import_hnsky_supplement
-from imports.import_planets import import_db_planets
-from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
-from imports.import_vic import import_vic
-from imports.import_wds_double_stars import import_wds_doubles
-from imports.import_skyquality import do_import_skyquality_locations
-from imports.import_dso_lists import (
-    import_billionaries_club,
-    import_caldwell,
-    import_deep_man_600,
-    import_herschel400,
-    import_superthin_gx,
-    import_holmberg,
-    import_abell_pn,
-    import_hickson,
-    import_vic_list,
-    import_rosse,
-    import_glahn_pns,
-    import_glahn_palomar_gc,
-    import_glahn_local_group,
-)
-
-from imports.import_double_star_list import (
-    import_herschel500,
-    import_dmichalko,
-)
-
 from imports.import_utils import progress
-from imports.import_star_lists import import_carbon_stars
-from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
-from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
-from imports.import_constellations_positions import import_constellations_positions
-from imports.import_minor_planets import import_mpcorb_minor_planets
-from imports.import_gottlieb import import_gottlieb
-from imports.import_gottlieb_translate import import_translated_gottlieb
-from imports.import_pgc import import_pgc, create_pgc_update_file_from_simbad, update_pgc_imported_dsos_from_updatefile
-from imports.import_collinder import import_collinder
-from imports.import_wiki_ngc_ic import import_wikipedia_ngc, translate_wikipedia_ngc
-
-from app.main.userdata.gitstore import load_public_content_data_from_git2
-from app.commons.auto_img_utils import get_ug_bl_dsos
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-# manager = Manager(app)
 
 migrate = Migrate()
 with app.app_context():
@@ -92,11 +46,6 @@ def static_from_root():
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
-
-
-# manager.add_command('shell', Shell(make_context=make_shell_context))
-# manager.add_command('db', MigrateCommand)
-
 
 @app.cli.command("test")
 def test():
@@ -152,6 +101,8 @@ def setup_general():
 def run_worker():
     """Initializes a slim rq task queue."""
     listen = ['default']
+    from redis import Redis
+    from rq import Connection, Queue, Worker
     conn = Redis(
         host=app.config['RQ_DEFAULT_HOST'],
         port=app.config['RQ_DEFAULT_PORT'],
@@ -181,6 +132,17 @@ def initialize_catalogues():
     """
     Load catalogues
     """
+    from imports.import_catalogues import import_catalogues
+    from imports.import_constellations import import_constellations
+    from imports.import_bsc5_all_json import import_bright_stars_bsc5_json_all
+    from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
+    from imports.import_vic import import_vic
+    from imports.import_wds_double_stars import import_wds_doubles
+    from imports.import_hnsky_fixes import fix_cstar_from_open_ngc
+    from imports.import_constellations_positions import import_constellations_positions
+    from imports.import_pgc import import_pgc
+    from imports.import_collinder import import_collinder
+
     import_catalogues('data/astro_catalogues.csv')
     import_constellations('data/88-constellations.csv')
     import_bright_stars_bsc5_json_all('data/bsc5-all.json')
@@ -196,6 +158,20 @@ def initialize_catalogues():
 
 @app.cli.command("import_dso_list")
 def import_dso_list():
+    from imports.import_dso_lists import import_billionaries_club
+    from imports.import_dso_lists import import_caldwell
+    from imports.import_dso_lists import import_deep_man_600
+    from imports.import_dso_lists import import_herschel400
+    from imports.import_dso_lists import import_superthin_gx
+    from imports.import_dso_lists import import_holmberg
+    from imports.import_dso_lists import import_abell_pn
+    from imports.import_dso_lists import import_hickson
+    from imports.import_dso_lists import import_vic_list
+    from imports.import_dso_lists import import_rosse
+    from imports.import_dso_lists import import_glahn_pns
+    from imports.import_dso_lists import import_glahn_palomar_gc
+    from imports.import_dso_lists import import_glahn_local_group
+
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
     import_superthin_gx('data/dsolist/SuperthinGX.csv')
@@ -213,6 +189,7 @@ def import_dso_list():
 
 @app.cli.command("import_hnsky_supplements")
 def import_hnsky_supplements():
+    from imports.import_hnsky_supplement import import_hnsky_supplement
     import_hnsky_supplement('data/supplements/M31 global clusters, Revised Bologna Catalogue v5.sup', allowed_cat_prefixes = ['Bol', 'SKHB'])
     import_hnsky_supplement('data/supplements/M33 global clusters,  2007 catalog.sup', allowed_cat_prefixes = ['CBF'])
     import_hnsky_supplement('data/supplements/VDB, catalogue of reflection nebulae.sup')
@@ -220,17 +197,22 @@ def import_hnsky_supplements():
 
 @app.cli.command("import_star_list")
 def import_star_list():
+    from imports.import_star_lists import import_carbon_stars
     import_carbon_stars('data/starlist/CarbonStars.txt')
 
 
 @app.cli.command("import_double_star_list")
 def import_double_star_list():
+    from imports.import_double_star_list import import_herschel500
+    from imports.import_double_star_list import import_dmichalko
     import_herschel500('data/doublestarlist/Herschel500.csv')
     import_dmichalko('data/doublestarlist/DMichalko.csv')
 
 
 @app.cli.command("import_minor_planets")
 def import_minor_planets():
+    from imports.import_minor_planets import import_mpcorb_minor_planets
+    from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
     import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
     update_minor_planets_positions(True)
     update_minor_planets_brightness(True)
@@ -238,6 +220,8 @@ def import_minor_planets():
 
 @app.cli.command("import_comets")
 def import_comets():
+    from app.commons.comet_utils import (load_all_mpc_comets, import_update_comets, update_evaluated_comet_brightness,
+                                         update_comets_cobs_observations, update_comets_positions)
     all_mpc_comets = load_all_mpc_comets(True)
     import_update_comets(all_mpc_comets, show_progress=True)
     update_evaluated_comet_brightness(all_mpc_comets=all_mpc_comets, show_progress=True)
@@ -247,11 +231,13 @@ def import_comets():
 
 @app.cli.command("import_planets")
 def import_planets():
+    from imports.import_planets import import_db_planets
     import_db_planets()
 
 
 @app.cli.command("import_supernovae")
 def import_supernovae():
+    from app.commons.supernova_loader import update_supernovae_from_rochesterastronomy
     update_supernovae_from_rochesterastronomy()
 
 
@@ -260,6 +246,7 @@ def import_new_skyquality_locations():
     """
     Import new skyquality locations
     """
+    from imports.import_skyquality import do_import_skyquality_locations
     do_import_skyquality_locations('data/skyquality.sqlite', False)
 
 
@@ -268,6 +255,7 @@ def import_all_skyquality_locations():
     """
     Import all skyquality locations
     """
+    from imports.import_skyquality import do_import_skyquality_locations
     do_import_skyquality_locations('data/skyquality.sqlite', True)
 
 
@@ -347,6 +335,7 @@ def sync_en_descr_rating():
 
 @app.cli.command("import_git_content")
 def import_git_content():
+    from app.main.userdata.gitstore import load_public_content_data_from_git2
     git_content_repository = os.environ.get('GIT_CONTENT_REPOSITORY')
     if git_content_repository:
         load_public_content_data_from_git2(user_name=current_app.config.get('EDITOR_USER_NAME_CS'), git_content_repository=git_content_repository)
@@ -356,15 +345,18 @@ def import_git_content():
 
 @app.cli.command("import_gottlieb")
 def import_gottlieb():
+    from imports.import_gottlieb import import_gottlieb
     import_gottlieb('data/gottlieb')
 
 @app.cli.command("create_pgc_update_file")
 def create_pgc_update_file():
+    from imports.import_pgc import create_pgc_update_file_from_simbad
     create_pgc_update_file_from_simbad('data/PGC.dat', 'data/PGC_update.dat')
 
 
 @app.cli.command("update_pgc_imported_dsos")
 def update_pgc_imported_dsos():
+    from imports.import_pgc import update_pgc_imported_dsos_from_updatefile
     update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
 
 
@@ -386,6 +378,7 @@ def _create_update_theme(user, name, definition):
 
 @app.cli.command("create_update_basic_chart_themes")
 def create_update_basic_chart_themes():
+    from app.commons.chart_theme_definition import BASE_THEME_TEMPL, DARK_THEME_TEMPL, NIGHT_THEME_TEMPL, LIGHT_THEME_TEMPL
     user = User.query.filter_by(user_name='admin').first()
     _create_update_theme(user, 'base_theme', BASE_THEME_TEMPL)
     _create_update_theme(user, 'dark_theme', DARK_THEME_TEMPL)
@@ -396,6 +389,7 @@ def create_update_basic_chart_themes():
 
 @app.cli.command("tmp_import_translated_gottlieb")
 def tmp_import_translated_gottlieb():
+    from imports.import_gottlieb_translate import import_translated_gottlieb
     gpt_prompt = '''Přelož následující text astronomického pozorování do češtiny. Anglické zkratky světových stran (N,W,S,E) a přelož do českých zkratek (S,Z,J,V). 
 Zkratky světových stran nikdy nepřekládej do jejich slovních ekvivalentů. Kombinace zkratek světových stran překládej vždy na kombinace zkratek v češtině, například 
 WNW přelož na ZSZ, ESE na VJV, SE na JV, WSW na ZJZ, ENE na VSV, NW na SZ, SSW na JJZ, NNE na SSV, NE na SV. Kombinace směrů typu NNW-SSE překládej jako kompinaci 
@@ -406,34 +400,37 @@ Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0
 '''
     import_translated_gottlieb('data/gottlieb', 'cs', 'Autor textu: ', gpt_prompt)
 
+
 @app.cli.command("tmp_add_user_wikipedia")
 def tmp_add_user_wikipedia():
     if current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'):
         add_help_user(current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'), current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA'))
 
+
 @app.cli.command("tmp_import_wikipedia_ngc")
 def tmp_import_wikipedia_ngc():
+    from imports.import_wiki_ngc_ic import import_wikipedia_ngc
     import_wikipedia_ngc()
+
 
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
+    from imports.import_wiki_ngc_ic import translate_wikipedia_ngc
     gpt_prompt = '''Přelož následující text popisu astronomického objektu češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
 
 '''
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
 
-# if __name__ == '__main__':
-@app.cli.command("tmp_import_catalogues")
-def tmp_import_catalogues():
-    import_catalogues('data/astro_catalogues.csv')
-
 @app.cli.command("tmp_dmichalko")
 def tmp_dmichalko():
+    from imports.import_double_star_list import import_dmichalko
     import_dmichalko('data/doublestarlist/DMichalko.csv')
+
 
 @app.cli.command("tmp_add_ug_bl_user_dso_desc")
 def tmp_add_ug_bl_user_dso_desc():
+    from app.commons.auto_img_utils import get_ug_bl_dsos
     editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
 
     str_all_editors = current_app.config.get('ALL_EDITORS_USER_NAMES_CS')
@@ -479,3 +476,7 @@ def tmp_add_ug_bl_user_dso_desc():
                         db.session.add(udd)
                         db.session.flush()
                         db.session.commit()
+@app.cli.command("tmp_update_minor_planets_brightness")
+def tmp_update_minor_planets_brightness():
+    from app.commons.minor_planet_utils import update_minor_planets_brightness
+    update_minor_planets_brightness(True)
