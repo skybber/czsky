@@ -155,7 +155,7 @@ def double_star_info(double_star_id):
 
     embed = request.args.get('embed')
     if embed:
-        session['double_star_embed_seltab'] = 'catalogue_data'
+        session['double_star_embed_seltab'] = 'info'
 
     prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
 

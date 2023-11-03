@@ -77,6 +77,9 @@ class PrevNextWrapper:
         if type(self._sky_obj) == DeepskyObject:
             return url_for('main_deepskyobject.deepskyobject_chart', dso_id=self._sky_obj.name, back=back, back_id=back_id, season=season, splitview='true')
 
+        if type(self._sky_obj) == DoubleStar:
+            return url_for('main_double_star.double_star_chart', double_star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, splitview='true')
+
         return ''
 
     def label(self):
