@@ -60,11 +60,11 @@ def get_mag_coma_from_observations(observs):
     return mag, coma_diameter
 
 
-def get_all_comets():
+def get_all_comets(update_cobs_props=True, force_reload=False):
     global all_comets
     global all_comets_expiration
     now = datetime.now()
-    if all_comets is None or now > all_comets_expiration:
+    if all_comets is None or now > all_comets_expiration or force_reload:
         all_comets_expiration = now + timedelta(days=1)
         with load.open(mpc.COMET_URL, reload=True) as f:
             # fix problem in coma in CometEls.txt
@@ -82,32 +82,31 @@ def get_all_comets():
             all_comets['comet_id'] = all_comets['comet_id'].str.replace('/', '')
             all_comets['comet_id'] = all_comets['comet_id'].str.replace(' ', '')
 
-            import_update_comets(all_comets, False)
+        if update_cobs_props:
+            after = datetime.today() - timedelta(days=31)
+            for comet in Comet.query.filter_by().all():
+                mag, coma_diameter = comet.eval_mag, None
+                real_mag = False
+                observs = CometObservation.query.filter_by(comet_id=comet.id) \
+                                                .filter(CometObservation.date >= after) \
+                                                .order_by(CometObservation.date.desc()) \
+                                                .all()[:5]
 
-        after = datetime.today() - timedelta(days=31)
-        for comet in Comet.query.filter_by().all():
-            mag, coma_diameter = comet.eval_mag, None
-            real_mag = False
-            observs = CometObservation.query.filter_by(comet_id=comet.id) \
-                                            .filter(CometObservation.date >= after) \
-                                            .order_by(CometObservation.date.desc()) \
-                                            .all()[:5]
-
-            comet_id = comet.comet_id
-            if len(observs) > 0:
-                mag, coma_diameter = get_mag_coma_from_observations(observs)
-                current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, mag, coma_diameter))
-                real_mag = True
-            try:
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float('{:.1f}'.format(mag)) if mag else None
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = '{:.1f}\''.format(coma_diameter) if coma_diameter else '-'
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_ra'] = comet.cur_ra_str_short()
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_dec'] = comet.cur_dec_str_short()
-                constell = Constellation.get_constellation_by_id(comet.cur_constell_id)
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_constell'] = constell.iau_code if constell is not None else ''
-                all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
-            except Exception:
-                pass
+                comet_id = comet.comet_id
+                if len(observs) > 0:
+                    mag, coma_diameter = get_mag_coma_from_observations(observs)
+                    current_app.logger.info('Setup comet mag from COBS comet={} mag={} coma_diameter={}'.format(comet_id, mag, coma_diameter))
+                    real_mag = True
+                try:
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'mag'] = float('{:.1f}'.format(mag)) if mag else None
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'coma_diameter'] = '{:.1f}\''.format(coma_diameter) if coma_diameter else '-'
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_ra'] = comet.cur_ra_str_short()
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_dec'] = comet.cur_dec_str_short()
+                    constell = Constellation.get_constellation_by_id(comet.cur_constell_id)
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'cur_constell'] = constell.iau_code if constell is not None else ''
+                    all_comets.loc[all_comets['comet_id'] == comet_id, 'real_mag'] = real_mag
+                except Exception:
+                    pass
 
     return all_comets
 

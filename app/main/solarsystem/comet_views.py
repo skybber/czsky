@@ -51,8 +51,16 @@ from app.commons.chart_generator import (
 )
 
 from app.main.chart.chart_forms import ChartForm
-from app.commons.comet_utils import update_comets_cobs_observations, update_evaluated_comet_brightness, \
-    update_comets_positions, get_mag_coma_from_observations, find_mpc_comet
+from app.commons.comet_utils import (
+    update_comets_cobs_observations,
+    update_evaluated_comet_brightness,
+    update_comets_positions,
+    get_mag_coma_from_observations,
+    find_mpc_comet,
+    get_all_comets,
+    import_update_comets
+)
+
 from app.commons.utils import to_float
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
@@ -83,6 +91,10 @@ def _update_comets():
     with app.app_context():
         if ask_dbupdate_permit(DB_UPDATE_COMETS, timedelta(hours=1)):
             reload_comets = (comet_update_counter % 4) == 1
+
+            if reload_comets:
+                import_update_comets(get_all_comets(update_cobs_props=False, force_reload=True), False)
+
             update_comets_positions(reload_comets=reload_comets)
             if (comet_update_counter % 4) == 1:
                 update_comets_cobs_observations()
