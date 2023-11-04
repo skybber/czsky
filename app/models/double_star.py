@@ -33,6 +33,11 @@ class DoubleStar(db.Model):
             return self.common_cat_id
         return self.wds_number
 
+    def get_catalog_name(self):
+        if self.common_cat_id:
+            return self.common_cat_id
+        return self.wds_number
+
     def get_common_norm_name(self):
         if self.norm_other_designation:
             for name in self.norm_other_designation.split(';'):

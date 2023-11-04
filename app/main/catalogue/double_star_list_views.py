@@ -252,7 +252,7 @@ def double_star_list_chart_pos_img(double_star_list_id, ra, dec):
 
     double_star_list = DoubleStarList.query.filter_by(id=double_star_list.id).first()
     highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),
-                            x.double_star.get_common_name()) for x in double_star_list.double_star_list_items if double_star_list]
+                            x.double_star.get_catalog_name()) for x in double_star_list.double_star_list_items if double_star_list]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
