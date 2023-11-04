@@ -13,10 +13,16 @@
 
 {% set endpoint_log = [ ('main_comet.comet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 
-{% set endpoints = [
-    ('main_comet.comet_info', 'Info', 'info'),
-    ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
-] %}
+{% if not embed %}
+    {% set endpoints = [
+        ('main_comet.comet_info', _('Chart'), 'info'),
+        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
+    ] %}
+{% endif %}
 
 {% set endpoints = endpoint_log + endpoints %}
 

@@ -8,7 +8,7 @@
 {% set endpoint_log = [ ('main_planet.planet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 
 {% set endpoints = [
-    ('main_planet.planet_info', 'Info', 'info')
+    ('main_planet.planet_info', _('Chart'), 'info')
 ] %}
 
 {% set endpoints = endpoint_log + endpoints %}
