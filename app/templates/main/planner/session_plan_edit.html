@@ -7,42 +7,48 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            {% if is_new %}
-                {% if is_anonymous %}
-                    <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
-                        <i class="caret left icon"></i>
-                        {{ _('Dashboard') }}
-                    </a>
-                {% else %}
-                    <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
-                        <i class="caret left icon"></i>
-                        {{ _('Planner') }}
-                    </a>
-                {% endif %}
-                <h2 class="ui header">
-                    {{ _('Add New Session Plan') }}
-                </h2>
-            {% else %}
-                {% if not is_mine_session_plan %}
-                    <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
-                        <i class="caret left icon"></i>
-                        {{ _('Dashboard') }}
-                    </a>
-                {% else %}
-                    <a class="ui basic compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id) }}">
-                        <i class="caret left icon"></i>
-                      {{ _('Leave editing') }}
-                    </a>
-                {% endif %}
-
-                <h2 class="ui header">
+            <div style="margin-bottom:2rem">
+                <div class="ui huge breadcrumb">
                     {% if is_new %}
-                        {{ _('Add New Session Plan') }}
+                        {% if is_anonymous %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                                <i class="caret left icon"></i>
+                                <i class="home icon"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic compact button" href="{{ url_for('main_planner.planner_menu') }}">
+                                <i class="caret left icon"></i>
+                                {{ _('Planner') }}
+                            </a>
+                        {% endif %}
+                        <div class="divider">  </div>
+                        <div class="active section">
+                            {{ _('Add New Session Plan') }}
+                        </div>
                     {% else %}
-                        {{ _('Edit Session Plan') }}
+                        {% if not is_mine_session_plan %}
+                            <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                                <i class="caret left icon"></i>
+                                <i class="home icon"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id) }}">
+                                <i class="caret left icon"></i>
+                                {{ _('Leave editing') }}
+                            </a>
+                        {% endif %}
+
+                        <div class="divider">  </div>
+                        <div class="active section">
+                            {% if is_new %}
+                                {{ _('Add New Session Plan') }}
+                            {% else %}
+                                {{ _('Edit Session Plan') }}
+                            {% endif %}
+                        </div>
                     {% endif %}
-                </h2>
-            {% endif %}
+                </div>
+            </div>
 
             {% set flashes = {
                 'error':   get_flashed_messages(category_filter=['form-error']),

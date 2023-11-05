@@ -5,17 +5,22 @@
 {% block content %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
-                <i class="caret left icon"></i>
-               {{ _('Observations') }}
-            </a>
-            <a class="ui right floated icon positive mini button" href="{{ url_for('main_standalone_observation.new_standalone_observation') }}">
-                <i class="plus icon"></i>
-                {{ _('New observation') }}
-            </a>
-            <h2 class="ui header">
-                {{ _('Standalone Observations') }}
-            </h2>
+            <div style="margin-bottom:2rem">
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
+                        <i class="caret left icon"></i>
+                       {{ _('Observations') }}
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('Standalone Observations') }}
+                    </div>
+                </div>
+                <a class="ui right floated icon positive mini button" href="{{ url_for('main_standalone_observation.new_standalone_observation') }}">
+                    <i class="plus icon"></i>
+                    {{ _('New observation') }}
+                </a>
+            </div>
 
             <form action="{{ url_for('main_standalone_observation.standalone_observations') }}" method="post" name="search">
 

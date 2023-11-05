@@ -7,25 +7,29 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
-            {% if is_new %}
-                <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
-                    <i class="caret left icon"></i>
-                   {{ _('Observations') }}
-                </a>
-            {% else %}
-                <a class="ui basic compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=observation.id) }}">
-                    <i class="caret left icon"></i>
-                    {{ _('Leave editing') }}
-                </a>
-            {% endif %}
-
-            <h2 class="ui header">
-                {% if is_new %}
-                    {{ _('Add New Observation') }}
-                {% else %}
-                    {{ _('Edit Observation') }}
-                {% endif %}
-            </h2>
+            <div style="margin-bottom:2rem">
+                <div class="ui huge breadcrumb">
+                    {% if is_new %}
+                        <a class="ui basic compact button" href="{{ url_for('main_observation.observation_menu') }}">
+                            <i class="caret left icon"></i>
+                           {{ _('Observations') }}
+                        </a>
+                    {% else %}
+                        <a class="ui basic compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=observation.id) }}">
+                            <i class="caret left icon"></i>
+                            {{ _('Leave editing') }}
+                        </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {% if is_new %}
+                            {{ _('Add New Observation') }}
+                        {% else %}
+                            {{ _('Edit Observation') }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
             {% set flashes = {
                 'error':   get_flashed_messages(category_filter=['form-error']),
