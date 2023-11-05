@@ -2,7 +2,7 @@
 // Semantic UI breakpoints
 $mobile-breakpoint:        768px;
 $tablet-breakpoint:        992px;
-$small-monitor-breakpoint: 1200px;
+$small-monitor-breakpoint: 1100px;
 
 // General nav
 nav {
@@ -53,6 +53,7 @@ table.selectable tr:hover {
   [class*="mobile hidden"],
   [class*="tablet only"]:not(.mobile),
   [class*="computer only"]:not(.mobile),
+  [class*="small monitor only"]:not(.mobile),
   [class*="large monitor only"]:not(.mobile),
   [class*="widescreen monitor only"]:not(.mobile),
   [class*="or lower hidden"] {
@@ -65,6 +66,7 @@ table.selectable tr:hover {
   [class*="mobile only"]:not(.tablet),
   [class*="tablet hidden"],
   [class*="computer only"]:not(.tablet),
+  [class*="small monitor only"]:not(.tablet),
   [class*="large monitor only"]:not(.tablet),
   [class*="widescreen monitor only"]:not(.tablet),
   [class*="or lower hidden"]:not(.mobile) {
@@ -74,12 +76,25 @@ table.selectable tr:hover {
 
 
 /* Computer / Desktop / iPad Landscape */
-@media only screen and (min-width: 992px) {
-  [class*="mobile only"]:not(.computer),
-  [class*="tablet only"]:not(.computer),
+@media only screen and (min-width: 992px) and (max-width: 1200px) {
+  [class*="mobile only"]:not(.computer):not(.small.monitor),
+  [class*="tablet only"]:not(.computer):not(.small.monitor),
   [class*="computer hidden"],
-  [class*="large monitor only"]:not(.computer),
-  [class*="widescreen monitor only"]:not(.computer),
+  [class*="small monitor hidden"],
+  [class*="large monitor only"]:not(.computer):not(.small.monitor),
+  [class*="widescreen monitor only"]:not(.computer):not(.small.monitor),
+  [class*="or lower hidden"]:not(.tablet):not(.mobile) {
+    display: none !important;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  [class*="mobile only"]:not(.computer):not(.large.monitor),
+  [class*="tablet only"]:not(.computer):not(.large.monitor),
+  [class*="computer hidden"],
+  [class*="small monitor only"]:not(.computer):not(.large.monitor),
+  [class*="large monitor hidden"],
+  [class*="widescreen hidden"],
   [class*="or lower hidden"]:not(.tablet):not(.mobile) {
     display: none !important;
   }
