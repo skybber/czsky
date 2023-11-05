@@ -390,15 +390,12 @@ def create_update_basic_chart_themes():
 @app.cli.command("tmp_import_translated_gottlieb")
 def tmp_import_translated_gottlieb():
     from imports.import_gottlieb_translate import import_translated_gottlieb
-    gpt_prompt = '''Přelož následující text astronomického pozorování do češtiny. Anglické zkratky světových stran (N,W,S,E) a přelož do českých zkratek (S,Z,J,V). 
-Zkratky světových stran nikdy nepřekládej do jejich slovních ekvivalentů. Kombinace zkratek světových stran překládej vždy na kombinace zkratek v češtině, například 
-WNW přelož na ZSZ, ESE na VJV, SE na JV, WSW na ZJZ, ENE na VSV, NW na SZ, SSW na JJZ, NNE na SSV, NE na SV. Kombinace směrů typu NNW-SSE překládej jako kompinaci 
-typu SSZ-JJV, SW-NE jako JZ-SV, WSW-ENE jako ZJZ-VSV. Nepřekládej IAU kód souhvězdí. Používej rod ženský jako výchozí rod - tedy místo "malý" piš "malá". 
-Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__. 
-"Averted vision" překládej na "boční pohled". "tidal tail" na "slapový chvost", "edge on" na "viděna z boku", "bar" na "přička","seeing" na "seeing", "halo" na "halo":
+    import_translated_gottlieb('data/gottlieb', 'cs', 'Autor textu: ')
 
-'''
-    import_translated_gottlieb('data/gottlieb', 'cs', 'Autor textu: ', gpt_prompt)
+@app.cli.command("tmp_import_translated_stars")
+def tmp_import_translated_stars():
+    from imports.import_stars_translate import import_stars_translate
+    import_stars_translate()
 
 
 @app.cli.command("tmp_add_user_wikipedia")

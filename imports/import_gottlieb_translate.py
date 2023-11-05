@@ -192,7 +192,16 @@ def _found_dso(dso_name, dso_descr, dso_apert_descr, user_editor_en, user_editor
 
                 tholder.add_descr(dso_name, uad, apert_descr)
 
-def import_translated_gottlieb(gottlieb_dir, lang_code, ref_prefix, gpt_prompt):
+def import_translated_gottlieb(gottlieb_dir, lang_code, ref_prefix):
+
+    gpt_prompt = '''Přelož následující text astronomického pozorování do češtiny. Anglické zkratky světových stran (N,W,S,E) a přelož do českých zkratek (S,Z,J,V). 
+Zkratky světových stran nikdy nepřekládej do jejich slovních ekvivalentů. Kombinace zkratek světových stran překládej vždy na kombinace zkratek v češtině, například 
+WNW přelož na ZSZ, ESE na VJV, SE na JV, WSW na ZJZ, ENE na VSV, NW na SZ, SSW na JJZ, NNE na SSV, NE na SV. Kombinace směrů typu NNW-SSE překládej jako kompinaci 
+typu SSZ-JJV, SW-NE jako JZ-SV, WSW-ENE jako ZJZ-VSV. Nepřekládej IAU kód souhvězdí. Používej rod ženský jako výchozí rod - tedy místo "malý" piš "malá". 
+Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__. 
+"Averted vision" překládej na "boční pohled". "tidal tail" na "slapový chvost", "edge on" na "viděna z boku", "bar" na "přička","seeing" na "seeing", "halo" na "halo":
+
+'''
 
     openai.api_key = getenv("OPENAI_API_KEY")
 
