@@ -162,7 +162,7 @@
                     {% endif %}
                 </div>
 
-                <a href="{{ url_for('main_double_star.double_star_chart', double_star_id=double_star.id, back='dbl_star_list', back_id=double_star_list.id) }}">
+                <a class="sw-link" href="{{ url_for('main_double_star.double_star_seltab', double_star_id=double_star.id, back='dbl_star_list', back_id=double_star_list.id) }}">
                     <h3 style="margin-bottom:0.8em;">
                         {{ double_star.get_common_name() }}
                     </h3>
@@ -182,6 +182,7 @@
     </div>
     {{ double_star_toolbar_js() }}
     <script type="text/javascript">
+        $('a.sw-link').appendScreenWidth('href');
         $('.ui.accordion')
           .accordion()
         ;
@@ -189,21 +190,21 @@
 {% endmacro %}
 
 {% macro double_star_list_info(double_star_list) %}
-{% if not double_star_list.has_detail_view %}
-    <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
-        <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
-          <div class="title">
-            <i class="dropdown icon"></i>
-            {{ _('Description') }}
-          </div>
-          <div class="content markdown">
-                {% filter extended_commonmark('') %}
+    {% if not double_star_list.has_detail_view %}
+        <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+            <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+              <div class="title">
+                <i class="dropdown icon"></i>
+                {{ _('Description') }}
+              </div>
+              <div class="content markdown">
+                    {% filter extended_commonmark('') %}
 {{ double_star_list_descr.text }}
-                {% endfilter %}
-          </div>
+                    {% endfilter %}
+              </div>
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
     <form action="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id) }}" method="post" name="search">
         <div class="ui menu">
@@ -311,7 +312,7 @@
                 </thead>
                 <tbody>
                 {% for d in double_star_list_items %}
-                    <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_seltab', double_star_id=d.double_star_id, back='dbl_star_list', back_id=double_star_list.id) }}';">
+                    <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_double_star.double_star_seltab', double_star_id=d.double_star_id, back='dbl_star_list', back_id=double_star_list.id) }}';">
                         <td class="mobile hidden">{{ d.double_star.wds_number }}</td>
                         <td>{{ d.double_star.common_cat_id }}</td>
                         <td>{{ d.double_star.components }}</td>
@@ -330,6 +331,7 @@
         </div>
     </form>
     <script type="text/javascript">
+        $('tr.sw-onclick').appendScreenWidth('onclick');
         $('.ui.accordion')
           .accordion()
         ;

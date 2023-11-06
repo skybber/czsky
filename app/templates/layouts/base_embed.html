@@ -8,6 +8,21 @@
         {% block custom_head_tags %}{% endblock %}
     </head>
     <body style="margin-top: 8px;">
+        <script type=text/javascript>
+            $.fn.appendScreenWidth = function (paramName) {
+              this.each(function () {
+                let val = $(this).attr(paramName);
+                if (val.endsWith("';") || val.endsWith("'")) {
+                    let lastIndex = val.lastIndexOf("'");
+                    val = val.substring(0, lastIndex) + '&screenWidth=' + $(window).width() + "';";
+                } else {
+                    val = val + '&screenWidth=' + $(window).width();
+                }
+                $(this).attr(paramName, val);
+              });
+              return this;
+            };
+        </script>
         {% include 'partials/_flashes.html' %}
         {# When extended, the content block contains all the html of the webpage #}
         {% block content %}

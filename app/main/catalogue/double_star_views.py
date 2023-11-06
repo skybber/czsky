@@ -44,7 +44,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported
 from app.commons.search_utils import (
     process_paginated_session_search,
     get_items_per_page,
@@ -377,6 +377,9 @@ def double_star_seltab(double_star_id):
     if show_observation_log():
         return _do_redirect('main_double_star.double_star_observation_log', double_star)
 
+    if is_splitview_supported():
+        return _do_redirect('main_double_star.double_star_chart', double_star, splitview=True)
+
     return _do_redirect('main_double_star.double_star_info', double_star)
 
 
@@ -596,12 +599,12 @@ def double_star_edit(double_star_id):
     return render_template('main/catalogue/double_star_edit.html', form=form, double_star=double_star, user_descr=user_descr, is_new=is_new)
 
 
-def _do_redirect(url, double_star):
+def _do_redirect(url, double_star, splitview=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
     fullscreen = request.args.get('fullscreen')
-    splitview = request.args.get('splitview')
+    splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
 

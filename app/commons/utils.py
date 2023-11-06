@@ -74,3 +74,13 @@ def get_lang_and_all_editor_users_from_request(for_constell_descr=False):
 def get_site_lang_code():
     host = request.headers.get('Host')
     return 'en' if host and 'czsky.eu' in host else 'cs'
+
+def is_splitview_supported():
+    screenWidth = request.args.get("screenWidth")
+    if screenWidth:
+        try:
+            screenWidth = int(screenWidth)
+            return screenWidth > 768
+        except ValueError:
+            pass
+    return False
