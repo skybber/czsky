@@ -44,7 +44,7 @@ def common_highlights_from_wishlist_items(wish_list_items):
             if item.dso_id is not None:
                 highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
-                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_common_name()])
+                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
     return highlights_dso_list, highlights_pos_list
 
 
@@ -57,7 +57,7 @@ def common_highlights_from_observed_list_items(observed_list_items):
             if item.dso_id is not None:
                 highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
-                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_common_name()])
+                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
     return highlights_dso_list, highlights_pos_list
 
 
@@ -70,7 +70,7 @@ def common_highlights_from_observing_session(observing_session):
             if observation.target_type == ObservationTargetType.DSO:
                 highlights_dso_list.extend(observation.deepsky_objects)
             elif observation.target_type == ObservationTargetType.DBL_STAR:
-                highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id), observation.double_star.get_common_name()])
+                highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id), observation.double_star.get_catalog_name()])
             elif observation.target_type == ObservationTargetType.COMET:
                 highlights_pos_list.append([observation.ra, observation.dec, CHART_COMET_PREFIX + str(observation.comet_id), observation.comet.designation])
             elif observation.target_type == ObservationTargetType.M_PLANET:
@@ -90,7 +90,7 @@ def common_highlights_from_session_plan(session_plan):
             if item.item_type == SessionPlanItemType.DSO:
                 highlights_dso_list.append(item.deepsky_object)
             elif item.item_type == SessionPlanItemType.DBL_STAR:
-                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_common_name()])
+                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
             elif item.item_type == SessionPlanItemType.COMET:
                 highlights_pos_list.append([item.ra, item.dec, CHART_COMET_PREFIX + str(item.comet_id), item.comet.designation])
             elif item.item_type == SessionPlanItemType.MINOR_PLANET:
@@ -115,7 +115,7 @@ def create_hightlights_lists():
         double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
         if double_star_list:
             highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),
-                                    x.double_star.get_common_name()) for x in double_star_list.double_star_list_items if double_star_list]
+                                    x.double_star.get_catalog_name()) for x in double_star_list.double_star_list_items if double_star_list]
     elif back == 'star_list' and back_id is not None:
         star_list = StarList.query.filter_by(id=back_id).first()
         if star_list:
