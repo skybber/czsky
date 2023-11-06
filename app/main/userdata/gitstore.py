@@ -134,7 +134,7 @@ def save_public_content_data_to_git(user_name, commit_message):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, "w") as f:
             f.write('---\n')
-            f.write('name: ' + udd.common_name + '\n')
+            f.write('name: ' + (udd.common_name if udd.common_name is not None else '' ) + '\n')
             f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
             f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
             f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
