@@ -36,19 +36,34 @@
       <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
 
       {% if chart_control.has_date_from_to %}
-          <div class="ui right horizontally fitted item" style="z-index:100;">
-              <div class="ui calendar mobile hidden" id="date_from" data-inverted=""  data-tooltip="{{ _('Date From')}}" data-position="left center" data-variation="tiny basic">
-                  <div class="ui small input left icon">
-                      <i class="calendar icon"></i>
-                      <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text" style="width:140px"
-                              value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
-                  </div>
+          <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
+              <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="left center" data-variation="tiny basic">
+                  <i class="calendar icon"></i>
               </div>
-              <div class="ui calendar mobile hidden" id="date_to" data-inverted=""  data-tooltip="{{ _('Date To')}}" data-position="left center" data-variation="tiny basic">
-                  <div class="ui small input left icon">
-                      <i class="calendar icon"></i>
-                      <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text" style="width:140px"
-                              value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
+              <div class="ui red popup right bottom transition hidden" >
+                  <div class="item">
+                      <div class="ui calendar" id="date_from">
+                          <div class="ui small input left icon">
+                              <i class="calendar icon"></i>
+                              <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
+                                      value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
+                          </div>
+                      </div>
+                      <div class="ui left pointing label">
+                         {{ _('Date From') }}
+                      </div>
+                  </div>
+                  <div class="item">
+                      <div class="ui calendar" id="date_to">
+                          <div class="ui small input left icon">
+                              <i class="calendar icon"></i>
+                              <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
+                                      value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
+                          </div>
+                      </div>
+                      <div class="ui left pointing label">
+                         {{ _('Date To') }}
+                      </div>
                   </div>
               </div>
           </div>
@@ -683,8 +698,8 @@
     $('.search').keypress(function(event) {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
-            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart" + getFullscreenSplitViewUrlPart("&") +
-                    "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}'));
+            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart"
+            + getFullscreenSplitViewUrlPart("&") + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}'));
         }
         event.stopPropagation();
     });
@@ -765,6 +780,11 @@
 {% endif %}
     }
 
+$('.date-int-popup')
+  .popup({
+    on: 'click'
+  })
+;
 </script>
 
 {% endmacro %}

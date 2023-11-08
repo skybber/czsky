@@ -12,11 +12,12 @@
             $.fn.appendScreenWidth = function (paramName) {
               this.each(function () {
                 let val = $(this).attr(paramName);
+                let sep = val.includes('?') ? "&" : "?";
                 if (val.endsWith("';") || val.endsWith("'")) {
                     let lastIndex = val.lastIndexOf("'");
-                    val = val.substring(0, lastIndex) + '&screenWidth=' + $(window).width() + "';";
+                    val = val.substring(0, lastIndex) + sep + "screenWidth=" + $(window).width() + "';";
                 } else {
-                    val = val + '&screenWidth=' + $(window).width();
+                    val = val + sep + "screenWidth=" + $(window).width();
                 }
                 $(this).attr(paramName, val);
               });

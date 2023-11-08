@@ -61,7 +61,7 @@ from app.commons.comet_utils import (
     import_update_comets
 )
 
-from app.commons.utils import to_float
+from app.commons.utils import to_float, is_splitview_supported
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
@@ -208,6 +208,28 @@ def comets_chart_pdf(ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
+@main_comet.route('/comet/<string:comet_id>/seltab')
+def comet_seltab(comet_id):
+    """View a comet seltab."""
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if not comet:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+    embed = request.args.get('embed')
+
+    if not seltab and embed:
+        seltab = session.get('comet_embed_seltab', None)
+
+    if seltab == 'cobs' or not seltab and embed == 'comets':
+        return _do_redirect('main_comet.comet_cobs_observations', comet)
+
+    if is_splitview_supported():
+        return _do_redirect('main_comet.comet_info', comet, splitview=True)
+
+    return _do_redirect('main_comet.comet_info', comet)
+
+
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
 @main_comet.route('/comet/<string:comet_id>/info', methods=['GET', 'POST'])
 @csrf.exempt
@@ -329,25 +351,6 @@ def comet_cobs_observations(comet_id):
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
                            page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed,
                            show_obs_log=show_obs_log)
-
-
-@main_comet.route('/comet/<string:comet_id>/seltab')
-def comet_seltab(comet_id):
-    """View a comet seltab."""
-    comet = Comet.query.filter_by(comet_id=comet_id).first()
-    if not comet:
-        abort(404)
-
-    seltab = request.args.get('seltab', None)
-    embed = request.args.get('embed')
-
-    if not seltab and embed:
-        seltab = session.get('comet_embed_seltab', None)
-
-    if seltab == 'cobs' or not seltab and embed == 'comets':
-        return _do_redirect('main_comet.comet_cobs_observations', comet)
-
-    return _do_redirect('main_comet.comet_info', comet)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -510,11 +513,11 @@ def _check_in_mag_interval(mag, mag_interval):
         return mag_interval[1]
     return mag
 
-def _do_redirect(url, comet):
+def _do_redirect(url, comet, splitview=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
     fullscreen = request.args.get('fullscreen')
-    splitview = request.args.get('splitview')
+    splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, comet_id=comet.comet_id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
