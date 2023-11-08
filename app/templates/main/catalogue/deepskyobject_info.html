@@ -546,12 +546,17 @@
                                 <i class="list icon"></i>
                             </a>
                         {% endif %}
-                        <div class="divider"> / </div>
+                        <div class="divider"></div>
                     {% else %}
                         {% if back == 'dso_list' %}
                             <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}'">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon"></i>
+                            </a>
+                        {% else %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', back=1)}}'">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
                             </a>
                         {% endif %}
                     {% endif %}

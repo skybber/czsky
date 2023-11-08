@@ -131,9 +131,9 @@
                         </thead>
                         <tbody>
                         {% for d in deepskyobjects %}
-                            {% set dso_url = url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name)  %}
-                            <tr onclick="window.location.href = '{{ dso_url }}';">
-                                <td><a href="{{ dso_url }}">{{ d.denormalized_name() }}</a></td>
+                            {% set dso_url = url_for('main_deepskyobject.deepskyobject_seltab', dso_id=d.name)  %}
+                            <tr class="sw-onclick" onclick="window.location.href = '{{ dso_url }}';">
+                                <td><a class="sw-link" href="{{ dso_url }}">{{ d.denormalized_name() }}</a></td>
                                 <td>{{ d.type }}</td>
                                 <td class="mobile hidden">{{ d.ra_str_short() }}</td>
                                 <td class="mobile hidden">{{ d.dec_str_short() }}</td>
@@ -190,6 +190,8 @@
                       $(this).closest('form').submit();
                   }
             });
+            $('tr.sw-onclick').appendScreenWidth('onclick');
+            $('a.sw-link').appendScreenWidth('href');
         });
     </script>
 {% endblock %}
