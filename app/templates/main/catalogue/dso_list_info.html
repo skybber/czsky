@@ -147,7 +147,7 @@
 
             {% for item in dso_list_items %}
                 {% set dso_url = url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, back='dso_list', back_id=dso_list.id) %}
-                <tr onclick="window.location.href='{{ dso_url }}';">
+                <tr class="sw-onclick" onclick="window.location.href='{{ dso_url }}';">
                     <td class="collapsing">
                         <p id="dso{{ item.dso_id }}">{{ item.item_id }}</p>
                     </td>
@@ -161,7 +161,7 @@
                         {% endif %}
                     </td>
                     {% endif %}
-                    <td><a href="{{ dso_url }}">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepsky_object.denormalized_name() }}</a></td>
+                    <td><a class="sw-link" href="{{ dso_url }}">{{ user_descrs[item.dso_id] if dso_list.show_descr_name else item.deepsky_object.denormalized_name() }}</a></td>
                     {% if dso_list.show_common_name %}
                     <td class="mobile hidden">
                         {{ item.deepsky_object.common_name if item.deepsky_object.common_name else '' }}
@@ -215,6 +215,8 @@
                       $(this).closest('form').submit();
                   }
             });
+            $('tr.sw-onclick').appendScreenWidth('onclick');
+            $('a.sw-link').appendScreenWidth('href');
         });
     </script>
 {% endmacro %}

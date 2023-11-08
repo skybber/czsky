@@ -110,8 +110,10 @@
         </div>
     </form>
     <script type="text/javascript">
-        $('tr.sw-onclick').appendScreenWidth('onclick');
-        $('a.sw-link').appendScreenWidth('href');
+        $(function(){
+            $('tr.sw-onclick').appendScreenWidth('onclick');
+            $('a.sw-link').appendScreenWidth('href');
+        });
     </script>
 {% endmacro %}
 
