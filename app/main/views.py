@@ -119,7 +119,8 @@ def do_global_search(query, level):
                                 splitview=request.args.get('splitview'),
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
-                                embed=request.args.get('embed')))
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')))
 
     # 3. Search Double Star
     double_star = search_double_star(query)
@@ -131,7 +132,8 @@ def do_global_search(query, level):
                                 splitview=request.args.get('splitview'),
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
-                                embed=request.args.get('embed')))
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')))
 
     # 4. Search Star
     star, usd = search_star(query)
@@ -161,7 +163,8 @@ def do_global_search(query, level):
                                 seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
-                                embed=request.args.get('embed')))
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')))
 
     # 7. Search minor planet
     minor_planet = search_minor_planet(query)

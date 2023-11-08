@@ -42,9 +42,8 @@ from app.models import (
 )
 from app.commons.pagination import Pagination
 from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
-    get_order_by_field
-from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
+from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, get_order_by_field
+from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request, is_splitview_supported
 from app.commons.observation_form_utils import assign_equipment_choices
 
 from .deepskyobject_forms import (
@@ -306,6 +305,9 @@ def deepskyobject_seltab(dso_id):
 
     if show_observation_log():
         return _do_redirect('main_deepskyobject.deepskyobject_observation_log', dso)
+
+    if is_splitview_supported():
+        return _do_redirect('main_deepskyobject.deepskyobject_chart', dso, splitview=True)
 
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
@@ -812,11 +814,11 @@ def _filter_apert_descriptions(all_user_apert_descrs):
     return apert_descriptions
 
 
-def _do_redirect(url, dso):
+def _do_redirect(url, dso, splitview=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
     fullscreen = request.args.get('fullscreen')
-    splitview = request.args.get('splitview')
+    splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
