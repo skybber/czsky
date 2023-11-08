@@ -380,7 +380,7 @@ def double_star_seltab(double_star_id):
     if is_splitview_supported():
         return _do_redirect('main_double_star.double_star_chart', double_star, splitview=True)
 
-    return _do_redirect('main_double_star.double_star_info', double_star)
+    return _do_redirect('main_double_star.double_star_chart', double_star)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/chart', methods=['GET', 'POST'])

@@ -142,7 +142,7 @@
                         </thead>
                         <tbody>
                         {% for d in double_stars %}
-                            <tr onclick="window.location.href = '{{ url_for('main_double_star.double_star_chart', double_star_id=d.id) }}';">
+                            <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_double_star.double_star_seltab', double_star_id=d.id) }}';">
                                 <td class="mobile hidden">{{ d.wds_number }}</td>
                                 <td>{{ d.common_cat_id }}</td>
                                 <td>{{ d.components }}</td>
@@ -174,6 +174,7 @@
                       $(this).closest('form').submit();
                   }
             });
+            $('tr.sw-onclick').appendScreenWidth('onclick');
         });
     </script>
 

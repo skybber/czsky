@@ -400,7 +400,11 @@
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon"></i>
                             </a>
-                            <div class="divider"></div>
+                        {% else %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', back=1)}}'">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
                         {% endif %}
                     {% endif %}
                     <div class="active section">
