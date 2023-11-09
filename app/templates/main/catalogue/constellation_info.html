@@ -170,7 +170,7 @@
                         {% endif %}
                     </div>
 
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=user_dso_descr.deepsky_object.name, back='constell', back_id=constellation.iau_code) }}">
+                    <a class="sw-link" href="{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=user_dso_descr.deepsky_object.name, back='constell', back_id=constellation.iau_code) }}">
                         <h3 style="margin-bottom:0.8em;">
                             {{ user_dso_descr.deepsky_object.denormalized_name() }}
                         </h3>
@@ -234,7 +234,7 @@
                             </a>
                         {% endif %}
                   </div>
-                    <a href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=ug_bl_dso.dso.name, back='constell', back_id=constellation.iau_code) }}">
+                    <a class="sw-link" href="{{ url_for('main_deepskyobject.deepskyobject_chart', dso_id=ug_bl_dso.dso.name, back='constell', back_id=constellation.iau_code) }}">
                         <h3 id="dso{{ ug_bl_dso.dso.id }}" style="margin-bottom:0.8em;">
                             {{ ug_bl_dso.dso.denormalized_name() }}
                         </h3>
@@ -459,7 +459,10 @@
         </div>
     </div>
     <script type="text/javascript">
-        $('.ui.rating')
-        .rating();
+        $(function(){
+            $('.ui.rating')
+                .rating();
+            $('a.sw-link').appendScreenWidth('href');
+        });
     </script>
 {% endblock %}

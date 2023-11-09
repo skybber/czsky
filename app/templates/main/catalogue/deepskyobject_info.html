@@ -548,7 +548,12 @@
                         {% endif %}
                         <div class="divider"></div>
                     {% else %}
-                        {% if back == 'dso_list' %}
+                        {% if back == 'constell' %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}#dso{{dso.id}}'">
+                                <i class="caret left icon"></i>
+                                <i class="lastfm icon"></i>
+                            </a>
+                        {% elif back == 'dso_list' %}
                             <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, back=1) }}#dso{{dso.id}}'">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon"></i>
