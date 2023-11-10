@@ -70,7 +70,8 @@ def _expand_in_subtext(sub_text, ignore_name, cache, ext_url_params):
             if dso_name not in cache:
                 dso = DeepskyObject.query.filter_by(name=dso_name).first()
                 if dso:
-                    replacement = m.group(1) + '[' + m.group(2) + ' ](' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name) + ext_url_params + ')'
+                    href = url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name)
+                    replacement = m.group(1) + Markup('<a class="sw-link" href="{}">{}</a>'.format(href + ext_url_params, m.group(2)))
                 cache[dso_name] = replacement
             else:
                 replacement = cache[dso_name]
