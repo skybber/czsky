@@ -363,7 +363,7 @@
                                 <i class="eye icon mobile hidden"></i>
                             </a>
                         {% elif back == 'wishlist' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', back=1) }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}">
                                 <i class="caret left icon"></i>
                                 <i class="heart icon mobile hidden"></i>
                             </a>
@@ -383,12 +383,12 @@
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% elif back=='dbl_star_list' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon mobile hidden"></i>
                             </a>
                         {% else %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star.double_stars', back=1)}}">
+                            <a class="ui basic icon compact button" href="{{ url_for('main_double_star.double_stars', nvgback=1)}}">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
                             </a>
@@ -396,12 +396,12 @@
                         <div class="divider">  </div>
                     {% else %}
                         {% if back=='dbl_star_list' %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, back=1) }}'">
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}'">
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon"></i>
                             </a>
                         {% else %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', back=1)}}'">
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', nvgback=1)}}'">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
                             </a>

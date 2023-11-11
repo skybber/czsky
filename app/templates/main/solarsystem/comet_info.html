@@ -41,7 +41,7 @@
 {% macro comet_info() %}
     {{ fchart.fchart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
                      url_for('main_comet.comet_chart_pos_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id, trajectory=trajectory),
                      url_for('main_comet.comet_chart_legend_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
@@ -230,12 +230,16 @@
                         {% endif %}
                         <div class="divider">  </div>
                     {% else %}
-                        {% if back is none %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_comet.comets', back=1) }}'">
+                        {% if back == 'observation' %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}'">
+                                <i class="caret left icon"></i>
+                                <i class="eye icon"></i>
+                            </a>
+                        {% elif back is none %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_comet.comets', nvgback=1) }}'">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
                             </a>
-                            <div class="divider">  </div>
                         {% endif %}
                     {% endif %}
                     <div class="active section">

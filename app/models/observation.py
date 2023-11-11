@@ -266,16 +266,16 @@ class Observation(db.Model):
 
     def _targets_to_html(self, back, back_id):
         if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
-            return '<a href="' + url_for('main_double_star.double_star_info', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
+            return '<a class="sw-link" href="' + url_for('main_double_star.double_star_seltab', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
         if self.target_type == ObservationTargetType.PLANET and self.planet:
             return '<a href="' + url_for('main_planet.planet_info', planet_iau_code=self.planet.iau_code, back=back, back_id=back_id) + '">' + self.planet.get_localized_name() + '</a>'
         if self.target_type == ObservationTargetType.COMET and self.comet:
-            return '<a href="' + url_for('main_comet.comet_info', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
+            return '<a class="sw-link" href="' + url_for('main_comet.comet_seltab', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
             return '<a href="' + url_for('main_minor_planet.minor_planet_info', minor_planet_id=self.minor_planet.int_designation, back=back, back_id=back_id) + '">' + self.minor_planet.designation + '</a>'
         formatted_dsos = []
         for dso in self.deepsky_objects:
-            formatted_dsos.append('<a href="' + url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')
+            formatted_dsos.append('<a class="sw-link" href="' + url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')
         return ','.join(formatted_dsos)
 
     def notes_to_html(self):

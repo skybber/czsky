@@ -91,8 +91,11 @@
     </table>
 
     <script type="text/javascript">
-        $('.ui.rating')
-        .rating();
+        $(function(){
+            $('.ui.rating')
+                .rating();
+            $('a.sw-link').appendScreenWidth('href');
+        });
     </script>
 {% endmacro %}
 

@@ -39,7 +39,7 @@ def process_paginated_session_search(sess_page_name, sess_sortby_name, sess_arg_
         session['is_backr'] = True
         return False, page, sort_by  # post/redirect using backr
 
-    if request.args.get('back', None):
+    if request.args.get('nvgback', None):
         # is redirect necessary in back???
         session['is_backr'] = True
         return False, None, None  # redirect using backr
@@ -98,7 +98,7 @@ def process_session_search(sess_arg_form_pairs):
         session['is_backr'] = True
         return False
 
-    if request.args.get('back', None):
+    if request.args.get('nvgback', None):
         session['is_backr'] = True
         for pair in sess_arg_form_pairs:
             pair[1].data = session.get(pair[0], None)
