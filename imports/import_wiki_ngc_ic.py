@@ -19,7 +19,7 @@ WIKIPEDIA_REF = '{} Wikipedia'
 
 class TranslHolder:
     def __init__(self, gpt_prompt):
-        self.encoding = tiktoken.encoding_for_model('gpt-3.5-turbo')
+        self.encoding = tiktoken.encoding_for_model('gpt-3.5-turbo-1106')
         self.gpt_prompt = gpt_prompt
         self.dso_names = []
         self.descrs = []
@@ -50,7 +50,7 @@ class TranslHolder:
                 messages = [{"role": "user", "content": self.gpt_prompt + text}]
 
                 completion = openai.ChatCompletion.create(
-                    model='gpt-3.5-turbo',
+                    model='gpt-3.5-turbo-1106',
                     messages=messages,
                     temperature=0.0
                 )

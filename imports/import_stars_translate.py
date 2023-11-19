@@ -48,7 +48,7 @@ ZSJ přelož na WNW, VJV na ESE, JV na SE, ZJZ na WSW, VSV na ENE, SZ na NW, JJZ
                         messages = [{"role": "user", "content": gpt_prompt + descr_cs.text}]
 
                         completion = openai.ChatCompletion.create(
-                            model='gpt-3.5-turbo',
+                            model='gpt-3.5-turbo-1106',
                             messages=messages,
                             temperature=0.0
                         )
