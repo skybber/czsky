@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import numpy as np
 import base64
 
@@ -35,6 +35,7 @@ from app.models import (
     UserStarDescription,
     WishList,
     WishListItem,
+    DB_UPDATE_SUPERNOVAE,
 )
 
 from app.commons.pagination import Pagination
@@ -62,6 +63,7 @@ from app.commons.prevnext_utils import create_prev_next_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 
 from .supernova_forms import SearchSupernovaForm
+from ...commons.dbupdate_utils import ask_dbupdate_permit
 
 main_supernova = Blueprint('main_supernova', __name__)
 
@@ -74,6 +76,18 @@ def _update_supernovae():
 
 job1 = scheduler.add_job(_update_supernovae, 'cron', hour='6,18', replace_existing=True)
 
+def _delete_obsolete_supernovae():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        if ask_dbupdate_permit(DB_UPDATE_SUPERNOVAE, timedelta(days=1)):
+            threshold_date = datetime.utcnow() - timedelta(days=3 * 30)
+            supernovas_to_delete = Supernova.query.filter(Supernova.latest_observed < threshold_date).all()
+            for supernova in supernovas_to_delete:
+                db.session.delete(supernova)
+            db.session.commit()
+
+
+job1 = scheduler.add_job(_delete_obsolete_supernovae, 'cron', hour='14', replace_existing=True, jitter=60)
 
 @main_supernova.route('/supernovae', methods=['GET', 'POST'])
 def supernovae():
