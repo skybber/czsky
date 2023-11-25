@@ -9,17 +9,21 @@
     </head>
     <body>
         <script type=text/javascript>
+            function appendScreenWidthToUrl(url) {
+                let sep = url.includes('?') ? "&" : "?";
+                if (url.endsWith("';") || url.endsWith("'")) {
+                    let lastIndex = url.lastIndexOf("'");
+                    url = url.substring(0, lastIndex) + sep + "screenWidth=" + $(window).width() + "';";
+                } else {
+                    url = url + sep + "screenWidth=" + $(window).width();
+                }
+                return url;
+            }
+
             $.fn.appendScreenWidth = function (paramName) {
               this.each(function () {
-                let val = $(this).attr(paramName);
-                let sep = val.includes('?') ? "&" : "?";
-                if (val.endsWith("';") || val.endsWith("'")) {
-                    let lastIndex = val.lastIndexOf("'");
-                    val = val.substring(0, lastIndex) + sep + "screenWidth=" + $(window).width() + "';";
-                } else {
-                    val = val + sep + "screenWidth=" + $(window).width();
-                }
-                $(this).attr(paramName, val);
+                let url = appendScreenWidthToUrl($(this).attr(paramName));
+                $(this).attr(paramName, url);
               });
               return this;
             };

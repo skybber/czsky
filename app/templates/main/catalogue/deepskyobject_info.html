@@ -563,7 +563,17 @@
                                 <i class="caret left icon"></i>
                                 <i class="tasks icon"></i>
                             </a>
-                        {% else %}
+                        {% elif back == 'session_plan' %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}#dso{{dso.id}}'">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
+                        {% elif back == 'wishlist' %}
+                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}'">
+                                <i class="caret left icon"></i>
+                                <i class="list icon"></i>
+                            </a>
+                        {% elif back is not none %}
                             <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}'">
                                 <i class="caret left icon"></i>
                                 <i class="list icon"></i>
@@ -619,13 +629,13 @@
         {% if embed == 'fc' %}
             {% if prev_wrap %}
                 $('#bprev' ).click(function() {
-                    parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
+                    parent.window.location.href = appendScreenWidthToUrl('{{ prev_wrap.top_url() | safe }}');
                     return true;
                 });
             {% endif %}
             {% if next_wrap %}
                 $('#bnext' ).click(function() {
-                    parent.window.location.href = "{{ next_wrap.top_url() | safe }}";
+                    parent.window.location.href = appendScreenWidthToUrl('{{ next_wrap.top_url() | safe }}');
                     return false;
                 });
             {% endif %}

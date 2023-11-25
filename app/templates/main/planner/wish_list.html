@@ -29,24 +29,22 @@
             } %}
             {{ f.display_standard_flashes(flashes) }}
 
-            {{ f.begin_form(add_form, flashes, action=url_for('main_wishlist.wish_list_item_add'), extra_classes='ui menu') }}
-                <div class="ui right item">
+            <div class="ui menu">
+                <form action="{{ url_for('main_wishlist.wish_list_info') }}" method="post" name="search" class="ui item">
+                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+                    <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                </form>
+
+                {{ f.begin_form(add_form, flashes, action=url_for('main_wishlist.wish_list_item_add'), extra_classes='ui right item') }}
                     <div class="ui action input">
                         {{ add_form.dso_name(size=15) }}
                     </div>
                     <button class="ui icon mini button">
                         <i class="plus icon"></i>
                     </button>
-                </div>
-            {{ f.end_form(add_form) }}
-
-            <form action="{{ url_for('main_wishlist.wish_list_info') }}" method="post" name="search" class="ui stackable menu">
-                <div class="ui item">
-                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-                    <div class="top right aligned floating ui label">{{ _('Season') }}</div>
-                </div>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-            </form>
+                {{ f.end_form(add_form) }}
+            </div>
 
             <div style="overflow-x: scroll;">
                 <table class="ui searchable sortable unstackable selectable celled table">
@@ -60,8 +58,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='wishlist', season=season) }}{% endmacro %}
-                    {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='wishlist', season=season) }}{% endmacro %}
+                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, back='wishlist', season=season) }}{% endmacro %}
+                    {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_seltab', double_star_id=item.double_star.id, back='wishlist', season=season) }}{% endmacro %}
 
                     {% for item in wish_list_items %}
                         {% if item.dso_id is not none %}
@@ -84,10 +82,10 @@
                             {% set item_mag = '' %}
                         {% endif %}
                         <tr>
-                            <td onclick="window.location.href='{{ to_url }}';">{{ item_name }}</td>
-                            <td onclick="window.location.href='{{ to_url }}';">{{ item_type }}</td>
-                            <td onclick="window.location.href='{{ to_url }}';">{{ item_constell }}</td>
-                            <td onclick="window.location.href='{{ to_url }}';">{{ item_mag }}</td>
+                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_name }}</td>
+                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_type }}</td>
+                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_constell }}</td>
+                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_mag }}</td>
                             <td class="collapsing specialClass">
                                 <a class="ui icon mini button" href="{{ url_for('main_wishlist.wish_list_item_remove', item_id=item.id) }}">
                                     <i class="trash alternate icon"></i>

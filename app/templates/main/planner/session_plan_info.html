@@ -64,11 +64,11 @@
             </tr>
         </thead>
 
-        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
-        {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_seltab', double_star_id=item.double_star.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_planet_url(item) %}{{ url_for('main_planet.planet_info', planet_iau_code=item.planet.iau_code, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
         {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
-        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.comet_id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
+        {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_seltab', comet_id=item.comet.comet_id, back='session_plan', back_id=session_plan.id) }}{% endmacro %}
 
         {% for item in session_plan_compound_list %}
             {% if item[0].dso_id is not none %}
@@ -108,7 +108,7 @@
                 {% set item_constell = '' %}
                 {% set item_mag = '' %}
             {% endif %}
-        <tr onclick="window.location.href='{{ to_url }}';">
+        <tr onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">
             <td>{{ item_name }}</td>
             <td>{{ item_type }}</td>
             <td class="mobile hidden">{{ item[0].get_ra_str_short() }}</td>
