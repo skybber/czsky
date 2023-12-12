@@ -44,7 +44,8 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported
+from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported, \
+    get_lang_and_all_editor_users_from_request
 from app.commons.search_utils import (
     process_paginated_session_search,
     get_items_per_page,
@@ -612,5 +613,10 @@ def _do_redirect(url, double_star, splitview=False):
     return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
 
 def _get_user_descr(double_star_id):
-    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
-    return UserDoubleStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+    lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
+    if all_editor_users:
+        for editor_user in all_editor_users:
+            udsd = UserDoubleStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+            if udsd:
+                return udsd
+    return None
