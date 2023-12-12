@@ -31,7 +31,7 @@ from app.models import (
 )
 
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
-from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
@@ -88,15 +88,17 @@ def double_star_list_detail(double_star_list_id):
     if double_star_list is None:
         abort(404)
 
-    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+    lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=True)
 
     double_star_list_descr = DoubleStarListDescription.query.filter_by(double_star_list_id=double_star_list.id, lang_code=lang).first()
 
     user_descrs = {}
     for item in double_star_list.double_star_list_items:
-        ud = UserDoubleStarDescription.query.filter_by(double_star_id=item.double_star_id, user_id=editor_user.id, lang_code=lang).first()
-        if ud:
-            user_descrs[item.double_star_id] = ud
+        for editor_user in all_editor_users:
+            ud = UserDoubleStarDescription.query.filter_by(double_star_id=item.double_star_id, user_id=editor_user.id, lang_code=lang).first()
+            if ud:
+                user_descrs[item.double_star_id] = ud
+                break
 
     wish_list = None
     observed_list = None
