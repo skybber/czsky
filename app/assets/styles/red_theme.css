@@ -203,3 +203,7 @@ a.ui.label:hover,a.ui.labels .label:hover{background-color:#675050!important;col
 }
 .ui.success.message{background-color:#cc7575;color:#3e3e3e}
 .ui.success.message .header{color: #3e1414}
+
+.fchart-separator-theme {
+    background-color: #be7e7e !important;
+}
