@@ -1,4 +1,4 @@
-Vicův výběr
+Vicův výběr asterismů
 
 Vicův výběr zajímavých asterismů
 
