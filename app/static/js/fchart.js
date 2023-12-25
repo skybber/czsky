@@ -1417,7 +1417,6 @@ FChart.prototype.toggleFullscreen = function() {
 
 FChart.prototype.doToggleFullscreen = function(toggleClass) {
     let queryParams = new URLSearchParams(window.location.search);
-    let wasFullScreenOrSplitView = this.isInFullScreen() || this.isInSplitView();
     if (this.isInSplitView()) {
         $(this.fchartDiv).toggleClass('fchart-splitview');
         $(".fchart-iframe").hide();
@@ -1435,8 +1434,6 @@ FChart.prototype.doToggleFullscreen = function(toggleClass) {
         $(this.fchartDiv).css('left', 0);
         $(this.fchartDiv).css('width', '100%');
     }
-
-    this.setRealFullscreen(!wasFullScreenOrSplitView);
 
     this.adjustCanvasSize();
     this.reloadLegendImage();
@@ -1456,20 +1453,6 @@ FChart.prototype.doToggleFullscreen = function(toggleClass) {
 
     if (this.onFullscreenChangeCallback  != undefined) {
         this.onFullscreenChangeCallback.call(this, this.isInFullScreen());
-    }
-}
-
-FChart.prototype.setRealFullscreen = function(turnOn) {
-    let doc = window.document;
-    let docEl = doc.documentElement;
-
-    let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
-    let exitFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
-
-    if (turnOn) {
-        requestFullScreen.call(docEl);
-    } else {
-        exitFullScreen.call(doc);
     }
 }
 
