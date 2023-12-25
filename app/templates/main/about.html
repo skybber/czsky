@@ -3,7 +3,11 @@
 
 {% block content %}
     <div class="ui text container">
-        <h1 class="ui header">About</h1>
+{% if lang_code == 'cs' %}
+        <h1 class="ui header">O projektu CzSkY</h1>
+{% else %}
+        <h1 class="ui header">About CzSkY</h1>
+{% endif %}
 <p>
 {% if lang_code == 'cs' %}
 Posláním tohoto webu je budovat aktivní komunitu pozorovatelů vesmíru a hledat nové způsoby, jak je inspirovat a učinit jejich koníček ještě zábavnějším.
