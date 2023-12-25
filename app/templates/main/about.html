@@ -23,7 +23,64 @@ The boundary where the stone rests on the celestial vault, the one from which ou
 </i>
 </p>
 
-<h1 class="ui header">{% if lang_code == 'cs' %}Novinky{% else %}News{% endif %}</h1>
+{% if lang_code == 'cs' %}
+<h3>Kresby na CzSkY</h3>
+
+Na stránkách projektu se můžete setkat s kresbami od následujících autorů:
+
+<ul>
+    <li><a href="https://www.fzu.cz/~kupco/">Alexander Kupčo</a></li>
+    <li><a href="http://nauris.de">Daniel Restemeirer</a></li>
+    <li><a href="http://www.deepsky-visuell.de/">Uwe Glahn</a></li>
+    <li><a href="http://www.deepsky-drawings.com/">Bertrand Laville</a></li>
+    <li><a href="https://www.deepskylog.org">Tom Corstjens</a></li>
+    <li><a href="https://deepskysketch.com/about-martijn-straub/">Martijn Straub</a></li>
+    <li><a href="http://www.astronomydrawings.com/">Peter Vercauteren</a></li>
+    <li><a href="http://estelar.de">Estelar</a></li>
+    <li>David Michalko</li>
+</ul>
+
+Těmto autům děkujeme za jejich přínos k našemu projektu a za svolení k poskytnutí kreseb.
+
+<h3>Data z HnSky od Hana Klejna</h3>
+
+Děkujeme Hanu Klejnovi za svolení s poskytnutí dat deepsky objektů, které CzSkY primárně používá, z jeho projektu HnSky.
+
+<h3>Pozorovani Steva Gottlieba</h3>
+
+Databáze pozorování obsahuje popisy objektů a pozorování od renomovaného astronoma Steva Gottlieba. Jeho odborné znalosti a detailní popisy přispívají k bohatším informacím o objektech, které v našem projektu prezentujeme.
+
+Děkujeme Stevu Gottliebovi za jeho příspěvky a svolení s jejich využitím na tomto projektu.
+{% else %}
+<h3>Drawings on CzSkY</h3>
+
+On the project's pages, you can encounter drawings from the following authors:
+<ul>
+    <li><a href="https://www.fzu.cz/~kupco/">Alexander Kupčo</a></li>
+    <li><a href="http://nauris.de">Daniel Restemeirer</a></li>
+    <li><a href="http://www.deepsky-visuell.de/">Uwe Glahn</a></li>
+    <li><a href="http://www.deepsky-drawings.com/">Bertrand Laville</a></li>
+    <li><a href="https://www.deepskylog.org">Tom Corstjens</a></li>
+    <li><a href="https://deepskysketch.com/about-martijn-straub/">Martijn Straub</a></li>
+    <li><a href="http://www.astronomydrawings.com/">Peter Vercauteren</a></li>
+    <li><a href="http://estelar.de">Estelar</a></li>
+    <li>David Michalko</li>
+</ul>
+We thank these authors for their contributions to our project and for granting permission to share their drawings.
+
+<h3>Data from HnSky by Hana Klejna</h3>
+
+We appreciate Hana Klejna for providing data on deep sky objects that CzSkY primarily utilizes from his HnSky project.
+
+<h3>Steve Gottlieb's Observations</h3>
+
+The observation database contains descriptions of objects and observations from the renowned astronomer Steve Gottlieb. His expertise and detailed descriptions contribute to richer information about the objects presented in our project.
+
+We thank Steve Gottlieb for his contributions and permission to utilize them in this project.
+
+{% endif %}
+
+<h3 class="ui header">{% if lang_code == 'cs' %}Novinky{% else %}News{% endif %}</h3>
 {% filter commonmark() %}
 * 22.10.2023 - DSS blue layer
 * 21.10.2023 - M31, M33 globular clusters, vdB catalogue
