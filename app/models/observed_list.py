@@ -55,7 +55,8 @@ class ObservedList(db.Model):
     @staticmethod
     def get_observed_dsos_by_user_id(user_id):
         observed_list = ObservedList.query.filter_by(user_id=user_id).first()
-
+        if not observed_list:
+            return []
         observed_subquery = db.session.query(ObservedListItem.dso_id) \
             .join(ObservedListItem.observed_list) \
             .filter(ObservedList.id == observed_list.id, ObservedList.user_id == user_id, ObservedListItem.dso_id is not None)
