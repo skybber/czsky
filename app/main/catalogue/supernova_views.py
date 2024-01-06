@@ -64,7 +64,8 @@ from app.commons.prevnext_utils import create_prev_next_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 
 from .supernova_forms import SearchSupernovaForm
-from ...commons.dbupdate_utils import ask_dbupdate_permit
+from app.commons.dbupdate_utils import ask_dbupdate_permit
+from app.commons.utils import is_splitview_supported
 
 main_supernova = Blueprint('main_supernova', __name__)
 
@@ -209,6 +210,9 @@ def supernova_seltab(designation):
         if seltab == 'surveys':
             return _do_redirect('main_supernova.supernova_surveys', supernova)
 
+    if is_splitview_supported():
+        return _do_redirect('main_supernova.supernova_chart', supernova, splitview=True)
+
     return _do_redirect('main_supernova.supernova_info', supernova)
 
 
@@ -235,8 +239,14 @@ def supernova_chart(designation):
 
     prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
 
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+
+    default_chart_iframe_url = url_for('main_supernova.supernova_info', designation=designation, back=back, back_id=back_id, embed='fc', allow_back='true')
+
     return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova,
-                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed,)
+                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
+                           embed=embed,)
 
 
 @main_supernova.route('/supernova/<string:designation>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -278,11 +288,11 @@ def supernova_chart_pdf(designation, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-def _do_redirect(url, supernova):
+def _do_redirect(url, supernova, splitview=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
     fullscreen = request.args.get('fullscreen')
-    splitview = request.args.get('splitview')
+    splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, designation=supernova.designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

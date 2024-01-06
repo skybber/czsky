@@ -78,7 +78,7 @@
                                     </a>
                                 </th>
                                 <th class="right aligned collapsing">
-                                    <a href="{{ url_for('main_double_star.double_stars', page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
+                                    <a href="{{ url_for('main_supernova.supernovae', page=pagination.page, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
                                         <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
                                     </a>
                                 </th>
@@ -148,7 +148,7 @@
                         </thead>
                         <tbody>
                         {% for sn in supernovae %}
-                            <tr onclick="window.location.href = '{{ url_for('main_supernova.supernova_info', designation=sn.designation) }}';">
+                            <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_supernova.supernova_seltab', designation=sn.designation) }}';">
                                 <td>{{ sn.designation }}</td>
                                 <td>{{ sn.host_galaxy if sn.host_galaxy != 'none' else ''}}</td>
                                 <td>{{ sn.get_constellation_iau_code() }}</td>
@@ -186,6 +186,7 @@
                       $(this).closest('form').submit();
                   }
             });
+            $('tr.sw-onclick').appendScreenWidth('onclick');
         });
     </script>
 

@@ -84,6 +84,12 @@
     </div>
 {% endmacro %}
 
+{% if back %}
+    {% set search_url_params = 'back=' + back + (('&back_id=' + back_id) if back_id is not none else '') %}
+{% else %}
+    {% set search_url_params = '' %}
+{% endif %}
+
 {# --- Chart --- #}
 {% macro supernova_chart(supernova) %}
     {{ fchart.fchart(url_for('main_supernova.supernova_chart', designation=supernova.designation, back=back, back_id=back_id),
@@ -94,7 +100,10 @@
                      url_for('main_supernova.supernova_chart_pdf', designation=supernova.designation, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
-                     fchart_form,)
+                     fchart_form,
+                     default_chart_iframe_url=default_chart_iframe_url,
+                     embed=(embed if embed else ''),
+                     search_url_params=search_url_params)
     }}
 {% endmacro %}
 
