@@ -80,7 +80,7 @@ def _delete_obsolete_supernovae():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
         if ask_dbupdate_permit(DB_DELETE_SUPERNOVAE, timedelta(days=1)):
-            threshold_date = datetime.utcnow() - timedelta(days=3 * 30)
+            threshold_date = datetime.utcnow() - timedelta(days=50)
             supernovas_to_delete = Supernova.query.filter(Supernova.latest_observed < threshold_date).all()
             for supernova in supernovas_to_delete:
                 db.session.delete(supernova)
