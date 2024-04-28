@@ -34,6 +34,7 @@ from .observation_forms import (
 
 from .observation_export import create_oal_observations
 from .observation_import import import_observations
+from app.commons.utils import get_about_oal
 
 main_observation = Blueprint('main_observation', __name__)
 
@@ -62,13 +63,13 @@ def observation_export():
         return send_file(mem, as_attachment=True,
                          download_name='observations-' + current_user.user_name + '.xml',
                          mimetype='text/xml')
-    return render_template('main/observation/observation_export.html', about_oal=_get_about_oal())
+    return render_template('main/observation/observation_export.html', about_oal=get_about_oal())
 
 
 @main_observation.route('/observation-import', methods=['GET', 'POST'])
 @login_required
 def observation_import():
-    return render_template('main/observation/observation_import.html', about_oal=_get_about_oal(), log_warn=[], log_error=[])
+    return render_template('main/observation/observation_import.html', about_oal=get_about_oal(), log_warn=[], log_error=[])
 
 
 @main_observation.route('/observation-import-upload', methods=['GET', 'POST'])
@@ -119,7 +120,7 @@ def observation_import_upload():
 
     flash(gettext('Observations import enqued.'), 'form-success')
 
-    return render_template('main/observation/observation_import.html', about_oal=_get_about_oal(), log_warn=log_warn, log_error=log_error)
+    return render_template('main/observation/observation_import.html', about_oal=get_about_oal(), log_warn=log_warn, log_error=log_error)
 
 
 def _do_import_observations_enc(user_id, import_user_id, import_history_rec_id, path, encoding):
@@ -158,28 +159,3 @@ def _do_process_import_log(log_warn, log_error, import_history_rec_id):
         db.session.add(import_history_rec)
     else:
         db.session.delete(import_history_rec)
-
-
-def _get_about_oal():
-    return gettext("""
-## Goal
-**OpenAstronomyLog** is a free and open XML schema definition for all kinds of astronomical observations. 
-Software that supports this schema enables an observer to share observations with other observers or move observations 
-among software products.
-
-## History
-The schema (formerly known as COMAST schema) was primarily developed by the 
-german ["Fachgruppe für Computerastronomie"](http://www.vds-astro.de/fachgruppen/computerastronomie.html) (section for computerastronomy) which is a subsection of Germany's largest
-astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der Sternfreunde e.V.) 
-Starting with version 2.0 the schema was renamed from COMAST (abbr. for *Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\<OAL\>**.
-
-## Documentation
-Please see our [wiki section](https://github.com/openastronomylog/openastronomylog/wiki) as well as the [doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc) folder
-
-## License
-The schema is released under the [APACHE Software License 2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE) and is currently supported in both open source and 
-commercial software. Just [download the schema archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!
-
-## Contribution
-In you want to contribute to **\<OAL\>** please join the [OpenAstronomyLog discussion group](https://groups.google.com/forum/#!forum/openastronomylog).
-""")

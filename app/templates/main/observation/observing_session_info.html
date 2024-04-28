@@ -6,6 +6,7 @@
 {% set edit_endpoints = [
     ('main_observing_session.observing_session_info', _('Info'), 'info'),
     ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
+    ('main_observing_session.observing_session_export', _('Export'), 'export'),
     ('main_observing_session.observing_session_run_plan', _('Run plan'), 'info'),
 ] %}
 
@@ -116,6 +117,55 @@
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
+
+{# --- Observing Session export --- #}
+{% macro observing_session_export(observing_session) %}
+    <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
+        <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
+          <div class="title">
+            <i class="dropdown icon"></i>
+            {{ _('About OAL') }}
+          </div>
+          <div class="content markdown">
+        {% filter extended_commonmark('') %}
+{{ about_oal }}
+        {% endfilter %}
+          </div>
+        </div>
+    </div>
+
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'warning': get_flashed_messages(category_filter=['form-warning']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+            {{ f.display_standard_flashes(flashes) }}
+
+            <div class="ui menu">
+                <div class="right menu">
+                    <div class="ui item">
+                        <form id="fmdownload" method="post" action="{{ url_for('main_observing_session.observing_session_export', observing_session_id=observing_session.id) }}">
+                            <button class="ui icon positive button" data-content="{{ _('Export observation to OAL')}}">
+                                <i class="upload icon"></i>
+                                {{ _('Export observation to OAL') }}
+                            </button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('.ui.accordion')
+          .accordion()
+        ;
+    </script>
+{% endmacro %}
 
 {# --- Observing Session Run Plan --- #}
 {% macro observing_session_run_plan(observing_session) %}
@@ -352,6 +402,8 @@ $(function(){
                 {{ observing_session_info(observing_session) }}
             {% elif type == 'chart' %}
                 {{ observing_session_chart(observing_session) }}
+            {% elif type == 'export' %}
+                {{ observing_session_export(observing_session) }}
             {% elif type == 'run_plan' %}
                 {{ observing_session_run_plan(observing_session) }}
             {% endif %}

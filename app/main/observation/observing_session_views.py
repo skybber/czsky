@@ -1,5 +1,7 @@
 from datetime import datetime
 import base64
+from io import StringIO, BytesIO
+import codecs
 
 from flask import (
     abort,
@@ -23,8 +25,11 @@ from .observing_session_forms import (
     ObservingSessionNewForm,
     ObservingSessionEditForm,
     ObservingSessionItemsEditForm,
-    ObservationSessionRunPlanForm,
+    ObservingSessionExportForm,
+    ObservingSessionRunPlanForm,
 )
+
+from .observation_export import create_oal_observations
 
 from app.models import (
     Location,
@@ -56,6 +61,7 @@ from app.main.chart.chart_forms import ChartForm
 from app.commons.coordinates import *
 from app.commons.prevnext_utils import get_default_chart_iframe_url, parse_prefix_obj_id
 from app.commons.highlights_list_utils import common_highlights_from_observing_session
+from app.commons.utils import get_about_oal
 
 main_observing_session = Blueprint('main_observing_session', __name__)
 
@@ -139,6 +145,28 @@ def observing_session_info(observing_session_id):
                            location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url,
                            show_observ_time=show_observ_time)
 
+@main_observing_session.route('/observing-session/<int:observing_session_id>/export', methods=['GET', 'POST'])
+@login_required
+def observing_session_export(observing_session_id):
+    """Export observation."""
+    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
+    is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
+    form = ObservingSessionExportForm()
+    if request.method == 'POST':
+        buf = StringIO()
+        buf.write('<?xml version="1.0" encoding="utf-8"?>\n')
+        oal_observations = create_oal_observations(current_user, [observing_session])
+        oal_observations.export(buf, 0)
+        mem = BytesIO()
+        mem.write(codecs.BOM_UTF8)
+        mem.write(buf.getvalue().encode('utf-8'))
+        mem.seek(0)
+        return send_file(mem, as_attachment=True,
+                         download_name='observation-' + current_user.user_name + '.xml',
+                         mimetype='text/xml')
+
+    return render_template('main/observation/observing_session_info.html', form=form, type='export',
+                           observing_session=observing_session, is_mine_observing_session=is_mine_observing_session, about_oal=get_about_oal())
 
 @main_observing_session.route('/new-observing_session', methods=['GET', 'POST'])
 @login_required
@@ -339,7 +367,6 @@ def observing_session_items_edit(observing_session_id):
 
     return render_template('main/observation/observing_session_items_edit.html', form=form, observing_session=observing_session)
 
-
 def _get_location_data2_from_form(form):
     location_position = None
     location = None
@@ -461,7 +488,7 @@ def observing_session_run_plan(observing_session_id):
     if not is_mine_observing_session:
         abort(404)
 
-    form = ObservationSessionRunPlanForm()
+    form = ObservingSessionRunPlanForm()
 
     session_plan_id = None
     if request.method == 'POST':

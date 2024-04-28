@@ -110,5 +110,10 @@ class AddToObservedListForm(FlaskForm):
     dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(), ])
 
 
-class ObservationSessionRunPlanForm(FlaskForm):
+class ObservingSessionRunPlanForm(FlaskForm):
     session_plan = HiddenField('session_plan')
+
+
+class ObservingSessionExportForm(FlaskForm):
+    submit_button = SubmitField(lazy_gettext('Export Observing Session'))
+
