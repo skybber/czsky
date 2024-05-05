@@ -216,6 +216,25 @@ class Observation(db.Model):
             return ','.join(dso.name for dso in self.deepsky_objects)
         return ''
 
+    def get_target_type(self):
+        if self.target_type == ObservationTargetType.DBL_STAR and self.double_star:
+            return 'DBL_STAR'
+        if self.target_type == ObservationTargetType.PLANET and self.planet:
+            return 'PLANET'
+        if self.target_type == ObservationTargetType.COMET and self.comet:
+            return 'COMET'
+        if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
+            return 'MINOR_PLANET'
+        if self.target_type == ObservationTargetType.DSO and self.deepsky_objects:
+            dso_type = None
+            for dso in self.deepsky_objects:
+                if dso_type is not None and dso_type != dso.type:
+                    dso_type = ''
+                    break
+                dso_type = dso.type
+            return dso_type
+        return ''
+
     def get_observer_name(self):
         return self.user.full_name
 

@@ -77,11 +77,12 @@
     <table class="ui compact definition2 unstackable table">
         {% for o in observing_session.observations | sort(attribute='date_from') %}
         <tr>
-            <td class="two wide"><b>{{ o.targets_from_session_to_html() | safe }}</b></td>
+            <td class="two wide" style="width:50px;white-space: nowrap"><b>{{ o.targets_from_session_to_html() | safe }}</b></td>
+            <td class="two wide mobile hidden" style="width:50px"><b>{{ o.get_target_type() | safe }}</b></td>
             {% if show_observ_time %}
-            <td class="one wide"><b>{{ o.date_from.strftime('%H:%M') }}</b></td>
+            <td class="one wide" style="width:50px"><b>{{ o.date_from.strftime('%H:%M') }}</b></td>
             {% endif %}
-            <td class="two wide"><b>{{ o.telescope.model if o.telescope else '' }}</b></td>
+            <td class="two wide" style="width:50px"><b>{{ o.telescope.model if o.telescope else '' }}</b></td>
             <td>
                 {% filter extended_commonmark('') %}
 {{ o.notes_to_html() }}
