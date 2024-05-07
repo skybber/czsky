@@ -15,7 +15,7 @@
                         {{ _('Observing Sessions') }}{{ (' (' + user.user_name + ')') if user else '' }}
                     </div>
                 </div>
-                <a class="ui right floated icon positive mini button" href="{{ url_for('main_observing_session.new_observing_session') }}">
+                <a class="ui right floated icon positive mini mobile hidden button" href="{{ url_for('main_observing_session.new_observing_session') }}">
                     <i class="plus icon"></i>
                     {{ _('New observing session') }}
                 </a>

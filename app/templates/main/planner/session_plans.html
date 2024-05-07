@@ -14,6 +14,10 @@
                         {{ _('Session Plans') }}
                     </div>
                 </div>
+                <a class="ui right floated icon positive mini mobile hidden button" href="{{ url_for('main_sessionplan.new_session_plan') }}">
+                    <i class="plus icon"></i>
+                    {{ _('New session plan') }}
+                </a>
             </div>
 
             <form action="{{ url_for('main_sessionplan.session_plans') }}" method="post" name="search" class="ui stackable menu">
