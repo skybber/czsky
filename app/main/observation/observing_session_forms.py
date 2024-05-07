@@ -35,6 +35,9 @@ class ObservationItemForm(FlaskForm):
     seeing = SelectField(lazy_gettext('Seeing'), choices=Seeing.choices(), coerce=Seeing.coerce, default=Seeing.AVERAGE)
     transparency = SelectField(lazy_gettext('Transparency'), choices=Transparency.choices(), coerce=Transparency.coerce,
                                default=Transparency.AVERAGE)
+    telescope = SelectField(lazy_gettext('Telescope'), coerce=int)
+    eyepiece = SelectField(lazy_gettext('Eyepiece'), coerce=int)
+    filter = SelectField(lazy_gettext('Filter'), coerce=int)
 
     def validate_comp_notes(form, field):
         if field.id != 'items-0-comp_notes':

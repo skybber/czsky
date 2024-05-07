@@ -32,6 +32,8 @@ from .observing_session_forms import (
 from .observation_export import create_oal_observations
 
 from app.models import (
+    Eyepiece,
+    Filter,
     Location,
     Observation,
     ObservingSession,
@@ -40,6 +42,7 @@ from app.models import (
     Planet,
     Seeing,
     SessionPlan,
+    Telescope,
     Transparency,
     User,
 )
@@ -307,7 +310,18 @@ def observing_session_items_edit(observing_session_id):
     _check_observing_session(observing_session)
 
     form = ObservingSessionItemsEditForm()
+
+    telescopes = Telescope.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
+    eyepieces = Eyepiece.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
+    filters = Filter.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
+
     if request.method == 'POST':
+        for item_form in form.items:
+            _assign_equipment_choices(item_form, telescopes, eyepieces, filters)
+        # set fake item
+        form.items[0].telescope.data = -1
+        form.items[0].eyepiece.data = -1
+        form.items[0].filter.data = -1
         if form.validate_on_submit():
             for observation in observing_session.observations:
                 observation.deepsky_objects = []
@@ -333,6 +347,9 @@ def observing_session_items_edit(observing_session_id):
                     date_from=item_time,
                     date_to=item_time,
                     notes=notes,
+                    telescope_id=item_form.telescope.data if item_form.telescope.data != -1 else None,
+                    eyepiece_id=item_form.eyepiece.data if item_form.eyepiece.data != -1 else None,
+                    filter_id=item_form.filter.data if item_form.filter.data != -1 else None,
                     create_by=current_user.id,
                     update_by=current_user.id,
                     create_date=datetime.now(),
@@ -349,8 +366,10 @@ def observing_session_items_edit(observing_session_id):
                 return redirect(url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id))
             return redirect(url_for('main_observing_session.observing_session_items_edit', observing_session_id=observing_session.id))
     else:
+        _assign_equipment_choices(form.items[0], telescopes, eyepieces, filters)
         for oi in observing_session.observations:
             oif = form.items.append_entry()
+            _assign_equipment_choices(oif, telescopes, eyepieces, filters)
             if oi.target_type == ObservationTargetType.DBL_STAR:
                 targets_comp = oi.double_star.get_common_norm_name()
             elif oi.target_type == ObservationTargetType.PLANET:
@@ -364,8 +383,16 @@ def observing_session_items_edit(observing_session_id):
             targets_comp += ':'
             oif.comp_notes.data = targets_comp + oi.notes
             oif.date_from.data = oi.date_from
+            oif.telescope.data = oi.telescope_id if oi.telescope_id is not None else -1
+            oif.eyepiece.data = oi.eyepiece_id if oi.eyepiece_id is not None else -1
+            oif.filter.data = oi.filter_id if oi.filter_id is not None else -1
 
     return render_template('main/observation/observing_session_items_edit.html', form=form, observing_session=observing_session)
+
+def _assign_equipment_choices(form_item, telescopes, eyepieces, filters):
+    form_item.telescope.choices = [(-1, "---")] + [(t.id, t.name) for t in telescopes]
+    form_item.eyepiece.choices = [(-1, "---")] + [(e.id, e.name) for e in eyepieces]
+    form_item.filter.choices = [(-1, "---")] + [(f.id, f.name) for f in filters]
 
 def _get_location_data2_from_form(form):
     location_position = None
