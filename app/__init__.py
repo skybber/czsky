@@ -182,9 +182,6 @@ def create_app(config, web=True, default_locale=None):
         from .admin import admin as admin_blueprint
         app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
-        from flask_commonmark import Commonmark
-        cm = Commonmark(app)
-
         if (len(sys.argv) == 2 and sys.argv[1] == 'runserver') or ("gunicorn" in os.environ.get("SERVER_SOFTWARE", "")):
             scheduler.start()
 

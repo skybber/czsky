@@ -2,7 +2,7 @@ import re
 
 from flask import current_app
 from flask import url_for
-from flask import Markup
+from markupsafe import Markup
 import commonmark
 
 from app.models import DeepskyObject

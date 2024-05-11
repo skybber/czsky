@@ -477,3 +477,8 @@ def tmp_add_ug_bl_user_dso_desc():
 def tmp_update_minor_planets_brightness():
     from app.commons.minor_planet_utils import update_minor_planets_brightness
     update_minor_planets_brightness(True)
+
+@app.cli.command("tmp_update_hnsky")
+def tmp_update_hnsky():
+    from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
+    import_hnsky('data/deep_sky.hnd')

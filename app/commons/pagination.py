@@ -13,7 +13,8 @@
 
 from __future__ import unicode_literals
 import sys
-from flask import current_app, request, url_for, Markup
+from flask import current_app, request, url_for
+from markupsafe import Markup
 
 __version__ = "0.8.1"
 

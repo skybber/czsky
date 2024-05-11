@@ -77,7 +77,7 @@ His expertise and detailed descriptions contribute to richer information about t
 {% endif %}
 
 <h3 class="ui header">{% if lang_code == 'cs' %}Novinky{% else %}News{% endif %}</h3>
-{% filter commonmark() %}
+{% filter extended_commonmark('') %}
 * 22.10.2023 - DSS blue layer
 * 21.10.2023 - M31, M33 globular clusters, vdB catalogue
 * 8.10.2023 - star magnitudes
