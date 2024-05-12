@@ -477,6 +477,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_star_mag.data = session.get('chart_show_star_mag', form.show_star_mag.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
+        form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
     else:
         session['chart_eyepiece_fov'] = form.eyepiece_fov.data
         session['chart_show_telrad'] = form.show_telrad.data
@@ -492,6 +493,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_mirror_y'] = form.mirror_y.data
         session['chart_show_dso_mag'] = form.show_dso_mag.data
         session['chart_show_star_mag'] = form.show_star_mag.data
+        session['optimize_traffic'] = form.optimize_traffic.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
@@ -727,12 +729,16 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     avif_quality = avif_high_quality if high_quality == '1' else avif_low_quality
     avif_width_threshold = int(current_app.config.get('CHART_AVIF_THRESHOLD_WIDTH'))
 
-    if 'avif' in img_formats and avif == '1' and avif_width_threshold >= width:
+    optimize_traffic = session.get('optimize_traffic', 'false')
+
+    if avif_width_threshold >= width and (('avif' in img_formats and avif == '1') or optimize_traffic == 'true'):
         img_format = 'avif'
     elif 'jpg' in img_formats:
         img_format = 'jpg'
     else:
         img_format = 'png'
+
+    print('{}'.format(img_format), flush=True)
 
     show_dss = FlagValue.DSS_COLORED.value in flags or FlagValue.DSS_BLUE.value in flags
 

@@ -30,3 +30,4 @@ class ChartForm(FlaskForm):
     eyepiece_fov = HiddenField('eyepiece_fov')
     chart_theme = HiddenField('chart_theme', default='-1')
     dss_layer = HiddenField('dss_layer', default='false')
+    optimize_traffic = HiddenField('optimize_traffic', default='false')
