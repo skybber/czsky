@@ -573,11 +573,16 @@ def get_trajectory_b64(d1, d2, ts, earth, body):
         dt, hr_step = get_trajectory_time_delta(d1, d2)
         trajectory = []
         hr_count = 0
+        prev_date = None
         while d1 <= d2:
             t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
             ra, dec, distance = earth.at(t).observe(body).radec()
+            if d1==d2 or prev_date is None or prev_date.month != d1.month:
             fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
+            else:
+                fmt = '%d' if (hr_count % 24) == 0 else '%H:00'
             trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
+            prev_date = d1
             d1 += dt
             hr_count += hr_step
         trajectory_json = json.dumps(trajectory)
