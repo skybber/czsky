@@ -477,6 +477,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_star_mag.data = session.get('chart_show_star_mag', form.show_star_mag.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
+        form.real_fullscreen.data = session.get('real_fullscreen', form.real_fullscreen.data)
     else:
         session['chart_eyepiece_fov'] = form.eyepiece_fov.data
         session['chart_show_telrad'] = form.show_telrad.data
@@ -492,6 +493,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_mirror_y'] = form.mirror_y.data
         session['chart_show_dso_mag'] = form.show_dso_mag.data
         session['chart_show_star_mag'] = form.show_star_mag.data
+        session['real_fullscreen'] = form.real_fullscreen.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
@@ -573,11 +575,16 @@ def get_trajectory_b64(d1, d2, ts, earth, body):
         dt, hr_step = get_trajectory_time_delta(d1, d2)
         trajectory = []
         hr_count = 0
+        prev_date = None
         while d1 <= d2:
             t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
             ra, dec, distance = earth.at(t).observe(body).radec()
-            fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
+            if d1==d2 or prev_date is None or prev_date.month != d1.month:
+                fmt = '%d.%m.' if (hr_count % 24) == 0 else '%H:00'
+            else:
+                fmt = '%d' if (hr_count % 24) == 0 else '%H:00'
             trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
+            prev_date = d1
             d1 += dt
             hr_count += hr_step
         trajectory_json = json.dumps(trajectory)
