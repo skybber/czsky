@@ -241,10 +241,14 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     if (fullScreen) {
         $(this.fchartDiv).toggleClass('fchart-fullscreen');
     } else if (splitview) {
-        $(this.fchartDiv).toggleClass('fchart-splitview');
-        $(".fchart-iframe").show();
-        $(".fchart-separator").show();
-        this.setSplitViewPosition();
+        if ($(window).width() > 768) {
+            $(this.fchartDiv).toggleClass('fchart-splitview');
+            $(".fchart-iframe").show();
+            $(".fchart-separator").show();
+            this.setSplitViewPosition();
+        } else {
+            this.splitview = false;
+        }
     }
 
     window.addEventListener('resize', (function(e) {
