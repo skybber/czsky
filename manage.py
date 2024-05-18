@@ -171,6 +171,7 @@ def import_dso_list():
     from imports.import_dso_lists import import_glahn_pns
     from imports.import_dso_lists import import_glahn_palomar_gc
     from imports.import_dso_lists import import_glahn_local_group
+    from imports.import_dso_lists import import_minimistr_dn
 
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
@@ -185,7 +186,7 @@ def import_dso_list():
     import_hickson('data/dsolist/Hickson.csv')
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
     import_deep_man_600('data/dsolist/DeepMan600.csv')
-
+    import_minimistr_dn('data/dsolist/MiniMistr_DN.csv')
 
 @app.cli.command("import_hnsky_supplements")
 def import_hnsky_supplements():
@@ -425,6 +426,12 @@ def tmp_dmichalko():
     import_dmichalko('data/doublestarlist/DMichalko.csv')
 
 
+@app.cli.command("tmp_minimistr_dn")
+def tmp_minimistr_dn():
+    from imports.import_dso_lists import import_minimistr_dn
+    import_minimistr_dn('data/dsolist/MiniMistr_DN.csv')
+
+
 @app.cli.command("tmp_add_ug_bl_user_dso_desc")
 def tmp_add_ug_bl_user_dso_desc():
     from app.commons.auto_img_utils import get_ug_bl_dsos
@@ -477,8 +484,3 @@ def tmp_add_ug_bl_user_dso_desc():
 def tmp_update_minor_planets_brightness():
     from app.commons.minor_planet_utils import update_minor_planets_brightness
     update_minor_planets_brightness(True)
-
-@app.cli.command("tmp_update_hnsky")
-def tmp_update_hnsky():
-    from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
-    import_hnsky('data/deep_sky.hnd')
