@@ -699,6 +699,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_constellation_shapes = FlagValue.CONSTELL_SHAPES.value in flags
     config.show_constellation_borders = FlagValue.CONSTELL_BORDERS.value in flags
     config.show_deepsky = FlagValue.SHOW_DEEPSKY.value in flags
+    config.show_nebula_outlines = config.show_deepsky
     config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
