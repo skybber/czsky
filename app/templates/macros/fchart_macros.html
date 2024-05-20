@@ -15,260 +15,261 @@
           </div>
       </div>
 
-  <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
-      <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
-      <input type="hidden" id="dec" name="dec" value="{{ fchart_form.dec.data }}" >
-      <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
-      <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
-      <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
-      <input type="hidden" id="show_telrad" name="{{ fchart_form.show_telrad.name }}" value="{{ fchart_form.show_telrad.data }}">
-      <input type="hidden" id="show_picker" name="{{ fchart_form.show_picker.name }}" value="{{ fchart_form.show_picker.data }}">
-      <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
-      <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
-      <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
-      <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
-      <input type="hidden" id="show_star_mag" name="{{ fchart_form.show_star_mag.name }}" value="{{ fchart_form.show_star_mag.data }}">
-      <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
-      <input type="hidden" id="dss_layer" name="{{ fchart_form.dss_layer.name }}" value="{{ fchart_form.dss_layer.data }}">
-      <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
-      <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
-      <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
-      <input type="hidden" id="optimize_traffic" name="{{ fchart_form.optimize_traffic.name }}" value="{{ fchart_form.optimize_traffic.data }}" >
+      <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
+          <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
+          <input type="hidden" id="dec" name="dec" value="{{ fchart_form.dec.data }}" >
+          <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
+          <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
+          <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
+          <input type="hidden" id="show_telrad" name="{{ fchart_form.show_telrad.name }}" value="{{ fchart_form.show_telrad.data }}">
+          <input type="hidden" id="show_picker" name="{{ fchart_form.show_picker.name }}" value="{{ fchart_form.show_picker.data }}">
+          <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
+          <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
+          <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
+          <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
+          <input type="hidden" id="show_star_mag" name="{{ fchart_form.show_star_mag.name }}" value="{{ fchart_form.show_star_mag.data }}">
+          <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
+          <input type="hidden" id="dss_layer" name="{{ fchart_form.dss_layer.name }}" value="{{ fchart_form.dss_layer.data }}">
+          <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
+          <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
+          <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
+          <input type="hidden" id="optimize_traffic" name="{{ fchart_form.optimize_traffic.name }}" value="{{ fchart_form.optimize_traffic.data }}" >
 
-      {% if chart_control.has_date_from_to %}
-          <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
-              <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="bottom left" data-variation="tiny basic">
-                  <i class="calendar icon"></i>
-              </div>
-              <div class="ui popup transition hidden">
-                  <div class="item">
-                      <div class="ui calendar" id="date_from">
-                          <div class="ui small input left icon">
-                              <i class="calendar icon"></i>
-                              <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
-                                      value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
+          {% if chart_control.has_date_from_to %}
+              <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
+                  <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="bottom left" data-variation="tiny basic">
+                      <i class="calendar icon"></i>
+                  </div>
+                  <div class="ui popup transition hidden">
+                      <div class="item">
+                          <div class="ui calendar" id="date_from">
+                              <div class="ui small input left icon">
+                                  <i class="calendar icon"></i>
+                                  <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
+                                          value="{{ fchart_form.date_from.data.strftime('%d/%m/%Y') if fchart_form.date_from.data else ''}}">
+                              </div>
+                          </div>
+                          <div class="ui left pointing label">
+                             {{ _('Date From') }}
                           </div>
                       </div>
-                      <div class="ui left pointing label">
-                         {{ _('Date From') }}
-                      </div>
-                  </div>
-                  <div class="item">
-                      <div class="ui calendar" id="date_to">
-                          <div class="ui small input left icon">
-                              <i class="calendar icon"></i>
-                              <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
-                                      value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
+                      <div class="item">
+                          <div class="ui calendar" id="date_to">
+                              <div class="ui small input left icon">
+                                  <i class="calendar icon"></i>
+                                  <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
+                                          value="{{ fchart_form.date_to.data.strftime('%d/%m/%Y') if fchart_form.date_to.data else ''}}">
+                              </div>
                           </div>
-                      </div>
-                      <div class="ui left pointing label">
-                         {{ _('Date To') }}
+                          <div class="ui left pointing label">
+                             {{ _('Date To') }}
+                          </div>
                       </div>
                   </div>
               </div>
+          {% endif %}
+
+          <div class="ui right horizontally fitted small monitor item" style="z-index:100">
+              {% if chart_control.equipment_telescopes %}
+                  <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
+                      <i class="crosshairs icon"></i>
+                      <div class="ui vertical buttons menu">
+                          <div class="item">
+                              <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
+                                  <i class="bullseye icon"></i>
+                                  {{ _('Telrad') }}
+                              </button>
+                          </div>
+                          {% if chart_control.equipment_telescopes %}
+                              {% for telescope in chart_control.equipment_telescopes %}
+                              <div class="item">
+                                      <button class="ui tiny labeled icon button"  style="text-align:left">
+                                          <i class="binoculars icon"></i>
+                                          <span class="text">{{ telescope.name }} <i class="dropdown icon"></i></span>
+                                      </button>
+                                  <div class="right menu">
+                                      {% for eyepiece in chart_control.equipment_eyepieces %}
+                                          <div class="item" onclick="setEyepieceFov({{ telescope.get_fov(eyepiece) }})">
+                                              {{ eyepiece.name }}
+                                          </div>
+                                      {% endfor %}
+                                  </div>
+                              </div>
+                              {% endfor %}
+                          {% endif %}
+                          <div class="item">
+                              <button class="ui labeled tiny icon button" style="text-align:left" onclick="unselectFov()">
+                                  <i class="toggle off icon"></i>
+                                  {{ _('Unselect') }}
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              {% else %}
+                  <button class="ui toggle small icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
+                          data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
+                      <i class="bullseye icon"></i>
+                  </button>
+              {% endif %}
           </div>
-      {% endif %}
 
-      <div class="ui right horizontally fitted small monitor item" style="z-index:100">
-          {% if chart_control.equipment_telescopes %}
+          <div class="ui right horizontally fitted small item" style="z-index:100">
               <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
-                  <i class="crosshairs icon"></i>
+                  <i class="layer group icon"></i>
                   <div class="ui vertical buttons menu">
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
-                              <i class="bullseye icon"></i>
-                              {{ _('Telrad') }}
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
+                              <i class="square outline icon"></i>
+                              {{ _('Picker') }}
                           </button>
                       </div>
-                      {% if chart_control.equipment_telescopes %}
-                          {% for telescope in chart_control.equipment_telescopes %}
-                          <div class="item">
-                                  <button class="ui tiny labeled icon button"  style="text-align:left">
-                                      <i class="binoculars icon"></i>
-                                      <span class="text">{{ telescope.name }} <i class="dropdown icon"></i></span>
-                                  </button>
-                              <div class="right menu">
-                                  {% for eyepiece in chart_control.equipment_eyepieces %}
-                                      <div class="item" onclick="setEyepieceFov({{ telescope.get_fov(eyepiece) }})">
-                                          {{ eyepiece.name }}
-                                      </div>
-                                  {% endfor %}
-                              </div>
-                          </div>
-                          {% endfor %}
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
+                              <i class="lastfm icon"></i>
+                              {{ _('Constellation lines') }}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}} bconstellborders" style="text-align:left">
+                              <i class="draw polygon icon"></i>
+                              {{ _('Constellation borders')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid" style="text-align:left">
+                              <i class="globe icon"></i>
+                              {{ _('Equatorial grid')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
+                              <i class="superpowers icon"></i>
+                              {{ _('Deepsky objects')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
+                              <i class="image outline icon"></i>
+                              {{ _('DSS colored') }}
+                          </button>
+                      </div>
+                      {% if chart_control.theme!='night' %}
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
+                              <i class="image outline icon"></i>
+                              {{ _('DSS blue') }}
+                          </button>
+                      </div>
                       {% endif %}
                       <div class="item">
-                          <button class="ui labeled tiny icon button" style="text-align:left" onclick="unselectFov()">
-                              <i class="toggle off icon"></i>
-                              {{ _('Unselect') }}
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag" style="text-align:left">
+                              <i class="star of life icon"></i>
+                              {{ _('DSO mag')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_mag.data=='true' else ''}} bstarmag" style="text-align:left">
+                                <i class="star outline icon"></i>
+                                {{ _('Star mag')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx" style="text-align:left">
+                              <i class="exchange alternate icon"></i>
+                              {{ _('Flip horizontally')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory" style="text-align:left">
+                              <i class="clockwise rotated  exchange alternate icon"></i>
+                              {{ _('Flip vertically')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}} boptitraffic" style="text-align:left" >
+                              <i class="wifi icon"></i>
+                              {{ _('Optimize traffic')}}
                           </button>
                       </div>
                   </div>
               </div>
-          {% else %}
-              <button class="ui toggle small icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
-                      data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
-                  <i class="bullseye icon"></i>
-              </button>
+          </div>
+
+          <!-- Star mag limit -->
+          <div class="ui horizontally fitted item" style="z-index:100">
+              <div class="ui small icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-position="left center" data-variation="tiny basic">
+                  <input type="hidden" id="maglim" name="maglim" value="{{ fchart_form.maglim.data }}" >
+                  <span id="smaglim" class="text">{{ fchart_form.maglim.data }}</span>
+                  <div id="maglim_menu" class="menu">
+                      {% for mag_item in range(chart_control.mag_scale[0], chart_control.mag_scale[1] + 1) %}
+                          <div class="item">{{ mag_item }}</div>
+                      {% endfor %}
+                  </div>
+              </div>
+          </div>
+
+          <!-- dso mag limit -->
+          <div class="ui horizontally fitted item" style="z-index:100">
+              <div class="ui small icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-position="left center" data-variation="tiny basic">
+                  <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ fchart_form.dso_maglim.data }}">
+                  <span id="sdso_maglim" class="text">{{ fchart_form.dso_maglim.data }}</span>
+                  <div id="dso_maglim_menu" class="menu">
+                      {% for mag_item in range(chart_control.dso_mag_scale[0], chart_control.dso_mag_scale[1] + 1) %}
+                          <div class="item">
+                              {{ mag_item }}
+                          </div>
+                      {% endfor %}
+                  </div>
+              </div>
+          </div>
+
+          <!-- Export to PDF -->
+          {% if fchart_pdf_url is not none %}
+              <div class="ui horizontally fitted item mobile hidden" style="z-index:100">
+                  <div class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="left center" data-variation="tiny basic">
+                      <i class="download icon"></i>
+                      <div class="menu">
+                          {% if fchart_items_url is not none %}
+                              <div class="item">
+                                  <i class="dropdown icon"></i>
+                                  <span class="text">Landscape</span>
+                                  <div class="right menu">
+                                      <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
+                                      <a id="download_items_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
+                                  </div>
+                              </div>
+                              <div class="item">
+                                  <i class="dropdown icon"></i>
+                                  <span class="text">Portrait</span>
+                                  <div class="right menu">
+                                      <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
+                                      <a id="download_items_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
+                                  </div>
+                              </div>
+                          {% else %}
+                              <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Landscape</a>
+                              <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Portrait</a>
+                          {% endif %}
+                      </div>
+                  </div>
+              </div>
           {% endif %}
-      </div>
 
-      <div class="ui right horizontally fitted small item" style="z-index:100">
-          <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
-              <i class="layer group icon"></i>
-              <div class="ui vertical buttons menu">
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
-                          <i class="square outline icon"></i>
-                          {{ _('Picker') }}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
-                          <i class="lastfm icon"></i>
-                          {{ _('Constellation lines') }}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}} bconstellborders" style="text-align:left">
-                          <i class="draw polygon icon"></i>
-                          {{ _('Constellation borders')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid" style="text-align:left">
-                          <i class="globe icon"></i>
-                          {{ _('Equatorial grid')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
-                          <i class="superpowers icon"></i>
-                          {{ _('Deepsky objects')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
-                          <i class="image outline icon"></i>
-                          {{ _('DSS colored') }}
-                      </button>
-                  </div>
-                  {% if chart_control.theme!='night' %}
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
-                          <i class="image outline icon"></i>
-                          {{ _('DSS blue') }}
-                      </button>
-                  </div>
-                  {% endif %}
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag" style="text-align:left">
-                          <i class="star of life icon"></i>
-                          {{ _('DSO mag')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_mag.data=='true' else ''}} bstarmag" style="text-align:left">
-                            <i class="star outline icon"></i>
-                            {{ _('Star mag')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx" style="text-align:left">
-                          <i class="exchange alternate icon"></i>
-                          {{ _('Flip horizontally')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory" style="text-align:left">
-                          <i class="clockwise rotated  exchange alternate icon"></i>
-                          {{ _('Flip vertically')}}
-                      </button>
-                  </div>
-                  <div class="item">
-                      <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}} boptitraffic" style="text-align:left" >
-                          <i class="wifi icon"></i>
-                          {{ _('Optimize traffic')}}
-                      </button>
-                  </div>
+          <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; display:none;">
+              <div class="ui icon input">
+                  <input id="search" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
+                  <i class="search icon"></i>
               </div>
           </div>
-      </div>
 
-      <!-- Star mag limit -->
-      <div class="ui horizontally fitted item" style="z-index:100">
-          <div class="ui small icon dropdown button" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-position="left center" data-variation="tiny basic">
-              <input type="hidden" id="maglim" name="maglim" value="{{ fchart_form.maglim.data }}" >
-              <span id="smaglim" class="text">{{ fchart_form.maglim.data }}</span>
-              <div id="maglim_menu" class="menu">
-                  {% for mag_item in range(chart_control.mag_scale[0], chart_control.mag_scale[1] + 1) %}
-                      <div class="item">{{ mag_item }}</div>
-                  {% endfor %}
+          <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
+              <div class="ui small buttons">
+                  <button id="bfullscreen" type="button" class="ui icon button">
+                      <i class="expand icon"></i>
+                  </button>
               </div>
           </div>
-      </div>
-
-      <!-- dso mag limit -->
-      <div class="ui horizontally fitted item" style="z-index:100">
-          <div class="ui small icon dropdown button"  data-inverted="" data-tooltip="{{ _('DSO limit mag') }}" data-position="left center" data-variation="tiny basic">
-              <input type="hidden" id="dso_maglim" name="dso_maglim" value="{{ fchart_form.dso_maglim.data }}">
-              <span id="sdso_maglim" class="text">{{ fchart_form.dso_maglim.data }}</span>
-              <div id="dso_maglim_menu" class="menu">
-                  {% for mag_item in range(chart_control.dso_mag_scale[0], chart_control.dso_mag_scale[1] + 1) %}
-                      <div class="item">
-                          {{ mag_item }}
-                      </div>
-                  {% endfor %}
-              </div>
-          </div>
-      </div>
-
-      <!-- Export to PDF -->
-      {% if fchart_pdf_url is not none %}
-          <div class="ui horizontally fitted item mobile hidden" style="z-index:100">
-              <div class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="left center" data-variation="tiny basic">
-                  <i class="download icon"></i>
-                  <div class="menu">
-                      {% if fchart_items_url is not none %}
-                          <div class="item">
-                              <i class="dropdown icon"></i>
-                              <span class="text">Landscape</span>
-                              <div class="right menu">
-                                  <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                  <a id="download_items_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
-                              </div>
-                          </div>
-                          <div class="item">
-                              <i class="dropdown icon"></i>
-                              <span class="text">Portrait</span>
-                              <div class="right menu">
-                                  <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                  <a id="download_items_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
-                              </div>
-                          </div>
-                      {% else %}
-                          <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Landscape</a>
-                          <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Portrait</a>
-                      {% endif %}
-                  </div>
-              </div>
-          </div>
-      {% endif %}
-
-      <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; display:none;">
-          <div class="ui icon input">
-              <input id="search" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
-              <i class="search icon"></i>
-          </div>
-      </div>
-
-      <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
-          <div class="ui small buttons">
-              <button id="bfullscreen" type="button" class="ui icon button">
-                  <i class="expand icon"></i>
-              </button>
-          </div>
-      </div>
+      </form>
   </div>
 
   <div class="ui computer tablet only" style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">

@@ -739,8 +739,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     else:
         img_format = 'png'
 
-    print('{}'.format(img_format), flush=True)
-
     show_dss = FlagValue.DSS_COLORED.value in flags or FlagValue.DSS_BLUE.value in flags
 
     if show_dss and img_format == 'jpg':
