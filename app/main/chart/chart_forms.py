@@ -27,6 +27,7 @@ class ChartForm(FlaskForm):
     show_dso = HiddenField('show_dso', default='true')
     show_dso_mag = HiddenField('show_dso_mag', default='false')
     show_star_mag = HiddenField('show_star_mag', default='false')
+    show_layers_dropdown = HiddenField('show_layers_dropdown', default='false')
     eyepiece_fov = HiddenField('eyepiece_fov')
     chart_theme = HiddenField('chart_theme', default='-1')
     dss_layer = HiddenField('dss_layer', default='false')

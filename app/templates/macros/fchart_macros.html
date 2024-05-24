@@ -34,6 +34,7 @@
           <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
           <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
           <input type="hidden" id="optimize_traffic" name="{{ fchart_form.optimize_traffic.name }}" value="{{ fchart_form.optimize_traffic.data }}" >
+          <input type="hidden" id="show_layers_dropdown" name="{{ fchart_form.show_layers_dropdown.name }}" value="{{ fchart_form.show_layers_dropdown.data }}">
 
           {% if chart_control.has_date_from_to %}
               <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
@@ -455,61 +456,73 @@
     $('.bpicker').click(function(){
         $(this).toggleClass('active');
         $('#show_picker').val($('#show_picker').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bconstellshapes').click(function(){
         $(this).toggleClass('active');
         $('#show_constell_shapes').val($('#show_constell_shapes').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bconstellborders').click(function(){
         $(this).toggleClass('active');
         $('#show_constell_borders').val($('#show_constell_borders').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bdso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bdsomag').click(function(){
         $(this).toggleClass('active');
         $('#show_dso_mag').val($('#show_dso_mag').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bstarmag').click(function(){
         $(this).toggleClass('active');
         $('#show_star_mag').val($('#show_star_mag').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bdsscolored').click(function(){
         $(this).toggleClass('active');
         $('#dss_layer').val($('#dss_layer').val() != 'colored' ? 'colored' : '');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.bdssblue').click(function(){
         $(this).toggleClass('active');
         $('#dss_layer').val($('#dss_layer').val() != 'blue' ? 'blue' : '');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.mirrorx').click(function(){
         $(this).toggleClass('active');
         $('#mirror_x').val($('#mirror_x').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.mirrory').click(function(){
         $(this).toggleClass('active');
         $('#mirror_y').val($('#mirror_y').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.boptitraffic').click(function(){
         $(this).toggleClass('active');
         $('#optimize_traffic').val($('#optimize_traffic').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('.begrid').click(function(){
         $(this).toggleClass('active');
         $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
     });
 
     $('#bfullscreen').click(function(){
@@ -639,9 +652,13 @@
         /* Fix FomanticUI bug on mobiles */
         $('#layers_dropdown')
             .dropdown({
-                  displayType : 'block'
+                  displayType : 'block',
+                  transition: 'none'
         });
-
+        if ($('#show_layers_dropdown').val() == 'true') {
+            $('#layers_dropdown').dropdown('show');
+        }
+        $('#show_layers_dropdown').val('false')
     }
 
 $('.date-int-popup')
