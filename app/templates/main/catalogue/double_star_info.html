@@ -18,13 +18,13 @@
 {% if not embed %}
     {% set endpoints = [
         ('main_double_star.double_star_info', _('Info'), 'info'),
-        ('main_double_star.double_star_chart', _('Chart'), 'info'),
-        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+        ('main_double_star.double_star_chart', _('Chart'), 'chart'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_double_star.double_star_info', _('Info'), 'info'),
-        ('main_double_star.double_star_surveys', _('Aladin'), 'table'),
+        ('main_double_star.double_star_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% endif %}
 

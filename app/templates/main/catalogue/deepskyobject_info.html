@@ -18,13 +18,13 @@
 {% if not embed or embed == 'pl' %}
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-        ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'table'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'table'),
+        ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'chart'),
+        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'table'),
+        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% endif %}
 

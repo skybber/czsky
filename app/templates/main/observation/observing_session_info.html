@@ -6,13 +6,14 @@
 {% set edit_endpoints = [
     ('main_observing_session.observing_session_info', _('Info'), 'info'),
     ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
-    ('main_observing_session.observing_session_export', _('Export'), 'export'),
-    ('main_observing_session.observing_session_run_plan', _('Run plan'), 'info'),
+    ('main_observing_session.observing_session_export', _('Imp/Exp'),  'impexp'),
+    ('main_observing_session.observing_session_run_plan', _('Run plan'), 'run_plan'),
 ] %}
 
 {% set overview_endpoints = [
     ('main_observing_session.observing_session_info', _('Info'), 'info'),
-    ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
+    ('main_observing_session.observing_session_chart', _('Chart'), 'chart'),
+    ('main_observing_session.observing_session_export', _('Export'),  'export'),
 ] %}
 
 {% set flashes = {
@@ -119,8 +120,8 @@
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{# --- Observing Session export --- #}
-{% macro observing_session_export(observing_session) %}
+{# --- Observing Session import/export --- #}
+{% macro observing_session_imp_exp(observing_session) %}
     <div class="ui {{ 'inverted' if inverted_accordion else '' }} segment">
         <div class="ui {{ 'inverted' if inverted_accordion else '' }} fluid accordion">
           <div class="title">
@@ -152,19 +153,39 @@
                         <form id="fmdownload" method="post" action="{{ url_for('main_observing_session.observing_session_export', observing_session_id=observing_session.id) }}">
                             <button class="ui icon positive button" data-content="{{ _('Export observation to OAL')}}">
                                 <i class="upload icon"></i>
-                                {{ _('Export observation to OAL') }}
+                                {{ _('Export observing session to OAL') }}
                             </button>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
                         </form>
                     </div>
+                    {% if is_mine_observing_session %}
+                    <div class="ui item">
+                        <form id="fmupload" method="post" action="{{ url_for('main_observing_session.observing_session_import_upload', observing_session_id=observing_session.id) }}" enctype="multipart/form-data">
+                            <label for="file" class="ui icon orange button">
+                                <i class="download icon"></i>
+                                {{ _('Import observing session OAL') }}
+                            </label>
+                            <input type="file" id="file" name="file" class="ui file input">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                        </form>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    <style>
+        .ui.file.input {
+          top: -999999px;
+          position: absolute;
+        }
+    </style>
     <script type="text/javascript">
         $('.ui.accordion')
-          .accordion()
-        ;
+          .accordion();
+        $('#file').change(function() {
+            $("#fmupload" ).submit();
+        });
     </script>
 {% endmacro %}
 
@@ -403,8 +424,8 @@ $(function(){
                 {{ observing_session_info(observing_session) }}
             {% elif type == 'chart' %}
                 {{ observing_session_chart(observing_session) }}
-            {% elif type == 'export' %}
-                {{ observing_session_export(observing_session) }}
+            {% elif type == 'imp_exp' %}
+                {{ observing_session_imp_exp(observing_session) }}
             {% elif type == 'run_plan' %}
                 {{ observing_session_run_plan(observing_session) }}
             {% endif %}

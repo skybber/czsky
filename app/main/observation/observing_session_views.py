@@ -1,7 +1,9 @@
+import os
 from datetime import datetime
 import base64
 from io import StringIO, BytesIO
 import codecs
+from werkzeug.utils import secure_filename
 
 from flask import (
     abort,
@@ -30,6 +32,7 @@ from .observing_session_forms import (
 )
 
 from .observation_export import create_oal_observations
+from .observation_import import import_observations
 
 from app.models import (
     Eyepiece,
@@ -149,27 +152,72 @@ def observing_session_info(observing_session_id):
                            show_observ_time=show_observ_time)
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/export', methods=['GET', 'POST'])
-@login_required
 def observing_session_export(observing_session_id):
     """Export observation."""
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
-    form = ObservingSessionExportForm()
+    user = User.query.filter_by(id=observing_session.user_id).first()
+    exp_form = ObservingSessionExportForm()
     if request.method == 'POST':
         buf = StringIO()
         buf.write('<?xml version="1.0" encoding="utf-8"?>\n')
-        oal_observations = create_oal_observations(current_user, [observing_session])
+        oal_observations = create_oal_observations(user, [observing_session])
         oal_observations.export(buf, 0)
         mem = BytesIO()
         mem.write(codecs.BOM_UTF8)
         mem.write(buf.getvalue().encode('utf-8'))
         mem.seek(0)
         return send_file(mem, as_attachment=True,
-                         download_name='observation-' + current_user.user_name + '.xml',
+                         download_name='observation-' + user.user_name + '.xml',
                          mimetype='text/xml')
 
-    return render_template('main/observation/observing_session_info.html', form=form, type='export',
+    return render_template('main/observation/observing_session_info.html', exp_form=exp_form, type='imp_exp',
                            observing_session=observing_session, is_mine_observing_session=is_mine_observing_session, about_oal=get_about_oal())
+
+@main_observing_session.route('/observing-session/<int:observing_session_id>/import-upload', methods=['GET', 'POST'])
+@login_required
+def observing_session_import_upload(observing_session_id):
+    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
+    is_mine_observing_session = _check_observing_session(observing_session, allow_public=False)
+    if not is_mine_observing_session:
+        abort(404)
+    if 'file' not in request.files:
+        flash(gettext('No file part'), 'form-error')
+        return redirect(request.url)
+    file = request.files['file']
+    if file.filename == '':
+        flash(gettext('No selected file'))
+        return redirect(request.url)
+    log_warn, log_error = [], []
+    if file:
+        filename = secure_filename(file.filename)
+        path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        encoding = None
+
+        with open(path, 'r', errors='replace') as f:
+            firstline = f.readline().rstrip()
+            if firstline:
+                m = re.search('encoding="(.*)"', firstline)
+                if m:
+                    encoding = m.group(1).lower()
+
+        with codecs.open(path, 'r', encoding=encoding) as oal_file:
+            try:
+                log_warn, log_error = import_observations(current_user.id, current_user.id, None, oal_file,
+                                                          imp_observing_session=observing_session)
+                db.session.commit()
+            except:
+                db.session.rollback()
+
+    flash(gettext('Observing session imported'), 'form-success')
+
+    exp_form = ObservingSessionExportForm()
+
+    return render_template('main/observation/observing_session_info.html', exp_form=exp_form, type='imp_exp',
+                           observing_session=observing_session, is_mine_observing_session=is_mine_observing_session, about_oal=get_about_oal(),
+                           log_warn=log_warn, log_error=log_error)
+
 
 @main_observing_session.route('/new-observing_session', methods=['GET', 'POST'])
 @login_required

@@ -12,15 +12,15 @@
         {% if not embed %}
             {% set endpoints = [
                 ('main_star.star_descr_info', _('Info'), 'info'),
-                ('main_star.star_descr_chart', _('Chart'), 'info'),
+                ('main_star.star_descr_chart', _('Chart'), 'chart'),
                 ('main_star.star_descr_surveys', _('Aladin'), 'table'),
-                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
+                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'catalog')
             ] %}
         {% else %}
             {% set endpoints = [
                 ('main_star.star_descr_info', _('Info'), 'info'),
-                ('main_star.star_descr_surveys', _('Aladin'), 'table'),
-                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'table')
+                ('main_star.star_descr_surveys', _('Aladin'), 'aladin'),
+                ('main_star.star_descr_catalogue_data', _('Catalogue data'), 'catalog')
             ] %}
         {% endif %}
     {% else %}

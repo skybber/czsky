@@ -4,7 +4,6 @@ from datetime import datetime
 from sqlalchemy import and_, or_, not_
 
 from flask_babel import lazy_gettext
-from LatLon23 import LatLon
 
 from app import db
 
@@ -45,10 +44,9 @@ from app.commons.openastronomylog import (
 from app.commons.openastronomylog import parse, filterKind, OalfixedMagnificationOpticsType, OalscopeType, angleUnit
 from app.commons.dso_utils import normalize_dso_name_ext, denormalize_dso_name, normalize_double_star_name
 from app.commons.search_sky_object_utils import search_double_star_strict, search_double_star
-from app.commons.coordinates import latlon_to_string
 
 
-def import_observations(user_id, import_user_id, import_history_rec_id, file):
+def import_observations(user_id, import_user_id, import_history_rec_id, file, imp_observing_session=None):
     log_warn = []
     log_error = []
 
@@ -267,7 +265,10 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
     found_observing_sessions = {}
     new_observing_sessions = {}
     if oal_sessions and oal_sessions.get_session():
-        for oal_session in oal_sessions.get_session():
+        for i, oal_session in enumerate(oal_sessions.get_session()):
+            if imp_observing_session and i>0:
+                break
+
             begin = oal_session.get_begin()
             end = oal_session.get_end()
             if begin and not end:
@@ -275,61 +276,64 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
             if end and not begin:
                 begin = end
 
-            observing_session = ObservingSession.query.filter(ObservingSession.user_id == user_id) \
-                .filter(and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end)) \
-                .first()
-            if observing_session and observing_session.update_date != observing_session.create_date:
-                found_observing_sessions[oal_session.get_id()] = observing_session
+            if imp_observing_session:
+                found_observing_sessions[oal_session.get_id()] = imp_observing_session
             else:
-                location = found_locations.get(oal_session.get_site())
-                location_position = add_hoc_locations.get(oal_session.get_site())
-                if location:
-                    title = location.name + ' ' + begin.strftime('%d.%m.%Y')
-                elif begin:
-                    title = begin.strftime('%d.%m.%Y')
-                else:
-                    title = oal_session.get_id()
-
-                now = datetime.now()
-                if not observing_session:
-                    observing_session = ObservingSession(
-                        user_id=user_id,
-                        title=title,
-                        date_from=begin,
-                        date_to=end,
-                        location_id=location.id if location else None,
-                        location_position=location_position,
-                        sqm=None,
-                        faintest_star=None,
-                        seeing=None,
-                        transparency=None,
-                        rating=None,
-                        weather=oal_session.get_weather(),
-                        equipment=oal_session.get_equipment(),
-                        notes=oal_session.get_comments(),
-                        import_history_rec_id=import_history_rec_id,
-                        create_by=import_user_id,
-                        update_by=import_user_id,
-                        create_date=now,
-                        update_date=now
-                    )
-                    new_observing_sessions[oal_session.get_id()] = observing_session
-                else:
-                    observing_session.title = title
-                    observing_session.date_from = begin
-                    observing_session.date_to = end
-                    observing_session.location_id = location.id if location else None
-                    observing_session.location_position = location_position
-                    observing_session.weather = oal_session.get_weather()
-                    observing_session.equipment = oal_session.get_equipment()
-                    observing_session.notes = oal_session.get_comments()
-                    observing_session.import_history_rec_id = import_history_rec_id
-                    observing_session.update_by = import_user_id
-                    observing_session.create_date = now
-                    observing_session.update_date = now
+                observing_session = ObservingSession.query.filter(ObservingSession.user_id == user_id) \
+                    .filter(and_(ObservingSession.date_to >= begin, ObservingSession.date_from <= end)) \
+                    .first()
+                if observing_session and observing_session.update_date != observing_session.create_date:
                     found_observing_sessions[oal_session.get_id()] = observing_session
+                else:
+                    location = found_locations.get(oal_session.get_site())
+                    location_position = add_hoc_locations.get(oal_session.get_site())
+                    if location:
+                        title = location.name + ' ' + begin.strftime('%d.%m.%Y')
+                    elif begin:
+                        title = begin.strftime('%d.%m.%Y')
+                    else:
+                        title = oal_session.get_id()
 
-                db.session.add(observing_session)
+                    now = datetime.now()
+                    if not observing_session:
+                        observing_session = ObservingSession(
+                            user_id=user_id,
+                            title=title,
+                            date_from=begin,
+                            date_to=end,
+                            location_id=location.id if location else None,
+                            location_position=location_position,
+                            sqm=None,
+                            faintest_star=None,
+                            seeing=None,
+                            transparency=None,
+                            rating=None,
+                            weather=oal_session.get_weather(),
+                            equipment=oal_session.get_equipment(),
+                            notes=oal_session.get_comments(),
+                            import_history_rec_id=import_history_rec_id,
+                            create_by=import_user_id,
+                            update_by=import_user_id,
+                            create_date=now,
+                            update_date=now
+                        )
+                        new_observing_sessions[oal_session.get_id()] = observing_session
+                    else:
+                        observing_session.title = title
+                        observing_session.date_from = begin
+                        observing_session.date_to = end
+                        observing_session.location_id = location.id if location else None
+                        observing_session.location_position = location_position
+                        observing_session.weather = oal_session.get_weather()
+                        observing_session.equipment = oal_session.get_equipment()
+                        observing_session.notes = oal_session.get_comments()
+                        observing_session.import_history_rec_id = import_history_rec_id
+                        observing_session.update_by = import_user_id
+                        observing_session.create_date = now
+                        observing_session.update_date = now
+                        found_observing_sessions[oal_session.get_id()] = observing_session
+
+                    db.session.add(observing_session)
 
     # Targets
     oal_targets = oal_observations.get_targets()
@@ -363,11 +367,14 @@ def import_observations(user_id, import_user_id, import_history_rec_id, file):
 
     obs_count = 0
 
-    for oal_observation in oal_observations:
+    for i, oal_observation in enumerate(oal_observations):
         location = found_locations.get(oal_observation.get_site())
         location_position = add_hoc_locations.get(oal_observation.get_site())
 
         observing_session = found_observing_sessions.get(oal_observation.get_session())
+
+        if not observing_session and imp_observing_session:
+            continue
 
         is_session_new = False
         if not observing_session:

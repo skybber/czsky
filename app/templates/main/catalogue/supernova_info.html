@@ -14,13 +14,13 @@
 {% if not embed %}
     {% set endpoints = [
         ('main_supernova.supernova_info', _('Info'), 'info'),
-        ('main_supernova.supernova_chart', _('Chart'), 'info'),
-        ('main_supernova.supernova_surveys', _('Aladin'), 'table'),
+        ('main_supernova.supernova_chart', _('Chart'), 'chart'),
+        ('main_supernova.supernova_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_supernova.supernova_info', _('Info'), 'info'),
-        ('main_supernova.supernova_surveys', _('Aladin'), 'table'),
+        ('main_supernova.supernova_surveys', _('Aladin'), 'aladin'),
     ] %}
 {% endif %}
 
