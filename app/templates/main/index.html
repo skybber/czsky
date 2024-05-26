@@ -7,60 +7,19 @@
         <div class="twelve wide column">
 
             {% if news_list %}
-            <div class="ui padded segment mobile hidden">
-                <div class="ui stackable relaxed grid">
-                    <h3 class="ui three wide column header" style="padding-bottom: 0px;">
-                        <i class="rss icon"></i>
-                        <div class="content">
-                            {{ _('News') }}
-                        </div>
-                    </h3>
-                    <div class="ui thirteen wide column" style="padding-top: 0px; padding-bottom: 0px;">
-                    <div class="ui list">
-                        {% for news in news_list %}
-                        <div class="item">
-                            <div class="content">
-                                <div class="ui header">
-                                    {% if news.has_position() %}
-                                        <a href="{{ url_for('main_news.news_chart', news_id=news.id) }}">
-                                            {{ news.title }}
-                                        </a>
-                                    {% else %}
-                                        {{ news.title }}
-                                    {% endif %}
-                                </div>
-                                <div class="description">
-                                    <p>{{ news.title_row  | safe }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    </div>
-                </div>
-            </div>
-            <div class="ui segment mobile only">
+            <div class="ui padded segment">
                 <div class="ui fluid accordion">
-                    <h3 class="title">
+                    <div class="title" style="font-size: 18px;font-weight: 700">
                         <i class="dropdown icon"></i>
                         <i class="rss icon"></i>
-                        {{ _('News') }}
-                    </h3>
-                    <div class="content markdown">
-                        <div class="ui thirteen wide column" style="padding-top: 0px; padding-bottom: 0px;">
-                        <div class="ui list">
+                        {{ _('News of the Week') }}
+                    </div>
+                    <div class="ui thirteen wide column content markdown" style="padding-top: 0px; padding-bottom: 0px;">
                             {% for news in news_list %}
-                            <div class="item">
-                                <div class="content">
-                                    <div class="ui header">{{ news.title }}</div>
-                                    <div class="description">
-                                        <p>{{ news.title_row  | safe }}</p>
-                                    </div>
-                                </div>
-                            </div>
+                    {% filter extended_commonmark('') %}
+{{ news.text  | safe}}
+                    {% endfilter %}
                             {% endfor %}
-                        </div>
-                        </div>
                     </div>
                 </div>
             </div>
