@@ -1,21 +1,21 @@
 # Translations template for PROJECT.
-# Copyright (C) 2023 ORGANIZATION
+# Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-10-28 17:15+0200\n"
+"POT-Creation-Date: 2024-05-26 10:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.15.0\n"
 
 #: app/account/views.py:54
 msgid "You are now logged in. Welcome back!"
@@ -97,12 +97,54 @@ msgstr ""
 msgid "User login disabled."
 msgstr ""
 
+#: app/commons/utils.py:90
+msgid ""
+"\n"
+"## Goal\n"
+"**OpenAstronomyLog** is a free and open XML schema definition for all "
+"kinds of astronomical observations. \n"
+"Software that supports this schema enables an observer to share "
+"observations with other observers or move observations \n"
+"among software products.\n"
+"\n"
+"## History\n"
+"The schema (formerly known as COMAST schema) was primarily developed by "
+"the \n"
+"german [\"Fachgruppe für Computerastronomie\"](http://www.vds-"
+"astro.de/fachgruppen/computerastronomie.html) (section for "
+"computerastronomy) which is a subsection of Germany's largest\n"
+"astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der "
+"Sternfreunde e.V.) \n"
+"Starting with version 2.0 the schema was renamed from COMAST (abbr. for "
+"*Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\\<OAL\\>**.\n"
+"\n"
+"## Documentation\n"
+"Please see our [wiki "
+"section](https://github.com/openastronomylog/openastronomylog/wiki) as "
+"well as the "
+"[doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc)"
+" folder\n"
+"\n"
+"## License\n"
+"The schema is released under the [APACHE Software License "
+"2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE)"
+" and is currently supported in both open source and \n"
+"commercial software. Just [download the schema "
+"archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!"
+"\n"
+"\n"
+"## Contribution\n"
+"In you want to contribute to **\\<OAL\\>** please join the "
+"[OpenAstronomyLog discussion "
+"group](https://groups.google.com/forum/#!forum/openastronomylog).\n"
+msgstr ""
+
 #: app/compat/query_select_field.py:113 app/compat/query_select_field.py:115
 msgid "Not a valid choice"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:59
-#: app/main/catalogue/double_star_forms.py:30
+#: app/main/catalogue/double_star_forms.py:31
 #: app/main/catalogue/dso_list_forms.py:29
 #: app/main/catalogue/supernova_forms.py:15 app/main/forms.py:20
 #: app/main/import_history/import_history_forms.py:13
@@ -124,36 +166,39 @@ msgstr ""
 #: app/main/equipment/equipment_forms.py:86
 #: app/main/equipment/equipment_forms.py:104 app/main/forms.py:23
 #: app/main/forms.py:32 app/main/location/location_forms.py:26
-#: app/main/observation/observing_session_forms.py:68
+#: app/main/observation/observing_session_forms.py:71
 #: app/main/observation/standalone_observation_forms.py:52
 #: app/main/planner/sessionplan_forms.py:43
-#: app/templates/main/observation/observing_session_info.html:60
-#: app/templates/main/observation/standalone_observation_info.html:85
-#: app/templates/main/observation/standalone_observations.html:41
+#: app/templates/main/observation/observing_session_info.html:62
+#: app/templates/main/observation/standalone_observation_info.html:90
+#: app/templates/main/observation/standalone_observations.html:46
 #: app/templates/main/planner/session_plan_info.html:40
-#: app/templates/main/solarsystem/comet_info.html:64
+#: app/templates/main/solarsystem/comet_info.html:70
 msgid "Notes"
 msgstr ""
 
 #: app/main/forms.py:24 app/main/forms.py:33
+#: app/main/observation/observing_session_forms.py:38
 #: app/main/observation/standalone_observation_forms.py:49
 msgid "Telescope"
 msgstr ""
 
 #: app/main/forms.py:25 app/main/forms.py:34
+#: app/main/observation/observing_session_forms.py:39
 #: app/main/observation/standalone_observation_forms.py:50
-#: app/templates/main/observation/standalone_observation_info.html:77
+#: app/templates/main/observation/standalone_observation_info.html:82
 msgid "Eyepiece"
 msgstr ""
 
-#: app/main/forms.py:26 app/main/observation/standalone_observation_forms.py:51
-#: app/templates/main/observation/standalone_observation_info.html:81
+#: app/main/forms.py:26 app/main/observation/observing_session_forms.py:40
+#: app/main/observation/standalone_observation_forms.py:51
+#: app/templates/main/observation/standalone_observation_info.html:86
 msgid "Filter"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:31
 #: app/main/catalogue/deepskyobject_forms.py:76
-#: app/main/catalogue/double_star_forms.py:36
+#: app/main/catalogue/double_star_forms.py:37
 #: app/main/catalogue/star_forms.py:18 app/main/chart/chart_theme_forms.py:17
 #: app/main/forms.py:27 app/main/forms.py:35
 #: app/main/usersettings/usersettings_forms.py:18
@@ -164,10 +209,9 @@ msgstr ""
 
 #: app/main/forms.py:28 app/main/forms.py:36
 #: app/main/observation/observation_forms.py:15
-#: app/main/observation/observing_session_forms.py:55
+#: app/main/observation/observing_session_forms.py:58
 #: app/main/observation/standalone_observation_forms.py:40
-#: app/templates/macros/fchart_macros.html:41
-#: app/templates/main/observation/observing_session_info.html:37
+#: app/templates/main/observation/observing_session_info.html:39
 msgid "Date From"
 msgstr ""
 
@@ -193,12 +237,12 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:90
 #: app/main/planner/wishlist_forms.py:17
 #: app/main/solarsystem/minor_planet_forms.py:27
-#: app/templates/main/catalogue/constellations.html:17
-#: app/templates/main/catalogue/double_star_list_info.html:40
+#: app/templates/main/catalogue/constellations.html:22
+#: app/templates/main/catalogue/double_star_list_info.html:213
 #: app/templates/main/catalogue/dso_list_info.html:40
 #: app/templates/main/catalogue/star_list_info.html:39
-#: app/templates/main/planner/wish_list.html:46
-#: app/templates/main/solarsystem/minor_planets.html:19
+#: app/templates/main/planner/wish_list.html:35
+#: app/templates/main/solarsystem/minor_planets.html:24
 msgid "Season"
 msgstr ""
 
@@ -210,8 +254,8 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:91
 #: app/main/planner/wishlist_forms.py:18
 #: app/main/solarsystem/minor_planet_forms.py:28
-#: app/templates/main/catalogue/double_stars.html:24
-#: app/templates/main/catalogue/supernovae.html:24
+#: app/templates/main/catalogue/double_stars.html:29
+#: app/templates/main/catalogue/supernovae.html:29
 #: app/templates/main/planner/session_plan_schedule.html:52
 msgid "All"
 msgstr ""
@@ -268,19 +312,19 @@ msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:28
 #: app/main/catalogue/deepskyobject_forms.py:70
-#: app/main/catalogue/double_star_forms.py:33
+#: app/main/catalogue/double_star_forms.py:34
 #: app/main/catalogue/star_forms.py:15
 msgid "Common Name"
 msgstr ""
 
 #: app/main/catalogue/constellation_forms.py:29
 #: app/main/catalogue/deepskyobject_forms.py:71
-#: app/main/catalogue/double_star_forms.py:34
+#: app/main/catalogue/double_star_forms.py:35
 #: app/main/catalogue/star_forms.py:16
 msgid "Text"
 msgstr ""
 
-#: app/main/catalogue/constellation_views.py:319
+#: app/main/catalogue/constellation_views.py:322
 #: app/main/chart/chart_theme_views.py:53
 msgid "Constellation successfully updated"
 msgstr ""
@@ -331,18 +375,17 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:71
 #: app/main/solarsystem/comet_forms.py:27
 #: app/main/solarsystem/minor_planet_forms.py:35
-#: app/templates/macros/fchart_macros.html:332
-#: app/templates/main/catalogue/deepskyobjects.html:52
+#: app/templates/main/catalogue/deepskyobjects.html:57
 #: app/templates/main/catalogue/dso_list_info.html:49
 #: app/templates/main/planner/session_plan_schedule.html:67
 #: app/templates/main/solarsystem/comets.html:31
-#: app/templates/main/solarsystem/minor_planets.html:28
+#: app/templates/main/solarsystem/minor_planets.html:33
 msgid "Limit mag"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:57
-#: app/main/catalogue/double_star_forms.py:28
-#: app/main/catalogue/double_star_list_forms.py:24
+#: app/main/catalogue/double_star_forms.py:29
+#: app/main/catalogue/double_star_list_forms.py:25
 #: app/main/catalogue/dso_list_forms.py:27
 #: app/main/catalogue/supernova_forms.py:13
 #: app/main/solarsystem/comet_forms.py:28
@@ -351,7 +394,7 @@ msgid "Dec min"
 msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:58
-#: app/templates/main/catalogue/deepskyobjects.html:72
+#: app/templates/main/catalogue/deepskyobjects.html:77
 msgid "Max axis ratio"
 msgstr ""
 
@@ -361,44 +404,51 @@ msgstr ""
 
 #: app/main/catalogue/deepskyobject_forms.py:73
 #: app/main/location/location_forms.py:28 app/main/news/news_forms.py:23
-#: app/main/observation/observing_session_forms.py:54
+#: app/main/observation/observing_session_forms.py:57
 #: app/templates/main/location/location_info.html:45
 #: app/templates/main/location/locations.html:48
 #: app/templates/main/news/news_list.html:45
-#: app/templates/main/observation/observing_sessions.html:29
+#: app/templates/main/observation/observing_sessions.html:34
 msgid "Rating"
 msgstr ""
 
 #: app/main/catalogue/double_star_forms.py:24
 #: app/main/catalogue/double_star_list_forms.py:20
-#: app/templates/main/catalogue/double_star_list_info.html:44
-#: app/templates/main/catalogue/double_stars.html:42
+#: app/templates/main/catalogue/double_star_list_info.html:217
+#: app/templates/main/catalogue/double_stars.html:47
 msgid "Mag max"
 msgstr ""
 
 #: app/main/catalogue/double_star_forms.py:25
 #: app/main/catalogue/double_star_list_forms.py:21
-#: app/templates/main/catalogue/double_star_list_info.html:48
-#: app/templates/main/catalogue/double_stars.html:46
+#: app/templates/main/catalogue/double_star_list_info.html:221
+#: app/templates/main/catalogue/double_stars.html:51
 msgid "Delta mag min"
 msgstr ""
 
 #: app/main/catalogue/double_star_forms.py:26
 #: app/main/catalogue/double_star_list_forms.py:22
-#: app/templates/main/catalogue/double_star_list_info.html:52
-#: app/templates/main/catalogue/double_stars.html:50
-msgid "Separation min"
+#: app/templates/main/catalogue/double_star_list_info.html:225
+#: app/templates/main/catalogue/double_stars.html:55
+msgid "Delta mag max"
 msgstr ""
 
 #: app/main/catalogue/double_star_forms.py:27
 #: app/main/catalogue/double_star_list_forms.py:23
-#: app/templates/main/catalogue/double_star_list_info.html:56
-#: app/templates/main/catalogue/double_stars.html:54
+#: app/templates/main/catalogue/double_star_list_info.html:229
+#: app/templates/main/catalogue/double_stars.html:59
+msgid "Separation min"
+msgstr ""
+
+#: app/main/catalogue/double_star_forms.py:28
+#: app/main/catalogue/double_star_list_forms.py:24
+#: app/templates/main/catalogue/double_star_list_info.html:233
+#: app/templates/main/catalogue/double_stars.html:63
 msgid "Separation max"
 msgstr ""
 
 #: app/main/catalogue/supernova_forms.py:12
-#: app/templates/main/catalogue/supernovae.html:42
+#: app/templates/main/catalogue/supernovae.html:47
 msgid "Max latest mag"
 msgstr ""
 
@@ -406,7 +456,7 @@ msgstr ""
 msgid "Field radius"
 msgstr ""
 
-#: app/main/chart/chart_forms.py:15 app/templates/macros/fchart_macros.html:347
+#: app/main/chart/chart_forms.py:15
 msgid "DSO limit mag"
 msgstr ""
 
@@ -419,7 +469,7 @@ msgstr ""
 #: app/main/planner/sessionplan_views.py:455
 #: app/templates/main/catalogue/constellation_info.html:121
 #: app/templates/main/catalogue/constellation_info.html:381
-#: app/templates/main/catalogue/constellations.html:36
+#: app/templates/main/catalogue/constellations.html:41
 #: app/templates/main/catalogue/deepskyobject_info.html:317
 #: app/templates/main/catalogue/dso_list_info.html:93
 #: app/templates/main/catalogue/star_info.html:125
@@ -433,13 +483,13 @@ msgstr ""
 #: app/templates/main/equipment/telescopes.html:35
 #: app/templates/main/location/location_info.html:30
 #: app/templates/main/location/locations.html:44
-#: app/templates/main/observation/observing_session_info.html:153
+#: app/templates/main/observation/observing_session_info.html:228
 #: app/templates/main/planner/session_plan_info.html:51
 #: app/templates/main/planner/session_plan_schedule.html:129
 #: app/templates/main/planner/session_plan_schedule.html:227
 #: app/templates/main/solarsystem/comets.html:62
-#: app/templates/main/solarsystem/minor_planets.html:59
-#: app/templates/main/solarsystem/planets.html:22
+#: app/templates/main/solarsystem/minor_planets.html:64
+#: app/templates/main/solarsystem/planets.html:27
 msgid "Name"
 msgstr ""
 
@@ -501,7 +551,7 @@ msgstr ""
 #: app/templates/main/equipment/filter_info.html:38
 #: app/templates/main/equipment/lens_info.html:39
 #: app/templates/main/equipment/telescope_info.html:48
-#: app/templates/main/observation/observing_sessions.html:28
+#: app/templates/main/observation/observing_sessions.html:33
 msgid "Is active"
 msgstr ""
 
@@ -645,7 +695,7 @@ msgstr ""
 
 #: app/main/location/location_forms.py:33
 #: app/templates/main/catalogue/constellation_info.html:113
-#: app/templates/main/catalogue/constellations.html:35
+#: app/templates/main/catalogue/constellations.html:40
 #: app/templates/main/location/location_info.html:42
 msgid "IAU code"
 msgstr ""
@@ -660,13 +710,13 @@ msgid "Update location"
 msgstr ""
 
 #: app/main/news/news_forms.py:19
-#: app/main/observation/observing_session_forms.py:53
+#: app/main/observation/observing_session_forms.py:56
 #: app/main/planner/sessionplan_forms.py:40
 #: app/templates/main/news/news_list.html:44
-#: app/templates/main/observation/observing_sessions.html:25
+#: app/templates/main/observation/observing_sessions.html:30
 #: app/templates/main/planner/session_plan_info.html:36
-#: app/templates/main/planner/session_plans.html:34
-#: app/templates/main/planner/session_plans.html:59
+#: app/templates/main/planner/session_plans.html:43
+#: app/templates/main/planner/session_plans.html:68
 msgid "Title"
 msgstr ""
 
@@ -697,95 +747,55 @@ msgid "Update news"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:17
-#: app/main/observation/observing_session_forms.py:57
+#: app/main/observation/observing_session_forms.py:60
 #: app/main/observation/standalone_observation_forms.py:42
-#: app/templates/macros/fchart_macros.html:48
-#: app/templates/main/observation/observing_session_info.html:38
+#: app/templates/main/observation/observing_session_info.html:40
 msgid "Date To"
 msgstr ""
 
 #: app/main/observation/observation_forms.py:19
+#: app/main/observation/observing_session_forms.py:121
 msgid "Export Observing Session"
 msgstr ""
 
-#: app/main/observation/observation_import.py:347
+#: app/main/observation/observation_import.py:351
 msgid "Double star \"{}\" not found"
 msgstr ""
 
-#: app/main/observation/observation_import.py:358
+#: app/main/observation/observation_import.py:362
 #: app/main/planner/sessionplan_import.py:66
 msgid "DSO \"{}\" not found"
 msgstr ""
 
-#: app/main/observation/observation_import.py:416
+#: app/main/observation/observation_import.py:423
 msgid "OAL Target \"{}\" not found."
 msgstr ""
 
-#: app/main/observation/observation_import.py:435
+#: app/main/observation/observation_import.py:442
 msgid ""
 "OAL Observation \"{}\" for session \"{}\" already exists and was modified"
 " by user."
 msgstr ""
 
-#: app/main/observation/observation_views.py:78
+#: app/main/observation/observation_views.py:79
 #: app/main/observation/observed_views.py:145
+#: app/main/observation/observing_session_views.py:185
 #: app/main/planner/sessionplan_views.py:399
 msgid "No file part"
 msgstr ""
 
-#: app/main/observation/observation_views.py:82
+#: app/main/observation/observation_views.py:83
 #: app/main/observation/observed_views.py:149
+#: app/main/observation/observing_session_views.py:189
 msgid "No selected file"
 msgstr ""
 
-#: app/main/observation/observation_views.py:120
+#: app/main/observation/observation_views.py:121
 msgid "Observations import enqued."
 msgstr ""
 
-#: app/main/observation/observation_views.py:164
-msgid ""
-"\n"
-"## Goal\n"
-"**OpenAstronomyLog** is a free and open XML schema definition for all "
-"kinds of astronomical observations. \n"
-"Software that supports this schema enables an observer to share "
-"observations with other observers or move observations \n"
-"among software products.\n"
-"\n"
-"## History\n"
-"The schema (formerly known as COMAST schema) was primarily developed by "
-"the \n"
-"german [\"Fachgruppe für Computerastronomie\"](http://www.vds-"
-"astro.de/fachgruppen/computerastronomie.html) (section for "
-"computerastronomy) which is a subsection of Germany's largest\n"
-"astronomy union, [VDS](http://www.vds-astro.de/) (Vereinigung der "
-"Sternfreunde e.V.) \n"
-"Starting with version 2.0 the schema was renamed from COMAST (abbr. for "
-"*Com*puter *Ast*ronomy) to **OpenAstronomyLog**, or **\\<OAL\\>**.\n"
-"\n"
-"## Documentation\n"
-"Please see our [wiki "
-"section](https://github.com/openastronomylog/openastronomylog/wiki) as "
-"well as the "
-"[doc](https://github.com/openastronomylog/openastronomylog/tree/master/doc)"
-" folder\n"
-"\n"
-"## License\n"
-"The schema is released under the [APACHE Software License "
-"2.0](https://github.com/openastronomylog/openastronomylog/blob/master/LICENSE)"
-" and is currently supported in both open source and \n"
-"commercial software. Just [download the schema "
-"archive](https://github.com/openastronomylog/openastronomylog/blob/master/OAL21.zip?raw=true)!"
-"\n"
-"\n"
-"## Contribution\n"
-"In you want to contribute to **\\<OAL\\>** please join the "
-"[OpenAstronomyLog discussion "
-"group](https://groups.google.com/forum/#!forum/openastronomylog).\n"
-msgstr ""
-
 #: app/main/observation/observed_forms.py:13
-#: app/main/observation/observing_session_forms.py:110
+#: app/main/observation/observing_session_forms.py:113
 #: app/main/planner/sessionplan_forms.py:86
 #: app/main/planner/wishlist_forms.py:13
 msgid "DSO name"
@@ -820,125 +830,129 @@ msgid "DSO list with comment. (e.g. M3,M5:nice globulars!)"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:34
-#: app/main/observation/observing_session_forms.py:61
+#: app/main/observation/observing_session_forms.py:64
 #: app/main/observation/standalone_observation_forms.py:46
-#: app/templates/main/observation/observing_session_info.html:53
-#: app/templates/main/observation/observing_sessions.html:27
+#: app/templates/main/observation/observing_session_info.html:55
+#: app/templates/main/observation/observing_sessions.html:32
 msgid "Sqm"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:35
-#: app/main/observation/observing_session_forms.py:63
+#: app/main/observation/observing_session_forms.py:66
 #: app/main/observation/standalone_observation_forms.py:48
-#: app/templates/main/observation/observing_session_info.html:55
-#: app/templates/main/observation/standalone_observation_info.html:69
+#: app/templates/main/observation/observing_session_info.html:57
+#: app/templates/main/observation/standalone_observation_info.html:74
 msgid "Seeing"
 msgstr ""
 
 #: app/main/observation/observing_session_forms.py:36
-#: app/main/observation/observing_session_forms.py:64
-#: app/templates/main/observation/observing_session_info.html:56
+#: app/main/observation/observing_session_forms.py:67
+#: app/templates/main/observation/observing_session_info.html:58
 msgid "Transparency"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:45
+#: app/main/observation/observing_session_forms.py:48
 msgid "Value expected."
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:48
-#: app/main/observation/observing_session_forms.py:49
+#: app/main/observation/observing_session_forms.py:51
+#: app/main/observation/observing_session_forms.py:52
 #: app/main/observation/standalone_observation_forms.py:57
 msgid "Unknown targets:"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:59
+#: app/main/observation/observing_session_forms.py:62
 #: app/main/observation/standalone_observation_forms.py:44
 #: app/main/planner/sessionplan_forms.py:42
-#: app/templates/main/observation/observing_session_info.html:39
-#: app/templates/main/observation/observing_sessions.html:26
-#: app/templates/main/observation/standalone_observation_info.html:55
-#: app/templates/main/observation/standalone_observations.html:40
+#: app/templates/main/observation/observing_session_info.html:41
+#: app/templates/main/observation/observing_sessions.html:31
+#: app/templates/main/observation/standalone_observation_info.html:60
+#: app/templates/main/observation/standalone_observations.html:45
 #: app/templates/main/planner/session_plan_info.html:38
-#: app/templates/main/planner/session_plans.html:35
-#: app/templates/main/planner/session_plans.html:60
+#: app/templates/main/planner/session_plans.html:44
+#: app/templates/main/planner/session_plans.html:69
 msgid "Location"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:62
+#: app/main/observation/observing_session_forms.py:65
 #: app/main/observation/standalone_observation_forms.py:47
-#: app/templates/main/observation/observing_session_info.html:54
+#: app/templates/main/observation/observing_session_info.html:56
 msgid "Faintest Star"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:66
-#: app/templates/main/observation/observing_session_info.html:57
+#: app/main/observation/observing_session_forms.py:69
+#: app/templates/main/observation/observing_session_info.html:59
 msgid "Weather"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:67
+#: app/main/observation/observing_session_forms.py:70
 #: app/templates/main/equipment/eyepieces.html:10
 #: app/templates/main/equipment/filters.html:10
 #: app/templates/main/equipment/lenses.html:10
 #: app/templates/main/equipment/telescopes.html:10
-#: app/templates/main/observation/observing_session_info.html:58
+#: app/templates/main/observation/observing_session_info.html:60
 #: app/templates/main/userdata/userdata_menu.html:16
 msgid "Equipment"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:69
-#: app/templates/main/observation/observing_session_info.html:69
+#: app/main/observation/observing_session_forms.py:72
+#: app/templates/main/observation/observing_session_info.html:71
 msgid "Session is public"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:70
-#: app/templates/main/observation/observing_session_info.html:71
+#: app/main/observation/observing_session_forms.py:73
+#: app/templates/main/observation/observing_session_info.html:73
 msgid "Session is finished"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:71
-#: app/templates/main/observation/observing_session_info.html:70
+#: app/main/observation/observing_session_forms.py:74
+#: app/templates/main/observation/observing_session_info.html:72
 msgid "Session is active"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:75
+#: app/main/observation/observing_session_forms.py:78
 #: app/main/observation/standalone_observation_forms.py:69
 msgid "Date from must be before date to."
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:77
+#: app/main/observation/observing_session_forms.py:80
 #: app/main/observation/standalone_observation_forms.py:71
 msgid "Date to must be after date from."
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:85
+#: app/main/observation/observing_session_forms.py:88
 #: app/templates/main/observation/observation_menu.html:16
 msgid "Create Observing Session"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:95
+#: app/main/observation/observing_session_forms.py:98
 msgid "Update Observing Session"
 msgstr ""
 
-#: app/main/observation/observing_session_forms.py:106
+#: app/main/observation/observing_session_forms.py:109
 msgid "Update Items"
 msgstr ""
 
-#: app/main/observation/observing_session_views.py:188
+#: app/main/observation/observing_session_views.py:213
+msgid "Observing session imported"
+msgstr ""
+
+#: app/main/observation/observing_session_views.py:267
 msgid "Observing session successfully created"
 msgstr ""
 
-#: app/main/observation/observing_session_views.py:246
+#: app/main/observation/observing_session_views.py:325
 msgid "Observing session successfully updated"
 msgstr ""
 
-#: app/main/observation/observing_session_views.py:362
+#: app/main/observation/observing_session_views.py:464
 #: app/main/observation/standalone_observation_views.py:250
 msgid "Observation was deleted"
 msgstr ""
 
 #: app/main/observation/standalone_observation_forms.py:39
-#: app/templates/main/observation/standalone_observation_info.html:33
-#: app/templates/main/observation/standalone_observations.html:39
+#: app/templates/main/observation/standalone_observation_info.html:38
+#: app/templates/main/observation/standalone_observations.html:44
 msgid "Target"
 msgstr ""
 
@@ -960,8 +974,8 @@ msgstr ""
 
 #: app/main/planner/sessionplan_forms.py:32
 #: app/templates/main/import_history/import_history_records.html:30
-#: app/templates/main/planner/session_plans.html:17
-#: app/templates/main/planner/session_plans.html:36
+#: app/templates/main/planner/session_plans.html:26
+#: app/templates/main/planner/session_plans.html:45
 msgid "Status"
 msgstr ""
 
@@ -975,13 +989,13 @@ msgstr ""
 
 #: app/main/planner/sessionplan_forms.py:41
 #: app/templates/main/import_history/import_history_records.html:29
-#: app/templates/main/observation/observing_sessions.html:24
-#: app/templates/main/observation/standalone_observation_info.html:41
-#: app/templates/main/observation/standalone_observations.html:38
+#: app/templates/main/observation/observing_sessions.html:29
+#: app/templates/main/observation/standalone_observation_info.html:46
+#: app/templates/main/observation/standalone_observations.html:43
 #: app/templates/main/planner/session_plan_info.html:37
-#: app/templates/main/planner/session_plans.html:33
-#: app/templates/main/planner/session_plans.html:58
-#: app/templates/main/solarsystem/comet_info.html:61
+#: app/templates/main/planner/session_plans.html:42
+#: app/templates/main/planner/session_plans.html:67
+#: app/templates/main/solarsystem/comet_info.html:67
 msgid "Date"
 msgstr ""
 
@@ -1055,20 +1069,20 @@ msgstr ""
 #: app/templates/main/catalogue/constellation_info.html:35
 #: app/templates/main/catalogue/constellation_info.html:383
 #: app/templates/main/catalogue/deepskyobject_info.html:318
-#: app/templates/main/catalogue/deepskyobjects.html:96
+#: app/templates/main/catalogue/deepskyobjects.html:101
 #: app/templates/main/catalogue/dso_list_info.html:106
 #: app/templates/main/catalogue/supernova_info.html:75
-#: app/templates/main/catalogue/supernovae.html:107
+#: app/templates/main/catalogue/supernovae.html:112
 #: app/templates/main/equipment/filters.html:34
 #: app/templates/main/equipment/lenses.html:34
 #: app/templates/main/equipment/telescopes.html:36
 #: app/templates/main/import_history/import_history_record_info.html:32
 #: app/templates/main/observation/observed_list.html:78
-#: app/templates/main/observation/observing_session_info.html:154
+#: app/templates/main/observation/observing_session_info.html:229
 #: app/templates/main/planner/session_plan_info.html:52
 #: app/templates/main/planner/session_plan_schedule.html:135
 #: app/templates/main/planner/session_plan_schedule.html:228
-#: app/templates/main/planner/wish_list.html:56
+#: app/templates/main/planner/wish_list.html:54
 msgid "Type"
 msgstr ""
 
@@ -1077,14 +1091,15 @@ msgstr ""
 #: app/templates/main/catalogue/deepskyobject_edit.html:13
 #: app/templates/main/catalogue/deepskyobject_info.html:323
 #: app/templates/main/catalogue/double_star_edit.html:13
-#: app/templates/main/catalogue/double_star_info.html:338
-#: app/templates/main/catalogue/double_stars.html:38
+#: app/templates/main/catalogue/double_star_info.html:337
+#: app/templates/main/catalogue/double_star_list_info.html:97
+#: app/templates/main/catalogue/double_stars.html:43
 #: app/templates/main/catalogue/star_edit.html:13
 #: app/templates/main/catalogue/star_info.html:126
-#: app/templates/main/catalogue/supernovae.html:38
+#: app/templates/main/catalogue/supernovae.html:43
 #: app/templates/main/observation/observed_list.html:79
 #: app/templates/main/planner/session_plan_schedule.html:47
-#: app/templates/main/planner/wish_list.html:57
+#: app/templates/main/planner/wish_list.html:55
 msgid "Constellation"
 msgstr ""
 
@@ -1311,17 +1326,14 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:476
 msgid "Object not found"
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:478
 msgid "Specified object was not found."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:482
 msgid "Close"
 msgstr ""
 
@@ -1338,168 +1350,6 @@ msgstr ""
 #: app/templates/macros/common_macros.html:67
 #: app/templates/macros/common_macros.html:93
 msgid "Add to observed"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:61
-#: app/templates/macros/fchart_macros.html:192
-#: app/templates/macros/fchart_macros.html:243
-#: app/templates/main/equipment/equipment_menu.html:10
-#: app/templates/main/location/locations.html:10
-#: app/templates/main/news/news_list.html:10
-msgid "Settings"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:66
-#: app/templates/macros/fchart_macros.html:68
-#: app/templates/macros/fchart_macros.html:110
-#: app/templates/macros/fchart_macros.html:197
-#: app/templates/macros/fchart_macros.html:199
-#: app/templates/macros/fchart_macros.html:235
-msgid "Telrad"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:79
-#: app/templates/main/equipment/equipment_menu.html:16
-#: app/templates/main/equipment/telescope_edit.html:13
-#: app/templates/main/equipment/telescope_info.html:16
-#: app/templates/main/equipment/telescopes.html:17
-msgid "Telescopes"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:100
-#: app/templates/macros/fchart_macros.html:225
-msgid "Reset FOV"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:103
-#: app/templates/macros/fchart_macros.html:228
-msgid "Unselect"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:116
-#: app/templates/macros/fchart_macros.html:248
-#: app/templates/macros/fchart_macros.html:250
-msgid "Picker"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:120
-#: app/templates/macros/fchart_macros.html:255
-#: app/templates/macros/fchart_macros.html:257
-msgid "Constellation lines"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:124
-#: app/templates/macros/fchart_macros.html:262
-#: app/templates/macros/fchart_macros.html:264
-msgid "Constellation borders"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:128
-#: app/templates/macros/fchart_macros.html:269
-#: app/templates/macros/fchart_macros.html:271
-msgid "Equatorial grid"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:132
-#: app/templates/macros/fchart_macros.html:276
-#: app/templates/macros/fchart_macros.html:278
-msgid "Deepsky objects"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:135
-msgid "DSS background"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:140
-#: app/templates/macros/fchart_macros.html:141
-#: app/templates/macros/fchart_macros.html:283
-#: app/templates/macros/fchart_macros.html:285
-msgid "DSS colored"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:147
-#: app/templates/macros/fchart_macros.html:148
-#: app/templates/macros/fchart_macros.html:291
-#: app/templates/macros/fchart_macros.html:293
-msgid "DSS blue"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:154
-msgid "Show magnitudes"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:159
-#: app/templates/macros/fchart_macros.html:161
-#: app/templates/macros/fchart_macros.html:299
-#: app/templates/macros/fchart_macros.html:301
-msgid "DSO mag"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:166
-#: app/templates/macros/fchart_macros.html:168
-#: app/templates/macros/fchart_macros.html:306
-#: app/templates/macros/fchart_macros.html:308
-msgid "Star mag"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:179
-#: app/templates/macros/fchart_macros.html:313
-#: app/templates/macros/fchart_macros.html:315
-msgid "Flip horizontally"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:183
-#: app/templates/macros/fchart_macros.html:320
-#: app/templates/macros/fchart_macros.html:322
-msgid "Flip vertically"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:361
-msgid "Object List"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:364
-msgid "None"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:368
-#: app/templates/main/planner/session_plan_schedule.html:20
-#: app/templates/main/planner/wish_list.html:139
-msgid "Wish List"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:373
-#: app/templates/main/observation/observing_session_info.html:121
-msgid "Session plans"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:386
-#: app/templates/main/catalogue/deepskyobject_info.html:16
-#: app/templates/main/catalogue/double_star_info.html:15
-#: app/templates/main/import_history/import_history_records.html:10
-#: app/templates/main/observation/observing_session_items_edit.html:30
-#: app/templates/main/observation/observing_sessions.html:9
-#: app/templates/main/observation/standalone_observation_edit.html:13
-#: app/templates/main/observation/standalone_observations.html:10
-msgid "Observations"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:399
-#: app/templates/main/planner/session_plan_schedule.html:24
-msgid "DSO List"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:419
-msgid "PDF export"
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:449
-#: app/templates/macros/nav_macros.html:140
-msgid "Search..."
-msgstr ""
-
-#: app/templates/macros/fchart_macros.html:455
-msgid "Split view"
 msgstr ""
 
 #: app/templates/macros/nav_macros.html:57
@@ -1536,106 +1386,110 @@ msgstr ""
 msgid "Dark Mode"
 msgstr ""
 
-#: app/templates/main/index.html:15 app/templates/main/index.html:47
-#: app/templates/main/news/news_edit.html:13
-#: app/templates/main/news/news_info.html:53
-msgid "News"
+#: app/templates/macros/nav_macros.html:140
+msgid "Search..."
 msgstr ""
 
-#: app/templates/main/catalogue/constellations.html:11
-#: app/templates/main/index.html:70
+#: app/templates/main/index.html:15
+msgid "News of the Week"
+msgstr ""
+
+#: app/templates/main/catalogue/constellations.html:14
+#: app/templates/main/index.html:29
 msgid "Constellations"
 msgstr ""
 
-#: app/templates/main/index.html:71
+#: app/templates/main/index.html:30
 msgid "View constellations"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:9
-#: app/templates/main/catalogue/double_stars.html:10
-#: app/templates/main/catalogue/dso_list_menu.html:39
+#: app/templates/main/catalogue/deepskyobjects.html:11
+#: app/templates/main/catalogue/double_stars.html:12
+#: app/templates/main/catalogue/dso_list_menu.html:41
 #: app/templates/main/catalogue/dso_menu.html:13
-#: app/templates/main/catalogue/supernovae.html:10
-#: app/templates/main/index.html:72
+#: app/templates/main/catalogue/supernovae.html:12
+#: app/templates/main/index.html:31
 msgid "Deepsky"
 msgstr ""
 
-#: app/templates/main/index.html:73
+#: app/templates/main/index.html:32
 msgid "View deepsky objects"
 msgstr ""
 
-#: app/templates/main/index.html:74
-#: app/templates/main/solarsystem/comets.html:139
-#: app/templates/main/solarsystem/minor_planets.html:9
-#: app/templates/main/solarsystem/planets.html:9
+#: app/templates/main/index.html:33
 msgid "Solar System"
 msgstr ""
 
-#: app/templates/main/index.html:75
+#: app/templates/main/index.html:34
 msgid "View solar system"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:8
 #: app/templates/main/catalogue/deepskyobject_info.html:21
 #: app/templates/main/catalogue/double_star_info.html:21
-#: app/templates/main/catalogue/double_star_list_info.html:8
+#: app/templates/main/catalogue/double_star_list_info.html:10
+#: app/templates/main/catalogue/double_star_list_info.html:15
 #: app/templates/main/catalogue/dso_list_info.html:8
 #: app/templates/main/catalogue/star_info.html:15
 #: app/templates/main/catalogue/star_info.html:34
 #: app/templates/main/catalogue/star_list_info.html:8
 #: app/templates/main/catalogue/supernova_info.html:17
-#: app/templates/main/chart/chart.html:38 app/templates/main/index.html:76
+#: app/templates/main/chart/chart.html:38 app/templates/main/index.html:35
 #: app/templates/main/news/news_info.html:8
 #: app/templates/main/observation/observed_list.html:8
 #: app/templates/main/observation/observing_session_info.html:8
-#: app/templates/main/observation/observing_session_info.html:14
+#: app/templates/main/observation/observing_session_info.html:15
 #: app/templates/main/planner/session_plan_info.html:9
 #: app/templates/main/planner/session_plan_info.html:14
 #: app/templates/main/planner/wish_list.html:7
+#: app/templates/main/solarsystem/comet_info.html:18
 #: app/templates/main/solarsystem/comets.html:8
+#: app/templates/main/solarsystem/minor_planet_info.html:16
+#: app/templates/main/solarsystem/planet_info.html:11
 msgid "Chart"
 msgstr ""
 
-#: app/templates/main/index.html:77
+#: app/templates/main/index.html:36
 msgid "View sky chart"
 msgstr ""
 
-#: app/templates/main/index.html:79
+#: app/templates/main/index.html:38
 msgid "Session Plan"
 msgstr ""
 
-#: app/templates/main/index.html:80
+#: app/templates/main/index.html:39
 msgid "Session plan"
 msgstr ""
 
-#: app/templates/main/index.html:83
+#: app/templates/main/index.html:42
 #: app/templates/main/planner/planner_menu.html:13
-#: app/templates/main/planner/session_plan_edit.html:19
-#: app/templates/main/planner/session_plans.html:8
+#: app/templates/main/planner/session_plan_edit.html:21
+#: app/templates/main/planner/session_plans.html:10
+#: app/templates/main/planner/wish_list.html:133
 msgid "Planner"
 msgstr ""
 
-#: app/templates/main/index.html:84
+#: app/templates/main/index.html:43
 msgid "View planner menu"
 msgstr ""
 
-#: app/templates/main/index.html:85
+#: app/templates/main/index.html:44
 #: app/templates/main/observation/observation_menu.html:13
-#: app/templates/main/observation/observing_session_edit.html:13
+#: app/templates/main/observation/observing_session_edit.html:15
 msgid "Observation"
 msgstr ""
 
-#: app/templates/main/index.html:86
+#: app/templates/main/index.html:45
 msgid "View observation menu"
 msgstr ""
 
-#: app/templates/main/index.html:91
+#: app/templates/main/index.html:50
 #: app/templates/main/userdata/data_store.html:35
 #: app/templates/main/userdata/userdata_menu.html:13
 msgid "User Data"
 msgstr ""
 
-#: app/templates/main/index.html:92
+#: app/templates/main/index.html:51
 msgid "View user data"
 msgstr ""
 
@@ -1652,7 +1506,7 @@ msgstr ""
 #: app/templates/main/catalogue/deepskyobject_info.html:26
 #: app/templates/main/catalogue/double_star_info.html:20
 #: app/templates/main/catalogue/double_star_info.html:26
-#: app/templates/main/catalogue/double_star_list_info.html:7
+#: app/templates/main/catalogue/double_star_list_info.html:14
 #: app/templates/main/catalogue/dso_list_info.html:7
 #: app/templates/main/catalogue/star_info.html:14
 #: app/templates/main/catalogue/star_info.html:21
@@ -1663,7 +1517,7 @@ msgstr ""
 #: app/templates/main/news/news_info.html:12
 #: app/templates/main/observation/observed_list.html:7
 #: app/templates/main/observation/observing_session_info.html:7
-#: app/templates/main/observation/observing_session_info.html:13
+#: app/templates/main/observation/observing_session_info.html:14
 #: app/templates/main/planner/session_plan_info.html:7
 #: app/templates/main/planner/session_plan_info.html:13
 #: app/templates/main/planner/wish_list.html:6
@@ -1694,7 +1548,8 @@ msgid "Image"
 msgstr ""
 
 #: app/templates/main/catalogue/constellation_info.html:123
-#: app/templates/main/catalogue/double_star_list_info.html:26
+#: app/templates/main/catalogue/double_star_list_info.html:109
+#: app/templates/main/catalogue/double_star_list_info.html:198
 #: app/templates/main/catalogue/dso_list_info.html:26
 #: app/templates/main/catalogue/star_list_info.html:26
 #: app/templates/main/equipment/eyepiece_info.html:33
@@ -1713,20 +1568,6 @@ msgstr ""
 msgid "Sketch"
 msgstr ""
 
-#: app/templates/main/catalogue/constellations.html:8
-#: app/templates/main/catalogue/dso_menu.html:10
-#: app/templates/main/chart/chart.html:31
-#: app/templates/main/observation/observation_menu.html:10
-#: app/templates/main/observation/observing_session_info.html:294
-#: app/templates/main/planner/planner_menu.html:10
-#: app/templates/main/planner/session_plan_edit.html:14
-#: app/templates/main/planner/session_plan_edit.html:29
-#: app/templates/main/planner/session_plan_info.html:187
-#: app/templates/main/solarsystem/solarsystem_menu.html:10
-#: app/templates/main/userdata/userdata_menu.html:10
-msgid "Dashboard"
-msgstr ""
-
 #: app/templates/main/catalogue/deepskyobject_info.html:14
 #: app/templates/main/catalogue/double_star_info.html:14
 #: app/templates/main/import_history/import_history_record_info.html:34
@@ -1737,9 +1578,22 @@ msgid "Log"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:15
-#: app/templates/main/catalogue/deepskyobjects.html:28
+#: app/templates/main/catalogue/deepskyobjects.html:33
 #: app/templates/main/catalogue/double_star_info.html:16
 msgid "Catalog"
+msgstr ""
+
+#: app/templates/main/catalogue/deepskyobject_info.html:16
+#: app/templates/main/catalogue/double_star_info.html:15
+#: app/templates/main/import_history/import_history_records.html:10
+#: app/templates/main/observation/observation_export.html:11
+#: app/templates/main/observation/observation_import.html:11
+#: app/templates/main/observation/observed_list.html:219
+#: app/templates/main/observation/observing_session_items_edit.html:35
+#: app/templates/main/observation/observing_sessions.html:11
+#: app/templates/main/observation/standalone_observation_edit.html:15
+#: app/templates/main/observation/standalone_observations.html:12
+msgid "Observations"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:22
@@ -1764,8 +1618,8 @@ msgid "distance"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:383
-#: app/templates/main/catalogue/double_star_info.html:222
-#: app/templates/main/solarsystem/comet_info.html:97
+#: app/templates/main/catalogue/double_star_info.html:221
+#: app/templates/main/solarsystem/comet_info.html:103
 #: app/templates/main/solarsystem/minor_planet_info.html:60
 #: app/templates/main/solarsystem/planet_info.html:55
 msgid "Active observation:"
@@ -1773,10 +1627,10 @@ msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:442
 #: app/templates/main/catalogue/deepskyobject_info.html:456
-#: app/templates/main/catalogue/double_star_info.html:277
-#: app/templates/main/catalogue/double_star_info.html:284
-#: app/templates/main/solarsystem/comet_info.html:155
-#: app/templates/main/solarsystem/comet_info.html:162
+#: app/templates/main/catalogue/double_star_info.html:276
+#: app/templates/main/catalogue/double_star_info.html:283
+#: app/templates/main/solarsystem/comet_info.html:161
+#: app/templates/main/solarsystem/comet_info.html:168
 #: app/templates/main/solarsystem/minor_planet_info.html:115
 #: app/templates/main/solarsystem/minor_planet_info.html:122
 #: app/templates/main/solarsystem/planet_info.html:113
@@ -1785,15 +1639,15 @@ msgid "Delete Log"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:458
-#: app/templates/main/catalogue/double_star_info.html:286
-#: app/templates/main/solarsystem/comet_info.html:164
+#: app/templates/main/catalogue/double_star_info.html:285
+#: app/templates/main/solarsystem/comet_info.html:170
 #: app/templates/main/solarsystem/minor_planet_info.html:124
 #: app/templates/main/solarsystem/planet_info.html:122
 msgid "Are you sure you want to delete this observation log?"
 msgstr ""
 
 #: app/templates/main/catalogue/deepskyobject_info.html:463
-#: app/templates/main/catalogue/double_star_info.html:291
+#: app/templates/main/catalogue/double_star_info.html:290
 #: app/templates/main/equipment/eyepiece_edit.html:91
 #: app/templates/main/equipment/filter_edit.html:88
 #: app/templates/main/equipment/lens_edit.html:91
@@ -1803,46 +1657,46 @@ msgstr ""
 #: app/templates/main/news/news_edit.html:77
 #: app/templates/main/observation/observed_list.html:139
 #: app/templates/main/observation/observed_list.html:154
-#: app/templates/main/observation/observing_session_edit.html:161
-#: app/templates/main/observation/standalone_observation_edit.html:144
-#: app/templates/main/planner/session_plan_edit.html:129
+#: app/templates/main/observation/observing_session_edit.html:166
+#: app/templates/main/observation/standalone_observation_edit.html:148
+#: app/templates/main/planner/session_plan_edit.html:135
 #: app/templates/main/planner/session_plan_schedule.html:309
 #: app/templates/main/planner/session_plan_schedule.html:324
-#: app/templates/main/solarsystem/comet_info.html:169
+#: app/templates/main/solarsystem/comet_info.html:175
 #: app/templates/main/solarsystem/minor_planet_info.html:129
 #: app/templates/main/solarsystem/planet_info.html:127
 #: app/templates/main/userdata/data_store.html:119
 msgid "Yes"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobject_info.html:552
+#: app/templates/main/catalogue/deepskyobject_info.html:584
 msgid "Observation recording"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:12
+#: app/templates/main/catalogue/deepskyobjects.html:15
 msgid "Deepsky Objects"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:20
+#: app/templates/main/catalogue/deepskyobjects.html:25
 msgid "Choose Catalogue"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:34
+#: app/templates/main/catalogue/deepskyobjects.html:39
 msgid "Choose Type"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:42
+#: app/templates/main/catalogue/deepskyobjects.html:47
 #: app/templates/main/planner/session_plan_schedule.html:43
 msgid "Object Type"
 msgstr ""
 
-#: app/templates/main/catalogue/deepskyobjects.html:62
-#: app/templates/main/catalogue/double_star_list_info.html:60
-#: app/templates/main/catalogue/double_stars.html:58
+#: app/templates/main/catalogue/deepskyobjects.html:67
+#: app/templates/main/catalogue/double_star_list_info.html:237
+#: app/templates/main/catalogue/double_stars.html:67
 #: app/templates/main/catalogue/dso_list_info.html:59
-#: app/templates/main/catalogue/supernovae.html:46
+#: app/templates/main/catalogue/supernovae.html:51
 #: app/templates/main/solarsystem/comets.html:41
-#: app/templates/main/solarsystem/minor_planets.html:38
+#: app/templates/main/solarsystem/minor_planets.html:43
 msgid "Declination min"
 msgstr ""
 
@@ -1851,93 +1705,112 @@ msgstr ""
 msgid "Back To Star"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:328
+#: app/templates/main/catalogue/double_star_info.html:327
+#: app/templates/main/catalogue/double_star_list_info.html:87
 msgid "WDS ID"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:329
+#: app/templates/main/catalogue/double_star_info.html:328
+#: app/templates/main/catalogue/double_star_list_info.html:88
 msgid "Common catalogue ID"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:330
+#: app/templates/main/catalogue/double_star_info.html:329
+#: app/templates/main/catalogue/double_star_list_info.html:89
 msgid "Components"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:331
+#: app/templates/main/catalogue/double_star_info.html:330
+#: app/templates/main/catalogue/double_star_list_info.html:90
 msgid "Other Designation"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:332
+#: app/templates/main/catalogue/double_star_info.html:331
+#: app/templates/main/catalogue/double_star_list_info.html:91
 msgid "Position angle"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:333
+#: app/templates/main/catalogue/double_star_info.html:332
+#: app/templates/main/catalogue/double_star_list_info.html:92
 msgid "Separation"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:334
+#: app/templates/main/catalogue/double_star_info.html:333
+#: app/templates/main/catalogue/double_star_list_info.html:93
 msgid "Mag First"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:335
+#: app/templates/main/catalogue/double_star_info.html:334
+#: app/templates/main/catalogue/double_star_list_info.html:94
 msgid "Mag Second"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:336
+#: app/templates/main/catalogue/double_star_info.html:335
+#: app/templates/main/catalogue/double_star_list_info.html:95
 msgid "Delta mag"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_info.html:337
+#: app/templates/main/catalogue/double_star_info.html:336
+#: app/templates/main/catalogue/double_star_list_info.html:96
 msgid "Spectral Type"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:67
-#: app/templates/main/catalogue/double_stars.html:67
+#: app/templates/main/catalogue/double_star_list_info.html:8
+msgid "Detail"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_list_info.html:9
+#: app/templates/main/solarsystem/comets.html:7
+msgid "List"
+msgstr ""
+
+#: app/templates/main/catalogue/double_star_list_info.html:245
+#: app/templates/main/catalogue/double_stars.html:76
 msgid "WDS or Cat. ID"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:84
-#: app/templates/main/catalogue/double_stars.html:84
+#: app/templates/main/catalogue/double_star_list_info.html:263
+#: app/templates/main/catalogue/double_stars.html:93
 msgid "Catalog ID"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:89
-#: app/templates/main/catalogue/double_stars.html:89
+#: app/templates/main/catalogue/double_star_list_info.html:268
+#: app/templates/main/catalogue/double_stars.html:98
 msgid "Co."
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:94
-#: app/templates/main/catalogue/double_stars.html:94
+#: app/templates/main/catalogue/double_star_list_info.html:273
+#: app/templates/main/catalogue/double_stars.html:103
 msgid "Other designation"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:99
-#: app/templates/main/catalogue/double_stars.html:99
+#: app/templates/main/catalogue/double_star_list_info.html:278
+#: app/templates/main/catalogue/double_stars.html:108
 msgid "Mag1"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:104
-#: app/templates/main/catalogue/double_stars.html:104
+#: app/templates/main/catalogue/double_star_list_info.html:283
+#: app/templates/main/catalogue/double_stars.html:113
 msgid "Mag2"
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:109
-#: app/templates/main/catalogue/double_stars.html:109
+#: app/templates/main/catalogue/double_star_list_info.html:288
+#: app/templates/main/catalogue/double_stars.html:118
 msgid "Sep."
 msgstr ""
 
-#: app/templates/main/catalogue/double_star_list_info.html:124
-#: app/templates/main/catalogue/double_stars.html:124
+#: app/templates/main/catalogue/double_star_list_info.html:303
+#: app/templates/main/catalogue/double_stars.html:133
 msgid "Spec."
 msgstr ""
 
-#: app/templates/main/catalogue/double_stars.html:13
+#: app/templates/main/catalogue/double_stars.html:16
 #: app/templates/main/catalogue/dso_menu.html:20
 msgid "Double Stars"
 msgstr ""
 
-#: app/templates/main/catalogue/double_stars.html:21
-#: app/templates/main/catalogue/supernovae.html:21
+#: app/templates/main/catalogue/double_stars.html:26
+#: app/templates/main/catalogue/supernovae.html:26
 #: app/templates/main/planner/session_plan_schedule.html:49
 msgid "Choose Constellation"
 msgstr ""
@@ -1955,20 +1828,31 @@ msgstr ""
 msgid "Distance"
 msgstr ""
 
-#: app/templates/main/catalogue/dso_list_menu.html:42
-msgid "CzSky lists"
-msgstr ""
-
 #: app/templates/main/catalogue/dso_list_menu.html:47
-msgid "Classic list"
+msgid "CzSkY lists"
 msgstr ""
 
 #: app/templates/main/catalogue/dso_list_menu.html:52
-msgid "Categorized Lists"
+msgid "Classic list"
 msgstr ""
 
 #: app/templates/main/catalogue/dso_list_menu.html:57
+msgid "Categorized Lists"
+msgstr ""
+
+#: app/templates/main/catalogue/dso_list_menu.html:62
 msgid "Exotic lists"
+msgstr ""
+
+#: app/templates/main/catalogue/dso_menu.html:10
+#: app/templates/main/chart/chart.html:31
+#: app/templates/main/observation/observation_menu.html:10
+#: app/templates/main/observation/observing_session_info.html:369
+#: app/templates/main/planner/planner_menu.html:10
+#: app/templates/main/planner/session_plan_info.html:187
+#: app/templates/main/solarsystem/solarsystem_menu.html:10
+#: app/templates/main/userdata/userdata_menu.html:10
+msgid "Dashboard"
 msgstr ""
 
 #: app/templates/main/catalogue/dso_menu.html:16
@@ -1992,7 +1876,7 @@ msgid "View WDS catalogue of double stars"
 msgstr ""
 
 #: app/templates/main/catalogue/dso_menu.html:22
-#: app/templates/main/catalogue/supernovae.html:13
+#: app/templates/main/catalogue/supernovae.html:16
 msgid "Supernovae"
 msgstr ""
 
@@ -2012,17 +1896,17 @@ msgid "Spectral type"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:69
-#: app/templates/main/catalogue/supernovae.html:72
+#: app/templates/main/catalogue/supernovae.html:77
 msgid "Host Galaxy"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:72
-#: app/templates/main/catalogue/supernovae.html:92
+#: app/templates/main/catalogue/supernovae.html:97
 msgid "Offset"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:73
-#: app/templates/main/catalogue/supernovae.html:97
+#: app/templates/main/catalogue/supernovae.html:102
 msgid "Latest Mag"
 msgstr ""
 
@@ -2031,17 +1915,17 @@ msgid "Last Observed"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:77
-#: app/templates/main/catalogue/supernovae.html:117
+#: app/templates/main/catalogue/supernovae.html:122
 msgid "Max Mag"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:78
-#: app/templates/main/catalogue/supernovae.html:122
+#: app/templates/main/catalogue/supernovae.html:127
 msgid "Max Mag Date"
 msgstr ""
 
 #: app/templates/main/catalogue/supernova_info.html:79
-#: app/templates/main/catalogue/supernovae.html:127
+#: app/templates/main/catalogue/supernovae.html:132
 msgid "First Observed"
 msgstr ""
 
@@ -2049,11 +1933,11 @@ msgstr ""
 msgid "Discoverer"
 msgstr ""
 
-#: app/templates/main/catalogue/supernovae.html:55
+#: app/templates/main/catalogue/supernovae.html:60
 msgid "SN designation"
 msgstr ""
 
-#: app/templates/main/catalogue/supernovae.html:102
+#: app/templates/main/catalogue/supernovae.html:107
 msgid "Latest Observed"
 msgstr ""
 
@@ -2061,8 +1945,21 @@ msgstr ""
 msgid "Chart theme"
 msgstr ""
 
+#: app/templates/main/equipment/equipment_menu.html:10
+#: app/templates/main/location/locations.html:10
+#: app/templates/main/news/news_list.html:10
+msgid "Settings"
+msgstr ""
+
 #: app/templates/main/equipment/equipment_menu.html:13
 msgid "Instruments"
+msgstr ""
+
+#: app/templates/main/equipment/equipment_menu.html:16
+#: app/templates/main/equipment/telescope_edit.html:13
+#: app/templates/main/equipment/telescope_info.html:16
+#: app/templates/main/equipment/telescopes.html:17
+msgid "Telescopes"
 msgstr ""
 
 #: app/templates/main/equipment/equipment_menu.html:17
@@ -2130,8 +2027,8 @@ msgstr ""
 #: app/templates/main/news/news_edit.html:75
 #: app/templates/main/observation/observed_list.html:137
 #: app/templates/main/observation/observed_list.html:152
-#: app/templates/main/observation/standalone_observation_edit.html:142
-#: app/templates/main/planner/session_plan_edit.html:127
+#: app/templates/main/observation/standalone_observation_edit.html:146
+#: app/templates/main/planner/session_plan_edit.html:133
 #: app/templates/main/planner/session_plan_schedule.html:307
 #: app/templates/main/planner/session_plan_schedule.html:322
 #: app/templates/main/userdata/data_store.html:117
@@ -2325,6 +2222,11 @@ msgstr ""
 msgid "Links"
 msgstr ""
 
+#: app/templates/main/news/news_edit.html:13
+#: app/templates/main/news/news_info.html:53
+msgid "News"
+msgstr ""
+
 #: app/templates/main/news/news_edit.html:18
 msgid "News Info"
 msgstr ""
@@ -2361,6 +2263,7 @@ msgstr ""
 
 #: app/templates/main/observation/observation_export.html:24
 #: app/templates/main/observation/observation_import.html:24
+#: app/templates/main/observation/observing_session_info.html:129
 msgid "About OAL"
 msgstr ""
 
@@ -2375,7 +2278,7 @@ msgid "Create new observing session"
 msgstr ""
 
 #: app/templates/main/observation/observation_menu.html:18
-#: app/templates/main/observation/observing_sessions.html:16
+#: app/templates/main/observation/observing_sessions.html:15
 msgid "Observing Sessions"
 msgstr ""
 
@@ -2392,8 +2295,8 @@ msgid "Create new standalone observation"
 msgstr ""
 
 #: app/templates/main/observation/observation_menu.html:22
-#: app/templates/main/observation/standalone_observation_info.html:18
-#: app/templates/main/observation/standalone_observations.html:17
+#: app/templates/main/observation/standalone_observation_info.html:20
+#: app/templates/main/observation/standalone_observations.html:16
 msgid "Standalone Observations"
 msgstr ""
 
@@ -2465,125 +2368,149 @@ msgstr ""
 msgid "List of observed objects"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:18
-#: app/templates/main/observation/observing_session_items_edit.html:12
-#: app/templates/main/observation/standalone_observation_edit.html:18
-#: app/templates/main/planner/session_plan_edit.html:34
+#: app/templates/main/observation/observing_session_edit.html:20
+#: app/templates/main/observation/observing_session_items_edit.html:14
+#: app/templates/main/observation/standalone_observation_edit.html:20
+#: app/templates/main/planner/session_plan_edit.html:37
 msgid "Leave editing"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:23
+#: app/templates/main/observation/observing_session_edit.html:26
 msgid "Add New Observing Session"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:25
+#: app/templates/main/observation/observing_session_edit.html:28
 msgid "Edit Observing Session"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:138
-#: app/templates/main/observation/observing_session_items_edit.html:77
-#: app/templates/main/observation/standalone_observation_edit.html:121
-#: app/templates/main/planner/session_plan_edit.html:106
+#: app/templates/main/observation/observing_session_edit.html:143
+#: app/templates/main/observation/observing_session_items_edit.html:94
+#: app/templates/main/observation/standalone_observation_edit.html:125
+#: app/templates/main/planner/session_plan_edit.html:112
 msgid "Update and go back"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:144
-#: app/templates/main/observation/observing_session_edit.html:154
+#: app/templates/main/observation/observing_session_edit.html:149
+#: app/templates/main/observation/observing_session_edit.html:159
 msgid "Delete Observing Session"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_edit.html:156
+#: app/templates/main/observation/observing_session_edit.html:161
 msgid "Are you sure you want to delete observing session?"
 msgstr ""
 
 #: app/templates/main/observation/observing_session_info.html:9
-#: app/templates/main/observation/observing_session_info.html:140
+msgid "Imp/Exp"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:10
+#: app/templates/main/observation/observing_session_info.html:215
 msgid "Run plan"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:123
+#: app/templates/main/observation/observing_session_info.html:16
+msgid "Export"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:154
+msgid "Export observation to OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:156
+msgid "Export observing session to OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:166
+msgid "Import observing session OAL"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:196
+msgid "Session plans"
+msgstr ""
+
+#: app/templates/main/observation/observing_session_info.html:198
 msgid "Choose current session plan"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:148
+#: app/templates/main/observation/observing_session_info.html:223
 #: app/templates/main/planner/session_plan_schedule.html:115
 msgid "Unobserved objects"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:159
+#: app/templates/main/observation/observing_session_info.html:234
 #: app/templates/main/planner/session_plan_info.html:60
-#: app/templates/main/solarsystem/comet_info.html:63
+#: app/templates/main/solarsystem/comet_info.html:69
 #: app/templates/main/solarsystem/comets.html:87
 msgid "Size"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:229
+#: app/templates/main/observation/observing_session_info.html:304
 msgid "No object has been observed from this plan yet."
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:235
+#: app/templates/main/observation/observing_session_info.html:310
 msgid "Observed"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:322
+#: app/templates/main/observation/observing_session_info.html:397
 msgid "Edit Header"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:325
+#: app/templates/main/observation/observing_session_info.html:400
 msgid "Edit Items"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:331
+#: app/templates/main/observation/observing_session_info.html:406
 msgid "Activate"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_info.html:336
+#: app/templates/main/observation/observing_session_info.html:411
 msgid "Deactivate"
 msgstr ""
 
-#: app/templates/main/observation/observing_session_items_edit.html:15
+#: app/templates/main/observation/observing_session_items_edit.html:18
 msgid "Edit Observing Session Items"
 msgstr ""
 
-#: app/templates/main/observation/observing_sessions.html:13
+#: app/templates/main/observation/observing_sessions.html:20
 msgid "New observing session"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_edit.html:24
+#: app/templates/main/observation/standalone_observation_edit.html:26
 msgid "Add New Observation"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_edit.html:26
-#: app/templates/main/observation/standalone_observation_info.html:24
+#: app/templates/main/observation/standalone_observation_edit.html:28
+#: app/templates/main/observation/standalone_observation_info.html:29
 msgid "Edit Observation"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_edit.html:127
-#: app/templates/main/observation/standalone_observation_edit.html:137
+#: app/templates/main/observation/standalone_observation_edit.html:131
+#: app/templates/main/observation/standalone_observation_edit.html:141
 msgid "Delete Observation"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_edit.html:139
+#: app/templates/main/observation/standalone_observation_edit.html:143
 msgid "Are you sure you want to delete observation?"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_info.html:37
+#: app/templates/main/observation/standalone_observation_info.html:42
 msgid "Observer"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_info.html:46
+#: app/templates/main/observation/standalone_observation_info.html:51
 msgid "Observing session"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_info.html:65
+#: app/templates/main/observation/standalone_observation_info.html:70
 msgid "Limiting magnitude/SQM"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observation_info.html:73
+#: app/templates/main/observation/standalone_observation_info.html:78
 msgid "Instrument"
 msgstr ""
 
-#: app/templates/main/observation/standalone_observations.html:14
+#: app/templates/main/observation/standalone_observations.html:21
 msgid "New observation"
 msgstr ""
 
@@ -2596,7 +2523,7 @@ msgid "Create new session plan"
 msgstr ""
 
 #: app/templates/main/planner/planner_menu.html:18
-#: app/templates/main/planner/session_plans.html:11
+#: app/templates/main/planner/session_plans.html:14
 msgid "Session Plans"
 msgstr ""
 
@@ -2612,24 +2539,24 @@ msgstr ""
 msgid "View wishlist"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_edit.html:23
-#: app/templates/main/planner/session_plan_edit.html:40
+#: app/templates/main/planner/session_plan_edit.html:26
+#: app/templates/main/planner/session_plan_edit.html:44
 msgid "Add New Session Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_edit.html:42
+#: app/templates/main/planner/session_plan_edit.html:46
 msgid "Edit Session Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_edit.html:112
+#: app/templates/main/planner/session_plan_edit.html:118
 msgid "Delete Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_edit.html:122
+#: app/templates/main/planner/session_plan_edit.html:128
 msgid "Delete Session Plan"
 msgstr ""
 
-#: app/templates/main/planner/session_plan_edit.html:124
+#: app/templates/main/planner/session_plan_edit.html:130
 msgid "Are you sure you want to delete session plan?"
 msgstr ""
 
@@ -2662,6 +2589,15 @@ msgstr ""
 
 #: app/templates/main/planner/session_plan_schedule.html:16
 msgid "Choose Source"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_schedule.html:20
+#: app/templates/main/planner/wish_list.html:137
+msgid "Wish List"
+msgstr ""
+
+#: app/templates/main/planner/session_plan_schedule.html:24
+msgid "DSO List"
 msgstr ""
 
 #: app/templates/main/planner/session_plan_schedule.html:33
@@ -2732,39 +2668,39 @@ msgstr ""
 msgid "Are you sure you want to clear session plan?"
 msgstr ""
 
-#: app/templates/main/solarsystem/comet_info.html:53
+#: app/templates/main/planner/session_plans.html:19
+msgid "New session plan"
+msgstr ""
+
+#: app/templates/main/solarsystem/comet_info.html:59
 msgid "Mag"
 msgstr ""
 
-#: app/templates/main/solarsystem/comet_info.html:54
+#: app/templates/main/solarsystem/comet_info.html:60
 msgid "Coma diameter"
 msgstr ""
 
-#: app/templates/main/solarsystem/comet_info.html:62
+#: app/templates/main/solarsystem/comet_info.html:68
 #: app/templates/main/solarsystem/comets.html:82
-#: app/templates/main/solarsystem/minor_planets.html:79
+#: app/templates/main/solarsystem/minor_planets.html:84
 msgid "Brightness"
-msgstr ""
-
-#: app/templates/main/solarsystem/comets.html:7
-msgid "List"
 msgstr ""
 
 #: app/templates/main/solarsystem/comets.html:109
 msgid "Magnitude value is evaluated"
 msgstr ""
 
-#: app/templates/main/solarsystem/comets.html:143
+#: app/templates/main/solarsystem/comets.html:148
 #: app/templates/main/solarsystem/solarsystem_menu.html:20
 msgid "Comets"
 msgstr ""
 
-#: app/templates/main/solarsystem/minor_planets.html:12
+#: app/templates/main/solarsystem/minor_planets.html:15
 #: app/templates/main/solarsystem/solarsystem_menu.html:18
 msgid "Minor planets"
 msgstr ""
 
-#: app/templates/main/solarsystem/planets.html:12
+#: app/templates/main/solarsystem/planets.html:15
 #: app/templates/main/solarsystem/solarsystem_menu.html:16
 msgid "Planets"
 msgstr ""

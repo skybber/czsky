@@ -414,7 +414,7 @@ def tmp_import_wikipedia_ngc():
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import translate_wikipedia_ngc
-    gpt_prompt = '''Přelož následující text popisu astronomického objektu češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+    gpt_prompt = '''Přelož následující text popisu astronomického objektu do češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
 
 '''
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
