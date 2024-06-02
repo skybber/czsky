@@ -223,54 +223,54 @@
                   </div>
               </div>
           </div>
+      </form>
 
-          <!-- Export to PDF -->
-          {% if fchart_pdf_url is not none %}
-              <div class="ui horizontally fitted item mobile hidden" style="z-index:100">
-                  <div class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="left center" data-variation="tiny basic">
-                      <i class="download icon"></i>
-                      <div class="menu">
-                          {% if fchart_items_url is not none %}
-                              <div class="item">
-                                  <i class="dropdown icon"></i>
-                                  <span class="text">Landscape</span>
-                                  <div class="right menu">
-                                      <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                      <a id="download_items_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
-                                  </div>
+      <!-- Export to PDF -->
+      {% if fchart_pdf_url is not none %}
+          <div class="ui horizontally fitted item mobile hidden" style="z-index:100">
+              <div class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="left center" data-variation="tiny basic">
+                  <i class="download icon"></i>
+                  <div class="menu">
+                      {% if fchart_items_url is not none %}
+                          <div class="item">
+                              <i class="dropdown icon"></i>
+                              <span class="text">Landscape</span>
+                              <div class="right menu">
+                                  <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
+                                  <a id="download_items_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
                               </div>
-                              <div class="item">
-                                  <i class="dropdown icon"></i>
-                                  <span class="text">Portrait</span>
-                                  <div class="right menu">
-                                      <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                      <a id="download_items_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
-                                  </div>
+                          </div>
+                          <div class="item">
+                              <i class="dropdown icon"></i>
+                              <span class="text">Portrait</span>
+                              <div class="right menu">
+                                  <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
+                                  <a id="download_items_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
                               </div>
-                          {% else %}
-                              <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Landscape</a>
-                              <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Portrait</a>
-                          {% endif %}
-                      </div>
+                          </div>
+                      {% else %}
+                          <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Landscape</a>
+                          <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Portrait</a>
+                      {% endif %}
                   </div>
               </div>
-          {% endif %}
-
-          <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; display:none;">
-              <div class="ui icon input">
-                  <input id="search" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
-                  <i class="search icon"></i>
-              </div>
           </div>
+      {% endif %}
 
-          <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
-              <div class="ui small buttons">
-                  <button id="bfullscreen" type="button" class="ui icon button">
-                      <i class="expand icon"></i>
-                  </button>
-              </div>
+      <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; display:none;">
+          <div class="ui icon input">
+              <input id="search" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
+              <i class="search icon"></i>
           </div>
-      </form>
+      </div>
+
+      <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
+          <div class="ui small buttons">
+              <button id="bfullscreen" type="button" class="ui icon button">
+                  <i class="expand icon"></i>
+              </button>
+          </div>
+      </div>
   </div>
 
   <div class="ui computer tablet only" style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
