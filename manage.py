@@ -39,10 +39,10 @@ with app.app_context():
         migrate.init_app(app, db)
 
 
+@app.route('/googlec19eb44ce20514ca.html')
 @app.route('/robots.txt')
 def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
-
 
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
@@ -419,6 +419,14 @@ def tmp_translate_wikipedia_ngc():
 '''
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
+
+@app.cli.command("tmp_translate_wikipedia_ngc")
+def fix_wikipedia_ngc():
+    from imports.import_wiki_ngc_ic import fix_wikipedia_ngc
+    gpt_prompt = '''Oprav následující astronomický text, použij správný termín "galaxie s příčkou". Opravovaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+
+'''
+    fix_wikipedia_ngc('cs', 'Zdroj', 'příčně', gpt_prompt)
 
 @app.cli.command("tmp_dmichalko")
 def tmp_dmichalko():
