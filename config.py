@@ -23,6 +23,8 @@ if os.path.exists('config.env'):
 
 class Config:
     APP_NAME = os.environ.get('APP_NAME', 'CzSkY')
+    APP_DESCRIPTION = os.environ.get('APP_DESCRIPTION', 'Explore the wonders of the night sky with our comprehensive astronomical resources. Access detailed sky maps, constellation descriptions, deep-sky object (DSO) descriptions with drawings, an observation planner, and an observation log to enhance your stargazing experience.')
+    APP_KEYWORDS = os.environ.get('APP_KEYWORDS', 'astronomy, sky maps, constellations, deep-sky objects, DSO, stargazing, star charts, celestial navigation, observation planner, observation log, night sky, astronomy resources')
 
     if os.environ.get('SECRET_KEY'):
         SECRET_KEY = os.environ.get('SECRET_KEY')
