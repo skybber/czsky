@@ -19,7 +19,7 @@ WIKIPEDIA_REF = '{} Wikipedia'
 
 class TranslHolder:
     def __init__(self, gpt_prompt):
-        self.encoding = tiktoken.encoding_for_model('gpt-3.5-turbo-1106')
+        self.encoding = tiktoken.encoding_for_model('gpt-4')
         self.gpt_prompt = gpt_prompt
         self.dso_names = []
         self.descrs = []
@@ -50,7 +50,7 @@ class TranslHolder:
                 messages = [{"role": "user", "content": self.gpt_prompt + text}]
 
                 completion = openai.ChatCompletion.create(
-                    model='gpt-3.5-turbo-1106',
+                    model='gpt-4o-2024-05-13',
                     messages=messages,
                     temperature=0.0
                 )
@@ -103,7 +103,7 @@ class TranslHolder:
                     print('Tag __x__ not found {}'.format(tag2))
                     exit()
 
-                t = transl[i1+len(tag1):i2].strip()
+                t = transl[i1+len(tag1):i2].strip().replace('__0__', '')
 
                 t_orig = self.string[i1_orig+len(tag1):i2_orig].strip()
 
@@ -220,7 +220,7 @@ def import_wikipedia_ngc(do_update=False):
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
 
-def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt):
+def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt, update_date):
 
     user_editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
     user_wikipedia = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA')).first()
@@ -235,12 +235,16 @@ def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt):
 
         for udd_en in user_descr:
             mag8_descr = UserDsoDescription.query.filter_by(dso_id=udd_en.dso_id, user_id=user_editor_cs.id).first()
-            udd = UserDsoDescription.query.filter_by(dso_id=udd_en.dso_id, user_id=user_wikipedia.id, lang_code=lang_code).first()
-            if not udd:
-                dso = DeepskyObject.query.filter_by(id=udd_en.dso_id).first()
+            udd = UserDsoDescription.query.filter(UserDsoDescription.dso_id==udd_en.dso_id,
+                                                  UserDsoDescription.user_id==user_wikipedia.id,
+                                                  UserDsoDescription.lang_code==lang_code,
+                                                  UserDsoDescription.update_date < update_date).first()
+            dso = DeepskyObject.query.filter_by(id=udd_en.dso_id).first()
 
-                if dso and dso.master_id:
-                    dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+            if dso and dso.master_id:
+                dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+
+            if not udd:
                 udd = UserDsoDescription(
                     dso_id=udd_en.dso_id,
                     user_id=user_wikipedia.id,
@@ -254,9 +258,11 @@ def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt):
                     update_by=user_wikipedia.id,
                     create_date=datetime.now(),
                     update_date=datetime.now(),
-
                 )
-                tholder.add_descr(dso.name, udd, udd_en.text)
+            else:
+                udd.update_by=user_wikipedia.id
+                udd.update_date = datetime.now()
+            tholder.add_descr(dso.name, udd, udd_en.text)
 
         tholder.flush()
         db.session.flush()

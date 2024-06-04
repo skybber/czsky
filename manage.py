@@ -414,17 +414,17 @@ def tmp_import_wikipedia_ngc():
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import translate_wikipedia_ngc
-    gpt_prompt = '''Přelož následující text popisu astronomického objektu do češtiny. Překládaná text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+    gpt_prompt = '''Přelož astronomický text do češtiny. Používej české názvy souhvězdí. Používej český termín 'galaxie s příčkou'. Překládaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
 
 '''
-    translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
+    translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt, datetime.now())
 
 
 @app.cli.command("tmp_fix_wikipedia_ngc")
 def tmp_fix_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import fix_wikipedia_ngc
     gpt_prompt = '''Oprav následující astronomický text, místo termínu 'příčně pruhovaná' nebo 'příčně spirální'
-použij správný termín 'galaxie s příčkou'. Opravovaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+použij !!!vždy!!! termín 'galaxie s příčkou'. Opravovaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
 
 '''
     fix_wikipedia_ngc('cs', 'Zdroj', 'příčně', gpt_prompt)
