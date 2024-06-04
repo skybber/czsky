@@ -420,10 +420,11 @@ def tmp_translate_wikipedia_ngc():
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt)
 
 
-@app.cli.command("tmp_translate_wikipedia_ngc")
-def fix_wikipedia_ngc():
+@app.cli.command("tmp_fix_wikipedia_ngc")
+def tmp_fix_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import fix_wikipedia_ngc
-    gpt_prompt = '''Oprav následující astronomický text, použij správný termín "galaxie s příčkou". Opravovaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+    gpt_prompt = '''Oprav následující astronomický text, místo termínu 'příčně pruhovaná' nebo 'příčně spirální'
+použij správný termín 'galaxie s příčkou'. Opravovaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
 
 '''
     fix_wikipedia_ngc('cs', 'Zdroj', 'příčně', gpt_prompt)

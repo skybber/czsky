@@ -57,7 +57,8 @@ class TranslHolder:
 
                 translated = completion.choices[0].message.content
                 return translated
-            except:
+            except Exception as e:
+                print(e)
                 print('Sleeeping...')
                 time.sleep(10)
 
@@ -266,3 +267,38 @@ def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt):
     except IntegrityError as err:
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
+
+
+def fix_wikipedia_ngc(lang_code, ref_prefix, text_like, gpt_prompt):
+    user_editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
+    user_wikipedia = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA')).first()
+
+    if not user_wikipedia:
+        print('User editor.wikipedia not found!')
+        return
+
+    try:
+        tholder = TranslHolder(gpt_prompt)
+        user_descr = UserDsoDescription.query.filter_by(user_id=user_wikipedia.id, lang_code='en').all()
+
+        for udd_en in user_descr:
+            udd = UserDsoDescription.query.filter(UserDsoDescription.dso_id==udd_en.dso_id,
+                                                  UserDsoDescription.user_id==user_wikipedia.id,
+                                                  UserDsoDescription.lang_code==lang_code,
+                                                  UserDsoDescription.text.like('%' + text_like + '%')).first()
+            if udd:
+                dso = DeepskyObject.query.filter_by(id=udd_en.dso_id).first()
+                if dso and dso.master_id:
+                    dso = DeepskyObject.query.filter_by(id=dso.master_id).first()
+                tholder.add_descr(dso.name, udd, udd.text)
+
+        tholder.flush()
+        db.session.flush()
+        db.session.commit()
+    except KeyError as err:
+        print('\nKey error: {}'.format(err))
+        # db.session.rollback()
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        # db.session.rollback()
+
