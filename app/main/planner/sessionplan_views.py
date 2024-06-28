@@ -82,7 +82,7 @@ from app.commons.dso_utils import normalize_dso_name, get_norm_visible_objects_s
 from app.commons.utils import get_anonymous_user
 from app.commons.coordinates import parse_latlon
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
-from app.commons.highlights_list_utils import common_highlights_from_session_plan
+from app.commons.highlights_list_utils import common_highlights_from_session_plan, find_session_plan_observed
 
 from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
 from .sessionplan_import import import_session_plan_items
@@ -710,11 +710,13 @@ def session_plan_chart_pos_img(session_plan_id, ra, dec):
     _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
+    observed_dso_ids = find_session_plan_observed(session_plan)
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                                                 observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
@@ -734,9 +736,11 @@ def session_plan_chart_pdf(session_plan_id, ra, dec):
     _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
+    observed_dso_ids = find_session_plan_observed(session_plan)
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec,
-                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                                     observed_dso_ids=observed_dso_ids)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

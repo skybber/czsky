@@ -17,6 +17,7 @@ from app.models import (
     ObsSessionPlanRun,
     ObservationTargetType,
     SessionPlan,
+    SessionPlanItem,
     SessionPlanItemType,
     StarList,
     WishList,
@@ -180,5 +181,18 @@ def find_dso_list_observed(dso_list_id):
             .filter(ObservedList.user_id == current_user.id) \
             .filter(ObservedListItem.dso_id.is_not(None))
         observed_query = observed_query.filter(or_(DsoListItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
+        return set(r[0] for r in observed_query.all())
+    return None
+
+def find_session_plan_observed(session_plan):
+    if session_plan:
+        observed_query = db.session.query(SessionPlanItem.dso_id) \
+            .filter(SessionPlanItem.session_plan_id == session_plan.id) \
+            .join(SessionPlanItem.deepsky_object)
+        observed_subquery = db.session.query(ObservedListItem.dso_id) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id == current_user.id) \
+            .filter(ObservedListItem.dso_id.is_not(None))
+        observed_query = observed_query.filter(or_(SessionPlanItem.dso_id.in_(observed_subquery), DeepskyObject.master_id.in_(observed_subquery)))
         return set(r[0] for r in observed_query.all())
     return None
