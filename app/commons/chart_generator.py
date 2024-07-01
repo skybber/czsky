@@ -840,7 +840,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
     config.eyepiece_fov = eyepiece_fov
-    config.star_mag_shift = 0.7  # increase radius of star by 0.5 magnitude
+    config.star_mag_shift = 2.0  # increase radius of star by 2.0 magnitude
 
     if show_legend:
         config.show_mag_scale_legend = True
