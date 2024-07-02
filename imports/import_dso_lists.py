@@ -350,7 +350,7 @@ def import_billionaries_club(billionaries_club_data_file):
 
 def import_deep_man_600(deep_man_600_data_file):
     _do_import_simple_csv(
-        deep_man_600_data_file, 'deep-man-600', 'Deep Man 600', DeepskyListType.CLASSIC, show_minor_axis=True)
+        deep_man_600_data_file, 'deep-man-600', 'Deep Man 600', DeepskyListType.CLASSIC, show_minor_axis=True, show_dso_type=True)
 
 def import_minimistr_dn(minimistr_dn_data_file):
     _do_import_simple_csv(minimistr_dn_data_file, 'minimistr-dn', 'MiniMistr Dark Nebulae', DeepskyListType.CZSKY, show_minor_axis=False)
