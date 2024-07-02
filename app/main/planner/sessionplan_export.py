@@ -45,7 +45,7 @@ def create_oal_observations_from_session_plan(user, session_plan):
     proc_targets = set()
     for session_plan_item in session_plan.session_plan_items:
         dso = session_plan_item.deepsky_object
-        if dso.id in proc_targets:
+        if dso is None or dso.id in proc_targets:
             continue
         proc_targets.add(dso.id)
         oal_obs_target = create_dso_observation_target(dso)
