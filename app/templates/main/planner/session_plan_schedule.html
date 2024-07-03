@@ -121,7 +121,7 @@
 <div class="ui segment" style="overflow-x: scroll;">
 <div class="ui two column very relaxed grid">
     <div class="column">
-        <table id="tblsrc" class="ui searchable sortable unstackable selectable celled table">
+        <table id="tblsrc" class="ui searchable sortable unstackable selectable celled small table">
             <thead>
                 <tr>
                     <th>
@@ -221,7 +221,7 @@
             </div>
         </div>
 
-        <table id="tbldst" class="ui searchable sortable unstackable selectable celled table">
+        <table id="tbldst" class="ui searchable sortable unstackable selectable celled small table">
             <thead>
                 <tr>
                     <th class="sorted ascending">{{ _('Name') }}</th>
@@ -231,6 +231,7 @@
                     <th>{{ _('Rise') }}</th>
                     <th>{{ _('Merid') }}</th>
                     <th>{{ _('Set') }}</th>
+                    <th></th>
                     <th></th>
                 </tr>
             </thead>
@@ -283,6 +284,7 @@
                     <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[1] }}</td>
                     <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[2] }}</td>
                     <td onclick="setIFrameSrcFromDstList({{ loop.index }})">{{ item[3] }}</td>
+                    <td><div class="ui yellow rating" data-icon="star"></div></td>
                      <td class="collapsing specialClass">
                         <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_delete', item_id=item[0].id, row_index=loop.index) }}">
                             <i class="trash alternate icon"></i>
@@ -485,6 +487,13 @@ $(function(){
             e.preventDefault();
         }
     });
+    $('.ui.rating')
+      .rating({
+        icon: 'circle',
+        initialRating: 0,
+        maxRating: 1
+      })
+    ;
   ;
 });
 </script>
