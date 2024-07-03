@@ -3,6 +3,9 @@ import os
 import math
 import json
 import base64
+import requests
+import gzip
+import uuid
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -10,6 +13,7 @@ import datetime as dt_module
 from flask import (
     abort,
     Blueprint,
+    current_app,
     flash,
     jsonify,
     redirect,
@@ -76,8 +80,37 @@ def _update_minor_planet_positions():
             update_minor_planets_positions()
             update_minor_planets_brightness()
 
+def _download_mpcorb_dat():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, timedelta(hours=1)):
+            data_dir = os.path.join(os.getcwd(), 'data/')
+            url = "https://minorplanetcenter.net/iau/MPCORB/MPCORB.DAT.gz"
+            gz_file_path = data_dir + f"MPCORB.DAT.{uuid.uuid4().hex}.gz"
+            output_tmp_file_path = data_dir + f"MPCORB.9999.DAT.{uuid.uuid4().hex}.tmp"
+            output_file_path = data_dir + "MPCORB.9999.DAT"
+
+            response = requests.get(url, stream=True)
+            if response.status_code == 200:
+                with open(gz_file_path, 'wb') as f:
+                    f.write(response.raw.read())
+                with gzip.open(gz_file_path, 'rt') as gz_file:
+                    with open(output_tmp_file_path, 'w') as output_file:
+                        for current_row, line in enumerate(gz_file, start=1):
+                            if current_row >= 44:
+                                output_file.write(line)
+                            if current_row >= 10042:
+                                break
+                os.rename(output_tmp_file_path, output_file_path)
+                os.remove(gz_file_path)
+                current_app.logger.info('File MPCORB.9999.DAT updated.')
+            else:
+                current_app.logger.error('Download MPCORB.DAT.gz failed. url={}'.format(url))
+
 
 job1 = scheduler.add_job(_update_minor_planet_positions, 'cron', hour=14, replace_existing=True, jitter=60)
+
+job2 = scheduler.add_job(_download_mpcorb_dat, 'cron', day='1,8,15,22', hour=13, replace_existing=True, jitter=60)
 
 
 def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distanceAU, body_sun_distanceAU, earth_sun_distanceAU ):
