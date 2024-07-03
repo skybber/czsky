@@ -159,7 +159,7 @@ def create_observed_dso_ids_list():
 
 
 def find_wish_list_observed(wish_list):
-    if wish_list:
+    if not current_user.is_anonymous and wish_list:
         observed_query = db.session.query(WishListItem.dso_id) \
             .filter(WishListItem.wish_list_id == wish_list.id) \
             .join(WishListItem.deepsky_object)
@@ -185,7 +185,7 @@ def find_dso_list_observed(dso_list_id):
     return None
 
 def find_session_plan_observed(session_plan):
-    if session_plan:
+    if not current_user.is_anonymous and session_plan:
         observed_query = db.session.query(SessionPlanItem.dso_id) \
             .filter(SessionPlanItem.session_plan_id == session_plan.id) \
             .join(SessionPlanItem.deepsky_object)
