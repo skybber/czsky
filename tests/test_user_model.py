@@ -56,7 +56,7 @@ class UserModelTestCase(unittest.TestCase):
         u = User(password='password')
         db.session.add(u)
         db.session.commit()
-        token = u.generate_confirmation_token(1)
+        token = u.generate_confirmation_token()
         time.sleep(2)
         self.assertFalse(u.confirm_account(token))
 
