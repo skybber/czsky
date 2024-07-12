@@ -2,6 +2,56 @@
 
 ![OrionDss](https://user-images.githubusercontent.com/2523097/195431903-615c48f6-4268-4441-bf66-7120a29319fa.png)
 
+## Prerequisites 
+
+Before running this project, install `libicu-dev`, which provides International Components for Unicode libraries. Below are installation steps for various operating systems.
+
+### Linux
+
+For Debian-based distributions like Ubuntu:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y libicu-dev
+```
+
+For Red Hat-based distributions like CentOS or Fedora:
+
+```sh
+sudo yum install libicu-devel
+```
+
+### Windows
+
+Using Chocolatey:
+
+1.Install Chocolatey if you haven't already.
+2.Run:
+```sh
+choco install icu4c
+```
+
+Using vcpkg:
+
+1.Install vcpkg if you haven't already.
+2.Run:
+
+```sh
+vcpkg install icu
+vcpkg integrate install
+```
+
+### macOS
+
+Using Homebrew:
+
+1.Install Homebrew if you haven't already.
+2.Run:
+
+```sh
+brew install icu4c
+```
+
 ## Setting up
 
 ##### Clone the repository
