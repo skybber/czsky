@@ -11,6 +11,7 @@ cachetools==5.3.3
 certifi==2024.2.2
 chardet==5.2.0
 Click==8.1.7
+commonmark==0.9.1
 email-validator==2.1.1
 Faker==25.0.1
 fchart3==0.10.2
