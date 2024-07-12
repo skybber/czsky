@@ -115,7 +115,7 @@ $ ./recreate_all.sh
 ## Running CzSky
 
 ```
-$ source env/bin/activate
+$ source venv/bin/activate
 $ honcho start -e config.env -f Local
 ```
 
