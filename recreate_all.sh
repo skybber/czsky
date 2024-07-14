@@ -30,3 +30,4 @@ flask import_planets
 flask import_minor_planets
 flask import_comets
 flask import_supernovae
+flask update_pgc_imported_dsos
