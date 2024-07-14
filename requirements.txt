@@ -59,6 +59,7 @@ raygun4py==5.0.0
 redis==5.0.4
 requests==2.31.0
 rq==1.16.2
+setuptools==70.3.0
 six==1.16.0
 skia-python==124.0b7
 skyfield==1.48
