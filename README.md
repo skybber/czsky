@@ -180,17 +180,12 @@ To open the CzSkY home page in your browser, navigate to `http://localhost:5000`
 #### External Access
 To enable access from an external computer, run CzSkY on all network devices. Modify the appropriate line in the `Local` file as follows:
 
-#### Additional Catalogs of Stars Up to 17 Magnitude
-To add extra catalogs of stars from **Stellarium**, download the catalogs in Stellarium and locate their storage directory (for Linux, this is `~/.stellarium/stars/default`). Finally copy the downloaded catalogs to the `data/` directory in the CzSkY project.
-
-```plaintext
-[Provide the exact line to modify with detailed instructions here]
-```
-
-
 ```
 web: flask --debug --app manage run --host=0.0.0.0 --port=5000 
 ```
+
+#### Additional Catalogs of Stars Up to 17 Magnitude
+To add extra catalogs of stars from **Stellarium**, download the catalogs in Stellarium and locate their storage directory (for Linux, this is `~/.stellarium/stars/default`). Finally copy the downloaded catalogs to the `data/` directory in the CzSkY project.
 
 For Windows users having issues with binding to a redis port locally, refer to [this issue](https://github.com/hack4impact/flask-base/issues/132).
 
