@@ -58,7 +58,7 @@ brew install icu4c
 
 ```
 $ git clone https://github.com/skybber/czsky.git
-$ cd REPO_NAME
+$ cd czsky
 ```
 
 ##### Initialize a virtual environment
