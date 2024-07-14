@@ -63,6 +63,11 @@ $ cd czsky
 
 ##### Initialize a virtual environment
 
+Linux:
+```
+$ python3 -m venv venv; source venv/bin/activate
+```
+
 Windows:
 ```
 $ python3 -m venv venv
