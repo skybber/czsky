@@ -21,26 +21,6 @@ For Red Hat-based distributions like CentOS or Fedora:
 sudo yum install libicu-devel
 ```
 
-### Windows
-
-Using Chocolatey:
-
-1.Install Chocolatey if you haven't already.
-2.Run:
-```sh
-choco install icu4c
-```
-
-Using vcpkg:
-
-1.Install vcpkg if you haven't already.
-2.Run:
-
-```sh
-vcpkg install icu
-vcpkg integrate install
-```
-
 ### macOS
 
 Using Homebrew:
