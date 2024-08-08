@@ -325,6 +325,9 @@ def deepskyobject_info(dso_id):
 
     user_descr, apert_descriptions, title_img  = _get_dso_descriptions(dso)
 
+    if not user_descr and not apert_descriptions and not title_img and dso != orig_dso:
+        user_descr, apert_descriptions, title_img = _get_dso_descriptions(orig_dso)
+
     prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='info')
 
     editable = current_user.is_editor()
