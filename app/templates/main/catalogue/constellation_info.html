@@ -389,7 +389,7 @@
                 </tr>
             </thead>
             <tbody>
-            {% for d in constellation_dsos | sort(attribute='mag') %}
+            {% for d in constellation_dsos %}
                 {% set dso_url =  url_for('main_deepskyobject.deepskyobject_info', dso_id=d.name, back='constell_dso', back_id=constellation.iau_code) %}
                 <tr onclick="window.location.href = '{{ dso_url }}';">
                     {% if observed %}

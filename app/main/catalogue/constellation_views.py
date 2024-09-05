@@ -423,8 +423,8 @@ def constellation_deepskyobjects(constellation_id):
         described_dsos.add(dsod.dso_id)
 
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
-                           constellation_dsos=constellation_dsos, dso_synonymas=dso_synonymas, described_dsos=described_dsos,
-                           observed=observed)
+                           constellation_dsos=sorted(constellation_dsos, key=lambda d: d.mag if d.mag is not None else float('inf')),
+                           dso_synonymas=dso_synonymas, described_dsos=described_dsos, observed=observed)
 
 
 def _sort_star_descr(star_descriptions):
