@@ -42,6 +42,15 @@
                         {% endif %}
                         <div class="top right aligned floating ui tiny label">{{ _('Declination min') }}</div>
                     </div>
+                    <div class="ui input item">
+                        {{ search_form.angular_dist_from_sun_min(class='ui tiny input', size=4) }}
+                        {% if search_form.angular_dist_from_sun_min.errors %}
+                            <div class="bottom left aligned red pointing floating ui label">
+                                {{ search_form.angular_dist_from_sun_min.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                        <div class="top right aligned floating ui tiny label">{{ _('Sun Ang. Dist. min') }}</div>
+                    </div>
                     <div class="ui right search item">
                         <div class="ui tiny action input">
                             {{ search_form.hidden_tag() }}{{ search_form.q(size=15) }}
@@ -74,6 +83,11 @@
                                         Dec {{ table_sort['cur_dec'].icon | safe }}
                                     </a>
                                 </th>
+                                <th class="mobile hidden">
+                                    <a href="{{ url_for('main_minor_planet.minor_planets', page=1, sortby=table_sort['cur_angular_dist_from_sun'].sort) }}" style="color: inherit;">
+                                        {{ _('Sun Ang. Dist.')}} {{ table_sort['cur_angular_dist_from_sun'].icon | safe }}
+                                    </a>
+                                </th>
                                 <th>
                                     <a href="{{ url_for('main_minor_planet.minor_planets', page=1, sortby=table_sort['constellation'].sort) }}" style="color: inherit;">
                                         <i class="lastfm icon"></i> {{ table_sort['constellation'].icon | safe }}
@@ -93,6 +107,7 @@
                                 <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
                                 <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>
                                 <td class="mobile hidden">{{ mp.cur_dec_str_short() }}</td>
+                                <td class="mobile hidden">{{ mp.cur_angular_dist_from_sun_deg()  | round(1) }}</td>
                                 <td>{{ mp.cur_constell().iau_code if mp.cur_constell_id is not none else '' }}</td>
                                 <td>{{ mp.eval_mag  | round(1) }}</td>
                             </tr>

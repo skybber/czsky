@@ -143,6 +143,7 @@ def minor_planets():
     sort_def = { 'designation': MinorPlanet.designation,
                  'cur_ra': MinorPlanet.cur_ra,
                  'cur_dec': MinorPlanet.cur_dec,
+                 'cur_angular_dist_from_sun': MinorPlanet.cur_angular_dist_from_sun,
                  'constellation': MinorPlanet.cur_constell_id,
                  'eval_mag': MinorPlanet.eval_mag,
                  }
@@ -152,6 +153,7 @@ def minor_planets():
         ('minor_planet_season', search_form.season),
         ('minor_planet_maglim', search_form.maglim),
         ('dec_min', search_form.dec_min),
+        ('angular_dist_from_sun_min', search_form.angular_dist_from_sun_min),
     ])
 
     per_page = get_items_per_page(search_form.items_per_page)
@@ -172,6 +174,8 @@ def minor_planets():
             minor_planet_query = minor_planet_query.filter(MinorPlanet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
         if search_form.maglim.data:
             minor_planet_query = minor_planet_query.filter(MinorPlanet.eval_mag <= search_form.maglim.data)
+        if search_form.angular_dist_from_sun_min.data:
+            minor_planet_query = minor_planet_query.filter(MinorPlanet.cur_angular_dist_from_sun > (np.pi * search_form.angular_dist_from_sun_min.data / 180.0))
         if search_form.season.data and search_form.season.data != 'All':
             minor_planet_query = minor_planet_query.join(Constellation) \
                                                    .filter(Constellation.season == search_form.season.data)

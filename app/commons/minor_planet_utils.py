@@ -86,6 +86,8 @@ def update_minor_planets_positions(show_progress=False):
 
     i = 0
 
+    sun_ra_ang, sun_dec_ang, _ = earth.at(t).observe(sun).radec()
+
     for minor_planet in MinorPlanet.query.all():
         mpc_mplanet = mpc_minor_planets.iloc[minor_planet.int_designation-1]
         if mpc_mplanet is not None:
@@ -95,6 +97,14 @@ def update_minor_planets_positions(show_progress=False):
             minor_planet.cur_dec = dec_ang.radians
             const_code = constellation_at(position_from_radec(ra_ang.radians / np.pi * 12.0, dec_ang.radians / np.pi * 180.0))
             minor_planet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id if const_code else None
+
+            angular_dist_from_sun = np.arccos(
+                np.sin(dec_ang.radians) * np.sin(sun_dec_ang.radians) +
+                np.cos(dec_ang.radians) * np.cos(sun_dec_ang.radians) *
+                np.cos(ra_ang.radians - sun_ra_ang.radians)
+            )
+
+            minor_planet.cur_angular_dist_from_sun = angular_dist_from_sun
 
             minor_planets.append(minor_planet)
             if show_progress:

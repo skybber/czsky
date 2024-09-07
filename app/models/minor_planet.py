@@ -1,3 +1,5 @@
+import numpy as np
+
 from . import Constellation
 from .. import db
 
@@ -32,6 +34,7 @@ class MinorPlanet(db.Model):
     last_observation_date = db.Column(db.String(9))
     cur_ra = db.Column(db.Float)
     cur_dec = db.Column(db.Float)
+    cur_angular_dist_from_sun = db.Column(db.Float)
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
     eval_mag = db.Column(db.Float)
 
@@ -46,6 +49,9 @@ class MinorPlanet(db.Model):
 
     def cur_dec_str_short(self):
         return dec_to_str_short(self.cur_dec) if self.cur_dec is not None else ''
+
+    def cur_angular_dist_from_sun_deg(self):
+        return (180.0 * self.cur_angular_dist_from_sun / np.pi) if self.cur_angular_dist_from_sun is not None else ''
 
     def cur_constell(self):
         return Constellation.get_constellation_by_id(self.cur_constell_id) if self.cur_constell_id is not None else None

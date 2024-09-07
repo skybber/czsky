@@ -490,7 +490,13 @@ def tmp_update_minor_planets_brightness():
     from app.commons.minor_planet_utils import update_minor_planets_brightness
     update_minor_planets_brightness(True)
 
+@app.cli.command("tmp_update_minor_planets_positions")
+def tmp_update_minor_planets_positions():
+    from app.commons.minor_planet_utils import update_minor_planets_positions
+    update_minor_planets_positions(True)
+
 @app.cli.command("tmp_update_hnsky")
 def tmp_update_hnsky():
     from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
     import_hnsky('data/deep_sky.hnd')
+
