@@ -228,7 +228,12 @@ def planet_observation_log(planet_iau_code):
             return redirect(url_for('main_planet.planet_observation_log', planet_iau_code=planet_iau_code, back=back, back_id=back_id, embed=request.args.get('embed')))
     else:
         form.notes.data = observation.notes
-        form.telescope.data = observation.telescope_id if observation.telescope_id is not None else -1
+        if observation.telescope_id:
+            form.telescope.data = observation.telescope_id
+        elif observing_session.default_telescope_id is not None:
+            form.telescope.data = observing_session.default_telescope_id
+        else:
+            form.telescope.data = -1
         form.eyepiece.data = observation.eyepiece_id if observation.eyepiece_id is not None else -1
         form.filter.data = observation.filter_id if observation.filter_id is not None else -1
         form.date_from.data = observation.date_from

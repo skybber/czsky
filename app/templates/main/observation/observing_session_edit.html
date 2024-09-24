@@ -124,15 +124,20 @@
 
                 <div class="three fields">
                     <div class="field">
-                        {{ f.render_form_field(form.is_public) }}
+                        {{ f.render_form_field(form.default_telescope) }}
                     </div>
-                    <div class="field {{ 'disabled' if not is_new and observing_session.is_finished else '' }}">
-                        {{ f.render_form_field(form.is_active) }}
-                    </div>
-                    <div class="field">
-                        {{ f.render_form_field(form.is_finished) }}
-                    </div>
-                    <div class="field">
+                    <div class="ten wide field custom-flex">
+                        <div class="three fields">
+                            <div class="field">
+                                {{ f.render_form_field(form.is_public) }}
+                            </div>
+                            <div class="field {{ 'disabled' if not is_new and observing_session.is_finished else '' }}">
+                                {{ f.render_form_field(form.is_active) }}
+                            </div>
+                            <div class="field">
+                                {{ f.render_form_field(form.is_finished) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -243,5 +248,14 @@
             });
         {% endif %}
     </script>
-
+<style>
+.custom-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.custom-flex .field {
+    margin-bottom: 0;
+}
+</style>
 {% endblock %}

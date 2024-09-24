@@ -247,6 +247,7 @@ def new_observing_session():
             weather=form.weather.data,
             equipment=form.equipment.data,
             notes=form.notes.data,
+            default_telescope_id=form.default_telescope.data,
             is_public = form.is_public.data,
             is_finished = form.is_finished.data,
             is_active = form.is_active.data,
@@ -280,7 +281,10 @@ def observing_session_edit(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     _check_observing_session(observing_session)
 
+    telescopes = Telescope.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
     form = ObservingSessionEditForm()
+    form.default_telescope.choices = [(-1, "---")] + [(t.id, t.name) for t in telescopes]
+
     if request.method == 'POST':
         if form.validate_on_submit():
             location_position = None
@@ -304,6 +308,7 @@ def observing_session_edit(observing_session_id):
             observing_session.weather = form.weather.data
             observing_session.equipment = form.equipment.data
             observing_session.notes = form.notes.data
+            observing_session.default_telescope_id = form.default_telescope.data
             observing_session.update_by = current_user.id
             observing_session.update_date = datetime.now()
             observing_session.is_public = form.is_public.data
@@ -340,6 +345,7 @@ def observing_session_edit(observing_session_id):
         form.weather.data = observing_session.weather
         form.equipment.data = observing_session.equipment
         form.notes.data = observing_session.notes
+        form.default_telescope.data = observing_session.default_telescope_id
         form.is_public.data = observing_session.is_public
         form.is_finished.data = observing_session.is_finished
         form.is_active.data = observing_session.is_active

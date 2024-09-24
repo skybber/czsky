@@ -68,6 +68,7 @@ class ObservingSessionMixin:
                                default=Transparency.AVERAGE)
     weather = StringField(lazy_gettext('Weather'))
     equipment = StringField(lazy_gettext('Equipment'))
+    default_telescope = SelectField(lazy_gettext('Default telescope'), coerce=int)
     notes = TextAreaField(lazy_gettext('Notes'))
     is_public = BooleanField(lazy_gettext('Session is public'), default=False)
     is_finished = BooleanField(lazy_gettext('Session is finished'), default=False)

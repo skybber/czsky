@@ -76,6 +76,7 @@ class ObservingSession(db.Model):
     equipment = db.Column(db.Text)
     rating = db.Column(db.Integer)
     notes = db.Column(db.Text)
+    default_telescope_id = db.Column(db.Integer, db.ForeignKey('telescopes.id'), nullable=True)
     import_history_rec_id = db.Column(db.Integer, db.ForeignKey('import_history_recs.id'), nullable=True, index=True)
     create_by = db.Column(db.Integer, db.ForeignKey('users.id'))
     update_by = db.Column(db.Integer, db.ForeignKey('users.id'))
