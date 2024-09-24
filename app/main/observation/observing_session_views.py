@@ -224,6 +224,9 @@ def observing_session_import_upload(observing_session_id):
 def new_observing_session():
     """Create new observing_session"""
     form = ObservingSessionNewForm()
+    telescopes = Telescope.query.filter_by(user_id=current_user.id, is_active=True, is_deleted=False).all()
+    form.default_telescope.choices = [(-1, "---")] + [(t.id, t.name) for t in telescopes]
+
     if request.method == 'POST' and form.validate_on_submit():
         location_position = None
         location_id = None
