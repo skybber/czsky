@@ -30,7 +30,7 @@ from app.models import (
     Eyepiece,
     ObservingSession,
     SessionPlan,
-    Telescope,
+    Telescope, BODY_KEY_DICT,
 )
 
 from .utils import to_float
@@ -132,6 +132,9 @@ pdf_font_face_initialized = False
 skyfield_ts = load.timescale()
 
 catalog_lock = threading.Lock()
+
+planets = None
+planets_last_updated = None
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -347,6 +350,40 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
 
         flt_trajectory.append(trajectory[-1])
         return flt_trajectory
+
+
+def _get_planets():
+    global planets, planets_last_updated
+
+    current_time = time()
+
+    if planets_last_updated is None or (current_time - planets_last_updated) > 600:
+        ts = load.timescale(builtin=True)
+        ts = load.timescale(builtin=True)
+        t = ts.now()
+        eph = load('de421.bsp')
+        earth = eph['earth']
+
+        planets = []
+        for planet_enum in fchart3.Planet:
+            if planet_enum == fchart3.Planet.EARTH:
+                continue
+
+            # Get the planet and Earth's ephemeris
+            planet = eph[BODY_KEY_DICT[planet_enum.name.lower()]]
+            earth = eph['earth']
+
+            planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet).radec()
+            planet_ra = planet_ra_ang.radians
+            planet_dec = planet_dec_ang.radians
+
+            planet_obj = fchart3.PlanetObject(planet_enum, planet_ra, planet_dec)
+
+            planets.append(planet_obj)
+
+        planets_last_updated = current_time
+
+    return planets
 
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
@@ -787,8 +824,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         config.show_star_circles = False
         transparent = True
 
+    planets = _get_planets()
+
     engine.make_map(used_catalogs,
-                    None, # jd=skyfield_ts.now().tdb,
+                    planets = planets,
+                    jd=None, # jd=skyfield_ts.now().tdb,
                     showing_dsos=showing_dsos,
                     dso_highlights=dso_highlights,
                     highlights=highlights,
