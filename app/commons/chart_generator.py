@@ -133,8 +133,8 @@ skyfield_ts = load.timescale()
 
 catalog_lock = threading.Lock()
 
-planets = None
-planets_last_updated = None
+solsys_bodies = None
+solsys_last_updated = None
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -352,38 +352,42 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         return flt_trajectory
 
 
-def _get_planets():
-    global planets, planets_last_updated
+def _get_solsys_bodies():
+    global solsys_bodies, solsys_last_updated
 
     current_time = time()
 
-    if planets_last_updated is None or (current_time - planets_last_updated) > 600:
-        ts = load.timescale(builtin=True)
+    if solsys_last_updated is None or (current_time - solsys_last_updated) > 600:
         ts = load.timescale(builtin=True)
         t = ts.now()
         eph = load('de421.bsp')
         earth = eph['earth']
 
-        planets = []
-        for planet_enum in fchart3.Planet:
-            if planet_enum == fchart3.Planet.EARTH:
-                continue
+        solsys_bodies = []
 
-            # Get the planet and Earth's ephemeris
-            planet = eph[BODY_KEY_DICT[planet_enum.name.lower()]]
-            earth = eph['earth']
+        all_names = ['sun', 'moon'] + [planet_enum.name.lower() for planet_enum in fchart3.SolarSystemBody if planet_enum != fchart3.SolarSystemBody.EARTH]
 
-            planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet).radec()
-            planet_ra = planet_ra_ang.radians
-            planet_dec = planet_dec_ang.radians
+        for body_name in all_names:
+            if body_name in ['sun', 'moon']:
+                body = eph[body_name]
+                if body_name == 'sun':
+                    body_enum = fchart3.SolarSystemBody.SUN
+                else:
+                    body_enum = fchart3.SolarSystemBody.MOON
+            else:
+                body = eph[BODY_KEY_DICT[body_name]]
+                body_enum = fchart3.SolarSystemBody[body_name.upper()]
 
-            planet_obj = fchart3.PlanetObject(planet_enum, planet_ra, planet_dec)
+            ra_ang, dec_ang, distance = earth.at(t).observe(body).radec()
+            ra = ra_ang.radians
+            dec = dec_ang.radians
 
-            planets.append(planet_obj)
+            body_obj = fchart3.SolarSystemBodyObject(body_enum, ra, dec)
+            solsys_bodies.append(body_obj)
 
-        planets_last_updated = current_time
+        solsys_last_updated = current_time
 
-    return planets
+    return solsys_bodies
 
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
@@ -824,10 +828,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         config.show_star_circles = False
         transparent = True
 
-    planets = _get_planets()
+    solsys_bodies = _get_solsys_bodies()
 
     engine.make_map(used_catalogs,
-                    planets = planets,
+                    solsys_bodies = solsys_bodies,
                     jd=None, # jd=skyfield_ts.now().tdb,
                     showing_dsos=showing_dsos,
                     dso_highlights=dso_highlights,
