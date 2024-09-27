@@ -252,6 +252,16 @@ def _fill_config_from_chart_theme(config, theme):
     config.flamsteed_label_font_scale = theme.flamsteed_label_font_scale
     config.outlined_dso_label_font_scale = theme.outlined_dso_label_font_scale
     config.highlight_label_font_scale = theme.highlight_label_font_scale
+    config.mercury_color = theme.mercury_color
+    config.venus_color = theme.venus_color
+    config.mars_color = theme.mars_color
+    config.jupiter_color = theme.jupiter_color
+    config.saturn_color = theme.saturn_color
+    config.uranus_color = theme.uranus_color
+    config.neptune_color = theme.neptune_color
+    config.pluto_color = theme.pluto_color
+    config.sun_color = theme.sun_color
+    config.moon_color = theme.moon_color
 
 
 def _setup_dark_theme(config, width):

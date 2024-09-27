@@ -48,6 +48,16 @@ class ChartThemeDefinition:
         self.flamsteed_label_font_scale = None
         self.outlined_dso_label_font_scale = None
         self.highlight_label_font_scale = None
+        self.mercury_color = None
+        self.venus_color = None
+        self.mars_color = None
+        self.jupiter_color = None
+        self.saturn_color = None
+        self.uranus_color = None
+        self.neptune_color = None
+        self.pluto_color = None
+        self.sun_color = None
+        self.moon_color = None
 
     def validate_set(self, defs, errors=None):
         self.show_nebula_outlines = self._parse_bool(defs.get('show_nebula_outlines'), self.show_nebula_outlines, errors)
@@ -93,6 +103,16 @@ class ChartThemeDefinition:
         self.flamsteed_label_font_scale = self._parse_font_scale(defs.get('flamsteed_label_font_scale'), self.flamsteed_label_font_scale, errors)
         self.outlined_dso_label_font_scale = self._parse_font_scale(defs.get('outlined_dso_label_font_scale'), self.outlined_dso_label_font_scale, errors)
         self.highlight_label_font_scale = self._parse_font_scale(defs.get('highlight_label_font_scale'), self.highlight_label_font_scale, errors)
+        self.mercury_color = self._parse_color(defs.get('mercury_color'), self.mercury_color, errors)
+        self.venus_color = self._parse_color(defs.get('venus_color'), self.venus_color, errors)
+        self.mars_color = self._parse_color(defs.get('mars_color'), self.mars_color, errors)
+        self.jupiter_color = self._parse_color(defs.get('jupiter_color'), self.jupiter_color, errors)
+        self.saturn_color = self._parse_color(defs.get('saturn_color'), self.saturn_color, errors)
+        self.uranus_color = self._parse_color(defs.get('uranus_color'), self.uranus_color, errors)
+        self.neptune_color = self._parse_color(defs.get('neptune_color'), self.neptune_color, errors)
+        self.pluto_color = self._parse_color(defs.get('pluto_color'), self.pluto_color, errors)
+        self.sun_color = self._parse_color(defs.get('sun_color'), self.sun_color, errors)
+        self.moon_color = self._parse_color(defs.get('moon_color'), self.moon_color, errors)
 
     def _parse_bool(self, value, default_value, errors):
         if value is not None:
@@ -215,6 +235,17 @@ bayer_label_font_scale=1.2
 flamsteed_label_font_scale=0.9
 outlined_dso_label_font_scale=1.1
 highlight_label_font_scale=1.0
+mercury_color=(0.5, 0.5, 0.5)
+venus_color=(0.9, 0.8, 0.6)
+earth_color=(0.2, 0.6, 1.0)
+mars_color=(0.8, 0.4, 0.1)
+jupiter_color=(0.9, 0.6, 0.5)
+saturn_color=(0.9, 0.8, 0.5)
+uranus_color=(0.6, 0.8, 1.0)
+neptune_color=(0.3, 0.5, 0.9)
+pluto_color=(0.7, 0.6, 0.5)
+sun_color=(1.0, 1.0, 0.0)
+moon_color=(0.8, 0.8, 0.8)
 '''
 
 
@@ -241,6 +272,16 @@ telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.3, 0.0)
 picker_color=(0.5, 0.5, 0.0)
 dso_dynamic_brightness=True
+mercury_color=(0.5, 0.5, 0.5)
+venus_color=(0.9, 0.8, 0.6)
+mars_color=(0.8, 0.4, 0.1)
+jupiter_color=(0.9, 0.6, 0.5)
+saturn_color=(0.9, 0.8, 0.5)
+uranus_color=(0.6, 0.8, 1.0)
+neptune_color=(0.3, 0.5, 0.9)
+pluto_color=(0.7, 0.6, 0.5)
+sun_color=(1.0, 1.0, 0.0)
+moon_color=(0.8, 0.8, 0.8)
 '''
 
 NIGHT_THEME_TEMPL = '''
@@ -265,6 +306,17 @@ telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.0, 0.0)
 picker_color=(0.5, 0.1, 0.0)
 dso_dynamic_brightness=False
+mercury_color=(0.5, 0.0, 0.0)
+venus_color=(0.81, 0.0, 0.0)
+earth_color=(0.54, 0.0, 0.0)
+mars_color=(0.46, 0.0, 0.0)
+jupiter_color=(0.66, 0.0, 0.0)
+saturn_color=(0.80, 0.0, 0.0)
+uranus_color=(0.77, 0.0, 0.0)
+neptune_color=(0.49, 0.0, 0.0)
+pluto_color=(0.61, 0.0, 0.0)
+sun_color=(0.93, 0.0, 0.0)
+moon_color=(0.80, 0.0, 0.0)
 '''
 
 LIGHT_THEME_TEMPL = '''
@@ -289,6 +341,16 @@ telrad_color=(0.5, 0.0, 0.0)
 eyepiece_color=(0.5, 0.0, 0.0)
 picker_color=(0.2, 0.2, 0.0)
 dso_dynamic_brightness=False
+mercury_color=(0.5, 0.5, 0.5)
+venus_color=(0.9, 0.8, 0.6)
+mars_color=(0.8, 0.4, 0.1)
+jupiter_color=(0.9, 0.6, 0.5)
+saturn_color=(0.9, 0.8, 0.5)
+uranus_color=(0.6, 0.8, 1.0)
+neptune_color=(0.3, 0.5, 0.9)
+pluto_color=(0.7, 0.6, 0.5)
+sun_color=(1.0, 1.0, 0.0)
+moon_color=(0.8, 0.8, 0.8)
 '''
 
 COMMON_THEME_TEMPLATES = {
