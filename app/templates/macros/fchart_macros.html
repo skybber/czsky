@@ -26,6 +26,7 @@
           <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
           <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
           <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
+          <input type="hidden" id="show_solar_system" name="{{ fchart_form.show_solar_system.name }}" value="{{ fchart_form.show_solar_system.data }}">
           <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
           <input type="hidden" id="show_star_mag" name="{{ fchart_form.show_star_mag.name }}" value="{{ fchart_form.show_star_mag.data }}">
           <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
@@ -146,6 +147,12 @@
                           <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
                               <i class="superpowers icon"></i>
                               {{ _('Deepsky objects')}}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}} bslsystem" style="text-align:left">
+                              <i class="superpowers icon"></i>
+                              {{ _('Solar system')}}
                           </button>
                       </div>
                       <div class="item">
@@ -474,6 +481,12 @@
     $('.bdso').click(function(){
         $(this).toggleClass('active');
         $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
+        $('#show_layers_dropdown').val('true');
+    });
+
+    $('.bslsystem').click(function(){
+        $(this).toggleClass('active');
+        $('#show_solar_system').val($('#show_solar_system').val() == 'true' ? 'false' : 'true');
         $('#show_layers_dropdown').val('true');
     });
 

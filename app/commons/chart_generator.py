@@ -101,6 +101,7 @@ class FlagValue(Enum):
     CONSTELL_BORDERS = 'B'
     CONSTELL_SHAPES = 'C'
     SHOW_DEEPSKY = 'D'
+    SHOW_SOLAR_SYSTEM = 'O'
     SHOW_EQUATORIAL_GRID = 'E'
     SHOW_DSO_MAG = 'M'
     SHOW_STAR_MAG = 'N'
@@ -536,6 +537,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_constell_shapes'] = form.show_constell_shapes.data
         session['chart_show_constell_borders'] = form.show_constell_borders.data
         session['chart_show_dso'] = form.show_dso.data
+        session['chart_show_solar_system'] = form.show_solar_system.data
         session['chart_dss_layer'] = form.dss_layer.data
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') == 'blue':
             session['chart_dss_layer'] = 'colored'
@@ -838,10 +840,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         config.show_star_circles = False
         transparent = True
 
-    solsys_bodies = _get_solsys_bodies()
+    sl_bodies = _get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
-                    solsys_bodies = solsys_bodies,
+                    solsys_bodies = sl_bodies,
                     jd=None, # jd=skyfield_ts.now().tdb,
                     showing_dsos=showing_dsos,
                     dso_highlights=dso_highlights,
@@ -934,8 +936,16 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
 
     dso_hide_filter = _get_dso_hide_filter()
 
-    engine.make_map(used_catalogs, showing_dsos=showing_dsos, dso_highlights=dso_highlights, highlights=highlights,
-                    dso_hide_filter=dso_hide_filter, trajectory=trajectory, visible_objects=visible_objects)
+    sl_bodies = _get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+
+    engine.make_map(used_catalogs,
+                    solsys_bodies = sl_bodies,
+                    showing_dsos=showing_dsos,
+                    dso_highlights=dso_highlights,
+                    highlights=highlights,
+                    dso_hide_filter=dso_hide_filter,
+                    trajectory=trajectory,
+                    visible_objects=visible_objects)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
@@ -1065,6 +1075,9 @@ def get_chart_legend_flags(form):
 
     if form.show_dso.data == 'true':
         chart_flags += FlagValue.SHOW_DEEPSKY.value
+
+    if form.show_solar_system.data == 'true':
+        chart_flags += FlagValue.SHOW_SOLAR_SYSTEM.value
 
     if form.show_equatorial_grid.data == 'true':
         chart_flags += FlagValue.SHOW_EQUATORIAL_GRID.value
