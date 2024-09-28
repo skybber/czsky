@@ -17,6 +17,7 @@ import threading
 import pillow_avif
 
 import fchart3
+
 from flask import (
     current_app,
     request,
@@ -32,6 +33,8 @@ from app.models import (
     SessionPlan,
     Telescope, BODY_KEY_DICT,
 )
+
+from .planet_utils import create_solar_system_body_obj
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES
@@ -371,35 +374,17 @@ def _get_solsys_bodies():
     if solsys_last_updated is None or (current_time - solsys_last_updated) > 600:
         ts = load.timescale(builtin=True)
         t = ts.now()
-        eph = load('de421.bsp')
-        earth = eph['earth']
 
         solsys_bodies = []
 
-        all_names = ['sun', 'moon'] + [planet_enum.name.lower() for planet_enum in fchart3.SolarSystemBody if planet_enum != fchart3.SolarSystemBody.EARTH]
-
-        for body_name in all_names:
-            if body_name in ['sun', 'moon']:
-                body = eph[body_name]
-                if body_name == 'sun':
-                    body_enum = fchart3.SolarSystemBody.SUN
-                else:
-                    body_enum = fchart3.SolarSystemBody.MOON
-            else:
-                body = eph[BODY_KEY_DICT[body_name]]
-                body_enum = fchart3.SolarSystemBody[body_name.upper()]
-
-            ra_ang, dec_ang, distance = earth.at(t).observe(body).radec()
-            ra = ra_ang.radians
-            dec = dec_ang.radians
-
-            body_obj = fchart3.SolarSystemBodyObject(body_enum, ra, dec)
-            solsys_bodies.append(body_obj)
+        for body_enum in fchart3.SolarSystemBody:
+            if body_enum != fchart3.SolarSystemBody.EARTH:
+                solsys_body_obj = create_solar_system_body_obj(body_enum, t);
+                solsys_bodies.append(solsys_body_obj)
 
         solsys_last_updated = current_time
 
     return solsys_bodies
-
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None):
