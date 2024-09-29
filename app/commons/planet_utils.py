@@ -47,7 +47,6 @@ def create_solar_system_body_obj(body_enum, t=None):
         t = ts.now()
 
     eph = load('de421.bsp')
-    earth = eph['earth']
 
     body_name = body_enum.name.lower()
     if body_name in ['sun', 'moon']:
@@ -55,7 +54,8 @@ def create_solar_system_body_obj(body_enum, t=None):
     else:
         body = eph[BODY_KEY_DICT[body_name]]
 
-    astrometric = earth.at(t).observe(body)
+    earth = eph['earth'].at(t)
+    astrometric = earth.observe(body)
     ra_ang, dec_ang, distance = astrometric.radec()
 
     ra = ra_ang.radians
@@ -70,4 +70,10 @@ def create_solar_system_body_obj(body_enum, t=None):
     else:
         angular_radius = 0
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius)
+    if body_enum != fchart3.SolarSystemBody.SUN:
+        p = eph['earth'].at(t).observe(body)
+        phase_angle = p.phase_angle(eph['sun']).radians
+    else:
+        phase_angle = None
+
+    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle)
