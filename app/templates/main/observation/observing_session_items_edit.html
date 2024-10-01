@@ -161,6 +161,10 @@
                     });
                     row.find(".selection.dropdown").each(function() {
                         $(this).dropdown({});
+                        var firstItemValue = $(this).find('div.item:first').attr('data-value');
+                        if (firstItemValue) {
+                            $(this).dropdown('set selected', firstItemValue);
+                        }
                     });
                     oldrow.after(row);
                     row.show();
