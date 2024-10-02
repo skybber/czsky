@@ -48,6 +48,7 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     get_trajectory_b64,
     common_ra_dec_fsz_from_request,
+    get_fld_size_mags_from_request,
 )
 
 from app.main.chart.chart_forms import ChartForm
@@ -183,6 +184,10 @@ def comets_chart():
 @main_comet.route('/comets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pos_img(ra, dec):
     comets = Comet.query.filter(Comet.mag < 17.5).all()
+    _, _, dso_maglim = get_fld_size_mags_from_request()
+    if dso_maglim < 14.0:
+        dso_maglim = 14.0
+    comets = [c for c in comets if c.mag <= dso_maglim and c.real_mag]
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation) for x in comets if comets]
 
     flags = request.args.get('json')
