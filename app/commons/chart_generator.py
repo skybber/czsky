@@ -4,7 +4,7 @@ import json
 from datetime import timedelta
 from datetime import datetime
 from io import BytesIO
-from math import pi, sqrt
+from math import pi, sqrt, sin, cos, acos
 from time import time
 import numpy as np
 import ctypes as ct
@@ -605,6 +605,74 @@ def common_prepare_date_from_to(form):
                 pass
 
 
+def _calc_spherical_angle(ra1, dec1, ra2, dec2, ra3, dec3):
+    cos_dec1, sin_dec1 = cos(dec1), sin(dec1)
+    cos_dec2, sin_dec2 = cos(dec2), sin(dec2)
+    cos_dec3, sin_dec3 = cos(dec3), sin(dec3)
+
+    cos_ra1, sin_ra1 = cos(ra1), sin(ra1)
+    cos_ra2, sin_ra2 = cos(ra2), sin(ra2)
+    cos_ra3, sin_ra3 = cos(ra3), sin(ra3)
+
+    vec1_x = cos_dec1 * cos_ra1 - cos_dec2 * cos_ra2
+    vec1_y = cos_dec1 * sin_ra1 - cos_dec2 * sin_ra2
+    vec1_z = sin_dec1 - sin_dec2
+
+    vec2_x = cos_dec3 * cos_ra3 - cos_dec2 * cos_ra2
+    vec2_y = cos_dec3 * sin_ra3 - cos_dec2 * sin_ra2
+    vec2_z = sin_dec3 - sin_dec2
+
+    dot_product = vec1_x * vec2_x + vec1_y * vec2_y + vec1_z * vec2_z
+
+    norm1 = (vec1_x ** 2 + vec1_y ** 2 + vec1_z ** 2) ** 0.5
+    norm2 = (vec2_x ** 2 + vec2_y ** 2 + vec2_z ** 2) ** 0.5
+
+    cos_angle = max(min(dot_product / (norm1 * norm2), 1.0), -1.0)
+    angle = acos(cos_angle)
+
+    return angle
+
+
+def _interpolate_adaptive_segm(ra1, dec1, t1, lbl1, ra2, dec2, t2, lbl2, ra3, dec3, t3, lbl3, ts, earth, body, threshold_rad, level):
+    angle = _calc_spherical_angle(ra1, dec1, ra2, dec2, ra3, dec3)
+
+    if level < 5 and abs(angle-pi) > threshold_rad:
+        result = []
+        t_c1 = t1 + (t2 - t1) / 2
+        ra_c1, dec_c1, _ = earth.at(t_c1).observe(body).radec()
+        ra_c1, dec_c1 = ra_c1.radians, dec_c1.radians
+        result.extend(_interpolate_adaptive_segm(ra1, dec1, t1, lbl1, ra_c1, dec_c1, t_c1, None, ra2, dec2, t2, lbl2, ts, earth, body, threshold_rad, level+1))
+        result.append((ra2, dec2, lbl2))
+        if level > 0:
+            t_c2 = t2 + (t3 - t2) / 2
+            ra_c2, dec_c2, _ = earth.at(t_c2).observe(body).radec()
+            ra_c2, dec_c2 = ra_c2.radians, dec_c2.radians
+            result.extend(_interpolate_adaptive_segm(ra2, dec2, t2, lbl2, ra_c2, dec_c2, t_c2, None, ra3, dec3, t3, lbl3, ts, earth, body, threshold_rad, level+1))
+    else:
+        result = [(ra2, dec2, lbl2)]
+    return result
+
+
+def _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body):
+    result = [trajectory[0]]
+
+    threshold_rad = 5.0 * pi / 180.0
+
+    for i in range(1, len(trajectory) - 1):
+        ra1, dec1, lbl1 = trajectory[i - 1]
+        ra2, dec2, lbl2 = trajectory[i]
+        ra3, dec3, lbl3 = trajectory[i + 1]
+        t1 = trajectory_time[i - 1]
+        t2 = trajectory_time[i]
+        t3 = trajectory_time[i + 1]
+
+        result.extend(_interpolate_adaptive_segm(ra1, dec1, t1, lbl1, ra2, dec2, t2, lbl2, ra3, dec3, t3, lbl3, ts, earth, body, threshold_rad, 0))
+
+    result.append(trajectory[-1])
+
+    return result
+
+
 def get_trajectory_b64(d1, d2, ts, earth, body):
     if d1 < d2:
         time_delta = d2 - d1
@@ -614,22 +682,33 @@ def get_trajectory_b64(d1, d2, ts, earth, body):
         trajectory = []
         hr_count = 0
         prev_date = None
+
+        trajectory_time = []
+
         while d1 <= d2:
             t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
-            ra, dec, distance = earth.at(t).observe(body).radec()
-            if d1==d2 or prev_date is None or prev_date.month != d1.month:
+            ra, dec, _ = earth.at(t).observe(body).radec()
+
+            if d1 == d2 or prev_date is None or prev_date.month != d1.month:
                 fmt = '%d.%-m.' if (hr_count % 24) == 0 else '%H:00'
             else:
                 fmt = '%d' if (hr_count % 24) == 0 else '%H:00'
+
             trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
+            trajectory_time.append(t)
+
             prev_date = d1
             d1 += dt
             hr_count += hr_step
-        trajectory_json = json.dumps(trajectory)
+
+        interpolated_trajectory = _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body)
+
+        trajectory_json = json.dumps(interpolated_trajectory)
         trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
 
     else:
         trajectory_b64 = None
+
     return trajectory_b64
 
 
