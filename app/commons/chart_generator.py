@@ -359,7 +359,13 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         i = 0
         while i < len(trajectory) - 1:
             if (i + m < len(trajectory) - 1) or (i + m - len(trajectory) + 1 < m * 0.6):
-                flt_trajectory.append(trajectory[i])
+                j = 0
+                while j < m and trajectory[i+j][2] is None:
+                    j += 1
+                if j == m:
+                    flt_trajectory.append(trajectory[i])
+                else:
+                    flt_trajectory.append(trajectory[i+j])
             i += m
 
         flt_trajectory.append(trajectory[-1])
@@ -636,7 +642,7 @@ def _calc_spherical_angle(ra1, dec1, ra2, dec2, ra3, dec3):
 def _interpolate_adaptive_segm(ra1, dec1, t1, lbl1, ra2, dec2, t2, lbl2, ra3, dec3, t3, lbl3, ts, earth, body, threshold_rad, level):
     angle = _calc_spherical_angle(ra1, dec1, ra2, dec2, ra3, dec3)
 
-    if level < 5 and abs(angle-pi) > threshold_rad:
+    if level < 7 and abs(angle-pi) > threshold_rad:
         result = []
         t_c1 = t1 + (t2 - t1) / 2
         ra_c1, dec_c1, _ = earth.at(t_c1).observe(body).radec()
