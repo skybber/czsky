@@ -32,3 +32,4 @@ flask import_planets
 flask import_minor_planets
 flask import_comets
 flask import_supernovae
+flask preload_ephemeris

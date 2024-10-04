@@ -31,3 +31,4 @@ flask import_minor_planets
 flask import_comets
 flask import_supernovae
 flask update_pgc_imported_dsos
+flask preload_ephemeris

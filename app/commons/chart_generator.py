@@ -39,6 +39,10 @@ from .planet_utils import create_solar_system_body_obj, create_planet_moon_obj
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES
 
+JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
+JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
+SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
+
 MOBILE_WIDTH = 768
 
 used_catalogs = None
@@ -415,19 +419,19 @@ def _get_planet_moons(maglim):
 
         eph_moons = {
             fchart3.SolarSystemBody.JUPITER: {
-                'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp': {
+                JUP365_BSP: {
                     'Io': 5.5,
                     'Europa': 5.6,
                     'Ganymede': 5.0,
                     'Callisto': 6.3,
                     'Amalthea': 14.2,
                 },
-                'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp': {
+                JUP344_BSP: {
                     'Himalia': 14.9,
                 },
             },
             fchart3.SolarSystemBody.SATURN: {
-                'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp': {
+                SAT_441_BSP: {
                     'Titan': 8.4,
                     'Rhea': 9.7,
                     'Iapetus': 11.13,

@@ -3,6 +3,7 @@
 import os
 import subprocess
 from datetime import datetime
+import skyfield
 
 from flask import (
     current_app,
@@ -10,6 +11,7 @@ from flask import (
     send_from_directory
 )
 
+from app.commons.chart_generator import JUP365_BSP, JUP344_BSP, SAT_441_BSP
 from config import Config
 from sqlalchemy import func
 
@@ -355,6 +357,13 @@ def create_pgc_update_file():
 def update_pgc_imported_dsos():
     from imports.import_pgc import update_pgc_imported_dsos_from_updatefile
     update_pgc_imported_dsos_from_updatefile('data/PGC_update.dat')
+
+
+@app.cli.command("preload_ephemeris")
+def preload_ephemeris():
+    skyfield.api.load(JUP365_BSP)
+    skyfield.api.load(JUP344_BSP)
+    skyfield.api.load(SAT_441_BSP)
 
 
 def _create_update_theme(user, name, definition):
