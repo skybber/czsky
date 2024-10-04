@@ -335,6 +335,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
+    return trajectory
     if not trajectory:
         return trajectory
 
@@ -364,11 +365,14 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
             if (i + m < len(trajectory) - 1) or (i + m - len(trajectory) + 1 < m * 0.6):
                 j = 0
                 while j < m and trajectory[i+j][2] is None:
-                    j += 1
-                if j == m:
-                    flt_trajectory.append(trajectory[i])
-                else:
                     flt_trajectory.append(trajectory[i+j])
+                    j += 1
+                if j < m:
+                    flt_trajectory.append(trajectory[i+j])
+                    j += 1
+                while j < m:
+                    flt_trajectory.append((trajectory[i+j][0], trajectory[i+j][1], None))
+                    j += 1
             i += m
 
         flt_trajectory.append(trajectory[-1])
