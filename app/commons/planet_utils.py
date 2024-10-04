@@ -38,15 +38,13 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
-def create_solar_system_body_obj(body_enum, t=None):
+def create_solar_system_body_obj(eph, body_enum, t=None):
     if body_enum == fchart3.SolarSystemBody.EARTH:
         return None
 
     if t is None:
         ts = load.timescale(builtin=True)
         t = ts.now()
-
-    eph = load('de421.bsp')
 
     body_name = body_enum.name.lower()
     if body_name in ['sun', 'moon']:
@@ -76,4 +74,19 @@ def create_solar_system_body_obj(body_enum, t=None):
     else:
         phase_angle = None
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle)
+    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle, distance_km)
+
+
+def create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
+    if t is None:
+        ts = load.timescale(builtin=True)
+        t = ts.now()
+
+    pl_moon = eph[moon_name.lower()]
+    earth = eph['earth'].at(t)
+    astrometric = earth.observe(pl_moon)
+    ra_ang, dec_ang, distance = astrometric.radec()
+
+    distance_km = distance.au * AU_TO_KM
+
+    return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, distance_km)
