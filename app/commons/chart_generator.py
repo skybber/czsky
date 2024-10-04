@@ -33,15 +33,10 @@ from app.models import (
     SessionPlan,
     Telescope, BODY_KEY_DICT,
 )
-
-from .planet_utils import create_solar_system_body_obj, create_planet_moon_obj
+from .planet_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES
-
-JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
-JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
-SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
 
 MOBILE_WIDTH = 768
 
@@ -140,12 +135,6 @@ pdf_font_face_initialized = False
 skyfield_ts = load.timescale()
 
 catalog_lock = threading.Lock()
-
-solsys_bodies = None
-solsys_last_updated = None
-
-planet_moons = None
-planet_moons_last_updated = None
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -382,77 +371,6 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         flt_trajectory.append(trajectory[-1])
         return flt_trajectory
 
-
-def _get_solsys_bodies():
-    global solsys_bodies, solsys_last_updated
-
-    current_time = time()
-
-    if solsys_last_updated is None or (current_time - solsys_last_updated) > 60:
-        ts = load.timescale(builtin=True)
-        t = ts.now()
-
-        solsys_bodies = []
-
-        eph = load('de421.bsp')
-
-        for body_enum in fchart3.SolarSystemBody:
-            if body_enum != fchart3.SolarSystemBody.EARTH:
-                solsys_body_obj = create_solar_system_body_obj(eph, body_enum, t);
-                solsys_bodies.append(solsys_body_obj)
-
-        solsys_last_updated = current_time
-
-    return solsys_bodies
-
-
-def _get_planet_moons(maglim):
-    global planet_moons, planet_moons_last_updated
-
-    current_time = time()
-
-    if planet_moons_last_updated is None or (current_time - planet_moons_last_updated) > 60:
-        ts = load.timescale(builtin=True)
-        t = ts.now()
-
-        planet_moons = []
-
-        eph_moons = {
-            fchart3.SolarSystemBody.JUPITER: {
-                JUP365_BSP: {
-                    'Io': 5.5,
-                    'Europa': 5.6,
-                    'Ganymede': 5.0,
-                    'Callisto': 6.3,
-                    'Amalthea': 14.2,
-                },
-                JUP344_BSP: {
-                    'Himalia': 14.9,
-                },
-            },
-            fchart3.SolarSystemBody.SATURN: {
-                SAT_441_BSP: {
-                    'Titan': 8.4,
-                    'Rhea': 9.7,
-                    'Iapetus': 11.13,
-                    'Enceladus': 11.74,
-                    'Mimas': 12.9,
-                    'Tethys': 10.24,
-                    'Dione': 10.44,
-                    'Phoebe': 11.13,
-                    'Hyperion': 14.27,
-                },
-            }
-        }
-
-        for planet, url_moons in eph_moons.items():
-            for eph_url, moons in url_moons.items():
-                eph = load(eph_url)
-                for moon_name, mag in moons.items():
-                    planet_moon_obj = create_planet_moon_obj(eph, planet, moon_name, mag, t);
-                    planet_moons.append(planet_moon_obj)
-
-    return [pl for pl in planet_moons if pl.mag <= maglim]
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None):
@@ -972,8 +890,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         config.show_star_circles = False
         transparent = True
 
-    sl_bodies = _get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
-    pl_moons = _get_planet_moons(star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    sl_bodies = get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    pl_moons = get_planet_moons(star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
                     jd=None,  # jd=skyfield_ts.now().tdb,
@@ -1070,8 +988,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
 
     dso_hide_filter = _get_dso_hide_filter()
 
-    sl_bodies = _get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
-    pl_moons = _get_planet_moons(dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    sl_bodies = get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    pl_moons = get_planet_moons(dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
                     solsys_bodies=sl_bodies,

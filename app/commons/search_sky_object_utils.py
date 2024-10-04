@@ -3,6 +3,7 @@ import urllib.parse
 
 from .dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
 from .greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
+from .planet_utils import get_planet_moons
 from .utils import get_lang_and_editor_user_from_request
 
 from app.models import (
@@ -181,6 +182,16 @@ def search_planet(query):
     if len(query) > 0:
         planet = Planet.get_by_locale_name(query)
         return planet
+    return None
+
+
+def search_planet_moon(query):
+    if len(query) > 0:
+        query = query.lower()
+        planet_moons = get_planet_moons(100);
+        for pl_moon in planet_moons:
+            if pl_moon.moon_name.lower() == query:
+                return pl_moon
     return None
 
 

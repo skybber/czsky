@@ -1,6 +1,7 @@
 from skyfield.api import load
 
 from math import asin
+from time import time
 
 import datetime as dt_module
 import fchart3
@@ -9,8 +10,11 @@ from app.models import (
     BODY_KEY_DICT,
 )
 
-utc = dt_module.timezone.utc
+JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
+JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
+SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
 
+utc = dt_module.timezone.utc
 
 PLANET_RADIUS_DICT = {
     'sun': 696340,
@@ -27,6 +31,13 @@ PLANET_RADIUS_DICT = {
 
 AU_TO_KM = 149597870.7
 
+solsys_bodies = None
+solsys_last_updated = None
+
+planet_moons = None
+planet_moons_last_updated = None
+
+
 def get_mpc_planet_position(planet, dt):
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -38,7 +49,79 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
-def create_solar_system_body_obj(eph, body_enum, t=None):
+def get_solsys_bodies():
+    global solsys_bodies, solsys_last_updated
+
+    current_time = time()
+
+    if solsys_last_updated is None or (current_time - solsys_last_updated) > 60:
+        ts = load.timescale(builtin=True)
+        t = ts.now()
+
+        solsys_bodies = []
+
+        eph = load('de421.bsp')
+
+        for body_enum in fchart3.SolarSystemBody:
+            if body_enum != fchart3.SolarSystemBody.EARTH:
+                solsys_body_obj = _create_solar_system_body_obj(eph, body_enum, t)
+                solsys_bodies.append(solsys_body_obj)
+
+        solsys_last_updated = current_time
+
+    return solsys_bodies
+
+
+def get_planet_moons(maglim):
+    global planet_moons, planet_moons_last_updated
+
+    current_time = time()
+
+    if planet_moons_last_updated is None or (current_time - planet_moons_last_updated) > 60:
+        ts = load.timescale(builtin=True)
+        t = ts.now()
+
+        planet_moons = []
+
+        eph_moons = {
+            fchart3.SolarSystemBody.JUPITER: {
+                JUP365_BSP: {
+                    'Io': 5.5,
+                    'Europa': 5.6,
+                    'Ganymede': 5.0,
+                    'Callisto': 6.3,
+                    'Amalthea': 14.2,
+                },
+                JUP344_BSP: {
+                    'Himalia': 14.9,
+                },
+            },
+            fchart3.SolarSystemBody.SATURN: {
+                SAT_441_BSP: {
+                    'Titan': 8.4,
+                    'Rhea': 9.7,
+                    'Iapetus': 11.13,
+                    'Enceladus': 11.74,
+                    'Mimas': 12.9,
+                    'Tethys': 10.24,
+                    'Dione': 10.44,
+                    'Phoebe': 11.13,
+                    'Hyperion': 14.27,
+                },
+            }
+        }
+
+        for planet, url_moons in eph_moons.items():
+            for eph_url, moons in url_moons.items():
+                eph = load(eph_url)
+                for moon_name, mag in moons.items():
+                    planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, mag, t)
+                    planet_moons.append(planet_moon_obj)
+
+    return [pl for pl in planet_moons if pl.mag <= maglim]
+
+
+def _create_solar_system_body_obj(eph, body_enum, t=None):
     if body_enum == fchart3.SolarSystemBody.EARTH:
         return None
 
@@ -77,7 +160,7 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle, distance_km)
 
 
-def create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
+def _create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
     if t is None:
         ts = load.timescale(builtin=True)
         t = ts.now()

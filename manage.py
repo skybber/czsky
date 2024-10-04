@@ -11,7 +11,6 @@ from flask import (
     send_from_directory
 )
 
-from app.commons.chart_generator import JUP365_BSP, JUP344_BSP, SAT_441_BSP
 from config import Config
 from sqlalchemy import func
 
@@ -28,6 +27,8 @@ from app.models import (
     DeepskyObject,
     UserDsoApertureDescription,
 )
+
+from app.commons.planet_utils import JUP365_BSP, JUP344_BSP, SAT_441_BSP
 
 from imports.import_utils import progress
 

@@ -34,6 +34,7 @@ from app.commons.search_sky_object_utils import (
     search_double_star,
     search_minor_planet,
     search_planet,
+    search_planet_moon,
 )
 
 from app.models import (
@@ -166,7 +167,15 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth')))
 
-    # 7. Search minor planet
+    # 7. Search planet moons
+    planet_moon = search_planet_moon(query)
+    if planet_moon is not None:
+        return redirect(url_for('main_chart.chart',
+                                mra=planet_moon.ra,
+                                mdec=planet_moon.dec,
+                                embed=request.args.get('embed')))
+
+    # 8. Search minor planet
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
         return redirect(url_for('main_minor_planet.minor_planet_info',
@@ -174,12 +183,12 @@ def do_global_search(query, level):
                                 splitview=request.args.get('splitview'),
                                 minor_planet_id=minor_planet.int_designation))
 
-    # 8. search by radec
+    # 9. search by radec
     res = _search_by_ra_dec(query)
     if res:
         return res
 
-    # 9. Search Simbad
+    # 10. Search Simbad
     if level != 2:
         simbad_obj = simbad_query(dso_name_to_simbad_id(query))
         if simbad_obj is not None:
