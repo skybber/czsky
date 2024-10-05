@@ -64,15 +64,16 @@ def get_solsys_bodies():
         ts = load.timescale(builtin=True)
         t = ts.now()
 
-        solsys_bodies = []
+        sls_bodies = []
 
         eph = load('de421.bsp')
 
         for body_enum in fchart3.SolarSystemBody:
             if body_enum != fchart3.SolarSystemBody.EARTH:
                 solsys_body_obj = _create_solar_system_body_obj(eph, body_enum, t)
-                solsys_bodies.append(solsys_body_obj)
+                sls_bodies.append(solsys_body_obj)
 
+        solsys_bodies = sls_bodies
         solsys_last_updated = current_time
 
     return solsys_bodies
@@ -87,7 +88,7 @@ def get_planet_moons(maglim):
         ts = load.timescale(builtin=True)
         t = ts.now()
 
-        planet_moons = []
+        pl_moons = []
 
         eph_moons = {
             fchart3.SolarSystemBody.MARS: {
@@ -142,7 +143,9 @@ def get_planet_moons(maglim):
                 eph = load(eph_url)
                 for moon_name, mag in moons.items():
                     planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, mag, t)
-                    planet_moons.append(planet_moon_obj)
+                    pl_moons.append(planet_moon_obj)
+
+        planet_moons = pl_moons
 
     return [pl for pl in planet_moons if pl.mag <= maglim]
 
