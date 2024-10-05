@@ -1,5 +1,6 @@
 from skyfield.api import load
 
+import numpy as np
 from math import asin
 from time import time
 
@@ -34,6 +35,7 @@ PLANET_RADIUS_DICT = {
 }
 
 AU_TO_KM = 149597870.7
+SATURN_POLE = np.array([0.08547883, 0.07323576, 0.99364475])
 
 solsys_bodies = None
 solsys_last_updated = None
@@ -176,12 +178,18 @@ def _create_solar_system_body_obj(eph, body_enum, t=None):
         angular_radius = 0
 
     if body_enum != fchart3.SolarSystemBody.SUN:
-        p = eph['earth'].at(t).observe(body)
-        phase_angle = p.phase_angle(eph['sun']).radians
+        phase_angle = astrometric.phase_angle(eph['sun']).radians
     else:
         phase_angle = None
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle, distance_km)
+    if body_enum == fchart3.SolarSystemBody.SATURN:
+        r_se = body.at(t).observe(eph['earth']).position.au
+        r_se_unit = r_se / np.linalg.norm(r_se)
+        ring_tilt = np.arcsin(np.dot(r_se_unit, SATURN_POLE))
+    else:
+        ring_tilt = None
+
+    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle, distance_km, ring_tilt)
 
 
 def _create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
