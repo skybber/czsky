@@ -173,7 +173,11 @@ def do_global_search(query, level):
         return redirect(url_for('main_chart.chart',
                                 mra=planet_moon.ra,
                                 mdec=planet_moon.dec,
-                                embed=request.args.get('embed')))
+                                seltab=request.args.get('seltab'),
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')))
 
     # 8. Search minor planet
     minor_planet = search_minor_planet(query)

@@ -10,9 +10,13 @@ from app.models import (
     BODY_KEY_DICT,
 )
 
+MAR097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar097.bsp'
 JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
 JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
 SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
+URA111_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/ura111.bsp'
+NEP097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/nep097.bsp'
+
 
 utc = dt_module.timezone.utc
 
@@ -84,6 +88,12 @@ def get_planet_moons(maglim):
         planet_moons = []
 
         eph_moons = {
+            fchart3.SolarSystemBody.MARS: {
+                MAR097_BSP: {
+                    'Phobos': 12.0,
+                    'Deimos': 12.5,
+                },
+            },
             fchart3.SolarSystemBody.JUPITER: {
                 JUP365_BSP: {
                     'Io': 5.5,
@@ -108,7 +118,21 @@ def get_planet_moons(maglim):
                     'Phoebe': 11.13,
                     'Hyperion': 14.27,
                 },
-            }
+            },
+            fchart3.SolarSystemBody.URANUS: {
+                URA111_BSP: {
+                    'Titania': 13.9,
+                    'Oberon': 14.1,
+                    'Umbriel': 14.9,
+                    'Ariel': 14.3,
+                    'Miranda': 16.5,
+                },
+            },
+            fchart3.SolarSystemBody.NEPTUNE: {
+                NEP097_BSP: {
+                    'Triton': 13.4,
+                },
+            },
         }
 
         for planet, url_moons in eph_moons.items():
