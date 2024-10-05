@@ -82,16 +82,16 @@ def planet_info(planet_iau_code):
         form.date_to.data = today + timedelta(days=7)
 
     t = ts.now()
-    trajectory_b64 = None
-    if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
-        d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
-        d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
-        today = date.today()
-        if today < d1.date():
-            t = ts.from_datetime(d1.replace(tzinfo=utc))
-        elif today > d2.date():
-            t = ts.from_datetime(d2.replace(tzinfo=utc))
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, planet.eph)
+    # trajectory_b64 = None
+    # if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
+    #     d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
+    #     d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
+    #     today = date.today()
+    #     if today < d1.date():
+    #         t = ts.from_datetime(d1.replace(tzinfo=utc))
+    #     elif today > d2.date():
+    #         t = ts.from_datetime(d2.replace(tzinfo=utc))
+    #     trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, planet.eph)
 
     planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
     planet_ra = planet_ra_ang.radians
@@ -107,7 +107,7 @@ def planet_info(planet_iau_code):
     show_obs_log = show_observation_log()
 
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
-                           planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=trajectory_b64,
+                           planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
                            show_obs_log=show_obs_log,)
 
 
