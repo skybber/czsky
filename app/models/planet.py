@@ -21,7 +21,7 @@ ALL_LOCALE_NAMES = [
     ['jupiter', ['jupiter']],
     ['saturn', ['saturn']],
     ['uranus', ['uran']],
-    ['neptun', ['neptun']],
+    ['neptune', ['neptun']],
     ['pluto', ['pluto']],
 ]
 
