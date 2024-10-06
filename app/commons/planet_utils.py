@@ -1,4 +1,5 @@
 from skyfield.api import load
+from skyfield.magnitudelib import planetary_magnitude
 
 import numpy as np
 from math import asin
@@ -192,7 +193,16 @@ def _create_solar_system_body_obj(eph, body_enum, t=None):
     else:
         ring_tilt = None
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, phase_angle, distance_km, ring_tilt)
+    if body_enum == fchart3.SolarSystemBody.SUN:
+        mag = -26.7
+    elif body_enum == fchart3.SolarSystemBody.MOON:
+        mag = -12
+    elif body_enum == fchart3.SolarSystemBody.PLUTO:
+        mag = 14.5
+    else:
+        mag = planetary_magnitude(astrometric)
+
+    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, mag, phase_angle, distance_km, ring_tilt)
 
 
 def _create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
