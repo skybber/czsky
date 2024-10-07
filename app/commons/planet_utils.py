@@ -2,7 +2,7 @@ from skyfield.api import load
 from skyfield.magnitudelib import planetary_magnitude
 
 import numpy as np
-from math import asin
+from math import asin, log10
 from time import time
 
 import datetime as dt_module
@@ -94,47 +94,47 @@ def get_planet_moons(maglim):
         eph_moons = {
             fchart3.SolarSystemBody.MARS: {
                 MAR097_BSP: {
-                    'Phobos': 12.0,
-                    'Deimos': 12.5,
+                    'Phobos': [11.8, (1.0, 0.919, 0.806)],
+                    'Deimos': [12.89, (1.0, 0.93, 0.832)],
                 },
             },
             fchart3.SolarSystemBody.JUPITER: {
                 JUP365_BSP: {
-                    'Io': 5.5,
-                    'Europa': 5.6,
-                    'Ganymede': 5.0,
-                    'Callisto': 6.3,
-                    'Amalthea': 14.2,
+                    'Io': [-1.68, (1.0, 0.885, 0.598)],
+                    'Europa': [-1.41, (1.0, 0.968, 0.887)],
+                    'Ganymede': [-2.09, (1.0, 0.962, 0.871)],
+                    'Callisto': [-1.05, (1.0, 0.979, 0.897)],
+                    'Amalthea': [7.4, (1.0, 0.627, 0.492)],
                 },
                 JUP344_BSP: {
-                    'Himalia': 14.9,
+                    'Himalia': [8.14, (1.0, 0.9, 0.75)],
                 },
             },
             fchart3.SolarSystemBody.SATURN: {
                 SAT_441_BSP: {
-                    'Titan': 8.4,
-                    'Rhea': 9.7,
-                    'Iapetus': 11.13,
-                    'Enceladus': 11.74,
-                    'Mimas': 12.9,
-                    'Tethys': 10.24,
-                    'Dione': 10.44,
-                    'Phoebe': 11.13,
-                    'Hyperion': 14.27,
+                    'Titan': [-1.28, (1.0, 0.807, 0.453)],
+                    'Rhea': [0.1, (1.0, 0.981, 0.942)],
+                    'Iapetus': [1.5, (1.0, 0.973, 0.948)],
+                    'Enceladus': [2.1, (1.0, 0.998, 0.991)],
+                    'Mimas': [3.3, (1.0, 0.983, 0.972)],
+                    'Tethys': [0.6, (0.999, 1.0, 0.999)],
+                    'Dione': [0.8, (1.0, 0.98, 0.966)],
+                    'Phoebe': [6.89, (1.0, 0.9, 0.75)],
+                    'Hyperion': [4.63, (1.0, 0.914, 0.835)],
                 },
             },
             fchart3.SolarSystemBody.URANUS: {
                 URA111_BSP: {
-                    'Titania': 13.9,
-                    'Oberon': 14.1,
-                    'Umbriel': 14.9,
-                    'Ariel': 14.3,
-                    'Miranda': 16.5,
+                    'Titania': [1.02, (1.0, 0.875, 0.779)],
+                    'Oberon': [1.23, (1.0, 0.875, 0.798)],
+                    'Umbriel': [2.1, (1.0, 0.956, 0.956)],
+                    'Ariel': [1.45, (1.0, 0.849, 0.731)],
+                    'Miranda': [3.6, (1.0, 0.902, 0.871)],
                 },
             },
             fchart3.SolarSystemBody.NEPTUNE: {
                 NEP097_BSP: {
-                    'Triton': 13.4,
+                    'Triton': [-1.24, (0.961, 1.0, 0.819)],
                 },
             },
         }
@@ -142,8 +142,8 @@ def get_planet_moons(maglim):
         for planet, url_moons in eph_moons.items():
             for eph_url, moons in url_moons.items():
                 eph = load(eph_url)
-                for moon_name, mag in moons.items():
-                    planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, mag, t)
+                for moon_name, (abs_mag, color) in moons.items():
+                    planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
                     pl_moons.append(planet_moon_obj)
 
         planet_moons = pl_moons
@@ -205,16 +205,26 @@ def _create_solar_system_body_obj(eph, body_enum, t=None):
     return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, mag, phase_angle, distance_km, ring_tilt)
 
 
-def _create_planet_moon_obj(eph, planet, moon_name, mag, t=None):
+def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
     if t is None:
         ts = load.timescale(builtin=True)
         t = ts.now()
 
     pl_moon = eph[moon_name.lower()]
     earth = eph['earth'].at(t)
-    astrometric = earth.observe(pl_moon)
-    ra_ang, dec_ang, distance = astrometric.radec()
+    sun = eph['sun'].at(t)
 
-    distance_km = distance.au * AU_TO_KM
+    astrometric_from_earth = earth.observe(pl_moon)
+    ra_ang, dec_ang, distance = astrometric_from_earth.radec()
 
-    return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, distance_km)
+    astrometric_from_sun = sun.observe(pl_moon)
+    distance_sun_au = astrometric_from_sun.distance().au
+
+    distance_earth_au = distance.au
+    distance_earth_km = distance.au * AU_TO_KM
+
+    mag = abs_mag + 5 * log10(distance_sun_au * distance_earth_au)
+
+    print('{} {}'.format(moon_name, mag))
+
+    return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km)
