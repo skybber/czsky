@@ -225,6 +225,4 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
 
     mag = abs_mag + 5 * log10(distance_sun_au * distance_earth_au)
 
-    print('{} {}'.format(moon_name, mag))
-
     return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km)
