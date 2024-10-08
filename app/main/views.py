@@ -96,6 +96,7 @@ def global_search():
         abort(404)
     return do_global_search(query, 1)
 
+
 def do_global_search(query, level):
     # 0. search by czsky chart ids
     res = _search_chart_ids(query)
@@ -151,10 +152,16 @@ def do_global_search(query, level):
     # 5. Search planet
     planet = search_planet(query)
     if planet is not None:
-        return redirect(url_for('main_planet.planet_info',
+        return redirect(url_for('main_planet.planet_seltab',
+                                planet_iau_code=planet.iau_code,
+                                seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
-                                planet_iau_code=planet.iau_code))
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')
+                                ))
 
     # 6. Search comet
     comet = search_comet(query)

@@ -617,6 +617,7 @@ def _do_redirect(url, double_star, splitview=False):
     season = request.args.get('season')
     return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
 
+
 def _get_user_descr(double_star_id):
     lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
     if all_editor_users:

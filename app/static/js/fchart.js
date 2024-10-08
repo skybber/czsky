@@ -209,7 +209,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.moveInterval = undefined;
     this.kbdMoveDX = 0;
     this.kbdMoveDY = 0;
-    this.dsoRegions = undefined;
+    this.selectableRegions = undefined;
     this.imgGrid = undefined;
 
     this.aladin = aladin;
@@ -504,7 +504,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
     }, function(data) {
         if (currRequestId == this.requestId) {
             let img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
-            this.dsoRegions = data.img_map;
+            this.selectableRegions = data.img_map;
             this.activateImageOnLoad(centerRA, centerDEC, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
@@ -695,14 +695,14 @@ FChart.prototype.projectAngle2Screen = function(fldRadiue) {
     return Math.abs(screenPos.X - screenPos.Y);
 }
 
-FChart.prototype.findDso = function(e) {
-    if (this.dsoRegions != undefined) {
+FChart.prototype.findSelectableObject = function(e) {
+    if (this.selectableRegions != undefined) {
         let rect = this.canvas.getBoundingClientRect();
-        let x = e.clientX-rect.left;
-        let y = rect.bottom -e.clientY;
-        for (i = 0; i < this.dsoRegions.length; i += 5) {
-            if (x >= this.dsoRegions[i+1] && x <= this.dsoRegions[i+3] && y >= this.dsoRegions[i+2] && y <= this.dsoRegions[i+4]) {
-                return this.dsoRegions[i];
+        let x = e.clientX - rect.left;
+        let y = rect.bottom - e.clientY;
+        for (let i = 0; i < this.selectableRegions.length; i += 5) {
+            if (x >= this.selectableRegions[i + 1] && x <= this.selectableRegions[i + 3] && y >= this.selectableRegions[i + 2] && y <= this.selectableRegions[i + 4]) {
+                return this.selectableRegions[i];
             }
         }
     }
@@ -710,17 +710,17 @@ FChart.prototype.findDso = function(e) {
 }
 
 FChart.prototype.onClick = function(e) {
-    let dso  = this.findDso(e)
-    if (dso != null) {
+    let selected  = this.findSelectableObject(e)
+    if (selected != null) {
         if (this.isInSplitView()) {
-            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=' + this.embed;
+            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
         } else if (this.isInFullScreen() && $(this.fchartDiv).width() >= 768) {
-            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso)) + '&embed=fc';
+            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=fc';
             $(".fchart-iframe").attr('src', url);
             this.toggleSplitView();
         } else {
-            window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(dso));
+            window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
         }
     }
 }
@@ -915,8 +915,8 @@ FChart.prototype.moveRaDEC = function(fromKbdMove) {
 }
 
 FChart.prototype.onPointerMove = function (e) {
-    let dso  = this.findDso(e)
-    if (dso != null) {
+    let selected  = this.findSelectableObject(e)
+    if (selected != null) {
         this.canvas.style.cursor = "pointer"
     } else {
         this.canvas.style.cursor = "default"

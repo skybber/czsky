@@ -102,6 +102,10 @@ def planet_info(planet_iau_code):
     if planet is None:
         abort(404)
 
+    embed = request.args.get('embed')
+    if embed:
+        session['planet_embed_seltab'] = 'info'
+
     form = PlanetFindChartForm()
 
     ts = load.timescale(builtin=True)
@@ -140,12 +144,12 @@ def planet_info(planet_iau_code):
 
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
-                           show_obs_log=show_obs_log,)
+                           show_obs_log=show_obs_log, embed=embed)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def planet_chart_pos_img(planet_iau_code, ra, dec):
-    planet =Planet.get_by_iau_code(planet_iau_code)
+    planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -222,8 +226,7 @@ def planet_catalogue_data(planet_iau_code):
                              get_planet_synodic_period(planet_iau_code))
 
     return render_template('main/solarsystem/planet_info.html', type='catalogue_data', planet=planet,
-                           planet_data=planet_data, show_obs_log=show_obs_log,)
-
+                           planet_data=planet_data, show_obs_log=show_obs_log, embed=embed)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/observation-log', methods=['GET', 'POST'])
@@ -231,6 +234,10 @@ def planet_observation_log(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
+
+    embed = request.args.get('embed')
+    if embed:
+        session['planet_embed_seltab'] = 'info'
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
@@ -315,6 +322,40 @@ def planet_observation_log_delete(planet_iau_code):
 
     flash('Observation log deleted.', 'form-success')
     return redirect(url_for('main_planet.planet_observation_log', planet_iau_code=planet_iau_code, back=back, back_id=back_id))
+
+
+@main_planet.route('/planet/<string:planet_iau_code>/seltab')
+def planet_seltab(planet_iau_code):
+    """View a planet seltab."""
+    planet = Planet.get_by_iau_code(planet_iau_code)
+    if planet is None:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('planet_embed_seltab', None)
+
+    if seltab == 'catalogue_data':
+        return _do_redirect('main_planet.planet_catalogue_data', planet)
+
+    if show_observation_log():
+        return _do_redirect('main_planet.planet_observation_log', planet)
+
+    if request.args.get('embed'):
+        return _do_redirect('main_planet.planet_catalogue_data', planet)
+
+    return _do_redirect('main_planet.planet_info', planet)
+
+
+def _do_redirect(url, planet, splitview=False):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = 'true' if splitview else request.args.get('splitview')
+    return redirect(url_for(url, planet_iau_code=planet.iau_code, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
+
 
 def _check_in_mag_interval(mag, mag_interval):
     if mag_interval[0] > mag:

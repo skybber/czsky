@@ -1,4 +1,9 @@
-{% extends 'layouts/base.html' %}
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
@@ -11,6 +16,18 @@
     ('main_planet.planet_info', _('Chart'), 'info'),
     ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
 ] %}
+
+{% if not embed %}
+    {% set endpoints = [
+        ('main_planet.planet_info', _('Chart'), 'info'),
+        ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% endif %}
+
 
 {% set endpoints = endpoint_log + endpoints %}
 
