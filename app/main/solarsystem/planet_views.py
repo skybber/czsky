@@ -1,5 +1,6 @@
 import json
 import base64
+import math
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -22,6 +23,7 @@ from flask_login import current_user
 from skyfield.api import load
 
 from app import db
+import fchart3
 
 from .planet_forms import (
     PlanetFindChartForm,
@@ -49,10 +51,40 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 
 from ... import csrf
+from ...commons.coordinates import ra_to_str, dec_to_str
+from ...commons.planet_utils import create_solar_system_body_obj, AU_TO_KM, get_planet_orbital_period, \
+    get_planet_synodic_period
 
 utc = dt_module.timezone.utc
 
 main_planet = Blueprint('main_planet', __name__)
+
+YEAR_DAYS = 365.25
+
+
+class PlanetData:
+    def __init__(self, orbit_period, ra, dec, mag, angular_diameter, phase, distance, orbital_period, synodic_period):
+        self.orbit_period = orbit_period
+        self.ra = ra
+        self.dec = dec
+        self.mag = mag
+        self.angular_diameter = angular_diameter
+        self.phase = phase
+        self.distance_au = distance / AU_TO_KM
+        self.distance = distance
+        self.orbital_period = orbital_period
+        self.orbital_period_year = orbital_period / YEAR_DAYS
+        self.synodic_period = synodic_period
+        self.synodic_period_year = synodic_period / YEAR_DAYS
+
+    def ra_str(self):
+        return ra_to_str(self.ra)
+
+    def dec_str(self):
+        return dec_to_str(self.dec)
+
+    def angular_diameter_seconds(self):
+        return self.angular_diameter * 180.0 * 60 * 60 / math.pi
 
 
 @main_planet.route('/planets', methods=['GET', 'POST'])
@@ -66,7 +98,7 @@ def planets():
 @csrf.exempt
 def planet_info(planet_iau_code):
     """View a planet info."""
-    planet =Planet.get_by_iau_code(planet_iau_code)
+    planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
 
@@ -169,14 +201,30 @@ def planet_chart_pdf(planet_iau_code, ra, dec):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_planet.route('/planet/<string:planet_iau_code>')
-@main_planet.route('/planet/<string:planet_iau_code>/catalogue_data')
+@main_planet.route('/planet/<string:planet_iau_code>/catalogue-data')
 def planet_catalogue_data(planet_iau_code):
-    """View a planet catalog info."""
+    """View a planet catalogue data."""
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
-    return render_template('main/solarsystem/planet_info.html', type='catalogue_data')
+
+    embed = request.args.get('embed')
+    if embed:
+        session['planet_embed_seltab'] = 'catalogue_data'
+
+    show_obs_log = show_observation_log()
+
+    body_enum = fchart3.SolarSystemBody.get_by_name(planet.iau_code)
+    sb = create_solar_system_body_obj(load('de421.bsp'), body_enum, load.timescale(builtin=True).now())
+
+    planet_data = PlanetData(1000, sb.ra, sb.dec, sb.mag, sb.angular_radius*2, sb.phase,
+                             sb.distance, get_planet_orbital_period(planet_iau_code),
+                             get_planet_synodic_period(planet_iau_code))
+
+    return render_template('main/solarsystem/planet_info.html', type='catalogue_data', planet=planet,
+                           planet_data=planet_data, show_obs_log=show_obs_log,)
+
+
 
 @main_planet.route('/planet/<string:planet_iau_code>/observation-log', methods=['GET', 'POST'])
 def planet_observation_log(planet_iau_code):

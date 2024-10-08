@@ -8,7 +8,8 @@
 {% set endpoint_log = [ ('main_planet.planet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 
 {% set endpoints = [
-    ('main_planet.planet_info', _('Chart'), 'info')
+    ('main_planet.planet_info', _('Chart'), 'info'),
+    ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
 ] %}
 
 {% set endpoints = endpoint_log + endpoints %}
@@ -40,7 +41,18 @@
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
-{% macro planet_catalogue_data() %}
+{% macro planet_catalogue_data(planet_data) %}
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('Name') }}</td><td>{{ planet.get_localized_name().capitalize() }}</td></tr>
+        <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(planet_data.distance_au) }}AU ({{ "%.2f" | format(planet_data.distance/1000000.0) }}M km) </td></tr>
+        <tr><td class="three wide">RA</td><td>{{ planet_data.ra_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ planet_data.dec_str() }}</td></tr>
+        <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(planet_data.mag) }}mag</td></tr>
+        <tr><td class="three wide">{{ _('Angular diameter') }}</td><td>{{ "%.2f" | format(planet_data.angular_diameter_seconds()) }}"</td></tr>
+        <tr><td class="three wide">{{ _('Phase') }}</td><td>{{ "%.2f" | format(planet_data.phase*100.0) }}%</td></tr>
+        <tr><td class="three wide">{{ _('Orbital Period') }}</td><td>{{ "%.2f" | format(planet_data.orbital_period) }} {{ _('days') }} ({{ "%.2f" | format(planet_data.orbital_period_year) }} a)</td></tr>
+        <tr><td class="three wide">{{ _('Synodic Period') }}</td><td>{{ "%.2f" | format(planet_data.synodic_period) }} {{ _('days') }} ({{ "%.2f" | format(planet_data.synodic_period_year) }} a)</td></tr>
+    </table>
 {% endmacro %}
 
 {% macro planet_observation_log() %}
@@ -192,8 +204,7 @@
             {% elif type == 'observation_log' %}
                 {{ planet_observation_log() }}
             {% else %}
-                {{ planet_info() }}
-                {# {{ planet_catalogue_data() }} #}
+                {{ planet_catalogue_data(planet_data) }}
             {% endif %}
         </div>
     </div>

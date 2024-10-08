@@ -22,17 +22,64 @@ NEP097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/
 
 utc = dt_module.timezone.utc
 
-PLANET_RADIUS_DICT = {
-    'sun': 696340,
-    'moon': 1737.1,
-    'mercury': 2439.7,
-    'venus': 6051.8,
-    'mars': 3389.5,
-    'jupiter': 69911,
-    'saturn': 58232,
-    'uranus': 25362,
-    'neptune': 24622,
-    'pluto': 1188.3
+PLANET_DATA = {
+    'sun': [696340],
+    'moon': [1737.1],
+    'mercury': [2439.7, 87.97, 115.88],
+    'venus': [6051.8, 224.70, 583.92],
+    'mars': [3389.5, 686.98, 779.94],
+    'jupiter': [69911, 4332.59, 398.88],
+    'saturn': [58232, 10759.22, 378.09],
+    'uranus': [25362, 30687.15, 369.66],
+    'neptune': [24622, 60190.03, 367.49],
+}
+
+PLANET_MOONS_DATA = {
+    fchart3.SolarSystemBody.MARS: {
+        MAR097_BSP: {
+            'Phobos': [11.8, (1.0, 0.919, 0.806)],
+            'Deimos': [12.89, (1.0, 0.93, 0.832)],
+        },
+    },
+    fchart3.SolarSystemBody.JUPITER: {
+        JUP365_BSP: {
+            'Io': [-1.68, (1.0, 0.885, 0.598)],
+            'Europa': [-1.41, (1.0, 0.968, 0.887)],
+            'Ganymede': [-2.09, (1.0, 0.962, 0.871)],
+            'Callisto': [-1.05, (1.0, 0.979, 0.897)],
+            'Amalthea': [7.4, (1.0, 0.627, 0.492)],
+        },
+        JUP344_BSP: {
+            'Himalia': [8.14, (1.0, 0.9, 0.75)],
+        },
+    },
+    fchart3.SolarSystemBody.SATURN: {
+        SAT_441_BSP: {
+            'Titan': [-1.28, (1.0, 0.807, 0.453)],
+            'Rhea': [0.1, (1.0, 0.981, 0.942)],
+            'Iapetus': [1.5, (1.0, 0.973, 0.948)],
+            'Enceladus': [2.1, (1.0, 0.998, 0.991)],
+            'Mimas': [3.3, (1.0, 0.983, 0.972)],
+            'Tethys': [0.6, (0.999, 1.0, 0.999)],
+            'Dione': [0.8, (1.0, 0.98, 0.966)],
+            'Phoebe': [6.89, (1.0, 0.9, 0.75)],
+            'Hyperion': [4.63, (1.0, 0.914, 0.835)],
+        },
+    },
+    fchart3.SolarSystemBody.URANUS: {
+        URA111_BSP: {
+            'Titania': [1.02, (1.0, 0.875, 0.779)],
+            'Oberon': [1.23, (1.0, 0.875, 0.798)],
+            'Umbriel': [2.1, (1.0, 0.956, 0.956)],
+            'Ariel': [1.45, (1.0, 0.849, 0.731)],
+            'Miranda': [3.6, (1.0, 0.902, 0.871)],
+        },
+    },
+    fchart3.SolarSystemBody.NEPTUNE: {
+        NEP097_BSP: {
+            'Triton': [-1.24, (0.961, 1.0, 0.819)],
+        },
+    },
 }
 
 AU_TO_KM = 149597870.7
@@ -71,7 +118,7 @@ def get_solsys_bodies():
 
         for body_enum in fchart3.SolarSystemBody:
             if body_enum != fchart3.SolarSystemBody.EARTH:
-                solsys_body_obj = _create_solar_system_body_obj(eph, body_enum, t)
+                solsys_body_obj = create_solar_system_body_obj(eph, body_enum, t)
                 sls_bodies.append(solsys_body_obj)
 
         solsys_bodies = sls_bodies
@@ -91,55 +138,7 @@ def get_planet_moons(maglim):
 
         pl_moons = []
 
-        eph_moons = {
-            fchart3.SolarSystemBody.MARS: {
-                MAR097_BSP: {
-                    'Phobos': [11.8, (1.0, 0.919, 0.806)],
-                    'Deimos': [12.89, (1.0, 0.93, 0.832)],
-                },
-            },
-            fchart3.SolarSystemBody.JUPITER: {
-                JUP365_BSP: {
-                    'Io': [-1.68, (1.0, 0.885, 0.598)],
-                    'Europa': [-1.41, (1.0, 0.968, 0.887)],
-                    'Ganymede': [-2.09, (1.0, 0.962, 0.871)],
-                    'Callisto': [-1.05, (1.0, 0.979, 0.897)],
-                    'Amalthea': [7.4, (1.0, 0.627, 0.492)],
-                },
-                JUP344_BSP: {
-                    'Himalia': [8.14, (1.0, 0.9, 0.75)],
-                },
-            },
-            fchart3.SolarSystemBody.SATURN: {
-                SAT_441_BSP: {
-                    'Titan': [-1.28, (1.0, 0.807, 0.453)],
-                    'Rhea': [0.1, (1.0, 0.981, 0.942)],
-                    'Iapetus': [1.5, (1.0, 0.973, 0.948)],
-                    'Enceladus': [2.1, (1.0, 0.998, 0.991)],
-                    'Mimas': [3.3, (1.0, 0.983, 0.972)],
-                    'Tethys': [0.6, (0.999, 1.0, 0.999)],
-                    'Dione': [0.8, (1.0, 0.98, 0.966)],
-                    'Phoebe': [6.89, (1.0, 0.9, 0.75)],
-                    'Hyperion': [4.63, (1.0, 0.914, 0.835)],
-                },
-            },
-            fchart3.SolarSystemBody.URANUS: {
-                URA111_BSP: {
-                    'Titania': [1.02, (1.0, 0.875, 0.779)],
-                    'Oberon': [1.23, (1.0, 0.875, 0.798)],
-                    'Umbriel': [2.1, (1.0, 0.956, 0.956)],
-                    'Ariel': [1.45, (1.0, 0.849, 0.731)],
-                    'Miranda': [3.6, (1.0, 0.902, 0.871)],
-                },
-            },
-            fchart3.SolarSystemBody.NEPTUNE: {
-                NEP097_BSP: {
-                    'Triton': [-1.24, (0.961, 1.0, 0.819)],
-                },
-            },
-        }
-
-        for planet, url_moons in eph_moons.items():
+        for planet, url_moons in PLANET_MOONS_DATA.items():
             for eph_url, moons in url_moons.items():
                 eph = load(eph_url)
                 for moon_name, (abs_mag, color) in moons.items():
@@ -151,7 +150,7 @@ def get_planet_moons(maglim):
     return [pl for pl in planet_moons if pl.mag <= maglim]
 
 
-def _create_solar_system_body_obj(eph, body_enum, t=None):
+def create_solar_system_body_obj(eph, body_enum, t=None):
     if body_enum == fchart3.SolarSystemBody.EARTH:
         return None
 
@@ -174,7 +173,7 @@ def _create_solar_system_body_obj(eph, body_enum, t=None):
 
     distance_km = distance.au * AU_TO_KM
 
-    physical_radius_km = PLANET_RADIUS_DICT.get(body_name)
+    physical_radius_km = PLANET_DATA.get(body_name)[0]
 
     if physical_radius_km and distance_km > physical_radius_km:
         angular_radius = asin(physical_radius_km / distance_km)
@@ -226,3 +225,11 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
     mag = abs_mag + 5 * log10(distance_sun_au * distance_earth_au)
 
     return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km)
+
+
+def get_planet_orbital_period(planet):
+    return PLANET_DATA[planet][1]
+
+
+def get_planet_synodic_period(planet):
+    return PLANET_DATA[planet][2]
