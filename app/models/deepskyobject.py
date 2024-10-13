@@ -22,6 +22,7 @@ IMPORT_SOURCE_HNSKY_SUPPLEMENT = 4
 
 IMPORT_SOURCE_SIMBAD = 1000
 
+
 class DeepskyObject(db.Model):
     __tablename__ = 'deepsky_objects'
     id = db.Column(db.Integer, primary_key=True)

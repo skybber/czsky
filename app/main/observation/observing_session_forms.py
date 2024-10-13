@@ -46,7 +46,7 @@ class ObservationItemForm(FlaskForm):
                 targets = targets[:targets.index(':')]
             if len(targets) == 0:
                 raise ValidationError(lazy_gettext('Value expected.'))
-            _, _, _, _, _, not_found = parse_observation_targets(targets)
+            _, _, _, _, _, _, _, not_found = parse_observation_targets(targets)
             if not_found:
                 msg = lazy_gettext('Unknown targets:') + ','.join(not_found)
                 raise ValidationError(lazy_gettext('Unknown targets:') + ','.join(not_found))

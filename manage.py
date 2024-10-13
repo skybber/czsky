@@ -28,7 +28,7 @@ from app.models import (
     UserDsoApertureDescription,
 )
 
-from app.commons.planet_utils import MAR097_BSP, JUP365_BSP, JUP344_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
+from app.commons.solar_system_chart_utils import MAR097_BSP, JUP365_BSP, JUP344_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
 
 from imports.import_utils import progress
 
@@ -237,6 +237,12 @@ def import_comets():
 def import_planets():
     from imports.import_planets import import_db_planets
     import_db_planets()
+
+
+@app.cli.command("import_planet_moons")
+def import_planet_moons():
+    from imports.import_planet_moons import import_db_planet_moons
+    import_db_planet_moons()
 
 
 @app.cli.command("import_supernovae")

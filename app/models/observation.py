@@ -125,6 +125,12 @@ class ObservingSession(db.Model):
                 return o
         return None
 
+    def find_observation_by_planet_moon_id(self, planet_moon_id):
+        for o in self.observations:
+            if o.target_type == ObservationTargetType.PLANET_MOON and o.planet_moon_id == planet_moon_id:
+                return o
+        return None
+
     def find_observation_by_minor_planet_id(self, minor_planet_id):
         for o in self.observations:
             if o.target_type == ObservationTargetType.M_PLANET and o.minor_planet_id == minor_planet_id:
@@ -145,6 +151,7 @@ class ObservationTargetType(Enum):
     COMET = 'COMET'
     M_PLANET = 'M_PLANET'
     PLANET = 'PLANET'
+    PLANET_MOON = 'PL_MOON'
 
 
 class Observation(db.Model):
@@ -181,6 +188,8 @@ class Observation(db.Model):
     minor_planet = db.relationship("MinorPlanet")
     planet_id = db.Column(db.Integer, db.ForeignKey('planets.id'), nullable=True)
     planet = db.relationship("Planet")
+    planet_moon_id = db.Column(db.Integer, db.ForeignKey('planet_moons.id'), nullable=True)
+    planet_moon = db.relationship("PlanetMoon")
     ra = db.Column(db.Float, index=True)
     dec = db.Column(db.Float, index=True)
     notes = db.Column(db.Text)
@@ -222,6 +231,8 @@ class Observation(db.Model):
             return 'DBL_STAR'
         if self.target_type == ObservationTargetType.PLANET and self.planet:
             return 'PLANET'
+        if self.target_type == ObservationTargetType.PLANET_MOON and self.planet_moon:
+            return 'PLANET_MOON'
         if self.target_type == ObservationTargetType.COMET and self.comet:
             return 'COMET'
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
@@ -289,6 +300,8 @@ class Observation(db.Model):
             return '<a class="sw-link" href="' + url_for('main_double_star.double_star_seltab', double_star_id=self.double_star_id, back=back, back_id=back_id) + '">' + self.double_star.get_common_name() + '</a>'
         if self.target_type == ObservationTargetType.PLANET and self.planet:
             return '<a href="' + url_for('main_planet.planet_info', planet_iau_code=self.planet.iau_code, back=back, back_id=back_id) + '">' + self.planet.get_localized_name() + '</a>'
+        if self.target_type == ObservationTargetType.PLANET_MOON and self.planet_moon:
+            return '<a href="' + url_for('main_planet_moon.planet_moon_info', planet_moon_name=self.planet_moon.name, back=back, back_id=back_id) + '">' + self.planet_moon.name + '</a>'
         if self.target_type == ObservationTargetType.COMET and self.comet:
             return '<a class="sw-link" href="' + url_for('main_comet.comet_seltab', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:

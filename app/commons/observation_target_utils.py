@@ -9,10 +9,12 @@ from app.commons.search_sky_object_utils import (
     search_double_star,
     search_comet,
     search_minor_planet,
-    search_planet
+    search_planet,
+    search_planet_moon
 )
 from app.commons.minor_planet_utils import find_mpc_minor_planet
 from app.commons.comet_utils import find_mpc_comet
+from app.commons.solar_system_chart_utils import create_planet_moon_obj
 
 from app.models import (
     ObservationTargetType,
@@ -23,6 +25,7 @@ def parse_observation_targets(targets):
     not_found = []
     dsos = []
     planet = None
+    planet_moon = None
     comet = None
     minor_planet = None
     double_star = None
@@ -31,15 +34,19 @@ def parse_observation_targets(targets):
 
     planet = search_planet(targets)
     if planet:
-        return dsos, double_star, planet, comet, minor_planet, not_found
+        return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
+
+    planet_moon = search_planet_moon(targets)
+    if planet_moon:
+        return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
 
     comet = search_comet(targets)
     if comet:
-        return dsos, double_star, planet, comet, minor_planet, not_found
+        return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
 
     minor_planet = search_minor_planet(targets)
     if minor_planet:
-        return dsos, double_star, planet, comet, minor_planet, not_found
+        return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
 
     target_names = targets.split(',')
     for target_name in target_names:
@@ -50,19 +57,19 @@ def parse_observation_targets(targets):
         not_found.append(target_name)
 
     if len(dsos) > 0:
-        return dsos, double_star, planet, comet, minor_planet, not_found
+        return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
 
     # double star as a last since there is slow query (.. like '%name%')
     double_star = search_double_star(targets, number_search=False)
 
     if double_star:
         not_found = []
-    return dsos, double_star, planet, comet, minor_planet, not_found
+    return dsos, double_star, planet, planet_moon, comet, minor_planet, not_found
 
 def set_observation_targets(observation, targets):
     observation.deepsky_objects = []
     observation.double_star_id = None
-    dsos, double_star, planet, comet, minor_planet, not_found = parse_observation_targets(targets)
+    dsos, double_star, planet, planet_moon, comet, minor_planet, not_found = parse_observation_targets(targets)
     if double_star:
         observation.double_star_id = double_star.id
         observation.target_type = ObservationTargetType.DBL_STAR
@@ -80,6 +87,14 @@ def set_observation_targets(observation, targets):
 
         observation.ra = planet_ra_ang.radians
         observation.dec = planet_dec_ang.radians
+    elif planet_moon:
+        observation.planet_moon_id = planet_moon.id
+        observation.target_type = ObservationTargetType.PLANET_MOON
+
+        plm_obj = create_planet_moon_obj(planet_moon.name)
+
+        observation.ra = plm_obj.ra
+        observation.dec = plm_obj.dec
     elif comet:
         observation.comet_id = comet.id
         observation.target_type = ObservationTargetType.COMET

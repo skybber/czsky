@@ -90,7 +90,7 @@ from .sessionplan_export import create_oal_observations_from_session_plan
 from app.commons.comet_utils import find_mpc_comet, get_mpc_comet_position
 from app.commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_planet, search_dso
 from app.commons.minor_planet_utils import get_mpc_minor_planet_position, find_mpc_minor_planet
-from app.commons.planet_utils import get_mpc_planet_position
+from app.commons.solar_system_chart_utils import get_mpc_planet_position
 
 main_sessionplan = Blueprint('main_sessionplan', __name__)
 

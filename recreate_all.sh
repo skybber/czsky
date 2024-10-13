@@ -27,6 +27,7 @@ flask import_star_list
 flask import_double_star_list
 flask import_hnsky_supplements
 flask import_planets
+flask import_planet_moons
 flask import_minor_planets
 flask import_comets
 flask import_supernovae

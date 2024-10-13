@@ -52,7 +52,7 @@ class StandaloneObservationMixin:
     notes = TextAreaField(lazy_gettext('Notes'))
 
     def validate_target(self, field):
-        _, _, _, _, _, not_found = parse_observation_targets(self.target.data)
+        _, _, _, _, _, _, not_found = parse_observation_targets(self.target.data)
         if not_found:
             msg = lazy_gettext('Unknown targets:') + ','.join(not_found)
             self.target.errors.append(msg)

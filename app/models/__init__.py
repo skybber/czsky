@@ -21,6 +21,7 @@ from .news import *
 from .observation import *
 from .observed_list import *
 from .planet import *
+from .planet_moon import *
 from .session_plan import *
 from .sqm import *
 from .skylist import *

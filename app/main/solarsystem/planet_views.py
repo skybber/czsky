@@ -51,8 +51,8 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 
 from ... import csrf
-from ...commons.coordinates import ra_to_str, dec_to_str
-from ...commons.planet_utils import create_solar_system_body_obj, AU_TO_KM, get_planet_orbital_period, \
+from app.commons.coordinates import ra_to_str, dec_to_str
+from app.commons.solar_system_chart_utils import create_solar_system_body_obj, AU_TO_KM, get_planet_orbital_period, \
     get_planet_synodic_period
 
 utc = dt_module.timezone.utc

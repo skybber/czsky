@@ -163,23 +163,25 @@ def do_global_search(query, level):
                                 screenWidth=request.args.get('screenWidth')
                                 ))
 
-    # 6. Search comet
+    # 6. Search planet moons
+    planet_moon = search_planet_moon(query)
+    if planet_moon is not None:
+        return redirect(url_for('main_planet_moon.planet_moon_seltab',
+                                planet_moon_name=planet_moon.name,
+                                seltab=request.args.get('seltab'),
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')
+                                ))
+
+    # 7. Search comet
     comet = search_comet(query)
     if comet is not None:
         return redirect(url_for('main_comet.comet_seltab',
                                 comet_id=comet.comet_id,
-                                seltab=request.args.get('seltab'),
-                                fullscreen=request.args.get('fullscreen'),
-                                splitview=request.args.get('splitview'),
-                                embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')))
-
-    # 7. Search planet moons
-    planet_moon = search_planet_moon(query)
-    if planet_moon is not None:
-        return redirect(url_for('main_chart.chart',
-                                mra=planet_moon.ra,
-                                mdec=planet_moon.dec,
                                 seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),

@@ -165,6 +165,8 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_minor_panet)
         from .main.solarsystem import main_planet as main_planet
         app.register_blueprint(main_planet)
+        from .main.solarsystem import main_planet_moon as main_planet_moon
+        app.register_blueprint(main_planet_moon)
         from .main.chart import main_chart as main_chart
         app.register_blueprint(main_chart)
         from .main.chart import main_chart_theme as main_chart_theme

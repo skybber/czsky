@@ -151,6 +151,7 @@ def observing_session_info(observing_session_id):
                            location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url,
                            show_observ_time=show_observ_time)
 
+
 @main_observing_session.route('/observing-session/<int:observing_session_id>/export', methods=['GET', 'POST'])
 def observing_session_export(observing_session_id):
     """Export observation."""
@@ -173,6 +174,7 @@ def observing_session_export(observing_session_id):
 
     return render_template('main/observation/observing_session_info.html', exp_form=exp_form, type='imp_exp',
                            observing_session=observing_session, is_mine_observing_session=is_mine_observing_session, about_oal=get_about_oal())
+
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/import-upload', methods=['GET', 'POST'])
 @login_required
@@ -556,6 +558,7 @@ def observing_session_chart_pdf(observing_session_id, ra, dec):
 
     return send_file(img_bytes, mimetype='application/pdf')
 
+
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
 def observing_session_chart_legend_img(observing_session_id, ra, dec):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
@@ -665,6 +668,7 @@ def observing_session_run_plan_execute(observing_session_id, session_plan_id):
     else:
         dso_name = 'M1'  # fallback
     return redirect(url_for('main_deepskyobject.deepskyobject_observation_log', dso_id=dso_name, back='running_plan', back_id=observing_session_plan_run.id))
+
 
 def _deactivate_all_user_observing_sessions():
     for act_obs_session in ObservingSession.query.filter_by(user_id=current_user.id, is_active=True).all():

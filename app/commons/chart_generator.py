@@ -33,7 +33,7 @@ from app.models import (
     SessionPlan,
     Telescope, BODY_KEY_DICT,
 )
-from .planet_utils import get_solsys_bodies, get_planet_moons
+from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES

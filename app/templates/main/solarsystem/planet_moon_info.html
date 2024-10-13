@@ -1,0 +1,238 @@
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% set endpoint_log = [ ('main_planet_moon.planet_moon_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
+
+{% set endpoints = [
+    ('main_planet_moon.planet_moon_info', _('Chart'), 'info'),
+    ('main_planet_moon.planet_moon_catalogue_data', _('Catalog'), 'table')
+] %}
+
+{% if not embed %}
+    {% set endpoints = [
+        ('main_planet_moon.planet_moon_info', _('Chart'), 'info'),
+        ('main_planet_moon.planet_moon_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_planet_moon.planet_moon_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% endif %}
+
+
+{% set endpoints = endpoint_log + endpoints %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, planet_moon_name=planet_moon.name, back=back, back_id=back_id) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{# --- Find Chart --- #}
+{% macro planet_moon_info() %}
+    {{ fchart.fchart(url_for('main_planet_moon.planet_moon_info', planet_moon_name=planet_moon.name, back=back, back_id=back_id),
+                     url_for('main_planet_moon.planet_moon_chart_pos_img', planet_moon_name=planet_moon.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
+                     url_for('main_planet_moon.planet_moon_chart_legend_img', planet_moon_name=planet_moon.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_planet_moon.planet_moon_chart_pdf', planet_moon_name=planet_moon.name, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                              flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
+                     None,
+                     fchart_form,
+                     obj_ra=planet_moon_ra|string, obj_dec=planet_moon_dec|string )
+    }}
+{% endmacro %}
+
+{# --- Catalogue Data --- #}
+{% macro planet_moon_catalogue_data(planet_moon_data) %}
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('Name') }}</td><td>{{ planet_moon.name }}</td></tr>
+        <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(planet_moon_data.distance_au) }}AU ({{ "%.2f" | format(planet_moon_data.distance/1000000.0) }}M km) </td></tr>
+        <tr><td class="three wide">RA</td><td>{{ planet_moon_data.ra_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ planet_moon_data.dec_str() }}</td></tr>
+        <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(planet_moon_data.mag) }}mag</td></tr>
+    </table>
+{% endmacro %}
+
+{% macro planet_moon_observation_log() %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    {{ _('Active observation:')}} <a href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=observing_session.id)}}">{{ observing_session.title }}</a>
+    <br/><br/>
+
+    {{ f.begin_form(form, flashes) }}
+
+        <div class="two fields">
+            <div class="field">
+                <label for="odate-from">{{ form.date_from.label }}</label>
+                <div class="two fields">
+                    <div class="field">
+                        <div class="ui calendar" id="odate-from">
+                          <div class="ui input left icon">
+                            <i class="calendar icon"></i>
+                            <input id="odate-from" name="{{form.date_from.name}}" placeholder="Date" type="text"
+                                    value="{{form.date_from.data.strftime('%d/%m/%Y') if form.date_from.data else ''}}">
+                          </div>
+                        </div>
+                        {% if form.date_from.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.date_from.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="field">
+                        <div class="ui calendar" id="odtime-from">
+                          <div class="ui input left icon">
+                            <i class="time icon"></i>
+                            <input id="otime-from" placeholder="Time" type="text" name="{{ form.time_from.name }}" value="{{ form.time_from.data }}">
+                          </div>
+                        </div>
+                        {% if form.time_from.errors %}
+                            <div class="ui red pointing label">
+                                {{ form.time_from.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{ f.render_form_field(form.notes) }}
+        <div class="three fields">
+            <div class="field">
+                {{ f.render_form_field(form.telescope) }}
+            </div>
+            <div class="field">
+                {{ f.render_form_field(form.eyepiece) }}
+            </div>
+            <div class="field">
+                {{ f.render_form_field(form.filter) }}
+            </div>
+        </div>
+
+        <div class="two fields">
+            {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                {{ field(class='positive ui button') }}
+            {% endfor %}
+            {% if not is_new_observation_log %}
+                <a id="bdeleteobservlog" class="negative ui button" href="#">{{ _('Delete Log') }}</a>
+            {% endif %}
+        </div>
+
+    {{ f.end_form() }}
+    {% if not is_new_observation_log %}
+        <div class="ui tiny modal deleteObservationLogModal">
+          <div class="header">{{ _('Delete Log') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete this observation log?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">No</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_planet_moon.planet_moon_observation_log_delete', planet_moon_name=planet_moon.name, back=back, back_id=back_id ) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+    <script type="text/javascript">
+        $('#odtime-from')
+          .calendar({
+            type: 'time',
+            ampm: false
+          })
+        ;
+        $('#odate-from').calendar({
+            type: 'date',
+            monthFirst: false,
+            formatter: {
+                date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                }
+            }
+        });
+    </script>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if back == 'observation' %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="eye icon mobile hidden"></i>
+                        </a>
+                    {% elif back == 'session_plan' %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="tasks icon mobile hidden"></i>
+                        </a>
+                    {% elif back == 'running_plan' %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}">
+                            <i class="caret left icon"></i>
+                            <i class="tasks icon mobile hidden"></i>
+                        </a>
+                    {% else %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_planet_moon.planet_moons') }}">
+                            <i class="caret left icon"></i>
+                            <i class="list icon"></i>
+                        </a>
+                    {% endif %}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ planet_moon.name }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ planet_moon_info() }}
+            {% elif type == 'observation_log' %}
+                {{ planet_moon_observation_log() }}
+            {% else %}
+                {{ planet_moon_catalogue_data(planet_moon_data) }}
+            {% endif %}
+        </div>
+    </div>
+    <script type="text/javascript">
+        {% if not is_new_observation_log %}
+            $('.ui.modal.deleteObservationLogModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdeleteobservlog').click(function() {
+                $('.ui.modal.deleteObservationLogModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
+
+{% endblock %}
