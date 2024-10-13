@@ -151,6 +151,16 @@ def get_planet_moons(maglim):
     return [pl for pl in planet_moons if pl.mag <= maglim]
 
 
+def create_planet_moon_obj(moon_name, t=None):
+    for planet, url_moons in PLANET_MOONS_DATA.items():
+        for eph_url, moons in url_moons.items():
+            for moon_name2, (abs_mag, color) in moons.items():
+                if moon_name2.lower() == moon_name.lower():
+                    eph = load(eph_url)
+                    return _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
+    return None
+
+
 def create_solar_system_body_obj(eph, body_enum, t=None):
     if body_enum == fchart3.SolarSystemBody.EARTH:
         return None
