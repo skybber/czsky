@@ -22,8 +22,8 @@ from sqlalchemy import func
 
 def search_constellation(query):
     constellation = Constellation.query.filter(func.lower(Constellation.iau_code) == func.lower(query)).first()
-    if not constellation:
-        constellation = Constellation.query.filter(Constellation.name.like('%' + query + '%')).first()
+    if not constellation and len(query) >= 3:
+        constellation = Constellation.query.filter(Constellation.name.like(query + '%')).first()
     return constellation
 
 
