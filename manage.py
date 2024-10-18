@@ -42,13 +42,21 @@ with app.app_context():
         migrate.init_app(app, db)
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 @app.route('/googlec19eb44ce20514ca.html')
 @app.route('/robots.txt')
 def static_from_root():
     return send_from_directory(current_app.static_folder, request.path[1:])
 
+
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
+
 
 @app.cli.command("test")
 def test():
