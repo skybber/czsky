@@ -17,7 +17,11 @@ class PlanetMoon(db.Model):
     @classmethod
     def get_all(cls):
         if PlanetMoon._all is None:
-            PlanetMoon._all = PlanetMoon.query.options(joinedload(PlanetMoon.planet)).all()
+            all_pl = []
+            for plm in PlanetMoon.query.options(joinedload(PlanetMoon.planet)).all():
+                db.session.expunge(plm)
+                all_pl.append(plm)
+            PlanetMoon._all = all_pl
 
         return PlanetMoon._all
 
@@ -26,6 +30,7 @@ class PlanetMoon(db.Model):
         if not PlanetMoon._name_dict:
             PlanetMoon._name_dict = {}
             for plm in PlanetMoon.query.options(joinedload(PlanetMoon.planet)).all():
+                db.session.expunge(plm)
                 PlanetMoon._name_dict[plm.name.upper()] = plm
         return PlanetMoon._name_dict.get(name.upper())
 
@@ -34,5 +39,6 @@ class PlanetMoon(db.Model):
         if not PlanetMoon._id_dict:
             PlanetMoon._id_dict = {}
             for plm in PlanetMoon.query.options(joinedload(PlanetMoon.planet)).all():
+                db.session.expunge(plm)
                 PlanetMoon._id_dict[plm.id] = plm
         return PlanetMoon._id_dict.get(id)
