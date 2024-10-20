@@ -5,13 +5,18 @@
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact button" href="{{ url_for('main.index') }}">
-                <i class="caret left icon"></i>
-                {{ _('Dashboard') }}
-            </a>
-            <h2 class="ui header">
-                    {{ _('User Data') }}
-            </h2>
+            <div style="margin-top:1rem; margin-bottom:2rem">
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main.index') }}">
+                        <i class="caret left icon"></i>
+                        <i class="home icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('User Data') }}
+                    </div>
+                </div>
+            </div>
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Equipment'), 'main_equipment.equipment_menu',
                                     description=_('Your equipment'), icon='toolbox icon') }}
