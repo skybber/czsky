@@ -29,7 +29,7 @@
                     </thead>
                     <tbody>
                     {% for index, planet in planets_enumerate %}
-                        <tr onclick="window.location.href = '{{ url_for('main_planet.planet_info', planet_iau_code=planet.iau_code) }}';">
+                        <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_planet.planet_seltab', planet_iau_code=planet.iau_code, back='planets') }}';">
                             <td>{{ index + 1 }}</td>
                             <td>{{ planet.get_localized_name().capitalize() }}</td>
                         </tr>
@@ -39,4 +39,10 @@
             </div>
       </div>
   </div>
+<script type="text/javascript">
+    $(function(){
+        $('tr.sw-onclick').appendScreenWidth('onclick');
+    });
+</script>
+
 {% endblock %}

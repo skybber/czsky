@@ -287,11 +287,9 @@ def comet_info(comet_id):
     if embed:
         session['comet_embed_seltab'] = 'info'
 
-    default_chart_iframe_url = None
-    if comet is not None:
-        back = request.args.get('back')
-        back_id = request.args.get('back_id')
-        default_chart_iframe_url = url_for('main_comet.comet_cobs_observations', back=back, back_id=back_id, comet_id=comet.comet_id, embed='comets', allow_back='false')
+    default_chart_iframe_url = url_for('main_comet.comet_cobs_observations',
+                                       back=request.args.get('back'), back_id=request.args.get('back_id'),
+                                       comet_id=comet.comet_id, embed='comets', allow_back='false')
 
     show_obs_log = show_observation_log()
 

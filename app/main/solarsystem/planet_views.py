@@ -46,7 +46,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.utils import to_float
+from app.commons.utils import to_float, is_splitview_supported
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
@@ -114,6 +114,9 @@ def planet_seltab(planet_iau_code):
     if request.args.get('embed'):
         return _do_redirect('main_planet.planet_catalogue_data', planet)
 
+    if is_splitview_supported():
+        return _do_redirect('main_planet.planet_info', planet, splitview=True)
+
     return _do_redirect('main_planet.planet_info', planet)
 
 
@@ -166,9 +169,13 @@ def planet_info(planet_iau_code):
 
     show_obs_log = show_observation_log()
 
+    default_chart_iframe_url = url_for('main_planet.planet_catalogue_data',
+                                       back=request.args.get('back'), back_id=request.args.get('back_id'),
+                                       planet_iau_code=planet_iau_code, embed='planets', allow_back='false')
+
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
-                           show_obs_log=show_obs_log, embed=embed)
+                           show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

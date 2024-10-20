@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.utils import to_float
+from app.commons.utils import to_float, is_splitview_supported
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
@@ -100,6 +100,9 @@ def planet_moon_seltab(planet_moon_name):
     if request.args.get('embed'):
         return _do_redirect('main_planet_moon.planet_moon_catalogue_data', planet_moon)
 
+    if is_splitview_supported():
+        return _do_redirect('main_planet_moon.planet_moon_info', planet_moon, splitview=True)
+
     return _do_redirect('main_planet_moon.planet_moon_info', planet_moon)
 
 
@@ -128,9 +131,13 @@ def planet_moon_info(planet_moon_name):
 
     show_obs_log = show_observation_log()
 
+    default_chart_iframe_url = url_for('main_planet_moon.planet_moon_catalogue_data',
+                                       back=request.args.get('back'), back_id=request.args.get('back_id'),
+                                       planet_moon_name=planet_moon_name, embed='planet_moons', allow_back='false')
+
     return render_template('main/solarsystem/planet_moon_info.html', fchart_form=form, type='info',
                            planet_moon=planet_moon, plm_ra=plm_obj.ra, plm_dec=plm_obj.dec, chart_control=chart_control,
-                           show_obs_log=show_obs_log, embed=embed)
+                           show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
