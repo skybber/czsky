@@ -50,6 +50,10 @@ MAX_IMG_HEIGHT = 3000
 A4_WIDTH = 800
 
 FIELD_SIZES = (0.1, 0.165, 0.25, 0.375, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 23, 30, 45, 60, 80, 100, 140, 180)
+FIELD_LABELS = [
+    "6'", "10'", "15'", "22'", "30'", "45'", "1°", "1.5°", "2°", "3°", "4°", "6°", "8°", "12°", "16°", "23°", "30°",
+    "45°", "60°", "80°", "100°", "140°", "180°"
+]
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in FIELD_SIZES)
 
@@ -378,7 +382,7 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
 
 def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None):
-    gui_fld_size, maglim, dso_maglim = get_fld_size_mags_from_request()
+    gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -395,7 +399,7 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     img_bytes = BytesIO()
     img_formats = current_app.config.get('CHART_IMG_FORMATS')
 
-    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, width, height,
+    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, gui_fld_label, width, height,
                                maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                                observed_dso_ids=observed_dso_ids, highlights_pos_list=highlights_pos_list, trajectory=trajectory,
                                hl_constellation=hl_constellation, img_formats=img_formats)
@@ -408,7 +412,7 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
 
 
 def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
-    gui_fld_size, maglim, dso_maglim = get_fld_size_mags_from_request()
+    gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -423,7 +427,7 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, maglim, dso_maglim, eyepiece_fov,
+    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
                          flags=flags, img_format='png')
     img_bytes.seek(0)
     return img_bytes
@@ -431,7 +435,7 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
 
 def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, trajectory=None, highlights_pos_list=None):
-    gui_fld_size, maglim, dso_maglim = get_fld_size_mags_from_request()
+    gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 
@@ -442,7 +446,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, maglim, dso_maglim,
+    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, gui_fld_label, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                       highlights_pos_list=highlights_pos_list, observed_dso_ids=observed_dso_ids, trajectory=trajectory,
                       eyepiece_fov=eyepiece_fov)
@@ -761,16 +765,17 @@ def _get_fld_size_maglim(fld_size_index):
 def get_fld_size_mags_from_request():
     gui_fld_size = to_float(request.args.get('fsz'), 23.0)
 
-    for i in range(len(FIELD_SIZES)-1, -1, -1):
-        if gui_fld_size >= FIELD_SIZES[i]:
-            fld_size_index = i
+    for fld_size_index, fs in enumerate(FIELD_SIZES):
+        if fs >= gui_fld_size:
             break
     else:
-        fld_size_index = 0
+        fld_size_index = len(FIELD_SIZES) - 1
+
+    gui_fld_label = 'FoV: ' + FIELD_LABELS[fld_size_index]
 
     fld_size, maglim, dso_maglim = _get_fld_size_maglim(fld_size_index)
 
-    return gui_fld_size, maglim, dso_maglim
+    return gui_fld_size, gui_fld_label, maglim, dso_maglim
 
 
 def _check_in_mag_interval(mag, mag_interval):
@@ -783,8 +788,8 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, width, height, star_maglim, dso_maglim,
-                  show_legend=True, dso_names=None, flags='', highlights_dso_list=None, observed_dso_ids=None,
+def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, fld_label, width, height, star_maglim,
+                  dso_maglim, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, observed_dso_ids=None,
                   highlights_pos_list=None, trajectory=None, hl_constellation=None, img_formats='png'):
     """Create chart in czsky process."""
     global free_mem_counter
@@ -818,7 +823,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     if show_legend:
         config.show_mag_scale_legend = True
-        config.show_map_scale_legend = True
+        config.show_numeric_map_scale_legend = True
         config.show_field_border = True
 
     if dso_maglim is None:
@@ -864,7 +869,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -921,7 +926,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     return img_format
 
 
-def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, star_maglim, dso_maglim,
+def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, fld_label, star_maglim, dso_maglim,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
                       observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
@@ -972,7 +977,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1008,7 +1013,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
+def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
     global free_mem_counter
     # tm = time()
 
@@ -1022,7 +1027,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
 
     config.legend_only = True
     config.show_mag_scale_legend = True
-    config.show_map_scale_legend = True
+    config.show_numeric_map_scale_legend = True
     config.show_field_border = False
     config.show_equatorial_grid = True
     config.show_picker = FlagValue.SHOW_PICKER.value in flags
@@ -1047,7 +1052,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, star_maglim
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, mirror_x, mirror_y, projection)
+    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
