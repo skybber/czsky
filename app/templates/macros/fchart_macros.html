@@ -291,6 +291,10 @@
       </div>
   </div>
 
+  <div id="isearch2" class="ui tiny icon computer hidden input" style="width: 150px; z-index:100; position: absolute; bottom: 0; right:0; display:none;">
+      <input id="search2" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
+      <i class="search icon"></i>
+  </div>
 </div>
 
 <div id="fchart-aladin-div" style="position:fixed;left:0;top:0;display:none">
@@ -391,6 +395,7 @@
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
         $("#isearch").show();
+        $("#isearch2").show();
         $("#bhome").show();
     }
 
@@ -430,10 +435,11 @@
         $('#fullscreen').val(fullScreen);
         if (fullScreen) {
             $("#isearch").show();
+            $("#isearch2").show();
             $("#bhome").show();
             $("#bshowleftpanel").show();
         } else {
-            $("#isearch").hide();
+            $("#isearch2").hide();
             $("#bhome").hide();
             $("#bshowleftpanel").hide();
         }
@@ -443,11 +449,13 @@
         $('#splitview').val(splitViewVisible);
         if (splitViewVisible) {
             $("#isearch").show();
+            $("#isearch2").show();
             $("#bhome").show();
             $("#bhideleftpanel").show();
             $("#bshowleftpanel").hide();
         } else {
             $("#isearch").hide();
+            $("#isearch2").hide();
             $("#bhome").hide();
             $("#bhideleftpanel").hide();
             $("#bshowleftpanel").show();
