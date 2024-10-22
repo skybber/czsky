@@ -667,7 +667,8 @@ FChart.prototype.getEventLocation = function(e) {
         let touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
         pos.x = touch.clientX;
         pos.y = touch.clientY;
-    } else if (e.originalEvent.type == "mousedown" || e.originalEvent.type == "mouseup" || e.originalEvent.type == "mousemove" || e.originalEvent.type=="mouseout") {
+    } else if (e.originalEvent.type == "mousedown" || e.originalEvent.type == "mouseup" || e.originalEvent.type == "mousemove"
+        || e.originalEvent.type=="mouseout" || e.originalEvent.type == "dblclick") {
         let rect = this.canvas.getBoundingClientRect();
         pos.x = e.clientX;
         pos.y = e.clientY;
@@ -726,15 +727,19 @@ FChart.prototype.onClick = function(e) {
 }
 
 FChart.prototype.onDblClick = function(e) {
-    this.setMovingPosToCenter();
+    // mouse down
+    this.isDragging = true;
+    this.pointerX = this.getEventLocation(e).x;
+    this.pointerY = this.getEventLocation(e).y;
 
+    this.setupMovingPos();
+
+    // mouse up in the center
     let rect = this.canvas.getBoundingClientRect();
-
-    this.pointerX = rect.left + (-(e.clientX - rect.left) + this.canvas.width);
-    this.pointerY = rect.top + (-(e.clientY - rect.top) + this.canvas.height);
-
+    this.pointerX = rect.left + this.canvas.width / 2.0;
+    this.pointerY = rect.top + this.canvas.height / 2.0;
     this.syncAladinViewCenter();
-
+    this.isDragging = false
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
     let curSkyImg = this.skyImgBuf[this.skyImg.active];
 
