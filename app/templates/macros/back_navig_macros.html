@@ -1,0 +1,158 @@
+{% macro back_navig(back, back_id, default_back, embed, anchor='') %}
+    {% if not embed %}
+        {% if back == 'constell' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="lastfm icon mobile hidden"></i>
+            </a>
+        {% elif back == 'constell_dso' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_constellation.constellation_deepskyobjects', constellation_id=back_id) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="lastfm icon mobile hidden"></i>
+            </a>
+        {% elif back == 'observation' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="eye icon mobile hidden"></i>
+            </a>
+        {% elif back == 'stobservation' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}">
+                <i class="caret left icon"></i>
+                <i class="eye icon mobile hidden"></i>
+            </a>
+        {% elif back == 'wishlist' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}">
+                <i class="caret left icon"></i>
+                <i class="heart icon mobile hidden"></i>
+            </a>
+        {% elif back == 'observed_list' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_observed.observed_list_info') }}">
+                <i class="caret left icon"></i>
+                <i class="heart icon mobile hidden"></i>
+            </a>
+        {% elif back == 'session_plan' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="tasks icon mobile hidden"></i>
+            </a>
+        {% elif back == 'dso_list' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="tasks icon mobile hidden"></i>
+            </a>
+        {% elif back=='dbl_star_list' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}">
+                <i class="caret left icon"></i>
+                <i class="tasks icon mobile hidden"></i>
+            </a>
+        {% elif back == 'running_plan' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}{{anchor}}">
+                <i class="caret left icon"></i>
+                <i class="tasks icon mobile hidden"></i>
+            </a>
+        {% elif default_back == 'deepskyobjects' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'double_stars' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_double_star.double_stars', nvgback=1)}}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'supernovae' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_supernova.supernovae', nvgback=1)}}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'comets' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_comet.comets') }}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'planets' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_planet.planets') }}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'planet_moons' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_planet_moon.planet_moons') }}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'minor_planets' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_minor_planet.minor_planets') }}">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% endif %}
+        <div class="divider"></div>
+    {% else %}
+        {% if back == 'constell' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}'">
+                <i class="caret left icon"></i>
+                <i class="lastfm icon"></i>
+            </a>
+        {% elif back == 'observation' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}'">
+                <i class="caret left icon"></i>
+                <i class="eye icon"></i>
+            </a>
+        {% elif back == 'dso_list' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}'">
+                <i class="caret left icon"></i>
+                <i class="tasks icon"></i>
+            </a>
+        {% elif back=='dbl_star_list' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="tasks icon"></i>
+            </a>
+        {% elif back == 'session_plan' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif back == 'wishlist' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'deepskyobjects' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'double_stars' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', nvgback=1)}}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'supernovae' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_supernova.supernovae', nvgback=1)}}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'comets' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_comet.comets', nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'planets' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_planet.planets', nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'planet_moons' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% elif default_back == 'minor_planets' %}
+            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_minor_planet.minor_planets', nvgback=1) }}'">
+                <i class="caret left icon"></i>
+                <i class="list icon"></i>
+            </a>
+        {% endif %}
+    {% endif %}
+{% endmacro %}

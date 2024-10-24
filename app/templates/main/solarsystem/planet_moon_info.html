@@ -6,6 +6,7 @@
 
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
@@ -183,46 +184,7 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                    {% if not embed %}
-                        {% if back == 'observation' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}">
-                                <i class="caret left icon"></i>
-                                <i class="eye icon mobile hidden"></i>
-                            </a>
-                        {% elif back == 'session_plan' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}">
-                                <i class="caret left icon"></i>
-                                <i class="tasks icon mobile hidden"></i>
-                            </a>
-                        {% elif back == 'running_plan' %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}">
-                                <i class="caret left icon"></i>
-                                <i class="tasks icon mobile hidden"></i>
-                            </a>
-                        {% else %}
-                            <a class="ui basic icon compact button" href="{{ url_for('main_planet_moon.planet_moons') }}">
-                                <i class="caret left icon"></i>
-                                <i class="list icon"></i>
-                            </a>
-                        {% endif %}
-                    {% else %}
-                        {% if back == 'observation' %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}'">
-                                <i class="caret left icon"></i>
-                                <i class="eye icon"></i>
-                            </a>
-                        {% elif back == 'session_plan' %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}'">
-                                <i class="caret left icon"></i>
-                                <i class="list icon"></i>
-                            </a>
-                        {% elif back is not none %}
-                            <a class="ui basic icon compact button" onclick="window.parent.location.href='{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}'">
-                                <i class="caret left icon"></i>
-                                <i class="list icon"></i>
-                            </a>
-                        {% endif %}
-                    {% endif %}
+                    {{ back_navig.back_navig(back, back_id, 'planet_moons', embed) }}
                     <div class="divider">  </div>
                     <div class="active section">
                         {{ planet_moon.name }}

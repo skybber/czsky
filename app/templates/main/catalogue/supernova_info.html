@@ -7,6 +7,7 @@
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
@@ -127,13 +128,7 @@
         <div class="fourteen wide tablet sixteen wide computer centered column">
             <div>
                 <div class="ui huge breadcrumb">
-                    {% if not embed %}
-                        <a class="ui basic icon compact button" href="{{ url_for('main_supernova.supernovae', nvgback=1)}}">
-                            <i class="caret left icon"></i>
-                            <i class="list icon"></i>
-                        </a>
-                        <div class="divider">  </div>
-                    {% endif %}
+                    {{ back_navig.back_navig(back, back_id, 'supernovae', embed) }}
                     <div class="active section">
                         {{ supernova.designation }}
                     </div>
