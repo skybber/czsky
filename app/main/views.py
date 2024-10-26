@@ -185,16 +185,24 @@ def do_global_search(query, level):
                                 seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth')))
 
     # 8. Search minor planet
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
-        return redirect(url_for('main_minor_planet.minor_planet_info',
+        return redirect(url_for('main_minor_planet.minor_planet_seltab',
+                                minor_planet_id=minor_planet.int_designation,
+                                seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
-                                minor_planet_id=minor_planet.int_designation))
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
+                                embed=request.args.get('embed'),
+                                screenWidth=request.args.get('screenWidth')
+                                ))
 
     # 9. search by radec
     res = _search_by_ra_dec(query)

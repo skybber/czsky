@@ -53,8 +53,6 @@ utc = dt_module.timezone.utc
 
 main_planet_moon = Blueprint('main_planet_moon', __name__)
 
-YEAR_DAYS = 365.25
-
 
 class PlanetMoonData:
     def __init__(self, ra, dec, mag, distance):

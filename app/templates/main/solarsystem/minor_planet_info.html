@@ -13,9 +13,16 @@
 
 {% set endpoint_log = [ ('main_minor_planet.minor_planet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 
-{% set endpoints = [
-    ('main_minor_planet.minor_planet_info', _('Chart'), 'info')
-] %}
+{% if not embed %}
+    {% set endpoints = [
+        ('main_minor_planet.minor_planet_info', _('Chart'), 'info'),
+        ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table')
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_minor_planet.minor_planet_info', _('Chart'), 'info'),
+    ] %}
+{% endif %}
 
 {% set endpoints = endpoint_log + endpoints %}
 
@@ -41,12 +48,21 @@
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string )
+                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,
+                     back=back, back_id=back_id, default_back='minor_planets'
+                     )
     }}
 {% endmacro %}
 
 {# --- Catalogue Data --- #}
 {% macro minor_planet_catalogue_data() %}
+    <table class="ui compact striped definition unstackable table">
+        <tr><td class="three wide">{{ _('Name') }}</td><td>{{ minor_planet.designation.capitalize() }}</td></tr>
+        <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(minor_planet_data.distance_au) }}AU ({{ "%.2f" | format(minor_planet_data.distance/1000000.0) }}M km) </td></tr>
+        <tr><td class="three wide">RA</td><td>{{ minor_planet_data.ra_str() }}</td></tr>
+        <tr><td class="three wide">Dec</td><td>{{ minor_planet_data.dec_str() }}</td></tr>
+        <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(minor_planet_data.mag) }}mag</td></tr>
+    </table>
 {% endmacro %}
 
 {% macro minor_planet_observation_log() %}
@@ -174,8 +190,7 @@
             {% elif type == 'observation_log' %}
                 {{ minor_planet_observation_log() }}
             {% else %}
-                {{ minor_planet_info() }}
-                {# {{ minor_planet_catalogue_data() }} #}
+                {{ minor_planet_catalogue_data() }}
             {% endif %}
         </div>
     </div>

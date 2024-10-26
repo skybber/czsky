@@ -13,11 +13,6 @@
 
 {% set endpoint_log = [ ('main_planet.planet_observation_log', _('Log'), 'obslog') ] if show_obs_log else [] %}
 
-{% set endpoints = [
-    ('main_planet.planet_info', _('Chart'), 'info'),
-    ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
-] %}
-
 {% if not embed %}
     {% set endpoints = [
         ('main_planet.planet_info', _('Chart'), 'info'),

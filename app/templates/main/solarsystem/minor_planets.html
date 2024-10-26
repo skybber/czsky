@@ -102,8 +102,8 @@
                         </thead>
                         <tbody>
                         {% for mp in minor_planets %}
-                            {% set minor_planet_url = url_for('main_minor_planet.minor_planet_info', minor_planet_id=mp.int_designation) %}
-                            <tr onclick="window.location.href = '{{ minor_planet_url }}';">
+                            {% set minor_planet_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=mp.int_designation, back='minor_planets', back_id=mp.int_designation) %}
+                            <tr class="sw-onclick" onclick="window.location.href = '{{ minor_planet_url }}';">
                                 <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
                                 <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>
                                 <td class="mobile hidden">{{ mp.cur_dec_str_short() }}</td>
@@ -119,4 +119,11 @@
             </form>
         </div>
     </div>
+
+<script type="text/javascript">
+    $(function(){
+        $('tr.sw-onclick').appendScreenWidth('onclick');
+    });
+</script>
+
 {% endblock %}

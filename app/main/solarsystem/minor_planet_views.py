@@ -61,17 +61,18 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
 )
 
-from app.commons.utils import to_float
+from app.commons.utils import to_float, is_splitview_supported
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
+from app.commons.coordinates import ra_to_str, dec_to_str
+from app.commons.solar_system_chart_utils import AU_TO_KM
 
 utc = dt_module.timezone.utc
 
 main_minor_planet = Blueprint('main_minor_planet', __name__)
-
 
 def _update_minor_planet_positions():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
@@ -79,6 +80,7 @@ def _update_minor_planet_positions():
         if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, timedelta(hours=1)):
             update_minor_planets_positions()
             update_minor_planets_brightness()
+
 
 def _download_mpcorb_dat():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
@@ -133,6 +135,25 @@ def _get_apparent_magnitude_hg( H_absolute_magnitude, G_slope, body_earth_distan
         apparentMagnitude = None
 
     return apparentMagnitude
+
+
+class MinorPlanetData:
+    def __init__(self, orbit_period, ra, dec, mag, distance):
+        self.orbit_period = orbit_period
+        self.ra = ra
+        self.dec = dec
+        self.mag = mag
+        self.distance_au = distance / AU_TO_KM
+        self.distance = distance
+
+    def ra_str(self):
+        return ra_to_str(self.ra)
+
+    def dec_str(self):
+        return dec_to_str(self.dec)
+
+    def angular_diameter_seconds(self):
+        return self.angular_diameter * 180.0 * 60 * 60 / math.pi
 
 
 @main_minor_planet.route('/minor-planets', methods=['GET', 'POST'])
@@ -194,6 +215,32 @@ def minor_planets():
                            search_form=search_form, table_sort=table_sort)
 
 
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/seltab')
+def minor_planet_seltab(minor_planet_id):
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    if minor_planet is None:
+        abort(404)
+
+    seltab = request.args.get('seltab', None)
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('minor_planet_embed_seltab', None)
+
+    if seltab == 'catalogue_data':
+        return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
+
+    if show_observation_log():
+        return _do_redirect('main_minor_planet.minor_planet_observation_log', minor_planet)
+
+    if request.args.get('embed'):
+        return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
+
+    if is_splitview_supported():
+        return _do_redirect('main_minor_planet.minor_planet_info', minor_planet, splitview=True)
+
+    return _do_redirect('main_minor_planet.minor_planet_info', minor_planet)
+
+
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>', methods=['GET', 'POST'])
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/info', methods=['GET', 'POST'])
 @csrf.exempt
@@ -247,9 +294,13 @@ def minor_planet_info(minor_planet_id):
 
     show_obs_log = show_observation_log()
 
+    default_chart_iframe_url = url_for('main_minor_planet.minor_planet_catalogue_data', minor_planet_id=minor_planet_id,
+                                       back=request.args.get('back'), back_id=request.args.get('back_id'),
+                                       embed='minor_planets', allow_back='false')
+
     return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
-                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log,)
+                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
@@ -316,7 +367,29 @@ def minor_planet_catalogue_data(minor_planet_id):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
-    return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet)
+
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    sun, earth = eph['sun'], eph['earth']
+
+    mpc_minor_planet = get_all_mpc_minor_planets().iloc[minor_planet.int_designation - 1]
+
+    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+
+    t = ts.now()
+
+    minor_planet_ra_ang, minor_planet_dec_ang, distance = earth.at(t).observe(body).radec()
+    mp_ra = minor_planet_ra_ang.radians
+    mp_dec = minor_planet_dec_ang.radians
+    mp_distance_km = distance.au * AU_TO_KM
+
+    minor_planet_data = MinorPlanetData(1000, mp_ra, mp_dec, minor_planet.eval_mag, mp_distance_km)
+
+    embed = request.args.get('embed')
+    show_obs_log = show_observation_log()
+
+    return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet,
+                           minor_planet_data=minor_planet_data, embed=embed, show_obs_log=show_obs_log)
 
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log', methods=['GET', 'POST'])
@@ -405,6 +478,15 @@ def minor_planet_observation_log_delete(minor_planet_id):
 
     flash('Observation log deleted.', 'form-success')
     return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id))
+
+
+def _do_redirect(url, minor_planet, splitview=False):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = 'true' if splitview else request.args.get('splitview')
+    return redirect(url_for(url, minor_planet_id=minor_planet.int_designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
 
 def _check_in_mag_interval(mag, mag_interval):

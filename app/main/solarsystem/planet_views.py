@@ -52,14 +52,17 @@ from app.commons.observation_form_utils import assign_equipment_choices
 
 from ... import csrf
 from app.commons.coordinates import ra_to_str, dec_to_str
-from app.commons.solar_system_chart_utils import create_solar_system_body_obj, AU_TO_KM, get_planet_orbital_period, \
-    get_planet_synodic_period
+from app.commons.solar_system_chart_utils import (
+    AU_TO_KM,
+    create_solar_system_body_obj,
+    get_planet_orbital_period,
+    get_planet_synodic_period,
+    YEAR_DAYS
+)
 
 utc = dt_module.timezone.utc
 
 main_planet = Blueprint('main_planet', __name__)
-
-YEAR_DAYS = 365.25
 
 
 class PlanetData:
@@ -169,9 +172,9 @@ def planet_info(planet_iau_code):
 
     show_obs_log = show_observation_log()
 
-    default_chart_iframe_url = url_for('main_planet.planet_catalogue_data',
+    default_chart_iframe_url = url_for('main_planet.planet_catalogue_data', planet_iau_code=planet_iau_code,
                                        back=request.args.get('back'), back_id=request.args.get('back_id'),
-                                       planet_iau_code=planet_iau_code, embed='planets', allow_back='false')
+                                       embed='planets', allow_back='false')
 
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
