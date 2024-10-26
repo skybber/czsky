@@ -277,6 +277,16 @@ table.selectable tr:hover {
     background: #000;
 }
 
+.fullscreen-fallback {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 9999;
+    background: #000;
+}
+
 .fchart-splitview {
     position: fixed !important;
     z-index: 9999;
