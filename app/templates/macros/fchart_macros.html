@@ -9,13 +9,21 @@
 <div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
   <div  class="ui secondary menu">
 
-      {{ back_fchart_navig.back_navig(back, back_id, default_back, false, back_anchor) }}
-
-      <div id="bhome" class="ui horizontally fitted item" style="z-index:100;display:none;{{ 'margin-left:16px;' if back is none else ''}}">
+      <div id="bhome" class="ui horizontally fitted item" style="z-index:100;display:none;margin-left:16px;">
           <a class="ui small icon button" href="{{ url_for('main.index') }}">
               <i class="home icon"></i>
           </a>
       </div>
+
+      {{ back_fchart_navig.back_navig(back, back_id, default_back, false, back_anchor) }}
+
+      {% if default_chart_iframe_url %}
+          <div id="bdetail" class="ui horizontally fitted item" style="z-index:100;display:none;">
+              <a class="ui small icon button" onclick="window.location.href=removeParamFromRelativeUrl('{{ default_chart_iframe_url }}', 'embed');">
+                  <i class="external alternate icon"></i>
+              </a>
+          </div>
+      {% endif %}
 
       <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
           <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
@@ -407,6 +415,10 @@
         $("#isearch").show();
         $("#isearch2").show();
         $("#bhome").show();
+        const bback = $("#bback");
+        if (bback.length) bback.show();
+        const bdetail = $("#bdetail");
+        if (bdetail.length) bdetail.show();
     }
 
     if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
@@ -455,6 +467,10 @@
             $("#isearch").show();
             $("#isearch2").show();
             $("#bhome").show();
+            const bback = $("#bback");
+            if (bback.length) bback.show();
+            const bdetail = $("#bdetail");
+            if (bdetail.length) bdetail.show();
         } else {
             if (fullScreen) {
                 $("#bshowleftpanel").show();
@@ -463,12 +479,20 @@
                 $("#isearch").show();
                 $("#isearch2").show();
                 $("#bhome").show();
+                const bback = $("#bback");
+                if (bback.length) bback.show();
+                const bdetail = $("#bdetail");
+                if (bdetail.length) bdetail.show();
             } else {
                 $("#bshowleftpanel").hide();
                 $("#bhideleftpanel").hide();
                 $("#bshowdetail").hide();
                 $("#isearch2").hide();
                 $("#bhome").hide();
+                const bback = $("#bback");
+                if (bback.length) bback.hide();
+                const bdetail = $("#bdetail");
+                if (bdetail.length) bdetail.hide();
             }
         }
     });
@@ -678,6 +702,13 @@
         $('#eyepiece_fov').val('');
         $('#show_telrad').val('false');
         $('#fmchart').submit();
+    }
+
+    function removeParamFromRelativeUrl(relativeUrl, param) {
+      const baseUrl = window.location.origin;
+      const url = new URL(relativeUrl, baseUrl);
+      url.searchParams.delete(param);
+      return url.toString();
     }
 
     window.onload = function() {

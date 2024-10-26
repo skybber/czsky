@@ -30,7 +30,7 @@
                     </thead>
                     <tbody>
                     {% for index, planet_moon in planet_moons_enumerate %}
-                        <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_planet_moon.planet_moon_seltab', planet_moon_name=planet_moon.name, back='planet_moons') }}';">
+                        <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_planet_moon.planet_moon_seltab', planet_moon_name=planet_moon.name, back='planet_moons', back_id=planet_moon.name) }}';">
                             <td>{{ index + 1 }}</td>
                             <td>{{ planet_moon.planet.iau_code.capitalize() }}</td>
                             <td>{{ planet_moon.name }}</td>

@@ -49,7 +49,9 @@
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=comet_ra|string, obj_dec=comet_dec|string)
+                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=comet_ra|string, obj_dec=comet_dec|string,
+                     back=back, back_id=back_id, default_back='comets'
+                     )
     }}
 {% endmacro %}
 

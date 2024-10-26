@@ -91,7 +91,7 @@
                 </thead>
                 <tbody>
                 {% for c in comets %}
-                    {% set comet_url = url_for('main_comet.comet_seltab', comet_id=c.comet_id) %}
+                    {% set comet_url = url_for('main_comet.comet_seltab', comet_id=c.comet_id, back='comets', back_id=c.comet_id) %}
                     <tr class="sw-onclick" onclick="window.location.href = '{{ comet_url }}';">
                         <td><a class="sw-link" href="{{ comet_url }}">{{ c.designation }}</a></td>
                         <td class="mobile hidden">{{ c.cur_ra_str_short() }}</td>
