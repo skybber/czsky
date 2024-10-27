@@ -116,7 +116,8 @@
                      url_for('main_wishlist.wish_list_chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=wishlist')
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=wishlist',
+                     default_back='wishlist')
     }}
 {% endmacro %}
 

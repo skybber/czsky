@@ -147,9 +147,9 @@ def observing_session_info(observing_session_id):
                 show_observ_time = True
                 break
 
-    return render_template('main/observation/observing_session_info.html', observing_session=observing_session, type='info', is_mine_observing_session=is_mine_observing_session,
-                           location_position_mapy_cz_url=location_position_mapy_cz_url, location_position_google_maps_url=location_position_google_maps_url,
-                           show_observ_time=show_observ_time)
+    return render_template('main/observation/observing_session_info.html', observing_session=observing_session, type='info',
+                           is_mine_observing_session=is_mine_observing_session, location_position_mapy_cz_url=location_position_mapy_cz_url,
+                           location_position_google_maps_url=location_position_google_maps_url, show_observ_time=show_observ_time)
 
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/export', methods=['GET', 'POST'])
@@ -448,10 +448,12 @@ def observing_session_items_edit(observing_session_id):
 
     return render_template('main/observation/observing_session_items_edit.html', form=form, observing_session=observing_session)
 
+
 def _assign_equipment_choices(form_item, telescopes, eyepieces, filters):
     form_item.telescope.choices = [(-1, "---")] + [(t.id, t.name) for t in telescopes]
     form_item.eyepiece.choices = [(-1, "---")] + [(e.id, e.name) for e in eyepieces]
     form_item.filter.choices = [(-1, "---")] + [(f.id, f.name) for f in filters]
+
 
 def _get_location_data2_from_form(form):
     location_position = None
@@ -527,8 +529,10 @@ def observing_session_chart(observing_session_id):
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(observing_session_item, back='observation', back_id=observing_session.id)
 
-    return render_template('main/observation/observing_session_info.html', fchart_form=form, type='chart', observing_session=observing_session, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url, is_mine_observing_session=is_mine_observing_session)
+    return render_template('main/observation/observing_session_info.html', fchart_form=form, type='chart',
+                           observing_session=observing_session, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url, is_mine_observing_session=is_mine_observing_session,
+                           back='observation', back_id=observing_session.id)
 
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

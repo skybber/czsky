@@ -3,6 +3,11 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 {% import 'macros/common_macros.html' as commons %}
 
+{% if not back %}
+    {% set back = request.args.get('back') %}
+    {% set back_id = request.args.get('back_id') %}
+{% endif %}
+
 {% set edit_endpoints = [
     ('main_sessionplan.session_plan_info', url_for('main_sessionplan.session_plan_info', session_plan_id=session_plan.id), _('Info'), 'info'),
     ('main_sessionplan.session_plan_schedule', url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id), _('Schedule'), 'schedule'),
@@ -160,12 +165,11 @@
                               epfov=chart_control.eyepiece_fov),
                      url_for('main_sessionplan.session_plan_chart_items', session_plan_id=session_plan.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_flags, ),
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=session_plan&back_id={}'.format(session_plan.id))
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=session_plan&back_id={}'.format(session_plan.id),
+                     back=back, back_id=back_id, back_anchor=''
+                     )
     }}
 {% endmacro %}
-
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {% block content %}
     {% if type != 'schedule' %}

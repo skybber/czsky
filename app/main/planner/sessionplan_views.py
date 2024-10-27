@@ -700,8 +700,11 @@ def session_plan_chart(session_plan_id):
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(session_plan_item, back='session_plan', back_id=session_plan.id)
 
-    return render_template('main/planner/session_plan_info.html', fchart_form=form, type='chart', session_plan=session_plan, chart_control=chart_control,
-                           default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan)
+    return render_template('main/planner/session_plan_info.html', fchart_form=form, type='chart',
+                           session_plan=session_plan, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan,
+                           back='session_plan', back_id=session_plan.id,
+                           )
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])

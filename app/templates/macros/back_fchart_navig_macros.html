@@ -102,6 +102,12 @@
                     <i class="caret left icon"></i>
                 </a>
             </div>
+        {% elif default_back == 'wishlist' %}
+            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
+                <a class="ui small icon button" href="{{ url_for('main_wishlist.wish_list_info') }}">
+                    <i class="caret left icon"></i>
+                </a>
+            </div>
         {% endif %}
         <div id="bback" class="divider"></div>
     {% else %}

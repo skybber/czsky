@@ -3,6 +3,11 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 {% import 'macros/common_macros.html' as commons %}
 
+{% if not back %}
+    {% set back = request.args.get('back') %}
+    {% set back_id = request.args.get('back_id') %}
+{% endif %}
+
 {% set edit_endpoints = [
     ('main_observing_session.observing_session_info', _('Info'), 'info'),
     ('main_observing_session.observing_session_chart', _('Chart'), 'info'),
@@ -113,12 +118,11 @@
                               epfov=chart_control.eyepiece_fov),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id))
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id),
+                     back=back, back_id=back_id, back_anchor=''
+                     )
     }}
 {% endmacro %}
-
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {# --- Observing Session import/export --- #}
 {% macro observing_session_imp_exp(observing_session) %}
