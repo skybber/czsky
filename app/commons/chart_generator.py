@@ -800,6 +800,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
 
+    if width <= MOBILE_WIDTH:
+        config.star_mag_shift = 0.6
+
     config.show_dso_legend = False
     config.show_orientation_legend = False
 

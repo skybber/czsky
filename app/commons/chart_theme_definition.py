@@ -214,7 +214,7 @@ class ChartThemeDefinition:
 BASE_THEME_TEMPL = '''
 show_nebula_outlines=True
 star_colors=True
-constellation_linewidth=0.2
+constellation_linewidth=0.4
 constellation_border_linewidth=0.2
 constellation_linespace=2.0
 open_cluster_linewidth=0.3
@@ -231,7 +231,7 @@ eyepiece_linewidth=0.3
 picker_radius=4.0
 picker_linewidth=0.4
 ext_label_font_scale=1.2
-bayer_label_font_scale=1.2
+bayer_label_font_scale=1.0
 flamsteed_label_font_scale=0.9
 outlined_dso_label_font_scale=1.1
 highlight_label_font_scale=1.0
