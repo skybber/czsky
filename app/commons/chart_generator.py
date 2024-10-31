@@ -114,7 +114,7 @@ class FlagValue(Enum):
     SHOW_SOLAR_SYSTEM = 'O'
     SHOW_EQUATORIAL_GRID = 'E'
     SHOW_DSO_MAG = 'M'
-    SHOW_STAR_MAG = 'N'
+    SHOW_STAR_LABELS = 'N'
     SHOW_PICKER = 'P'
     DSS_COLORED = 'Sc'
     DSS_BLUE = 'Sb'
@@ -306,9 +306,10 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
 
     if fld_size >= 60 or (fld_size >= 40 and width and width <= MOBILE_WIDTH):
         config.constellation_linespace = 1.5
-        config.show_star_labels = False
     else:
         config.constellation_linespace = 2.0
+
+    config.show_star_labels = _eval_show_star_labels(True, fld_size, width)
 
     if fld_size <= 10:
         config.show_enhanced_milky_way = False
@@ -333,6 +334,12 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
                                       bg_b + (config.milky_way_color[2]-bg_b) * fade)
         else:
             config.show_enhanced_milky_way = False
+
+
+def _eval_show_star_labels(default_val, fld_size, width):
+    if fld_size >= 60 or (fld_size >= 40 and width and width <= MOBILE_WIDTH):
+        return False
+    return default_val
 
 
 def _fld_filter_trajectory(trajectory, gui_fld_size, width):
@@ -505,7 +512,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.dss_layer.data = session.get('chart_dss_layer', form.dss_layer.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
         form.show_dso_mag.data = session.get('chart_show_dso_mag', form.show_dso_mag.data)
-        form.show_star_mag.data = session.get('chart_show_star_mag', form.show_star_mag.data)
+        form.show_star_labels.data = session.get('chart_show_star_labels', form.show_star_labels.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
@@ -524,7 +531,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_mirror_x'] = form.mirror_x.data
         session['chart_mirror_y'] = form.mirror_y.data
         session['chart_show_dso_mag'] = form.show_dso_mag.data
-        session['chart_show_star_mag'] = form.show_star_mag.data
+        session['chart_show_star_labels'] = form.show_star_labels.data
         session['optimize_traffic'] = form.optimize_traffic.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
@@ -817,7 +824,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     config.show_nebula_outlines = config.show_deepsky
     config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
-    config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
+    config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, width)
     config.show_picker = False  # do not show picker, only activate it
     if FlagValue.SHOW_PICKER.value in flags:
         config.picker_radius = PICKER_RADIUS
@@ -958,7 +965,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     config.show_simple_milky_way = False
     config.show_enhanced_milky_way = False
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
-    config.show_star_mag = FlagValue.SHOW_STAR_MAG.value in flags
+    config.show_star_labels = FlagValue.SHOW_STAR_LABELS.value in flags
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.5  # increase radius of star by 1.5 magnitude
 
@@ -1157,8 +1164,8 @@ def get_chart_legend_flags(form):
     if form.show_dso_mag.data == 'true':
         chart_flags += FlagValue.SHOW_DSO_MAG.value
 
-    if form.show_star_mag.data == 'true':
-        chart_flags += FlagValue.SHOW_STAR_MAG.value
+    if form.show_star_labels.data == 'true':
+        chart_flags += FlagValue.SHOW_STAR_LABELS.value
 
     if form.mirror_x.data == 'true':
         legend_flags += FlagValue.MIRROR_X.value

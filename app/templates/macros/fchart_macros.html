@@ -38,7 +38,7 @@
           <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
           <input type="hidden" id="show_solar_system" name="{{ fchart_form.show_solar_system.name }}" value="{{ fchart_form.show_solar_system.data }}">
           <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
-          <input type="hidden" id="show_star_mag" name="{{ fchart_form.show_star_mag.name }}" value="{{ fchart_form.show_star_mag.data }}">
+          <input type="hidden" id="show_star_lbl" name="{{ fchart_form.show_star_labels.name }}" value="{{ fchart_form.show_star_labels.data }}">
           <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
           <input type="hidden" id="dss_layer" name="{{ fchart_form.dss_layer.name }}" value="{{ fchart_form.dss_layer.data }}">
           <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
@@ -186,9 +186,9 @@
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_mag.data=='true' else ''}} bstarmag" style="text-align:left">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}} bstarlbl" style="text-align:left">
                                 <i class="star outline icon"></i>
-                                {{ _('Star mag')}}
+                                {{ _('Star labels')}}
                           </button>
                       </div>
                       <div class="item">
@@ -556,9 +556,9 @@
         $('#show_layers_dropdown').val('true');
     });
 
-    $('.bstarmag').click(function(){
+    $('.bstarlbl').click(function(){
         $(this).toggleClass('active');
-        $('#show_star_mag').val($('#show_star_mag').val() == 'true' ? 'false' : 'true');
+        $('#show_star_lbl').val($('#show_star_lbl').val() == 'true' ? 'false' : 'true');
         $('#show_layers_dropdown').val('true');
     });
 
