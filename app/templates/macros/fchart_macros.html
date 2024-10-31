@@ -161,7 +161,7 @@
                       </div>
                       <div class="item">
                           <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}} bslsystem" style="text-align:left">
-                              <i class="superpowers icon"></i>
+                              <i class="sun icon"></i>
                               {{ _('Solar system')}}
                           </button>
                       </div>
@@ -337,6 +337,23 @@
 }
 </style>
 {% endif %}
+
+<style>
+.custom-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.5em 1em;
+    text-align: left;
+}
+
+.custom-button-image {
+    height: 16px;
+    width: 16px;
+    margin-right: 0.5em;
+    object-fit: contain;
+}
+</style>
 
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
