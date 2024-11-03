@@ -33,7 +33,7 @@ from app.models import (
     SessionPlan,
     Telescope, BODY_KEY_DICT,
 )
-from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
+from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons, planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES
@@ -910,7 +910,10 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         transparent = True
 
     sl_bodies = get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
-    pl_moons = get_planet_moons(star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    if fld_size <= 12:
+        pl_moons = get_planet_moons(star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    else:
+        pl_moons = None
 
     engine.make_map(used_catalogs,
                     jd=None,  # jd=skyfield_ts.now().tdb,
