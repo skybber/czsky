@@ -184,7 +184,7 @@ def comets_chart():
 @main_comet.route('/comets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pos_img(ra, dec):
     comets = Comet.query.filter(Comet.mag < 17.5).all()
-    _, _, dso_maglim = get_fld_size_mags_from_request()
+    _, _, i_, dso_maglim = get_fld_size_mags_from_request()
     if dso_maglim < 14.0:
         dso_maglim = 14.0
     comets = [c for c in comets if c.mag <= dso_maglim and c.real_mag]
