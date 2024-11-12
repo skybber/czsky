@@ -362,17 +362,13 @@
 
 <script type="text/javascript">
     var submitDisabled = false;
-
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
-
     var magRanges = [
         {% for mr in chart_control.mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
     ];
-
     var magRangeValues = [
         {% for mrv in chart_control.mag_range_values %}{{ mrv }}, {% endfor %}
     ];
-
     var dsoMagRanges = [
         {% for mr in chart_control.dso_mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
     ];

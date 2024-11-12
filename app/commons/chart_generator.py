@@ -144,6 +144,7 @@ skyfield_ts = load.timescale()
 
 catalog_lock = threading.Lock()
 
+
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None, theme=None, gui_field_sizes=None,
@@ -810,9 +811,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     if width <= MOBILE_WIDTH:
         config.star_mag_shift = 0.6
 
-    config.show_dso_legend = False
-    config.show_orientation_legend = False
-
     config.show_flamsteed = (fld_size <= 30)
 
     if width and width <= MOBILE_WIDTH:
@@ -831,10 +829,14 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     else:
         config.picker_radius = -1
 
+    config.show_mag_scale_legend = True
+    config.show_numeric_map_scale_legend = True
+
     if show_legend:
-        config.show_mag_scale_legend = True
-        config.show_numeric_map_scale_legend = True
         config.show_field_border = True
+        config.widget_mode = fchart3.WidgetMode.NORMAL
+    else:
+        config.widget_mode = fchart3.WidgetMode.ALLOC_SPACE_ONLY
 
     if dso_maglim is None:
         dso_maglim = -10
@@ -1035,12 +1037,10 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, config.font_size)
 
-    config.show_dso_legend = False
-    config.show_orientation_legend = False
-
-    config.legend_only = True
+    config.widget_mode = fchart3.WidgetMode.WIDGET_ONLY
     config.show_mag_scale_legend = True
     config.show_numeric_map_scale_legend = True
+
     config.show_field_border = False
     config.show_equatorial_grid = True
     config.show_picker = FlagValue.SHOW_PICKER.value in flags
