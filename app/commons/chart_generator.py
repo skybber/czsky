@@ -1035,7 +1035,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, 
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width, config.font_size)
+    _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
 
     config.widget_mode = fchart3.WidgetMode.WIDGET_ONLY
     config.show_mag_scale_legend = True
