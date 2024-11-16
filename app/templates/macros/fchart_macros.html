@@ -82,18 +82,29 @@
           {% endif %}
 
           <div class="ui right horizontally fitted small monitor item" style="z-index:100">
-              {% if chart_control.equipment_telescopes %}
-                  <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
-                      <i class="crosshairs icon"></i>
-                      <div class="ui vertical buttons menu">
-                          <div class="item">
-                              <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
-                                  <i class="bullseye icon"></i>
-                                  {{ _('Telrad') }}
-                              </button>
-                          </div>
-                          {% if chart_control.equipment_telescopes %}
-                              {% for telescope in chart_control.equipment_telescopes %}
+              <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
+                  <i class="crosshairs icon"></i>
+                  <div class="ui vertical buttons menu">
+                      <div class="item">
+                          <button id="bcenterobj" type="button" class="ui toggle labeled tiny icon button" style="text-align:left">
+                              <i class="crosshairs icon"></i>
+                              {{ _('Center object') }}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
+                              <i class="bullseye icon"></i>
+                              {{ _('Telrad') }}
+                          </button>
+                      </div>
+                      <div class="item">
+                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
+                              <i class="square outline icon"></i>
+                              {{ _('Picker') }}
+                          </button>
+                      </div>
+                      {% if chart_control.equipment_telescopes %}
+                          {% for telescope in chart_control.equipment_telescopes %}
                               <div class="item">
                                       <button class="ui tiny labeled icon button"  style="text-align:left">
                                           <i class="binoculars icon"></i>
@@ -107,34 +118,22 @@
                                       {% endfor %}
                                   </div>
                               </div>
-                              {% endfor %}
-                          {% endif %}
+                          {% endfor %}
                           <div class="item">
                               <button class="ui labeled tiny icon button" style="text-align:left" onclick="unselectFov()">
                                   <i class="toggle off icon"></i>
                                   {{ _('Unselect') }}
                               </button>
                           </div>
-                      </div>
+                      {% endif %}
                   </div>
-              {% else %}
-                  <button class="ui toggle small icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad"
-                          data-inverted=""  data-tooltip="{{ _('Telrad')}}" data-position="bottom center" data-variation="tiny basic">
-                      <i class="bullseye icon"></i>
-                  </button>
-              {% endif %}
+              </div>
           </div>
 
           <div class="ui right horizontally fitted small item" style="z-index:100">
               <div id="layers_dropdown" class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
                   <i class="layer group icon"></i>
                   <div class="ui vertical buttons menu">
-                      <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
-                              <i class="square outline icon"></i>
-                              {{ _('Picker') }}
-                          </button>
-                      </div>
                       <div class="item">
                           <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
                               <i class="lastfm icon"></i>
@@ -592,6 +591,10 @@
         $(this).toggleClass('active');
         $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
         $('#show_layers_dropdown').val('true');
+    });
+
+    $('#bcenterobj').click(function(){
+        fchart.centerObjectInFov();
     });
 
     $('#bfullscreen').click(function(){

@@ -1608,3 +1608,8 @@ FChart.prototype.setIFrameUrl = function(url) {
         $(".fchart-iframe").attr('src', url);
     }
 }
+
+FChart.prototype.centerObjectInFov = function() {
+    this.setViewCenter(this.obj_ra, this.obj_dec);
+    this.reloadImage();
+}
