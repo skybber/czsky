@@ -1613,3 +1613,47 @@ FChart.prototype.centerObjectInFov = function() {
     this.setViewCenter(this.obj_ra, this.obj_dec);
     this.reloadImage();
 }
+
+FChart.prototype.setChartUrlFlag = function (flag, value) {
+    if (typeof value === 'string') {
+        value = value.toLowerCase() === 'true';
+    }
+    this.chartUrl = this.setUrlFlag(this.chartUrl, flag, value)
+    this.legendUrl = this.setUrlFlag(this.legendUrl, flag, value)
+    console.log(this.legendUrl)
+}
+
+FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {
+    const url = new URL(urlValue, window.location.origin);
+    let flags = url.searchParams.get('flags') || '';
+
+    if (flags.includes(flag)) {
+        if (!newValue) {
+            flags = flags.replace(flag, '');
+        }
+    } else {
+        if (newValue) {
+            flags += flag;
+        }
+    }
+
+    if (flags) {
+        url.searchParams.set('flags', flags);
+    }
+
+    return url.pathname + url.search + url.hash;
+}
+
+FChart.prototype.setMirrorX = function (mirror_x) {
+    if (typeof mirror_x === 'string') {
+        mirror_x = mirror_x.toLowerCase() === 'true';
+    }
+    this.multRA = mirror_x ? -1 : 1;
+}
+
+FChart.prototype.setMirrorY = function (mirror_y) {
+    if (typeof mirror_y === 'string') {
+        mirror_y = mirror_y.toLowerCase() === 'true';
+    }
+    this.multDEC = mirror_y ? -1 : 1;
+}

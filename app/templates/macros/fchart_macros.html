@@ -92,13 +92,13 @@
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
                               <i class="bullseye icon"></i>
                               {{ _('Telrad') }}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
                               <i class="square outline icon"></i>
                               {{ _('Picker') }}
                           </button>
@@ -135,31 +135,31 @@
                   <i class="layer group icon"></i>
                   <div class="ui vertical buttons menu">
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
                               <i class="lastfm icon"></i>
                               {{ _('Constellation lines') }}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}} bconstellborders" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}} bconstellborders" style="text-align:left">
                               <i class="draw polygon icon"></i>
                               {{ _('Constellation borders')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid" style="text-align:left">
                               <i class="globe icon"></i>
                               {{ _('Equatorial grid')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
                               <i class="superpowers icon"></i>
                               {{ _('Deepsky objects')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}} bslsystem" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}} bslsystem" style="text-align:left">
                               <i class="sun icon"></i>
                               {{ _('Solar system')}}
                           </button>
@@ -179,25 +179,25 @@
                       </div>
                       {% endif %}
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag" style="text-align:left">
                               <i class="star of life icon"></i>
                               {{ _('DSO mag')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}} bstarlbl" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}} bstarlbl" style="text-align:left">
                                 <i class="star outline icon"></i>
                                 {{ _('Star labels')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx" style="text-align:left">
                               <i class="exchange alternate icon"></i>
                               {{ _('Flip horizontally')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory" style="text-align:left">
                               <i class="clockwise rotated  exchange alternate icon"></i>
                               {{ _('Flip vertically')}}
                           </button>
@@ -511,50 +511,91 @@
 
     $('.btelrad').click(function(){
         $(this).toggleClass('active');
-        $('#show_telrad').val($('#show_telrad').val() == 'true' ? 'false' : 'true');
+        var value = $('#show_telrad').val() == 'true' ? 'false' : 'true';
+        $('#show_telrad').val(value);
         $('#eyepiece_fov').val('');
+        chart_param_ajax('chart_show_telrad', value);
+        fchart.setChartUrlFlag('T', value)
+        fchart.reloadLegendImage();
     });
 
     $('.bpicker').click(function(){
         $(this).toggleClass('active');
-        $('#show_picker').val($('#show_picker').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_picker').val() == 'true' ? 'false' : 'true';
+        $('#show_picker').val(value);
+        chart_param_ajax('chart_show_picker', value);
+        fchart.setChartUrlFlag('P', value);
+        fchart.reloadLegendImage();
     });
 
     $('.bconstellshapes').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_constell_shapes').val($('#show_constell_shapes').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_constell_shapes').val() == 'true' ? 'false' : 'true';
+        $('#show_constell_shapes').val(value);
+        chart_param_ajax('chart_show_constell_shapes', value);
+        fchart.setChartUrlFlag('C', value);
+        fchart.reloadImage();
     });
 
     $('.bconstellborders').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_constell_borders').val($('#show_constell_borders').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_constell_borders').val() == 'true' ? 'false' : 'true';
+        $('#show_constell_borders').val(value);
+        chart_param_ajax('chart_show_constell_borders', value);
+        fchart.setChartUrlFlag('B', value);
+        fchart.reloadImage();
+    });
+
+    $('.begrid').click(function(){
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        var value = $('#show_egrid').val() == 'true' ? 'false' : 'true';
+        $('#show_egrid').val(value);
+        chart_param_ajax('chart_show_equatorial_grid', value);
+        fchart.setChartUrlFlag('E', value);
+        fchart.reloadImage();
     });
 
     $('.bdso').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_dso').val($('#show_dso').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_dso').val() == 'true' ? 'false' : 'true';
+        $('#show_dso').val(value);
+        chart_param_ajax('chart_show_dso', value);
+        fchart.setChartUrlFlag('D', value);
+        fchart.reloadImage();
     });
 
     $('.bslsystem').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_solar_system').val($('#show_solar_system').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
+        $('#show_solar_system').val(value);
+        chart_param_ajax('chart_solar_system', value);
+        fchart.setChartUrlFlag('O', value);
+        fchart.reloadImage();
     });
 
     $('.bdsomag').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_dso_mag').val($('#show_dso_mag').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_dso_mag').val() == 'true' ? 'false' : 'true';
+        $('#show_dso_mag').val(value);
+        chart_param_ajax('chart_show_dso_mag', value);
+        fchart.setChartUrlFlag('M', value);
+        fchart.reloadImage();
     });
 
     $('.bstarlbl').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#show_star_lbl').val($('#show_star_lbl').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#show_star_lbl').val() == 'true' ? 'false' : 'true';
+        $('#show_star_lbl').val(value);
+        chart_param_ajax('chart_show_star_lbl', value);
+        fchart.setChartUrlFlag('N', value);
+        fchart.reloadImage();
     });
 
     $('.bdsscolored').click(function(){
@@ -570,27 +611,30 @@
     });
 
     $('.mirrorx').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#mirror_x').val($('#mirror_x').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#mirror_x').val() == 'true' ? 'false' : 'true';
+        $('#mirror_x').val(value);
+        fchart.setChartUrlFlag('X', value);
+        chart_param_ajax('chart_mirror_x', value);
+        fchart.setMirrorX(value)
+        fchart.reloadImage();
     });
 
     $('.mirrory').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#mirror_y').val($('#mirror_y').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#mirror_y').val() == 'true' ? 'false' : 'true';
+        $('#mirror_y').val(value);
+        fchart.setChartUrlFlag('Y', value);
+        chart_param_ajax('chart_mirror_y', value);
+        fchart.setMirrorY(value)
+        fchart.reloadImage();
     });
 
     $('.boptitraffic').click(function(){
         $(this).toggleClass('active');
         $('#optimize_traffic').val($('#optimize_traffic').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
-    });
-
-    $('.begrid').click(function(){
-        $(this).toggleClass('active');
-        $('#show_egrid').val($('#show_egrid').val() == 'true' ? 'false' : 'true');
-        $('#show_layers_dropdown').val('true');
     });
 
     $('#bcenterobj').click(function(){
@@ -617,13 +661,15 @@
     $('.ui.dropdown').dropdown();
 
     $('#maglim').change(function() {
-        if (!submitDisabled)
-            this.form.submit();
+        var fldSize = fieldSizes[$('#radius').val()];
+        chart_param_ajax('pref_maglim' + fldSize, $('#maglim').val());
+        fchart.reloadImage();
     });
 
     $('#dso_maglim').change(function() {
-        if (!submitDisabled)
-            this.form.submit();
+        var fldSize = fieldSizes[$('#radius').val()];
+        chart_param_ajax('pref_dso_maglim' + fldSize, $('#dso_maglim').val());
+        fchart.reloadImage();
     });
 
     $('#download_pdf_landscape').click(function(event){
@@ -725,6 +771,27 @@
       const url = new URL(relativeUrl, baseUrl);
       url.searchParams.delete(param);
       return url.toString();
+    }
+
+    function chart_param_ajax(...params) {
+        const data = {};
+        for (let i = 0; i < params.length; i += 2) {
+            data[params[i]] = params[i + 1];
+        }
+
+        $.ajax({
+            url: "{{ url_for('main_chart.chart_param') }}", // Flask route
+            type: 'POST',
+            async: false,
+            contentType: 'application/json',
+            data: JSON.stringify(data), // Send as JSON
+            dataType: 'json',
+            success: function(response) {
+            },
+            error: function() {
+                console.log('An error occurred while setting session params.');
+            }
+        });
     }
 
     window.onload = function() {

@@ -21,6 +21,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
     common_set_initial_ra_dec,
+    set_chart_session_param,
 )
 from ... import csrf
 
@@ -32,6 +33,20 @@ main_chart = Blueprint('main_chart', __name__)
 def chart_fullscreen():
     """View a fullscreen chart."""
     return redirect(url_for('main_chart.chart', fullscreen='true'))
+
+
+@main_chart.route('/chart-param', methods=['POST'])
+@csrf.exempt
+def chart_param():
+    data = request.json
+
+    if not data or not isinstance(data, dict):
+        return jsonify({'status': 'error', 'message': 'Invalid input. Expected JSON object.'}), 400
+
+    for key, value in data.items():
+        set_chart_session_param(key, value)  # Set each key-value pair in the session
+
+    return jsonify({'status': 'success', 'message': 'Session values set.'})
 
 
 @main_chart.route('/chart', methods=['GET', 'POST'])

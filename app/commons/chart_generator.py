@@ -1240,6 +1240,32 @@ def common_set_initial_ra_dec(form):
         form.dec.data = dec
 
 
+def set_chart_session_param(key, value):
+    if key in ['chart_eyepiece_fov', 'chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
+               'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
+               'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
+               'chart_show_star_labels', 'optimize_traffic']:
+        session[key] = value
+        if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
+            session['chart_dss_layer'] = 'colored'
+    else:
+        maglim_prefix = None
+
+        if key.startswith('pref_maglim'):
+            maglim_prefix = 'pref_maglim'
+        if key.startswith('pref_dso_maglim'):
+            maglim_prefix = 'pref_dso_maglim'
+
+        if maglim_prefix is not None:
+            fld_size_part = key[len(maglim_prefix):]
+            try:
+                fld_size = float(fld_size_part) if fld_size_part else 0.0
+                fld_size = int(fld_size) if fld_size.is_integer() else fld_size
+                session[maglim_prefix + str(fld_size)] = int(value)
+            except ValueError:
+                pass
+
+
 def _get_chart_font_face():
     global chart_font_face
     global chart_font_face_initialized
