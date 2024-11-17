@@ -717,7 +717,7 @@ FChart.prototype.onClick = function(e) {
         if (this.isInSplitView()) {
             let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
             $(".fchart-iframe").attr('src', url);
-        } else if (this.isInFullScreen() && $(this.fchartDiv).width() >= 768) {
+        } else if (this.isInFullScreen()) {
             let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=fc';
             $(".fchart-iframe").attr('src', url);
             this.toggleSplitView();
@@ -1566,10 +1566,11 @@ FChart.prototype.toggleSplitView = function() {
 }
 
 FChart.prototype.setSplitViewPosition = function() {
-    if ($(window).width() <= 768) {
+    if ($(window).width() < (458 + 40)) {
         $('.fchart-iframe').width($(window).width() - 40);
+        $('.fchart-separator').css('left', $('.fchart-iframe').width() + 6 + 'px');
     }
-    let leftWidth = $('.fchart-iframe').width() + 5;
+    let leftWidth = $('.fchart-iframe').width() + 6;
     $(this.fchartDiv).css('left', leftWidth);
     $(this.fchartDiv).css('width','calc(100% - ' + leftWidth + 'px)');
 }
