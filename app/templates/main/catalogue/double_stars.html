@@ -142,9 +142,10 @@
                         </thead>
                         <tbody>
                         {% for d in double_stars %}
-                            <tr class="sw-onclick" onclick="window.location.href = '{{ url_for('main_double_star.double_star_seltab', double_star_id=d.id) }}';">
+                            {% set double_star_url = url_for('main_double_star.double_star_seltab', double_star_id=d.id) %}
+                            <tr class="sw-onclick" onclick="window.location.href = '{{ double_star_url }}';">
                                 <td class="mobile hidden">{{ d.wds_number }}</td>
-                                <td>{{ d.common_cat_id }}</td>
+                                <td><a class="sw-link" href="{{ double_star_url }}">{{ d.common_cat_id }}</a></td>
                                 <td>{{ d.components }}</td>
                                 <td class="mobile hidden">{{ d.other_designation }}</td>
                                 <td class="right aligned">{{ commons.convert_mag(d.mag_first) }}</td>
@@ -175,6 +176,7 @@
                   }
             });
             $('tr.sw-onclick').appendScreenWidth('onclick');
+            $('a.sw-link').appendScreenWidth('href');
         });
     </script>
 
