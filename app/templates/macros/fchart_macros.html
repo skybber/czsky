@@ -121,7 +121,7 @@
                               </div>
                           {% endfor %}
                           <div class="item">
-                              <button class="ui labeled tiny icon button" style="text-align:left" onclick="unselectFov()">
+                              <button type="button" class="ui labeled tiny icon button" style="text-align:left" onclick="unselectFov()">
                                   <i class="toggle off icon"></i>
                                   {{ _('Unselect') }}
                               </button>
@@ -757,14 +757,18 @@
 
     function setEyepieceFov(eyepieceFov) {
         $('#eyepiece_fov').val(eyepieceFov);
-        $('#show_telrad').val('false');
-        $('#fmchart').submit();
+        fchart.setLegendUrlParam('epfov', eyepieceFov);
+        fchart.reloadLegendImage();
     }
 
     function unselectFov() {
         $('#eyepiece_fov').val('');
         $('#show_telrad').val('false');
-        $('#fmchart').submit();
+        $('.btelrad').removeClass('active');
+        chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
+        fchart.setChartUrlFlag('T', false);
+        fchart.setLegendUrlParam('epfov', '');
+        fchart.reloadLegendImage();
     }
 
     function removeParamFromRelativeUrl(relativeUrl, param) {

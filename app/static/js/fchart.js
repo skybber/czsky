@@ -1644,6 +1644,24 @@ FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {
     return url.pathname + url.search + url.hash;
 }
 
+FChart.prototype.setChartUrlParam  = function (param_name, param_value) {
+    this.chartUrl = this.setUrlParam(this.chartUrl, param_name, param_value)
+}
+
+FChart.prototype.setLegendUrlParam  = function (param_name, param_value) {
+    this.legendUrl = this.setUrlParam(this.legendUrl, param_name, param_value)
+}
+
+FChart.prototype.setUrlParam  = function (urlValue, param_name, param_value) {
+    const url = new URL(urlValue, window.location.origin);
+    if (param_value) {
+        url.searchParams.set(param_name, param_value);
+    } else {
+        url.searchParams.delete(param_name);
+    }
+    return url.pathname + url.search + url.hash;
+}
+
 FChart.prototype.setMirrorX = function (mirror_x) {
     if (typeof mirror_x === 'string') {
         mirror_x = mirror_x.toLowerCase() === 'true';

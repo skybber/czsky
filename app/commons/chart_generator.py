@@ -1244,7 +1244,7 @@ def set_chart_session_param(key, value):
     if key in ['chart_eyepiece_fov', 'chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
                'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-               'chart_show_star_labels', 'optimize_traffic']:
+               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'
