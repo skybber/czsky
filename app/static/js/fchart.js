@@ -1566,7 +1566,10 @@ FChart.prototype.toggleSplitView = function() {
 }
 
 FChart.prototype.setSplitViewPosition = function() {
-    let leftWidth = $(".fchart-iframe").width() + 5;
+    if ($(window).width() <= 768) {
+        $('.fchart-iframe').width($(window).width() - 40);
+    }
+    let leftWidth = $('.fchart-iframe').width() + 5;
     $(this.fchartDiv).css('left', leftWidth);
     $(this.fchartDiv).css('width','calc(100% - ' + leftWidth + 'px)');
 }

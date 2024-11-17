@@ -290,20 +290,12 @@
       </div>
   </div>
 
-  <div class="ui computer tablet only" style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
+  <div class="ui" style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
       <div class="ui small buttons">
             <button id="bhideleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
                 <i class="angle left icon"></i>
             </button>
             <button id="bshowleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
-                <i class="angle right icon"></i>
-            </button>
-      </div>
-  </div>
-
-  <div class="ui mobile only" style="position: absolute; top: 0; bottom: 0;right:0;display: flex;align-items: center;">
-      <div class="ui small buttons">
-            <button id="bshowdetail" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;">
                 <i class="angle right icon"></i>
             </button>
       </div>
@@ -442,10 +434,6 @@
         $("#bshowleftpanel").show();
     }
 
-    if ({{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }}) {
-        $("#bshowdetail").show();
-    }
-
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
         $('#radius').val(fldSizeIndex);
@@ -488,7 +476,6 @@
             if (fullScreen) {
                 $("#bshowleftpanel").show();
                 $("#bhideleftpanel").hide();
-                $("#bshowdetail").show();
                 $("#isearch").show();
                 $("#isearch2").show();
                 $("#bhome").show();
@@ -499,7 +486,6 @@
             } else {
                 $("#bshowleftpanel").hide();
                 $("#bhideleftpanel").hide();
-                $("#bshowdetail").hide();
                 $("#isearch2").hide();
                 $("#bhome").hide();
                 const bback = $("#bback");
@@ -653,10 +639,6 @@
 
     $('#bshowleftpanel').click(function(){
         fchart.toggleSplitView();
-    });
-
-    $('#bshowdetail').click(function(){
-        fchart.exitFullscreen();
     });
 
     $('.ui.dropdown').dropdown();
