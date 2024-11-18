@@ -287,7 +287,7 @@ def _search_chart_ids(query):
         try:
             minor_planet_id = int(query[len(CHART_MINOR_PLANET_PREFIX):])
             minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
-            return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation, embed=request.args.get('embed')))
+            return redirect(url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.int_designation, embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     return None

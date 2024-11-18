@@ -282,18 +282,16 @@ def minor_planet_seltab(minor_planet_id):
         abort(404)
 
     seltab = request.args.get('seltab', None)
+    embed = request.args.get('embed')
 
     if not seltab and request.args.get('embed'):
         seltab = session.get('minor_planet_embed_seltab', None)
 
-    if seltab == 'catalogue_data':
+    if seltab == 'catalogue_data' or not seltab and embed == 'minor_planets':
         return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
 
     if show_observation_log():
         return _do_redirect('main_minor_planet.minor_planet_observation_log', minor_planet)
-
-    if request.args.get('embed'):
-        return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
 
     if is_splitview_supported():
         return _do_redirect('main_minor_planet.minor_planet_info', minor_planet, splitview=True)
@@ -351,6 +349,8 @@ def minor_planet_info(minor_planet_id):
     chart_control = common_prepare_chart_data(form)
 
     embed = request.args.get('embed')
+    if embed:
+        session['minor_planet_embed_seltab'] = 'info'
 
     show_obs_log = show_observation_log()
 
@@ -446,6 +446,9 @@ def minor_planet_catalogue_data(minor_planet_id):
     minor_planet_data = MinorPlanetData(1000, mp_ra, mp_dec, minor_planet.eval_mag, mp_distance_km)
 
     embed = request.args.get('embed')
+    if embed:
+        session['minor_planet_embed_seltab'] = 'catalogue_data'
+
     show_obs_log = show_observation_log()
 
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet,
