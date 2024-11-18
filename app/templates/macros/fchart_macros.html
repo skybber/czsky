@@ -295,8 +295,16 @@
             <button id="bhideleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
                 <i class="angle left icon"></i>
             </button>
-            <button id="bshowleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
+            <button id="bshowleftpanel1" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic mobile hidden button"  style="z-index:100;display:none;">
                 <i class="angle right icon"></i>
+            </button>
+      </div>
+  </div>
+
+  <div class="ui" style="position: absolute; top: 0; bottom: 0; right: 0; display: flex; align-items: center;">
+      <div class="ui small buttons">
+            <button id="bshowleftpanel2" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic mobile only button"  style="z-index:100;display:none;" >
+                <i class="angle left icon"></i>
             </button>
       </div>
   </div>
@@ -431,7 +439,8 @@
     }
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }}) {
-        $("#bshowleftpanel").show();
+        $("#bshowleftpanel1").show();
+        $("#bshowleftpanel2").show();
     }
 
     fchart.onFieldChange(function(fldSizeIndex) {
@@ -464,7 +473,8 @@
 
         if (splitView) {
             $("#bhideleftpanel").show();
-            $("#bshowleftpanel").hide();
+            $("#bshowleftpanel1").hide();
+            $("#bshowleftpanel2").hide();
             $("#isearch").show();
             $("#isearch2").show();
             $("#bhome").show();
@@ -474,7 +484,8 @@
             if (bdetail.length) bdetail.show();
         } else {
             if (fullScreen) {
-                $("#bshowleftpanel").show();
+                $("#bshowleftpanel1").show();
+                $("#bshowleftpanel2").show();
                 $("#bhideleftpanel").hide();
                 $("#isearch").show();
                 $("#isearch2").show();
@@ -484,7 +495,8 @@
                 const bdetail = $("#bdetail");
                 if (bdetail.length) bdetail.show();
             } else {
-                $("#bshowleftpanel").hide();
+                $("#bshowleftpanel1").hide();
+                $("#bshowleftpanel2").hide();
                 $("#bhideleftpanel").hide();
                 $("#isearch2").hide();
                 $("#bhome").hide();
@@ -637,7 +649,11 @@
 //         fchart.setupFullscreen();
     });
 
-    $('#bshowleftpanel').click(function(){
+    $('#bshowleftpanel1').click(function(){
+        fchart.toggleSplitView();
+    });
+
+    $('#bshowleftpanel2').click(function(){
         fchart.toggleSplitView();
     });
 

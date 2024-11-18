@@ -76,15 +76,20 @@ def get_site_lang_code():
     host = request.headers.get('Host')
     return 'en' if host and 'czsky.eu' in host else 'cs'
 
+
 def is_splitview_supported():
-    screenWidth = request.args.get("screenWidth")
-    if screenWidth:
-        try:
-            screenWidth = int(screenWidth)
-            return screenWidth > 768
-        except ValueError:
-            pass
-    return False
+    if request.args.get('embed'):
+        return False
+    return True
+    # screenWidth = request.args.get("screenWidth")
+    # if screenWidth:
+    #     try:
+    #         screenWidth = int(screenWidth)
+    #         return screenWidth > 768
+    #     except ValueError:
+    #         pass
+    # return False
+
 
 def get_about_oal():
     return gettext("""

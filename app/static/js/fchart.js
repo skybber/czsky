@@ -242,14 +242,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     if (fullScreen) {
         $(this.fchartDiv).addClass('fchart-fullscreen');
     } else if (splitview) {
-        if ($(window).width() > 768) {
-            $(this.fchartDiv).addClass('fchart-splitview');
-            $(".fchart-iframe").show();
-            $(".fchart-separator").show();
-            this.setSplitViewPosition();
-        } else {
-            this.splitview = false;
-        }
+        $(this.fchartDiv).addClass('fchart-splitview');
+        $(".fchart-iframe").show();
+        $(".fchart-separator").show();
+        this.setSplitViewPosition();
     }
 
     window.addEventListener('resize', (function(e) {
@@ -1566,8 +1562,8 @@ FChart.prototype.toggleSplitView = function() {
 }
 
 FChart.prototype.setSplitViewPosition = function() {
-    if ($(window).width() < (458 + 40)) {
-        $('.fchart-iframe').width($(window).width() - 40);
+    if ($(window).width() < (458 + 36)) {
+        $('.fchart-iframe').width($(window).width() - 36);
         $('.fchart-separator').hide();
     }
     let leftWidth = $('.fchart-iframe').width() + 6;
