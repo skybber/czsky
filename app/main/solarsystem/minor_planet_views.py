@@ -40,9 +40,15 @@ from app.models import (
     ObservationTargetType,
 )
 
+from app.commons.dso_utils import CHART_MINOR_PLANET_PREFIX
+
 from app.commons.pagination import Pagination
-from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, \
-    get_order_by_field
+from app.commons.search_utils import (
+    process_paginated_session_search,
+    get_items_per_page,
+    create_table_sort,
+    get_order_by_field,
+)
 
 from .minor_planet_forms import (
     SearchMinorPlanetForm,
@@ -50,6 +56,7 @@ from .minor_planet_forms import (
 )
 
 from app.main.forms import ObservationLogNoFilterForm
+from app.main.chart.chart_forms import ChartForm
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -57,8 +64,8 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
-    get_trajectory_b64,
     common_ra_dec_fsz_from_request,
+    get_trajectory_b64,
 )
 
 from app.commons.utils import to_float, is_splitview_supported
@@ -73,6 +80,7 @@ from app.commons.solar_system_chart_utils import AU_TO_KM
 utc = dt_module.timezone.utc
 
 main_minor_planet = Blueprint('main_minor_planet', __name__)
+
 
 def _update_minor_planet_positions():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
@@ -211,8 +219,60 @@ def minor_planets():
     pagination = Pagination(page=page, per_page=per_page, total=minor_planet_query.count(), search=False, record_name='minor_planets',
                             css_framework='semantic', not_passed_args='back')
 
-    return render_template('main/solarsystem/minor_planets.html', minor_planets=minor_planets_for_render, pagination=pagination,
-                           search_form=search_form, table_sort=table_sort)
+    return render_template('main/solarsystem/minor_planets.html', type='list', minor_planets=minor_planets_for_render,
+                           pagination=pagination, search_form=search_form, table_sort=table_sort, )
+
+
+@main_minor_planet.route('/minor-planets/chart', methods=['GET', 'POST'])
+@csrf.exempt
+def minor_planets_chart():
+    form = ChartForm()
+
+    minor_planet = MinorPlanet.query.filter(MinorPlanet.eval_mag < 9).order_by('eval_mag').first()
+
+    if not common_ra_dec_fsz_from_request(form):
+        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
+            if minor_planet:
+                form.ra.data = minor_planet.cur_ra
+                form.dec.data = minor_planet.cur_dec
+
+    default_chart_iframe_url = None
+    if minor_planet:
+        default_chart_iframe_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.int_designation, embed='minor_planets', allow_back='false')
+
+    chart_control = common_prepare_chart_data(form)
+
+    return render_template('main/solarsystem/minor_planets.html', type='chart', fchart_form=form, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url)
+
+
+@main_minor_planet.route('/minor-planets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+def minor_planets_chart_pos_img(ra, dec):
+    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
+
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_minor_planet.route('/minor-planets/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+def minor_planets_chart_legend_img(ra, dec):
+    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    return send_file(img_bytes, mimetype='image/png')
+
+
+@main_minor_planet.route('/minor-planets/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
+def minor_planets_chart_pdf(ra, dec):
+    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
+
+    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
+
+    return send_file(img_bytes, mimetype='application/pdf')
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/seltab')

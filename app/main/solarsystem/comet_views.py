@@ -177,7 +177,7 @@ def comets_chart():
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/solarsystem/comets.html', fchart_form=form, type='chart', comets=comets, chart_control=chart_control,
+    return render_template('main/solarsystem/comets.html', fchart_form=form, type='chart', chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
