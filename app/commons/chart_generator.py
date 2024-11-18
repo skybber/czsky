@@ -1083,7 +1083,7 @@ def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
     else:
         color = (0.0, 0.5, 0.0)
 
-    hl = fchart3.HighlightDefinition('cross', line_width, color, [[obj_ra, obj_dec, '', '']])
+    hl = fchart3.HighlightDefinition('cross', line_width, color, [[obj_ra, obj_dec, '', '', None]])
     return [hl]
 
 
