@@ -185,10 +185,10 @@ def comets_chart():
 def comets_chart_pos_img(ra, dec):
     comets = Comet.query.filter(Comet.mag < 17.5).all()
     _, _, i_, dso_maglim = get_fld_size_mags_from_request()
-    if dso_maglim < 14.0:
-        dso_maglim = 14.0
-    comets = [c for c in comets if c.mag <= dso_maglim and c.real_mag]
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation) for x in comets if comets]
+    if dso_maglim < 16.0:
+        dso_maglim = 16.0
+    comets = [c for c in comets if c.real_mag is not None and c.real_mag <= dso_maglim]
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation, x.real_mag) for x in comets if comets]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
@@ -206,7 +206,7 @@ def comets_chart_legend_img(ra, dec):
 @main_comet.route('/comets/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pdf(ra, dec):
     comets = Comet.query.filter(Comet.mag < 17.5).all()
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation) for x in comets if comets]
+    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation, x.real_mag) for x in comets if comets]
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
 

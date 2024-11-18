@@ -1118,7 +1118,8 @@ def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mo
 def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
     highlight_def_items = []
     for hlpos in highlights_pos_list:
-        highlight_def_items.append((hlpos[0], hlpos[1], hlpos[2], hlpos[3],))
+        hlpos_mag = hlpos[4] if len(hlpos) > 4 else None
+        highlight_def_items.append((hlpos[0], hlpos[1], hlpos[2], hlpos[3], hlpos_mag))
     hl = fchart3.HighlightDefinition('circle', line_width, color, highlight_def_items)
     return [hl]
 
