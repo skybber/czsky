@@ -204,7 +204,7 @@
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}} boptitraffic" style="text-align:left" >
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}} boptitraffic" style="text-align:left" >
                               <i class="wifi icon"></i>
                               {{ _('Optimize traffic')}}
                           </button>
@@ -632,8 +632,11 @@
     });
 
     $('.boptitraffic').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#optimize_traffic').val($('#optimize_traffic').val() == 'true' ? 'false' : 'true');
+        var value = $('#optimize_traffic').val() == 'true' ? 'false' : 'true';
+        $('#optimize_traffic').val(value);
+        chart_param_ajax('optimize_traffic', value);
     });
 
     $('#bcenterobj').click(function(){
