@@ -248,7 +248,7 @@ def minor_planets_chart():
 
 @main_minor_planet.route('/minor-planets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def minor_planets_chart_pos_img(ra, dec):
-    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
+    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 13.0).all()
 
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
 
