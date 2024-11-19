@@ -661,13 +661,21 @@
 
     $('#maglim').change(function() {
         var fldSize = fieldSizes[$('#radius').val()];
-        chart_param_ajax('pref_maglim' + fldSize, $('#maglim').val());
+        var response = chart_param_ajax('pref_maglim' + fldSize, $('#maglim').val());
+        var maglimArr = extractMaglimArray(response);
+        if (maglimArr.length == magRangeValues.length) {
+            magRangeValues = maglimArr .slice();
+        }
         fchart.reloadImage();
     });
 
     $('#dso_maglim').change(function() {
         var fldSize = fieldSizes[$('#radius').val()];
-        chart_param_ajax('pref_dso_maglim' + fldSize, $('#dso_maglim').val());
+        var response = chart_param_ajax('pref_dso_maglim' + fldSize, $('#dso_maglim').val());
+        var dsoMaglimArr = extractMaglimArray(response);
+        if (dsoMaglimArr.length == dsoMagRangeValues.length) {
+            dsoMagRangeValues = dsoMaglimArr .slice();
+        }
         fchart.reloadImage();
     });
 
@@ -782,6 +790,8 @@
             data[params[i]] = params[i + 1];
         }
 
+        let response = null;
+
         $.ajax({
             url: "{{ url_for('main_chart.chart_param') }}", // Flask route
             type: 'POST',
@@ -789,12 +799,25 @@
             contentType: 'application/json',
             data: JSON.stringify(data), // Send as JSON
             dataType: 'json',
-            success: function(response) {
+            success: function(res) {
+                response = res;
             },
             error: function() {
                 console.log('An error occurred while setting session params.');
             }
         });
+        return response;
+    }
+
+    function extractMaglimArray(response) {
+        let maglimObj = response.data.maglim;
+        let maglimArr = [];
+        for (let i = 0; i < Object.keys(maglimObj).length; i++) {
+            if (maglimObj.hasOwnProperty(i)) {
+                maglimArr.push(maglimObj[i]);
+            }
+        }
+        return maglimArr;
     }
 
     window.onload = function() {

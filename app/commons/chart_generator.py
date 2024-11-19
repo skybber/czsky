@@ -742,6 +742,24 @@ def _actualize_dso_pref_maglims(cur_maglim, magscale_index):
             session['pref_dso_maglim' + str(FIELD_SIZES[i])] = cur_maglim
 
 
+def _get_stars_maglim_data():
+    m = {}
+    for i in range(len(MAG_SCALES)):
+        key = 'pref_maglim' + str(FIELD_SIZES[i])
+        if key in session:
+            m[i] = session.get(key)
+    return m
+
+
+def _get_dso_maglim_data():
+    m = {}
+    for i in range(len(MAG_SCALES)):
+        key = 'pref_dso_maglim' + str(FIELD_SIZES[i])
+        if key in session:
+            m[i] = session.get(key)
+    return m
+
+
 def _get_fld_size_maglim(fld_size_index):
     fld_size = FIELD_SIZES[fld_size_index]
 
@@ -1260,11 +1278,26 @@ def set_chart_session_param(key, value):
         if maglim_prefix is not None:
             fld_size_part = key[len(maglim_prefix):]
             try:
+                mlim = int(value)
                 fld_size = float(fld_size_part) if fld_size_part else 0.0
                 fld_size = int(fld_size) if fld_size.is_integer() else fld_size
-                session[maglim_prefix + str(fld_size)] = int(value)
+                session[maglim_prefix + str(fld_size)] = mlim
+
+                try:
+                    magscale_index = FIELD_SIZES.index(fld_size)
+                    if magscale_index is not None:
+                        if maglim_prefix == 'pref_maglim':
+                            _actualize_stars_pref_maglims(mlim, magscale_index)
+                            return {'maglim': _get_stars_maglim_data()}
+                        else:
+                            _actualize_dso_pref_maglims(mlim, magscale_index)
+                            return {'maglim': _get_dso_maglim_data()}
+                except ValueError:
+                    current_app.logger.error('set_chart_session_param(): fld_size={} not found!'.format(fld_size))
+
             except ValueError:
                 pass
+    return None
 
 
 def _get_chart_font_face():

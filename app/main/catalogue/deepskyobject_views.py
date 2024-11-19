@@ -678,6 +678,7 @@ def deepskyobject_edit(dso_id):
 
     return render_template('main/catalogue/deepskyobject_edit.html', form=form, dso=dso, authors=authors, is_new=False)
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/observation-log', methods=['GET', 'POST'])
 def deepskyobject_observation_log(dso_id):
     dso, orig_dso = _find_dso(dso_id)

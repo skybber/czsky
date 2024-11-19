@@ -43,10 +43,16 @@ def chart_param():
     if not data or not isinstance(data, dict):
         return jsonify({'status': 'error', 'message': 'Invalid input. Expected JSON object.'}), 400
 
+    result = {'status': 'success', 'message': 'Session values set.'}
+    res_data = {}
     for key, value in data.items():
-        set_chart_session_param(key, value)  # Set each key-value pair in the session
+        item = set_chart_session_param(key, value)
+        if item is not None:
+            res_data.update(item)
 
-    return jsonify({'status': 'success', 'message': 'Session values set.'})
+    result['data'] = res_data
+
+    return jsonify(result)
 
 
 @main_chart.route('/chart', methods=['GET', 'POST'])
