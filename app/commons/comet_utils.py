@@ -186,6 +186,7 @@ def import_update_comets(all_mpc_comets, show_progress=False):
             comet.cur_dec = comet_dec_ang.radians
             const_code = constellation_at(position_from_radec(comet_ra_ang.radians / np.pi * 12.0, comet_dec_ang.radians / np.pi * 180.0))
             comet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id
+            comet.is_disintegrated = False
 
         comet.designation = mpc_comet['designation']
         comet.number = mpc_comet['number']

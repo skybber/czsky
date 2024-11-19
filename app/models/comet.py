@@ -34,6 +34,7 @@ class Comet(db.Model):
     cur_ra = db.Column(db.Float)
     cur_dec = db.Column(db.Float)
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
+    is_disintegrated = db.Column(db.Boolean, default=False)
 
     def cur_ra_str(self):
         return ra_to_str(self.cur_ra) if self.cur_ra is not None else ''

@@ -163,7 +163,7 @@ def comets():
 def comets_chart():
     form = ChartForm()
 
-    comet = Comet.query.filter(Comet.mag < 17.5).order_by('mag').first()
+    comet = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).order_by('mag').first()
 
     if not common_ra_dec_fsz_from_request(form):
         if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
@@ -183,7 +183,7 @@ def comets_chart():
 
 @main_comet.route('/comets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pos_img(ra, dec):
-    comets = Comet.query.filter(Comet.mag < 17.5).all()
+    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
     _, _, i_, dso_maglim = get_fld_size_mags_from_request()
     if dso_maglim < 16.0:
         dso_maglim = 16.0
@@ -205,7 +205,7 @@ def comets_chart_legend_img(ra, dec):
 
 @main_comet.route('/comets/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
 def comets_chart_pdf(ra, dec):
-    comets = Comet.query.filter(Comet.mag < 17.5).all()
+    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation, x.real_mag) for x in comets if comets]
 
     img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
