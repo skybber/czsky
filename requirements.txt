@@ -58,7 +58,7 @@ python-dateutil==2.9.0
 python-editor==1.0.4
 raygun4py==5.0.0
 redis==5.0.4
-requests==2.31.0
+requests==2.32.2
 rq==1.16.2
 setuptools==70.3.0
 six==1.16.0
