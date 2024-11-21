@@ -71,8 +71,6 @@ class PrevNextWrapper:
             return url_for('main_wishlist.wish_list_chart', obj_id=obj_id, back=back, back_id=back_id, season=season, splitview='true')
         if back == 'session_plan':
             return url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, obj_id=obj_id, back=back, back_id=back_id, season=season, splitview='true')
-        if back == 'dso_list':
-            return url_for('main_dso_list.dso_list_chart', dso_list_id=back_id, dso_id=self._sky_obj.id, back=back, back_id=back_id, season=season, splitview='true')
 
         if type(self._sky_obj) == DeepskyObject:
             return url_for('main_deepskyobject.deepskyobject_chart', dso_id=self._sky_obj.name, back=back, back_id=back_id, season=season, splitview='true')
