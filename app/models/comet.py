@@ -51,6 +51,21 @@ class Comet(db.Model):
     def cur_constell(self):
         return Constellation.get_constellation_by_id(self.cur_constell_id) if self.cur_constell_id is not None else None
 
+    def cur_constellation_iau_code(self):
+        cur_con = self.cur_constell()
+        return cur_con.iau_code if cur_con else None
+
+    def cur_constellation_iau_code(self):
+        cur_con = self.cur_constell()
+        return cur_con.iau_code if cur_con else None
+
+    def displayed_mag(self):
+        if self.real_mag is not None:
+            return '{:.1f}'.format(self.real_mag)
+        if self.eval_mag is not None:
+            return '{:.1f} *'.format(self.eval_mag)
+        return ''
+
 
 class CometObservation(db.Model):
     __tablename__ = 'comet_observations'

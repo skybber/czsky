@@ -171,9 +171,23 @@ def search_comet(query):
     return None
 
 
+def search_comet_exact(query):
+    if len(query) > 5:
+        comet = Comet.query.filter(func.lower(Comet.designation) == func.lower(query)).first()
+        return comet
+    return None
+
+
 def search_minor_planet(query):
     if len(query) > 3:
         minor_planet = MinorPlanet.query.filter(MinorPlanet.designation.like('%' + query + '%')).first()
+        return minor_planet
+    return None
+
+
+def search_minor_planet_exact(query):
+    if len(query) > 3:
+        minor_planet = MinorPlanet.query.filter(func.lower(MinorPlanet.designation) == func.lower(query)).first()
         return minor_planet
     return None
 

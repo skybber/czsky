@@ -10,7 +10,7 @@ from wtforms.validators import (
 
 
 class AddToObservedListForm(FlaskForm):
-    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+    object_name = StringField(lazy_gettext('Object identification'), validators=[InputRequired(),])
 
 
 class SearchObservedForm(FlaskForm):

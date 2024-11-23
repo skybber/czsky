@@ -38,6 +38,11 @@ class MinorPlanet(db.Model):
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
     eval_mag = db.Column(db.Float)
 
+    def displayed_mag(self):
+        if self.eval_mag is not None:
+            return '{:.1f}'.format(self.eval_mag)
+        return ''
+
     def cur_ra_str(self):
         return ra_to_str(self.cur_ra) if self.cur_ra is not None else ''
 
@@ -55,3 +60,7 @@ class MinorPlanet(db.Model):
 
     def cur_constell(self):
         return Constellation.get_constellation_by_id(self.cur_constell_id) if self.cur_constell_id is not None else None
+
+    def cur_constellation_iau_code(self):
+        cur_con = self.cur_constell()
+        return cur_con.iau_code if cur_con else None

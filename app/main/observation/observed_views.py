@@ -33,13 +33,21 @@ from .observed_forms import (
 from app.models import ObservedList, ObservedListItem, DeepskyObject
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
-from app.commons.dso_utils import normalize_dso_name
 from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
 )
+
+from app.commons.search_sky_object_utils import (
+    search_dso,
+    search_comet_exact,
+    search_double_star,
+    search_minor_planet_exact,
+)
+
+
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
 from app.commons.highlights_list_utils import common_highlights_from_observed_list_items
 
@@ -50,6 +58,7 @@ main_observed = Blueprint('main_observed', __name__)
 from cachetools import TTLCache
 
 observed_items_cache = TTLCache(maxsize=10, ttl=30)
+
 
 @main_observed.route('/observed-list', methods=['GET'])
 @main_observed.route('/observed-list/info', methods=['GET', 'POST'])
@@ -91,21 +100,41 @@ def observed_list_info():
 def observed_list_item_add():
     """Add item to observed list."""
     form = AddToObservedListForm()
-    dso_name = normalize_dso_name(form.dso_name.data)
+    object_name = form.object_name.data.strip()
     if request.method == 'POST' and form.validate_on_submit():
-        deepsky_object = DeepskyObject.query.filter(DeepskyObject.name == dso_name).first()
+        observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+        deepsky_object = search_dso(object_name)
+        new_item = None
+        not_found = False
         if deepsky_object:
-            observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
             dso_id = deepsky_object.master_id if deepsky_object.master_id is not None else deepsky_object.id
-            if not observed_list.find_list_item_by_id(dso_id):
+            if not observed_list.find_list_item_by_dso_id(dso_id):
                 new_item = observed_list.create_new_deepsky_object_item(dso_id)
-                db.session.add(new_item)
-                db.session.commit()
-                flash(gettext('Object was added to observed list.'), 'form-success')
-            else:
-                flash(gettext('Object is already on observed list.'), 'form-info')
         else:
-            flash(gettext('Deepsky object not found.'), 'form-error')
+            double_star = search_double_star(object_name)
+            if double_star:
+                if not observed_list.find_list_item_by_double_star_id(double_star.id):
+                    new_item = observed_list.create_new_double_star_item(double_star.id)
+            else:
+                comet = search_comet_exact(object_name)
+                if comet:
+                    if not observed_list.find_list_item_by_comet_id(comet.id):
+                        new_item = observed_list.create_new_comet_item(comet.id)
+                else:
+                    minor_planet = search_minor_planet_exact(object_name)
+                    if minor_planet:
+                        if not observed_list.find_list_item_by_minor_planet_id(minor_planet.id):
+                            new_item = observed_list.create_new_minor_planet_item(minor_planet.id)
+                    else:
+                        not_found = True
+        if new_item is not None:
+            db.session.add(new_item)
+            db.session.commit()
+            flash(gettext('Object was added to observed list.'), 'form-success')
+        elif not not_found:
+            flash(gettext('Object is already on observed list.'), 'form-info')
+        else:
+            flash(gettext('Object not found.'), 'form-warning')
 
     return redirect(url_for('main_observed.observed_list_info'))
 
