@@ -22,7 +22,7 @@ class ChartThemeMixin:
     light_definition = HiddenField()
     night_definition = HiddenField()
     name = StringField(lazy_gettext('Name'), validators=[InputRequired(), Length(max=256)])
-    default_type = SelectField(lazy_gettext('Default type'), choices=DefaultThemeType.choices(), coerce=DefaultThemeType.coerce, default=DefaultThemeType.DARK)
+    default_type = SelectField(lazy_gettext('Application theme'), choices=DefaultThemeType.choices(), coerce=DefaultThemeType.coerce, default=DefaultThemeType.DARK)
     definition = TextAreaField(lazy_gettext('Definition'))
     is_active = BooleanField(lazy_gettext('Is active'), default=True)
 
