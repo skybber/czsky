@@ -217,72 +217,16 @@ def _get_dso_hide_filter():
                     dso_hide_filter.append(dso)
     return dso_hide_filter
 
-
-def _fill_config_from_chart_theme(config, theme):
-    config.show_nebula_outlines = theme.show_nebula_outlines
-    config.star_colors = theme.star_colors
-    config.light_mode = theme.light_mode
-    config.background_color = theme.background_color
-    config.draw_color = theme.draw_color
-    config.label_color = theme.label_color
-    config.constellation_lines_color = theme.constellation_lines_color
-    config.constellation_border_color = theme.constellation_border_color
-    config.constellation_hl_border_color = theme.constellation_hl_border_color
-    config.dso_color = theme.dso_color
-    config.nebula_color = theme.nebula_color
-    config.galaxy_color = theme.galaxy_color
-    config.star_cluster_color = theme.star_cluster_color
-    config.galaxy_cluster_color = theme.galaxy_cluster_color
-    config.grid_color = theme.grid_color
-    config.constellation_linewidth = theme.constellation_linewidth
-    config.constellation_border_linewidth = theme.constellation_border_linewidth
-    config.constellation_linespace = theme.constellation_linespace
-    config.open_cluster_linewidth = theme.open_cluster_linewidth
-    config.galaxy_cluster_linewidth = theme.galaxy_cluster_linewidth
-    config.nebula_linewidth = theme.nebula_linewidth
-    config.dso_linewidth = theme.dso_linewidth
-    config.legend_linewidth = theme.legend_linewidth
-    config.grid_linewidth = theme.grid_linewidth
-    config.font_size = theme.font_size
-    config.highlight_color = theme.highlight_color
-    config.highlight_linewidth = theme.highlight_linewidth
-    config.dso_dynamic_brightness = theme.dso_dynamic_brightness
-    config.legend_font_scale = theme.legend_font_scale
-    config.milky_way_color = theme.milky_way_color
-    config.telrad_linewidth = theme.telrad_linewidth
-    config.telrad_color = theme.telrad_color
-    config.eyepiece_linewidth = theme.eyepiece_linewidth
-    config.eyepiece_color = theme.eyepiece_color
-    config.picker_radius = theme.picker_radius
-    config.picker_linewidth = theme.picker_linewidth
-    config.picker_color = theme.picker_color
-    config.ext_label_font_scale = theme.ext_label_font_scale
-    config.bayer_label_font_scale = theme.bayer_label_font_scale
-    config.flamsteed_label_font_scale = theme.flamsteed_label_font_scale
-    config.outlined_dso_label_font_scale = theme.outlined_dso_label_font_scale
-    config.highlight_label_font_scale = theme.highlight_label_font_scale
-    config.mercury_color = theme.mercury_color
-    config.venus_color = theme.venus_color
-    config.mars_color = theme.mars_color
-    config.jupiter_color = theme.jupiter_color
-    config.saturn_color = theme.saturn_color
-    config.uranus_color = theme.uranus_color
-    config.neptune_color = theme.neptune_color
-    config.pluto_color = theme.pluto_color
-    config.sun_color = theme.sun_color
-    config.moon_color = theme.moon_color
-
-
 def _setup_dark_theme(config, width):
-    _fill_config_from_chart_theme(config, COMMON_THEMES['dark_theme'])
+    COMMON_THEMES['dark_theme'].fill_config(config)
 
 
 def _setup_night_theme(config, width):
-    _fill_config_from_chart_theme(config, COMMON_THEMES['night_theme'])
+    COMMON_THEMES['night_theme'].fill_config(config)
 
 
 def _setup_light_theme(config, width):
-    _fill_config_from_chart_theme(config, COMMON_THEMES['light_theme'])
+    COMMON_THEMES['light_theme'].fill_config(config)
 
 
 def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
@@ -296,7 +240,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
             pass
     if custom_theme and (not force_light_mode or cur_theme_name == 'light'):
         chart_def = ChartThemeDefinition.create_from_template(custom_theme.definition)
-        _fill_config_from_chart_theme(config, chart_def)
+        chart_def.fill_config(config)
     else:
         if force_light_mode or cur_theme_name == 'light':
             _setup_light_theme(config, width)

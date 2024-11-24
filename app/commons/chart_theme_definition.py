@@ -121,6 +121,61 @@ class ChartThemeDefinition:
         self.sun_color = self._parse_color(defs, 'sun_color', self.sun_color, errors)
         self.moon_color = self._parse_color(defs, 'moon_color', self.moon_color, errors)
 
+    def fill_config(self, config):
+        config.show_nebula_outlines = self.show_nebula_outlines
+        config.star_colors = self.star_colors
+        config.light_mode = self.light_mode
+        config.background_color = self.background_color
+        config.draw_color = self.draw_color
+        config.label_color = self.label_color
+        config.constellation_lines_color = self.constellation_lines_color
+        config.constellation_border_color = self.constellation_border_color
+        config.constellation_hl_border_color = self.constellation_hl_border_color
+        config.dso_color = self.dso_color
+        config.nebula_color = self.nebula_color
+        config.galaxy_color = self.galaxy_color
+        config.star_cluster_color = self.star_cluster_color
+        config.galaxy_cluster_color = self.galaxy_cluster_color
+        config.grid_color = self.grid_color
+        config.constellation_linewidth = self.constellation_linewidth
+        config.constellation_border_linewidth = self.constellation_border_linewidth
+        config.constellation_linespace = self.constellation_linespace
+        config.open_cluster_linewidth = self.open_cluster_linewidth
+        config.galaxy_cluster_linewidth = self.galaxy_cluster_linewidth
+        config.nebula_linewidth = self.nebula_linewidth
+        config.dso_linewidth = self.dso_linewidth
+        config.legend_linewidth = self.legend_linewidth
+        config.grid_linewidth = self.grid_linewidth
+        config.font_size = self.font_size
+        config.highlight_color = self.highlight_color
+        config.highlight_linewidth = self.highlight_linewidth
+        config.dso_dynamic_brightness = self.dso_dynamic_brightness
+        config.legend_font_scale = self.legend_font_scale
+        config.milky_way_color = self.milky_way_color
+        config.telrad_linewidth = self.telrad_linewidth
+        config.telrad_color = self.telrad_color
+        config.eyepiece_linewidth = self.eyepiece_linewidth
+        config.eyepiece_color = self.eyepiece_color
+        config.picker_radius = self.picker_radius
+        config.picker_linewidth = self.picker_linewidth
+        config.picker_color = self.picker_color
+        config.ext_label_font_scale = self.ext_label_font_scale
+        config.bayer_label_font_scale = self.bayer_label_font_scale
+        config.flamsteed_label_font_scale = self.flamsteed_label_font_scale
+        config.outlined_dso_label_font_scale = self.outlined_dso_label_font_scale
+        config.highlight_label_font_scale = self.highlight_label_font_scale
+        config.star_mag_shift = self.star_mag_shift
+        config.mercury_color = self.mercury_color
+        config.venus_color = self.venus_color
+        config.mars_color = self.mars_color
+        config.jupiter_color = self.jupiter_color
+        config.saturn_color = self.saturn_color
+        config.uranus_color = self.uranus_color
+        config.neptune_color = self.neptune_color
+        config.pluto_color = self.pluto_color
+        config.sun_color = self.sun_color
+        config.moon_color = self.moon_color
+
     def _parse_bool(self, defs, field_name, default_value, errors):
         value = defs.get(field_name)
         if value is not None:
