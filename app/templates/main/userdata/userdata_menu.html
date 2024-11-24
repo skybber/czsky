@@ -19,15 +19,17 @@
             </div>
             <div class="ui two column stackable grid">
                 {{ dash.dashboard_option(_('Equipment'), 'main_equipment.equipment_menu',
-                                    description=_('Your equipment'), icon='toolbox icon') }}
+                                    description=_('Your Equipment'), icon='toolbox icon') }}
                 {{ dash.dashboard_option(_('Locations'), 'main_location.all_locations',
-                                    description=_('View all locations'), icon='map marker alternate icon') }}
+                                    description=_('Your Locations'), icon='map marker alternate icon') }}
+                {{ dash.dashboard_option(_('Chart Themes'), 'main_chart_theme.chart_themes',
+                                    description=_('Chart Themes'), icon='map palette icon') }}
+                {{ dash.dashboard_option(_('Git Repository'), 'main_userdata.data_store_personal',
+                                    description=_('Store/restore data from git repository'), icon='git icon') }}
                 {% if can_edit_news %}
                     {{ dash.dashboard_option(_('News list'), 'main_news.news_list',
                                         description=_('Show all news'), icon='rss icon') }}
                 {% endif %}
-                {{ dash.dashboard_option(_('Git repository'), 'main_userdata.data_store_personal',
-                                    description=_('Store/restore data from git repository'), icon='git icon') }}
             </div>
         </div>
     </div>

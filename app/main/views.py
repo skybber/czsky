@@ -38,6 +38,7 @@ from app.commons.search_sky_object_utils import (
 )
 
 from app.models import (
+    ChartTheme,
     Comet,
     Constellation,
     DeepskyObject,
@@ -81,6 +82,17 @@ def theme_light():
 @main.route('/theme_night')
 def theme_night():
     session['theme'] = 'night'
+    return redirect(request.referrer)
+
+
+@main.route('/theme_custom/<int:chart_theme_id>/set')
+def theme_custom(chart_theme_id):
+    chart_theme = ChartTheme.query.filter_by(id=chart_theme_id).first()
+    if chart_theme is None:
+        abort(404)
+    session['theme'] = chart_theme.default_type.value.lower()
+    session['cur_custom_theme_name'] = chart_theme.name
+    session['cur_custom_theme_id'] = chart_theme.id
     return redirect(request.referrer)
 
 

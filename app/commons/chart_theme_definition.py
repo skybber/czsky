@@ -1,6 +1,13 @@
+from collections import OrderedDict
+
 from flask import (
     current_app,
 )
+
+MAX_LINE_SPACE = 10.0
+MAX_LINE_WIDTH = 3.0
+MAX_FONT_SIZE = 20.0
+MAX_FONT_SCALE = 5.0
 
 
 class ChartThemeDefinition:
@@ -35,7 +42,6 @@ class ChartThemeDefinition:
         self.dso_dynamic_brightness = None
         self.legend_font_scale = None
         self.milky_way_color = None
-        self.enhanced_milky_way_fade = None
         self.telrad_linewidth = None
         self.telrad_color = None
         self.eyepiece_linewidth = None
@@ -48,6 +54,7 @@ class ChartThemeDefinition:
         self.flamsteed_label_font_scale = None
         self.outlined_dso_label_font_scale = None
         self.highlight_label_font_scale = None
+        self.star_mag_shift = None
         self.mercury_color = None
         self.venus_color = None
         self.mars_color = None
@@ -60,61 +67,62 @@ class ChartThemeDefinition:
         self.moon_color = None
 
     def validate_set(self, defs, errors=None):
-        self.show_nebula_outlines = self._parse_bool(defs.get('show_nebula_outlines'), self.show_nebula_outlines, errors)
-        self.star_colors = self._parse_bool(defs.get('star_colors'), self.star_colors, errors)
-        self.light_mode = self._parse_bool(defs.get('light_mode'), self.light_mode, errors)
-        self.background_color = self._parse_color(defs.get('background_color'), self.background_color, errors)
-        self.draw_color = self._parse_color(defs.get('draw_color'), self.draw_color, errors)
-        self.label_color = self._parse_color(defs.get('label_color'), self.label_color, errors)
-        self.constellation_lines_color = self._parse_color(defs.get('constellation_lines_color'), self.constellation_lines_color, errors)
-        self.constellation_border_color = self._parse_color(defs.get('constellation_border_color'), self.constellation_border_color, errors)
-        self.constellation_hl_border_color = self._parse_color(defs.get('constellation_hl_border_color'), self.constellation_hl_border_color, errors)
-        self.dso_color = self._parse_color(defs.get('dso_color'), self.dso_color, errors)
-        self.nebula_color = self._parse_color(defs.get('nebula_color'), self.nebula_color, errors)
-        self.galaxy_color = self._parse_color(defs.get('galaxy_color'), self.galaxy_color, errors)
-        self.star_cluster_color = self._parse_color(defs.get('star_cluster_color'), self.star_cluster_color, errors)
-        self.galaxy_cluster_color = self._parse_color(defs.get('galaxy_cluster_color'), self.galaxy_cluster_color, errors)
-        self.grid_color = self._parse_color(defs.get('grid_color'), self.grid_color, errors)
-        self.constellation_linewidth = self._parse_linewidth(defs.get('constellation_linewidth'), self.constellation_linewidth, errors)
-        self.constellation_border_linewidth = self._parse_linewidth(defs.get('constellation_border_linewidth'), self.constellation_border_linewidth, errors)
-        self.constellation_linespace = self._parse_linespace(defs.get('constellation_linespace'), self.constellation_linespace, errors)
-        self.open_cluster_linewidth = self._parse_linewidth(defs.get('open_cluster_linewidth'), self.open_cluster_linewidth, errors)
-        self.galaxy_cluster_linewidth = self._parse_linewidth(defs.get('galaxy_cluster_linewidth'), self.galaxy_cluster_linewidth, errors)
-        self.nebula_linewidth = self._parse_linewidth(defs.get('nebula_linewidth'), self.nebula_linewidth, errors)
-        self.dso_linewidth = self._parse_linewidth(defs.get('dso_linewidth'), self.dso_linewidth, errors)
-        self.legend_linewidth = self._parse_linewidth(defs.get('legend_linewidth'), self.legend_linewidth, errors)
-        self.grid_linewidth = self._parse_linewidth(defs.get('grid_linewidth'), self.grid_linewidth, errors)
-        self.font_size = self._parse_font_size(defs.get('font_size'), self.font_size, errors)
-        self.highlight_color = self._parse_color(defs.get('highlight_color'), self.highlight_color, errors)
-        self.highlight_linewidth = self._parse_linewidth(defs.get('highlight_linewidth'), self.highlight_linewidth, errors)
-        self.dso_dynamic_brightness = self._parse_bool(defs.get('dso_dynamic_brightness'), self.dso_dynamic_brightness, errors)
-        self.legend_font_scale = self._parse_font_scale(defs.get('legend_font_scale'), self.legend_font_scale, errors)
-        self.milky_way_color = self._parse_color(defs.get('milky_way_color'), self.milky_way_color, errors)
-        self.enhanced_milky_way_fade = self._parse_float(defs.get('enhanced_milky_way_fade'), self.enhanced_milky_way_fade, errors)
-        self.telrad_linewidth = self._parse_linewidth(defs.get('telrad_linewidth'), self.telrad_linewidth, errors)
-        self.telrad_color = self._parse_color(defs.get('telrad_color'), self.telrad_color, errors)
-        self.eyepiece_linewidth = self._parse_linewidth(defs.get('eyepiece_linewidth'), self.eyepiece_linewidth, errors)
-        self.eyepiece_color = self._parse_color(defs.get('eyepiece_color'), self.eyepiece_color, errors)
-        self.picker_radius = self._parse_float(defs.get('picker_radius'), self.picker_radius, errors)
-        self.picker_linewidth = self._parse_linewidth(defs.get('picker_linewidth'), self.picker_linewidth, errors)
-        self.picker_color = self._parse_color(defs.get('picker_color'), self.picker_color, errors)
-        self.ext_label_font_scale = self._parse_font_scale(defs.get('ext_label_font_scale'), self.ext_label_font_scale, errors)
-        self.bayer_label_font_scale = self._parse_font_scale(defs.get('bayer_label_font_scale'), self.bayer_label_font_scale, errors)
-        self.flamsteed_label_font_scale = self._parse_font_scale(defs.get('flamsteed_label_font_scale'), self.flamsteed_label_font_scale, errors)
-        self.outlined_dso_label_font_scale = self._parse_font_scale(defs.get('outlined_dso_label_font_scale'), self.outlined_dso_label_font_scale, errors)
-        self.highlight_label_font_scale = self._parse_font_scale(defs.get('highlight_label_font_scale'), self.highlight_label_font_scale, errors)
-        self.mercury_color = self._parse_color(defs.get('mercury_color'), self.mercury_color, errors)
-        self.venus_color = self._parse_color(defs.get('venus_color'), self.venus_color, errors)
-        self.mars_color = self._parse_color(defs.get('mars_color'), self.mars_color, errors)
-        self.jupiter_color = self._parse_color(defs.get('jupiter_color'), self.jupiter_color, errors)
-        self.saturn_color = self._parse_color(defs.get('saturn_color'), self.saturn_color, errors)
-        self.uranus_color = self._parse_color(defs.get('uranus_color'), self.uranus_color, errors)
-        self.neptune_color = self._parse_color(defs.get('neptune_color'), self.neptune_color, errors)
-        self.pluto_color = self._parse_color(defs.get('pluto_color'), self.pluto_color, errors)
-        self.sun_color = self._parse_color(defs.get('sun_color'), self.sun_color, errors)
-        self.moon_color = self._parse_color(defs.get('moon_color'), self.moon_color, errors)
+        self.show_nebula_outlines = self._parse_bool(defs, 'show_nebula_outlines', self.show_nebula_outlines, errors)
+        self.star_colors = self._parse_bool(defs, 'star_colors', self.star_colors, errors)
+        self.light_mode = self._parse_bool(defs, 'light_mode', self.light_mode, errors)
+        self.background_color = self._parse_color(defs, 'background_color', self.background_color, errors)
+        self.draw_color = self._parse_color(defs, 'draw_color', self.draw_color, errors)
+        self.label_color = self._parse_color(defs, 'label_color', self.label_color, errors)
+        self.constellation_lines_color = self._parse_color(defs, 'constellation_lines_color', self.constellation_lines_color, errors)
+        self.constellation_border_color = self._parse_color(defs, 'constellation_border_color', self.constellation_border_color, errors)
+        self.constellation_hl_border_color = self._parse_color(defs, 'constellation_hl_border_color', self.constellation_hl_border_color, errors)
+        self.dso_color = self._parse_color(defs, 'dso_color', self.dso_color, errors)
+        self.nebula_color = self._parse_color(defs, 'nebula_color', self.nebula_color, errors)
+        self.galaxy_color = self._parse_color(defs, 'galaxy_color', self.galaxy_color, errors)
+        self.star_cluster_color = self._parse_color(defs, 'star_cluster_color', self.star_cluster_color, errors)
+        self.galaxy_cluster_color = self._parse_color(defs, 'galaxy_cluster_color', self.galaxy_cluster_color, errors)
+        self.grid_color = self._parse_color(defs, 'grid_color', self.grid_color, errors)
+        self.constellation_linewidth = self._parse_linewidth(defs, 'constellation_linewidth', self.constellation_linewidth, errors)
+        self.constellation_border_linewidth = self._parse_linewidth(defs, 'constellation_border_linewidth', self.constellation_border_linewidth, errors)
+        self.constellation_linespace = self._parse_linespace(defs, 'constellation_linespace', self.constellation_linespace, errors)
+        self.open_cluster_linewidth = self._parse_linewidth(defs, 'open_cluster_linewidth', self.open_cluster_linewidth, errors)
+        self.galaxy_cluster_linewidth = self._parse_linewidth(defs, 'galaxy_cluster_linewidth', self.galaxy_cluster_linewidth, errors)
+        self.nebula_linewidth = self._parse_linewidth(defs, 'nebula_linewidth', self.nebula_linewidth, errors)
+        self.dso_linewidth = self._parse_linewidth(defs, 'dso_linewidth', self.dso_linewidth, errors)
+        self.legend_linewidth = self._parse_linewidth(defs, 'legend_linewidth', self.legend_linewidth, errors)
+        self.grid_linewidth = self._parse_linewidth(defs, 'grid_linewidth', self.grid_linewidth, errors)
+        self.font_size = self._parse_font_size(defs, 'font_size', self.font_size, errors)
+        self.highlight_color = self._parse_color(defs, 'highlight_color', self.highlight_color, errors)
+        self.highlight_linewidth = self._parse_linewidth(defs, 'highlight_linewidth', self.highlight_linewidth, errors)
+        self.dso_dynamic_brightness = self._parse_bool(defs, 'dso_dynamic_brightness', self.dso_dynamic_brightness, errors)
+        self.legend_font_scale = self._parse_font_scale(defs, 'legend_font_scale', self.legend_font_scale, errors)
+        self.milky_way_color = self._parse_color(defs, 'milky_way_color', self.milky_way_color, errors)
+        self.telrad_linewidth = self._parse_linewidth(defs, 'telrad_linewidth', self.telrad_linewidth, errors)
+        self.telrad_color = self._parse_color(defs, 'telrad_color', self.telrad_color, errors)
+        self.eyepiece_linewidth = self._parse_linewidth(defs, 'eyepiece_linewidth', self.eyepiece_linewidth, errors)
+        self.eyepiece_color = self._parse_color(defs, 'eyepiece_color', self.eyepiece_color, errors)
+        self.picker_radius = self._parse_float(defs, 'picker_radius', self.picker_radius, errors)
+        self.picker_linewidth = self._parse_linewidth(defs, 'picker_linewidth', self.picker_linewidth, errors)
+        self.picker_color = self._parse_color(defs, 'picker_color', self.picker_color, errors)
+        self.ext_label_font_scale = self._parse_font_scale(defs, 'ext_label_font_scale', self.ext_label_font_scale, errors)
+        self.bayer_label_font_scale = self._parse_font_scale(defs, 'bayer_label_font_scale', self.bayer_label_font_scale, errors)
+        self.flamsteed_label_font_scale = self._parse_font_scale(defs, 'flamsteed_label_font_scale', self.flamsteed_label_font_scale, errors)
+        self.outlined_dso_label_font_scale = self._parse_font_scale(defs, 'outlined_dso_label_font_scale', self.outlined_dso_label_font_scale, errors)
+        self.highlight_label_font_scale = self._parse_font_scale(defs, 'highlight_label_font_scale', self.highlight_label_font_scale, errors)
+        self.star_mag_shift = self._parse_float_with_min_max(defs, 'star_mag_shift', self.star_mag_shift, 0, 5, errors)
+        self.mercury_color = self._parse_color(defs, 'mercury_color', self.mercury_color, errors)
+        self.venus_color = self._parse_color(defs, 'venus_color', self.venus_color, errors)
+        self.mars_color = self._parse_color(defs, 'mars_color', self.mars_color, errors)
+        self.jupiter_color = self._parse_color(defs, 'jupiter_color', self.jupiter_color, errors)
+        self.saturn_color = self._parse_color(defs, 'saturn_color', self.saturn_color, errors)
+        self.uranus_color = self._parse_color(defs, 'uranus_color', self.uranus_color, errors)
+        self.neptune_color = self._parse_color(defs, 'neptune_color', self.neptune_color, errors)
+        self.pluto_color = self._parse_color(defs, 'pluto_color', self.pluto_color, errors)
+        self.sun_color = self._parse_color(defs, 'sun_color', self.sun_color, errors)
+        self.moon_color = self._parse_color(defs, 'moon_color', self.moon_color, errors)
 
-    def _parse_bool(self, value, default_value, errors):
+    def _parse_bool(self, defs, field_name, default_value, errors):
+        value = defs.get(field_name)
         if value is not None:
             value = value.strip()
             if value.upper() == 'TRUE':
@@ -122,18 +130,19 @@ class ChartThemeDefinition:
             if value.upper() == 'FALSE':
                 return False
             if errors is not None:
-                errors.append('Invalid boolean value {}'.format(value))
+                errors.append(f"Invalid boolean value '{value}' for field '{field_name}'")
         return default_value
 
-    def _parse_color(self, value, default_value, errors):
+    def _parse_color(self, defs, field_name, default_value, errors):
+        value = defs.get(field_name)
         if value is None:
             return default_value
         value = value.strip()
         ok = False
         if value.startswith('#'):
-            value = value[1:]
+            value_hex = value[1:]
             try:
-                r, g, b = [int(value[i:i + 2], 16) / 255.0 for i in range(0, len(value), 2)]
+                r, g, b = [int(value_hex[i:i + 2], 16) / 255.0 for i in range(0, len(value_hex), 2)]
                 ok = True
             except ValueError:
                 pass
@@ -147,11 +156,12 @@ class ChartThemeDefinition:
                     pass
         if not ok:
             if errors is not None:
-                errors.append('Invalid color format {}'.format(value))
+                errors.append(f"Invalid color format '{value}' for field '{field_name}'")
             return default_value
         return r, g, b
 
-    def _parse_float(self, value, default_value, errors):
+    def _parse_float(self, defs, field_name, default_value, errors):
+        value = defs.get(field_name)
         if value is None:
             return default_value
         value = value.strip()
@@ -159,21 +169,29 @@ class ChartThemeDefinition:
             f = float(value)
         except ValueError:
             if errors is not None:
-                errors.append('Invalid float value {}'.format(value))
+                errors.append(f"Invalid float value '{value}' for field '{field_name}'")
             f = default_value
         return f
 
-    def _parse_linespace(self, value, default_value, errors):
-        return self._parse_float(value, default_value, errors)
+    def _parse_float_with_min_max(self, defs, field_name, default_value, min_value, max_value, errors):
+        result = self._parse_float(defs, field_name, default_value, errors)
+        if result is not None and (result < min_value or result > max_value):
+            if errors is not None:
+                errors.append(f"Value '{result}' for field '{field_name}' must be between {min_value} and {max_value}")
+            return default_value
+        return result
 
-    def _parse_linewidth(self, value, default_value, errors):
-        return self._parse_float(value, default_value, errors)
+    def _parse_linespace(self, defs, field_name, default_value, errors):
+        return self._parse_float_with_min_max(defs, field_name, default_value, 0, MAX_LINE_SPACE, errors)
 
-    def _parse_font_size(self, value, default_value, errors):
-        return self._parse_float(value, default_value, errors)
+    def _parse_linewidth(self, defs, field_name, default_value, errors):
+        return self._parse_float_with_min_max(defs, field_name, default_value, 0, MAX_LINE_WIDTH, errors)
 
-    def _parse_font_scale(self, value, default_value, errors):
-        return self._parse_float(value, default_value, errors)
+    def _parse_font_size(self, defs, field_name, default_value, errors):
+        return self._parse_float_with_min_max(defs, field_name, default_value, 0, MAX_FONT_SIZE, errors)
+
+    def _parse_font_scale(self, defs, field_name, default_value, errors):
+        return self._parse_float_with_min_max(defs, field_name, default_value, 0, MAX_FONT_SCALE, errors)
 
     @classmethod
     def create_from_template(cls, t, errors=None):
@@ -197,9 +215,9 @@ class ChartThemeDefinition:
                                 for attr, value in vars(ctd).items():
                                     theme_props[attr] = str(value)
                             else:
-                                current_app.logger.warn('Unknown base theme {}'.format(ext))
+                                current_app.logger.warning('Unknown base theme {}'.format(ext))
                         continue
-                    current_app.logger.warn('Invalid chart theme EXTENDS expression {}'.format(l))
+                    current_app.logger.warning('Invalid chart theme EXTENDS expression {}'.format(l))
                     continue
             kv = l.split('=')
             if len(kv) == 2:
@@ -210,6 +228,44 @@ class ChartThemeDefinition:
         result.validate_set(theme_props, errors)
         return result
 
+
+def _parse_theme(theme_str):
+    theme_dict = OrderedDict()
+    for line in theme_str.strip().splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        if line.startswith('EXTENDS'):
+            extends = line[len('EXTENDS'):].strip()
+            theme_dict['__extends__'] = extends
+            continue
+        if '=' in line:
+            key, value = line.split('=', 1)
+            theme_dict[key.strip()] = value.strip()
+    return theme_dict
+
+
+def _merge_themes(base_theme_str, derived_theme_str):
+    base_theme = _parse_theme(base_theme_str)
+    derived_theme = _parse_theme(derived_theme_str)
+    extends = derived_theme.pop('__extends__', None)
+    if extends and extends != 'base_theme':
+        raise ValueError("Only 'EXTENDS base_theme' is supported")
+
+    merged_theme = OrderedDict()
+    for key in base_theme.keys():
+        if key in derived_theme:
+            merged_theme[key] = derived_theme[key]
+        else:
+            merged_theme[key] = base_theme[key]
+    for key in derived_theme.keys():
+        if key not in base_theme:
+            merged_theme[key] = derived_theme[key]
+    lines = []
+    for key in merged_theme.keys():
+        value = merged_theme[key]
+        lines.append(f'# {key}={value}')
+    return '\n'.join(lines)
 
 BASE_THEME_TEMPL = '''
 show_nebula_outlines=True
@@ -235,6 +291,7 @@ bayer_label_font_scale=1.0
 flamsteed_label_font_scale=0.9
 outlined_dso_label_font_scale=1.1
 highlight_label_font_scale=1.0
+star_mag_shift=0.0
 mercury_color=(0.5, 0.5, 0.5)
 venus_color=(0.9, 0.8, 0.6)
 earth_color=(0.2, 0.6, 1.0)
@@ -248,8 +305,6 @@ sun_color=(1.0, 1.0, 0.0)
 moon_color=(0.8, 0.8, 0.8)
 '''
 
-
-BASE_THEME_DEF = ChartThemeDefinition.create_from_template(BASE_THEME_TEMPL)
 
 DARK_THEME_TEMPL = '''
 EXTENDS base_theme
@@ -353,6 +408,8 @@ sun_color=(1.0, 1.0, 0.0)
 moon_color=(0.8, 0.8, 0.8)
 '''
 
+BASE_THEME_DEF = ChartThemeDefinition.create_from_template(BASE_THEME_TEMPL)
+
 COMMON_THEME_TEMPLATES = {
     'base_theme': BASE_THEME_TEMPL,
     'dark_theme': DARK_THEME_TEMPL,
@@ -365,3 +422,7 @@ COMMON_THEMES = {
     'night_theme': ChartThemeDefinition.create_from_template(NIGHT_THEME_TEMPL),
     'light_theme': ChartThemeDefinition.create_from_template(LIGHT_THEME_TEMPL)
 }
+
+MERGED_DARK_THEME_TEMPL = 'EXTENDS dark_theme\n' + _merge_themes(BASE_THEME_TEMPL, DARK_THEME_TEMPL)
+MERGED_LIGHT_THEME_TEMPL = 'EXTENDS light_theme\n' + _merge_themes(BASE_THEME_TEMPL, LIGHT_THEME_TEMPL)
+MERGED_NIGHT_THEME_TEMPL = 'EXTENDS night_theme\n' + _merge_themes(BASE_THEME_TEMPL, NIGHT_THEME_TEMPL)

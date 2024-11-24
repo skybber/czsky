@@ -9,6 +9,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .. import db, login_manager
 
 from .observation import ObservingSession
+from .chart_theme import ChartTheme
+
 
 class Permission:
     GENERAL = 0x01
@@ -180,6 +182,17 @@ class User(UserMixin, db.Model):
     def get_last_name(self):
         spl = self.full_name.rsplit(' ', 1)
         return spl[1] if len(spl) > 1 else spl[0]
+
+    @property
+    def user_themes(self):
+        custom_themes = (
+            ChartTheme.query
+            .filter_by(user_id=self.id, is_active=True)
+            .order_by(ChartTheme.order)
+            .limit(5)
+            .all()
+        )
+        return custom_themes
 
     @property
     def active_observing_session(self):

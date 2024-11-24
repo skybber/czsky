@@ -1,11 +1,23 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 
+{% block scripts %}
+{% endblock %}
+
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="fourteen wide tablet sixteen wide computer centered column">
+            <a class="ui basic compact button" href="{{ url_for('main_chart_theme.chart_themes') }}">
+                <i class="caret left icon"></i>
+                {{ _('Chart themes') }}
+            </a>
+
             <h2 class="ui header">
-                {{ _('Chart theme') }} - {{ chart_theme.name }}
+                {% if is_new %}
+                    {{ _('Add Chart Theme') }}
+                {% else %}
+                    {{ _('Edit Chart Theme') }}
+                {% endif %}
             </h2>
 
             {% set flashes = {
@@ -13,19 +25,82 @@
                 'info':    get_flashed_messages(category_filter=['form-info']),
                 'success': get_flashed_messages(category_filter=['form-success'])
             } %}
+
             {{ f.display_standard_flashes(flashes) }}
 
             {{ f.begin_form(form, flashes) }}
+                <input type="hidden" id="dark_definition" name="{{ form.dark_definition.name }}" value="{{ form.dark_definition.data }}">
+                <input type="hidden" id="light_definition" name="{{ form.light_definition.name }}" value="{{ form.light_definition.data }}">
+                <input type="hidden" id="night_definition" name="{{ form.night_definition.name }}" value="{{ form.night_definition.data }}">
 
                 {{ f.render_form_field(form.name) }}
-                {{ f.render_form_field(form.definition) }}
-                <p align="right"><span class="ui small text">Updated by: {{ author[0] }}, Update date: {{ author[1] }}</span></p>
+                {{ f.render_form_field(form.default_type) }}
+                {{ f.render_form_field(form.is_active) }}
 
-                <div class="two fields">
-                    {{ f.render_form_field(form.submit_button) }}
+                <div class="ui grid">
+                    <div class="two column row">
+                        <div class="twelve wide column">
+                            <div class="field {% if form.definition.errors %}error{% endif %}">
+                                {{ form.definition.label }}
+                                {{ form.definition(placeholder=form.definition.label.text, id='definition') }}
+                                {% if form.definition.errors %}
+                                    <div class="ui red pointing label">
+                                        {{ form.definition.errors[0] | safe }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="four wide column">
+                            <div class="ui vertical buttons">
+                                <a id="bdark" class="orange ui button" href="#" style="margin-top:2rem; margin-bottom: 10px;">{{ _('Load Dark Theme') }}</a>
+                                <a id="blight" class="orange ui button" href="#" style="margin-bottom: 10px;">{{ _('Load Light Theme') }}</a>
+                                <a id="bnight" class="orange ui button" href="#">{{ _('Load Night Theme') }}</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                <!-- Buttons to load themes -->
+                <div class="one fields" style="margin-top:1rem;">
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                </div>
             {{ f.end_form() }}
         </div>
-  </div>
+    </div>
+
+    <!-- Modal for confirmation -->
+    <div class="ui tiny modal" id="confirmModal">
+        <div class="header">{{ _('Load Theme') }}</div>
+        <div class="content">
+            <p id="modalMessage"></p>
+        </div>
+        <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <div class="ui positive right labeled icon approve button" id="confirmLoad">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to load the theme definitions into the text area after confirmation -->
+    <script type="text/javascript">
+        var selectedTheme = '';
+        $('#bdark, #blight, #bnight').click(function(event) {
+            event.preventDefault(); // Prevent default anchor behavior
+            selectedTheme = $(this).attr('id').substring(1); // Extract 'dark', 'light', or 'night'
+            var themeName = selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1);
+            $('#modalMessage').text("{{ _('Are you sure you want to load the') }} " + themeName + " {{ _('theme? This will overwrite your current definition.') }}");
+            $('#confirmModal').modal('show');
+        });
+
+        $('#confirmLoad').click(function() {
+            var definition = $('#' + selectedTheme + '_definition').val(); // Get the corresponding definition
+            $('#definition').val(definition); // Load it into the text area
+            $('#confirmModal').modal('hide');
+        });
+    </script>
 {% endblock %}

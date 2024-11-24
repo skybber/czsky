@@ -67,14 +67,26 @@
     {% endif %}
 {% endmacro %}
 
-{% macro switch_theme() %}
+{% macro switch_theme(current_user) %}
     <div class="ui dropdown item">
         <i class="low vision icon"></i>
-        <span class="text">{{ _('Light Mode') if session.get('theme')=='light' else (_('Night Mode') if session.get('theme')=='night' else _('Dark Mode'))}}</span>
+        {% if session.get('cur_custom_theme_name') %}
+            {% set theme_name = session.get('cur_custom_theme_name') %}
+        {% elif session.get('theme')=='light' %}
+            {% set theme_name = _('Light Mode') %}
+        {% elif session.get('theme')=='night' %}
+            {% set theme_name = _('Night Mode') %}
+        {% else %}
+            {% set theme_name = _('Dark Mode') %}
+        {% endif %}
+        <span class="text">{{ theme_name }}</span>
         <div class="menu">
-          <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
-          <a href="{{ url_for('main.theme_light') }}" class="item">{{ _('Light Mode') }}</a>
-          <a href="{{ url_for('main.theme_night') }}" class="item">{{ _('Night Mode') }}</a>
+            <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
+            <a href="{{ url_for('main.theme_light') }}" class="item">{{ _('Light Mode') }}</a>
+            <a href="{{ url_for('main.theme_night') }}" class="item">{{ _('Night Mode') }}</a>
+            {% for t in current_user.user_themes %}
+                <a href="{{ url_for('main.theme_custom', chart_theme_id=t.id) }}" class="item">{{ t.name }}</a>
+            {% endfor %}
         </div>
     </div>
 {% endmacro %}
@@ -126,7 +138,7 @@
         <div class="ui fixed inverted black main menu">
             <div class="ui container">
                 {{ header_items(current_user) }}
-                {{ switch_theme() }}
+                {{ switch_theme(current_user) }}
                 {% if current_user.is_authenticated and current_user.active_observing_session is not none %}
                     <a class="item {% if request.endpoint == endpoint %}active{% endif %}"
                        href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=current_user.active_observing_session.id) }}">

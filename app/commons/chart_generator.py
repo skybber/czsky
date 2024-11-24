@@ -27,16 +27,17 @@ from flask import (
 from flask_login import current_user
 
 from app.models import (
+    ChartTheme,
     DsoList,
     Eyepiece,
     ObservingSession,
     SessionPlan,
-    Telescope, BODY_KEY_DICT,
+    Telescope,
 )
 from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons, planet_moons
 
 from .utils import to_float
-from .chart_theme_definition import COMMON_THEMES
+from .chart_theme_definition import COMMON_THEMES, ChartThemeDefinition
 
 MOBILE_WIDTH = 768
 
@@ -248,7 +249,6 @@ def _fill_config_from_chart_theme(config, theme):
     config.dso_dynamic_brightness = theme.dso_dynamic_brightness
     config.legend_font_scale = theme.legend_font_scale
     config.milky_way_color = theme.milky_way_color
-    config.enhanced_milky_way_fade = theme.enhanced_milky_way_fade
     config.telrad_linewidth = theme.telrad_linewidth
     config.telrad_color = theme.telrad_color
     config.eyepiece_linewidth = theme.eyepiece_linewidth
@@ -286,12 +286,24 @@ def _setup_light_theme(config, width):
 
 
 def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
-    if force_light_mode or session.get('theme', '') == 'light':
-        _setup_light_theme(config, width)
-    elif session.get('theme', '') == 'night':
-        _setup_night_theme(config, width)
+    cur_theme_name = session.get('theme', '')
+    custom_theme = None
+    if session.get('cur_custom_theme_id'):
+        try:
+            chart_theme_id = int(session.get('cur_custom_theme_id'))
+            custom_theme = ChartTheme.query.filter_by(id=chart_theme_id).first()
+        except ValueError:
+            pass
+    if custom_theme and (not force_light_mode or cur_theme_name == 'light'):
+        chart_def = ChartThemeDefinition.create_from_template(custom_theme.definition)
+        _fill_config_from_chart_theme(config, chart_def)
     else:
-        _setup_dark_theme(config, width)
+        if force_light_mode or cur_theme_name == 'light':
+            _setup_light_theme(config, width)
+        elif cur_theme_name == 'night':
+            _setup_night_theme(config, width)
+        else:
+            _setup_dark_theme(config, width)
 
     if is_pdf:
         font = _get_pdf_font_face()
