@@ -70,19 +70,28 @@ def about():
 @main.route('/theme_dark')
 def theme_dark():
     session['theme'] = 'dark'
+    _clear_custom_theme()
     return redirect(request.referrer)
 
 
 @main.route('/theme_light')
 def theme_light():
     session['theme'] = 'light'
+    _clear_custom_theme()
     return redirect(request.referrer)
 
 
 @main.route('/theme_night')
 def theme_night():
     session['theme'] = 'night'
+    _clear_custom_theme()
     return redirect(request.referrer)
+
+
+def _clear_custom_theme():
+    if session.get('cur_custom_theme_id'):
+        session.pop('cur_custom_theme_name', None)
+        session.pop('cur_custom_theme_id', None)
 
 
 @main.route('/theme_custom/<int:chart_theme_id>/set')
