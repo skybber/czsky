@@ -74,7 +74,7 @@ def chart_theme_edit(chart_theme_id):
     return render_template('main/chart/chart_theme_edit.html', form=form, chart_theme=chart_theme)
 
 
-@main_chart_theme.route('/new-news', methods=['GET', 'POST'])
+@main_chart_theme.route('/new-chart-theme', methods=['GET', 'POST'])
 @login_required
 def new_chart_theme():
     chart_themes = ChartTheme.query.filter_by(user_id=current_user.id).all()
