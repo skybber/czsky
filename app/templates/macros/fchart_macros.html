@@ -8,7 +8,7 @@
 {% set data_position='data-position="left center"' if is_fullscreen or is_splitview else '' %}
 
 <div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
-  <div  class="ui secondary menu">
+  <div id="top-menu" class="ui secondary menu">
 
       <div id="bhome" class="ui horizontally fitted item" style="z-index:100;display:none;margin-left:16px;">
           <a class="ui small icon button" href="{{ url_for('main.index') }}" data-inverted="" data-tooltip="{{ _('Home') }}" data-position="bottom left" data-variation="tiny basic">
@@ -476,14 +476,20 @@
             $("#bhideleftpanel").show();
             $("#bshowleftpanel1").hide();
             $("#bshowleftpanel2").hide();
-            $("#isearch").show();
-            $("#isearch2").show();
-            $("#bhome").show();
+            if (window.innerWidth > 768) {
+                $("#isearch").show();
+                $("#isearch2").show();
+                $("#bhome").show();
+            } else {
+                $("#top-menu").hide();
+                $("#isearch2").hide();
+            }
             const bback = $("#bback");
             if (bback.length) bback.show();
             const bdetail = $("#bdetail");
             if (bdetail.length) bdetail.show();
         } else {
+            $("#top-menu").show();
             if (fullScreen) {
                 $("#bshowleftpanel1").show();
                 $("#bshowleftpanel2").show();
