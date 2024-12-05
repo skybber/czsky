@@ -322,7 +322,7 @@
 {% endif %}
 </div>
 
-<div id="fchart-aladin-div" style="position:fixed;left:0;top:0;display:none">
+<div id="fchart-aladin-div" style="position:fixed;left:-9999px; top:-9999px; z-index:0;">
 </div>
 
 {% if chart_control.show_not_found %}
@@ -378,7 +378,7 @@
 </style>
 
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
-<link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+{% assets 'astro_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
 
@@ -409,32 +409,36 @@
     var legendUrl = "{{ fchart_legend_url | safe }}";
     var projection = new Projection();
 
+    var aladin;
+    var fchart;
+
 {% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
-    var aladin = A.aladin('#fchart-aladin-div', {
-            survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
-            fov:60,
-            target: "0 0 0 0 0 0",
-            fullScreen: false,
-            showReticle: false,
-            showZoomControl:          false,
-            showFullscreenControl:    false,
-            showLayersControl:        false,
-            showGotoControl:          false,
-            showSimbadPointerControl: false,
-            showShareControl:         false,
-            showCatalog:              false,
-            showFrame:                false,
-            showCooGrid:              false,
-            fullScreen:               false,
-            log:                      true
-    });
-    aladin.view.changeProjection(Projection.PROJ_SIN)
-    projection.setProjection(Projection.PROJ_SIN);
-{% else %}
-    var aladin = null;
+    A.init.then(() => {
+        aladin = A.aladin('#fchart-aladin-div', {
+                survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
+                fov:60,
+                target: "0 0 0 0 0 0",
+                projection: "STG",
+                fullScreen: false,
+                showReticle: false,
+                showZoomControl:          false,
+                showFullscreenControl:    false,
+                showLayersControl:        false,
+                showGotoControl:          false,
+                showSimbadPointerControl: false,
+                showShareControl:         false,
+                showCatalog:              false,
+                showFrame:                false,
+                showCooGrid:              false,
+                fullScreen:               false,
+                log:                      true
+        });
     projection.setProjection(Projection.PROJ_TAN2);
+{% else %}
+    projection.setProjection(Projection.PROJ_TAN2);
+    aladin = null;
 {% endif %}
-    var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
+    fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
             "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
             {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
             {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -445,25 +449,6 @@
             aladin,
             projection
     );
-
-    if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
-        $("#isearch").show();
-        $("#isearch2").show();
-        $("#bhome").show();
-        const bback = $("#bback");
-        if (bback.length) bback.show();
-        const bdetail = $("#bdetail");
-        if (bdetail.length) bdetail.show();
-    }
-
-    if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
-        $("#bhideleftpanel").show();
-    }
-
-    if ({{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }}) {
-        $("#bshowleftpanel1").show();
-        $("#bshowleftpanel2").show();
-    }
 
     fchart.onFieldChange(function(fldSizeIndex) {
         submitDisabled = true;
@@ -535,6 +520,31 @@
             }
         }
     });
+
+{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
+            fchart.onWindowLoad();
+    });
+{% endif %}
+
+
+    if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
+        $("#isearch").show();
+        $("#isearch2").show();
+        $("#bhome").show();
+        const bback = $("#bback");
+        if (bback.length) bback.show();
+        const bdetail = $("#bdetail");
+        if (bdetail.length) bdetail.show();
+    }
+
+    if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
+        $("#bhideleftpanel").show();
+    }
+
+    if ({{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }}) {
+        $("#bshowleftpanel1").show();
+        $("#bshowleftpanel2").show();
+    }
 
     $('.btelrad').click(function(){
         $(this).toggleClass('active');
@@ -852,7 +862,9 @@
     }
 
     window.onload = function() {
-        fchart.onWindowLoad();
+        if (fchart != undefined) {
+            fchart.onWindowLoad();
+        }
 {% if chart_control.show_not_found %}
         $('.ui.modal.notFoundModal')
             .modal('show');

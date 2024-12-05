@@ -223,8 +223,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.fullscreenWrapper = undefined;
 
     if (this.aladin != null) {
-        this.aladin.view.imageSurvey.flipX = this.multRA;
-        this.aladin.view.imageSurvey.flipY = this.multDEC;
+        // this.aladin.view.imageSurvey.flipX = this.multRA;
+        // this.aladin.view.imageSurvey.flipY = this.multDEC;
         if (theme == 'light') {
             this.aladin.getBaseImageLayer().getColorMap().reverse()
             this.aladin.getBaseImageLayer().getColorMap().update('grayscale');
@@ -896,12 +896,16 @@ FChart.prototype.syncAladinViewCenter = function () {
         let centerDEC = this.viewCenter.dec - dRD.dDEC;
 
         this.aladin.gotoRaDec(rad2deg(centerRA), rad2deg(centerDEC));
+        this.aladin.view.throttledPositionChanged(true);
+        this.aladin.view.redraw();
     }
 }
 
 FChart.prototype.syncAladinZoom = function () {
     if (this.aladin != null) {
-        this.aladin.setZoom(this.aladinImgField / this.scaleFac);
+        this.aladin.view.setZoom(this.aladinImgField / this.scaleFac);
+        this.aladin.view.throttledPositionChanged(true);
+        this.aladin.view.redraw();
     }
 }
 
@@ -1620,7 +1624,6 @@ FChart.prototype.setChartUrlFlag = function (flag, value) {
     }
     this.chartUrl = this.setUrlFlag(this.chartUrl, flag, value)
     this.legendUrl = this.setUrlFlag(this.legendUrl, flag, value)
-    console.log(this.legendUrl)
 }
 
 FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {

@@ -842,7 +842,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     if show_dss and img_format == 'jpg':
         img_format = 'png'
 
-    projection = fchart3.ProjectionType.ORTHOGRAPHIC if show_dss else fchart3.ProjectionType.STEREOGRAPHIC
+    # projection = fchart3.ProjectionType.ORTHOGRAPHIC if show_dss else fchart3.ProjectionType.STEREOGRAPHIC
+    projection = fchart3.ProjectionType.STEREOGRAPHIC
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality,
@@ -1034,7 +1035,8 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, 
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
+    # projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
+    projection = fchart3.ProjectionType.STEREOGRAPHIC
 
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
