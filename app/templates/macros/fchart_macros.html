@@ -314,6 +314,12 @@
       <input id="search2" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
       <i class="search icon"></i>
   </div>
+
+{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
+  <div class="aladin-logo-container">
+      <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-small" style="width: 32px;"></div></a>
+  </div>
+{% endif %}
 </div>
 
 <div id="fchart-aladin-div" style="position:fixed;left:0;top:0;display:none">
@@ -353,6 +359,21 @@
     width: 16px;
     margin-right: 0.5em;
     object-fit: contain;
+}
+.aladin-logo-small {
+    padding: 0;
+	background: url(data:image/gif;base64,R0lGODlhIAAgAJEAAJIsLdEwJAdMmP///yH5BAkAAAMALAAAAAAgACAAAAjMAAcIHEiwoMGDCBMqXMiwocOHECMaFCCxYkKKAAoK2MiRo0UBAEKKFOkxYUaCIEMSHBlyo0OQCke6HHDyJEWBKgcG2MlzoEyFMAXyHNqTZsubNFGeHLDT4FCcLREGZUqwaFGRUk82FfqUaQCoSH0OCLqVqlCuX42u9Kl1a1qzXnGGVaozLdG6cpMWxOrVblm4AOYOTNn2L1efYZdu5Eu0cV6cE0fW7QqV4WK+CAMLPnhZMtvAEDmy/CkWMtCOHVFaXC2VtevXsGPLZhgQADs=);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    padding-top: 100%;
+}
+.aladin-logo-container {
+    position: absolute;
+	bottom: 2px;
+    right: 5px;
+	z-index: 20;
+    min-width: 32px;
+    max-width: 90px;
 }
 </style>
 
