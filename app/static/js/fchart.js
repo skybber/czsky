@@ -919,6 +919,7 @@ FChart.prototype.moveRaDEC = function(fromKbdMove) {
 }
 
 FChart.prototype.onPointerMove = function (e) {
+    console.log(" Fov aladin: " + this.aladinImgField + " FoV fchart: " + this.imgField);
     let selected  = this.findSelectableObject(e)
     if (selected != null) {
         this.canvas.style.cursor = "pointer"
