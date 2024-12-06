@@ -23,12 +23,12 @@ vendor_js = Bundle(
 
 aladin_js = Bundle(
     'aladin/aladin.js',
-    output='scripts/aladin.aggr.js'
+    output='scripts/aladin.js'
 )
 
 astro_js = Bundle(
     'astro/astroMath.js',
     'astro/projection.js',
     filters='jsmin',
-    output='scripts/aladin.aggr.js'
+    output='scripts/astro.aggr.js'
 )
