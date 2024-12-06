@@ -2,6 +2,8 @@ from flask_assets import Bundle
 
 app_css = Bundle('app.scss', filters='pyscss', output='styles/app.css')
 
+aladin_css = Bundle('aladin.css', output='styles/aladin.css')
+
 default_theme_css = Bundle('default_theme.css', output='styles/default_theme.css')
 
 dark_theme_css = Bundle('dark_theme.css', output='styles/dark_theme.css')

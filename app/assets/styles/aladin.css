@@ -1,0 +1,1293 @@
+.aladin-container {
+    position: relative;
+    border: 0px solid #ddd;
+    /* SVG inside divs add a 4px height: https://stackoverflow.com/questions/75751593/why-there-is-additional-4px-height-for-div-when-there-is-svg-inside-it */
+    /* disable x swipe on chrome, firefox */
+    /* see. https://stackoverflow.com/questions/30636930/disable-web-page-navigation-on-swipeback-and-forward */
+    overscroll-behavior-x: none;
+    /* Hide the draggable boxes that goes out of the view */
+    overflow: hidden;
+    /* media query on the aladin lite container. not supported everywhere.
+    There can be a more supported alternative here: https://caniuse.com/?search=grid-template-columns */
+    /*container-type: inline-size;*/
+
+    font-size: 0.9rem;
+}
+
+.aladin-imageCanvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.aladin-catalogCanvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.aladin-logo-container {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+
+    min-width: 32px;
+    max-width: 90px;
+}
+
+.aladin-logo-small {
+    padding: 0;
+    background: url(data:image/gif;base64,R0lGODlhIAAgAJEAAJIsLdEwJAdMmP///yH5BAkAAAMALAAAAAAgACAAAAjMAAcIHEiwoMGDCBMqXMiwocOHECMaFCCxYkKKAAoK2MiRo0UBAEKKFOkxYUaCIEMSHBlyo0OQCke6HHDyJEWBKgcG2MlzoEyFMAXyHNqTZsubNFGeHLDT4FCcLREGZUqwaFGRUk82FfqUaQCoSH0OCLqVqlCuX42u9Kl1a1qzXnGGVaozLdG6cpMWxOrVblm4AOYOTNn2L1efYZdu5Eu0cV6cE0fW7QqV4WK+CAMLPnhZMtvAEDmy/CkWMtCOHVFaXC2VtevXsGPLZhgQADs=);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    padding-top: 100%; /* aspect ratio of the background image */
+}
+
+.aladin-logo-large {
+    padding: 0;
+    background:  url('data:image/png;base64,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');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    padding-top: 58.45%; /* aspect ratio of the background image */
+}
+
+.aladin-clipboard::before {
+    content: ' 📋';
+    cursor:pointer;
+}
+
+.aladin-measurement-div {
+    font-family: monospace;
+
+    display: block;
+
+    max-height: 30vh;
+    max-width: 100%;
+    overscroll-behavior-x: none;
+    overflow-y: scroll;
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    border-radius: 3px;
+    border-top-left-radius: 0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.aladin-measurement-div::-webkit-scrollbar {
+    display: none;
+}
+
+.aladin-btn.tab {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom: 0;
+}
+
+.aladin-measurement-div table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    white-space: nowrap;
+}
+
+.aladin-measurement-div table::-webkit-scrollbar {
+    display: none; /* for Chrome, Safari, and Opera */
+}
+
+.aladin-measurement-div table thead {
+    position: sticky;
+    width: 100%;
+    top: 0;
+}
+
+.aladin-measurement-div.aladin-dark-theme table thead {
+    background-color: #000;
+    color: white;
+
+}
+
+.aladin-measurement-div table th {
+    padding: 0.3em 0.5em;
+}
+
+.aladin-measurement-div table tr td a {
+    color: green;
+}
+.aladin-measurement-div table tr td a:hover {
+    color: greenyellow;
+}
+
+.aladin-measurement-div table tr td {
+    padding: 0.5rem;
+}
+
+.aladin-measurement-div table tr td, .aladin-measurement-div table tr td a {
+    max-width: 10rem;
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-align: center;
+
+    word-wrap:break-word;
+}
+
+.aladin-marker-measurement {
+    max-height: 130px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /*font-family: monospace;*/
+
+    color: #000;
+}
+.aladin-marker-measurement table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.aladin-marker-measurement tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.aladin-marker-measurement td:first-child {
+    font-weight: bold;
+}
+
+/* maximize/restore size icons */
+/*.aladin-maximize {
+	position: absolute;
+	top: 6px;
+	right: 3px;
+
+	width: 30px;
+	height: 30px;
+	background-image: url('data:image/gif;base64,R0lGODlhFgAWAOMJAAAAAAEBAQICAgMDAwUFBAUFBQcHBwgICAsLCv///////////////////////////yH5BAEKAA8ALAAAAAAWABYAAARm8MlJabr41i0T+CCQcJz3CYMwklsSEAUhspVnHEYw0x1w558VzYQTBXm24sgjJCUQykmT9dzxWlNq9vrwILYtqe/wRc6SBqszOE6DLZ/AT00FyKNcD4wQeLdQAiB+cCFHVxkZXA8RADs=');
+	background-repeat:  no-repeat;
+	background-position:center center;
+}*/
+
+.aladin-anchor-top{top:0}
+.aladin-anchor-middle{top:50%; transform: translate(0, -50%);/*half of the .box height*/}
+.aladin-anchor-bottom{bottom:0}
+
+.aladin-anchor-left{left:0;}
+.aladin-anchor-center{left:50%; transform: translate(-50%, 0%);/*half of the .box width*/}
+.aladin-anchor-right{right:0;}
+
+.aladin-anchor-middle.aladin-anchor-center {
+    transform: translate(-50%, -50%);
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotating {
+    animation: rotating 2s linear infinite;
+}
+
+@keyframes rotating-centered {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.aladin-anchor-middle.aladin-anchor-center.rotating {
+    animation: rotating-centered 2s linear infinite;
+}
+
+.aladin-box {
+    padding: 0.2rem;
+    background: whitesmoke;
+    border-radius: 2px;
+    position: absolute;
+    font-size: inherit;
+
+    font-family: monospace;
+    background: #fff;
+
+    line-height: 1.3;
+    color: #222;
+    /*box-shadow: 0 0 6px rgba(0,0,0,0.2);*/
+
+    /* Allow scrolling but disable scroll bar */
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    /*overflow-y: auto;*/
+    overflow-y: none;
+    max-height: 500px;
+    /*max-width: fit-content;*/
+    height: fit-content;
+}
+
+canvas {
+    image-rendering: optimizeSpeed;             /* Older versions of FF          */
+    image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+    image-rendering: -webkit-optimize-contrast; /* Safari                        */
+    image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+    image-rendering: pixelated;                 /* Awesome future-browsers       */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+
+.aladin-box-title {
+    font-size: 1.0rem;
+    /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+    line-height: 1.5em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.aladin-box-content {
+    padding: 10px;
+}
+
+.aladin-shareInput {
+    width: 300px;
+    margin-top: 10px;
+    display: block;
+}
+
+.aladin-indicatorBtn {
+    color: #605F61!important;
+    border: 1px solid #AEAEAE!important;
+
+    border-radius: 3px;
+    font-size: 1rem;
+    background: #fff!important;
+    margin-right: 0.2em!important;
+
+    font-family: monospace;
+    cursor: pointer;
+}
+
+.aladin-indicatorBtn:hover {
+    color: #201F21!important;
+}
+
+.aladin-closeBtn {
+    position:absolute;
+    right: 4px;
+    margin-top: 0 0 2px 0;
+    cursor:pointer;
+    color: #605F61;
+    border: 1px solid #AEAEAE;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 1.0rem;
+    font-weight: bold;
+    line-height: 0px;
+    padding: 8px 2px;
+}
+
+.aladin-closeBtn:hover {
+    color: #201F21;
+}
+
+.aladin-box-separator {
+    height: 0;
+    border-top: 1px solid #d2d2d2;
+    margin: 5px 0px 5px -4px;
+}
+
+.aladin-restore {
+    position: absolute;
+    top: 6px;
+    right: 3px;
+
+    width: 30px;
+    height: 30px;
+    background-image: url('data:image/gif;base64,R0lGODlhFgAWAOMJAAAAAAEBAQICAgMDAwUFBAUFBQcHBwgICAsLCv///////////////////////////yH5BAEKAA8ALAAAAAAWABYAAARk8MlJ60zJapsAyhsFPp1xfKHUZeVhAOPWwYD5xjIABDacXrseLtQhFAiBIVEwEOh8P9VzquRgrhgrNhudTaHdJ1NQ1SQCRgL41zIE1sSa6w0361y0eqXtW7EReCNlIgh6XYMbEQA7');
+    background-repeat:  no-repeat;
+    background-position:center center;
+}
+
+/* smartphones, iPhone, portrait 480x320 phones */
+.aladin-btn {
+    all:unset;
+
+    display: inline-block;
+    margin: 0;
+    padding: 0.2rem;
+
+    font-size: inherit;
+
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid #484848;
+    border-radius: 3px;
+    color: black;
+    background-color: #bababa;
+
+    font-family: monospace;
+}
+
+.aladin-btn.aladin-dark-theme.toggled {
+    border-color: dodgerblue;
+}
+.aladin-btn.aladin-dark-theme:hover, .aladin-input-select.aladin-dark-theme:hover {
+    border-color: greenyellow;
+}
+
+.aladin-btn.disabled {
+    cursor: not-allowed;
+    filter: brightness(70%);
+}
+
+.aladin-btn.svg-icon {
+    background-repeat:  no-repeat;
+    background-position:center center;
+    display: inline-block;
+}
+
+.aladin-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.aladin-icon img {
+    vertical-align:middle;
+    width: 100%;
+    height: 100%;
+}
+
+.aladin-icon.aladin-dark-theme {
+    background-color: transparent;
+}
+
+.aladin-icon.aladin-dark-theme.aladin-icon-monochrome img {
+    filter: invert(100%) sepia(91%) saturate(0%) hue-rotate(169deg) brightness(115%) contrast(100%);
+}
+
+.aladin-btn.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-color: white;
+}
+
+.aladin-measurement-div.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid white;
+}
+
+.aladin-measurement-div.aladin-dark-theme table {
+    color: white;
+}
+
+.aladin-box.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
+.aladin-input-select.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid white;
+}
+
+.small-sized-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.medium-sized-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.aladin-input-text.aladin-dark-theme:focus, .aladin-input-number.aladin-dark-theme:focus {
+    border-color: dodgerblue;
+}
+
+.aladin-input-text.aladin-dark-theme.search {
+    text-shadow: 0px 0px 2px #000;
+}
+
+.aladin-input-text.search:focus, .aladin-input-text.search:hover {
+    background-image: url(../../assets/icons/search-white.svg);
+    background-size: 1.8rem;
+    background-repeat: no-repeat;
+    padding-left: 1.8rem;
+}
+
+.aladin-input-text.search {
+    background-image:none;
+    text-indent: 0rem;
+    line-height: 1.2rem;
+}
+
+.aladin-input-text.search.aladin-not-valid {
+    -webkit-box-shadow:inset 0px 0px 0px 1px #f00;
+    -moz-box-shadow:inset 0px 0px 0px 1px #f00;
+    box-shadow:inset 0px 0px 0px 1px #f00;
+}
+
+.aladin-input-text.aladin-dark-theme.aladin-not-valid {
+    border: 1px solid red;
+}
+
+.aladin-input-text.aladin-dark-theme.aladin-valid {
+    border: 1px solid yellowgreen;
+}
+
+.aladin-cancelBtn {
+    background-color: #ca4242;
+    border-color: #bd3935;
+}
+
+.aladin-validBtn {
+    background-color: #42c739;
+    border-color: #38a730;
+}
+
+.aladin-box-content > div {
+    margin: 10px 0px 0px 0px;
+}
+
+.aladin-button:hover {
+    color: #ffffff;
+    background-color: #3276b1;
+    border-color: #285e8e;
+}
+
+.aladin-vertical-list {
+    display: flex;
+    align-items: flex-start;
+    list-style: none;
+    flex-direction: column;
+}
+
+.aladin-vertical-list.left {
+    align-items: flex-start;
+}
+
+.aladin-vertical-list.right {
+    align-items: flex-end;
+}
+
+.aladin-vertical-list > *:first-child {
+    margin-top: 0;
+}
+
+.aladin-vertical-list > * {
+    margin-top: 0.5rem;
+}
+
+.aladin-horizontal-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+
+.aladin-horizontal-list > * {
+    vertical-align: middle;
+    margin-right: 0.2rem;
+}
+
+.aladin-horizontal-list > *:last-child {
+    margin-right: 0;
+}
+
+.aladin-form {
+    width: 100%;
+}
+
+.aladin-form .aladin-form-input {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.aladin-form .aladin-form-input:last-of-type {
+    margin-bottom: 0;
+}
+
+.aladin-form .aladin-form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.aladin-form .aladin-form-group:last-of-type {
+    margin-bottom: 0rem;
+}
+
+.aladin-form .aladin-form-input select {
+    width: 100%;
+}
+
+.aladin-form .aladin-form-input > label {
+    flex: 1;
+}
+
+.aladin-form .aladin-form-input .aladin-input {
+    flex: 2;
+}
+
+.aladin-window-container {
+
+    position: absolute;
+    left: 0;
+    bottom: 300px;
+    width: 250px;
+    line-height: 1.3;
+}
+
+.aladin-window {
+    /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+    background: white;
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    padding: 4px;
+    top: 80px;
+    left: 110px;
+}
+
+.aladin-popup-container {
+    color: black;
+    position: absolute;
+    width: 200px;
+    display: none;
+    line-height: 1.3;
+}
+
+.aladin-popup {
+    /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+    background: white;
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    padding: 4px;
+    top: 80px;
+    left: 110px;
+    font-family: monospace;
+}
+
+
+.aladin-popup-arrow {
+    display: block;
+    border-color: #fff transparent transparent;
+    border-style: solid;
+    border-width: 12px;
+    width: 0px;
+    height: 0px;
+    margin-top: -1px;
+    margin-left: auto;
+    margin-right: auto;
+    /*
+        width: 15px;
+        height: 15px;
+        background: white;
+        margin: -12px 94px;
+        padding-bottom: 10px;
+        overflow: hidden;
+        -webkit-transform: rotate(45deg);
+           -moz-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+             -o-transform: rotate(45deg);
+                transform: rotate(45deg);
+    */
+}
+
+.aladin-popupTitle {
+    font-weight: bold;
+}
+
+.aladin-options {
+    margin-top: 4px;
+}
+
+.aladin-options .row {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.aladin-options .row label {
+    text-align: center;
+}
+
+.aladin-options .row .col-label {
+    flex: 0.3;
+}
+
+.aladin-options .row .col-input {
+    flex: 0.70;
+}
+
+.aladin-options .row .col-input select {
+    width: 100%;
+}
+
+.aladin-status-bar-message {
+    display: block;
+    white-space: nowrap;
+
+    text-wrap: nowrap;
+    -ms-overflow-style: none;
+    overscroll-behavior-x: none;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+.aladin-status-bar-message::-webkit-scrollbar {
+    display: none;
+}
+
+.aladin-sp-title a {
+    text-decoration: none;
+    color: #317d8d;
+}
+
+.aladin-sp-content a {
+    text-decoration: none;
+    color: #478ade;
+}
+
+.aladin-cuts {
+    width: 8em;
+}
+
+.aladin-chevron {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    vertical-align: middle;
+    background: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDQ0IDQ0IiBzdHJva2U9IiM0NDQiIGJhY2tncm91bmQtY29sb3I9ImJsdWUiPgoKICAgIDxyZWN0IHg9IjIiIHk9IjIiIGhlaWdodD0iNDAiIHdpZHRoPSI0MCIgZmlsbD0idHJhbnNwYXJlbnQiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiAvPgogICAgPHBhdGggZD0iTTEwIDEzIEwyMiAyMSBMMzQgMTMiIGZpbGw9InRyYW5zcGFyZW50IiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPiAKICAgIDxwYXRoIGQ9Ik05IDI1IEwyMiAzMyBMMzUgMjUiIGZpbGw9InRyYW5zcGFyZW50IiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPiAKCjwvc3ZnPgo=') no-repeat;
+}
+.aladin-chevron-down {
+    transform: rotate(0deg);
+}
+.aladin-chevron-left {
+    transform: rotate(90deg);
+}
+.aladin-chevron-up {
+    transform: rotate(180deg);
+}
+.aladin-chevron-right {
+    transform: rotate(270deg);
+}
+
+/* *********************************************** */
+
+/* *********************************************** */
+
+/* Context menu */
+.aladin-context-menu .aladin-context-sub-menu {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    display: none;
+    width: max-content;
+    z-index: 20;
+}
+
+.aladin-context-sub-menu,
+.aladin-context-menu {
+    position: absolute;
+
+    font-family: monospace;
+    width: max-content;
+    margin: 0;
+    padding: 0;
+
+    /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+
+    border-radius: 3px;
+
+    border-bottom: 1px solid white;
+    border-right: 1px solid white;
+}
+
+.aladin-context-menu .aladin-context-menu-item {
+    cursor: pointer;
+
+    height: 1.7rem;
+
+    display: flex;
+    align-items: center;
+    padding: 0.2rem 0.4rem;
+    position: relative;
+
+    box-shadow:inset 1px 1px 0px 0px #fff;
+
+    background-color: rgba(0, 0, 0, 0.9);
+
+    margin: 0;
+    box-sizing: content-box;
+    line-height: normal;
+}
+
+.aladin-context-menu .aladin-context-menu-item:first-of-type {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.aladin-context-menu .aladin-context-menu-item:last-of-type {
+    border-bottom: 0;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.aladin-context-menu .aladin-context-menu-item.aladin-context-menu-item-disabled {
+    cursor: not-allowed;
+    color: red;
+}
+
+.aladin-context-menu .aladin-context-menu-item.aladin-context-menu-item-selected::after {
+    content: "✓";
+    margin-left: 2px;
+}
+
+.aladin-context-menu-item:hover > .aladin-context-sub-menu {
+    display: block;
+}
+
+.aladin-context-menu-item:hover  {
+    color: greenyellow;
+}
+
+.aladin-context-menu-item:not(hover)  {
+    color: white;
+}
+
+.aladin-context-menu-item .aladin-context-sub-menu {
+    display: none;
+}
+
+.aladin-context-menu .aladin-context-menu-item span {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/*.aladin-context-menu-item:first-of-type {
+    border-top: 1px solid #d2d2d2;
+    margin-top: -1px;
+}*/
+/*
+.aladin-context-menu .aladin-context-menu-item:hover > .aladin-context-sub-menu {
+    display: block;
+}
+*/
+.aladin-context-menu .aladin-context-sub-menu.left {
+    left: 0;
+    transform: translateX(-100%);
+}
+
+.aladin-context-menu .aladin-context-sub-menu.right {
+    right: 0;
+}
+
+.aladin-context-menu .aladin-context-sub-menu.bottom {
+    top: 100%;
+    left: 0;
+}
+
+.aladin-context-menu .aladin-context-sub-menu.top {
+    top: 0;
+    left: 0;
+    transform: translateY(-100%);
+}
+
+.aladin-context-menu .aladin-context-sub-menu.left.top {
+    transform: translate(-100%, -100%);
+}
+
+
+.aladin-reticle {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-size: contain;
+
+    visibility: hidden;
+
+    pointer-events: none;
+}
+
+/* *********************************************** */
+
+/* normalize here the inputs */
+
+/* Input text */
+.aladin-input-text, .aladin-input-number {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    outline-style: none;
+    padding: 0.3rem;
+    border-radius: 5px;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
+.aladin-input-text.aladin-dark-theme, .aladin-input-number.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid white;
+}
+
+.aladin-input-text::placeholder {
+    font-style: italic;
+    font-family: monospace;
+}
+
+/* Input select */
+.aladin-input-select {
+    /* Reset */
+    border: 1px solid white;
+    outline: 0;
+    /*font: inherit;*/
+    /* Personalize */
+    padding: 0.2em;
+    font-size: inherit;
+    border-radius: 0.25em;
+    box-shadow: 0 0 1em 0 rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    font-family: monospace;
+    width: 100%;
+    /* <option> colors */
+    /* Remove focus outline */
+    /* Remove IE arrow */
+}
+
+.aladin-input-select option {
+    color: inherit;
+    background-color: #320a28;
+}
+
+.aladin-input-select:focus {
+    outline: none;
+}
+
+.aladin-input-select::-ms-expand {
+    display: none;
+}
+
+/* Frames */
+.aladin-input-color {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    outline-style: none;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    width: 2rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.aladin-input-color::-webkit-color-swatch {
+    border: none;
+    border-radius: 5px;
+    padding: 0;
+}
+
+.aladin-input-color::-webkit-color-swatch-wrapper {
+    border: none;
+    border-radius: 5px;
+    padding: 0;
+}
+
+/********** Range Input Styles **********/
+/*Range Reset*/
+.aladin-input-range {
+    background: transparent;
+    cursor: pointer;
+    margin: 0.8rem 0;
+    box-sizing: border-box;
+    width: 5rem;
+}
+
+
+.aladin-input-range.aladin-reversed {
+    direction: rtl;
+}
+
+/* Removes default focus */
+.aladin-input-range:focus {
+    outline: none;
+}
+
+/***** Chrome, Safari, Opera and Edge Chromium styles *****/
+
+.aladin-input-range::-webkit-slider-container {
+    background: white;
+    height: 0.1rem;
+    min-height: 0.1rem;
+}
+
+/*
+.aladin-input-range-datalist {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+    display: flex;
+    position: absolute;
+    width: 100%;
+    padding:0;
+    margin:0;
+    height: 0.1rem;
+    top: 0rem;
+    pointer-events: none;
+}
+
+
+.aladin-input-range-datalist option {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    transform: translate(-50%, 0);
+    justify-content: center;
+    text-align: center;
+    width: 0.1rem;
+    border-radius: 0.1rem;
+    height: 0.1rem;
+    padding: 0;
+    margin: 0;
+    background: #D3D3D3;
+}*/
+
+.aladin-dark-theme {
+    color: white;
+}
+
+/* *********************************************** */
+
+/* Tooltip */
+
+.aladin-tooltip-container {
+    position: relative;
+    /* take the size of its inner div child */
+
+    font-family: monospace;
+    line-height: 1rem;
+
+
+    float: left;
+}
+
+.aladin-tooltip-container .aladin-tooltip {
+    pointer-events: none;
+    cursor: default;
+    visibility: hidden;
+    background-color: white;
+    color: black;
+
+    width: max-content;
+
+    text-align: center;
+    padding: 4px;
+    border-radius: 2px;
+
+    top:0%;
+    left:0%;
+
+    z-index: 100;
+
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+
+    /*font-family: Verdana, Geneva, Tahoma, sans-serif;*/
+
+    transition-delay: 100ms;
+}
+
+.aladin-tooltip-container .aladin-tooltip.aladin-dark-theme {
+    background-color: #333;
+    color: white;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.aladin-tooltip-container:hover .aladin-tooltip {
+    visibility: visible;
+}
+
+.aladin-tooltip-container.left .aladin-tooltip {
+    left: 0;
+    transform: translateX(-100%);
+}
+
+.aladin-tooltip-container.top .aladin-tooltip {
+    top: 0;
+    transform: translateY(-100%);
+}
+
+.aladin-tooltip-container.bottom .aladin-tooltip {
+    top: 100%;
+}
+
+.aladin-tooltip-container.right .aladin-tooltip {
+    left: 100%;
+}
+
+.aladin-tooltip-container.left.bottom .aladin-tooltip {
+    left: 0;
+    transform: translateX(-100%);
+    top: 100%;
+}
+
+.aladin-tooltip-container.left.top .aladin-tooltip {
+    left: 0;
+    transform: translateX(-100%);
+    top: 0;
+    transform: translateY(-100%);
+}
+
+.aladin-tooltip-container.right.bottom .aladin-tooltip {
+    left: 100%;
+    top: 100%;
+}
+
+.aladin-tooltip-container.right.top .aladin-tooltip {
+    left: 100%;
+    top: 0;
+    transform: translateY(-100%);
+}
+
+/* *********************************************** */
+
+/* Cursors */
+
+/* Simbad pointer cursor */
+.aladin-sp-cursor {
+    cursor: auto;
+    cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gEIEwUMBS20MQAAApRJREFUWEfdV7GO2zAMfXY7x1luzOFwDeB/KHCAB87eumvqmI/JWhTwF3TIrMFAv8JbgWyHG3IpOjbpcKJC02KipECHclIU+j2KfKRlAABRUyFYak3UgKiZiXUJAIt1d1ysu2PYn53DsPCucpbkRE3JAdxKTtQgWo6zJAfGGbAwLuEV7OB9/yrXIbqZ9/0+rMuhdb+RYfWmm+fged8fihzyoXXxlNcYB2KRxwwA6SzI9Crgd973B/5/u3IF8FYSw98M5D2QR86kRE3pfX+AMqKm8iEQoqYaWrfj/4bW7QgokMhCeSs5KeVrDM4K29C6Y6oE0YGEUlndocVGyg/rGZDXBQpr0kmjLiAlOOvk3vf7RJZM5Q+te2W/7coVEq+wnC1yCZYyS3B8MMYF3vBKK9Jz5PWmm8sab1eu4N9D63aaHEAsH88SzmQpnSHsHDmnWvlXIoiJ4JTviY8FRUJ8ZAiOEiJbLpcjARM1M0twpmjZOeGQrXYm1/7yMLz/eH8fnyus6XXOtmLgWBrKtdMguNKYPPystIausn9egsVDfI674KxS6003F/sX357AdOBwcADwWD9EjBKJubxYd0cml4RhP5IPrduFk04GjiZXMyZiRHKdAU3OWeB2lLNAk+tpl9IHY0zSlBo4OgsaTJpFzs+F0pxKYEXK73Nd8+3KFfWmG71qGfgSeQqPN0fvdlZrSvmUoXaJJ7EiocArZaS6tgzA+5RQe3gumUl5gPLXzy+6pEQNzDuhvFKx1ZuuEuTxliwmY/KuoHxGhzGv5QDw9PTx7senz88aLHUpJeOu8OHb17u+//4CTMm97/eFVQK5vqR8y6xOyipByjn3+0C3moUH4O++D1UX3PR9eJWzJCf6Tz5O/wDUeIfTLPlbywAAAABJRU5ErkJggg==') 15 15, auto;
+}
+
+/**
+ * Aladin Lite pre-defined UI features.
+ *
+ * User may need to overwrite those classes if they want
+ * change their position. They can also add media query on them.
+ *
+ */
+
+.aladin-stack-control {
+    position: absolute;
+    top: 3rem;
+    left: 0.2rem;
+}
+
+.aladin-settings-control {
+    position: absolute;
+    top: 5.4rem;
+    left: 0.2rem;
+}
+
+.aladin-simbadPointer-control {
+    position: absolute;
+    top: 7.8rem;
+    left: 0.2rem;
+}
+
+.aladin-grid-control {
+    position: absolute;
+    top: 10.2rem;
+    left: 0.2rem;
+}
+
+.aladin-cooFrame {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+
+    font-family: monospace;
+
+    color: white;
+
+    border-radius: 5px;
+    height: 1.7rem;
+    width: 4.5rem;
+}
+
+.aladin-stack-box {
+    width: 17rem;
+}
+
+.aladin-HiPS-browser-box .aladin-input-text {
+    width: 100%;
+    min-width: 300px;
+    padding: 0.5rem;
+}
+
+.aladin-cat-browser-box .aladin-input-text.search {
+    width: 100%;
+    min-width: 300px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.aladin-location {
+    position: absolute;
+    top: 0.2rem;
+    left: 5.0rem;
+    font-family: monospace;
+
+    color: white;
+
+    border-radius: 5px;
+    height: 1.7rem;
+}
+
+.aladin-input-text {
+    font-size: inherit;
+}
+
+.aladin-location .aladin-input-text {
+    width: 13.5rem;
+    height: 100%;
+    border-radius: 0 0.4rem 0.4rem 0;
+}
+
+.aladin-location .aladin-location-copy {
+    margin-right: -0.2rem;
+    border-radius: 0.4rem 0px 0px 0.4rem;
+    border-right: none;
+}
+
+.aladin-fov {
+    position: absolute;
+    bottom: 0.2rem;
+    left: 0.2rem;
+
+    background-color: red;
+
+    font-family: monospace;
+
+    border-radius: 5px;
+    line-height: 1.7rem;
+}
+
+.aladin-fov .aladin-zoom-out {
+    margin-right: 0;
+    border-right: none;
+    border-radius: 5px 0px 0px 5px;
+}
+
+.aladin-fov .aladin-zoom-in {
+    border-radius: 0px 5px 5px 0px;
+}
+
+.aladin-status-bar {
+    border-radius: 3px;
+    padding: 0.4rem;
+
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.aladin-status-bar.aladin-dark-theme {
+    color: white;
+    background-color: black;
+}
+
+.aladin-fov.aladin-dark-theme {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.aladin-table {
+    position: absolute;
+    bottom: 2.8rem;
+    left: 0.2rem;
+    max-width: calc(100% - 0.4rem);
+    line-height: 1rem;
+}
+.aladin-measurement-div.aladin-dark-theme {
+    color: white;
+}
+
+.aladin-share-control {
+    position: absolute;
+    top: 12.6rem;
+    left: 0.2rem;
+}
+
+.aladin-fullScreen-control {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+}
+
+.aladin-projection-control {
+    position: absolute;
+    top: 0.2rem;
+    right: 3rem;
+}
+
+.aladin-fullscreen {
+    position: fixed !important;
+
+    top: 0;
+    left: 0;
+    height: 100% !important;
+    width: 100% !important;
+    border: 0 !important;
+    max-width: none !important;
+    background: #fff;
+}
+
+/* Media query */
+@media screen and (max-width:480px)  {
+    /* smartphones, Android phones, landscape iPhone */
+    .aladin-location > .aladin-btn {
+        display: none;
+    }
+
+    .aladin-location > .aladin-input-text {
+        border-radius: 0.4rem;
+    }
+
+    .aladin-projection-control {
+        display: none;
+    }
+
+    .aladin-location .aladin-location-copy {
+        display: none;
+    }
+}
+
+@media screen and (max-width:370px)  {
+    /* smartphones, Android phones, landscape iPhone */
+    .aladin-location {
+        left: 0.2rem;
+    }
+    .aladin-cooFrame {
+        display: none;
+    }
+}
+
+/*@media screen and (max-width: 31rem) {
+    .aladin-projection-control {
+        display: none;
+    }
+}*/
+/*@container (max-width: 40rem) {
+    .aladin-input-text.aladin-dark-theme.search {
+        width: 6rem;
+        text-shadow: 0px 0px 2px #000;
+    }
+}
+
+@container (max-width: 31rem) {
+    .aladin-fov .aladin-monospace-text {
+        display: none;
+    }
+}*/

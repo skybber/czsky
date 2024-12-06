@@ -16,7 +16,19 @@ from flask_babel import Babel
 from sqlalchemy import MetaData
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from app.assets import app_css, app_js, vendor_css, vendor_js, default_theme_css, dark_theme_css, red_theme_css, aladin_js, astro_js
+from app.assets import (
+    app_css,
+    app_js,
+    vendor_css,
+    vendor_js,
+    default_theme_css,
+    dark_theme_css,
+    red_theme_css,
+    aladin_js,
+    astro_js,
+    aladin_css
+)
+
 from config import config as Config
 
 import logging
@@ -100,6 +112,7 @@ def create_app(config, web=True, default_locale=None):
     # assets_env.config['PYSCSS_DEBUG_INFO'] = False
 
     assets_env.register('app_css', app_css)
+    assets_env.register('aladin_css', aladin_css)
     assets_env.register('default_theme_css', default_theme_css)
     assets_env.register('dark_theme_css', dark_theme_css)
     assets_env.register('red_theme_css', red_theme_css)
