@@ -437,9 +437,9 @@ FChart.prototype.redrawAll = function () {
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.aladin != null) {
-            let posx = (this.canvas.width - this.aladin.view.imageCanvas.width) / 2;
-            let posy = (this.canvas.height - this.aladin.view.imageCanvas.height) / 2;
-            this.ctx.drawImage(this.aladin.view.imageCanvas, posx, posy);
+            this.ctx.drawImage(this.aladin.view.imageCanvas,
+                0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
+                0, 0, this.canvas.width, this.canvas.height);
         }
         this.ctx.drawImage(curSkyImg, (this.canvas.width-img_width)/2, (this.canvas.height-img_height)/2, img_width, img_height);
     }
@@ -1235,9 +1235,9 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let dimgY = curSkyImg.height / this.GRID_SIZE;
 
     if (this.aladin != null) {
-        let posx = (this.canvas.width - this.aladin.view.imageCanvas.width) / 2;
-        let posy = (this.canvas.height - this.aladin.view.imageCanvas.height) / 2;
-        this.ctx.drawImage(this.aladin.view.imageCanvas, posx, posy);
+        this.ctx.drawImage(this.aladin.view.imageCanvas,
+            0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
+            0, 0, this.canvas.width, this.canvas.height);
     }
 
     for (j=0; j < this.GRID_SIZE; j++) {
