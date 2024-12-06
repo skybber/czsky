@@ -228,7 +228,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         if (theme == 'light') {
             this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", { reversed: true });
         } else if (theme == 'night') {
-            this.aladin.getBaseImageLayer().getColorCfg().setColormap("red");
+            this.aladin.getBaseImageLayer().getColorCfg().setColormap("redtemperature");
         }
         let t = this;
         this.aladin.on('redrawFinished', function() {
