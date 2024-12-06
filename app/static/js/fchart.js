@@ -226,10 +226,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
         // this.aladin.view.imageSurvey.flipX = this.multRA;
         // this.aladin.view.imageSurvey.flipY = this.multDEC;
         if (theme == 'light') {
-            this.aladin.getBaseImageLayer().getColorMap().reverse()
-            this.aladin.getBaseImageLayer().getColorMap().update('grayscale');
+            this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", { reversed: true });
         } else if (theme == 'night') {
-            this.aladin.getBaseImageLayer().getColorMap().update('redlight');
+            this.aladin.getBaseImageLayer().getColorCfg().setColormap("red");
         }
         let t = this;
         this.aladin.on('redrawFinished', function() {
