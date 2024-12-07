@@ -894,9 +894,7 @@ FChart.prototype.syncAladinViewCenter = function () {
         let centerRA = this.viewCenter.ra - dRD.dRA;
         let centerDEC = this.viewCenter.dec - dRD.dDEC;
 
-        this.aladin.gotoRaDec(rad2deg(centerRA), rad2deg(centerDEC));
-        this.aladin.view.throttledPositionChanged(true);
-        this.aladin.view.redraw();
+        this.aladin.view.pointToAndRedraw(rad2deg(centerRA), rad2deg(centerDEC));
     }
 }
 

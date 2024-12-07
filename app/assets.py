@@ -24,7 +24,7 @@ vendor_js = Bundle(
     output='scripts/vendor.js')
 
 aladin_js = Bundle(
-    'aladin/aladin.js',
+    'aladin/aladin.umd.cjs',
     output='scripts/aladin.js'
 )
 
