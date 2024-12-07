@@ -901,7 +901,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 FChart.prototype.syncAladinZoom = function () {
     if (this.aladin != null) {
         this.aladin.setFoV(this.aladinImgField / this.scaleFac);
-        this.aladin.view.redraw();
+        this.aladin.view.requestRedraw();
     }
 }
 
