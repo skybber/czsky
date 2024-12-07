@@ -367,7 +367,7 @@ FChart.prototype.onWindowLoad = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
     this.syncAladinDivSize();
-    this.syncAladinZoom();
+    this.syncAladinZoom(true);
     this.syncAladinViewCenter();
 }
 
@@ -540,19 +540,19 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
                     this.aladinImgField = this.imgField;
-                    this.syncAladinZoom();
+                    this.syncAladinZoom(true);
                 }
             }
             if (this.scaleFac == 1.0 || forceReload) {
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
                     this.aladinImgField = this.imgField;
-                    this.syncAladinZoom();
+                    this.syncAladinZoom(true);
                 }
                 this.redrawAll();
             }
         } else {
-            this.syncAladinZoom();
+            this.syncAladinZoom(false);
         }
         this.isReloadingImage = false;
         if (this.pendingMoveRequest != undefined) {
@@ -898,10 +898,16 @@ FChart.prototype.syncAladinViewCenter = function () {
     }
 }
 
-FChart.prototype.syncAladinZoom = function () {
+FChart.prototype.syncAladinZoom = function (syncCenter) {
     if (this.aladin != null) {
         this.aladin.setFoV(this.aladinImgField / this.scaleFac);
-        this.aladin.view.requestRedraw();
+        if (syncCenter) {
+            let centerRA = this.viewCenter.ra;
+            let centerDEC = this.viewCenter.dec;
+            this.aladin.view.pointToAndRedraw(rad2deg(centerRA), rad2deg(centerDEC));
+        } else {
+            this.aladin.view.requestRedraw();
+        }
     }
 }
 
@@ -1369,7 +1375,7 @@ FChart.prototype.zoomFunc = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.nextScaleFac(true);
     } else {
-        this.syncAladinZoom();
+        this.syncAladinZoom(false);
     }
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.redrawAll();
@@ -1382,7 +1388,7 @@ FChart.prototype.zoomFunc = function() {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
             this.aladinImgField = this.imgField;
-            this.syncAladinZoom();
+            this.syncAladinZoom(true);
             this.redrawAll();
         }
         clearInterval(this.zoomInterval);
@@ -1400,7 +1406,7 @@ FChart.prototype.nextScaleFac = function(syncAladin) {
             this.scaleFac = this.startScaleFac - (this.startScaleFac - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
         }
         if (syncAladin) {
-            this.syncAladinZoom();
+            this.syncAladinZoom(false);
         }
     }
 }
