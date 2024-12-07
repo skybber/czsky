@@ -76,8 +76,28 @@ His expertise and detailed descriptions contribute to richer information about t
 <i>We thank these authors for their contributions to our project and for granting permission to share their drawings and data.</i>
 {% endif %}
 
+<h3 class="ui header">
+{% if lang_code == 'cs' %}
+  Zdrojové soubory projektu
+{% else %}
+  Source files
+{% endif %}
+</h3>
+<p>
+{% if lang_code == 'cs' %}
+  Zdrojové kódy jsou otevřené a dostupné pod licencí GNU.
+{% else %}
+  The source code is open and available under the GNU license.
+{% endif %}
+</p>
+{% filter extended_commonmark('') %}
+* [Czsky project](https://github.com/skybber/czsky)
+* [Chart engine - fchart3](https://github.com/skybber/fchart3)
+{% endfilter %}
+
 <h3 class="ui header">{% if lang_code == 'cs' %}Novinky{% else %}News{% endif %}</h3>
 {% filter extended_commonmark('') %}
+* 12/2024 - Aladin3 in chart layers
 * 11/2024 - Improved mobile fullscreen support
 * 10/2024 - Solar system in charts
 {% endfilter %}
