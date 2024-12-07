@@ -169,14 +169,14 @@
                       <div class="item">
                           <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
                               <i class="image outline icon"></i>
-                              {{ _('DSS colored') }}
+                              {{ _('Aladin colored') }}
                           </button>
                       </div>
                       {% if chart_control.theme!='night' %}
                       <div class="item">
                           <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
                               <i class="image outline icon"></i>
-                              {{ _('DSS blue') }}
+                              {{ _('Aladin blue') }}
                           </button>
                       </div>
                       {% endif %}
@@ -316,8 +316,12 @@
   </div>
 
 {% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
-  <div class="aladin-logo-container">
-      <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-small" style="width: 32px;"></div></a>
+{% assets 'aladin_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
+  <div class="aladin-logo-container tablet hidden computer hidden" style="z-index:100;bottom: 35px">
+      <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-small"></div></a>
+  </div>
+  <div class="aladin-logo-container mobile hidden" style="z-index:100;">
+      <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-large" style="width: 90px;"></div></a>
   </div>
 {% endif %}
 </div>
@@ -360,24 +364,8 @@
     margin-right: 0.5em;
     object-fit: contain;
 }
-.aladin-logo-small {
-    padding: 0;
-	background: url(data:image/gif;base64,R0lGODlhIAAgAJEAAJIsLdEwJAdMmP///yH5BAkAAAMALAAAAAAgACAAAAjMAAcIHEiwoMGDCBMqXMiwocOHECMaFCCxYkKKAAoK2MiRo0UBAEKKFOkxYUaCIEMSHBlyo0OQCke6HHDyJEWBKgcG2MlzoEyFMAXyHNqTZsubNFGeHLDT4FCcLREGZUqwaFGRUk82FfqUaQCoSH0OCLqVqlCuX42u9Kl1a1qzXnGGVaozLdG6cpMWxOrVblm4AOYOTNn2L1efYZdu5Eu0cV6cE0fW7QqV4WK+CAMLPnhZMtvAEDmy/CkWMtCOHVFaXC2VtevXsGPLZhgQADs=);
-    background-size: 100%;
-    background-repeat: no-repeat;
-    padding-top: 100%;
-}
-.aladin-logo-container {
-    position: absolute;
-	bottom: 2px;
-    right: 5px;
-	z-index: 20;
-    min-width: 32px;
-    max-width: 90px;
-}
 </style>
 
-{% assets 'aladin_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 {% assets 'astro_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 
