@@ -24,7 +24,7 @@ BARREL_DIAMETERS_CHOICES = [(d, str(d) + '"') for d in [0.965, 1.25, 2, 2.7, 3, 
 class TelescopeMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
-    model = StringField(lazy_gettext('Model'), validators=[InputRequired(), Length(max=128)])
+    model = StringField(lazy_gettext('Model'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
     telescope_type = SelectField(lazy_gettext('Telescope Type'), choices=[tt for tt in TelescopeType.choices_without_naked_eye()], coerce=TelescopeType.coerce, default=TelescopeType.REFRACTOR)
     aperture_mm = IntegerField(lazy_gettext('Aperture (mm)'), validators=[NumberRange(min=1, max=100000)])
@@ -63,7 +63,7 @@ class TelescopeEditForm(FlaskForm, TelescopeMixin):
 class EyepieceMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
-    model = StringField(lazy_gettext('Model'), validators=[InputRequired(), Length(max=128)])
+    model = StringField(lazy_gettext('Model'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
     focal_length_mm = FloatField(lazy_gettext('Focal Length (mm)'), validators=[NumberRange(min=0.0, max=1000.0)])
     fov_deg = IntegerField(lazy_gettext('Field of view (deg)'), validators=[NumberRange(min=1, max=180)])
@@ -82,7 +82,7 @@ class EyepieceEditForm(FlaskForm, EyepieceMixin):
 class FilterMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
-    model = StringField(lazy_gettext('Model'), validators=[InputRequired(), Length(max=128)])
+    model = StringField(lazy_gettext('Model'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
     filter_type = SelectField(lazy_gettext('Filter Type'), choices=FilterType.choices(), coerce=FilterType.coerce, default=FilterType.UHC)
     diameter_inch = SelectField(lazy_gettext('Diameter (inch)'), choices=BARREL_DIAMETERS_CHOICES, coerce=float)
@@ -100,7 +100,7 @@ class FilterEditForm(FlaskForm, FilterMixin):
 class LensMixin:
     name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
-    model = StringField(lazy_gettext('Model'), validators=[InputRequired(), Length(max=128)])
+    model = StringField(lazy_gettext('Model'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
     lens_type = SelectField(lazy_gettext('Lens Type'), choices=LensType.choices(), coerce=LensType.coerce, default=LensType.BARLOW)
     magnification = FloatField(lazy_gettext('Magnification'), validators=[NumberRange(min=0.1, max=10000.0)])
