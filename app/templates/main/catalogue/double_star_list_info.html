@@ -16,6 +16,11 @@
 ] %}
 {% endif %}
 
+{% if not back %}
+    {% set back = request.args.get('back') %}
+    {% set back_id = request.args.get('back_id') %}
+{% endif %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
@@ -349,12 +354,10 @@
                               epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=double_star_list&back_id={}'.format(double_star_list.id) )
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=double_star_list&back_id={}'.format(double_star_list.id),
+                     back=back, back_id=back_id)
     }}
 {% endmacro %}
-
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {% block content %}
     <div class="ui stackable centered grid container">

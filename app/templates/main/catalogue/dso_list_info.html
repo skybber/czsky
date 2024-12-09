@@ -8,6 +8,11 @@
     ('main_dso_list.dso_list_chart', _('Chart'), 'chart'),
 ] %}
 
+{% if not back %}
+    {% set back = request.args.get('back') %}
+    {% set back_id = request.args.get('back_id') %}
+{% endif %}
+
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
@@ -231,12 +236,10 @@
                      url_for('main_dso_list.dso_list_chart_pdf', dso_list_id=dso_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id) )
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id),
+                     back=back, back_id=back_id)
     }}
 {% endmacro %}
-
-{% set back = request.args.get('back') %}
-{% set back_id = request.args.get('back_id') %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
