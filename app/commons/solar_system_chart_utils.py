@@ -1,8 +1,8 @@
 from skyfield.api import load
 from skyfield.magnitudelib import planetary_magnitude
 
+import math
 import numpy as np
-from math import asin, log10
 from time import time
 
 import datetime as dt_module
@@ -33,6 +33,10 @@ PLANET_DATA = {
     'uranus': [25362, 30687.15, 369.66],
     'neptune': [24622, 60190.03, 367.49],
     'pluto': [1188.3, 90560.0, 366.73]
+}
+
+PLANET_NORTH_POLE = {
+    'saturn': [math.radians(40.589), math.radians(83.537)]
 }
 
 PLANET_MOONS_DATA = {
@@ -92,6 +96,34 @@ solsys_last_updated = None
 
 planet_moons = None
 planet_moons_last_updated = None
+
+
+def get_north_pole_pa(ra, dec, obj_ra, obj_dec):
+    """
+    Calculate the North position angle
+    Parameters:
+        ra (float): North Pole Right Ascension in radians.
+        dec (float): North Pole Declination in radians.
+        obj_ra (float): Object Right Ascension in radians.
+        obj_dec (float): Object Declination in radians.
+    Returns:
+        float: The adjusted PA within [0, 2*pi).
+    """
+    d1 = dec
+    a1 = ra
+
+    a5 = obj_ra
+    d5 = obj_dec
+
+    sp = math.cos(d1) * math.sin(a1 - a5)
+    cp = math.sin(d1) * math.cos(d5)
+
+    cp -= math.cos(d1) * math.sin(d5) * math.cos(a1 - a5)
+
+    pa = math.atan2(sp, cp)
+    pa = pa % (2 * math.pi)
+
+    return pa
 
 
 def get_mpc_planet_position(planet, dt):
@@ -188,7 +220,7 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     physical_radius_km = PLANET_DATA.get(body_name)[0]
 
     if physical_radius_km and distance_km > physical_radius_km:
-        angular_radius = asin(physical_radius_km / distance_km)
+        angular_radius = math.asin(physical_radius_km / distance_km)
     else:
         angular_radius = 0
 
@@ -204,6 +236,12 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     else:
         ring_tilt = None
 
+    north_pole = PLANET_NORTH_POLE.get(body_name)
+    if north_pole:
+        north_pole_pa = get_north_pole_pa(north_pole[0], north_pole[1], ra, dec)
+    else:
+        north_pole_pa = None
+
     if body_enum == fchart3.SolarSystemBody.SUN:
         mag = -26.7
     elif body_enum == fchart3.SolarSystemBody.MOON:
@@ -213,7 +251,7 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     else:
         mag = planetary_magnitude(astrometric)
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, angular_radius, mag, phase_angle, distance_km, ring_tilt)
+    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, north_pole_pa, angular_radius, mag, phase_angle, distance_km, ring_tilt)
 
 
 def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
@@ -234,7 +272,7 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
     distance_earth_au = distance.au
     distance_earth_km = distance.au * AU_TO_KM
 
-    mag = abs_mag + 5 * log10(distance_sun_au * distance_earth_au)
+    mag = abs_mag + 5 * math.log10(distance_sun_au * distance_earth_au)
 
     return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km)
 
