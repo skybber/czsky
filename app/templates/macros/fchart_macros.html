@@ -167,14 +167,14 @@
                           </button>
                       </div>
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin colored') }}
                           </button>
                       </div>
                       {% if chart_control.theme!='night' %}
                       <div class="item">
-                          <button class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin blue') }}
                           </button>
@@ -315,7 +315,6 @@
       <i class="search icon"></i>
   </div>
 
-{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
 {% assets 'aladin_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
   <div class="aladin-logo-container tablet hidden computer hidden" style="z-index:100;bottom: 35px">
       <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-small"></div></a>
@@ -323,7 +322,6 @@
   <div class="aladin-logo-container mobile hidden" style="z-index:100;">
       <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-large" style="width: 90px;"></div></a>
   </div>
-{% endif %}
 </div>
 
 <div id="fchart-aladin-div" style="position:fixed;left:-9999px; top:-9999px; z-index:0;">
@@ -400,120 +398,120 @@
 
     var aladin;
     var fchart;
+    var showAladin;
 
-{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
     A.init.then(() => {
         aladin = A.aladin('#fchart-aladin-div', {
-                survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
-                fov:60,
-                target: "0 0 0 0 0 0",
-                projection: "STG",
-                fullScreen: false,
-                showReticle: false,
-                showZoomControl:          false,
-                showFullscreenControl:    false,
-                showLayersControl:        false,
-                showGotoControl:          false,
-                showSimbadPointerControl: false,
-                showShareControl:         false,
-                showCatalog:              false,
-                showFrame:                false,
-                showCooGrid:              false,
-                fullScreen:               false,
-                log:                      true
+            survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/DSS2/color' }}",
+            fov:60,
+            target: "0 0 0 0 0 0",
+            projection: "STG",
+            fullScreen: false,
+            showReticle: false,
+            showZoomControl:          false,
+            showFullscreenControl:    false,
+            showLayersControl:        false,
+            showGotoControl:          false,
+            showSimbadPointerControl: false,
+            showShareControl:         false,
+            showCatalog:              false,
+            showFrame:                false,
+            showCooGrid:              false,
+            fullScreen:               false,
+            log:                      true
         });
-    projection.setProjection(Projection.PROJ_TAN2);
-{% else %}
-    projection.setProjection(Projection.PROJ_TAN2);
-    aladin = null;
-{% endif %}
-    fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
-            "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
-            {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
-            '{{ default_chart_iframe_url }}',
-            '{{ embed }}',
-            aladin,
-            projection
-    );
+        projection.setProjection(Projection.PROJ_TAN2);
 
-    fchart.onFieldChange(function(fldSizeIndex) {
-        submitDisabled = true;
-        $('#radius').val(fldSizeIndex);
-        $('#maglim').val(magRangeValues[fldSizeIndex]);
-        $('#dso_maglim').val(dsoMagRangeValues[fldSizeIndex]);
-        $('#smaglim').text(magRangeValues[fldSizeIndex].toString());
-        $('#sdso_maglim').text(dsoMagRangeValues[fldSizeIndex].toString());
+        var showAladin = {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue'] else 'false' }};
+        $('.aladin-logo-container').toggle(showAladin);
 
-        $('#maglim_menu').empty();
-        var i;
-        for (i=magRanges[fldSizeIndex][0]; i<=magRanges[fldSizeIndex][1]; i++) {
-            $('<div class="item">' + i +'</div>')
-                .appendTo('#maglim_menu');
-        }
+        fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
+                "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
+                {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
+                '{{ default_chart_iframe_url }}',
+                '{{ embed }}',
+                aladin,
+                showAladin,
+                projection
+        );
 
-        $('#dso_maglim_menu').empty();
-        for (i=dsoMagRanges[fldSizeIndex][0]; i<=dsoMagRanges[fldSizeIndex][1]; i++) {
-            $('<div class="item">' + i +'</div>')
-                .appendTo('#dso_maglim_menu');
-        }
 
-        submitDisabled = false;
-    });
+        fchart.onFieldChange(function(fldSizeIndex) {
+            submitDisabled = true;
+            $('#radius').val(fldSizeIndex);
+            $('#maglim').val(magRangeValues[fldSizeIndex]);
+            $('#dso_maglim').val(dsoMagRangeValues[fldSizeIndex]);
+            $('#smaglim').text(magRangeValues[fldSizeIndex].toString());
+            $('#sdso_maglim').text(dsoMagRangeValues[fldSizeIndex].toString());
 
-    fchart.onScreenModeChange(function(fullScreen, splitView) {
-        $('#fullscreen').val(fullScreen);
-        $('#splitview').val(splitView);
-
-        if (splitView) {
-            $("#bhideleftpanel").show();
-            $("#bshowleftpanel1").hide();
-            $("#bshowleftpanel2").hide();
-            if (window.innerWidth > 768) {
-                $("#isearch").show();
-                $("#isearch2").show();
-                $("#bhome").show();
-            } else {
-                $("#top-menu").hide();
-                $("#isearch2").hide();
+            $('#maglim_menu').empty();
+            var i;
+            for (i=magRanges[fldSizeIndex][0]; i<=magRanges[fldSizeIndex][1]; i++) {
+                $('<div class="item">' + i +'</div>')
+                    .appendTo('#maglim_menu');
             }
-            const bback = $("#bback");
-            if (bback.length) bback.show();
-            const bdetail = $("#bdetail");
-            if (bdetail.length) bdetail.show();
-        } else {
-            $("#top-menu").show();
-            if (fullScreen) {
-                $("#bshowleftpanel1").show();
-                $("#bshowleftpanel2").show();
-                $("#bhideleftpanel").hide();
-                $("#isearch").show();
-                $("#isearch2").show();
-                $("#bhome").show();
+
+            $('#dso_maglim_menu').empty();
+            for (i=dsoMagRanges[fldSizeIndex][0]; i<=dsoMagRanges[fldSizeIndex][1]; i++) {
+                $('<div class="item">' + i +'</div>')
+                    .appendTo('#dso_maglim_menu');
+            }
+
+            submitDisabled = false;
+        });
+
+        fchart.onScreenModeChange(function(fullScreen, splitView) {
+            $('#fullscreen').val(fullScreen);
+            $('#splitview').val(splitView);
+
+            if (splitView) {
+                $("#bhideleftpanel").show();
+                $("#bshowleftpanel1").hide();
+                $("#bshowleftpanel2").hide();
+                if (window.innerWidth > 768) {
+                    $("#isearch").show();
+                    $("#isearch2").show();
+                    $("#bhome").show();
+                } else {
+                    $("#top-menu").hide();
+                    $("#isearch2").hide();
+                }
                 const bback = $("#bback");
                 if (bback.length) bback.show();
                 const bdetail = $("#bdetail");
                 if (bdetail.length) bdetail.show();
             } else {
-                $("#bshowleftpanel1").hide();
-                $("#bshowleftpanel2").hide();
-                $("#bhideleftpanel").hide();
-                $("#isearch2").hide();
-                $("#bhome").hide();
-                const bback = $("#bback");
-                if (bback.length) bback.hide();
-                const bdetail = $("#bdetail");
-                if (bdetail.length) bdetail.hide();
+                $("#top-menu").show();
+                if (fullScreen) {
+                    $("#bshowleftpanel1").show();
+                    $("#bshowleftpanel2").show();
+                    $("#bhideleftpanel").hide();
+                    $("#isearch").show();
+                    $("#isearch2").show();
+                    $("#bhome").show();
+                    const bback = $("#bback");
+                    if (bback.length) bback.show();
+                    const bdetail = $("#bdetail");
+                    if (bdetail.length) bdetail.show();
+                } else {
+                    $("#bshowleftpanel1").hide();
+                    $("#bshowleftpanel2").hide();
+                    $("#bhideleftpanel").hide();
+                    $("#isearch2").hide();
+                    $("#bhome").hide();
+                    const bback = $("#bback");
+                    if (bback.length) bback.hide();
+                    const bdetail = $("#bdetail");
+                    if (bdetail.length) bdetail.hide();
+                }
             }
-        }
-    });
+        });
 
-{% if fchart_form.dss_layer.data in ['colored', 'blue'] %}
-            fchart.onWindowLoad();
+       fchart.onWindowLoad();
     });
-{% endif %}
 
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
@@ -625,15 +623,29 @@
     });
 
     $('.bdsscolored').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#dss_layer').val($('#dss_layer').val() != 'colored' ? 'colored' : '');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#dss_layer').val() != 'colored' ? 'colored' : '';
+        $('#dss_layer').val(value);
+        if (value != '') {
+            $('.bdssblue').removeClass('active');
+        }
+        $('.aladin-logo-container').toggle(value != '');
+        chart_param_ajax('chart_dss_layer', value);
+        fchart.setAladinLayer(value);
     });
 
     $('.bdssblue').click(function(){
+        event.stopPropagation();
         $(this).toggleClass('active');
-        $('#dss_layer').val($('#dss_layer').val() != 'blue' ? 'blue' : '');
-        $('#show_layers_dropdown').val('true');
+        var value = $('#dss_layer').val() != 'blue' ? 'blue' : '';
+        $('#dss_layer').val(value);
+        if (value != '') {
+            $('.bdsscolored').removeClass('active');
+        }
+        $('.aladin-logo-container').toggle(value != '');
+        chart_param_ajax('chart_dss_layer', value);
+        fchart.setAladinLayer(value);
     });
 
     $('.mirrorx').click(function(){

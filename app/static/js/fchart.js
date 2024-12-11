@@ -96,8 +96,8 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl, fullScreen, splitview,
-                 mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, projection) {
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl,
+                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
 
     this.fchartDiv = fchartDiv;
 
@@ -212,6 +212,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.imgGrid = undefined;
 
     this.aladin = aladin;
+    this.showAladin = showAladin;
 
     this.moveTrack = [];
     this.moveSpeedX = 0;
@@ -222,21 +223,17 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
 
-    if (this.aladin != null) {
-        // this.aladin.view.imageSurvey.flipX = this.multRA;
-        // this.aladin.view.imageSurvey.flipY = this.multDEC;
-        if (theme == 'light') {
-            this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", { reversed: true });
-        } else if (theme == 'night') {
-            this.aladin.getBaseImageLayer().getColorCfg().setColormap("redtemperature");
-        }
-        let t = this;
-        this.aladin.on('redrawFinished', function() {
-            if (!t.isReloadingImage && t.zoomInterval === undefined) {
-                 t.redrawAll();
-            }
-        });
+    if (theme == 'light') {
+        this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", { reversed: true });
+    } else if (theme == 'night') {
+        this.aladin.getBaseImageLayer().getColorCfg().setColormap("redtemperature");
     }
+    let t = this;
+    this.aladin.on('redrawFinished', function() {
+        if (t.showAladin && !t.isReloadingImage && t.zoomInterval === undefined) {
+             t.redrawAll();
+        }
+    });
 
     if (fullScreen) {
         $(this.fchartDiv).addClass('fchart-fullscreen');
@@ -436,7 +433,7 @@ FChart.prototype.redrawAll = function () {
         let img_height = curSkyImg.height * this.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.aladin != null) {
+        if (this.showAladin) {
             this.ctx.drawImage(this.aladin.view.imageCanvas,
                 0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
                 0, 0, this.canvas.width, this.canvas.height);
@@ -881,7 +878,7 @@ FChart.prototype.movingKeyUp = function () {
 }
 
 FChart.prototype.syncAladinDivSize = function () {
-    if (this.aladin != null) {
+    if (this.showAladin) {
         $(this.aladin.aladinDiv).width($(this.fchartDiv).width());
         $(this.aladin.aladinDiv).height($(this.fchartDiv).height());
         this.aladin.view.fixLayoutDimensions();
@@ -889,7 +886,7 @@ FChart.prototype.syncAladinDivSize = function () {
 }
 
 FChart.prototype.syncAladinViewCenter = function () {
-    if (this.aladin != null) {
+    if (this.showAladin) {
         let dRD = this.getDRaDec(false);
         let centerRA = this.viewCenter.ra - dRD.dRA;
         let centerDEC = this.viewCenter.dec - dRD.dDEC;
@@ -899,7 +896,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 }
 
 FChart.prototype.syncAladinZoom = function (syncCenter) {
-    if (this.aladin != null) {
+    if (this.showAladin) {
         this.aladin.setFoV(this.aladinImgField / this.scaleFac);
         if (syncCenter) {
             let centerRA = this.viewCenter.ra;
@@ -1238,7 +1235,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let dimgX = curSkyImg.width / this.GRID_SIZE;
     let dimgY = curSkyImg.height / this.GRID_SIZE;
 
-    if (this.aladin != null) {
+    if (this.showAladin) {
         this.ctx.drawImage(this.aladin.view.imageCanvas,
             0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
             0, 0, this.canvas.width, this.canvas.height);
@@ -1679,4 +1676,46 @@ FChart.prototype.setMirrorY = function (mirror_y) {
         mirror_y = mirror_y.toLowerCase() === 'true';
     }
     this.multDEC = mirror_y ? -1 : 1;
+}
+
+FChart.prototype.setAladinLayer = function (dssLayer) {
+
+    let url;
+    try {
+        url = new URL(this.chartUrl, window.location.origin);
+    } catch (e) {
+        console.error("Invalid URL:", this.chartUrl);
+        return;
+    }
+
+    let params = new URLSearchParams(url.search);
+    let flags = params.get('flags') || '';
+    flags = flags.replace(/Sc|Sb/g, '');
+
+    if (dssLayer != '') {
+        var survey = "";
+        if (dssLayer == 'colored') {
+            survey = 'P/DSS2/color';
+            flags += 'Sc'
+        } else {
+            survey = 'P/DSS2/blue';
+            flags += 'Sb';
+        }
+
+        params.set('flags', flags);
+        url.search = params.toString();
+        this.chartUrl = url.pathname + url.search + url.hash;
+
+        this.showAladin = true;
+        this.aladin.setImageLayer(survey);
+        this.syncAladinDivSize();
+        this.syncAladinZoom(false);
+        this.syncAladinViewCenter();
+    } else {
+        params.set('flags', flags);
+        url.search = params.toString();
+        this.chartUrl = url.pathname + url.search + url.hash;
+        this.showAladin =false;
+    }
+    this.reloadImage();
 }
