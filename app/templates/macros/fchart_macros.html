@@ -362,6 +362,11 @@
     margin-right: 0.5em;
     object-fit: contain;
 }
+{% if chart_control.theme!='night' %}
+.ui.active.toggle.button {
+  background-color: #2185d0 !important;
+}
+{% endif %}
 </style>
 
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
