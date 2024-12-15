@@ -119,6 +119,7 @@ class FlagValue(Enum):
     SHOW_PICKER = 'P'
     DSS_COLORED = 'Sc'
     DSS_BLUE = 'Sb'
+    DSS_FRAM = 'Sf'
     FOV_TELRAD = 'T'
     MIRROR_X = 'X'
     MIRROR_Y = 'Y'
@@ -459,7 +460,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if request.args.get('dss', 'false') == 'true':
             session['chart_dss_layer'] = 'blue' if session.get('theme', '') == 'night' else 'colored'
 
-        if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') == 'blue':
+        if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') in ['blue', 'fram']:
             session['chart_dss_layer'] = 'colored'
 
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
@@ -482,7 +483,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_dso'] = form.show_dso.data
         session['chart_show_solar_system'] = form.show_solar_system.data
         session['chart_dss_layer'] = form.dss_layer.data
-        if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') == 'blue':
+        if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') in ['blue', 'fram']:
             session['chart_dss_layer'] = 'colored'
         session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
         session['chart_mirror_x'] = form.mirror_x.data
@@ -837,7 +838,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     else:
         img_format = 'png'
 
-    show_dss = FlagValue.DSS_COLORED.value in flags or FlagValue.DSS_BLUE.value in flags
+    show_dss = FlagValue.DSS_COLORED.value in flags or FlagValue.DSS_BLUE.value in flags or FlagValue.DSS_FRAM.value in flags
 
     if show_dss and img_format == 'jpg':
         img_format = 'png'
@@ -1140,6 +1141,9 @@ def get_chart_legend_flags(form):
 
     if form.dss_layer.data == 'blue':
         chart_flags += FlagValue.DSS_BLUE.value
+
+    if form.dss_layer.data == 'fram':
+        chart_flags += FlagValue.DSS_FRAM.value
 
     if form.show_dso_mag.data == 'true':
         chart_flags += FlagValue.SHOW_DSO_MAG.value

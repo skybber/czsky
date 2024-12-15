@@ -1694,7 +1694,10 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
 
     if (dssLayer != '') {
         var survey = "";
-        if (dssLayer == 'colored') {
+        if (dssLayer == 'fram') {
+            survey = 'P/CTA-FRAM/survey/color';
+            flags += 'Sf'
+        } else if (dssLayer == 'colored') {
             survey = 'P/DSS2/color';
             flags += 'Sc'
         } else {
