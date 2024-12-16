@@ -166,20 +166,20 @@
                               {{ _('Solar system')}}
                           </button>
                       </div>
-                      <div class="item">
+                      <div class="item div_dsscolored">
                           <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin color') }}
                           </button>
                       </div>
                       {% if chart_control.theme!='night' %}
-                      <div class="item">
+                      <div class="item div_dssblue">
                           <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin blue') }}
                           </button>
                       </div>
-                      <div class="item">
+                      <div class="item div_dssfram">
                           <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='fram' else ''}} bdssfram" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin fram') }}
@@ -381,62 +381,21 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
 
 <script type="text/javascript">
-    var submitDisabled = false;
-    var fieldSizes = [{{ chart_control.gui_field_sizes }}];
-    var magRanges = [
-        {% for mr in chart_control.mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
-    ];
-    var magRangeValues = [
-        {% for mrv in chart_control.mag_range_values %}{{ mrv }}, {% endfor %}
-    ];
-    var dsoMagRanges = [
-        {% for mr in chart_control.dso_mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
-    ];
-    var dsoMagRangeValues = [
-        {% for mrv in chart_control.dso_mag_range_values %}{{ mrv }}, {% endfor %}
-    ];
 
-    var ra = parseFloat($('#ra').val());
-    var dec = parseFloat($('#dec').val());
-    var obj_ra = '{{ obj_ra }}';
-    var obj_dec = '{{ obj_dec }}';
+    function isWebGL2Supported() {
+        try {
+            var canvas = document.createElement('canvas');
+            return !!canvas.getContext('webgl2');
+        } catch (e) {
+            return false;
+        }
+    }
 
-    var theme = '{{ chart_control.theme }}';
-
-    var chartUrl = "{{ fchart_img_url | safe }}";
-    var legendUrl = "{{ fchart_legend_url | safe }}";
-    var projection = new Projection();
-
-    var aladin;
-    var fchart;
-    var showAladin;
-
-    A.init.then(() => {
-        aladin = A.aladin('#fchart-aladin-div', {
-            survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/CTA-FRAM/survey/color' if fchart_form.dss_layer.data == 'fram' else 'P/DSS2/color' }}",
-            fov:60,
-            target: "0 0 0 0 0 0",
-            projection: "STG",
-            fullScreen: false,
-            showReticle: false,
-            showZoomControl:          false,
-            showFullscreenControl:    false,
-            showLayersControl:        false,
-            showGotoControl:          false,
-            showSimbadPointerControl: false,
-            showShareControl:         false,
-            showCatalog:              false,
-            showFrame:                false,
-            showCooGrid:              false,
-            fullScreen:               false,
-            log:                      true
-        });
-        projection.setProjection(Projection.PROJ_TAN2);
-
-        var showAladin = {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
+    function createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection) {
+        var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
-        fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
+        var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
                 "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
                 {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
                 {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -448,7 +407,6 @@
                 showAladin,
                 projection
         );
-
 
         fchart.onFieldChange(function(fldSizeIndex) {
             submitDisabled = true;
@@ -519,10 +477,73 @@
                     if (bdetail.length) bdetail.hide();
                 }
             }
-        });
+       });
 
-       fchart.onWindowLoad();
-    });
+       return fchart;
+    }
+
+    var submitDisabled = false;
+    var fieldSizes = [{{ chart_control.gui_field_sizes }}];
+    var magRanges = [
+        {% for mr in chart_control.mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
+    ];
+    var magRangeValues = [
+        {% for mrv in chart_control.mag_range_values %}{{ mrv }}, {% endfor %}
+    ];
+    var dsoMagRanges = [
+        {% for mr in chart_control.dso_mag_ranges %} [{{ mr[0] ~ ',' ~ mr[1] }}], {% endfor %}
+    ];
+    var dsoMagRangeValues = [
+        {% for mrv in chart_control.dso_mag_range_values %}{{ mrv }}, {% endfor %}
+    ];
+
+    var ra = parseFloat($('#ra').val());
+    var dec = parseFloat($('#dec').val());
+    var obj_ra = '{{ obj_ra }}';
+    var obj_dec = '{{ obj_dec }}';
+
+    var theme = '{{ chart_control.theme }}';
+
+    var chartUrl = "{{ fchart_img_url | safe }}";
+    var legendUrl = "{{ fchart_legend_url | safe }}";
+    var projection = new Projection();
+
+    var aladin;
+    var fchart;
+    var showAladin;
+
+    projection.setProjection(Projection.PROJ_TAN2);
+
+    if (isWebGL2Supported()) {
+        A.init.then(() => {
+            aladin = A.aladin('#fchart-aladin-div', {
+                survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/CTA-FRAM/survey/color' if fchart_form.dss_layer.data == 'fram' else 'P/DSS2/color' }}",
+                fov:60,
+                target: "0 0 0 0 0 0",
+                projection: "STG",
+                fullScreen: false,
+                showReticle: false,
+                showZoomControl:          false,
+                showFullscreenControl:    false,
+                showLayersControl:        false,
+                showGotoControl:          false,
+                showSimbadPointerControl: false,
+                showShareControl:         false,
+                showCatalog:              false,
+                showFrame:                false,
+                showCooGrid:              false,
+                fullScreen:               false,
+                log:                      true
+            });
+            fchart = createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection);
+            fchart.onWindowLoad();
+        });
+    } else {
+        fchart = createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, null, projection);
+        $('.div_dsscolored').hide();
+        $('.div_dssblue').hide();
+        $('.div_dssfram').hide();
+    }
 
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {

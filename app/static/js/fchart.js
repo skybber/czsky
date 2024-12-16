@@ -223,17 +223,19 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
 
-    if (theme == 'light') {
-        this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", { reversed: true });
-    } else if (theme == 'night') {
-        this.aladin.getBaseImageLayer().getColorCfg().setColormap("redtemperature");
-    }
-    let t = this;
-    this.aladin.on('redrawFinished', function() {
-        if (t.showAladin && !t.isReloadingImage && t.zoomInterval === undefined) {
-             t.redrawAll();
+    if (this.aladin != null) {
+        if (theme == 'light') {
+            this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", {reversed: true});
+        } else if (theme == 'night') {
+            this.aladin.getBaseImageLayer().getColorCfg().setColormap("redtemperature");
         }
-    });
+        let t = this;
+        this.aladin.on('redrawFinished', function () {
+            if (t.showAladin && !t.isReloadingImage && t.zoomInterval === undefined) {
+                t.redrawAll();
+            }
+        });
+    }
 
     if (fullScreen) {
         $(this.fchartDiv).addClass('fchart-fullscreen');
@@ -433,7 +435,7 @@ FChart.prototype.redrawAll = function () {
         let img_height = curSkyImg.height * this.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        if (this.showAladin) {
+        if (this.aladin != null && this.showAladin) {
             this.ctx.drawImage(this.aladin.view.imageCanvas,
                 0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
                 0, 0, this.canvas.width, this.canvas.height);
@@ -878,7 +880,7 @@ FChart.prototype.movingKeyUp = function () {
 }
 
 FChart.prototype.syncAladinDivSize = function () {
-    if (this.showAladin) {
+    if (this.aladin != null && this.showAladin) {
         $(this.aladin.aladinDiv).width($(this.fchartDiv).width());
         $(this.aladin.aladinDiv).height($(this.fchartDiv).height());
         this.aladin.view.fixLayoutDimensions();
@@ -886,7 +888,7 @@ FChart.prototype.syncAladinDivSize = function () {
 }
 
 FChart.prototype.syncAladinViewCenter = function () {
-    if (this.showAladin) {
+    if (this.aladin != null && this.showAladin) {
         let dRD = this.getDRaDec(false);
         let centerRA = this.viewCenter.ra - dRD.dRA;
         let centerDEC = this.viewCenter.dec - dRD.dDEC;
@@ -896,7 +898,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 }
 
 FChart.prototype.syncAladinZoom = function (syncCenter) {
-    if (this.showAladin) {
+    if (this.aladin != null && this.showAladin) {
         this.aladin.setFoV(this.aladinImgField / this.scaleFac);
         if (syncCenter) {
             let centerRA = this.viewCenter.ra;
@@ -1235,7 +1237,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let dimgX = curSkyImg.width / this.GRID_SIZE;
     let dimgY = curSkyImg.height / this.GRID_SIZE;
 
-    if (this.showAladin) {
+    if (this.aladin != null && this.showAladin) {
         this.ctx.drawImage(this.aladin.view.imageCanvas,
             0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
             0, 0, this.canvas.width, this.canvas.height);
@@ -1679,7 +1681,6 @@ FChart.prototype.setMirrorY = function (mirror_y) {
 }
 
 FChart.prototype.setAladinLayer = function (dssLayer) {
-
     let url;
     try {
         url = new URL(this.chartUrl, window.location.origin);
@@ -1690,7 +1691,7 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
 
     let params = new URLSearchParams(url.search);
     let flags = params.get('flags') || '';
-    flags = flags.replace(/Sc|Sb/g, '');
+    flags = flags.replace(/Sc|Sb|Sf/g, '');
 
     if (dssLayer != '') {
         var survey = "";
