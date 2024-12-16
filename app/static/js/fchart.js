@@ -779,10 +779,10 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         let newDEC =  this.viewCenter.dec - dDEC;
 
         if (newDEC > Math.PI/2.0) {
-            dDEC = this.viewCenter.dec - Math.PI/2.0;
+            dDEC = this.viewCenter.dec - Math.PI/2.0 + Math.PI/60/180;
         }
         if (newDEC < -Math.PI/2.0) {
-            dDEC = this.viewCenter.dec + Math.PI/2.0;
+            dDEC = this.viewCenter.dec + Math.PI/2.0 - Math.PI/60/180;
         }
 
         return {
