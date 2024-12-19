@@ -1602,9 +1602,12 @@ FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {
 
     if (flags) {
         url.searchParams.set('flags', flags);
+    } else {
+        url.searchParams.set('flags', '');
     }
 
-    return url.pathname + url.search + url.hash;
+
+        return url.pathname + url.search + url.hash;
 }
 
 FChart.prototype.setChartUrlParam  = function (param_name, param_value) {
