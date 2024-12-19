@@ -175,7 +175,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
 
-    this.viewCenter = {ra: 0, dec: 0}
+    this.viewCenter = {ra: 0, dec: 0, dRA: 0, dDEC: 0}
     this.setViewCenter(ra, dec);
     this.obj_ra = obj_ra != '' ? obj_ra : ra;
     this.obj_dec = obj_dec != '' ? obj_dec : dec;
@@ -348,6 +348,8 @@ FChart.prototype.setViewCenter = function (ra, dec) {
 
     this.viewCenter.ra = ra;
     this.viewCenter.dec = dec;
+    this.viewCenter.dRA = 0;
+    this.viewCenter.dDEC = 0;
 }
 
 FChart.prototype.setProjectionToViewCenter = function() {
@@ -573,15 +575,6 @@ FChart.prototype.activateImageOnLoad = function(centerRA, centerDEC, reqFldSizeI
 }
 
 FChart.prototype.mirroredPos2radec = function(x, y, setViewCenter=true) {
-    if (this.projection.getProjection() == Projection.PROJ_SIN) {
-        let r2 = x ** 2 + y ** 2;
-        if (r2 >= 1.0) {
-            let r = Math.sqrt(r2);
-            x = x / (1.001 * r);
-            y = y / (1.001 * r);
-        }
-    }
-
     if (setViewCenter) {
         this.setProjectionToViewCenter();
     }
@@ -1085,10 +1078,20 @@ FChart.prototype.kbdSmoothMove = function() {
             timeout = this.FREQ_60_HZ_TIMEOUT;
         }
         this.lastSmoothMoveTime = now;
-        let vh = Math.max(this.canvas.width, this.canvas.height);
-        let stepAmount = vh / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
-        this.pointerX += this.kbdMoveDX * stepAmount;
-        this.pointerY += this.kbdMoveDY * stepAmount;
+
+        let dAng = deg2rad(this.imgField) / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
+        this.viewCenter.dRA += this.kbdMoveDX * dAng;
+        this.viewCenter.dDEC += this.kbdMoveDY * dAng;
+
+        let newRA  = rad2deg(this.viewCenter.ra + this.viewCenter.dRA);
+        let newDEC = rad2deg(this.viewCenter.dec + this.viewCenter.dDEC);
+
+        let movedPointer = this.projection.project(newRA, newDEC);
+
+        let scale = this.getFChartScale();
+        let rect = this.canvas.getBoundingClientRect();
+        this.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
+        this.pointerY = rect.top + this.canvas.height / 2.0 + movedPointer.Y * scale;
 
         let curLegendImg = this.legendImgBuf[this.legendImg.active];
         let curSkyImg = this.skyImgBuf[this.skyImg.active];
