@@ -47,7 +47,7 @@
                             <div class="ui item">
                                 <form id="fmdownload" method="post" action="{{ url_for('main_observation.observation_export') }}">
                                     <button class="ui icon positive button" data-content="{{ _('Export observations to OAL')}}">
-                                        <i class="upload icon"></i>
+                                        <i class="download icon"></i>
                                         {{ _('Export observations to OAL') }}
                                     </button>
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">

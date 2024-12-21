@@ -427,7 +427,6 @@ def session_plan_import(session_plan_id):
 
                     if dso and dso.id not in existing_ids:
                         if not session_plan.find_dso_by_id(dso.id):
-                            user = get_anonymous_user() if current_user.is_anonymous else current_user
                             new_item = session_plan.create_new_deepsky_object_item(dso.id)
                             db.session.add(new_item)
                         existing_ids.add(dso.id)

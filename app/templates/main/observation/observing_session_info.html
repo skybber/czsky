@@ -156,7 +156,7 @@
                     <div class="ui item">
                         <form id="fmdownload" method="post" action="{{ url_for('main_observing_session.observing_session_export', observing_session_id=observing_session.id) }}">
                             <button class="ui icon positive button" data-content="{{ _('Export observation to OAL')}}">
-                                <i class="upload icon"></i>
+                                <i class="download icon"></i>
                                 {{ _('Export observing session to OAL') }}
                             </button>
                             <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
@@ -166,7 +166,7 @@
                     <div class="ui item">
                         <form id="fmupload" method="post" action="{{ url_for('main_observing_session.observing_session_import_upload', observing_session_id=observing_session.id) }}" enctype="multipart/form-data">
                             <label for="file" class="ui icon orange button">
-                                <i class="download icon"></i>
+                                <i class="upload icon"></i>
                                 {{ _('Import observing session OAL') }}
                             </label>
                             <input type="file" id="file" name="file" class="ui file input">

@@ -10,7 +10,7 @@ from wtforms.validators import (
 
 
 class AddToWishListForm(FlaskForm):
-    dso_name = StringField(lazy_gettext('DSO name'), validators=[InputRequired(),])
+    object_id = StringField(lazy_gettext('Object id'), validators=[InputRequired(),])
 
 
 class SearchWishListForm(FlaskForm):

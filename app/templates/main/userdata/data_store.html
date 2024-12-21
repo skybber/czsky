@@ -62,7 +62,7 @@
                 {{ f.begin_form(save_form, flashes, action=url_for('main_userdata.git_save', subtype=subtype)) }}
                     {{ f.render_form_field(save_form.commit_message) }}
                     <button class="ui {{ 'disabled ' if not git_enabled }}labeled icon positive button" value="store" type="submit" name="submit">
-                        <i class="download icon"></i>
+                        <i class="upload icon"></i>
                         {% if subtype == 'repo_personal' %}
                             {{ _('Save data to Git') }}
                         {% else %}
@@ -94,7 +94,7 @@
                     <p>Git repository is not set up.</p>
                 {% endif %}
                 <button id="bloaddata" class="ui {{ 'disabled ' if not git_enabled }} labeled icon negative button">
-                    <i class="upload icon"></i>
+                    <i class="download icon"></i>
                     {% if subtype == 'repo_personal' %}
                         {{ _('Load data from Git') }}
                     {% else %}

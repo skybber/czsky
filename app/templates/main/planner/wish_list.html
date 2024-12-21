@@ -18,93 +18,187 @@
 {% endmacro %}
 
 {% macro wish_list_info(wish_list) %}
-    <div class="ui stackable grid container">
-        <div class="fourteen wide tablet sixteen wide computer centered column">
+<div class="ui stackable grid container">
+    <div class="fourteen wide tablet sixteen wide computer centered column">
 
-            {% set flashes = {
-                'error':   get_flashed_messages(category_filter=['form-error']),
-                'warning': get_flashed_messages(category_filter=['form-warning']),
-                'info':    get_flashed_messages(category_filter=['form-info']),
-                'success': get_flashed_messages(category_filter=['form-success'])
-            } %}
-            {{ f.display_standard_flashes(flashes) }}
+        {% set flashes = {
+            'error':   get_flashed_messages(category_filter=['form-error']),
+            'warning': get_flashed_messages(category_filter=['form-warning']),
+            'info':    get_flashed_messages(category_filter=['form-info']),
+            'success': get_flashed_messages(category_filter=['form-success'])
+        } %}
+        {{ f.display_standard_flashes(flashes) }}
 
-            <div class="ui menu">
-                <form action="{{ url_for('main_wishlist.wish_list_info') }}" method="post" name="search" class="ui item">
-                    {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
-                    <div class="top right aligned floating ui label">{{ _('Season') }}</div>
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
-                </form>
+        <div class="ui menu">
+            <form action="{{ url_for('main_wishlist.wish_list_info') }}" method="post" name="search" class="ui item">
+                {{ search_form.season(class='ui dropdown button',onchange='this.form.submit()') }}
+                <div class="top right aligned floating ui label">{{ _('Season') }}</div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+            </form>
 
-                {{ f.begin_form(add_form, flashes, action=url_for('main_wishlist.wish_list_item_add'), extra_classes='ui right item') }}
-                    <div class="ui action input">
-                        {{ add_form.dso_name(size=15) }}
-                    </div>
-                    <button class="ui icon mini button">
+            {{ f.begin_form(add_form, flashes, action=url_for('main_wishlist.wish_list_item_add'), extra_classes='ui right item') }}
+                <div class="ui action input">
+                    <input type="text" name="{{ add_form.object_id.name }}" placeholder="{{ ('Object identification...') }}">
+                    <button class="ui icon button">
                         <i class="plus icon"></i>
                     </button>
-                {{ f.end_form(add_form) }}
+                </div>
+            {{ f.end_form(add_form) }}
+
+            <div class="right compact menu">
+                <div class="item">
+                    <div class="ui dropdown icon button">
+                    <i class="download icon"></i>
+                    <div class="menu">
+                        <a class="item" onclick="$('#fmdownloadCsv').submit();return false;">
+                            <form id="fmdownloadCsv" method="post" action="{{ url_for('main_wishlist.wish_list_export_csv') }}">
+                                {{ _('Export CSV') }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                            </form>
+                        </a>
+                        <a class="item" onclick="$('#fmdownloadOal').submit();return false;">
+                            <form id="fmdownloadOal" method="post" action="{{ url_for('main_wishlist.wish_list_export_oal') }}">
+                                {{ _('Export OAL') }}
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                            </form>
+                        </a>
+                    </div>
+                    </div>
+                </div>
+
+                <form id="fmupload" method="post" action="{{ url_for('main_wishlist.wish_list_import') }}" enctype="multipart/form-data" class="item">
+                    <label for="file" class="ui icon button" data-inverted="" data-tooltip="{{ _('Upload wishlist plan from CSV/OAL') }}" data-position="bottom center" data-variation="tiny basic">
+                        <i class="upload icon"></i>
+                    </label>
+                    <input type="file" id="file" name="file" class="ui file input">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                </form>
+                <div class="item">
+                    <button id="clear_wishlist" class="ui icon negative button" data-inverted="" data-tooltip="{{ _('Clear wishlist') }}" data-position="bottom center" data-variation="tiny basic">
+                        <i class="trash alternate icon"></i>
+                    </button>
+                </div>
             </div>
 
-            <div style="overflow-x: scroll;">
-                <table class="ui searchable sortable unstackable selectable celled table">
-                    <thead>
-                        <tr>
-                            <th class="sorted ascending">Name</th>
-                            <th>{{ _('Type') }}</th>
-                            <th>{{ _('Constellation') }}</th>
-                            <th>mag</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, back='wishlist', season=season) }}{% endmacro %}
-                    {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_seltab', double_star_id=item.double_star.id, back='wishlist', season=season) }}{% endmacro %}
+        </div>
 
-                    {% for item in wish_list_items %}
-                        {% if item.dso_id is not none %}
-                            {% set to_url = to_dso_url(item) %}
-                            {% set item_name = item.deepsky_object.denormalized_name() %}
-                            {% set item_type = item.deepsky_object.type %}
-                            {% set item_constell = item.deepsky_object.get_constellation_iau_code() %}
-                            {% set item_mag = item.deepsky_object.mag %}
-                        {% elif item.double_star_id is not none %}
-                            {% set to_url = to_double_star_url(item) %}
-                            {% set item_name = item.double_star.common_cat_id %}
-                            {% set item_type = item.double_star.components %}
-                            {% set item_constell = item.double_star.get_constellation_iau_code() %}
-                            {% set item_mag = (item.double_star.mag_first | string) + '/' + (item.double_star.mag_second | string) %}
-                        {% else %}
-                            {% set to_url = '' %}
-                            {% set item_name = '' %}
-                            {% set item_type = '' %}
-                            {% set item_constell = '' %}
-                            {% set item_mag = '' %}
-                        {% endif %}
-                        <tr>
-                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_name }}</td>
-                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_type }}</td>
-                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_constell }}</td>
-                            <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_mag }}</td>
-                            <td class="collapsing specialClass">
-                                <a class="ui icon mini button" href="{{ url_for('main_wishlist.wish_list_item_remove', item_id=item.id) }}">
-                                    <i class="trash alternate icon"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div style="overflow-x: scroll;">
+            <table class="ui searchable sortable unstackable selectable celled table">
+                <thead>
+                    <tr>
+                        <th class="sorted ascending">Name</th>
+                        <th>{{ _('Type') }}</th>
+                        <th>{{ _('Constellation') }}</th>
+                        <th>mag</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, back='wishlist', season=season) }}{% endmacro %}
+                {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_seltab', double_star_id=item.double_star.id, back='wishlist', season=season) }}{% endmacro %}
+
+                {% for item in wish_list_items %}
+                    {% if item.dso_id is not none %}
+                        {% set to_url = to_dso_url(item) %}
+                        {% set item_name = item.deepsky_object.denormalized_name() %}
+                        {% set item_type = item.deepsky_object.type %}
+                        {% set item_constell = item.deepsky_object.get_constellation_iau_code() %}
+                        {% set item_mag = item.deepsky_object.mag %}
+                    {% elif item.double_star_id is not none %}
+                        {% set to_url = to_double_star_url(item) %}
+                        {% set item_name = item.double_star.common_cat_id %}
+                        {% set item_type = item.double_star.components %}
+                        {% set item_constell = item.double_star.get_constellation_iau_code() %}
+                        {% set item_mag = (item.double_star.mag_first | string) + '/' + (item.double_star.mag_second | string) %}
+                    {% else %}
+                        {% set to_url = '' %}
+                        {% set item_name = '' %}
+                        {% set item_type = '' %}
+                        {% set item_constell = '' %}
+                        {% set item_mag = '' %}
+                    {% endif %}
+                    <tr>
+                        <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_name }}</td>
+                        <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_type }}</td>
+                        <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_constell }}</td>
+                        <td onclick="window.location.href=appendScreenWidthToUrl('{{ to_url }}');">{{ item_mag }}</td>
+                        <td class="collapsing specialClass">
+                            <a class="ui icon mini button" href="{{ url_for('main_wishlist.wish_list_item_remove', item_id=item.id) }}">
+                                <i class="trash alternate icon"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <script type="text/javascript">
-        $("tr td.specialClass").click(function (e) {
-            e.cancelBubble();
-            e.stopPropagation();
-        });
-    </script>
+<style>
+    .ui.file.input {
+      display: none;
+    }
+</style>
+
+<div class="ui tiny modal loadModal">
+    <div class="header">{{ _('Load wishlist plan') }}</div>
+    <div class="content">
+        <p>{{ _('All data from file will be added to wishlist.') }}</p>
+        <p>{{ _('Are you sure you want to import wishist?') }}</p>
+    </div>
+    <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <button id="confirm_upload" class="ui positive right labeled icon approve button">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </button>
+    </div>
+</div>
+
+
+<div class="ui tiny modal deleteModal">
+    <div class="header">{{ _('Clear wishlist') }}</div>
+    <div class="content">
+        <p>{{ _('All wishlist items will be removed.') }}</p>
+        <p>{{ _('Are you sure you want to clear wishlist?') }}</p>
+    </div>
+    <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_wishlist.wishlist_clear') }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('.ui.modal.loadModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
+    });
+    $('.ui.modal.deleteModal').modal({
+        onApprove: function() {
+            return validateModal()
+        }
+    });
+    $('#file').change(function() {
+        $('.ui.modal.loadModal')
+            .modal('show');
+    });
+    $("#confirm_upload").click(function() {
+        $("#fmupload" ).submit();
+    });
+    $("tr td.specialClass").click(function (e) {
+        e.cancelBubble();
+        e.stopPropagation();
+    });
+    $('#clear_wishlist').click(function() {
+        $('.ui.modal.deleteModal')
+            .modal('show');
+    });
+</script>
 {% endmacro %}
 
 {# --- Chart --- #}
