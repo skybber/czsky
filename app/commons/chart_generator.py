@@ -831,7 +831,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
 
     optimize_traffic = session.get('optimize_traffic', 'false')
 
-    if avif_width_threshold >= width and (('avif' in img_formats and avif == '1') or optimize_traffic == 'true'):
+    if avif_width_threshold >= width and ('avif' in img_formats) and avif == '1' and optimize_traffic == 'true':
         img_format = 'avif'
     elif 'jpg' in img_formats:
         img_format = 'jpg'
