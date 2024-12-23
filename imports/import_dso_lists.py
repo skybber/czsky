@@ -122,8 +122,8 @@ def import_herschel400(herschel400_data_file):
             db.session.rollback()
         print('') # finish on new line
 
-def import_caldwell(caldwell_data_file):
 
+def import_caldwell(caldwell_data_file):
     row_count = sum(1 for line in open(caldwell_data_file)) - 1
 
     with open(caldwell_data_file) as csvfile:
@@ -299,6 +299,10 @@ def _do_import_simple_csv(csv_data_file, dso_list_name, dso_list_long_name, list
             print('\nIntegrity error {}'.format(err))
             db.session.rollback()
         print('') # finish on new line
+
+
+def import_messier_marathon(messier_marathon_data_file):
+    _do_import_simple_csv(messier_marathon_data_file, 'messier-marathon', 'Messier Marathon', DeepskyListType.CLASSIC, show_common_name=False, show_minor_axis=False)
 
 
 def import_superthin_gx(superthingx_data_file):

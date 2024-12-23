@@ -173,6 +173,7 @@ def import_dso_list():
     from imports.import_dso_lists import import_caldwell
     from imports.import_dso_lists import import_deep_man_600
     from imports.import_dso_lists import import_herschel400
+    from imports.import_dso_lists import import_messier_marathon
     from imports.import_dso_lists import import_superthin_gx
     from imports.import_dso_lists import import_holmberg
     from imports.import_dso_lists import import_abell_pn
@@ -186,6 +187,7 @@ def import_dso_list():
 
     import_caldwell('data/dsolist/CaldwellObjects.csv')
     import_herschel400('data/dsolist/Herschel400.csv')
+    import_messier_marathon('data/dsolist/MessierMarathon.csv')
     import_superthin_gx('data/dsolist/SuperthinGX.csv')
     import_holmberg('data/dsolist/Holmberg.csv')
     import_abell_pn('data/dsolist/AbellPN.csv')
@@ -198,6 +200,7 @@ def import_dso_list():
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
     import_deep_man_600('data/dsolist/DeepMan600.csv')
     import_minimistr_dn('data/dsolist/MiniMistr_DN.csv')
+
 
 @app.cli.command("import_hnsky_supplements")
 def import_hnsky_supplements():
@@ -416,6 +419,7 @@ def tmp_import_translated_gottlieb():
     from imports.import_gottlieb_translate import import_translated_gottlieb
     import_translated_gottlieb('data/gottlieb', 'cs', 'Autor textu: ')
 
+
 @app.cli.command("tmp_import_translated_stars")
 def tmp_import_translated_stars():
     from imports.import_stars_translate import import_stars_translate
@@ -451,6 +455,7 @@ použij !!!vždy!!! termín 'galaxie s příčkou'. Opravovaný text začína se
 
 '''
     fix_wikipedia_ngc('cs', 'Zdroj', 'příčně', gpt_prompt)
+
 
 @app.cli.command("tmp_dmichalko")
 def tmp_dmichalko():
@@ -512,18 +517,27 @@ def tmp_add_ug_bl_user_dso_desc():
                         db.session.add(udd)
                         db.session.flush()
                         db.session.commit()
+
+
 @app.cli.command("tmp_update_minor_planets_brightness")
 def tmp_update_minor_planets_brightness():
     from app.commons.minor_planet_utils import update_minor_planets_brightness
     update_minor_planets_brightness(True)
+
 
 @app.cli.command("tmp_update_minor_planets_positions")
 def tmp_update_minor_planets_positions():
     from app.commons.minor_planet_utils import update_minor_planets_positions
     update_minor_planets_positions(True)
 
+
 @app.cli.command("tmp_update_hnsky")
 def tmp_update_hnsky():
     from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
     import_hnsky('data/deep_sky.hnd')
 
+
+@app.cli.command("tmp_import_messier_marathon")
+def tmp_import_messier_marathon():
+    from imports.import_dso_lists import import_messier_marathon
+    import_messier_marathon('data/dsolist/MessierMarathon.csv')
