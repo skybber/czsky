@@ -131,6 +131,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.ctx = this.canvas.getContext('2d');
 
     this.projection = projection;
+    this.projectionCenterRA = undefined;
+    this.projectionCenterDEC = undefined;
 
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
@@ -148,6 +150,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
     this.draggingStart = false;
     this.pointerX = undefined;
     this.pointerY = undefined;
+    this.pointerYFac = undefined;
     this.movingPos = undefined;
     this.initialDistance = undefined;
     this.pointerMoveTimeout = false;
@@ -340,11 +343,19 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, ra, dec, obj_ra, obj_dec, 
 }
 
 FChart.prototype.setViewCenter = function (ra, dec) {
-    if (ra > Math.PI*2) ra = ra - 2 * Math.PI
-    if (ra < 0) ra = ra + 2 * Math.PI
+    if (ra > Math.PI*2) {
+        ra = ra - 2 * Math.PI
+    }
+    if (ra < 0) {
+        ra = ra + 2 * Math.PI
+    }
 
-    if (dec > Math.PI / 2.0) dec = Math.PI/2.0;
-    if (dec < -Math.PI / 2.0) dec = -Math.PI/2.0;
+    if (dec > Math.PI/2.0 - this.MIN_POLE_ANG_DIST) {
+        dec = Math.PI/2.0 - this.MIN_POLE_ANG_DIST;
+    }
+    if (dec < -Math.PI/2.0 + this.MIN_POLE_ANG_DIST) {
+        dec = -Math.PI/2.0 + this.MIN_POLE_ANG_DIST;
+    }
 
     this.viewCenter.ra = ra;
     this.viewCenter.dec = dec;
@@ -353,8 +364,15 @@ FChart.prototype.setViewCenter = function (ra, dec) {
 }
 
 FChart.prototype.setProjectionToViewCenter = function() {
-    this.projection.setCenter(rad2deg(this.viewCenter.ra), rad2deg(this.viewCenter.dec));
+    this.setProjectionCenter(this.viewCenter.ra, this.viewCenter.dec);
 }
+
+FChart.prototype.setProjectionCenter = function(ra, dec) {
+    this.projectionCenterRA = ra;
+    this.projectionCenterDEC = dec;
+    this.projection.setCenter(rad2deg(ra), rad2deg(dec));
+}
+
 
 FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
     this.legendUrl = legendUrl;
@@ -593,7 +611,7 @@ FChart.prototype.setupImgGrid = function(centerRA, centerDEC) {
     let screenY = 0;
     this.imgGrid = [];
     let scale = this.getFChartScale();
-    this.projection.setCenter(rad2deg(centerRA), rad2deg(centerDEC));
+    this.setProjectionCenter(centerRA, centerDEC);
     for (i=0; i <= this.GRID_SIZE; i++) {
         let screenX = 0;
         let y = (screenY - this.canvas.height / 2.0) / scale;
@@ -640,8 +658,11 @@ FChart.prototype.getFChartScale = function() {
 
 
 FChart.prototype.projectAngle2Screen = function(fldRadiue) {
-    this.projection.setCenter(0, 0);
+    let oldRA = this.projectionCenterRA;
+    let oldDEC = this.projectionCenterDEC;
+    this.setProjectionCenter(0, 0);
     let screenPos = this.projection.project(rad2deg(fldRadiue), 0);
+    this.setProjectionCenter(oldRA, oldDEC);
     return Math.abs(screenPos.X - screenPos.Y);
 }
 
@@ -711,14 +732,13 @@ FChart.prototype.getDRaDec = function(fromKbdMove) {
         let dRA = movingToPos.ra - this.movingPos.ra;
         let dDEC = movingToPos.dec - this.movingPos.dec;
 
+        this.setProjectionToViewCenter();
         if (this.viewCenter.dec > 0) {
-            this.setProjectionToViewCenter();
             let polePos = this.projection.project(0, 90.0);
             if (y < polePos.Y) {
                 dDEC = -dDEC;
             }
         } else {
-            this.setProjectionToViewCenter();
             let polePos = this.projection.project(0, -90.0);
             if (y > polePos.Y) {
                 dDEC = -dDEC;
@@ -1061,10 +1081,28 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
 FChart.prototype.setMovingPosToCenter = function() {
     let rect = this.canvas.getBoundingClientRect();
     this.pointerX = rect.left + this.canvas.width / 2.0;
-    this.pointerY = rect.top + this.canvas.height / 2.0;
-    this.movingPos = {
-        "ra" : this.viewCenter.ra,
-        "dec" :  this.viewCenter.dec
+    if (this.kbdDragging != null && this.kbdMoveDY != 0) {
+        this.pointerYFac = 0.5;
+        let scale = this.getFChartScale();
+        if (this.kbdMoveDY * this.multDEC > 0) {
+            let polePos = this.projection.project(0, 90.0);
+            if (polePos.Y * scale > -0.25 * this.canvas.height) {
+                this.pointerYFac = 0.1;
+            }
+        } else {
+            let polePos = this.projection.project(0, -90.0);
+            if (polePos.Y * scale < 0.25 * this.canvas.height) {
+                this.pointerYFac = 0.9;
+            }
+        }
+        this.pointerY = rect.top + this.pointerYFac * this.canvas.height;
+        this.setupMovingPos();
+    } else {
+        this.pointerY = rect.top + this.canvas.height / 2.0;
+        this.movingPos = {
+            "ra": this.viewCenter.ra,
+            "dec": this.viewCenter.dec
+        }
     }
 }
 
@@ -1080,6 +1118,10 @@ FChart.prototype.kbdSmoothMove = function() {
         this.lastSmoothMoveTime = now;
 
         let dAng = deg2rad(this.imgField) / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
+        if (this.kbdMoveDX != 0) {
+             dAng = dAng / Math.cos(0.9 * this.viewCenter.dec);
+        }
+
         this.viewCenter.dRA += this.kbdMoveDX * dAng;
         this.viewCenter.dDEC += this.kbdMoveDY * dAng;
 
@@ -1091,7 +1133,7 @@ FChart.prototype.kbdSmoothMove = function() {
         let scale = this.getFChartScale();
         let rect = this.canvas.getBoundingClientRect();
         this.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
-        this.pointerY = rect.top + this.canvas.height / 2.0 + movedPointer.Y * scale;
+        this.pointerY = rect.top + this.pointerYFac * this.canvas.height + movedPointer.Y * scale;
 
         let curLegendImg = this.legendImgBuf[this.legendImg.active];
         let curSkyImg = this.skyImgBuf[this.skyImg.active];
@@ -1181,7 +1223,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let h2 = curSkyImg.height / 2;
     let centerRA = this.viewCenter.ra - dRD.dRA;
     let centerDEC = this.viewCenter.dec - dRD.dDEC;
-    this.projection.setCenter(rad2deg(centerRA), rad2deg(centerDEC));
+    this.setProjectionCenter(centerRA, centerDEC);
     for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
         let pos = this.projection.project(rad2deg(this.imgGrid[i][0]), rad2deg(this.imgGrid[i][1]));
         if (pos != null) {
@@ -1191,7 +1233,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
             screenImgGrid.push(null);
         }
     }
-    this.projection.setCenter(rad2deg(this.viewCenter.ra), rad2deg(this.viewCenter.dec));
+    this.setProjectionCenter(this.viewCenter.ra, this.viewCenter.dec);
     let imgY = 0;
     let dimgX = curSkyImg.width / this.GRID_SIZE;
     let dimgY = curSkyImg.height / this.GRID_SIZE;
