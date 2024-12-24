@@ -806,9 +806,9 @@ FChart.prototype.onMouseOut = function(e) {
 FChart.prototype.onKeyDown = function (e) {
     let keyMoveMap = {
         37: [1, 0],
-        38: [0, 1],
+        38: [0, -1],
         39: [-1, 0],
-        40: [0, -1],
+        40: [0, 1],
     }
 
     if (e.keyCode == 33) {
