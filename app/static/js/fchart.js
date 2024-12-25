@@ -1098,6 +1098,7 @@ FChart.prototype.setMovingPosToCenter = function() {
         this.pointerY = rect.top + this.pointerYFac * this.canvas.height;
         this.setupMovingPos();
     } else {
+        this.pointerYFac = 0.5;
         this.pointerY = rect.top + this.canvas.height / 2.0;
         this.movingPos = {
             "ra": this.viewCenter.ra,
