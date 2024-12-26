@@ -14,7 +14,8 @@
                               flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_chart.chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
-                     fchart_form, )
+                     fchart_form,
+                     disable_to_detail=True)
     }}
 {% endmacro %}
 
