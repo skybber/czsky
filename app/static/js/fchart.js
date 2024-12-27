@@ -1313,7 +1313,7 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
 
         this.zoomStep = 0;
         this.nextZoomTime = performance.now();
-        this.nextScaleFac(true);
+        this.nextScaleFac();
         if (!this.zoomImgActive && this.zoomImg.src != this.skyImgBuf[this.skyImg.active].src) {
             this.zoomImgLoaded = false;
             this.zoomImg.onload = (function () {
@@ -1325,6 +1325,7 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             this.zoomImgLoaded = true;
         }
         this.zoomImgActive = true;
+        this.syncAladinZoom(false);
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
         this.zoomQueuedImgs++;
@@ -1348,7 +1349,7 @@ FChart.prototype.computeZoomTimeout = function () {
    //console.log(this.zoomStep + ' ' + performance.now() + ' ' + diff)
    let skipped = false;
    while (diff >= this.ZOOM_TIMEOUT && this.zoomStep < this.MAX_ZOOM_STEPS) {
-       this.nextScaleFac(false);
+       this.nextScaleFac();
        diff = diff - this.ZOOM_TIMEOUT;
        skipped = true;
    }
@@ -1374,15 +1375,15 @@ FChart.prototype.setZoomInterval = function (zoomTimeout) {
 
 FChart.prototype.zoomFunc = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
-        this.nextScaleFac(true);
-    } else {
-        this.syncAladinZoom(false);
+        this.nextScaleFac();
     }
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+        this.syncAladinZoom(false);
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
         if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
+            this.syncAladinZoom(true);
             this.redrawAll();
             this.zoomEnding = true;
         } else {
@@ -1398,16 +1399,13 @@ FChart.prototype.zoomFunc = function() {
     }
 }
 
-FChart.prototype.nextScaleFac = function(syncAladin) {
+FChart.prototype.nextScaleFac = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.zoomStep ++;
         if (this.scaleFacTotal > 1) {
             this.scaleFac = this.startScaleFac + (this.scaleFacTotal - 1) * this.zoomStep / this.MAX_ZOOM_STEPS;
         } else {
             this.scaleFac = this.startScaleFac - (this.startScaleFac - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
-        }
-        if (syncAladin) {
-            this.syncAladinZoom(false);
         }
     }
 }
