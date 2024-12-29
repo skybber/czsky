@@ -318,7 +318,7 @@
 
   <div id="isearch2" class="ui tablet hidden computer hidden input" style="z-index:100; position: absolute; bottom: 0; right:0; display:none;">
       <div id="iisearch2" class="ui tiny input transition hidden" style="width:150px; margin-right: 0.5em;">
-          <input name="search" type="text" class="search" placeholder="{{ _('Search...') }}">
+          <input id="iiisearch2" name="search" type="text" class="search" placeholder="{{ _('Search...') }}">
       </div>
       <button class="ui tiny icon button" id="bsearch2">
           <i class="search icon"></i>
@@ -795,12 +795,18 @@
             $('#iisearch2').transition({
                 animation  : 'fade',
                 onComplete : function() {
-                  $('#iisearch2 input').focus();
+                  $('#iiisearch2').focus();
               }
             });
           } else {
             $('#iisearch2').transition('fade');
           }
+    });
+
+    $('#iiisearch2').on('blur', function() {
+        if (!$('#iisearch2').hasClass('hidden')) {
+          $('#iisearch2').transition('fade');
+        }
     });
 
     $('.search').on('keydown', function(event) {
