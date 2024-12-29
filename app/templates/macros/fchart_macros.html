@@ -316,9 +316,13 @@
       </div>
   </div>
 
-  <div id="isearch2" class="ui tiny icon tablet hidden computer hidden input" style="width: 150px; z-index:100; position: absolute; bottom: 0; right:0; display:none;">
-      <input id="search2" name="search" class="search" type="text" placeholder="{{ _('Search...') }} ">
-      <i class="search icon"></i>
+  <div id="isearch2" class="ui tablet hidden computer hidden input" style="z-index:100; position: absolute; bottom: 0; right:0; display:none;">
+      <div id="iisearch2" class="ui tiny input transition hidden" style="width:150px; margin-right: 0.5em;">
+          <input name="search" type="text" class="search" placeholder="{{ _('Search...') }}">
+      </div>
+      <button class="ui tiny icon button" id="bsearch2">
+          <i class="search icon"></i>
+      </button>
   </div>
 
 {% assets 'aladin_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
@@ -786,13 +790,25 @@
     });
 {% endif %}
 
-    $('.search').keypress(function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if(keycode == '13'){
+    $('#bsearch2').on('click', function() {
+        if ($('#iisearch2').hasClass('hidden')) {
+            $('#iisearch2').transition({
+                animation  : 'fade',
+                onComplete : function() {
+                  $('#iisearch2 input').focus();
+              }
+            });
+          } else {
+            $('#iisearch2').transition('fade');
+          }
+    });
+
+    $('.search').on('keydown', function(event) {
+        if(event.which === 13) {
+            event.preventDefault();
             window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart"
             + getFullscreenSplitViewUrlPart("&") + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}'));
         }
-        event.stopPropagation();
     });
 
     $('#date_from').calendar({
