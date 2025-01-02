@@ -98,6 +98,7 @@ class Config:
     CHART_AVIF_LOW_QUALITY = os.environ.get('CHART_AVIF_LOW_QUALITY', 55)
     CHART_AVIF_HIGH_QUALITY = os.environ.get('CHART_AVIF_HIGH_QUALITY', 80)
     CHART_AVIF_THRESHOLD_WIDTH = os.environ.get('CHART_AVIF_THRESHOLD_WIDTH', 768)
+    STAR_CATALOG = os.environ.get('STAR_CATALOG', 'nomad')
 
     @staticmethod
     def init_app(app):

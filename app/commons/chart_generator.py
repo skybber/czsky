@@ -184,23 +184,30 @@ def _load_used_catalogs():
     if used_catalogs is None:
         with catalog_lock:
             if used_catalogs is None:
-                data_dir = os.path.join(fchart3.get_catalogs_dir())
-                extra_data_dir = os.path.join(os.getcwd(), 'data/')
+                fchart3_data_dir = os.path.join(fchart3.get_catalogs_dir())
+                star_catalog = current_app.config.get('STAR_CATALOG')
+                use_gaia = (star_catalog == 'gaia')
+                data_dir = os.path.join(os.getcwd(), 'data/')
+                if use_gaia:
+                    extra_star_data_dir = os.path.join(os.getcwd(), 'data/stars_gaia/')
+                else:
+                    extra_star_data_dir = data_dir
                 supplements = [
                                 # LDN replaces some outlines with some DSO (Veil) with rect
                                 # 'Lynds Catalogue of Bright Nebulae.sup',
                                 'M31 global clusters, Revised Bologna Catalogue v5.sup',
                                 'M33 global clusters,  2007 catalog.sup',
                                 'VDB, catalogue of reflection nebulae.sup']
-                used_catalogs = fchart3.UsedCatalogs(data_dir,
-                                                     extra_data_dir,
-                                                     supplements=[ os.path.join(extra_data_dir, 'supplements', s) for s in supplements ],
+                used_catalogs = fchart3.UsedCatalogs(fchart3_data_dir,
+                                                     extra_star_data_dir,
+                                                     supplements=[os.path.join(data_dir, 'supplements', s) for s in supplements],
                                                      limit_magnitude_deepsky=100.0,
                                                      force_asterisms=False,
                                                      force_unknown=False,
                                                      show_catalogs=ADD_SHOW_CATALOGS,
                                                      use_pgc_catalog=True,
-                                                     enhanced_mw_optim_max_col_diff=18/255.0)
+                                                     enhanced_mw_optim_max_col_diff=18/255.0,
+                                                     use_gaia=use_gaia)
                 global dso_name_cache
                 dso_name_cache = {}
     return used_catalogs
