@@ -919,7 +919,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
         free_mem_counter = 0
         used_catalogs.free_mem()
 
-    print("Map created within : {} ms".format(str(time()-tm)), flush=True)
+    print("Map created within : {} s".format(str(time()-tm)), flush=True)
 
     return img_format
 
