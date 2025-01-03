@@ -32,7 +32,7 @@ gunicorn==22.0.0
 honcho==1.1.0
 idna==3.7
 itsdangerous==2.2.0
-Jinja2==3.1.4
+Jinja2==3.1.5
 jsmin==3.0.1
 jsonpickle==3.0.4
 LatLon23==1.0.7
