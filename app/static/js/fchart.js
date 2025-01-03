@@ -805,9 +805,9 @@ FChart.prototype.onMouseOut = function(e) {
 
 FChart.prototype.onKeyDown = function (e) {
     let keyMoveMap = {
-        37: [1, 0],
+        37: [-1, 0],
         38: [0, -1],
-        39: [-1, 0],
+        39: [1, 0],
         40: [0, 1],
     }
 
@@ -1022,22 +1022,36 @@ FChart.prototype.slowDownFunc = function (e) {
     }
 }
 
+FChart.prototype.moveViewCenterByAng = function(dAng, multX, multY) {
+    this.viewCenter.dRA += multX * dAng;
+    this.viewCenter.dDEC += multY * dAng;
+
+    let newRA  = rad2deg(this.viewCenter.ra + this.viewCenter.dRA);
+    let newDEC = rad2deg(this.viewCenter.dec + this.viewCenter.dDEC);
+
+    let movedPointer = this.projection.project(newRA, newDEC);
+
+    let scale = this.getFChartScale();
+    let rect = this.canvas.getBoundingClientRect();
+    this.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
+    this.pointerY = rect.top + this.pointerYFac * this.canvas.height + movedPointer.Y * scale;
+}
+
 FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
     if (!this.isDragging && this.kbdDragging == 0) {
         this.setMovingPosToCenter();
 
-        if (mx > 0) {
-            this.pointerX += this.canvas.width / 2;
+        let fldPixSize = Math.sqrt(this.canvas.width**2, this.canvas.height**2);
+
+        var dAng = deg2rad(this.imgField);
+        if (mx != 0) {
+            dAng *= this.canvas.width / fldPixSize;
+        } else {
+            dAng *= this.canvas.height / fldPixSize;
         }
-        if (mx < 0) {
-            this.pointerX -= this.canvas.width / 2;
-        }
-        if (my < 0) {
-            this.pointerY -= this.canvas.height / 2;
-        }
-        if (my > 0) {
-            this.pointerY += this.canvas.height / 2;
-        }
+
+        this.moveViewCenterByAng(dAng, mx, my);
+
         let curLegendImg = this.legendImgBuf[this.legendImg.active];
         let curSkyImg = this.skyImgBuf[this.skyImg.active];
 
@@ -1123,18 +1137,7 @@ FChart.prototype.kbdSmoothMove = function() {
              dAng = dAng / Math.cos(0.9 * this.viewCenter.dec);
         }
 
-        this.viewCenter.dRA += this.kbdMoveDX * dAng;
-        this.viewCenter.dDEC += this.kbdMoveDY * dAng;
-
-        let newRA  = rad2deg(this.viewCenter.ra + this.viewCenter.dRA);
-        let newDEC = rad2deg(this.viewCenter.dec + this.viewCenter.dDEC);
-
-        let movedPointer = this.projection.project(newRA, newDEC);
-
-        let scale = this.getFChartScale();
-        let rect = this.canvas.getBoundingClientRect();
-        this.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
-        this.pointerY = rect.top + this.pointerYFac * this.canvas.height + movedPointer.Y * scale;
+        this.moveViewCenterByAng(dAng, this.kbdMoveDX, this.kbdMoveDY);
 
         let curLegendImg = this.legendImgBuf[this.legendImg.active];
         let curSkyImg = this.skyImgBuf[this.skyImg.active];
