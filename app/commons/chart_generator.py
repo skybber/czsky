@@ -58,11 +58,11 @@ FIELD_LABELS = [
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in FIELD_SIZES)
 
-MAG_SCALES = [(14, 16), # 0.1
-              (14, 16), # 0.165
-              (14, 16), # 0.25
-              (14, 16), # 0.375
-              (13, 16), # 0.5
+MAG_SCALES = [(14, 17), # 0.1
+              (14, 17), # 0.165
+              (14, 17), # 0.25
+              (14, 17), # 0.375
+              (13, 17), # 0.5
               (13, 16), # 0.75
               (12, 16), # 1
               (12, 16), # 1.5
@@ -865,6 +865,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
+    # engine.set_observer(0, pi/100)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
