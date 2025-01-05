@@ -523,8 +523,8 @@ def deepskyobject_chart(dso_id):
                            )
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def deepskyobject_chart_pos_img(dso_id, ra, dec):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pos-img', methods=['GET'])
+def deepskyobject_chart_pos_img(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
@@ -535,7 +535,7 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     highlights_dso_list, highlights_pos_list = create_hightlights_lists()
     observed_dso_ids = create_observed_dso_ids_list()
 
-    img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, ra, dec, dso_names=(dso.name,), visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, dso_names=(dso.name,), visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
                                                  observed_dso_ids=observed_dso_ids)
 
@@ -543,24 +543,24 @@ def deepskyobject_chart_pos_img(dso_id, ra, dec):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def deepskyobject_chart_legend_img(dso_id, ra, dec):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-legend-img', methods=['GET'])
+def deepskyobject_chart_legend_img(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(dso.ra, dso.dec, ra, dec, )
+    img_bytes = common_chart_legend_img(dso.ra, dso.dec)
 
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def chart_pdf(dso_id, ra, dec):
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf', methods=['GET'])
+def chart_pdf(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(dso.ra, dso.dec, ra, dec, dso_names=[dso.name])
+    img_bytes = common_chart_pdf_img(dso.ra, dso.dec, dso_names=[dso.name])
 
     return send_file(img_bytes, mimetype='application/pdf')
 

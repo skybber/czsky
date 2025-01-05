@@ -111,8 +111,8 @@ def news_chart(news_id):
     return render_template('main/news/news_info.html', fchart_form=form, type='chart', news=news, user_descr=None, chart_control=chart_control, )
 
 
-@main_news.route('/news/<int:news_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def news_chart_pos_img(news_id, ra, dec):
+@main_news.route('/news/<int:news_id>/chart-pos-img', methods=['GET'])
+def news_chart_pos_img(news_id):
     news = News.query.filter_by(id=news_id).first()
     if news is None:
         abort(404)
@@ -121,26 +121,26 @@ def news_chart_pos_img(news_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(news.ra, news.dec, ra, dec, visible_objects=visible_objects)
+    img_bytes, img_format = common_chart_pos_img(news.ra, news.dec, visible_objects=visible_objects)
 
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_news.route('/news/<int:news_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def news_chart_legend_img(news_id, ra, dec):
+@main_news.route('/news/<int:news_id>/chart-legend-img', methods=['GET'])
+def news_chart_legend_img(news_id):
     news = News.query.filter_by(id=news_id).first()
     if news is None:
         abort(404)
     if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
         abort(404)
 
-    img_bytes = common_chart_legend_img(news.ra, news.dec, ra, dec, )
+    img_bytes = common_chart_legend_img(news.ra, news.dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_news.route('/news/<int:news_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def news_chart_pdf(news_id, ra, dec):
+@main_news.route('/news/<int:news_id>/chart-pdf', methods=['GET'])
+def news_chart_pdf(news_id):
     news = News.query.filter_by(id=news_id).first()
     if news is None:
         abort(404)
@@ -150,7 +150,7 @@ def news_chart_pdf(news_id, ra, dec):
     news_ra = to_float(request.args.get('obj_ra'), None)
     news_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_chart_pdf_img(news_ra, news_dec, ra, dec)
+    img_bytes = common_chart_pdf_img(news_ra, news_dec)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

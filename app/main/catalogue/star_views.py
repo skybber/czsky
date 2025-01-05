@@ -231,8 +231,8 @@ def star_descr_chart(star_descr_id):
                            embed=embed, )
 
 
-@main_star.route('/star/<string:star_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def star_chart_pos_img(star_id, ra, dec):
+@main_star.route('/star/<string:star_id>/chart-pos-img', methods=['GET'])
+def star_chart_pos_img(star_id):
     star = Star.query.filter_by(id=star_id).first()
     if star is None:
         abort(404)
@@ -240,29 +240,29 @@ def star_chart_pos_img(star_id, ra, dec):
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     highlights_dso_list, highlights_pos_list = create_hightlights_lists()
-    img_bytes, img_format = common_chart_pos_img(star.ra, star.dec, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(star.ra, star.dec, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_star.route('/star/<string:star_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def star_chart_legend_img(star_id, ra, dec):
+@main_star.route('/star/<string:star_id>/chart-legend-img', methods=['GET'])
+def star_chart_legend_img(star_id):
     star = Star.query.filter_by(id=star_id).first()
     if star is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(star.ra, star.dec, ra, dec, )
+    img_bytes = common_chart_legend_img(star.ra, star.dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_star.route('/star/<string:star_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def star_chart_pdf(star_id, ra, dec):
+@main_star.route('/star/<string:star_id>/chart-pdf', methods=['GET'])
+def star_chart_pdf(star_id):
     star = Star.query.filter_by(id=star_id).first()
     if star is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(star.ra, star.dec, ra, dec)
+    img_bytes = common_chart_pdf_img(star.ra, star.dec)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

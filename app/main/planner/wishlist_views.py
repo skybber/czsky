@@ -281,39 +281,39 @@ def wish_list_chart():
                            default_chart_iframe_url=default_chart_iframe_url, )
 
 
-@main_wishlist.route('/wish-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_wishlist.route('/wish-list/chart-pos-img', methods=['GET'])
 @login_required
-def wish_list_chart_pos_img(ra, dec):
+def wish_list_chart_pos_img():
     wish_list = WishList.query.filter_by(user_id=current_user.id).first()
     wish_list_items = _get_wish_list_items(wish_list)
     highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     observed_dso_ids = find_wish_list_observed(wish_list)
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
                                                  observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_wishlist.route('/wish-list/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_wishlist.route('/wish-list/chart-legend-img', methods=['GET'])
 @login_required
-def wish_list_chart_legend_img(ra, dec):
+def wish_list_chart_legend_img():
     wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
     if wish_list is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_wishlist.route('/wish-list/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def wish_list_chart_pdf(ra, dec):
+@main_wishlist.route('/wish-list/chart-pdf', methods=['GET'])
+def wish_list_chart_pdf():
     wish_list = WishList.query.filter_by(user_id=current_user.id).first()
     wish_list_items = _get_wish_list_items(wish_list)
     highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pdf_img(None, None, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

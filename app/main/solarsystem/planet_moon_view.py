@@ -138,8 +138,8 @@ def planet_moon_info(planet_moon_name):
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_moon_chart_pos_img(planet_moon_name, ra, dec):
+@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pos-img', methods=['GET'])
+def planet_moon_chart_pos_img(planet_moon_name):
     planet_moon = PlanetMoon.get_by_name(planet_moon_name)
     if planet_moon is None:
         abort(404)
@@ -149,13 +149,13 @@ def planet_moon_chart_pos_img(planet_moon_name, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(plm_ra, plm_dec, ra, dec, visible_objects=visible_objects,)
+    img_bytes, img_format = common_chart_pos_img(plm_ra, plm_dec, visible_objects=visible_objects,)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_moon_chart_legend_img(planet_moon_name, ra, dec):
+@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-legend-img', methods=['GET'])
+def planet_moon_chart_legend_img(planet_moon_name):
     planet_moon = PlanetMoon.get_by_name(planet_moon_name)
     if planet_moon is None:
         abort(404)
@@ -163,17 +163,17 @@ def planet_moon_chart_legend_img(planet_moon_name, ra, dec):
     plm_ra = to_float(request.args.get('obj_ra'), None)
     plm_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_chart_legend_img(plm_ra, plm_dec, ra, dec, )
+    img_bytes = common_chart_legend_img(plm_ra, plm_dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def planet_moon_chart_pdf(planet_moon_name, ra, dec):
+@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf', methods=['GET'])
+def planet_moon_chart_pdf(planet_moon_name):
     planet_moon = PlanetMoon.get_by_name(planet_moon_name)
     if planet_moon is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec)
+    img_bytes = common_chart_pdf_img(None, None)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

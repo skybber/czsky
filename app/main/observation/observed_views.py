@@ -250,27 +250,27 @@ def observed_list_chart():
                            default_chart_iframe_url=default_chart_iframe_url,)
 
 
-@main_observed.route('/observed-list/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_observed.route('/observed-list/chart-pos-img', methods=['GET'])
 @login_required
-def observed_list_chart_pos_img(ra, dec):
+def observed_list_chart_pos_img():
     observed_list_items = _get_observed_list_items(current_user.id)
     highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list_items)
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_observed.route('/observed-list/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
+@main_observed.route('/observed-list/chart-legend-img', methods=['GET'])
 @login_required
-def observed_list_chart_legend_img(ra, dec):
+def observed_list_chart_legend_img():
     observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
     if observed_list is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 

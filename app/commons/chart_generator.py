@@ -352,9 +352,12 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
         return flt_trajectory
 
 
-def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
+def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
+
+    ra = request.args.get('ra')
+    dec = request.args.get('dec')
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -383,8 +386,11 @@ def common_chart_pos_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objec
     return img_bytes, out_img_format
 
 
-def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
+def common_chart_legend_img(obj_ra, obj_dec):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
+
+    ra = request.args.get('ra')
+    dec = request.args.get('dec')
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -405,9 +411,12 @@ def common_chart_legend_img(obj_ra, obj_dec, ra, dec):
     return img_bytes
 
 
-def common_chart_pdf_img(obj_ra, obj_dec, ra, dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
+def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, trajectory=None, highlights_pos_list=None):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
+
+    ra = request.args.get('ra')
+    dec = request.args.get('dec')
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 

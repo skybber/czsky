@@ -181,8 +181,8 @@ def planet_info(planet_iau_code):
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_pos_img(planet_iau_code, ra, dec):
+@main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img', methods=['GET'])
+def planet_chart_pos_img(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
@@ -199,14 +199,14 @@ def planet_chart_pos_img(planet_iau_code, ra, dec):
     else:
         trajectory = None
 
-    img_bytes, img_format = common_chart_pos_img(planet_ra, planet_dec, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(planet_ra, planet_dec, visible_objects=visible_objects,
                                                  trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_planet.route('/planet/<string:planet_iau_code>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_legend_img(planet_iau_code, ra, dec):
+@main_planet.route('/planet/<string:planet_iau_code>/chart-legend-img', methods=['GET'])
+def planet_chart_legend_img(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
@@ -214,12 +214,12 @@ def planet_chart_legend_img(planet_iau_code, ra, dec):
     planet_ra = to_float(request.args.get('obj_ra'), None)
     planet_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_chart_legend_img(planet_ra, planet_dec, ra, dec, )
+    img_bytes = common_chart_legend_img(planet_ra, planet_dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_planet.route('/planet/<string:planet_iau_code>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def planet_chart_pdf(planet_iau_code, ra, dec):
+@main_planet.route('/planet/<string:planet_iau_code>/chart-pdf', methods=['GET'])
+def planet_chart_pdf(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
@@ -234,7 +234,7 @@ def planet_chart_pdf(planet_iau_code, ra, dec):
     else:
         trajectory = None
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, trajectory=trajectory)
+    img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

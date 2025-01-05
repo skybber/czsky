@@ -535,8 +535,8 @@ def observing_session_chart(observing_session_id):
                            back='observation', back_id=observing_session.id)
 
 
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def observing_session_chart_pos_img(observing_session_id, ra, dec):
+@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pos-img', methods=['GET'])
+def observing_session_chart_pos_img(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
 
@@ -544,31 +544,30 @@ def observing_session_chart_pos_img(observing_session_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def observing_session_chart_pdf(observing_session_id, ra, dec):
+@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pdf', methods=['GET'])
+def observing_session_chart_pdf(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     _check_observing_session(observing_session, allow_public=True)
 
     highlights_dso_list, highlights_pos_list = common_highlights_from_observing_session(observing_session)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec,
-                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pdf_img(None, None, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def observing_session_chart_legend_img(observing_session_id, ra, dec):
+@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-legend-img', methods=['GET'])
+def observing_session_chart_legend_img(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
 
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 

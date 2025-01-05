@@ -249,8 +249,8 @@ def supernova_chart(designation):
                            embed=embed,)
 
 
-@main_supernova.route('/supernova/<string:designation>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def supernova_chart_pos_img(designation, ra, dec):
+@main_supernova.route('/supernova/<string:designation>/chart-pos-img', methods=['GET'])
+def supernova_chart_pos_img(designation):
     supernova = Supernova.query.filter_by(designation=designation).first()
     if supernova is None:
         abort(404)
@@ -260,30 +260,30 @@ def supernova_chart_pos_img(designation, ra, dec):
 
     highlights_dso_list, highlights_pos_list = create_hightlights_lists()
 
-    img_bytes, img_format = common_chart_pos_img(supernova.ra, supernova.dec, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(supernova.ra, supernova.dec, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
 
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_supernova.route('/supernova/<string:designation>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def supernova_chart_legend_img(designation, ra, dec):
+@main_supernova.route('/supernova/<string:designation>/chart-legend-img', methods=['GET'])
+def supernova_chart_legend_img(designation):
     supernova = Supernova.query.filter_by(designation=designation).first()
     if supernova is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(supernova.ra, supernova.dec, ra, dec, )
+    img_bytes = common_chart_legend_img(supernova.ra, supernova.dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_supernova.route('/supernova/<string:designation>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def supernova_chart_pdf(designation, ra, dec):
+@main_supernova.route('/supernova/<string:designation>/chart-pdf', methods=['GET'])
+def supernova_chart_pdf(designation):
     supernova = Supernova.query.filter_by(designation=designation).first()
     if supernova is None:
         abort(404)
 
-    img_bytes = common_chart_pdf_img(supernova.ra, supernova.dec, ra, dec)
+    img_bytes = common_chart_pdf_img(supernova.ra, supernova.dec)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

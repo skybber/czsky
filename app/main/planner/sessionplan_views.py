@@ -706,8 +706,8 @@ def session_plan_chart(session_plan_id):
                            )
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def session_plan_chart_pos_img(session_plan_id, ra, dec):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img', methods=['GET'])
+def session_plan_chart_pos_img(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
@@ -716,46 +716,45 @@ def session_plan_chart_pos_img(session_plan_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
                                                  observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def session_plan_chart_legend_img(session_plan_id, ra, dec):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img', methods=['GET'])
+def session_plan_chart_legend_img(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def session_plan_chart_pdf(session_plan_id, ra, dec):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf', methods=['GET'])
+def session_plan_chart_pdf(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
     observed_dso_ids = find_session_plan_observed(session_plan)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec,
-                                     highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+    img_bytes = common_chart_pdf_img(None, None, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
                                      observed_dso_ids=observed_dso_ids)
 
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-items/<string:ra>/<string:dec>', methods=['GET'])
-def session_plan_chart_items(session_plan_id, ra, dec):
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-items', methods=['GET'])
+def session_plan_chart_items(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)
 
     highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
 
     visible_objects = []
-    _ = common_chart_pdf_img(None, None, ra, dec, visible_objects=visible_objects,
+    _ = common_chart_pdf_img(None, None, visible_objects=visible_objects,
                              highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     norm_dso_names = get_norm_visible_objects_set(visible_objects)

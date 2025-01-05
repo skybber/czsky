@@ -119,8 +119,8 @@ def star_list_chart(star_list_id):
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_star_list.route('/star-list/<string:star_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def star_list_chart_pos_img(star_list_id, ra, dec):
+@main_star_list.route('/star-list/<string:star_list_id>/chart-pos-img', methods=['GET'])
+def star_list_chart_pos_img(star_list_id):
     star_list = _find_star_list(star_list_id)
     if star_list is None:
         abort(404)
@@ -130,23 +130,23 @@ def star_list_chart_pos_img(star_list_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_star_list.route('/star-list/<string:star_list_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def star_list_chart_legend_img(star_list_id, ra, dec):
+@main_star_list.route('/star-list/<string:star_list_id>/chart-legend-img', methods=['GET'])
+def star_list_chart_legend_img(star_list_id):
     star_list = _find_star_list(star_list_id)
     if star_list is None:
         abort(404)
 
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_star_list.route('/star-list/<string:star_list_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def star_list_chart_pdf(star_list_id, ra, dec):
+@main_star_list.route('/star-list/<string:star_list_id>/chart-pdf', methods=['GET'])
+def star_list_chart_pdf(star_list_id):
     star_list = _find_star_list(star_list_id)
     if star_list is None:
         abort(404)
@@ -154,6 +154,6 @@ def star_list_chart_pdf(star_list_id, ra, dec):
     star_list = StarList.query.filter_by(id=star_list.id).first()
     highlights_star_list = [ x.star for x in star_list.star_list_items if star_list ]
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_star_list=highlights_star_list)
+    img_bytes = common_chart_pdf_img(None, None, highlights_star_list=highlights_star_list)
 
     return send_file(img_bytes, mimetype='application/pdf')

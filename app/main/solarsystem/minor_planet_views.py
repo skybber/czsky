@@ -246,31 +246,31 @@ def minor_planets_chart():
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_minor_planet.route('/minor-planets/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planets_chart_pos_img(ra, dec):
+@main_minor_planet.route('/minor-planets/chart-pos-img', methods=['GET'])
+def minor_planets_chart_pos_img():
     minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 13.0).all()
 
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_minor_planet.route('/minor-planets/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planets_chart_legend_img(ra, dec):
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+@main_minor_planet.route('/minor-planets/chart-legend-img', methods=['GET'])
+def minor_planets_chart_legend_img():
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_minor_planet.route('/minor-planets/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planets_chart_pdf(ra, dec):
+@main_minor_planet.route('/minor-planets/chart-pdf', methods=['GET'])
+def minor_planets_chart_pdf():
     minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pdf_img(None, None, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
 
@@ -363,8 +363,8 @@ def minor_planet_info(minor_planet_id):
                            trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img', methods=['GET'])
+def minor_planet_chart_pos_img(minor_planet_id):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
@@ -381,13 +381,13 @@ def minor_planet_chart_pos_img(minor_planet_id, ra, dec):
     else:
         trajectory = None
 
-    img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, ra, dec, visible_objects=visible_objects, trajectory=trajectory)
+    img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-legend-img', methods=['GET'])
+def minor_planet_chart_legend_img(minor_planet_id):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
@@ -395,12 +395,12 @@ def minor_planet_chart_legend_img(minor_planet_id, ra, dec):
     minor_planet_ra = to_float(request.args.get('obj_ra'), None)
     minor_planet_dec = to_float(request.args.get('obj_dec'), None)
 
-    img_bytes = common_chart_legend_img(minor_planet_ra, minor_planet_dec, ra, dec, )
+    img_bytes = common_chart_legend_img(minor_planet_ra, minor_planet_dec)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def minor_planet_chart_pdf(minor_planet_id, ra, dec):
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET'])
+def minor_planet_chart_pdf(minor_planet_id):
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
@@ -415,7 +415,7 @@ def minor_planet_chart_pdf(minor_planet_id, ra, dec):
     else:
         trajectory = None
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, trajectory=trajectory)
+    img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 
     return send_file(img_bytes, mimetype='application/pdf')
 

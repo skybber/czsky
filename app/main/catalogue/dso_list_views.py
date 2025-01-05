@@ -217,8 +217,8 @@ def dso_list_chart(dso_list_id):
                            default_chart_iframe_url=default_chart_iframe_url, back='dso_list', back_id=dso_list.id,)
 
 
-@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img/<string:ra>/<string:dec>', methods=['GET'])
-def dso_list_chart_pos_img(dso_list_id, ra, dec):
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img', methods=['GET'])
+def dso_list_chart_pos_img(dso_list_id):
     dso_list_dsos = _find_dso_list_dsos(dso_list_id)
     if dso_list_dsos is None:
         abort(404)
@@ -227,26 +227,26 @@ def dso_list_chart_pos_img(dso_list_id, ra, dec):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, ra, dec, visible_objects=visible_objects,
+    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
                                                  highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img/<string:ra>/<string:dec>', methods=['GET'])
-def dso_list_chart_legend_img(dso_list_id, ra, dec):
-    img_bytes = common_chart_legend_img(None, None, ra, dec, )
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img', methods=['GET'])
+def dso_list_chart_legend_img(dso_list_id):
+    img_bytes = common_chart_legend_img(None, None)
     return send_file(img_bytes, mimetype='image/png')
 
 
-@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf/<string:ra>/<string:dec>', methods=['GET'])
-def dso_list_chart_pdf(dso_list_id, ra, dec):
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf', methods=['GET'])
+def dso_list_chart_pdf(dso_list_id):
     dso_list_dsos = _find_dso_list_dsos(dso_list_id)
     if dso_list_dsos is None:
         abort(404)
 
     observed_dso_ids = find_dso_list_observed(dso_list_id)
 
-    img_bytes = common_chart_pdf_img(None, None, ra, dec, highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
+    img_bytes = common_chart_pdf_img(None, None, highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
 
     return send_file(img_bytes, mimetype='application/pdf')
