@@ -20,7 +20,7 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
-    common_set_initial_ra_dec,
+    common_set_initial_celestial_position,
     set_chart_session_param,
 )
 from ... import csrf
@@ -67,7 +67,7 @@ def chart():
         form.ra.data = float(ra)
         form.dec.data = float(dec)
     elif not common_ra_dec_fsz_from_request(form):
-        common_set_initial_ra_dec(form)
+        common_set_initial_celestial_position(form)
 
     chart_control = common_prepare_chart_data(form)
 

@@ -59,7 +59,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
-    common_set_initial_ra_dec,
+    common_set_initial_celestial_position,
     common_chart_pdf_img,
 )
 
@@ -524,7 +524,7 @@ def observing_session_chart(observing_session_id):
                 form.ra.data = observing_session_item.get_ra()
                 form.dec.data = observing_session_item.get_dec()
         else:
-            common_set_initial_ra_dec(form)
+            common_set_initial_celestial_position(form)
 
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(observing_session_item, back='observation', back_id=observing_session.id)

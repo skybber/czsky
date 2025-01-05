@@ -356,8 +356,13 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
-    ra = request.args.get('ra')
-    dec = request.args.get('dec')
+    is_equatorial = request.args.get('ra') is not None
+    if is_equatorial:
+        phi = request.args.get('ra')
+        theta = request.args.get('dec')
+    else:
+        phi = request.args.get('az')
+        theta = request.args.get('alt')
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -374,7 +379,7 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     img_bytes = BytesIO()
     img_formats = current_app.config.get('CHART_IMG_FORMATS')
 
-    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, gui_fld_label, width, height,
+    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, float(phi), float(theta), gui_fld_size, gui_fld_label, width, height,
                                maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                                observed_dso_ids=observed_dso_ids, highlights_pos_list=highlights_pos_list, trajectory=trajectory,
                                hl_constellation=hl_constellation, img_formats=img_formats)
@@ -389,8 +394,13 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
 def common_chart_legend_img(obj_ra, obj_dec):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
-    ra = request.args.get('ra')
-    dec = request.args.get('dec')
+    is_equatorial = request.args.get('ra') is not None
+    if is_equatorial:
+        phi = request.args.get('ra')
+        theta = request.args.get('dec')
+    else:
+        phi = request.args.get('az')
+        theta = request.args.get('alt')
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
@@ -405,7 +415,7 @@ def common_chart_legend_img(obj_ra, obj_dec):
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, float(ra), float(dec), width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
+    _create_chart_legend(img_bytes, is_equatorial, float(phi), float(theta), width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
                          flags=flags, img_format='png')
     img_bytes.seek(0)
     return img_bytes
@@ -415,8 +425,13 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
                          observed_dso_ids=None, trajectory=None, highlights_pos_list=None):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
-    ra = request.args.get('ra')
-    dec = request.args.get('dec')
+    is_equatorial = request.args.get('ra') is not None
+    if is_equatorial:
+        phi = request.args.get('ra')
+        theta = request.args.get('dec')
+    else:
+        phi = request.args.get('az')
+        theta = request.args.get('alt')
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 
@@ -427,7 +442,8 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, float(ra), float(dec), gui_fld_size, gui_fld_label, maglim, dso_maglim,
+    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, float(phi), float(theta), gui_fld_size,
+                      gui_fld_label, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                       highlights_pos_list=highlights_pos_list, observed_dso_ids=observed_dso_ids, trajectory=trajectory,
                       eyepiece_fov=eyepiece_fov)
@@ -787,7 +803,7 @@ def _check_in_mag_interval(mag, mag_interval):
     return mag
 
 
-def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, fld_label, width, height, star_maglim,
+def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, fld_size, fld_label, width, height, star_maglim,
                   dso_maglim, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, observed_dso_ids=None,
                   highlights_pos_list=None, trajectory=None, hl_constellation=None, img_formats='png'):
     """Create chart in czsky process."""
@@ -873,8 +889,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
-    # engine.set_observer(0, pi/100)
+    engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
+    # engine.set_observer(0, pi/4)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -934,7 +950,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size,
     return img_format
 
 
-def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_size, fld_label, star_maglim, dso_maglim,
+def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, fld_size, fld_label, star_maglim, dso_maglim,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
                       observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
@@ -985,7 +1001,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
+    engine.set_field(phi, theta, fld_size * pi / 180.0 / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1021,7 +1037,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, ra, dec, fld_s
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
 
 
-def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
+def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld_size, fld_label, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
     global free_mem_counter
     # tm = time()
 
@@ -1059,7 +1075,7 @@ def _create_chart_legend(png_fobj, ra, dec, width, height, fld_size, fld_label, 
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(ra, dec, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
+    engine.set_field(phi, theta, fld_size * pi / 180.0 / 2.0, fld_label, mirror_x, mirror_y, projection)
 
     engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
@@ -1225,7 +1241,7 @@ def get_trajectory_time_delta(d1, d2):
     return timedelta(hours=3), 3
 
 
-def common_set_initial_ra_dec(form):
+def common_set_initial_celestial_position(form):
     day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
     day_now = datetime.now().timetuple().tm_yday
     ra = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
@@ -1236,6 +1252,8 @@ def common_set_initial_ra_dec(form):
         form.ra.data = ra
     if form.dec.data is None:
         form.dec.data = dec
+    form.az.data = 0.0
+    form.alt.data = 0.0
 
 
 def set_chart_session_param(key, value):

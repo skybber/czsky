@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_fsz_from_request,
-    common_set_initial_ra_dec,
+    common_set_initial_celestial_position,
 )
 from .wishlist_forms import (
     AddToWishListForm,
@@ -269,7 +269,7 @@ def wish_list_chart():
                 form.ra.data = wish_list_item.get_ra()
                 form.dec.data = wish_list_item.get_dec()
             else:
-                common_set_initial_ra_dec(form)
+                common_set_initial_celestial_position(form)
 
     if not wish_list_item:
         wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
