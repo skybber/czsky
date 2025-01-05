@@ -9,10 +9,9 @@
 {# --- Find Chart --- #}
 {% macro chart_info() %}
     {{ fchart.fchart(url_for('main_chart.chart', back=back, back_id=back_id),
-                     url_for('main_chart.chart_pos_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, mra=mark_ra, mdec=mark_dec),
-                     url_for('main_chart.chart_legend_img', ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_',
-                              flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_chart.chart_pdf', ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_chart.chart_pos_img', flags=chart_control.chart_flags, mra=mark_ra, mdec=mark_dec),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_chart.chart_pdf', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
                      disable_to_detail=True)

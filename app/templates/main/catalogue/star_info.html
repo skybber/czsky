@@ -89,11 +89,10 @@
 {# --- Chart --- #}
 {% macro star_chart(star) %}
     {{ fchart.fchart(url_for('main_star.star_chart', star_id=star.id, back=back, back_id=back_id),
-                     url_for('main_star.star_chart_pos_img', star_id=star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id ),
-                     url_for('main_star.star_chart_legend_img', star_id=star.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
-                     url_for('main_star.star_chart_pdf', star_id=star.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_star.star_chart_pos_img', star_id=star.id, flags=chart_control.chart_flags, back=back, back_id=back_id ),
+                     url_for('main_star.star_chart_legend_img', star_id=star.id, flags=chart_control.legend_flags,
+                              epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_star.star_chart_pdf', star_id=star.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

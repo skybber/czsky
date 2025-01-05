@@ -94,11 +94,11 @@
 {# --- Chart --- #}
 {% macro supernova_chart(supernova) %}
     {{ fchart.fchart(url_for('main_supernova.supernova_chart', designation=supernova.designation, back=back, back_id=back_id),
-                     url_for('main_supernova.supernova_chart_pos_img', designation=supernova.designation, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id ),
-                     url_for('main_supernova.supernova_chart_legend_img', designation=supernova.designation, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
-                     url_for('main_supernova.supernova_chart_pdf', designation=supernova.designation, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_supernova.supernova_chart_pos_img', designation=supernova.designation, flags=chart_control.chart_flags,
+                              back=back, back_id=back_id ),
+                     url_for('main_supernova.supernova_chart_legend_img', designation=supernova.designation, flags=chart_control.legend_flags,
+                              epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_supernova.supernova_chart_pdf', designation=supernova.designation, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

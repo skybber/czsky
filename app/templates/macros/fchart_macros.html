@@ -395,6 +395,18 @@
         }
     }
 
+    function addCommonChartUrlParams(url, commonParams) {
+        const queryStartIndex = url.indexOf('?');
+
+        if (queryStartIndex === -1) {
+            return url + "?" + commonParams;
+        } else {
+            const baseUrl = url.substring(0, queryStartIndex);
+            const existingQuery = url.substring(queryStartIndex + 1);
+            return baseUrl + "?" + commonParams + "&" + existingQuery;
+        }
+    }
+
     function createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
@@ -508,8 +520,17 @@
 
     var theme = '{{ chart_control.theme }}';
 
-    var chartUrl = "{{ fchart_img_url | safe }}";
-    var legendUrl = "{{ fchart_legend_url | safe }}";
+    const commonChartUrlParams = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+    var chartUrl = addCommonChartUrlParams("{{ fchart_img_url | safe }}", commonChartUrlParams);
+    var legendUrl = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", commonChartUrlParams);
+
+{% if fchart_pdf_url is not none %}
+    var chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+{% endif %}
+{% if fchart_items_url is not none %}
+    var chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+{% endif %}
+
     var projection = new Projection();
 
     var aladin;
@@ -773,20 +794,22 @@
         fchart.reloadImage();
     });
 
+{% if fchart_pdf_url is not none %}
     $('#download_pdf_landscape').click(function(event){
-        $('#download_pdf_landscape').attr("href", fchart.formatUrl('{{ fchart_pdf_url | safe  }}' + '&landscape=true'));
+        $('#download_pdf_landscape').attr("href", fchart.formatUrl(chartPdfUrl + '&landscape=true'));
     });
 
     $('#download_pdf_portrait').click(function(event){
-        $('#download_pdf_portrait').attr("href", fchart.formatUrl('{{ fchart_pdf_url | safe  }}' + '&landscape=false'));
+        $('#download_pdf_portrait').attr("href", fchart.formatUrl(chartPdfUrl + '&landscape=false'));
     });
+{% endif %}
 
 {% if fchart_items_url is not none %}
     $('#download_items_landscape').click(function(event){
-        $('#download_items_landscape').attr("href", fchart.formatUrl('{{ fchart_items_url | safe  }}' + '&landscape=true'));
+        $('#download_items_landscape').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=true'));
     });
     $('#download_items_portrait').click(function(event){
-        $('#download_items_portrait').attr("href", fchart.formatUrl('{{ fchart_items_url | safe  }}' + '&landscape=false'));
+        $('#download_items_portrait').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=false'));
     });
 {% endif %}
 

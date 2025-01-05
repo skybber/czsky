@@ -41,11 +41,11 @@
 {# --- Find Chart --- #}
 {% macro planet_info() %}
     {{ fchart.fchart(url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, back=back, back_id=back_id),
-                     url_for('main_planet.planet_chart_pos_img', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, trajectory=trajectory),
-                     url_for('main_planet.planet_chart_legend_img', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_planet.planet_chart_pdf', planet_iau_code=planet.iau_code, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_planet.planet_chart_pos_img', planet_iau_code=planet.iau_code, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.chart_flags, trajectory=trajectory),
+                     url_for('main_planet.planet_chart_legend_img', planet_iau_code=planet.iau_code, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_planet.planet_chart_pdf', planet_iau_code=planet.iau_code, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

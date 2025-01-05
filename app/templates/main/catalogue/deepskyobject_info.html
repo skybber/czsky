@@ -215,11 +215,9 @@
 {# ---  Chart --- #}
 {% macro deepskyobject_chart() %}
     {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
-                     url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id),
-                     url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, flags=chart_control.chart_flags, back=back, back_id=back_id),
+                     url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''),

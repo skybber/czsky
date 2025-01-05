@@ -35,10 +35,10 @@
 {# --- Chart --- #}
 {% macro news_chart(news) %}
     {{ fchart.fchart(url_for('main_news.news_chart', news_id=news.id, back=back, back_id=back_id),
-                     url_for('main_news.news_chart_pos_img', news_id=news.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
-                     url_for('main_news.news_chart_legend_img', news_id=news.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', width='_WIDTH_', height='_HEIGHT_',
-                     flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov, ),
-                     url_for('main_news.news_chart_pdf', news_id=news.id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_news.news_chart_pos_img', news_id=news.id, flags=chart_control.chart_flags, ),
+                     url_for('main_news.news_chart_legend_img', news_id=news.id, flags=chart_control.legend_flags,
+                              epfov=chart_control.eyepiece_fov, ),
+                     url_for('main_news.news_chart_pdf', news_id=news.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,)

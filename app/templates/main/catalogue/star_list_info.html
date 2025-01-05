@@ -84,11 +84,10 @@
 {# --- Chart --- #}
 {% macro star_list_chart(star_list) %}
     {{ fchart.fchart(url_for('main_star_list.star_list_chart', star_list_id=star_list.id, back=back, back_id=back_id),
-                     url_for('main_star_list.star_list_chart_pos_img', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, ),
-                     url_for('main_star_list.star_list_chart_legend_img', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_star_list.star_list_chart_pdf', star_list_id=star_list.id, ra='_RA_', dec='_DEC_', fsz='_FSZ_', flags=chart_control.chart_pdf_flags,
+                     url_for('main_star_list.star_list_chart_pos_img', star_list_id=star_list.id, flags=chart_control.chart_flags, ),
+                     url_for('main_star_list.star_list_chart_legend_img', star_list_id=star_list.id, flags=chart_control.legend_flags,
+                              epfov=chart_control.eyepiece_fov),
+                     url_for('main_star_list.star_list_chart_pdf', star_list_id=star_list.id, flags=chart_control.chart_pdf_flags,
                               epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

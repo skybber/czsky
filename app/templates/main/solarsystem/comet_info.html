@@ -41,11 +41,11 @@
 {# --- Find Chart --- #}
 {% macro comet_info() %}
     {{ fchart.fchart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
-                     url_for('main_comet.comet_chart_pos_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.chart_flags, back=back, back_id=back_id, trajectory=trajectory),
-                     url_for('main_comet.comet_chart_legend_img', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
-                              width='_WIDTH_', height='_HEIGHT_', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, ra='_RA_', dec='_DEC_', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_', fsz='_FSZ_',
+                     url_for('main_comet.comet_chart_pos_img', comet_id=comet.comet_id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.chart_flags, back=back, back_id=back_id, trajectory=trajectory),
+                     url_for('main_comet.comet_chart_legend_img', comet_id=comet.comet_id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
