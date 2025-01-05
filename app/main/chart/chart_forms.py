@@ -17,6 +17,8 @@ class ChartForm(FlaskForm):
     mirror_y = HiddenField('mirror_y', default='false')
     ra = HiddenField('ra')
     dec = HiddenField('dec')
+    az = HiddenField('az')
+    alt = HiddenField('alt')
     fullscreen = HiddenField('fullscreen', default='false')
     splitview = HiddenField('splitview', default='false')
     show_telrad = HiddenField('show_telrad', default='false')
@@ -33,3 +35,4 @@ class ChartForm(FlaskForm):
     chart_theme = HiddenField('chart_theme', default='-1')
     dss_layer = HiddenField('dss_layer', default='false')
     optimize_traffic = HiddenField('optimize_traffic', default='false')
+    is_equatorial = HiddenField('is_equatorial', default='true')

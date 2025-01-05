@@ -30,6 +30,8 @@
       <form id="fmchart" action="{{ fchart_url }}" method="post" class="right menu">
           <input type="hidden" id="ra" name="ra" value="{{ fchart_form.ra.data }}" >
           <input type="hidden" id="dec" name="dec" value="{{ fchart_form.dec.data }}" >
+          <input type="hidden" id="az" name="az" value="{{ fchart_form.az.data }}" >
+          <input type="hidden" id="alt" name="alt" value="{{ fchart_form.alt.data }}" >
           <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
           <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
           <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
@@ -48,6 +50,7 @@
           <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
           <input type="hidden" id="optimize_traffic" name="{{ fchart_form.optimize_traffic.name }}" value="{{ fchart_form.optimize_traffic.data }}" >
           <input type="hidden" id="show_layers_dropdown" name="{{ fchart_form.show_layers_dropdown.name }}" value="{{ fchart_form.show_layers_dropdown.data }}">
+          <input type="hidden" id="is_equatorial" name="{{ fchart_form.is_equatorial.name }}" value="{{ fchart_form.is_equatorial.data }}">
 
           {% if chart_control.has_date_from_to %}
               <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
@@ -407,11 +410,11 @@
         }
     }
 
-    function createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection) {
+    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
-        var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl,
+        var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl,
                 "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
                 {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
                 {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -513,22 +516,46 @@
         {% for mrv in chart_control.dso_mag_range_values %}{{ mrv }}, {% endfor %}
     ];
 
-    var ra = parseFloat($('#ra').val());
-    var dec = parseFloat($('#dec').val());
+    var phi, theta;
     var obj_ra = '{{ obj_ra }}';
     var obj_dec = '{{ obj_dec }}';
 
     var theme = '{{ chart_control.theme }}';
 
-    const commonChartUrlParams = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+    let isEquatorial = $('#is_equatorial').val() == 'true';
+
+    if (isEquatorial) {
+        phi = parseFloat($('#ra').val());
+        theta = parseFloat($('#dec').val());
+    } else {
+        phi = parseFloat($('#az').val());
+        theta = parseFloat($('#alt').val());
+    }
+
+    var commonChartUrlParams;
+    if (isEquatorial) {
+        commonChartUrlParams = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+    } else {
+        commonChartUrlParams = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+    }
     var chartUrl = addCommonChartUrlParams("{{ fchart_img_url | safe }}", commonChartUrlParams);
     var legendUrl = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", commonChartUrlParams);
 
 {% if fchart_pdf_url is not none %}
-    var chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+    var chartPdfUrl;
+    if (isEquatorial) {
+        chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+    } else {
+        chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
+    }
 {% endif %}
 {% if fchart_items_url is not none %}
-    var chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+    var chartItemsUrl;
+    if (isEquatorial) {
+        chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+    } else {
+        chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
+    }
 {% endif %}
 
     var projection = new Projection();
@@ -560,11 +587,11 @@
                 fullScreen:               false,
                 log:                      true
             });
-            fchart = createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection);
+            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection);
             fchart.onWindowLoad();
         });
     } else {
-        fchart = createFChart(fieldSizes, ra, dec, obj_ra, obj_dec, theme, legendUrl, chartUrl, null, projection);
+        fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, null, projection);
         $('.div_dsscolored').hide();
         $('.div_dssblue').hide();
         $('.div_dssfram').hide();

@@ -96,7 +96,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl,
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl,
                  fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
 
     this.fchartDiv = fchartDiv;
@@ -178,6 +178,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, phi, theta, obj_ra, obj_de
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
 
+    this.isEquatorial = isEquatorial;
     this.viewCenter = {phi: 0, theta: 0, dPhi: 0, dTheta: 0}
     this.setViewCenter(phi, theta);
     this.obj_ra = obj_ra != '' ? obj_ra : phi;
@@ -467,8 +468,13 @@ FChart.prototype.redrawAll = function () {
 
 FChart.prototype.reloadLegendImage = function () {
     let url = this.legendUrl;
-    url = url.replace('_RA_', this.viewCenter.phi.toString());
-    url = url.replace('_DEC_', this.viewCenter.theta.toString());
+    if (this.isEquatorial) {
+        url = url.replace('_RA_', this.viewCenter.phi.toString());
+        url = url.replace('_DEC_', this.viewCenter.theta.toString());
+    } else {
+        url = url.replace('_AZ_', this.viewCenter.phi.toString());
+        url = url.replace('_ALT_', this.viewCenter.theta.toString());
+    }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
@@ -523,8 +529,13 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.activateImageOnLoad(centerPhi, centerTheta, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
-            queryParams.set('ra', this.viewCenter.phi.toString());
-            queryParams.set('dec', this.viewCenter.theta.toString());
+            if (this.isEquatorial) {
+                queryParams.set('ra', this.viewCenter.phi.toString());
+                queryParams.set('dec', this.viewCenter.theta.toString());
+            } else {
+                queryParams.set('az', this.viewCenter.phi.toString());
+                queryParams.set('alt', this.viewCenter.theta.toString());
+            }
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
         }
@@ -533,8 +544,13 @@ FChart.prototype.doReloadImage = function(forceReload) {
 
 FChart.prototype.formatUrl = function(inpUrl) {
     let url = inpUrl;
-    url = url.replace('_RA_', this.viewCenter.phi.toString());
-    url = url.replace('_DEC_', this.viewCenter.theta.toString());
+    if (this.isEquatorial) {
+        url = url.replace('_RA_', this.viewCenter.phi.toString());
+        url = url.replace('_DEC_', this.viewCenter.theta.toString());
+    } else {
+        url = url.replace('_AZ_', this.viewCenter.phi.toString());
+        url = url.replace('_ALT_', this.viewCenter.theta.toString());
+    }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
@@ -886,8 +902,13 @@ FChart.prototype.moveCenter = function(fromKbdMove) {
         this.setupMovingPos();
     }
 
-    $('#ra').val(this.viewCenter.phi);
-    $('#dec').val(this.viewCenter.theta);
+    if (this.isEquatorial) {
+        $('#ra').val(this.viewCenter.phi);
+        $('#dec').val(this.viewCenter.theta);
+    } else {
+        $('#az').val(this.viewCenter.phi);
+        $('#alt').val(this.viewCenter.theta);
+    }
 }
 
 FChart.prototype.onPointerMove = function (e) {
