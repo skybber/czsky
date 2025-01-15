@@ -52,6 +52,9 @@ MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
 
+DEFAULT_LAT_DEG = 50.0755
+DEFAULT_LST_DEG = 14.4378
+
 FIELD_SIZES = (0.1, 0.165, 0.25, 0.375, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 23, 30, 45, 60, 80, 100, 140, 180)
 FIELD_LABELS = [
     "6'", "10'", "15'", "22'", "30'", "45'", "1°", "1.5°", "2°", "3°", "4°", "6°", "8°", "12°", "16°", "23°", "30°",
@@ -454,7 +457,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     return img_bytes
 
 
-def common_ra_dec_fsz_from_request(form):
+def common_ra_dec_fsz_from_request(form, default_ra=None, default_dec=None):
     ra = request.args.get('ra', None)
     dec = request.args.get('dec', None)
     fsz = request.args.get('fsz', None)
@@ -468,8 +471,26 @@ def common_ra_dec_fsz_from_request(form):
                 break
         else:
             form.radius.data = len(FIELD_SIZES)
-        return True
-    return False
+    elif request.method == 'GET':
+        if form.ra.data is None or form.dec.data is None:
+            form.ra.data = default_ra
+            form.dec.data = default_dec
+        if form.ra.data is None or form.dec.data is None:
+            common_set_initial_celestial_position(form)
+    set_horiz_from_equatorial(form)
+
+
+def get_default_lst():
+    now = Time.now()
+    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LST_DEG)  # Prague coordinates
+    return now.sidereal_time('apparent', longitude=default_location.lon).radian
+
+
+def set_horiz_from_equatorial(form):
+    lat = DEFAULT_LAT_DEG/90.0 * pi/2
+    sincos_lat = (sin(lat), cos(lat))
+    get_default_lst()
+    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_default_lst(), sincos_lat, form.ra.data, form.dec.data)
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -498,7 +519,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') in ['blue', 'fram']:
             session['chart_dss_layer'] = 'colored'
 
-        form.is_equatorial.data = session.get('chart_is_equatoria', form.is_equatorial.data)
+        form.is_equatorial.data = session.get('chart_is_equatorial', form.is_equatorial.data)
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
         form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
@@ -899,10 +920,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not is_equatorial:
-        now = Time.now()
-        prague_location = EarthLocation(lat=50.0755, lon=14.4378)  # Prague coordinates
-        local_sidereal_time = now.sidereal_time('apparent', longitude=prague_location.lon)
-        engine.set_observer(local_sidereal_time.radian, 50.0/90.0 * pi/2)
+        local_sidereal_time = get_default_lst()
+        engine.set_observer(local_sidereal_time, DEFAULT_LAT_DEG/90.0 * pi/2)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -1267,8 +1286,6 @@ def common_set_initial_celestial_position(form):
         form.ra.data = ra
     if form.dec.data is None:
         form.dec.data = dec
-    form.az.data = 0.0
-    form.alt.data = 0.0
 
 
 def set_chart_session_param(key, value):

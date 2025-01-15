@@ -401,10 +401,7 @@ def double_star_chart(double_star_id):
 
     form = ChartForm()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = double_star.ra_first
-            form.dec.data = double_star.dec_first
+    common_ra_dec_fsz_from_request(form, double_star.ra_first, double_star.dec_first)
 
     chart_control = common_prepare_chart_data(form)
 

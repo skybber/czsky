@@ -238,10 +238,9 @@ def observed_list_chart():
     if not observed_list_item:
         observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = observed_list_item.get_ra() if observed_list_item else 0
-            form.dec.data = observed_list_item.get_dec() if observed_list_item else 0
+    common_ra_dec_fsz_from_request(form,
+                                   observed_list_item.get_ra() if observed_list_item else 0,
+                                   observed_list_item.get_dec() if observed_list_item else 0)
 
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(observed_list_item, back='observed_list')

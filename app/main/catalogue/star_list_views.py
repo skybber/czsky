@@ -104,10 +104,9 @@ def star_list_chart(star_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     star_list_descr = StarListDescription.query.filter_by(star_list_id=star_list.id, lang_code=lang).first()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = star_list_item.star.ra if star_list_item else 0
-            form.dec.data = star_list_item.star.dec if star_list_item else 0
+    common_ra_dec_fsz_from_request(form,
+                                   star_list_item.star.ra if star_list_item else 0,
+                                   star_list_item.star.dec if star_list_item else 0)
 
     chart_control = common_prepare_chart_data(form)
 

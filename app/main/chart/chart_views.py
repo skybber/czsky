@@ -22,6 +22,7 @@ from app.commons.chart_generator import (
     common_ra_dec_fsz_from_request,
     common_set_initial_celestial_position,
     set_chart_session_param,
+    set_horiz_from_equatorial,
 )
 from ... import csrf
 
@@ -68,6 +69,7 @@ def chart():
         form.dec.data = float(dec)
     elif not common_ra_dec_fsz_from_request(form):
         common_set_initial_celestial_position(form)
+    set_horiz_from_equatorial(form)
 
     chart_control = common_prepare_chart_data(form)
 

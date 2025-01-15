@@ -491,10 +491,7 @@ def deepskyobject_chart(dso_id):
 
     prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='chart')
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = dso.ra
-            form.dec.data = dso.dec
+    common_ra_dec_fsz_from_request(form, dso.ra, dso.dec)
 
     chart_control = common_prepare_chart_data(form, cancel_selection_url=url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name))
 

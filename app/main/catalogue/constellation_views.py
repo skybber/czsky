@@ -235,10 +235,7 @@ def constellation_chart(constellation_id):
 
     form = ChartForm()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = constellation.label_ra
-            form.dec.data = constellation.label_dec
+    common_ra_dec_fsz_from_request(form, constellation.label_ra, constellation.label_dec)
 
     chart_control = common_prepare_chart_data(form)
 

@@ -64,7 +64,6 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_fsz_from_request,
-    common_set_initial_celestial_position,
 )
 
 from .sessionplan_forms import (
@@ -688,13 +687,9 @@ def session_plan_chart(session_plan_id):
     if not session_plan_item:
         session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if session_plan_item:
-            if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-                form.ra.data = session_plan_item.get_ra() if session_plan_item else 0
-                form.dec.data = session_plan_item.get_dec() if session_plan_item else 0
-        else:
-            common_set_initial_celestial_position(form)
+    common_ra_dec_fsz_from_request(form,
+                                   session_plan_item.get_ra() if session_plan_item else 0,
+                                   session_plan_item.get_dec() if session_plan_item else 0)
 
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(session_plan_item, back='session_plan', back_id=session_plan.id)

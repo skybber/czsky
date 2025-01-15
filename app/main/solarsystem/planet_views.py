@@ -163,10 +163,7 @@ def planet_info(planet_iau_code):
     planet_ra = planet_ra_ang.radians
     planet_dec = planet_dec_ang.radians
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = planet_ra
-            form.dec.data = planet_dec
+    common_ra_dec_fsz_from_request(form, planet_ra, planet_dec)
 
     chart_control = common_prepare_chart_data(form)
 

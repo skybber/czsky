@@ -200,10 +200,9 @@ def dso_list_chart(dso_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = dso_list_item.deepsky_object.ra if dso_list_item else 0
-            form.dec.data = dso_list_item.deepsky_object.dec if dso_list_item else 0
+    common_ra_dec_fsz_from_request(form,
+                                   dso_list_item.deepsky_object.ra if dso_list_item else 0,
+                                   dso_list_item.deepsky_object.dec if dso_list_item else 0)
 
     default_chart_iframe_url = None
     if dso_list_item:

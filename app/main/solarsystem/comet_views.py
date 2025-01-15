@@ -158,6 +158,7 @@ def comets():
     return render_template('main/solarsystem/comets.html', type='list', comets=shown_comets, pagination=pagination, search_form=search_form,
                            table_sort=table_sort)
 
+
 @main_comet.route('/comets/chart', methods=['GET', 'POST'])
 @csrf.exempt
 def comets_chart():
@@ -165,11 +166,7 @@ def comets_chart():
 
     comet = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).order_by('mag').first()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            if comet:
-                form.ra.data = comet.cur_ra
-                form.dec.data = comet.cur_dec
+    common_ra_dec_fsz_from_request(form, comet.cur_ra, comet.cur_dec)
 
     default_chart_iframe_url = None
     if comet:
@@ -276,10 +273,7 @@ def comet_info(comet_id):
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = comet_ra
-            form.dec.data = comet_dec
+    common_ra_dec_fsz_from_request(form, comet_ra, comet_dec)
 
     chart_control = common_prepare_chart_data(form)
 

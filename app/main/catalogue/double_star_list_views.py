@@ -230,10 +230,9 @@ def double_star_list_chart(double_star_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     double_star_list_descr = DoubleStarListDescription.query.filter_by(double_star_list_id=double_star_list.id, lang_code=lang).first()
 
-    if not common_ra_dec_fsz_from_request(form):
-        if request.method == 'GET' and (form.ra.data is None or form.dec.data is None):
-            form.ra.data = double_star_list_item.double_star.ra_first if double_star_list_item else 0
-            form.dec.data = double_star_list_item.double_star.dec_first if double_star_list_item else 0
+    common_ra_dec_fsz_from_request(form,
+                                   double_star_list_item.double_star.ra_first if double_star_list_item else 0,
+                                   double_star_list_item.double_star.dec_first if double_star_list_item else 0)
 
     default_chart_iframe_url = None
     if double_star_list_item:
