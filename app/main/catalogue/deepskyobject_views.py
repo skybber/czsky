@@ -311,6 +311,7 @@ def deepskyobject_seltab(dso_id):
 
     return _do_redirect('main_deepskyobject.deepskyobject_info', dso)
 
+
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>')
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/info')
 def deepskyobject_info(dso_id):

@@ -140,6 +140,12 @@
                   <i class="layer group icon"></i>
                   <div class="ui vertical buttons menu">
                       <div class="item">
+                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.is_equatorial.data=='true' else ''}} bequatorial" style="text-align:left">
+                              <i class="draw polygon icon"></i>
+                              {{ _('Equatorial Coord')}}
+                          </button>
+                      </div>
+                      <div class="item">
                           <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
                               <i class="lastfm icon"></i>
                               {{ _('Constellation lines') }}
@@ -522,7 +528,7 @@
 
     var theme = '{{ chart_control.theme }}';
 
-    let isEquatorial = $('#is_equatorial').val() == 'true';
+    var isEquatorial = $('#is_equatorial').val() == 'true';
 
     if (isEquatorial) {
         phi = parseFloat($('#ra').val());
@@ -532,14 +538,16 @@
         theta = parseFloat($('#alt').val());
     }
 
-    var commonChartUrlParams;
-    if (isEquatorial) {
-        commonChartUrlParams = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
-    } else {
-        commonChartUrlParams = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
-    }
-    var chartUrl = addCommonChartUrlParams("{{ fchart_img_url | safe }}", commonChartUrlParams);
-    var legendUrl = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", commonChartUrlParams);
+    var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+    var chartUrlParamsHoriz = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+
+    var chartUrlEq = addCommonChartUrlParams("{{ fchart_img_url | safe }}", chartUrlParamsEq);
+    var legendUrlEq = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsEq);
+    var chartUrlHoriz = addCommonChartUrlParams("{{ fchart_img_url | safe }}", chartUrlParamsHoriz);
+    var legendUrlHoriz = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsHoriz);
+
+    var chartUrl = isEquatorial ? chartUrlEq : chartUrlHoriz;
+    var legendUrl = isEquatorial ? legendUrlEq : legendUrlHoriz;
 
 {% if fchart_pdf_url is not none %}
     var chartPdfUrl;
@@ -616,6 +624,18 @@
         $("#bshowleftpanel1").show();
         $("#bshowleftpanel2").show();
     }
+
+    $('.bequatorial').click(function(){
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        var value = $('#is_equatorial').val() == 'true' ? 'false' : 'true';
+        $('#is_equatorial').val(value);
+        isEquatorial = (value == 'true');
+        chart_param_ajax('chart_is_equatorial', value);
+        updateChartUrls();
+        fchart.setChartUrlFlag('Q', value);
+        fchart.reloadImage();
+    });
 
     $('.btelrad').click(function(){
         $(this).toggleClass('active');
@@ -919,8 +939,12 @@
         event.stopPropagation();
     }
 
-    function updateChartUrls(legendUrl, chartUrl) {
-        fchart.updateUrls(legendUrl, chartUrl);
+    function updateChartUrls() {
+        if (isEquatorial) {
+            fchart.updateUrls(isEquatorial, legendUrlEq, chartUrlEq);
+        } else {
+            fchart.updateUrls(isEquatorial, legendUrlHoriz, chartUrlHoriz);
+        }
     }
 
     function setEyepieceFov(eyepieceFov) {

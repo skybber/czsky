@@ -374,7 +374,8 @@ FChart.prototype.setProjectionCenter = function(phi, theta) {
 }
 
 
-FChart.prototype.updateUrls = function(legendUrl, chartUrl) {
+FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
+    this.isEquatorial = isEquatorial;
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
     this.reloadLegendImage();

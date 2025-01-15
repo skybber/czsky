@@ -12,6 +12,8 @@ import cairo
 from skyfield.api import load
 from enum import Enum
 import threading
+from astropy.time import Time
+from astropy.coordinates import EarthLocation
 
 # Do not remove - it initializes pillow avif
 import pillow_avif
@@ -109,6 +111,7 @@ DSO_MAG_SCALES = [(10, 18), # 0.1
                   ]
 
 class FlagValue(Enum):
+    EQUATORIAL = 'Q'
     CONSTELL_BORDERS = 'B'
     CONSTELL_SHAPES = 'C'
     SHOW_DEEPSKY = 'D'
@@ -495,6 +498,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer','') in ['blue', 'fram']:
             session['chart_dss_layer'] = 'colored'
 
+        form.is_equatorial.data = session.get('chart_is_equatoria', form.is_equatorial.data)
         form.show_telrad.data = session.get('chart_show_telrad', form.show_telrad.data)
         form.show_picker.data = session.get('chart_show_picker', form.show_picker.data)
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
@@ -507,6 +511,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
     else:
+        session['chart_is_equatorial'] = form.is_equatorial.data
         session['chart_eyepiece_fov'] = form.eyepiece_fov.data
         session['chart_show_telrad'] = form.show_telrad.data
         session['chart_show_picker'] = form.show_picker.data
@@ -845,6 +850,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     else:
         config.widget_mode = fchart3.WidgetMode.ALLOC_SPACE_ONLY
 
+    config.show_horizont = True
+
     if dso_maglim is None:
         dso_maglim = -10
 
@@ -890,7 +897,12 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
-    # engine.set_observer(0, pi/4)
+
+    if not is_equatorial:
+        now = Time.now()
+        prague_location = EarthLocation(lat=50.0755, lon=14.4378)  # Prague coordinates
+        local_sidereal_time = now.sidereal_time('apparent', longitude=prague_location.lon)
+        engine.set_observer(local_sidereal_time.radian, 50.0/90.0 * pi/2)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -1192,6 +1204,9 @@ def get_chart_legend_flags(form):
         legend_flags += FlagValue.MIRROR_Y.value
         chart_flags += FlagValue.MIRROR_Y.value
 
+    if form.is_equatorial.data == 'true':
+        chart_flags += FlagValue.EQUATORIAL.value
+
     return chart_flags, legend_flags
 
 
@@ -1257,10 +1272,10 @@ def common_set_initial_celestial_position(form):
 
 
 def set_chart_session_param(key, value):
-    if key in ['chart_eyepiece_fov', 'chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
+    if key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
                'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov']:
+               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'
