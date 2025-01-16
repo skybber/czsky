@@ -1521,7 +1521,7 @@ msgstr "Hranice souhvězdí"
 
 #: app/templates/macros/fchart_macros.html:154
 msgid "Equatorial grid"
-msgstr "Rovníkové souřadnice"
+msgstr "Rovníková síť"
 
 #: app/templates/macros/fchart_macros.html:160
 msgid "Deepsky objects"
