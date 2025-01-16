@@ -68,6 +68,7 @@ def double_star_lists_menu():
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     return render_template('main/catalogue/double_star_list_menu.html', double_star_lists=double_star_lists, lang_code=lang)
 
+
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/seltab')
 def double_star_list_seltab(double_star_list_id):
     """View a double star list seltab."""
