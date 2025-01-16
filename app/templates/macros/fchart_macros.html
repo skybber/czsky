@@ -507,6 +507,18 @@
        return fchart;
     }
 
+    function adjustAladinVisibility() {
+        if (!isEquatorial || !isWebGL2Supported()) {
+            $('.div_dsscolored').hide();
+            $('.div_dssblue').hide();
+            $('.div_dssfram').hide();
+        } else {
+            $('.div_dsscolored').show();
+            $('.div_dssblue').show();
+            $('.div_dssfram').show();
+        }
+    }
+
     var submitDisabled = false;
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
     var magRanges = [
@@ -600,11 +612,9 @@
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, null, projection);
-        $('.div_dsscolored').hide();
-        $('.div_dssblue').hide();
-        $('.div_dssfram').hide();
     }
 
+    adjustAladinVisibility();
 
     if ({{ 'true' if fchart_form.fullscreen.data == 'true' or fchart_form.splitview.data == 'true' else 'false' }}) {
         $("#isearch").show();
@@ -633,7 +643,13 @@
         isEquatorial = (value == 'true');
         chart_param_ajax('chart_is_equatorial', value);
         updateChartUrls();
+        adjustAladinVisibility();
         fchart.setChartUrlFlag('Q', value);
+        if (!isEquatorial) {
+            fchart.setAladinLayer('');
+        } else {
+            fchart.setAladinLayer($('#dss_layer').val());
+        }
         fchart.reloadImage();
     });
 
