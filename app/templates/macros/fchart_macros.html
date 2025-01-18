@@ -718,6 +718,7 @@
             });
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
                                   useCurrentTime, charDateTime, theme, legendUrl, chartUrl, aladin, projection);
+            fchart.setUseCurrentTyme({{ fchart_form.use_current_time.data }});
             fchart.onWindowLoad();
         });
     } else {
@@ -1163,7 +1164,7 @@
 
         $(dateTimeButtons.join(", ")).toggleClass("disabled", useCurrentTime);
         if (fchart != undefined) {
-            fchart.setUseCurrentTyme(this.isChecked);
+            fchart.setUseCurrentTyme(useCurrentTime);
             fchart.reloadImage();
         }
     }
@@ -1245,7 +1246,6 @@
 
         updateDateTimeControls({{ fchart_form.use_current_time.data }});
         syncDateTimeComponentsInputs();
-
     }
 
 $('.date-int-popup')
