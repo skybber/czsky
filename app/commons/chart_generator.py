@@ -53,7 +53,7 @@ MAX_IMG_HEIGHT = 3000
 A4_WIDTH = 800
 
 DEFAULT_LAT_DEG = 50.0755
-DEFAULT_LST_DEG = 14.4378
+DEFAULT_LONG_DEG = 14.4378
 
 FIELD_SIZES = (0.1, 0.165, 0.25, 0.375, 0.5, 0.75, 1, 1.5, 2, 3, 4, 6, 8, 12, 16, 23, 30, 45, 60, 80, 100, 140, 180)
 FIELD_LABELS = [
@@ -482,17 +482,19 @@ def common_ra_dec_fsz_from_request(form, default_ra=None, default_dec=None):
 
 def get_default_lst():
     now = Time.now()
-    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LST_DEG)  # Prague coordinates
+    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LONG_DEG)  # Prague coordinates
     return now.sidereal_time('apparent', longitude=default_location.lon).radian
 
 
 def set_horiz_from_equatorial(form):
-    lat = DEFAULT_LAT_DEG/90.0 * pi/2
+    lat = pi * DEFAULT_LAT_DEG / 180.0
     sincos_lat = (sin(lat), cos(lat))
     get_default_lst()
     ra = float(form.ra.data) if form.ra.data is not None else 0.0
     dec = float(form.dec.data) if form.dec.data is not None else 0.0
     form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_default_lst(), sincos_lat, ra, dec)
+    form.longitude.data = pi * DEFAULT_LONG_DEG / 180.0
+    form.latitude.data = pi * DEFAULT_LAT_DEG / 180.0
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -923,7 +925,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     if not is_equatorial:
         local_sidereal_time = get_default_lst()
-        engine.set_observer(local_sidereal_time, DEFAULT_LAT_DEG/90.0 * pi/2)
+        engine.set_observer(local_sidereal_time, pi * DEFAULT_LAT_DEG / 180.0)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)

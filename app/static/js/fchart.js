@@ -96,7 +96,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, searchUrl,
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, searchUrl,
                  fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
 
     this.fchartDiv = fchartDiv;
@@ -183,6 +183,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.setViewCenter(phi, theta);
     this.obj_ra = obj_ra != '' ? obj_ra : phi;
     this.obj_dec = obj_dec != '' ? obj_dec : theta;
+
+    this.longitude = longitude;
+    this.latitude = latitude;
 
     this.theme = theme;
 
@@ -373,14 +376,27 @@ FChart.prototype.setProjectionCenter = function(phi, theta) {
     this.projection.setCenter(rad2deg(phi), rad2deg(theta));
 }
 
-
 FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
-    this.isEquatorial = isEquatorial;
+    if (this.isEquatorial != isEquatorial) {
+        this.isEquatorial = isEquatorial;
+        const lst = AstroMath.localSiderealTime(new Date(), this.longitude);
+        if (isEquatorial) {
+            const pos = AstroMath.horizontalToEquatorial(lst, this.latitude, this.viewCenter.phi, this.viewCenter.theta);
+            this.viewCenter.phi = pos.ra;
+            this.viewCenter.theta = pos.dec;
+        } else {
+            const pos = AstroMath.equatorialToHorizontal(lst, this.latitude, this.viewCenter.phi, this.viewCenter.theta);
+            this.viewCenter.phi = pos.az;
+            this.viewCenter.theta = pos.alt;
+        }
+        this.viewCenter.dPhi = 0;
+        this.viewCenter.dTheta = 0;
+    }
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
     this.reloadLegendImage();
     this.forceReloadImage();
-};
+}
 
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();

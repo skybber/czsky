@@ -287,3 +287,160 @@ AstroMath.displayMatrix = function(m) {
 
 	return str;
 }
+
+/**
+ * Calculates the Local Sidereal Time (LST) for a given longitude and Greenwich Sidereal Time (GST).
+ *
+ * Local Sidereal Time is used in astronomy to determine locations in the sky specific to a geographic location.
+ *
+ * @function
+ * @param {number} date - date
+ * @param {number} lon - The geographic longitude in degrees where the calculation is performed.
+ * @returns {number} The Local Sidereal Time in degrees, normalized to a value between 0 and 360.
+ */
+AstroMath.localSiderealTime = function (date, lon) {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1; // JavaScript months are 0-11.
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+
+    const jd =
+        367 * year -
+        Math.floor((7 * (year + Math.floor((month + 9) / 12))) / 4) +
+        Math.floor((275 * month) / 9) +
+        day +
+        1721013.5 +
+        (hours + minutes / 60 + seconds / 3600) / 24 -
+        0.5 * Math.sign(100 * year + month - 190002.5) +
+        0.5;
+
+    const t = (jd - 2451545.0) / 36525;
+
+    let gmst =
+        280.46061837 +
+        360.98564736629 * (jd - 2451545) +
+        0.000387933 * t ** 2 -
+        (t ** 3) / 38710000;
+
+    gmst = ((gmst % 360) + 360) % 360;
+
+    const gmstRadians = gmst * (Math.PI / 180);;
+
+    const lst = (gmstRadians + lon) % (2 * Math.PI);
+
+    return lst >= 0 ? lst : lst + 2 * Math.PI;
+}
+
+/**
+ * Converts equatorial coordinates (right ascension and declination) to horizontal coordinates (azimuth and altitude).
+ *
+ * The conversion is based on the observer's geographic latitude and local sidereal time.
+ *
+ * @method equatorialToHorizontal
+ * @memberof AstroMath
+ * @param {number} lst
+ * @param {number} lat
+ * @param {number} ra - The right ascension in hours.
+ * @param {number} dec*/
+AstroMath.equatorialToHorizontal = function(lst, lat, ra, dec) {
+	let hourAngle = (lst - ra);
+	if (hourAngle < 0) {
+		hourAngle += 2 * Math.PI;
+	}
+
+	const sinLat = Math.sin(lat);
+	const cosLat = Math.cos(lat);
+	const sinDec = Math.sin(dec);
+	const cosDec = Math.cos(dec);
+	const sinHA = Math.sin(hourAngle);
+	const cosHA = Math.cos(hourAngle);
+
+	const sinAlt = sinDec * sinLat + cosDec * cosLat * cosHA;
+	let alt = Math.asin(sinAlt);
+
+	let cosAlt = Math.sqrt(Math.max(0.0, 1.0 - sinAlt * sinAlt));
+	if (Math.abs(cosAlt) < 1e-15) {
+		cosAlt = Math.cos(alt);
+	}
+
+	let arg = (sinDec - sinLat * sinAlt) / (cosLat * cosAlt);
+	let az = 0.0;
+
+	if (arg <= -1.0) {
+		az = Math.PI;
+	} else if (arg >= 1.0) {
+		az = 0.0;
+	} else {
+		az = Math.acos(arg);
+	}
+
+	if (sinHA > 0.0 && Math.abs(az) > 1e-15) {
+		az = 2.0 * Math.PI - az;
+	}
+
+	az = (2 * Math.PI - az) % (2 * Math.PI);
+
+	if (az < 0) {
+		az += 2 * Math.PI;
+	}
+
+	return { az, alt };
+}
+
+/**
+ * Converts horizontal coordinates (altitude and azimuth) to equatorial coordinates
+ * (right ascension and declination).
+ *
+ * @param {number} lst - The local sidereal time in radians.
+ * @param {number} lat - The observer's geographical latitude in radians.
+ * @param {number} az - The azimuth angle of the object in radians.
+ * @param {number} alt - The altitude angle of the object in radians.
+ * @return {Object} An object containing the right ascension (`ra`) and declination (`dec`) in radians.
+ */
+AstroMath.horizontalToEquatorial = function(lst, lat, az, alt) {
+	const sinLat = Math.sin(lat);
+	const cosLat = Math.cos(lat);
+
+	const sinAlt = Math.sin(alt);
+	const cosAlt = Math.cos(alt);
+
+	let sinDec = sinLat * sinAlt + cosLat * cosAlt * Math.cos(az);
+
+	if (sinDec > 1.0) {
+		sinDec = 1.0;
+	} else if (sinDec < -1.0) {
+		sinDec = -1.0;
+	}
+
+	const dec = Math.asin(sinDec);
+	const cosDec = Math.cos(dec);
+
+	const denom = cosDec * cosLat;
+	let hourAngle = 0.0;
+
+	if (Math.abs(denom) < 1.0e-15) {
+		hourAngle = 0.0;
+	} else {
+		let cosHA = (sinAlt - sinDec * sinLat) / denom;
+		if (cosHA > 1.0) {
+			cosHA = 1.0;
+		} else if (cosHA < -1.0) {
+			cosHA = -1.0;
+		}
+
+		let sinHA = Math.sqrt(Math.max(0.0, 1.0 - cosHA * cosHA));
+		if (az >= Math.PI) {
+		  sinHA = -sinHA;
+		}
+		hourAngle = Math.atan2(sinHA, cosHA);
+	}
+
+	let ra = (lst - hourAngle) % (2.0 * Math.PI);
+	if (ra < 0) {
+		ra += 2.0 * Math.PI;
+	}
+
+	return { ra, dec };
+}
