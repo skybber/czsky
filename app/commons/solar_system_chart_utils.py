@@ -133,8 +133,15 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
+def _normalize_to_30s(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=utc)
+    second_bucket = 0 if dt.second < 30 else 30
+    return dt.replace(second=second_bucket, microsecond=0)
+
+
 @lru_cache(maxsize=100)
-def get_solsys_bodies(dt: datetime):
+def _get_solsys_bodies_cached(dt: datetime):
     ts = load.timescale(builtin=True)
     t = ts.from_datetime(dt.replace(tzinfo=utc))
 
@@ -150,8 +157,13 @@ def get_solsys_bodies(dt: datetime):
     return sls_bodies
 
 
+def get_solsys_bodies(dt: datetime):
+    normalized_dt = _normalize_to_30s(dt)
+    return _get_solsys_bodies_cached(normalized_dt)
+
+
 @lru_cache(maxsize=100)
-def get_planet_moons(dt: datetime, maglim: float):
+def _get_planet_moons_cached(dt: datetime, maglim: float):
 
     ts = load.timescale(builtin=True)
     t = ts.from_datetime(dt.replace(tzinfo=utc))
@@ -166,6 +178,12 @@ def get_planet_moons(dt: datetime, maglim: float):
                 pl_moons.append(planet_moon_obj)
 
     return [pl for pl in pl_moons if pl.mag <= maglim]
+
+
+def get_planet_moons(dt: datetime, maglim: float):
+    normalized_dt = _normalize_to_30s(dt)
+    return _get_planet_moons_cached(normalized_dt, maglim)
+
 
 
 def create_planet_moon_obj(moon_name, t=None):
