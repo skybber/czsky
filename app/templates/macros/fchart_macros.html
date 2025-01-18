@@ -417,7 +417,7 @@
         }
     }
 
-    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, theme, legendUrl, chartUrl, aladin, projection) {
+    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, aladin, projection) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
