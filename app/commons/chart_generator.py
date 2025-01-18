@@ -490,8 +490,8 @@ def set_horiz_from_equatorial(form):
     lat = DEFAULT_LAT_DEG/90.0 * pi/2
     sincos_lat = (sin(lat), cos(lat))
     get_default_lst()
-    ra = form.ra.data if form.ra.data is not None else 0.0
-    dec = form.dec.data if form.dec.data is not None else 0.0
+    ra = float(form.ra.data) if form.ra.data is not None else 0.0
+    dec = float(form.dec.data) if form.dec.data is not None else 0.0
     form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_default_lst(), sincos_lat, ra, dec)
 
 
