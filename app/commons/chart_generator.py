@@ -21,6 +21,7 @@ import pillow_avif
 import fchart3
 
 from flask import (
+    abort,
     current_app,
     request,
     session,
@@ -370,6 +371,9 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
         phi = request.args.get('az')
         theta = request.args.get('alt')
 
+    if phi is None or theta is None:
+        abort(404)
+
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
 
@@ -408,6 +412,9 @@ def common_chart_legend_img(obj_ra, obj_dec):
         phi = request.args.get('az')
         theta = request.args.get('alt')
 
+    if phi is None or theta is None:
+        abort(404)
+
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
 
@@ -438,6 +445,9 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     else:
         phi = request.args.get('az')
         theta = request.args.get('alt')
+
+    if phi is None or theta is None:
+        abort(404)
 
     trajectory = _fld_filter_trajectory(trajectory, gui_fld_size, A4_WIDTH)
 
