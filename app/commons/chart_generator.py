@@ -365,17 +365,20 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
 
     is_equatorial = request.args.get('ra') is not None
     if is_equatorial:
-        phi = request.args.get('ra')
-        theta = request.args.get('dec')
+        phi = request.args.get('ra', type=float)
+        theta = request.args.get('dec', type=float)
     else:
-        phi = request.args.get('az')
-        theta = request.args.get('alt')
+        phi = request.args.get('az', type=float)
+        theta = request.args.get('alt', type=float)
 
     if phi is None or theta is None:
         abort(404)
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
+
+    if width is None or height is None:
+        abort(404)
 
     if width > MAX_IMG_WIDTH:
         width = MAX_IMG_WIDTH
@@ -389,7 +392,7 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     img_bytes = BytesIO()
     img_formats = current_app.config.get('CHART_IMG_FORMATS')
 
-    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, float(phi), float(theta), gui_fld_size, gui_fld_label, width, height,
+    img_format = _create_chart(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, gui_fld_size, gui_fld_label, width, height,
                                maglim, dso_maglim, show_legend=False, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                                observed_dso_ids=observed_dso_ids, highlights_pos_list=highlights_pos_list, trajectory=trajectory,
                                hl_constellation=hl_constellation, img_formats=img_formats)
@@ -406,17 +409,20 @@ def common_chart_legend_img(obj_ra, obj_dec):
 
     is_equatorial = request.args.get('ra') is not None
     if is_equatorial:
-        phi = request.args.get('ra')
-        theta = request.args.get('dec')
+        phi = request.args.get('ra', type=float)
+        theta = request.args.get('dec', type=float)
     else:
-        phi = request.args.get('az')
-        theta = request.args.get('alt')
+        phi = request.args.get('az', type=float)
+        theta = request.args.get('alt', type=float)
 
     if phi is None or theta is None:
         abort(404)
 
     width = request.args.get('width', type=int)
     height = request.args.get('height', type=int)
+
+    if width is None or height is None:
+        abort(404)
 
     if width > MAX_IMG_WIDTH:
         width = MAX_IMG_WIDTH
@@ -428,7 +434,7 @@ def common_chart_legend_img(obj_ra, obj_dec):
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, is_equatorial, float(phi), float(theta), width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
+    _create_chart_legend(img_bytes, is_equatorial, phi, theta, width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
                          flags=flags, img_format='png')
     img_bytes.seek(0)
     return img_bytes
@@ -440,11 +446,11 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
 
     is_equatorial = request.args.get('ra') is not None
     if is_equatorial:
-        phi = request.args.get('ra')
-        theta = request.args.get('dec')
+        phi = request.args.get('ra', type=float)
+        theta = request.args.get('dec', type=float)
     else:
-        phi = request.args.get('az')
-        theta = request.args.get('alt')
+        phi = request.args.get('az', type=float)
+        theta = request.args.get('alt', type=float)
 
     if phi is None or theta is None:
         abort(404)
@@ -458,7 +464,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     eyepiece_fov = to_float(request.args.get('epfov'), None)
 
     img_bytes = BytesIO()
-    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, float(phi), float(theta), gui_fld_size,
+    _create_chart_pdf(img_bytes, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, gui_fld_size,
                       gui_fld_label, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                       highlights_pos_list=highlights_pos_list, observed_dso_ids=observed_dso_ids, trajectory=trajectory,
