@@ -1,9 +1,11 @@
+import math
+from functools import lru_cache
+from datetime import datetime
+
 from skyfield.api import load
 from skyfield.magnitudelib import planetary_magnitude
 
-import math
 import numpy as np
-from time import time
 
 import datetime as dt_module
 import fchart3
@@ -131,7 +133,8 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
-def get_solsys_bodies(dt):
+@lru_cache(maxsize=100)
+def get_solsys_bodies(dt: datetime):
     ts = load.timescale(builtin=True)
     t = ts.from_datetime(dt.replace(tzinfo=utc))
 
@@ -147,7 +150,8 @@ def get_solsys_bodies(dt):
     return sls_bodies
 
 
-def get_planet_moons(dt, maglim):
+@lru_cache(maxsize=100)
+def get_planet_moons(dt: datetime, maglim: float):
 
     ts = load.timescale(builtin=True)
     t = ts.from_datetime(dt.replace(tzinfo=utc))
