@@ -91,12 +91,6 @@ YEAR_DAYS = 365.25
 AU_TO_KM = 149597870.7
 SATURN_POLE = np.array([0.08547883, 0.07323576, 0.99364475])
 
-solsys_bodies = None
-solsys_last_updated = None
-
-planet_moons = None
-planet_moons_last_updated = None
-
 
 def get_north_pole_pa(ra, dec, obj_ra, obj_dec):
     """
@@ -137,51 +131,37 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
-def get_solsys_bodies():
-    global solsys_bodies, solsys_last_updated
+def get_solsys_bodies(dt):
+    ts = load.timescale(builtin=True)
+    t = ts.from_datetime(dt.replace(tzinfo=utc))
 
-    current_time = time()
+    sls_bodies = []
 
-    if solsys_last_updated is None or (current_time - solsys_last_updated) > 60:
-        ts = load.timescale(builtin=True)
-        t = ts.now()
+    eph = load('de421.bsp')
 
-        sls_bodies = []
+    for body_enum in fchart3.SolarSystemBody:
+        if body_enum != fchart3.SolarSystemBody.EARTH:
+            solsys_body_obj = create_solar_system_body_obj(eph, body_enum, t)
+            sls_bodies.append(solsys_body_obj)
 
-        eph = load('de421.bsp')
-
-        for body_enum in fchart3.SolarSystemBody:
-            if body_enum != fchart3.SolarSystemBody.EARTH:
-                solsys_body_obj = create_solar_system_body_obj(eph, body_enum, t)
-                sls_bodies.append(solsys_body_obj)
-
-        solsys_bodies = sls_bodies
-        solsys_last_updated = current_time
-
-    return solsys_bodies
+    return sls_bodies
 
 
-def get_planet_moons(maglim):
-    global planet_moons, planet_moons_last_updated
+def get_planet_moons(dt, maglim):
 
-    current_time = time()
+    ts = load.timescale(builtin=True)
+    t = ts.from_datetime(dt.replace(tzinfo=utc))
 
-    if planet_moons_last_updated is None or (current_time - planet_moons_last_updated) > 60:
-        ts = load.timescale(builtin=True)
-        t = ts.now()
+    pl_moons = []
 
-        pl_moons = []
+    for planet, url_moons in PLANET_MOONS_DATA.items():
+        for eph_url, moons in url_moons.items():
+            eph = load(eph_url)
+            for moon_name, (abs_mag, color) in moons.items():
+                planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
+                pl_moons.append(planet_moon_obj)
 
-        for planet, url_moons in PLANET_MOONS_DATA.items():
-            for eph_url, moons in url_moons.items():
-                eph = load(eph_url)
-                for moon_name, (abs_mag, color) in moons.items():
-                    planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
-                    pl_moons.append(planet_moon_obj)
-
-        planet_moons = pl_moons
-
-    return [pl for pl in planet_moons if pl.mag <= maglim]
+    return [pl for pl in pl_moons if pl.mag <= maglim]
 
 
 def create_planet_moon_obj(moon_name, t=None):

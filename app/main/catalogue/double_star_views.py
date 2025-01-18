@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported, \
@@ -401,7 +401,7 @@ def double_star_chart(double_star_id):
 
     form = ChartForm()
 
-    common_ra_dec_fsz_from_request(form, double_star.ra_first, double_star.dec_first)
+    common_ra_dec_dt_fsz_from_request(form, double_star.ra_first, double_star.dec_first)
 
     chart_control = common_prepare_chart_data(form)
 

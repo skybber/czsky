@@ -38,7 +38,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.utils import to_float, is_splitview_supported
@@ -120,7 +120,7 @@ def planet_moon_info(planet_moon_name):
 
     plm_obj = create_planet_moon_obj(planet_moon.name)
 
-    common_ra_dec_fsz_from_request(form, plm_obj.ra, plm_obj.dec)
+    common_ra_dec_dt_fsz_from_request(form, plm_obj.ra, plm_obj.dec)
 
     chart_control = common_prepare_chart_data(form)
 

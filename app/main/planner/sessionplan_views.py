@@ -63,7 +63,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from .sessionplan_forms import (
@@ -687,7 +687,7 @@ def session_plan_chart(session_plan_id):
     if not session_plan_item:
         session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    session_plan_item.get_ra() if session_plan_item else 0,
                                    session_plan_item.get_dec() if session_plan_item else 0)
 

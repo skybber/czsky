@@ -34,6 +34,8 @@
           <input type="hidden" id="alt" name="alt" value="{{ fchart_form.alt.data }}" >
           <input type="hidden" id="longitude" name="{{ fchart_form.longitude.name }}" value="{{ fchart_form.longitude.data }}">
           <input type="hidden" id="latitude" name="{{ fchart_form.latitude.name }}" value="{{ fchart_form.latitude.data }}">
+          <input type="hidden" id="use_current_time" name="{{ fchart_form.use_current_time.name }}" value="{{ fchart_form.use_current_time.data }}">
+          <input type="hidden" id="chart_date_time" name="{{ fchart_form.chart_date_time.name }}" value="{{ fchart_form.chart_date_time.data }}">
           <input type="hidden" id="fullscreen" name="fullscreen" value="{{ fchart_form.fullscreen.data }}" >
           <input type="hidden" id="splitview" name="splitview" value="{{ fchart_form.splitview.data }}" >
           <input type="hidden" id="radius" name="{{ fchart_form.radius.name }}" value="{{ fchart_form.radius.data }}">
@@ -98,13 +100,13 @@
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}} btelrad" style="text-align:left" >
+                          <button id="btelrad" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_telrad.data=='true' else ''}}" style="text-align:left" >
                               <i class="bullseye icon"></i>
                               {{ _('Telrad') }}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}} bpicker" style="text-align:left">
+                          <button id="bpicker" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_picker.data=='true' else ''}}" style="text-align:left">
                               <i class="square outline icon"></i>
                               {{ _('Picker') }}
                           </button>
@@ -136,92 +138,175 @@
               </div>
           </div>
 
+          <div class="ui right horizontally fitted mobile hidden small item" style="z-index:100;">
+              <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="bottom left" data-variation="tiny basic">
+                  <i class="icons">
+                      <i class="clock outline icon"></i>
+                      <i class="map marker alternate inverted corner icon"></i>
+                  </i>
+              </div>
+              <div class="ui popup transition hidden">
+                  <div class="field" style="margin-bottom: 10px;">
+                      <div class="ui inverted toggle checkbox">
+                          <input type="checkbox" id="useCurrentTimeCheckbox" checked="{{ 'checked' if fchart_form.use_current_time.data=='true' else '' }}"/>
+                          <label>{{ _('Use current time') }}</label>
+                      </div>
+                  </div>
+
+                  <div class="fields" style="display: flex; flex-wrap: nowrap; align-items: center;">
+                      <!-- Year Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-year"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="yearInput" value="2025" inputmode="numeric" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-year"><i class="chevron down icon"></i></div>
+                      </div>
+
+                      <span style="font-size: 1.2em;">-</span>
+
+                      <!-- Month Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-month"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="monthInput" value="1" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-month"><i class="chevron down icon"></i></div>
+                      </div>
+
+                      <span style="font-size: 1.2em;">-</span>
+
+                      <!-- Day Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-day"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="dayInput" value="1" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-day"><i class="chevron down icon"></i></div>
+                      </div>
+
+                      <span style="width: 15px;"></span>
+
+                      <!-- Hour Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-hour"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="hourInput" value="0" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-hour"><i class="chevron down icon"></i></div>
+                      </div>
+
+                      <span style="font-size: 1.2em;">:</span>
+
+                      <!-- Minute Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-minute"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="minuteInput" value="0" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-minute"><i class="chevron down icon"></i></div>
+                      </div>
+
+                      <span style="font-size: 1.2em;">:</span>
+
+                      <!-- Second Field -->
+                      <div class="field" style="margin: 0;">
+                          <div class="ui small icon button increment-second"><i class="chevron up icon"></i></div>
+                          <div class="ui transparent input">
+                              <input id="secondInput" value="0" style="text-align: center; width: 40px;" />
+                          </div>
+                          <div class="ui small icon button decrement-second"><i class="chevron down icon"></i></div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
           <div class="ui right horizontally fitted small item" style="z-index:100">
               <div id="layers_dropdown" class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="left center" data-variation="tiny basic">
                   <i class="layer group icon"></i>
                   <div class="ui vertical buttons menu">
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.is_equatorial.data=='true' else ''}} bequatorial" style="text-align:left">
+                          <button id="bequatorial" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.is_equatorial.data=='true' else ''}}" style="text-align:left">
                               <i class="globe icon"></i>
                               {{ _('Equat ↔ Horizontal')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}} bconstellshapes" style="text-align:left">
+                          <button id="bconstellshapes" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_shapes.data=='true' else ''}}" style="text-align:left">
                               <i class="lastfm icon"></i>
                               {{ _('Constellation lines') }}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}} bconstellborders" style="text-align:left">
+                          <button id="bconstellborders" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_constell_borders.data=='true' else ''}}" style="text-align:left">
                               <i class="draw polygon icon"></i>
                               {{ _('Constellation borders')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}} begrid" style="text-align:left">
+                          <button id="begrid" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}}" style="text-align:left">
                               <i class="globe icon"></i>
                               {{ _('Equatorial grid')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}} bdso" style="text-align:left">
+                          <button id="bdso" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}}" style="text-align:left">
                               <i class="superpowers icon"></i>
                               {{ _('Deepsky objects')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}} bslsystem" style="text-align:left">
+                          <button id="bslsystem" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}}" style="text-align:left">
                               <i class="sun icon"></i>
                               {{ _('Solar system')}}
                           </button>
                       </div>
                       <div class="item div_dsscolored">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}} bdsscolored" style="text-align:left">
+                          <button id="bdsscolored" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}}" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin color') }}
                           </button>
                       </div>
                       {% if chart_control.theme!='night' %}
                       <div class="item div_dssblue">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}} bdssblue" style="text-align:left">
+                          <button id="bdssblue" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}}" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin blue') }}
                           </button>
                       </div>
                       <div class="item div_dssfram">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='fram' else ''}} bdssfram" style="text-align:left">
+                          <button id="bdssfram" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='fram' else ''}}" style="text-align:left">
                               <i class="image outline icon"></i>
                               {{ _('Aladin fram') }}
                           </button>
                       </div>
                       {% endif %}
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}} bdsomag" style="text-align:left">
+                          <button id="bdsomag" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}}" style="text-align:left">
                               <i class="star of life icon"></i>
                               {{ _('DSO mag')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}} bstarlbl" style="text-align:left">
+                          <button id="bstarlbl" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}}" style="text-align:left">
                                 <i class="star outline icon"></i>
                                 {{ _('Star labels')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}} mirrorx" style="text-align:left">
+                          <button id="mirrorx" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}}" style="text-align:left">
                               <i class="exchange alternate icon"></i>
                               {{ _('Flip horizontally')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}} mirrory" style="text-align:left">
+                          <button id="mirrory" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_y.data=='true' else ''}}" style="text-align:left">
                               <i class="clockwise rotated  exchange alternate icon"></i>
                               {{ _('Flip vertically')}}
                           </button>
                       </div>
                       <div class="item">
-                          <button type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}} boptitraffic" style="text-align:left" >
+                          <button id="boptitraffic" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}}" style="text-align:left" >
                               <i class="wifi icon"></i>
                               {{ _('Optimize traffic')}}
                           </button>
@@ -417,12 +502,13 @@
         }
     }
 
-    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, aladin, projection) {
+    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, charDateTime,
+                          theme, legendUrl, chartUrl, aladin, projection) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
         var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, isEquatorial,
-                phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl,
+                phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, charDateTime, theme, legendUrl, chartUrl,
                 "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
                 {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
                 {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -521,6 +607,17 @@
         }
     }
 
+    function extractMaglimArray(response) {
+        let maglimObj = response.data.maglim;
+        let maglimArr = [];
+        for (let i = 0; i < Object.keys(maglimObj).length; i++) {
+            if (maglimObj.hasOwnProperty(i)) {
+                maglimArr.push(maglimObj[i]);
+            }
+        }
+        return maglimArr;
+    }
+
     var submitDisabled = false;
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
     var magRanges = [
@@ -554,8 +651,16 @@
     var longitude = {{ fchart_form.longitude.data }};
     var latitude = {{ fchart_form.latitude.data }};
 
-    var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
-    var chartUrlParamsHoriz = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_";
+{% if fchart_form.use_current_time.data=='true' %}
+    var useCurrentTime = true;
+    var charDateTime = new Date();
+{% else %}
+    var useCurrentTime = false;
+    var charDateTime = const date = new Date('{{ fchart_form.chart_date_time.data }}');
+{% endif %}
+
+    var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
+    var chartUrlParamsHoriz = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
 
     var chartUrlEq = addCommonChartUrlParams("{{ fchart_img_url | safe }}", chartUrlParamsEq);
     var legendUrlEq = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsEq);
@@ -611,11 +716,13 @@
                 fullScreen:               false,
                 log:                      true
             });
-            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, aladin, projection);
+            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
+                                  useCurrentTime, charDateTime, theme, legendUrl, chartUrl, aladin, projection);
             fchart.onWindowLoad();
         });
     } else {
-        fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, null, projection);
+        fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
+                              useCurrentTime, charDateTime, theme, legendUrl, chartUrl, null, projection);
     }
 
     adjustAladinVisibility();
@@ -639,7 +746,7 @@
         $("#bshowleftpanel2").show();
     }
 
-    $('.bequatorial').click(function(){
+    $('#bequatorial').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#is_equatorial').val() == 'true' ? 'false' : 'true';
@@ -657,7 +764,7 @@
         fchart.reloadImage();
     });
 
-    $('.btelrad').click(function(){
+    $('#btelrad').click(function(){
         $(this).toggleClass('active');
         var value = $('#show_telrad').val() == 'true' ? 'false' : 'true';
         $('#show_telrad').val(value);
@@ -667,7 +774,7 @@
         fchart.reloadLegendImage();
     });
 
-    $('.bpicker').click(function(){
+    $('#bpicker').click(function(){
         $(this).toggleClass('active');
         var value = $('#show_picker').val() == 'true' ? 'false' : 'true';
         $('#show_picker').val(value);
@@ -676,7 +783,7 @@
         fchart.reloadLegendImage();
     });
 
-    $('.bconstellshapes').click(function(){
+    $('#bconstellshapes').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_constell_shapes').val() == 'true' ? 'false' : 'true';
@@ -686,7 +793,7 @@
         fchart.reloadImage();
     });
 
-    $('.bconstellborders').click(function(){
+    $('#bconstellborders').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_constell_borders').val() == 'true' ? 'false' : 'true';
@@ -696,7 +803,7 @@
         fchart.reloadImage();
     });
 
-    $('.begrid').click(function(){
+    $('#begrid').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_egrid').val() == 'true' ? 'false' : 'true';
@@ -706,7 +813,7 @@
         fchart.reloadImage();
     });
 
-    $('.bdso').click(function(){
+    $('#bdso').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_dso').val() == 'true' ? 'false' : 'true';
@@ -716,7 +823,7 @@
         fchart.reloadImage();
     });
 
-    $('.bslsystem').click(function(){
+    $('#bslsystem').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
@@ -726,7 +833,7 @@
         fchart.reloadImage();
     });
 
-    $('.bdsomag').click(function(){
+    $('#bdsomag').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_dso_mag').val() == 'true' ? 'false' : 'true';
@@ -736,7 +843,7 @@
         fchart.reloadImage();
     });
 
-    $('.bstarlbl').click(function(){
+    $('#bstarlbl').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_star_lbl').val() == 'true' ? 'false' : 'true';
@@ -746,49 +853,49 @@
         fchart.reloadImage();
     });
 
-    $('.bdsscolored').click(function(){
+    $('#bdsscolored').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'colored' ? 'colored' : '';
         $('#dss_layer').val(value);
         if (value != '') {
-            $('.bdssblue').removeClass('active');
-            $('.bdssfram').removeClass('active');
+            $('#bdssblue').removeClass('active');
+            $('#bdssfram').removeClass('active');
         }
         $('.aladin-logo-container').toggle(value != '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('.bdssblue').click(function(){
+    $('#bdssblue').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'blue' ? 'blue' : '';
         $('#dss_layer').val(value);
         if (value != '') {
-            $('.bdsscolored').removeClass('active');
-            $('.bdssfram').removeClass('active');
+            $('#bdsscolored').removeClass('active');
+            $('#bdssfram').removeClass('active');
         }
         $('.aladin-logo-container').toggle(value != '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('.bdssfram').click(function(){
+    $('#bdssfram').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'fram' ? 'fram' : '';
         $('#dss_layer').val(value);
         if (value != '') {
-            $('.bdsscolored').removeClass('active');
-            $('.bdssblue').removeClass('active');
+            $('#bdsscolored').removeClass('active');
+            $('#bdssblue').removeClass('active');
         }
         $('.aladin-logo-container').toggle(value != '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('.mirrorx').click(function(){
+    $('#mirrorx').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#mirror_x').val() == 'true' ? 'false' : 'true';
@@ -799,7 +906,7 @@
         fchart.reloadImage();
     });
 
-    $('.mirrory').click(function(){
+    $('#mirrory').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#mirror_y').val() == 'true' ? 'false' : 'true';
@@ -810,7 +917,7 @@
         fchart.reloadImage();
     });
 
-    $('.boptitraffic').click(function(){
+    $('#boptitraffic').click(function(){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#optimize_traffic').val() == 'true' ? 'false' : 'true';
@@ -954,11 +1061,6 @@
         return res
     }
 
-    function callDsoListUrl(url) {
-        window.location.href = encodeURI(url + getFullscreenSplitViewUrlPart("?"));
-        event.stopPropagation();
-    }
-
     function updateChartUrls() {
         if (isEquatorial) {
             fchart.updateUrls(isEquatorial, legendUrlEq, chartUrlEq);
@@ -976,7 +1078,7 @@
     function unselectFov() {
         $('#eyepiece_fov').val('');
         $('#show_telrad').val('false');
-        $('.btelrad').removeClass('active');
+        $('#btelrad').removeClass('active');
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
         fchart.setChartUrlFlag('T', false);
         fchart.setLegendUrlParam('epfov', '');
@@ -1015,16 +1117,117 @@
         return response;
     }
 
-    function extractMaglimArray(response) {
-        let maglimObj = response.data.maglim;
-        let maglimArr = [];
-        for (let i = 0; i < Object.keys(maglimObj).length; i++) {
-            if (maglimObj.hasOwnProperty(i)) {
-                maglimArr.push(maglimObj[i]);
+    function syncDateTimeInput() {
+        const year   = parseInt($('#yearInput').val(), 10)   || 0;
+        const month  = parseInt($('#monthInput').val(), 10)  || 1;  // 1-based
+        const day    = parseInt($('#dayInput').val(), 10)    || 1;
+        const hour   = parseInt($('#hourInput').val(), 10)   || 0;
+        const minute = parseInt($('#minuteInput').val(), 10) || 0;
+        const second = parseInt($('#secondInput').val(), 10) || 0;
+
+        const date = new Date(year, month - 1, day, hour, minute, second).toISOString();
+
+        $('#chart_date_time').val(date);
+        fchart.setDateTime(date)
+        fchart.reloadImage();
+    }
+
+    function syncDateTimeComponentsInputs() {
+        const isoValue = $('#chart_date_time').val();
+        if (isoValue) {
+            const date = new Date(isoValue);
+
+            if (!isNaN(date.getTime())) {
+                $('#yearInput').val(date.getFullYear());
+                $('#monthInput').val(date.getMonth() + 1);
+                $('#dayInput').val(date.getDate());
+                $('#hourInput').val(date.getHours());
+                $('#minuteInput').val(date.getMinutes());
+                $('#secondInput').val(date.getSeconds());
             }
         }
-        return maglimArr;
     }
+
+    function updateDateTimeControls(useCurrentTime) {
+        $("#useCurrentTime").val(useCurrentTime ? "true" : "false");
+
+        var dateTimeInputs = [ "#yearInput", "#monthInput", "#dayInput", "#hourInput", "#minuteInput", "#secondInput" ];
+
+        $(dateTimeInputs.join(", ")).prop("disabled", useCurrentTime);
+
+        var dateTimeButtons = [
+            ".increment-year", ".decrement-year", ".increment-month", ".decrement-month",
+            ".increment-day", ".decrement-day", ".increment-hour", ".decrement-hour",
+            ".increment-minute", ".decrement-minute", ".increment-second", ".decrement-second"
+        ];
+
+        $(dateTimeButtons.join(", ")).toggleClass("disabled", useCurrentTime);
+        if (fchart != undefined) {
+            fchart.setUseCurrentTyme(this.isChecked);
+            fchart.reloadImage();
+        }
+    }
+
+    function changeDateTimeValue(component, delta) {
+        let year   = parseInt($('#yearInput').val(), 10)   || 0;
+        let month  = (parseInt($('#monthInput').val(), 10) - 1) || 0;
+        let day    = parseInt($('#dayInput').val(), 10)    || 1;
+        let hour   = parseInt($('#hourInput').val(), 10)   || 0;
+        let minute = parseInt($('#minuteInput').val(), 10) || 0;
+        let second = parseInt($('#secondInput').val(), 10) || 0;
+
+        let date = new Date(year, month, day, hour, minute, second);
+
+        switch(component) {
+            case 'year':
+                date.setFullYear(date.getFullYear() + delta);
+                break;
+            case 'month':
+                date.setMonth(date.getMonth() + delta);
+                break;
+            case 'day':
+                date.setDate(date.getDate() + delta);
+                break;
+            case 'hour':
+                date.setHours(date.getHours() + delta);
+                break;
+            case 'minute':
+                date.setMinutes(date.getMinutes() + delta);
+                break;
+            case 'second':
+                date.setSeconds(date.getSeconds() + delta);
+                break;
+        }
+
+        $('#yearInput').val(date.getFullYear());
+        $('#monthInput').val(date.getMonth() + 1);
+        $('#dayInput').val(date.getDate());
+        $('#hourInput').val(date.getHours());
+        $('#minuteInput').val(date.getMinutes());
+        $('#secondInput').val(date.getSeconds());
+
+        syncDateTimeInput();
+    }
+
+    $('#useCurrentTimeCheckbox').change(function() {
+        updateDateTimeControls(this.checked);
+    });
+
+    $('.increment-year').on('click', function() { changeDateTimeValue('year', +1, 1, 9999); });
+    $('.increment-month').on('click', function() { changeDateTimeValue('month', +1, 1, 12); });
+    $('.increment-day').on('click', function() { changeDateTimeValue('day', +1, 1, 31); });
+    $('.increment-hour').on('click', function() { changeDateTimeValue('hour', +1, 0, 23); });
+    $('.increment-minute').on('click', function() { changeDateTimeValue('minute', +1, 0, 59); });
+    $('.increment-second').on('click', function() { changeDateTimeValue('second', +1, 0, 59); });
+    $('.decrement-year').on('click', function() { changeDateTimeValue('year', -1, 1, 9999); });
+    $('.decrement-month').on('click', function() { changeDateTimeValue('month', -1, 1, 12); });
+    $('.decrement-day').on('click', function() { changeDateTimeValue('day', -1, 1, 31); });
+    $('.decrement-hour').on('click', function() { changeDateTimeValue('hour', -1, 0, 23); });
+    $('.decrement-minute').on('click', function() { changeDateTimeValue('minute', -1, 0, 59); });
+    $('.decrement-second').on('click', function() { changeDateTimeValue('second', -1, 0, 59); });
+
+//     $('#yearInput, #monthInput, #dayInput, #hourInput, #minuteInput, #secondInput')
+//         .on('change keyup', syncDateTimeInput);
 
     window.onload = function() {
         if (fchart != undefined) {
@@ -1039,6 +1242,10 @@
             .dropdown({
                   displayType : 'block',
         });
+
+        updateDateTimeControls({{ fchart_form.use_current_time.data }});
+        syncDateTimeComponentsInputs();
+
     }
 
 $('.date-int-popup')

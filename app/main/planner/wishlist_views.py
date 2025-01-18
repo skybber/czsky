@@ -40,7 +40,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 from .wishlist_forms import (
     AddToWishListForm,
@@ -262,7 +262,7 @@ def wish_list_chart():
 
     wish_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), wish_list.wish_list_items)
 
-    common_ra_dec_fsz_from_request(form, wish_list_item.get_ra(), wish_list_item.get_dec())
+    common_ra_dec_dt_fsz_from_request(form, wish_list_item.get_ra(), wish_list_item.get_dec())
 
     if not wish_list_item:
         wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None

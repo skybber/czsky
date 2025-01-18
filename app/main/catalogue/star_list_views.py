@@ -21,7 +21,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from .star_list_forms import (
@@ -104,7 +104,7 @@ def star_list_chart(star_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     star_list_descr = StarListDescription.query.filter_by(star_list_id=star_list.id, lang_code=lang).first()
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    star_list_item.star.ra if star_list_item else 0,
                                    star_list_item.star.dec if star_list_item else 0)
 

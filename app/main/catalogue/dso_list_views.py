@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from .dso_list_forms import (
@@ -200,7 +200,7 @@ def dso_list_chart(dso_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
     dso_list_descr = DsoListDescription.query.filter_by(dso_list_id=dso_list.id, lang_code=lang).first()
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    dso_list_item.deepsky_object.ra if dso_list_item else 0,
                                    dso_list_item.deepsky_object.dec if dso_list_item else 0)
 

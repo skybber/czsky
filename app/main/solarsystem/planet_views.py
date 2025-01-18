@@ -43,7 +43,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_chart_pdf_img,
     get_trajectory_b64,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.utils import to_float, is_splitview_supported
@@ -163,7 +163,7 @@ def planet_info(planet_iau_code):
     planet_ra = planet_ra_ang.radians
     planet_dec = planet_dec_ang.radians
 
-    common_ra_dec_fsz_from_request(form, planet_ra, planet_dec)
+    common_ra_dec_dt_fsz_from_request(form, planet_ra, planet_dec)
 
     chart_control = common_prepare_chart_data(form)
 

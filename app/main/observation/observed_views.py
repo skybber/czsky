@@ -37,7 +37,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.search_sky_object_utils import (
@@ -238,7 +238,7 @@ def observed_list_chart():
     if not observed_list_item:
         observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    observed_list_item.get_ra() if observed_list_item else 0,
                                    observed_list_item.get_dec() if observed_list_item else 0)
 

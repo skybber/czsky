@@ -58,7 +58,7 @@ from app.commons.chart_generator import (
     common_chart_pos_img,
     common_chart_legend_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
 )
 
@@ -517,7 +517,7 @@ def observing_session_chart(observing_session_id):
         if observing_session_item is not None:
             break
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    observing_session_item.get_ra() if observing_session_item else None,
                                    observing_session_item.get_dec() if observing_session_item else None)
 

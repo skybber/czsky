@@ -19,7 +19,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
     common_set_initial_celestial_position,
     set_chart_session_param,
     set_horiz_from_equatorial,
@@ -67,7 +67,7 @@ def chart():
     if ra is not None and dec is not None:
         form.ra.data = float(ra)
         form.dec.data = float(dec)
-    elif not common_ra_dec_fsz_from_request(form):
+    elif not common_ra_dec_dt_fsz_from_request(form):
         common_set_initial_celestial_position(form)
     set_horiz_from_equatorial(form)
 

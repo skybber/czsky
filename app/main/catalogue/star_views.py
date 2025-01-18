@@ -26,7 +26,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request
@@ -175,7 +175,7 @@ def star_chart(star_id):
 
     form = ChartForm()
 
-    common_ra_dec_fsz_from_request(form, star.ra, star.dec)
+    common_ra_dec_dt_fsz_from_request(form, star.ra, star.dec)
 
     chart_control = common_prepare_chart_data(form)
     prev_wrap, next_wrap = create_prev_next_wrappers(star)
@@ -207,7 +207,7 @@ def star_descr_chart(star_descr_id):
 
     form = ChartForm()
 
-    common_ra_dec_fsz_from_request(form, star.ra, star.dec)
+    common_ra_dec_dt_fsz_from_request(form, star.ra, star.dec)
 
     chart_control = common_prepare_chart_data(form)
 

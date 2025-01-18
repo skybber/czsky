@@ -45,7 +45,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.search_utils import (
@@ -230,7 +230,7 @@ def supernova_chart(designation):
 
     form = ChartForm()
 
-    common_ra_dec_fsz_from_request(form, supernova.ra, supernova.dec)
+    common_ra_dec_dt_fsz_from_request(form, supernova.ra, supernova.dec)
 
     chart_control = common_prepare_chart_data(form)
 

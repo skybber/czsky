@@ -2,7 +2,7 @@ import base64
 import os
 import json
 from datetime import timedelta
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from math import pi, sqrt, sin, cos, acos
 from time import time
@@ -36,7 +36,7 @@ from app.models import (
     SessionPlan,
     Telescope,
 )
-from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons, planet_moons
+from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES, ChartThemeDefinition
@@ -457,7 +457,7 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     return img_bytes
 
 
-def common_ra_dec_fsz_from_request(form, default_ra=None, default_dec=None):
+def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
     ra = request.args.get('ra', None)
     dec = request.args.get('dec', None)
     fsz = request.args.get('fsz', None)
@@ -479,22 +479,43 @@ def common_ra_dec_fsz_from_request(form, default_ra=None, default_dec=None):
             common_set_initial_celestial_position(form)
     set_horiz_from_equatorial(form)
 
+    request_dt = request.args.get('dt', None)
+    try:
+        tm = datetime.fromisoformat(request_dt) if request_dt else datetime.now(timezone.utc)
+    except ValueError:
+        tm = datetime.now(timezone.utc)
 
-def get_default_lst():
-    now = Time.now()
-    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LONG_DEG)  # Prague coordinates
-    return now.sidereal_time('apparent', longitude=default_location.lon).radian
+    form.chart_date_time.data = tm.isoformat()
 
 
 def set_horiz_from_equatorial(form):
     lat = pi * DEFAULT_LAT_DEG / 180.0
     sincos_lat = (sin(lat), cos(lat))
-    get_default_lst()
     ra = float(form.ra.data) if form.ra.data is not None else 0.0
     dec = float(form.dec.data) if form.dec.data is not None else 0.0
-    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_default_lst(), sincos_lat, ra, dec)
+    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_local_sideral_time(), sincos_lat, ra, dec)
     form.longitude.data = pi * DEFAULT_LONG_DEG / 180.0
     form.latitude.data = pi * DEFAULT_LAT_DEG / 180.0
+
+
+def get_utc_time():
+    request_dt = request.args.get('dt', None)
+    try:
+        tm = datetime.fromisoformat(request_dt).astimezone(timezone.utc) if request_dt else datetime.now(timezone.utc)
+    except ValueError:
+        tm = datetime.now(timezone.utc)
+    return tm
+
+
+# TODO: refactor
+def get_local_sideral_time():
+    request_dt = request.args.get('dt', None)
+    try:
+        tm = Time(request_dt) if request_dt else Time.now()
+    except ValueError:
+        tm = Time.now()
+    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LONG_DEG)  # Prague coordinates
+    return tm.sidereal_time('apparent', longitude=default_location.lon).radian
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -924,7 +945,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not is_equatorial:
-        local_sidereal_time = get_default_lst()
+        local_sidereal_time = get_local_sideral_time()
         engine.set_observer(local_sidereal_time, pi * DEFAULT_LAT_DEG / 180.0)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
@@ -955,9 +976,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
         config.show_star_circles = False
         transparent = True
 
-    sl_bodies = get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    sl_bodies = get_solsys_bodies(get_utc_time()) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
     if fld_size <= 12:
-        pl_moons = get_planet_moons(star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+        pl_moons = get_planet_moons(get_utc_time(), star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
     else:
         pl_moons = None
 
@@ -1056,8 +1077,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     dso_hide_filter = _get_dso_hide_filter()
 
-    sl_bodies = get_solsys_bodies() if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
-    pl_moons = get_planet_moons(dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    sl_bodies = get_solsys_bodies(get_utc_time()) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    pl_moons = get_planet_moons(get_utc_time(), dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
                     solsys_bodies=sl_bodies,

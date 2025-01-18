@@ -96,7 +96,8 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 }
 
 
-function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, theme, legendUrl, chartUrl, searchUrl,
+function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
+                 useCurrentTime, dateTime, theme, legendUrl, chartUrl, searchUrl,
                  fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
 
     this.fchartDiv = fchartDiv;
@@ -186,6 +187,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     this.longitude = longitude;
     this.latitude = latitude;
+
+    this.useCurrentTime = useCurrentTime;
+    this.dateTime = dateTime;
 
     this.theme = theme;
 
@@ -398,6 +402,14 @@ FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
     this.forceReloadImage();
 }
 
+FChart.prototype.setUseCurrentTyme = function (useCurrentTime) {
+    this.useCurrentTime = useCurrentTime;
+}
+
+FChart.prototype.setDateTime = function (dateTime) {
+    this.dateTime = dateTime;
+}
+
 FChart.prototype.onWindowLoad = function() {
     this.adjustCanvasSize();
     $(this.canvas).focus();
@@ -492,6 +504,11 @@ FChart.prototype.reloadLegendImage = function () {
         url = url.replace('_AZ_', this.viewCenter.phi.toString());
         url = url.replace('_ALT_', this.viewCenter.theta.toString());
     }
+    if (this.useCurrentTime) {
+        url = url.replace('_DATE_TIME_', new Date().toISOString());
+    } else {
+        url = url.replace('_DATE_TIME_', this.dateTime);
+    }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
@@ -567,6 +584,11 @@ FChart.prototype.formatUrl = function(inpUrl) {
     } else {
         url = url.replace('_AZ_', this.viewCenter.phi.toString());
         url = url.replace('_ALT_', this.viewCenter.theta.toString());
+    }
+    if (this.useCurrentTime) {
+        url = url.replace('_DATE_TIME_', new Date().toISOString());
+    } else {
+        url = url.replace('_DATE_TIME_', this.dateTime);
     }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);

@@ -47,7 +47,7 @@ from app.commons.chart_generator import (
     common_prepare_date_from_to,
     common_chart_pdf_img,
     get_trajectory_b64,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
     get_fld_size_mags_from_request,
 )
 
@@ -166,7 +166,7 @@ def comets_chart():
 
     comet = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).order_by('mag').first()
 
-    common_ra_dec_fsz_from_request(form, comet.cur_ra, comet.cur_dec)
+    common_ra_dec_dt_fsz_from_request(form, comet.cur_ra, comet.cur_dec)
 
     default_chart_iframe_url = None
     if comet:
@@ -273,7 +273,7 @@ def comet_info(comet_id):
     comet_ra = comet_ra_ang.radians
     comet_dec = comet_dec_ang.radians
 
-    common_ra_dec_fsz_from_request(form, comet_ra, comet_dec)
+    common_ra_dec_dt_fsz_from_request(form, comet_ra, comet_dec)
 
     chart_control = common_prepare_chart_data(form)
 

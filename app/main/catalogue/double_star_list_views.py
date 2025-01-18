@@ -37,7 +37,7 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    common_ra_dec_fsz_from_request,
+    common_ra_dec_dt_fsz_from_request,
 )
 
 from .double_star_list_forms import (
@@ -231,7 +231,7 @@ def double_star_list_chart(double_star_list_id):
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     double_star_list_descr = DoubleStarListDescription.query.filter_by(double_star_list_id=double_star_list.id, lang_code=lang).first()
 
-    common_ra_dec_fsz_from_request(form,
+    common_ra_dec_dt_fsz_from_request(form,
                                    double_star_list_item.double_star.ra_first if double_star_list_item else 0,
                                    double_star_list_item.double_star.dec_first if double_star_list_item else 0)
 
