@@ -262,7 +262,9 @@ def wish_list_chart():
 
     wish_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), wish_list.wish_list_items)
 
-    common_ra_dec_dt_fsz_from_request(form, wish_list_item.get_ra(), wish_list_item.get_dec())
+    default_ra = wish_list_item.get_ra() if wish_list_item else None
+    default_dec = wish_list_item.get_dec() if wish_list_item else None
+    common_ra_dec_dt_fsz_from_request(form, default_ra, default_dec)
 
     if not wish_list_item:
         wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
