@@ -618,6 +618,14 @@
         return maglimArr;
     }
 
+    function getChartPdfUrl() {
+        if (isEquatorial) {
+            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+        } else {
+            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
+        }
+    }
+
     var submitDisabled = false;
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
     var magRanges = [
@@ -670,14 +678,6 @@
     var chartUrl = isEquatorial ? chartUrlEq : chartUrlHoriz;
     var legendUrl = isEquatorial ? legendUrlEq : legendUrlHoriz;
 
-{% if fchart_pdf_url is not none %}
-    var chartPdfUrl;
-    if (isEquatorial) {
-        chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
-    } else {
-        chartPdfUrl = addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
-    }
-{% endif %}
 {% if fchart_items_url is not none %}
     var chartItemsUrl;
     if (isEquatorial) {
@@ -971,11 +971,11 @@
 
 {% if fchart_pdf_url is not none %}
     $('#download_pdf_landscape').click(function(event){
-        $('#download_pdf_landscape').attr("href", fchart.formatUrl(chartPdfUrl + '&landscape=true'));
+        $('#download_pdf_landscape').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=true'));
     });
 
     $('#download_pdf_portrait').click(function(event){
-        $('#download_pdf_portrait').attr("href", fchart.formatUrl(chartPdfUrl + '&landscape=false'));
+        $('#download_pdf_portrait').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=false'));
     });
 {% endif %}
 
