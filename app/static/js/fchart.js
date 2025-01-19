@@ -395,6 +395,17 @@ FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
         }
         this.viewCenter.dPhi = 0;
         this.viewCenter.dTheta = 0;
+
+        let queryParams = new URLSearchParams(window.location.search);
+        if (isEquatorial) {
+            queryParams.delete('alt');
+            queryParams.delete('az');
+        } else {
+            queryParams.delete('ra');
+            queryParams.delete('dec');
+        }
+        this.setViewCenterToQueryParams(queryParams);
+        history.replaceState(null, null, "?" + queryParams.toString());
     }
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
@@ -563,13 +574,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.activateImageOnLoad(centerPhi, centerTheta, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
-            if (this.isEquatorial) {
-                queryParams.set('ra', this.viewCenter.phi.toString());
-                queryParams.set('dec', this.viewCenter.theta.toString());
-            } else {
-                queryParams.set('az', this.viewCenter.phi.toString());
-                queryParams.set('alt', this.viewCenter.theta.toString());
-            }
+            this.setViewCenterToQueryParams(queryParams);
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
         }
@@ -1609,8 +1614,8 @@ FChart.prototype.toggleSplitView = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
 
-    queryParams.set('ra', this.viewCenter.phi.toString());
-    queryParams.set('dec', this.viewCenter.theta.toString());
+    this.setViewCenterToQueryParams(queryParams);
+
     queryParams.set('fsz', this.fieldSizes[this.imgFldSizeIndex]);
     history.replaceState(null, null, "?" + queryParams.toString());
 
@@ -1789,3 +1794,14 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
     }
     this.reloadImage();
 }
+
+FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
+    if (this.isEquatorial) {
+        queryParams.set('ra', this.viewCenter.phi.toString());
+        queryParams.set('dec', this.viewCenter.theta.toString());
+    } else {
+        queryParams.set('az', this.viewCenter.phi.toString());
+        queryParams.set('alt', this.viewCenter.theta.toString());
+    }
+}
+
