@@ -1,225 +1,171 @@
-{% macro back_navig(back, back_id, default_back, embed, anchor='') %}
+{% macro back_navig_inner(back, back_id, default_back, embed, anchor='', link_id='', extra_class='', style='', icon_extra='') %}
     {% if not embed %}
         {% if back == 'constell' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'constell_dso' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_constellation.constellation_deepskyobjects', constellation_id=back_id) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_constellation.constellation_deepskyobjects', constellation_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'observation' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'stobservation' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'wishlist' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'observed_list' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_observed.observed_list_info') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observed.observed_list_info') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'session_plan' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'dso_list' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back=='dbl_star_list' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'running_plan' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}{{anchor}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'deepskyobjects' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'double_stars' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_double_star.double_stars', nvgback=1)}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_double_star.double_stars', nvgback=1)}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'supernovae' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_supernova.supernovae', nvgback=1)}}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_supernova.supernovae', nvgback=1)}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'comets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_comet.comets') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_comet.comets') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'planets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_planet.planets') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_planet.planets') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'planet_moons' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_planet_moon.planet_moons') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_planet_moon.planet_moons') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'minor_planets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_minor_planet.minor_planets') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_minor_planet.minor_planets') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'wishlist' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" href="{{ url_for('main_wishlist.wish_list_info') }}"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_wishlist.wish_list_info') }}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% endif %}
-        <div id="bback" class="divider"></div>
+        <div class="divider"></div>
     {% else %}
         {% if back == 'constell' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'observation' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'dso_list' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back=='dbl_star_list' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'session_plan' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'wishlist' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'deepskyobjects' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'double_stars' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', nvgback=1)}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', nvgback=1)}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'supernovae' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_supernova.supernovae', nvgback=1)}}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_supernova.supernovae', nvgback=1)}}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'comets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_comet.comets', nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_comet.comets', nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'planets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_planet.planets', nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_planet.planets', nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'planet_moons' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif default_back == 'minor_planets' %}
-            <div id="bback" class="ui horizontally fitted item" style="z-index:100;display:none;">
-                <a class="ui small icon button" onclick="window.parent.location.href='{{ url_for('main_minor_planet.minor_planets', nvgback=1) }}'"
-                   data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic">
-                    <i class="caret left icon"></i>
-                </a>
-            </div>
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_minor_planet.minor_planets', nvgback=1) }}'"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro back_navig(back, back_id, default_back, embed, anchor='', div_id='bback', div_extra_class='') %}
+    {% if back is not none or default_back is not none %}
+        <div id="{{ div_id }}" class="ui horizontally fitted{{ div_extra_class }} item" style="z-index:100;display:none;">
+            {{ back_navig_inner(back, back_id, default_back, embed, anchor, '', '') }}
+        </div>
     {% endif %}
 {% endmacro %}
