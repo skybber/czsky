@@ -53,7 +53,7 @@
 
           {% if chart_control.has_date_from_to %}
               <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
-                  <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="bottom left" data-variation="tiny basic">
+                  <div class="chart-popup ui small icon button" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="left center" data-variation="inverted tiny basic">
                       <i class="calendar icon"></i>
                   </div>
                   <div class="ui popup transition hidden">
@@ -134,14 +134,14 @@
               </div>
           </div>
 
-          <div class="ui right horizontally fitted small item" style="z-index:200;">
-              <div class="date-int-popup ui small icon button" data-variation="inverted" data-inverted="" data-tooltip="{{ _('Interval') }}" data-position="bottom left" data-variation="tiny basic">
+          <div class="ui right horizontally fitted small item" style="z-index:100;">
+              <div class="chart-popup ui small icon button" data-inverted="" data-tooltip="{{ _('Setup time') }}" data-position="left center" data-variation="inverted tiny basic">
                   <i class="icons">
                       <i class="clock outline icon"></i>
                       <i class="map marker alternate inverted corner icon"></i>
                   </i>
               </div>
-              <div class="ui popup transition hidden">
+              <div class="ui popup hidden" style="z-index:200;">
                   <div class="field" style="margin-bottom: 10px;">
                       <div class="ui inverted toggle checkbox">
                           <input type="checkbox" id="useCurrentTimeCheckbox" checked="{{ 'checked' if fchart_form.use_current_time.data=='true' else '' }}"/>
@@ -496,6 +496,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
 
 <script type="text/javascript">
+    const fullScreenWrapperId = 'fullscreen-wrapper';
 
     function isWebGL2Supported() {
         try {
@@ -519,7 +520,7 @@
     }
 
     function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, charDateTime,
-                          theme, legendUrl, chartUrl, aladin, projection) {
+                          theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
@@ -561,7 +562,7 @@
             submitDisabled = false;
         });
 
-        fchart.onScreenModeChange(function(fullScreen, splitView) {
+        fchart.onScreenModeChange(function(fullScreen, splitView, realFullScreen) {
             $('#fullscreen').val(fullScreen);
             $('#splitview').val(splitView);
 
@@ -585,6 +586,16 @@
                     $("#bhome, #bback, #bdetail").hide();
                 }
             }
+            let popupContext = realFullScreen ? '#' + fullScreenWrapperId : 'body'
+            $('.chart-popup').popup('hide');
+            $('.chart-popup').popup('destroy');
+            $('.chart-popup')
+                .popup({
+                    on: 'click',
+                    inline: true,
+                    context : popupContext
+            });
+            updateDateTimeControls($('#useCurrentTimeCheckbox').prop('checked'));
        });
 
        return fchart;
@@ -1240,7 +1251,7 @@
         syncDateTimeComponentsInputs();
     }
 
-$('.date-int-popup')
+$('.chart-popup')
   .popup({
     on: 'click'
   })

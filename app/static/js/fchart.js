@@ -98,7 +98,8 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
                  useCurrentTime, dateTime, theme, legendUrl, chartUrl, searchUrl,
-                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
+                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
+                 fullScreenWrapperId) {
 
     this.fchartDiv = fchartDiv;
 
@@ -233,6 +234,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.slowdownNextTs = undefined;
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
+    this.fullScreenWrapperId = fullScreenWrapperId;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -1516,7 +1518,7 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
                 const elem = $(this.fchartDiv)[0];
 
                 this.fullscreenWrapper = document.createElement('div');
-                this.fullscreenWrapper.id = 'fullscreen-wrapper';
+                this.fullscreenWrapper.id = this.fullScreenWrapperId;
                 elem.parentNode.insertBefore(this.fullscreenWrapper, elem);
                 this.fullscreenWrapper.appendChild(elem);
 
@@ -1669,10 +1671,11 @@ FChart.prototype.callScreenModeChangeCallback = function(callback) {
     if (this.onScreenModeChangeCallback != undefined) {
         let fullScreen = this.isInFullScreen();
         let splitView = this.isInSplitView();
+        let isRealFullScreen = this.isInRealFullScreen();
         if (splitView && fullScreen) {
             fullScreen = false;
         }
-        this.onScreenModeChangeCallback.call(this, fullScreen, splitView);
+        this.onScreenModeChangeCallback.call(this, fullScreen, splitView, isRealFullScreen);
     }
 }
 
