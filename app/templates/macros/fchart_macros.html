@@ -1216,14 +1216,15 @@
     $('.decrement-minute').on('click', function() { changeDateTimeValue('minute', -1, 0, 59); });
     $('.decrement-second').on('click', function() { changeDateTimeValue('second', -1, 0, 59); });
 
+    if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
+        if (window.innerWidth <= 768) {
+            $("#top-menu, #right-menu, #isearch2").hide();
+        }
+    }
+
     window.onload = function() {
         if (fchart != undefined) {
             fchart.onWindowLoad();
-        }
-        if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
-            if (window.innerWidth <= 768) {
-                $("#top-menu, #right-menu, #isearch2").hide();
-            }
         }
 {% if chart_control.show_not_found %}
         $('.ui.modal.notFoundModal')
