@@ -97,7 +97,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-                 useCurrentTime, dateTime, theme, legendUrl, chartUrl, searchUrl,
+                 useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, searchUrl,
                  fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
                  fullScreenWrapperId) {
 
@@ -190,7 +190,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.latitude = latitude;
 
     this.useCurrentTime = useCurrentTime;
-    this.dateTime = dateTime;
+    this.dateTimeISO = dateTimeISO;
 
     this.theme = theme;
 
@@ -208,6 +208,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     this.onFieldChangeCallback = undefined;
     this.onScreenModeChangeCallback = undefined;
+    this.onChartTimeChangedCallback = undefined;
     this.splitview = splitview;
     this.zoomInterval = undefined;
     this.zoomStep = undefined;
@@ -415,12 +416,12 @@ FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
     this.forceReloadImage();
 }
 
-FChart.prototype.setUseCurrentTyme = function (useCurrentTime) {
+FChart.prototype.setUseCurrentTime = function (useCurrentTime) {
     this.useCurrentTime = useCurrentTime;
 }
 
-FChart.prototype.setDateTime = function (dateTime) {
-    this.dateTime = dateTime;
+FChart.prototype.setDateTimeISO = function (dateTimeISO) {
+    this.dateTimeISO = dateTimeISO;
 }
 
 FChart.prototype.onWindowLoad = function() {
@@ -520,7 +521,7 @@ FChart.prototype.reloadLegendImage = function () {
     if (this.useCurrentTime) {
         url = url.replace('_DATE_TIME_', new Date().toISOString());
     } else {
-        url = url.replace('_DATE_TIME_', this.dateTime);
+        url = url.replace('_DATE_TIME_', this.dateTimeISO);
     }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
@@ -554,7 +555,8 @@ FChart.prototype.forceReloadImage = function() {
 }
 
 FChart.prototype.doReloadImage = function(forceReload) {
-    let url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
+    let currentTime = new Date();
+    let url = this.formatUrl(this.chartUrl, currentTime) + '&t=' + new Date().getTime();
 
     if (forceReload) {
         url += '&hqual=1';
@@ -579,11 +581,14 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.setViewCenterToQueryParams(queryParams);
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
+            if (this.useCurrentTime) {
+                this.onChartTimeChangedCallback.call(this, currentTime);
+            }
         }
     }.bind(this));
 }
 
-FChart.prototype.formatUrl = function(inpUrl) {
+FChart.prototype.formatUrl = function(inpUrl, currentTime) {
     let url = inpUrl;
     if (this.isEquatorial) {
         url = url.replace('_RA_', this.viewCenter.phi.toString());
@@ -593,9 +598,9 @@ FChart.prototype.formatUrl = function(inpUrl) {
         url = url.replace('_ALT_', this.viewCenter.theta.toString());
     }
     if (this.useCurrentTime) {
-        url = url.replace('_DATE_TIME_', new Date().toISOString());
+        url = url.replace('_DATE_TIME_', currentTime.toISOString());
     } else {
-        url = url.replace('_DATE_TIME_', this.dateTime);
+        url = url.replace('_DATE_TIME_', this.dateTimeISO);
     }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
@@ -1665,6 +1670,10 @@ FChart.prototype.onFieldChange = function(callback) {
 
 FChart.prototype.onScreenModeChange = function(callback) {
     this.onScreenModeChangeCallback = callback;
+};
+
+FChart.prototype.onChartTimeChanged = function(callback) {
+    this.onChartTimeChangedCallback = callback;
 };
 
 FChart.prototype.callScreenModeChangeCallback = function(callback) {

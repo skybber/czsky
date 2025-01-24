@@ -58,7 +58,7 @@
                   </div>
                   <div class="ui popup transition hidden">
                       <div class="item">
-                          <div class="ui calendar" id="date_from">
+                          <div class="ui calendar" id="cal_date_from">
                               <div class="ui small input left icon">
                                   <i class="calendar icon"></i>
                                   <input name="{{ fchart_form.date_from.name }}" placeholder="Date" type="text"
@@ -70,7 +70,7 @@
                           </div>
                       </div>
                       <div class="item">
-                          <div class="ui calendar" id="date_to">
+                          <div class="ui calendar" id="cal_date_to">
                               <div class="ui small input left icon">
                                   <i class="calendar icon"></i>
                                   <input name="{{ fchart_form.date_to.name }}" placeholder="Date" type="text"
@@ -144,7 +144,7 @@
               <div class="ui popup hidden" style="z-index:200;">
                   <div class="field" style="margin-bottom: 10px;">
                       <div class="ui inverted toggle checkbox">
-                          <input type="checkbox" id="useCurrentTimeCheckbox" checked="{{ 'checked' if fchart_form.use_current_time.data=='true' else '' }}"/>
+                          <input type="checkbox" id="cb_use_current_time" checked="{{ 'checked' if fchart_form.use_current_time.data=='true' else '' }}"/>
                           <label>{{ _('Use current time') }}</label>
                       </div>
                   </div>
@@ -212,6 +212,15 @@
                               <input id="secondInput" value="0" style="text-align: center; width: 40px;" />
                           </div>
                           <div class="ui small icon button decrement-second"><i class="chevron down icon"></i></div>
+                      </div>
+                  </div>
+                  <div class="field" style="margin-top: 10px;">
+                      <div id="cal_chart_date_time" class="ui calendar" style="">
+                          <div class="ui small input left icon">
+                              <i class="calendar icon"></i>
+                              <input name="chart_date_time_helper" placeholder="Date" type="text"
+                                     value="{{ fchart_form.chart_date_time.data[:16].replace('T',' ') if fchart_form.chart_date_time.data else '' }}">
+                          </div>
                       </div>
                   </div>
               </div>
@@ -519,13 +528,13 @@
         }
     }
 
-    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, charDateTime,
+    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, chartDateTimeISO,
                           theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
         var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, isEquatorial,
-                phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, charDateTime, theme, legendUrl, chartUrl,
+                phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl,
                 "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
                 {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
                 {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
@@ -595,10 +604,15 @@
                     inline: true,
                     context : popupContext
             });
-            updateDateTimeControls($('#useCurrentTimeCheckbox').prop('checked'));
-       });
+            updateDateTimeControls($('#cb_use_current_time').prop('checked'));
+        });
 
-       return fchart;
+        fchart.onChartTimeChanged(function(chartTime) {
+            $('#chart_date_time').val(chartTime.toISOString());
+            syncDateTimeComponentsInputs(true);
+        });
+
+        return fchart;
     }
 
     function adjustAladinVisibility() {
@@ -667,10 +681,10 @@
 
 {% if fchart_form.use_current_time.data=='true' %}
     var useCurrentTime = true;
-    var charDateTime = new Date();
+    var chartDateTimeISO = new Date().toISOString;
 {% else %}
     var useCurrentTime = false;
-    var charDateTime = const date = new Date('{{ fchart_form.chart_date_time.data }}');
+    var chartDateTimeISO = Date('{{ fchart_form.chart_date_time.data }}').toISOString;
 {% endif %}
 
     var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
@@ -723,13 +737,13 @@
                 log:                      true
             });
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-                                  useCurrentTime, charDateTime, theme, legendUrl, chartUrl, aladin, projection);
-            fchart.setUseCurrentTyme({{ fchart_form.use_current_time.data }});
+                                  useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl, aladin, projection);
+            fchart.setUseCurrentTime({{ fchart_form.use_current_time.data }});
             fchart.onWindowLoad();
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-                              useCurrentTime, charDateTime, theme, legendUrl, chartUrl, null, projection);
+                              useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl, null, projection);
     }
 
     adjustAladinVisibility();
@@ -1015,36 +1029,63 @@
         }
     });
 
-    $('#date_from').calendar({
+    $('#cal_date_from').calendar({
         type: 'date',
         monthFirst: false,
-        endCalendar: $('#date_to'),
+        endCalendar: $('#cal_date_to'),
         formatter: {
             date: function (date, settings) {
-            if (!date) return '';
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-            return day + '/' + month + '/' + year;
+                if (!date) return '';
+                let day = date.getDate();
+                let month = date.getMonth() + 1;
+                let year = date.getFullYear();
+                return day + '/' + month + '/' + year;
             }
         },
     });
 
-    $('#date_to').calendar({
+    $('#cal_date_to').calendar({
         type: 'date',
         monthFirst: false,
-        startCalendar: $('#date_from'),
+        startCalendar: $('#cal_date_from'),
         formatter: {
             date: function (date, settings) {
-            if (!date) return '';
-            var day = date.getDate();
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-            return day + '/' + month + '/' + year;
+                if (!date) return '';
+                let day = date.getDate();
+                let month = date.getMonth() + 1;
+                let year = date.getFullYear();
+                return day + '/' + month + '/' + year;
             }
         },
         onChange: function () {
             $(this).closest('form').submit();
+        }
+    });
+
+    $('#cal_chart_date_time').calendar({
+        type: 'datetime',
+        monthFirst: false,
+        ampm: false,
+        formatter: {
+            date: function (date, settings) {
+                if (!date) return '';
+                let minutes = date.getMinutes();
+                let hours = date.getHours();
+                let day = date.getDate();
+                let month = date.getMonth() + 1;
+                let year = date.getFullYear();
+                return year + '-' + month + '-' + day;
+            }
+        },
+        onChange: function(date, text, mode) {
+            if (date) {
+                $('#chart_date_time').val(date.toISOString());
+                syncDateTimeComponentsInputs(false);
+                if (fchart != undefined) {
+                    fchart.setDateTimeISO(date.toISOString());
+                    fchart.reloadImage();
+                }
+            }
         }
     });
 
@@ -1126,14 +1167,14 @@
         const minute = parseInt($('#minuteInput').val(), 10) || 0;
         const second = parseInt($('#secondInput').val(), 10) || 0;
 
-        const date = new Date(year, month - 1, day, hour, minute, second).toISOString();
+        const dateISO = new Date(year, month - 1, day, hour, minute, second).toISOString();
 
-        $('#chart_date_time').val(date);
-        fchart.setDateTime(date)
+        $('#chart_date_time').val(dateISO);
+        fchart.setDateTimeISO(dateISO);
         fchart.reloadImage();
     }
 
-    function syncDateTimeComponentsInputs() {
+    function syncDateTimeComponentsInputs(syncCalChartDateTime) {
         const isoValue = $('#chart_date_time').val();
         if (isoValue) {
             const date = new Date(isoValue);
@@ -1145,6 +1186,9 @@
                 $('#hourInput').val(date.getHours());
                 $('#minuteInput').val(date.getMinutes());
                 $('#secondInput').val(date.getSeconds());
+                if (syncCalChartDateTime) {
+                    $('#cal_chart_date_time').calendar('set date', date);
+                }
             }
         }
     }
@@ -1163,8 +1207,11 @@
         ];
 
         $(dateTimeButtons.join(", ")).toggleClass("disabled", useCurrentTime);
+
+        $('#cal_chart_date_time').toggleClass("disabled", useCurrentTime);
+
         if (fchart != undefined) {
-            fchart.setUseCurrentTyme(useCurrentTime);
+            fchart.setUseCurrentTime(useCurrentTime);
             fchart.reloadImage();
         }
     }
@@ -1208,9 +1255,11 @@
         $('#secondInput').val(date.getSeconds());
 
         syncDateTimeInput();
+
+        $('#cal_chart_date_time').calendar('set date', date);
     }
 
-    $('#useCurrentTimeCheckbox').change(function() {
+    $('#cb_use_current_time').change(function() {
         updateDateTimeControls(this.checked);
     });
 
@@ -1248,7 +1297,7 @@
         });
 
         updateDateTimeControls({{ fchart_form.use_current_time.data }});
-        syncDateTimeComponentsInputs();
+        syncDateTimeComponentsInputs(true);
     }
 
 $('.chart-popup')
