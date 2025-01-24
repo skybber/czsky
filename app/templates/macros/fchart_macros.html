@@ -223,6 +223,13 @@
                           </div>
                       </div>
                   </div>
+                  <div class="field" style="margin-top: 10px;">
+                      <div class="ui inverted toggle checkbox" data-inverted=""  data-position="bottom center" data-variation="tiny basic"
+                           data-tooltip="{{ _('We use your IP temporarily to show accurate maps. It is processed in real time and not stored. ') }}">
+                          <input type="checkbox" id="cb_use_auto_location" {% if fchart_form.use_auto_location.data=='true'%}checked{% endif %}/>
+                          <label>{{ _('Use auto location') }} ({{ session['location_city_name']}})</label>
+                      </div>
+                  </div>
               </div>
           </div>
 
@@ -1261,6 +1268,12 @@
 
     $('#cb_use_current_time').change(function() {
         updateDateTimeControls(this.checked);
+    });
+
+    $('#cb_use_auto_location').change(function() {
+        var value = this.checked ? 'true' : 'false';
+        chart_param_ajax('use_auto_location', value);
+        fchart.reloadImage();
     });
 
     $('.increment-year').on('click', function() { changeDateTimeValue('year', +1, 1, 9999); });

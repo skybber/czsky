@@ -17,6 +17,7 @@ dist
 *.egg
 *.egg-info
 *.sqlite
+*.mmdb
 .idea
 dump.rdb
 USNO-NOMAD-1e8.dat

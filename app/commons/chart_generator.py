@@ -1,6 +1,9 @@
 import base64
 import os
 import json
+from functools import lru_cache
+
+import geoip2.database
 from datetime import timedelta
 from datetime import datetime, timezone
 from io import BytesIO
@@ -53,6 +56,7 @@ MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
 
+DEFAULT_CITY_NAME = "Prague"
 DEFAULT_LAT_DEG = 50.0755
 DEFAULT_LONG_DEG = 14.4378
 
@@ -153,6 +157,7 @@ skyfield_ts = load.timescale()
 
 catalog_lock = threading.Lock()
 
+geoip_reader = None
 
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
@@ -509,7 +514,7 @@ def set_horiz_from_equatorial(form):
     sincos_lat = (sin(lat), cos(lat))
     ra = float(form.ra.data) if form.ra.data is not None else 0.0
     dec = float(form.dec.data) if form.dec.data is not None else 0.0
-    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(get_local_sideral_time(), sincos_lat, ra, dec)
+    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(_get_local_sideral_time(), sincos_lat, ra, dec)
     form.longitude.data = pi * DEFAULT_LONG_DEG / 180.0
     form.latitude.data = pi * DEFAULT_LAT_DEG / 180.0
 
@@ -523,15 +528,44 @@ def get_utc_time():
     return tm
 
 
-# TODO: refactor
-def get_local_sideral_time():
+def _get_geoip_reader():
+    global geoip_reader
+    if geoip_reader is None:
+        geoip_db_path = os.path.join(os.getcwd(), 'data', 'GeoLite2-City.mmdb')
+        if os.path.isfile(geoip_db_path):
+            geoip_reader = geoip2.database.Reader(geoip_db_path)
+
+
+@lru_cache(maxsize=100)
+def get_location_from_ip(ip):
+    gr = _get_geoip_reader()
+    if gr is not None:
+        try:
+            ip_obj = geoip2.ipaddress.ip_address(ip)
+            if not ip_obj.is_private:
+                response = gr.city(ip)
+                city_name = response.city.name
+                lat = response.location.latitude
+                lon = response.location.longitude
+                if lat is None or lon is None:
+                    return city_name, lat, lon
+        except:
+            pass
+    return DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
+
+
+def _get_local_sideral_time():
     request_dt = request.args.get('dt', None)
     try:
         tm = Time(request_dt) if request_dt else Time.now()
     except ValueError:
         tm = Time.now()
-    default_location = EarthLocation(lat=DEFAULT_LAT_DEG, lon=DEFAULT_LONG_DEG)  # Prague coordinates
-    return tm.sidereal_time('apparent', longitude=default_location.lon).radian
+    city_name, lat, lon = get_location_from_ip(request.remote_addr)
+    if city_name:
+        session['location_city_name'] = city_name
+    else:
+        session['location_city_name'] = "Unknown city"
+    return tm.sidereal_time('apparent', longitude=lon).radian
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -572,6 +606,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
+        form.use_auto_location.data = session.get('use_auto_location', form.use_auto_location.data)
     else:
         session['chart_is_equatorial'] = form.is_equatorial.data
         session['chart_eyepiece_fov'] = form.eyepiece_fov.data
@@ -590,6 +625,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_dso_mag'] = form.show_dso_mag.data
         session['chart_show_star_labels'] = form.show_star_labels.data
         session['optimize_traffic'] = form.optimize_traffic.data
+        session['use_auto_location'] = form.use_auto_location.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
@@ -613,7 +649,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
 
     gui_field_sizes = STR_GUI_FIELD_SIZES
 
-    chart_flags, legend_flags = get_chart_legend_flags(form)
+    chart_flags, legend_flags = _get_chart_legend_flags(form)
 
     chart_dso_list_menu = common_chart_dso_list_menu()
     equipment_telescopes, equipment_eyepieces = common_equipment()
@@ -736,7 +772,7 @@ def get_trajectory_b64(d1, d2, ts, earth, body):
         time_delta = d2 - d1
         if time_delta.days > 365:
             d2 = d1 + timedelta(days=365)
-        dt, hr_step = get_trajectory_time_delta(d1, d2)
+        dt, hr_step = _get_trajectory_time_delta(d1, d2)
         trajectory = []
         hr_count = 0
         prev_date = None
@@ -961,7 +997,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not is_equatorial:
-        local_sidereal_time = get_local_sideral_time()
+        local_sidereal_time = _get_local_sideral_time()
         engine.set_observer(local_sidereal_time, pi * DEFAULT_LAT_DEG / 180.0)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
@@ -1215,7 +1251,7 @@ def _find_dso_by_name(dso_name):
     return dso
 
 
-def get_chart_legend_flags(form):
+def _get_chart_legend_flags(form):
     chart_flags = ''
     legend_flags = ''
 
@@ -1301,7 +1337,7 @@ def common_equipment():
     return None, None
 
 
-def get_trajectory_time_delta(d1, d2):
+def _get_trajectory_time_delta(d1, d2):
     delta = d2 - d1
     if delta.days > 120:
         return timedelta(days=30), 0
@@ -1333,7 +1369,8 @@ def set_chart_session_param(key, value):
     if key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
                'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
+               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial',
+               'use_auto_location' ]:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'

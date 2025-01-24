@@ -39,3 +39,4 @@ class ChartForm(FlaskForm):
     dss_layer = HiddenField('dss_layer', default='false')
     optimize_traffic = HiddenField('optimize_traffic', default='false')
     is_equatorial = HiddenField('is_equatorial', default='true')
+    use_auto_location = HiddenField('use_auto_location', default='false')
