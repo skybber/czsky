@@ -15,6 +15,7 @@ from flask_wtf import CSRFProtect
 from flask_babel import Babel
 from sqlalchemy import MetaData
 from apscheduler.schedulers.background import BackgroundScheduler
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from app.assets import (
     app_css,
@@ -73,6 +74,9 @@ def create_app(config, web=True, default_locale=None):
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO,
                         datefmt='%Y-%m-%d %H:%M:%S', handlers=[rfh])
     app = Flask(__name__)
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
+
     if default_locale:
         babel = Babel(app, default_locale=default_locale)
     else:
