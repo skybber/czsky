@@ -548,7 +548,7 @@ def _get_location_from_ip(ip):
                 city_name = response.city.name
                 lat = response.location.latitude
                 lon = response.location.longitude
-                if lat is None or lon is None:
+                if lat is not None:
                     return city_name, lat, lon
         except geoip2.errors.AddressNotFoundError:
             pass
