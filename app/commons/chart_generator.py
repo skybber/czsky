@@ -2,6 +2,7 @@ import base64
 import os
 import json
 from functools import lru_cache
+import ipaddress
 
 import geoip2.database
 from datetime import timedelta
@@ -16,7 +17,6 @@ from skyfield.api import load
 from enum import Enum
 import threading
 from astropy.time import Time
-from astropy.coordinates import EarthLocation
 
 # Do not remove - it initializes pillow avif
 import pillow_avif
@@ -534,14 +534,15 @@ def _get_geoip_reader():
         geoip_db_path = os.path.join(os.getcwd(), 'data', 'GeoLite2-City.mmdb')
         if os.path.isfile(geoip_db_path):
             geoip_reader = geoip2.database.Reader(geoip_db_path)
+    return geoip_reader
 
 
 @lru_cache(maxsize=100)
-def get_location_from_ip(ip):
+def _get_location_from_ip(ip):
     gr = _get_geoip_reader()
     if gr is not None:
         try:
-            ip_obj = geoip2.ipaddress.ip_address(ip)
+            ip_obj = ipaddress.ip_address(ip)
             if not ip_obj.is_private:
                 response = gr.city(ip)
                 city_name = response.city.name
@@ -549,7 +550,9 @@ def get_location_from_ip(ip):
                 lon = response.location.longitude
                 if lat is None or lon is None:
                     return city_name, lat, lon
-        except:
+        except geoip2.errors.AddressNotFoundError:
+            pass
+        except Exception:
             pass
     return DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
 
@@ -560,11 +563,17 @@ def _get_local_sideral_time():
         tm = Time(request_dt) if request_dt else Time.now()
     except ValueError:
         tm = Time.now()
-    city_name, lat, lon = get_location_from_ip(request.remote_addr)
+
+    if session.get('use_auto_location', 'false') == 'true':
+        city_name, lat, lon = _get_location_from_ip(request.remote_addr)
+    else:
+        city_name, lat, lon = DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
+
     if city_name:
         session['location_city_name'] = city_name
     else:
         session['location_city_name'] = "Unknown city"
+
     return tm.sidereal_time('apparent', longitude=lon).radian
 
 
@@ -1366,11 +1375,17 @@ def common_set_initial_celestial_position(form):
 
 
 def set_chart_session_param(key, value):
-    if key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
+    if key == 'use_auto_location':
+        session[key] = value
+        if value == 'true':
+            city_name, _, _ = _get_location_from_ip(request.remote_addr)
+        else:
+            city_name = DEFAULT_CITY_NAME
+        return {'location_city_name': city_name}
+    elif key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
                'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial',
-               'use_auto_location' ]:
+               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'

@@ -227,7 +227,7 @@
                       <div class="ui inverted toggle checkbox" data-inverted=""  data-position="bottom center" data-variation="tiny basic"
                            data-tooltip="{{ _('We use your IP temporarily to show accurate maps. It is processed in real time and not stored. ') }}">
                           <input type="checkbox" id="cb_use_auto_location" {% if fchart_form.use_auto_location.data=='true'%}checked{% endif %}/>
-                          <label>{{ _('Use auto location') }} ({{ session['location_city_name']}})</label>
+                          <label>{{ _('Use auto location') }} (<span id="location_city_name">{{ session.get('location_city_name', _('Unknown city')) }}</span>)</label>
                       </div>
                   </div>
               </div>
@@ -1272,7 +1272,10 @@
 
     $('#cb_use_auto_location').change(function() {
         var value = this.checked ? 'true' : 'false';
-        chart_param_ajax('use_auto_location', value);
+        response = chart_param_ajax('use_auto_location', value);
+        if (response != null) {
+            $('#location_city_name').text(response.data.location_city_name);
+        }
         fchart.reloadImage();
     });
 
