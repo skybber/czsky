@@ -68,55 +68,57 @@ FIELD_LABELS = [
 
 STR_GUI_FIELD_SIZES = ','.join(str(x) for x in FIELD_SIZES)
 
-MAG_SCALES = [(14, 17), # 0.1
-              (14, 17), # 0.165
-              (14, 17), # 0.25
-              (14, 17), # 0.375
-              (13, 17), # 0.5
-              (13, 16), # 0.75
-              (12, 16), # 1
-              (12, 16), # 1.5
-              (11, 15), # 2
-              (11, 15), # 3
-              (10, 13), # 4
-              (10, 13), # 6
-              (8, 11), # 8
-              (8, 11), # 12
-              (7, 10), # 16
-              (7, 10), # 23
-              (6, 9), # 30
-              (6, 9), # 45
-              (6, 8), # 60
-              (6, 8), # 80
-              (5, 7), # 100
-              (5, 7), # 140
-              (5, 7), # 180
-              ]
+MAG_SCALES = [
+    (14, 17), # 0.1
+    (14, 17),  # 0.165
+    (14, 17),  # 0.25
+    (14, 17),  # 0.375
+    (13, 17),  # 0.5
+    (13, 16),  # 0.75
+    (12, 16),  # 1
+    (12, 16),  # 1.5
+    (11, 15),  # 2
+    (11, 15),  # 3
+    (10, 13),  # 4
+    (10, 13),  # 6
+    (8, 11),  # 8
+    (8, 11),  # 12
+    (7, 10),  # 16
+    (7, 10),  # 23
+    (6, 9),  # 30
+    (6, 9),  # 45
+    (6, 8),  # 60
+    (6, 8),  # 80
+    (5, 7),  # 100
+    (5, 7),  # 140
+    (5, 7),  # 180
+]
 
-DSO_MAG_SCALES = [(10, 18), # 0.1
-                  (10, 18), # 0.165
-                  (10, 18), # 0.25
-                  (10, 18), # 0.375
-                  (10, 18), # 0.5
-                  (10, 18), # 0.75
-                  (10, 18), # 1
-                  (10, 18), # 1.5
-                  (10, 18), # 2
-                  (10, 18), # 3
-                  (10, 18), # 4
-                  (10, 18), # 6
-                  (9, 16), # 8
-                  (8, 15), # 12
-                  (7, 14), # 16
-                  (7, 13), # 23
-                  (7, 12), # 30
-                  (7, 12), # 45
-                  (7, 11), # 60
-                  (7, 11), # 80
-                  (6, 10), # 100
-                  (6, 10), # 140
-                  (5, 9),  # 180
-                  ]
+DSO_MAG_SCALES = [
+    (10, 18), # 0.1
+    (10, 18),  # 0.165
+    (10, 18),  # 0.25
+    (10, 18),  # 0.375
+    (10, 18),  # 0.5
+    (10, 18),  # 0.75
+    (10, 18),  # 1
+    (10, 18),  # 1.5
+    (10, 18),  # 2
+    (10, 18),  # 3
+    (10, 18),  # 4
+    (10, 18),  # 6
+    (9, 16),  # 8
+    (8, 15),  # 12
+    (7, 14),  # 16
+    (7, 13),  # 23
+    (7, 12),  # 30
+    (7, 12),  # 45
+    (7, 11),  # 60
+    (7, 11),  # 80
+    (6, 10),  # 100
+    (6, 10),  # 140
+    (5, 9),  # 180
+]
 
 class FlagValue(Enum):
     EQUATORIAL = 'Q'
@@ -236,6 +238,7 @@ def _get_dso_hide_filter():
                 if dso:
                     dso_hide_filter.append(dso)
     return dso_hide_filter
+
 
 def _setup_dark_theme(config, width):
     COMMON_THEMES['dark_theme'].fill_config(config)
@@ -660,8 +663,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
 
     chart_flags, legend_flags = _get_chart_legend_flags(form)
 
-    chart_dso_list_menu = common_chart_dso_list_menu()
-    equipment_telescopes, equipment_eyepieces = common_equipment()
+    chart_dso_list_menu = _common_chart_dso_list_menu()
+    equipment_telescopes, equipment_eyepieces = _common_equipment()
 
     has_date_from_to = hasattr(form, 'date_from') and hasattr(form, 'date_to')
     date_from = form.date_from.data if has_date_from_to else None
@@ -1327,7 +1330,7 @@ class FChartDsoListMenu:
         self.observing_sessions = observing_sessions
 
 
-def common_chart_dso_list_menu():
+def _common_chart_dso_list_menu():
     dso_lists = DsoList.query.all()
     if not current_user.is_anonymous:
         is_wish_list = True
@@ -1341,7 +1344,7 @@ def common_chart_dso_list_menu():
     return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observing_sessions)
 
 
-def common_equipment():
+def _common_equipment():
     if not current_user.is_anonymous:
         telescopes = Telescope.query.filter_by(user_id=current_user.id, is_deleted=False, is_active=True, fixed_magnification=None).all()
         eyepieces = Eyepiece.query.filter_by(user_id=current_user.id, is_deleted=False, is_active=True).all()
@@ -1425,8 +1428,10 @@ def set_chart_session_param(key, value):
                 pass
     return None
 
+
 def deg2rad(angle):
     return angle * pi / 180.0
+
 
 def _get_chart_font_face():
     global chart_font_face
@@ -1435,7 +1440,7 @@ def _get_chart_font_face():
     if not chart_font_face_initialized:
         chart_font_face_initialized = True
         if current_app.config.get('CHART_FONT'):
-            chart_font_face = create_cairo_font_face_for_file(current_app.config.get('CHART_FONT'), 0)
+            chart_font_face = _create_cairo_font_face_for_file(current_app.config.get('CHART_FONT'), 0)
 
     return chart_font_face
 
@@ -1447,7 +1452,7 @@ def _get_pdf_font_face():
     if not pdf_font_face_initialized:
         pdf_font_face_initialized = True
         if current_app.config.get('PDF_FONT'):
-            pdf_font_face = create_cairo_font_face_for_file(current_app.config.get('PDF_FONT'), 0)
+            pdf_font_face = _create_cairo_font_face_for_file(current_app.config.get('PDF_FONT'), 0)
 
     return pdf_font_face
 
@@ -1455,7 +1460,7 @@ def _get_pdf_font_face():
 ft_initialized = False
 
 
-def create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
+def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
     "given the name of a font file, and optional faceindex to pass to FT_New_Face" \
     " and loadoptions to pass to cairo_ft_font_face_create_for_ft_face, creates" \
     " a cairo.FontFace object that may be used to render text with that font."
