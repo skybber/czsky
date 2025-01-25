@@ -75,7 +75,7 @@ def create_app(config, web=True, default_locale=None):
                         datefmt='%Y-%m-%d %H:%M:%S', handlers=[rfh])
     app = Flask(__name__)
 
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_host=1, x_proto=1, x_port=1)
 
     if default_locale:
         babel = Babel(app, default_locale=default_locale)
