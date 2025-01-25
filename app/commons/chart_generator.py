@@ -943,6 +943,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, width)
     config.show_picker = False  # do not show picker, only activate it
+    config.show_horizont = True
     if FlagValue.SHOW_PICKER.value in flags:
         config.picker_radius = PICKER_RADIUS
     else:
@@ -956,8 +957,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
         config.widget_mode = fchart3.WidgetMode.NORMAL
     else:
         config.widget_mode = fchart3.WidgetMode.ALLOC_SPACE_ONLY
-
-    config.show_horizont = True
 
     if dso_maglim is None:
         dso_maglim = -10
@@ -1099,6 +1098,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.show_star_labels = FlagValue.SHOW_STAR_LABELS.value in flags
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.5  # increase radius of star by 1.5 magnitude
+    config.show_horizont = True
 
     if show_legend:
         config.show_mag_scale_legend = True
@@ -1119,6 +1119,10 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
+
+    if not is_equatorial:
+        local_sidereal_time, lat, lon = _get_lst_lat_lot()
+        engine.set_observer(local_sidereal_time, lat)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)

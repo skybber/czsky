@@ -191,6 +191,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     this.useCurrentTime = useCurrentTime;
     this.dateTimeISO = dateTimeISO;
+    this.lastChartTimeISO = null;
 
     this.theme = theme;
 
@@ -555,8 +556,7 @@ FChart.prototype.forceReloadImage = function() {
 }
 
 FChart.prototype.doReloadImage = function(forceReload) {
-    let currentTime = new Date();
-    let url = this.formatUrl(this.chartUrl, currentTime) + '&t=' + new Date().getTime();
+    let url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
 
     if (forceReload) {
         url += '&hqual=1';
@@ -582,13 +582,13 @@ FChart.prototype.doReloadImage = function(forceReload) {
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
             if (this.useCurrentTime) {
-                this.onChartTimeChangedCallback.call(this, currentTime);
+                this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
             }
         }
     }.bind(this));
 }
 
-FChart.prototype.formatUrl = function(inpUrl, currentTime) {
+FChart.prototype.formatUrl = function(inpUrl, currentTimeISO) {
     let url = inpUrl;
     if (this.isEquatorial) {
         url = url.replace('_RA_', this.viewCenter.phi.toString());
@@ -598,8 +598,10 @@ FChart.prototype.formatUrl = function(inpUrl, currentTime) {
         url = url.replace('_ALT_', this.viewCenter.theta.toString());
     }
     if (this.useCurrentTime) {
-        url = url.replace('_DATE_TIME_', currentTime.toISOString());
+        this.lastChartTimeISO = new Date().toISOString();
+        url = url.replace('_DATE_TIME_', this.lastChartTimeISO);
     } else {
+        this.lastChartTimeISO = this.dateTimeISO;
         url = url.replace('_DATE_TIME_', this.dateTimeISO);
     }
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
