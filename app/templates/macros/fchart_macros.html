@@ -110,10 +110,10 @@
                       {% if chart_control.equipment_telescopes %}
                           {% for telescope in chart_control.equipment_telescopes %}
                               <div class="item">
-                                      <button class="ui tiny labeled icon button"  style="text-align:left">
-                                          <i class="binoculars icon"></i>
-                                          <span class="text">{{ telescope.name }} <i class="dropdown icon"></i></span>
-                                      </button>
+                                  <button class="ui tiny labeled icon button"  style="text-align:left">
+                                      <i class="binoculars icon"></i>
+                                      <span class="text">{{ telescope.name }} <i class="dropdown icon"></i></span>
+                                  </button>
                                   <div class="right menu">
                                       {% for eyepiece in chart_control.equipment_eyepieces %}
                                           <div class="item" onclick="setEyepieceFov({{ telescope.get_fov(eyepiece) }})">
@@ -144,7 +144,7 @@
               <div class="ui popup hidden" style="z-index:200;">
                   <div class="field" style="margin-bottom: 10px;">
                       <div class="ui inverted toggle checkbox">
-                          <input type="checkbox" id="cb_use_current_time" checked="{{ 'checked' if fchart_form.use_current_time.data=='true' else '' }}"/>
+                          <input type="checkbox" id="cb_use_current_time" {% if fchart_form.use_current_time.data=='true'%}checked{% endif %}/>
                           <label>{{ _('Use current time') }}</label>
                       </div>
                   </div>
@@ -535,23 +535,38 @@
         }
     }
 
-    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, chartDateTimeISO,
+    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+                          longitude, latitude, useCurrentTime, chartDateTimeISO,
                           theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
-        var fchart = new FChart('#fchart-div', {{ fchart_form.radius.data }}, fieldSizes, isEquatorial,
-                phi, theta, obj_ra, obj_dec, longitude, latitude, useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl,
-                "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
-                {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
-                {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
-                {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
-                {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
-                '{{ default_chart_iframe_url }}',
-                '{{ embed }}',
-                aladin,
-                showAladin,
-                projection
+        var fchart = new FChart(
+            '#fchart-div',
+            {{ fchart_form.radius.data }},
+            fieldSizes,
+            isEquatorial,
+            phi,
+            theta,
+            obj_ra,
+            obj_dec,
+            longitude,
+            latitude,
+            useCurrentTime,
+            chartDateTimeISO,
+            theme,
+            legendUrl,
+            chartUrl,
+            "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
+            {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
+            {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
+            '{{ default_chart_iframe_url }}',
+            '{{ embed }}',
+            aladin,
+            showAladin,
+            projection
         );
 
         fchart.onFieldChange(function(fldSizeIndex) {
@@ -563,16 +578,13 @@
             $('#sdso_maglim').text(dsoMagRangeValues[fldSizeIndex].toString());
 
             $('#maglim_menu').empty();
-            var i;
-            for (i=magRanges[fldSizeIndex][0]; i<=magRanges[fldSizeIndex][1]; i++) {
-                $('<div class="item">' + i +'</div>')
-                    .appendTo('#maglim_menu');
+            for (var i = magRanges[fldSizeIndex][0]; i <= magRanges[fldSizeIndex][1]; i++) {
+                $('<div class="item">' + i +'</div>').appendTo('#maglim_menu');
             }
 
             $('#dso_maglim_menu').empty();
-            for (i=dsoMagRanges[fldSizeIndex][0]; i<=dsoMagRanges[fldSizeIndex][1]; i++) {
-                $('<div class="item">' + i +'</div>')
-                    .appendTo('#dso_maglim_menu');
+            for (var j = dsoMagRanges[fldSizeIndex][0]; j <= dsoMagRanges[fldSizeIndex][1]; j++) {
+                $('<div class="item">' + j +'</div>').appendTo('#dso_maglim_menu');
             }
 
             submitDisabled = false;
@@ -602,14 +614,13 @@
                     $("#bhome, #bback, #bdetail").hide();
                 }
             }
-            let popupContext = realFullScreen ? '#' + fullScreenWrapperId : 'body'
+            let popupContext = realFullScreen ? '#' + fullScreenWrapperId : 'body';
             $('.chart-popup').popup('hide');
             $('.chart-popup').popup('destroy');
-            $('.chart-popup')
-                .popup({
-                    on: 'click',
-                    inline: true,
-                    context : popupContext
+            $('.chart-popup').popup({
+                on: 'click',
+                inline: true,
+                context : popupContext
             });
             updateDateTimeControls($('#cb_use_current_time').prop('checked'));
         });
@@ -674,7 +685,7 @@
 
     var theme = '{{ chart_control.theme }}';
 
-    var isEquatorial = $('#is_equatorial').val() == 'true';
+    var isEquatorial = ($('#is_equatorial').val() == 'true');
 
     if (isEquatorial) {
         phi = parseFloat($('#ra').val());
@@ -686,13 +697,13 @@
     var longitude = {{ fchart_form.longitude.data }};
     var latitude = {{ fchart_form.latitude.data }};
 
-{% if fchart_form.use_current_time.data=='true' %}
-    var useCurrentTime = true;
-    var chartDateTimeISO = new Date().toISOString;
-{% else %}
-    var useCurrentTime = false;
-    var chartDateTimeISO = Date('{{ fchart_form.chart_date_time.data }}').toISOString;
-{% endif %}
+    {% if fchart_form.use_current_time.data=='true' %}
+        var useCurrentTime = true;
+        var chartDateTimeISO = new Date().toISOString();
+    {% else %}
+        var useCurrentTime = false;
+        var chartDateTimeISO = new Date('{{ fchart_form.chart_date_time.data }}').toISOString();
+    {% endif %}
 
     var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
     var chartUrlParamsHoriz = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
@@ -705,20 +716,18 @@
     var chartUrl = isEquatorial ? chartUrlEq : chartUrlHoriz;
     var legendUrl = isEquatorial ? legendUrlEq : legendUrlHoriz;
 
-{% if fchart_items_url is not none %}
+    {% if fchart_items_url is not none %}
     var chartItemsUrl;
     if (isEquatorial) {
         chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
     } else {
         chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
     }
-{% endif %}
+    {% endif %}
 
     var projection = new Projection();
-
     var aladin;
     var fchart;
-    var showAladin;
 
     projection.setProjection(Projection.PROJ_TAN2);
 
@@ -743,14 +752,16 @@
                 fullScreen:               false,
                 log:                      true
             });
-            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-                                  useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl, aladin, projection);
+            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+                                  longitude, latitude, useCurrentTime, chartDateTimeISO,
+                                  theme, legendUrl, chartUrl, aladin, projection);
             fchart.setUseCurrentTime({{ fchart_form.use_current_time.data }});
             fchart.onWindowLoad();
         });
     } else {
-        fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-                              useCurrentTime, chartDateTimeISO, theme, legendUrl, chartUrl, null, projection);
+        fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+                              longitude, latitude, useCurrentTime, chartDateTimeISO,
+                              theme, legendUrl, chartUrl, null, projection);
     }
 
     adjustAladinVisibility();
@@ -768,7 +779,7 @@
         $("#bshowleftpanel2").show();
     }
 
-    $('#bequatorial').click(function(){
+    $('#bequatorial').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#is_equatorial').val() == 'true' ? 'false' : 'true';
@@ -792,7 +803,7 @@
         $('#show_telrad').val(value);
         $('#eyepiece_fov').val('');
         chart_param_ajax('chart_show_telrad', value);
-        fchart.setChartUrlFlag('T', value)
+        fchart.setChartUrlFlag('T', value);
         fchart.reloadLegendImage();
     });
 
@@ -805,7 +816,7 @@
         fchart.reloadLegendImage();
     });
 
-    $('#bconstellshapes').click(function(){
+    $('#bconstellshapes').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_constell_shapes').val() == 'true' ? 'false' : 'true';
@@ -815,7 +826,7 @@
         fchart.reloadImage();
     });
 
-    $('#bconstellborders').click(function(){
+    $('#bconstellborders').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_constell_borders').val() == 'true' ? 'false' : 'true';
@@ -825,7 +836,7 @@
         fchart.reloadImage();
     });
 
-    $('#begrid').click(function(){
+    $('#begrid').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_egrid').val() == 'true' ? 'false' : 'true';
@@ -835,7 +846,7 @@
         fchart.reloadImage();
     });
 
-    $('#bdso').click(function(){
+    $('#bdso').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_dso').val() == 'true' ? 'false' : 'true';
@@ -845,7 +856,7 @@
         fchart.reloadImage();
     });
 
-    $('#bslsystem').click(function(){
+    $('#bslsystem').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
@@ -855,7 +866,7 @@
         fchart.reloadImage();
     });
 
-    $('#bdsomag').click(function(){
+    $('#bdsomag').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_dso_mag').val() == 'true' ? 'false' : 'true';
@@ -865,7 +876,7 @@
         fchart.reloadImage();
     });
 
-    $('#bstarlbl').click(function(){
+    $('#bstarlbl').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_star_lbl').val() == 'true' ? 'false' : 'true';
@@ -875,71 +886,71 @@
         fchart.reloadImage();
     });
 
-    $('#bdsscolored').click(function(){
+    $('#bdsscolored').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'colored' ? 'colored' : '';
         $('#dss_layer').val(value);
-        if (value != '') {
+        if (value !== '') {
             $('#bdssblue').removeClass('active');
             $('#bdssfram').removeClass('active');
         }
-        $('.aladin-logo-container').toggle(value != '');
+        $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('#bdssblue').click(function(){
+    $('#bdssblue').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'blue' ? 'blue' : '';
         $('#dss_layer').val(value);
-        if (value != '') {
+        if (value !== '') {
             $('#bdsscolored').removeClass('active');
             $('#bdssfram').removeClass('active');
         }
-        $('.aladin-logo-container').toggle(value != '');
+        $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('#bdssfram').click(function(){
+    $('#bdssfram').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'fram' ? 'fram' : '';
         $('#dss_layer').val(value);
-        if (value != '') {
+        if (value !== '') {
             $('#bdsscolored').removeClass('active');
             $('#bdssblue').removeClass('active');
         }
-        $('.aladin-logo-container').toggle(value != '');
+        $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
         fchart.setAladinLayer(value);
     });
 
-    $('#mirrorx').click(function(){
+    $('#mirrorx').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#mirror_x').val() == 'true' ? 'false' : 'true';
         $('#mirror_x').val(value);
         fchart.setChartUrlFlag('X', value);
         chart_param_ajax('chart_mirror_x', value);
-        fchart.setMirrorX(value)
+        fchart.setMirrorX(value);
         fchart.reloadImage();
     });
 
-    $('#mirrory').click(function(){
+    $('#mirrory').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#mirror_y').val() == 'true' ? 'false' : 'true';
         $('#mirror_y').val(value);
         fchart.setChartUrlFlag('Y', value);
         chart_param_ajax('chart_mirror_y', value);
-        fchart.setMirrorY(value)
+        fchart.setMirrorY(value);
         fchart.reloadImage();
     });
 
-    $('#boptitraffic').click(function(){
+    $('#boptitraffic').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#optimize_traffic').val() == 'true' ? 'false' : 'true';
@@ -957,7 +968,6 @@
 
     $('#bhideleftpanel').click(function(){
         fchart.toggleSplitView();
-//         fchart.setupFullscreen();
     });
 
     $('#bshowleftpanel1').click(function(){
@@ -975,7 +985,7 @@
         var response = chart_param_ajax('pref_maglim' + fldSize, $('#maglim').val());
         var maglimArr = extractMaglimArray(response);
         if (maglimArr.length == magRangeValues.length) {
-            magRangeValues = maglimArr .slice();
+            magRangeValues = maglimArr.slice();
         }
         fchart.reloadImage();
     });
@@ -985,29 +995,29 @@
         var response = chart_param_ajax('pref_dso_maglim' + fldSize, $('#dso_maglim').val());
         var dsoMaglimArr = extractMaglimArray(response);
         if (dsoMaglimArr.length == dsoMagRangeValues.length) {
-            dsoMagRangeValues = dsoMaglimArr .slice();
+            dsoMagRangeValues = dsoMaglimArr.slice();
         }
         fchart.reloadImage();
     });
 
-{% if fchart_pdf_url is not none %}
-    $('#download_pdf_landscape').click(function(event){
+    {% if fchart_pdf_url is not none %}
+    $('#download_pdf_landscape').click(function(){
         $('#download_pdf_landscape').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=true'));
     });
 
-    $('#download_pdf_portrait').click(function(event){
+    $('#download_pdf_portrait').click(function(){
         $('#download_pdf_portrait').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=false'));
     });
-{% endif %}
+    {% endif %}
 
-{% if fchart_items_url is not none %}
-    $('#download_items_landscape').click(function(event){
+    {% if fchart_items_url is not none %}
+    $('#download_items_landscape').click(function(){
         $('#download_items_landscape').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=true'));
     });
-    $('#download_items_portrait').click(function(event){
+    $('#download_items_portrait').click(function(){
         $('#download_items_portrait').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=false'));
     });
-{% endif %}
+    {% endif %}
 
     $('#bsearch2').on('click', function() {
         if ($('#iisearch2').hasClass('hidden')) {
@@ -1015,24 +1025,28 @@
                 animation  : 'fade',
                 onComplete : function() {
                   $('#iiisearch2').focus();
-              }
+                }
             });
-          } else {
+        } else {
             $('#iisearch2').transition('fade');
-          }
+        }
     });
 
     $('#iiisearch2').on('blur', function() {
         if (!$('#iisearch2').hasClass('hidden')) {
-          $('#iisearch2').transition('fade');
+            $('#iisearch2').transition('fade');
         }
     });
 
     $('.search').on('keydown', function(event) {
         if(event.which === 13) {
             event.preventDefault();
-            window.location.href = encodeURI("{{ url_for('main.global_search') }}?q=" + $(this).val() + "&fromchart=true&seltab=chart"
-            + getFullscreenSplitViewUrlPart("&") + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}'));
+            window.location.href = encodeURI(
+                "{{ url_for('main.global_search') }}?q=" + $(this).val()
+                + "&fromchart=true&seltab=chart"
+                + getFullscreenSplitViewUrlPart("&")
+                + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}')
+            );
         }
     });
 
@@ -1076,8 +1090,6 @@
         formatter: {
             date: function (date, settings) {
                 if (!date) return '';
-                let minutes = date.getMinutes();
-                let hours = date.getHours();
                 let day = date.getDate();
                 let month = date.getMonth() + 1;
                 let year = date.getFullYear();
@@ -1088,7 +1100,7 @@
             if (date) {
                 $('#chart_date_time').val(date.toISOString());
                 syncDateTimeComponentsInputs(false);
-                if (fchart != undefined) {
+                if (fchart) {
                     fchart.setDateTimeISO(date.toISOString());
                     fchart.reloadImage();
                 }
@@ -1097,17 +1109,17 @@
     });
 
     function getFullscreenSplitViewUrlPart(prefix) {
-        res = "";
+        let res = "";
         if ($('#fullscreen').val() == 'true') {
             res += "&fullscreen=" + $('#fullscreen').val();
         }
         if ($('#splitview').val() == 'true') {
             res += "&splitview=" + $('#splitview').val();
         }
-        if (res != "") {
+        if (res !== "") {
             res = prefix + res.substring(1);
         }
-        return res
+        return res;
     }
 
     function updateChartUrls() {
@@ -1135,10 +1147,10 @@
     }
 
     function removeParamFromRelativeUrl(relativeUrl, param) {
-      const baseUrl = window.location.origin;
-      const url = new URL(relativeUrl, baseUrl);
-      url.searchParams.delete(param);
-      return url.toString();
+        const baseUrl = window.location.origin;
+        const url = new URL(relativeUrl, baseUrl);
+        url.searchParams.delete(param);
+        return url.toString();
     }
 
     function chart_param_ajax(...params) {
@@ -1150,11 +1162,11 @@
         let response = null;
 
         $.ajax({
-            url: "{{ url_for('main_chart.chart_param') }}", // Flask route
+            url: "{{ url_for('main_chart.chart_param') }}",
             type: 'POST',
             async: false,
             contentType: 'application/json',
-            data: JSON.stringify(data), // Send as JSON
+            data: JSON.stringify(data),
             dataType: 'json',
             success: function(res) {
                 response = res;
@@ -1168,24 +1180,25 @@
 
     function syncDateTimeInput() {
         const year   = parseInt($('#yearInput').val(), 10)   || 0;
-        const month  = parseInt($('#monthInput').val(), 10)  || 1;  // 1-based
+        const month  = parseInt($('#monthInput').val(), 10)  || 1;
         const day    = parseInt($('#dayInput').val(), 10)    || 1;
         const hour   = parseInt($('#hourInput').val(), 10)   || 0;
         const minute = parseInt($('#minuteInput').val(), 10) || 0;
         const second = parseInt($('#secondInput').val(), 10) || 0;
 
-        const dateISO = new Date(year, month - 1, day, hour, minute, second).toISOString();
-
+        const d = new Date(year, month - 1, day, hour, minute, second);
+        const dateISO = d.toISOString();
         $('#chart_date_time').val(dateISO);
-        fchart.setDateTimeISO(dateISO);
-        fchart.reloadImage();
+        if (fchart) {
+            fchart.setDateTimeISO(dateISO);
+            fchart.reloadImage();
+        }
     }
 
     function syncDateTimeComponentsInputs(syncCalChartDateTime) {
         const isoValue = $('#chart_date_time').val();
         if (isoValue) {
             const date = new Date(isoValue);
-
             if (!isNaN(date.getTime())) {
                 $('#yearInput').val(date.getFullYear());
                 $('#monthInput').val(date.getMonth() + 1);
@@ -1203,7 +1216,14 @@
     function updateDateTimeControls(useCurrentTime) {
         $("#useCurrentTime").val(useCurrentTime ? "true" : "false");
 
-        var dateTimeInputs = [ "#yearInput", "#monthInput", "#dayInput", "#hourInput", "#minuteInput", "#secondInput" ];
+        var dateTimeInputs = [
+            "#yearInput",
+            "#monthInput",
+            "#dayInput",
+            "#hourInput",
+            "#minuteInput",
+            "#secondInput"
+        ];
 
         $(dateTimeInputs.join(", ")).prop("disabled", useCurrentTime);
 
@@ -1217,7 +1237,7 @@
 
         $('#cal_chart_date_time').toggleClass("disabled", useCurrentTime);
 
-        if (fchart != undefined) {
+        if (fchart) {
             fchart.setUseCurrentTime(useCurrentTime);
             fchart.reloadImage();
         }
@@ -1225,13 +1245,13 @@
 
     function changeDateTimeValue(component, delta) {
         let year   = parseInt($('#yearInput').val(), 10)   || 0;
-        let month  = (parseInt($('#monthInput').val(), 10) - 1) || 0;
+        let month  = parseInt($('#monthInput').val(), 10)  || 0;
         let day    = parseInt($('#dayInput').val(), 10)    || 1;
         let hour   = parseInt($('#hourInput').val(), 10)   || 0;
         let minute = parseInt($('#minuteInput').val(), 10) || 0;
         let second = parseInt($('#secondInput').val(), 10) || 0;
 
-        let date = new Date(year, month, day, hour, minute, second);
+        let date = new Date(year, month - 1, day, hour, minute, second);
 
         switch(component) {
             case 'year':
@@ -1262,7 +1282,6 @@
         $('#secondInput').val(date.getSeconds());
 
         syncDateTimeInput();
-
         $('#cal_chart_date_time').calendar('set date', date);
     }
 
@@ -1272,7 +1291,7 @@
 
     $('#cb_use_auto_location').change(function() {
         var value = this.checked ? 'true' : 'false';
-        response = chart_param_ajax('use_auto_location', value);
+        let response = chart_param_ajax('use_auto_location', value);
         if (response != null) {
             $('#location_city_name').text(response.data.location_city_name);
             $('#longitude').val(response.data.longitude);
@@ -1283,18 +1302,19 @@
         fchart.reloadImage();
     });
 
-    $('.increment-year').on('click', function() { changeDateTimeValue('year', +1, 1, 9999); });
-    $('.increment-month').on('click', function() { changeDateTimeValue('month', +1, 1, 12); });
-    $('.increment-day').on('click', function() { changeDateTimeValue('day', +1, 1, 31); });
-    $('.increment-hour').on('click', function() { changeDateTimeValue('hour', +1, 0, 23); });
-    $('.increment-minute').on('click', function() { changeDateTimeValue('minute', +1, 0, 59); });
-    $('.increment-second').on('click', function() { changeDateTimeValue('second', +1, 0, 59); });
-    $('.decrement-year').on('click', function() { changeDateTimeValue('year', -1, 1, 9999); });
-    $('.decrement-month').on('click', function() { changeDateTimeValue('month', -1, 1, 12); });
-    $('.decrement-day').on('click', function() { changeDateTimeValue('day', -1, 1, 31); });
-    $('.decrement-hour').on('click', function() { changeDateTimeValue('hour', -1, 0, 23); });
-    $('.decrement-minute').on('click', function() { changeDateTimeValue('minute', -1, 0, 59); });
-    $('.decrement-second').on('click', function() { changeDateTimeValue('second', -1, 0, 59); });
+    $('.increment-year').on('click', function(){ changeDateTimeValue('year', +1); });
+    $('.increment-month').on('click', function(){ changeDateTimeValue('month', +1); });
+    $('.increment-day').on('click', function(){ changeDateTimeValue('day', +1); });
+    $('.increment-hour').on('click', function(){ changeDateTimeValue('hour', +1); });
+    $('.increment-minute').on('click', function(){ changeDateTimeValue('minute', +1); });
+    $('.increment-second').on('click', function(){ changeDateTimeValue('second', +1); });
+
+    $('.decrement-year').on('click', function(){ changeDateTimeValue('year', -1); });
+    $('.decrement-month').on('click', function(){ changeDateTimeValue('month', -1); });
+    $('.decrement-day').on('click', function(){ changeDateTimeValue('day', -1); });
+    $('.decrement-hour').on('click', function(){ changeDateTimeValue('hour', -1); });
+    $('.decrement-minute').on('click', function(){ changeDateTimeValue('minute', -1); });
+    $('.decrement-second').on('click', function(){ changeDateTimeValue('second', -1); });
 
     if ({{ 'true' if fchart_form.splitview.data == 'true' else 'false' }}) {
         if (window.innerWidth <= 768) {
@@ -1303,28 +1323,20 @@
     }
 
     window.onload = function() {
-        if (fchart != undefined) {
+        if (fchart) {
             fchart.onWindowLoad();
         }
-{% if chart_control.show_not_found %}
-        $('.ui.modal.notFoundModal')
-            .modal('show');
-{% endif %}
-        /* Fix FomanticUI bug on mobiles */
-        $('#layers_dropdown')
-            .dropdown({
-                  displayType : 'block',
-        });
+        {% if chart_control.show_not_found %}
+        $('.ui.modal.notFoundModal').modal('show');
+        {% endif %}
+
+        $('#layers_dropdown').dropdown({ displayType : 'block' });
 
         updateDateTimeControls({{ fchart_form.use_current_time.data }});
         syncDateTimeComponentsInputs(true);
     }
 
-$('.chart-popup')
-  .popup({
-    on: 'click'
-  })
-;
+    $('.chart-popup').popup({ on: 'click' });
 </script>
 
 {% endmacro %}
