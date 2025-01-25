@@ -514,9 +514,10 @@ def set_horiz_from_equatorial(form):
     sincos_lat = (sin(lat), cos(lat))
     ra = float(form.ra.data) if form.ra.data is not None else 0.0
     dec = float(form.dec.data) if form.dec.data is not None else 0.0
-    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(_get_local_sideral_time(), sincos_lat, ra, dec)
-    form.longitude.data = pi * DEFAULT_LONG_DEG / 180.0
-    form.latitude.data = pi * DEFAULT_LAT_DEG / 180.0
+    lst, lat, lon = _get_lst_lat_lot()
+    form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(lst, sincos_lat, ra, dec)
+    form.longitude.data = pi * lat / 180.0
+    form.latitude.data = pi * lon / 180.0
 
 
 def get_utc_time():
@@ -557,7 +558,7 @@ def _get_location_from_ip(ip):
     return DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
 
 
-def _get_local_sideral_time():
+def _get_lst_lat_lot():
     request_dt = request.args.get('dt', None)
     try:
         tm = Time(request_dt) if request_dt else Time.now()
@@ -574,7 +575,7 @@ def _get_local_sideral_time():
     else:
         session['location_city_name'] = "Unknown city"
 
-    return tm.sidereal_time('apparent', longitude=lon).radian
+    return tm.sidereal_time('apparent', longitude=lon).radian, lat, lon
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -1006,8 +1007,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not is_equatorial:
-        local_sidereal_time = _get_local_sideral_time()
-        engine.set_observer(local_sidereal_time, pi * DEFAULT_LAT_DEG / 180.0)
+        local_sidereal_time, lat, lon = _get_lst_lat_lot()
+        engine.set_observer(local_sidereal_time, pi * lat / 180.0)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
