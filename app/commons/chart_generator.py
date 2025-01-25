@@ -510,14 +510,13 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
 
 
 def set_horiz_from_equatorial(form):
-    lat = pi * DEFAULT_LAT_DEG / 180.0
-    sincos_lat = (sin(lat), cos(lat))
     ra = float(form.ra.data) if form.ra.data is not None else 0.0
     dec = float(form.dec.data) if form.dec.data is not None else 0.0
     lst, lat, lon = _get_lst_lat_lot()
+    sincos_lat = (sin(lat), cos(lat))
     form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(lst, sincos_lat, ra, dec)
-    form.longitude.data = pi * lat / 180.0
-    form.latitude.data = pi * lon / 180.0
+    form.longitude.data = lat
+    form.latitude.data = lon
 
 
 def get_utc_time():
@@ -575,7 +574,7 @@ def _get_lst_lat_lot():
     else:
         session['location_city_name'] = "Unknown city"
 
-    return tm.sidereal_time('apparent', longitude=lon).radian, lat, lon
+    return tm.sidereal_time('apparent', longitude=lon).radian, deg2rad(lat), deg2rad(lon)
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
@@ -760,7 +759,7 @@ def _interpolate_adaptive_segm(ra1, dec1, t1, lbl1, ra2, dec2, t2, lbl2, ra3, de
 def _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body):
     result = [trajectory[0]]
 
-    threshold_rad = 5.0 * pi / 180.0
+    threshold_rad = deg2rad(5.0)
 
     for i in range(1, len(trajectory) - 1):
         ra1, dec1, lbl1 = trajectory[i - 1]
@@ -1004,11 +1003,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, fld_size*pi/180.0/2.0, fld_label, mirror_x, mirror_y, projection)
+    engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y, projection)
 
     if not is_equatorial:
         local_sidereal_time, lat, lon = _get_lst_lat_lot()
-        engine.set_observer(local_sidereal_time, pi * lat / 180.0)
+        engine.set_observer(local_sidereal_time, lat)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -1119,7 +1118,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, fld_size * pi / 180.0 / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
+    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1193,7 +1192,7 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, fld_size * pi / 180.0 / 2.0, fld_label, mirror_x, mirror_y, projection)
+    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, projection)
 
     engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
@@ -1379,10 +1378,10 @@ def set_chart_session_param(key, value):
     if key == 'use_auto_location':
         session[key] = value
         if value == 'true':
-            city_name, _, _ = _get_location_from_ip(request.remote_addr)
+            city_name, lat, lon = _get_location_from_ip(request.remote_addr)
         else:
-            city_name = DEFAULT_CITY_NAME
-        return {'location_city_name': city_name}
+            city_name, lat, lon = DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
+        return {'location_city_name': city_name, 'latitude': deg2rad(lat), 'longitude': deg2rad(lon)}
     elif key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
                'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
@@ -1422,6 +1421,8 @@ def set_chart_session_param(key, value):
                 pass
     return None
 
+def deg2rad(angle):
+    return angle * pi / 180.0
 
 def _get_chart_font_face():
     global chart_font_face

@@ -1817,3 +1817,10 @@ FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
     }
 }
 
+FChart.prototype.setLongitude = function(longitude) {
+    this.longitude = longitude;
+}
+
+FChart.prototype.setLatitude = function(latitude) {
+    this.latitude = latitude;
+}

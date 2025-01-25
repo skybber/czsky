@@ -1275,6 +1275,10 @@
         response = chart_param_ajax('use_auto_location', value);
         if (response != null) {
             $('#location_city_name').text(response.data.location_city_name);
+            $('#longitude').val(response.data.longitude);
+            $('#latitude').val(response.data.latitude);
+            fchart.setLongitude(response.data.longitude);
+            fchart.setLatitude(response.data.latitude);
         }
         fchart.reloadImage();
     });
