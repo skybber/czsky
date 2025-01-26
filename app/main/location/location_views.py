@@ -1,4 +1,6 @@
 from datetime import datetime
+import requests
+from flask_babel import lazy_gettext
 
 from flask import (
     abort,
@@ -203,4 +205,39 @@ def location_autocomplete():
     results = []
     for loc in locations.all():
         results.append({'name': loc.name, 'value': loc.id, 'text': loc.name})
+    return jsonify(success=True, results=results)
+
+
+@main_location.route('/location-autocomplete-nominatim', methods=['GET'])
+def location_autocomplete_nominatim():
+    search = request.args.get('q')
+    if not search:
+        return jsonify(success=False, error="The 'q' parameter is required."), 400
+
+    params = {
+        'q': search,
+        'format': 'json',
+        'addressdetails': 1,
+        'limit': 10,
+        'dedupe': 1,
+    }
+
+    headers = {
+        'User-Agent': 'CzSkY/1.0 (administrator@czsky.eu)'
+    }
+
+    try:
+        response = requests.get('https://nominatim.openstreetmap.org/search', params=params, headers=headers, timeout=5)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        return jsonify(success=False, error=lazy_gettext('Error communicating with the Nominatim API.')), 500
+
+    data = response.json()
+    results = []
+    for item in data:
+        results.append({
+            'name': item.get('display_name'),
+            'value': '{},{},{}'.format(item.get('lon'), item.get('lat'), item.get('display_name')),
+            'text': item.get('display_name'),
+        })
     return jsonify(success=True, results=results)

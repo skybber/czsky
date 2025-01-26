@@ -56,7 +56,7 @@ MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
 
-DEFAULT_CITY_NAME = "Klementinum"
+DEFAULT_CITY_NAME = "Clementinum"
 DEFAULT_LAT_DEG = 50.086667
 DEFAULT_LONG_DEG = 14.416389
 
@@ -560,6 +560,23 @@ def _get_location_from_ip(ip):
     return DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
 
 
+def _resolve_city_lat_lon():
+    city_name, lat, lon = None, None, None
+    if session.get('use_auto_location', 'false') == 'true':
+        city_name, lat, lon = _get_location_from_ip(request.remote_addr)
+    elif session.get('user_location_city_name', '') != '':
+        city_name = session.get('user_location_city_name')
+        try:
+            lat = float(session.get('user_location_latitude'))
+            lon = float(session.get('user_location_longitude'))
+        except:
+            pass
+    if city_name is None or lat is None or lon is None:
+        city_name, lat, lon = DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
+    session['location_city_name'] = city_name
+    return city_name, lat, lon
+
+
 def _get_lst_lat_lot():
     request_dt = request.args.get('dt', None)
     try:
@@ -567,15 +584,7 @@ def _get_lst_lat_lot():
     except ValueError:
         tm = Time.now()
 
-    if session.get('use_auto_location', 'false') == 'true':
-        city_name, lat, lon = _get_location_from_ip(request.remote_addr)
-    else:
-        city_name, lat, lon = DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
-
-    if city_name:
-        session['location_city_name'] = city_name
-    else:
-        session['location_city_name'] = "Unknown city"
+    city_name, lat, lon = _resolve_city_lat_lon()
 
     return tm.sidereal_time('apparent', longitude=lon).radian, deg2rad(lat), deg2rad(lon)
 
@@ -619,6 +628,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
         form.use_auto_location.data = session.get('use_auto_location', form.use_auto_location.data)
+        form.user_location.data = session.get('user_location', form.user_location.data)
     else:
         session['chart_is_equatorial'] = form.is_equatorial.data
         session['chart_eyepiece_fov'] = form.eyepiece_fov.data
@@ -638,6 +648,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_star_labels'] = form.show_star_labels.data
         session['optimize_traffic'] = form.optimize_traffic.data
         session['use_auto_location'] = form.use_auto_location.data
+        session['user_location'] = form.user_location.data
 
     form.maglim.data = _check_in_mag_interval(form.maglim.data, cur_mag_scale)
     session['pref_maglim' + str(fld_size)] = form.maglim.data
@@ -1383,16 +1394,19 @@ def common_set_initial_celestial_position(form):
 
 def set_chart_session_param(key, value):
     if key == 'use_auto_location':
-        session[key] = value
-        if value == 'true':
-            city_name, lat, lon = _get_location_from_ip(request.remote_addr)
-        else:
-            city_name, lat, lon = DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
+        session['use_auto_location'] = value
+        city_name, lat, lon = _resolve_city_lat_lon()
         return {'location_city_name': city_name, 'latitude': deg2rad(lat), 'longitude': deg2rad(lon)}
+    elif key in ['user_location_city_name', 'user_location_longitude', 'user_location_latitude']:
+        session['use_auto_location'] = 'false'
+        session[key] = value
+        if key == 'user_location_city_name':
+            session['location_city_name'] = value
+            session['user_location'] = value
     elif key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
-               'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
-               'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-               'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
+                 'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
+                 'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
+                 'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'
