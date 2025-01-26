@@ -208,36 +208,59 @@ def location_autocomplete():
     return jsonify(success=True, results=results)
 
 
-@main_location.route('/location-autocomplete-nominatim', methods=['GET'])
-def location_autocomplete_nominatim():
-    search = request.args.get('q')
+@main_location.route('/location-autocomplete-unified', methods=['GET'])
+def location_autocomplete_unified():
+    search = request.args.get('q', '').strip()
+
     if not search:
-        return jsonify(success=False, error="The 'q' parameter is required."), 400
+        return jsonify(success=False, error=lazy_gettext("The 'q' parameter is required.")), 400
 
-    params = {
-        'q': search,
-        'format': 'json',
-        'addressdetails': 1,
-        'limit': 10,
-        'dedupe': 1,
-    }
-
-    headers = {
-        'User-Agent': 'CzSkY/1.0 (administrator@czsky.eu)'
-    }
-
-    try:
-        response = requests.get('https://nominatim.openstreetmap.org/search', params=params, headers=headers, timeout=5)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        return jsonify(success=False, error=lazy_gettext('Error communicating with the Nominatim API.')), 500
-
-    data = response.json()
     results = []
-    for item in data:
+
+    db_locations = Location.query.filter(Location.name.ilike(f'%{search}%')).limit(2).all()
+
+    for loc in db_locations:
         results.append({
-            'name': item.get('display_name'),
-            'value': '{},{},{}'.format(item.get('lon'), item.get('lat'), item.get('display_name')),
-            'text': item.get('display_name'),
+            'name': loc.name,
+            'value': f"{loc.longitude},{loc.latitude},{loc.name}",
+            'text': loc.name
         })
+
+    if len(results) < 10:
+        nominatim_limit = 10 - len(results)
+    else:
+        nominatim_limit = 0
+
+    if nominatim_limit > 0:
+        params = {
+            'q': search,
+            'format': 'json',
+            'addressdetails': 1,
+            'limit': nominatim_limit,
+            'dedupe': 1,
+        }
+
+        headers = {
+            'User-Agent': 'CzSkY/1.0 (administrator@czsky.eu)'
+        }
+
+        try:
+            response = requests.get('https://nominatim.openstreetmap.org/search', params=params, headers=headers, timeout=5)
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return jsonify(success=False, error=lazy_gettext('Error communicating with the Nominatim API.')), 500
+
+        data = response.json()
+        for item in data:
+            lon = item.get('lon')
+            lat = item.get('lat')
+            display_name = item.get('display_name')
+
+            if lon and lat and display_name:
+                results.append({
+                    'name': display_name,
+                    'value': f"{lon},{lat},{display_name}",
+                    'text': display_name
+                })
+
     return jsonify(success=True, results=results)

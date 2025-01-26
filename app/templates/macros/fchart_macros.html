@@ -224,7 +224,7 @@
                         </div>
                     </div>
                     <div class="field" style="margin-top: 10px;">
-                        <label>{{ _('Location') }} :<span id="location_city_name">{{ session.get('location_city_name', _('Unknown city')) }}</span></label>
+                        <label>{{ _('Current Location') }} :<span id="location_city_name">{{ session.get('location_city_name', _('Unknown city')) }}</span></label>
 
                     </div>
                     <div class="field" style="margin-top: 10px;">
@@ -1362,7 +1362,7 @@
             allowAdditions: true,
             minCharacters : 3,
             apiSettings: {
-                url: "{{ url_for('main_location.location_autocomplete_nominatim') }}?q={query}",
+                url: "{{ url_for('main_location.location_autocomplete_unified') }}?q={query}",
                 cache: false
             },
             onChange: function (value, text, $selectedItem) {
