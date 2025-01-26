@@ -326,9 +326,9 @@ AstroMath.localSiderealTime = function (date, lon) {
 
     gmst = ((gmst % 360) + 360) % 360;
 
-    const gmstRadians = gmst * (Math.PI / 180);;
-
-    const lst = (gmstRadians + lon) % (2 * Math.PI);
+    const gmstRadians = gmst * Math.PI / 180;
+	const lonInRadians = lon * Math.PI / 180;
+    const lst = (gmstRadians + lonInRadians) % (2 * Math.PI);
 
     return lst >= 0 ? lst : lst + 2 * Math.PI;
 }
