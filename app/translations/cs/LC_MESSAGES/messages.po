@@ -1568,7 +1568,7 @@ msgstr "Uložit lokalitu"
 
 #: app/templates/macros/fchart_macros.html:249
 msgid "User location"
-msgstr "Uživatelská poloha"
+msgstr "Uživ. poloha"
 
 #: app/templates/macros/fchart_macros.html:261
 msgid "Equat ↔ Horizontal"
