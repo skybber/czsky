@@ -1564,7 +1564,7 @@ msgstr ""
 
 #: app/templates/macros/fchart_macros.html:234
 msgid "Use auto location"
-msgstr "Uložit lokalitu"
+msgstr "Použij automatickou polohu"
 
 #: app/templates/macros/fchart_macros.html:249
 msgid "User location"
