@@ -224,7 +224,8 @@
                         </div>
                     </div>
                     <div class="field" style="margin-top: 10px;">
-                        <span id="location_city_name">{{ session.get('location_city_name', _('Unknown city')) }}</span>
+                        <label>{{ _('Location') }} :<span id="location_city_name">{{ session.get('location_city_name', _('Unknown city')) }}</span></label>
+
                     </div>
                     <div class="field" style="margin-top: 10px;">
                         <div class="ui inverted toggle checkbox" data-inverted=""  data-position="bottom center" data-variation="tiny basic"
@@ -245,6 +246,7 @@
                                 {{ fchart_form.user_location.errors[0] | safe }}
                             </div>
                         {% endif %}
+                        <label style="margin-left: 10px;">{{ _('User location') }}</label>
                     </div>
                 </div>
             </div>
