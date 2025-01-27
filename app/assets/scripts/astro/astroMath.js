@@ -300,7 +300,7 @@ AstroMath.displayMatrix = function(m) {
  */
 AstroMath.localSiderealTime = function (date, lon) {
     const year = date.getUTCFullYear();
-    const month = date.getUTCMonth() + 1; // JavaScript months are 0-11.
+    const month = date.getUTCMonth() + 1;
     const day = date.getUTCDate();
     const hours = date.getUTCHours();
     const minutes = date.getUTCMinutes();
@@ -327,8 +327,7 @@ AstroMath.localSiderealTime = function (date, lon) {
     gmst = ((gmst % 360) + 360) % 360;
 
     const gmstRadians = gmst * Math.PI / 180;
-	const lonInRadians = lon * Math.PI / 180;
-    const lst = (gmstRadians + lonInRadians) % (2 * Math.PI);
+    const lst = (gmstRadians + lon) % (2 * Math.PI);
 
     return lst >= 0 ? lst : lst + 2 * Math.PI;
 }

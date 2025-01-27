@@ -518,8 +518,8 @@ def set_horiz_from_equatorial(form):
     lst, lat, lon = _get_lst_lat_lot()
     sincos_lat = (sin(lat), cos(lat))
     form.alt.data, form.az.data = fchart3.astrocalc.radec_to_horizontal(lst, sincos_lat, ra, dec)
-    form.longitude.data = lat
-    form.latitude.data = lon
+    form.longitude.data = lon
+    form.latitude.data = lat
 
 
 def get_utc_time():

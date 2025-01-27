@@ -387,7 +387,7 @@ FChart.prototype.setProjectionCenter = function(phi, theta) {
 FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
     if (this.isEquatorial != isEquatorial) {
         this.isEquatorial = isEquatorial;
-        const lst = AstroMath.localSiderealTime(new Date(), this.longitude);
+        let lst = this.getChartLst();
         if (isEquatorial) {
             const pos = AstroMath.horizontalToEquatorial(lst, this.latitude, this.viewCenter.phi, this.viewCenter.theta);
             this.viewCenter.phi = pos.ra;
@@ -1697,7 +1697,13 @@ FChart.prototype.setIFrameUrl = function(url) {
 }
 
 FChart.prototype.centerObjectInFov = function() {
-    this.setViewCenter(this.obj_ra, this.obj_dec);
+    if (this.isEquatorial) {
+        this.setViewCenter(this.obj_ra, this.obj_dec);
+    } else {
+        const pos = AstroMath.equatorialToHorizontal(this.getChartLst(), this.latitude, this.obj_ra, this.obj_dec);
+        this.viewCenter.phi = pos.az;
+        this.viewCenter.theta = pos.alt;
+    }
     this.reloadImage();
 }
 
@@ -1825,4 +1831,12 @@ FChart.prototype.setLongitude = function(longitude) {
 
 FChart.prototype.setLatitude = function(latitude) {
     this.latitude = latitude;
+}
+
+FChart.prototype.getChartLst = function() {
+    return AstroMath.localSiderealTime(new Date(), this.longitude);
+    if (this.useCurrentTime) {
+        return AstroMath.localSiderealTime(new Date(), this.longitude);
+    }
+    return AstroMath.localSiderealTime(new Date(this.dateTimeISO), this.longitude);
 }
