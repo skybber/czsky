@@ -282,7 +282,13 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     config.no_margin = True
     config.font = font
     config.font_size = font_size
-    config.show_enhanced_milky_way = True
+
+    if width and width <= MOBILE_WIDTH:
+        config.show_enhanced_milky_way_10k = True
+        config.show_enhanced_milky_way_30k = False
+    else:
+        config.show_enhanced_milky_way_10k = False
+        config.show_enhanced_milky_way_30k = True
 
     if fld_size >= 60 or (fld_size >= 40 and width and width <= MOBILE_WIDTH):
         config.constellation_linespace = 1.5
@@ -292,8 +298,9 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
     config.show_star_labels = _eval_show_star_labels(True, fld_size, width)
 
     if fld_size <= 10:
-        config.show_enhanced_milky_way = False
-    elif config.show_enhanced_milky_way:
+        config.show_enhanced_milky_way_10k = False
+        config.show_enhanced_milky_way_30k = False
+    elif config.show_enhanced_milky_way_10k or config.show_enhanced_milky_way_30k:
         fade = (fld_size - 10) / (70-10)
         # shift background color little bit by fraction of MW color (bg_shift_frac)
         bg_shift_frac = 0.10
@@ -303,7 +310,6 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
         if fade > 1:
             fade = 1
         if fade > 0:
-            config.show_enhanced_milky_way = True
             mw_scale_fac = 3.0
             config.enhanced_milky_way_fade = (bg_r, (config.milky_way_color[0] - bg_r) * fade * mw_scale_fac,
                                               bg_g, (config.milky_way_color[1] - bg_g) * fade * mw_scale_fac,
@@ -313,7 +319,8 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
                                       bg_g + (config.milky_way_color[1]-bg_g) * fade,
                                       bg_b + (config.milky_way_color[2]-bg_b) * fade)
         else:
-            config.show_enhanced_milky_way = False
+            config.show_enhanced_milky_way_10k = False
+            config.show_enhanced_milky_way_33k = False
 
 
 def _eval_show_star_labels(default_val, fld_size, width):
@@ -1046,7 +1053,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     transparent = False
     if show_dss:
         config.show_simple_milky_way = False
-        config.show_enhanced_milky_way = False
+        config.show_enhanced_milky_way_10k = False
+        config.show_enhanced_milky_way_30k = False
         config.show_star_circles = False
         transparent = True
 
@@ -1107,7 +1115,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
     config.fov_telrad = FlagValue.FOV_TELRAD.value in flags
     config.show_simple_milky_way = False
-    config.show_enhanced_milky_way = False
+    config.show_enhanced_milky_way_10k = False
+    config.show_enhanced_milky_way_30k = False
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_labels = FlagValue.SHOW_STAR_LABELS.value in flags
     config.eyepiece_fov = eyepiece_fov
