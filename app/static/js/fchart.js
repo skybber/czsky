@@ -1820,8 +1820,8 @@ FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
         queryParams.set('ra', this.viewCenter.phi.toString());
         queryParams.set('dec', this.viewCenter.theta.toString());
     } else {
-        queryParams.set('az', this.viewCenter.phi.toString());
         queryParams.set('alt', this.viewCenter.theta.toString());
+        queryParams.set('az', this.viewCenter.phi.toString());
     }
 }
 

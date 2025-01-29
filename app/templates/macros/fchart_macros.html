@@ -678,7 +678,7 @@
         if (isEquatorial) {
             return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
         } else {
-            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
+            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "alt=_ALT_&az=_AZ_&fsz=_FSZ_");
         }
     }
 
@@ -724,7 +724,7 @@
     {% endif %}
 
     var chartUrlParamsEq = "ra=_RA_&dec=_DEC_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
-    var chartUrlParamsHoriz = "az=_AZ_&alt=_ALT_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
+    var chartUrlParamsHoriz = "alt=_ALT_&az=_AZ_&fsz=_FSZ_&width=_WIDTH_&height=_HEIGHT_&dt=_DATE_TIME_";
 
     var chartUrlEq = addCommonChartUrlParams("{{ fchart_img_url | safe }}", chartUrlParamsEq);
     var legendUrlEq = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsEq);
@@ -739,7 +739,7 @@
     if (isEquatorial) {
         chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
     } else {
-        chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "az=_AZ_&alt=_ALT_&fsz=_FSZ_");
+        chartItemsUrl = addCommonChartUrlParams("{{ fchart_items_url | safe }}", "alt=_ALT_&az=_AZ_&fsz=_FSZ_");
     }
     {% endif %}
 
