@@ -489,12 +489,22 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
 
 
 def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
-    ra = request.args.get('ra', None)
-    dec = request.args.get('dec', None)
+    ra = request.args.get('ra', type=float)
+    dec = request.args.get('dec', type=float)
     fsz = request.args.get('fsz', None)
-    if ra and dec and fsz:
-        form.ra.data = float(ra)
-        form.dec.data = float(dec)
+
+    if ra is None and dec is None and fsz:
+        alt = request.args.get('alt', type=float)
+        az = request.args.get('az', type=float)
+        if alt is not None and az is not None:
+            set_horiz_from_equatorial(form)
+            lst, lat, lon = _get_lst_lat_lot()
+            sincos_lat = (sin(lat), cos(lat))
+            ra, dec = fchart3.astrocalc.horizontal_to_radec(lst, sincos_lat, alt, az)
+
+    if ra is not None and dec is not None and fsz:
+        form.ra.data = ra
+        form.dec.data = dec
         gui_fld_size = to_float(fsz, FIELD_SIZES[-1])
         for i in range(len(FIELD_SIZES)-1, -1, -1):
             if gui_fld_size >= FIELD_SIZES[i]:
