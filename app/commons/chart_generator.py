@@ -1389,12 +1389,19 @@ def _get_trajectory_time_delta(d1, d2):
 
 
 def common_set_initial_celestial_position(form):
-    day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
-    day_now = datetime.now().timetuple().tm_yday
-    ra = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
-    if ra > 2 * np.pi:
-        ra -= 2 * np.pi
-    dec = 0.0
+    if session.get('chart_is_equatorial', form.is_equatorial.data) == 'true':
+        day_zero = datetime(2021, 3, 21, 0, 0, 0).timetuple().tm_yday
+        day_now = datetime.now().timetuple().tm_yday
+        ra = 2.0 * np.pi * (day_now - day_zero) / 365 + np.pi
+        if ra > 2 * np.pi:
+            ra -= 2 * np.pi
+        dec = 0.0
+    else:
+        alt, az = deg2rad(10), deg2rad(180)
+        lst, lat, lon = _get_lst_lat_lot()
+        sincos_lat = (sin(lat), cos(lat))
+        ra, dec = fchart3.astrocalc.horizontal_to_radec(lst, sincos_lat, alt, az)
+
     if form.ra.data is None:
         form.ra.data = ra
     if form.dec.data is None:
