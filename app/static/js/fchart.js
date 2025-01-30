@@ -179,6 +179,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.MOVE_SEC_PER_SCREEN = 2;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
+    this.URL_ANG_PRECISION = 9;
 
     this.isEquatorial = isEquatorial;
     this.viewCenter = {phi: 0, theta: 0, dPhi: 0, dTheta: 0}
@@ -513,11 +514,11 @@ FChart.prototype.redrawAll = function () {
 FChart.prototype.reloadLegendImage = function () {
     let url = this.legendUrl;
     if (this.isEquatorial) {
-        url = url.replace('_RA_', this.viewCenter.phi.toString());
-        url = url.replace('_DEC_', this.viewCenter.theta.toString());
+        url = url.replace('_RA_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_DEC_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
     } else {
-        url = url.replace('_AZ_', this.viewCenter.phi.toString());
-        url = url.replace('_ALT_', this.viewCenter.theta.toString());
+        url = url.replace('_AZ_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_ALT_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
     }
     if (this.useCurrentTime) {
         url = url.replace('_DATE_TIME_', new Date().toISOString());
@@ -527,8 +528,8 @@ FChart.prototype.reloadLegendImage = function () {
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
-    url = url.replace('_OBJ_RA_', this.obj_ra.toString());
-    url = url.replace('_OBJ_DEC_', this.obj_dec.toString());
+    url = url.replace('_OBJ_RA_', this.obj_ra.toFixed(this.URL_ANG_PRECISION));
+    url = url.replace('_OBJ_DEC_', this.obj_dec.toFixed(this.URL_ANG_PRECISION));
     url = url + '&t=' + new Date().getTime();
 
     this.legendImgBuf[this.legendImg.background].onload = (function() {
@@ -591,11 +592,11 @@ FChart.prototype.doReloadImage = function(forceReload) {
 FChart.prototype.formatUrl = function(inpUrl, currentTimeISO) {
     let url = inpUrl;
     if (this.isEquatorial) {
-        url = url.replace('_RA_', this.viewCenter.phi.toString());
-        url = url.replace('_DEC_', this.viewCenter.theta.toString());
+        url = url.replace('_RA_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_DEC_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
     } else {
-        url = url.replace('_AZ_', this.viewCenter.phi.toString());
-        url = url.replace('_ALT_', this.viewCenter.theta.toString());
+        url = url.replace('_AZ_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_ALT_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
     }
     if (this.useCurrentTime) {
         this.lastChartTimeISO = new Date().toISOString();
@@ -607,8 +608,8 @@ FChart.prototype.formatUrl = function(inpUrl, currentTimeISO) {
     url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
     url = url.replace('_WIDTH_', this.canvas.width);
     url = url.replace('_HEIGHT_', this.canvas.height);
-    url = url.replace('_OBJ_RA_', this.obj_ra.toString());
-    url = url.replace('_OBJ_DEC_', this.obj_dec.toString());
+    url = url.replace('_OBJ_RA_', this.obj_ra.toFixed(this.URL_ANG_PRECISION));
+    url = url.replace('_OBJ_DEC_', this.obj_dec.toFixed(this.URL_ANG_PRECISION));
     return url;
 }
 
@@ -1817,11 +1818,11 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
 
 FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
     if (this.isEquatorial) {
-        queryParams.set('ra', this.viewCenter.phi.toString());
-        queryParams.set('dec', this.viewCenter.theta.toString());
+        queryParams.set('ra', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('dec', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
     } else {
-        queryParams.set('alt', this.viewCenter.theta.toString());
-        queryParams.set('az', this.viewCenter.phi.toString());
+        queryParams.set('alt', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('az', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
     }
 }
 
