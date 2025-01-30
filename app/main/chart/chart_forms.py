@@ -25,7 +25,7 @@ class ChartForm(FlaskForm):
     alt = HiddenField('alt')
     longitude = HiddenField('longitude')
     latitude = HiddenField('latitude')
-    chart_date_time = HiddenField('latitude')
+    chart_date_time = HiddenField('chart_date_time')
     use_current_time = HiddenField('use_current_time', default='true')
     fullscreen = HiddenField('fullscreen', default='false')
     splitview = HiddenField('splitview', default='false')

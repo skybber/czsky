@@ -520,11 +520,19 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
             common_set_initial_celestial_position(form)
     set_horiz_from_equatorial(form)
 
+    tm = None
     request_dt = request.args.get('dt', None)
-    try:
-        tm = datetime.fromisoformat(request_dt) if request_dt else datetime.now(timezone.utc)
-    except ValueError:
+    if request_dt is not None:
+        try:
+            tm = datetime.fromisoformat(request_dt)
+        except ValueError:
+            pass
+
+    if tm is None:
         tm = datetime.now(timezone.utc)
+        form.use_current_time.data = 'true'
+    else:
+        form.use_current_time.data = 'false'
 
     form.chart_date_time.data = tm.isoformat()
 

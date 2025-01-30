@@ -1824,6 +1824,13 @@ FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
         queryParams.set('alt', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
         queryParams.set('az', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
     }
+
+    if (this.useCurrentTime) {
+        queryParams.delete('dt');
+    } else {
+        queryParams.set('dt', this.dateTimeISO);
+    }
+
 }
 
 FChart.prototype.setLongitude = function(longitude) {
