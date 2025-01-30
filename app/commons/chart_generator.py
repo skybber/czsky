@@ -501,6 +501,7 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
             lst, lat, lon = _get_lst_lat_lot()
             sincos_lat = (sin(lat), cos(lat))
             ra, dec = fchart3.astrocalc.horizontal_to_radec(lst, sincos_lat, alt, az)
+            form.is_equatorial.data = 'false'
 
     if ra is not None and dec is not None and fsz:
         form.ra.data = ra
@@ -518,6 +519,7 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
             form.dec.data = default_dec
         if form.ra.data is None or form.dec.data is None:
             common_set_initial_celestial_position(form)
+
     set_horiz_from_equatorial(form)
 
     tm = None
