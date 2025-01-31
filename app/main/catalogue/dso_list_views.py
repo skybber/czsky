@@ -1,5 +1,6 @@
 import numpy as np
 import base64
+from functools import lru_cache
 
 from sqlalchemy import or_
 
@@ -53,9 +54,6 @@ from app.main.chart.chart_forms import ChartForm
 main_dso_list = Blueprint('main_dso_list', __name__)
 
 
-dso_list_dso_cache = { }
-
-
 def _find_dso_list(dso_list_id):
     try:
         int_id = int(dso_list_id)
@@ -64,17 +62,16 @@ def _find_dso_list(dso_list_id):
         return DsoList.query.filter_by(name=dso_list_id).first()
 
 
+@lru_cache(maxsize=20)
 def _find_dso_list_dsos(dso_list_id):
-    dso_list_dsos = dso_list_dso_cache.get(dso_list_id)
-    if not dso_list_dsos:
-        dso_list = _find_dso_list(dso_list_id)
-        if dso_list:
-            dso_list_dsos = []
-            for item in dso_list.dso_list_items:
-                dso = item.deepsky_object
-                db.session.expunge(dso)
-                dso_list_dsos.append(dso)
-            dso_list_dso_cache[dso_list_id] = dso_list_dsos
+    dso_list_dsos = None
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list:
+        dso_list_dsos = []
+        for item in dso_list.dso_list_items:
+            dso = item.deepsky_object
+            db.session.expunge(dso)
+            dso_list_dsos.append(dso)
     return dso_list_dsos
 
 
