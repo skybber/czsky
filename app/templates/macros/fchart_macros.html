@@ -698,8 +698,8 @@
     ];
 
     var phi, theta;
-    var obj_ra = '{{ obj_ra }}';
-    var obj_dec = '{{ obj_dec }}';
+    var obj_ra = {{ obj_ra if obj_ra else 'null' }};
+    var obj_dec = {{ obj_dec if obj_dec else 'null' }};
 
     var theme = '{{ chart_control.theme }}';
 

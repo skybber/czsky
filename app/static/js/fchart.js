@@ -184,8 +184,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isEquatorial = isEquatorial;
     this.viewCenter = {phi: 0, theta: 0, dPhi: 0, dTheta: 0}
     this.setViewCenter(phi, theta);
-    this.obj_ra = obj_ra != '' ? obj_ra : phi;
-    this.obj_dec = obj_dec != '' ? obj_dec : theta;
+    this.obj_ra = obj_ra != null ? obj_ra : phi;
+    this.obj_dec = obj_dec != null ? obj_dec : theta;
 
     this.longitude = longitude;
     this.latitude = latitude;
