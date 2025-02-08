@@ -1039,8 +1039,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y, projection)
 
+    local_sidereal_time, lat, lon = _get_lst_lat_lot()
+
     if not is_equatorial:
-        local_sidereal_time, lat, lon = _get_lst_lat_lot()
         engine.set_observer(local_sidereal_time, lat)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
@@ -1072,7 +1073,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
         config.show_star_circles = False
         transparent = True
 
-    sl_bodies = get_solsys_bodies(get_utc_time()) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    if FlagValue.SHOW_SOLAR_SYSTEM.value in flags:
+        sl_bodies = get_solsys_bodies(get_utc_time(), rad2deg(lat), rad2deg(lon))
+    else:
+        sl_bodies = None
+
     if fld_size <= 12:
         pl_moons = get_planet_moons(get_utc_time(), star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
     else:
@@ -1157,8 +1162,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
+    local_sidereal_time, lat, lon = _get_lst_lat_lot()
     if not is_equatorial:
-        local_sidereal_time, lat, lon = _get_lst_lat_lot()
         engine.set_observer(local_sidereal_time, lat)
 
     if obj_ra is not None and obj_dec is not None:
@@ -1179,7 +1184,11 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     dso_hide_filter = _get_dso_hide_filter()
 
-    sl_bodies = get_solsys_bodies(get_utc_time()) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    if FlagValue.SHOW_SOLAR_SYSTEM.value in flags:
+        sl_bodies = get_solsys_bodies(get_utc_time(), rad2deg(lat), rad2deg(lon))
+    else:
+        sl_bodies = None
+
     pl_moons = get_planet_moons(get_utc_time(), dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
@@ -1475,6 +1484,10 @@ def set_chart_session_param(key, value):
 
 def deg2rad(angle):
     return angle * pi / 180.0
+
+
+def rad2deg(angle):
+    return angle * 180.0 / pi
 
 
 def _get_chart_font_face():

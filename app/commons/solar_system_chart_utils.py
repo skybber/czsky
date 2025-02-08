@@ -2,7 +2,7 @@ import math
 from functools import lru_cache
 from datetime import datetime
 
-from skyfield.api import load
+from skyfield.api import load, Topos
 from skyfield.magnitudelib import planetary_magnitude
 
 import numpy as np
@@ -133,11 +133,10 @@ def get_mpc_planet_position(planet, dt):
     return ra_ang, dec_ang
 
 
-def _normalize_to_30s(dt: datetime) -> datetime:
+def _normalize_to_60s(dt: datetime) -> datetime:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=utc)
-    second_bucket = 0 if dt.second < 30 else 30
-    return dt.replace(second=second_bucket, microsecond=0)
+    return dt.replace(second=0, microsecond=0)
 
 
 @lru_cache(maxsize=100)
@@ -150,16 +149,29 @@ def _get_solsys_bodies_cached(dt: datetime):
     eph = load('de421.bsp')
 
     for body_enum in fchart3.SolarSystemBody:
-        if body_enum != fchart3.SolarSystemBody.EARTH:
+        if body_enum != fchart3.SolarSystemBody.EARTH and body_enum != fchart3.SolarSystemBody.MOON:
             solsys_body_obj = create_solar_system_body_obj(eph, body_enum, t)
             sls_bodies.append(solsys_body_obj)
 
     return sls_bodies
 
 
-def get_solsys_bodies(dt: datetime):
-    normalized_dt = _normalize_to_30s(dt)
-    return _get_solsys_bodies_cached(normalized_dt)
+@lru_cache(maxsize=100)
+def _get_moon_cached(dt: datetime, observer_lat=None, observer_lon=None, observer_elevation=0.0):
+    ts = load.timescale(builtin=True)
+    t = ts.from_datetime(dt.replace(tzinfo=utc))
+
+    eph = load('de421.bsp')
+
+    return create_solar_system_body_obj(eph, fchart3.SolarSystemBody.MOON, t, observer_lat, observer_lon, observer_elevation)
+
+
+def get_solsys_bodies(datetime, observer_lat=None, observer_lon=None, observer_elevation=0.0):
+    normalized_dt = _normalize_to_60s(datetime)
+    result = []
+    result.extend(_get_solsys_bodies_cached(normalized_dt))
+    result.append(_get_moon_cached(normalized_dt, observer_lat, observer_lon, observer_elevation))
+    return result
 
 
 @lru_cache(maxsize=100)
@@ -181,9 +193,8 @@ def _get_planet_moons_cached(dt: datetime, maglim: float):
 
 
 def get_planet_moons(dt: datetime, maglim: float):
-    normalized_dt = _normalize_to_30s(dt)
+    normalized_dt = _normalize_to_60s(dt)
     return _get_planet_moons_cached(normalized_dt, maglim)
-
 
 
 def create_planet_moon_obj(moon_name, t=None):
@@ -196,7 +207,12 @@ def create_planet_moon_obj(moon_name, t=None):
     return None
 
 
-def create_solar_system_body_obj(eph, body_enum, t=None):
+def create_solar_system_body_obj(eph,
+                                 body_enum,
+                                 t=None,
+                                 observer_lat=None,
+                                 observer_lon=None,
+                                 observer_elevation=0.0):
     if body_enum == fchart3.SolarSystemBody.EARTH:
         return None
 
@@ -210,21 +226,26 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     else:
         body = eph[BODY_KEY_DICT[body_name]]
 
-    earth = eph['earth'].at(t)
-    astrometric = earth.observe(body)
+    if (observer_lat is not None) and (observer_lon is not None):
+        location = Topos(latitude_degrees=observer_lat,
+                         longitude_degrees=observer_lon,
+                         elevation_m=observer_elevation)
+        observer = (eph['earth'] + location).at(t)
+    else:
+        observer = eph['earth'].at(t)
+
+    astrometric = observer.observe(body)
     ra_ang, dec_ang, distance = astrometric.radec()
 
     ra = ra_ang.radians
     dec = dec_ang.radians
-
     distance_km = distance.au * AU_TO_KM
 
-    physical_radius_km = PLANET_DATA.get(body_name)[0]
-
+    physical_radius_km = PLANET_DATA.get(body_name, [None])[0]
     if physical_radius_km and distance_km > physical_radius_km:
         angular_radius = math.asin(physical_radius_km / distance_km)
     else:
-        angular_radius = 0
+        angular_radius = 0.0
 
     if body_enum != fchart3.SolarSystemBody.SUN:
         phase_angle = astrometric.phase_angle(eph['sun']).radians
@@ -247,13 +268,23 @@ def create_solar_system_body_obj(eph, body_enum, t=None):
     if body_enum == fchart3.SolarSystemBody.SUN:
         mag = -26.7
     elif body_enum == fchart3.SolarSystemBody.MOON:
-        mag = -12
+        mag = -12.0
     elif body_enum == fchart3.SolarSystemBody.PLUTO:
         mag = 14.5
     else:
         mag = planetary_magnitude(astrometric)
 
-    return fchart3.SolarSystemBodyObject(body_enum, ra, dec, north_pole_pa, angular_radius, mag, phase_angle, distance_km, ring_tilt)
+    return fchart3.SolarSystemBodyObject(
+        body_enum,
+        ra,
+        dec,
+        north_pole_pa,
+        angular_radius,
+        mag,
+        phase_angle,
+        distance_km,
+        ring_tilt
+    )
 
 
 def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
