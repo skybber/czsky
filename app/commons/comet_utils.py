@@ -66,7 +66,7 @@ def get_all_comets(update_cobs_props=True, force_reload=False):
     now = datetime.now()
     if all_comets is None or now > all_comets_expiration or force_reload:
         all_comets_expiration = now + timedelta(days=1)
-        with load.open(mpc.COMET_URL, reload=True) as f:
+        with load.open('https://astro.vanbuitenen.nl/cometelements?format=mpc', reload=True) as f:
             # fix problem in coma in CometEls.txt
             lines = f.readlines()
             s = ''
