@@ -1735,7 +1735,9 @@ FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {
     } else {
         url.searchParams.set('flags', '');
     }
-    return url.pathname + url.search + url.hash;
+
+
+        return url.pathname + url.search + url.hash;
 }
 
 FChart.prototype.setChartUrlParam  = function (param_name, param_value) {
@@ -1784,18 +1786,24 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
     flags = flags.replace(/Sc|Sb|Sf/g, '');
 
     if (dssLayer != '') {
+        var survey = "";
         if (dssLayer == 'fram') {
+            survey = 'P/CTA-FRAM/survey/color';
             flags += 'Sf'
         } else if (dssLayer == 'colored') {
+            survey = 'P/DSS2/color';
             flags += 'Sc'
         } else {
+            survey = 'P/DSS2/blue';
             flags += 'Sb';
         }
 
         params.set('flags', flags);
         url.search = params.toString();
         this.chartUrl = url.pathname + url.search + url.hash;
+
         this.showAladin = true;
+        this.aladin.setImageLayer(survey);
         this.syncAladinDivSize();
         this.syncAladinZoom(false);
         this.syncAladinViewCenter();
@@ -1839,8 +1847,4 @@ FChart.prototype.getChartLst = function() {
         return AstroMath.localSiderealTime(new Date(), this.longitude);
     }
     return AstroMath.localSiderealTime(new Date(this.dateTimeISO), this.longitude);
-}
-
-FChart.prototype.isMirrorX = function() {
-   return this.multPhi == -1;
 }

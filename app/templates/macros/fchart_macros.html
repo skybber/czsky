@@ -682,24 +682,6 @@
         }
     }
 
-    const SURVEY_OPTIONS = {
-      blue: {
-        id: "DSS2-blue",
-        name: "DSS2 (Blue)",
-        url: "P/DSS2/blue"
-      },
-      fram: {
-        id: "CTA-FRAM-color",
-        name: "CTA-FRAM (Color)",
-        url: "P/CTA-FRAM/survey/color"
-      },
-      colored: {
-        id: "DSS2-color",
-        name: "DSS2 (Color)",
-        url: "P/DSS2/color"
-      }
-    };
-
     var submitDisabled = false;
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
     var magRanges = [
@@ -762,16 +744,15 @@
     {% endif %}
 
     var projection = new Projection();
-    var aladin = null;
+    var aladin;
     var fchart;
 
     projection.setProjection(Projection.PROJ_TAN2);
 
     if (isWebGL2Supported()) {
-        const dssLayerData = '{{ fchart_form.dss_layer.data }}';
-        const surveyConfig = SURVEY_OPTIONS[dssLayerData] || SURVEY_OPTIONS.color;
         A.init.then(() => {
             aladin = A.aladin('#fchart-aladin-div', {
+                survey: "{{ 'P/DSS2/blue' if fchart_form.dss_layer.data == 'blue' else 'P/CTA-FRAM/survey/color' if fchart_form.dss_layer.data == 'fram' else 'P/DSS2/color' }}",
                 fov:60,
                 target: "0 0 0 0 0 0",
                 projection: "STG",
@@ -789,9 +770,6 @@
                 fullScreen:               false,
                 log:                      true
             });
-            var surveyOptions = {{ '{ longitudeReversed: true }' if fchart_form.mirror_x.data == 'true' else '{}' }};
-            let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
-            aladin.setImageSurvey(customSurvey);
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                   longitude, latitude, useCurrentTime, chartDateTimeISO,
                                   theme, legendUrl, chartUrl, aladin, projection);
@@ -819,26 +797,6 @@
         $("#bshowleftpanel2").show();
     }
 
-    function setAladinLayer(surveyCustomName) {
-        if (surveyCustomName != '') {
-            if (aladin != null) {
-                const surveyConfig = SURVEY_OPTIONS[surveyCustomName] || SURVEY_OPTIONS.color;
-                let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, { longitudeReversed: fchart.isMirrorX() });
-                aladin.setImageSurvey(customSurvey);
-            }
-        }
-        fchart.setAladinLayer(surveyCustomName);
-    }
-
-    function clearAladinHipsCache() {
-        for (const key in SURVEY_OPTIONS) {
-            const { id } = SURVEY_OPTIONS[key];
-            if (aladin.hipsCache.contains(id)) {
-                aladin.hipsCache.delete(id);
-            }
-        }
-    }
-
     $('#bequatorial').click(function(event){
         event.stopPropagation();
         $(this).toggleClass('active');
@@ -850,9 +808,9 @@
         adjustAladinVisibility();
         fchart.setChartUrlFlag('Q', value);
         if (!isEquatorial) {
-            setAladinLayer('');
+            fchart.setAladinLayer('');
         } else {
-            setAladinLayer($('#dss_layer').val());
+            fchart.setAladinLayer($('#dss_layer').val());
         }
         fchart.reloadImage();
     });
@@ -957,7 +915,7 @@
         }
         $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
-        setAladinLayer(value);
+        fchart.setAladinLayer(value);
     });
 
     $('#bdssblue').click(function(event){
@@ -971,7 +929,7 @@
         }
         $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
-        setAladinLayer(value);
+        fchart.setAladinLayer(value);
     });
 
     $('#bdssfram').click(function(event){
@@ -985,7 +943,7 @@
         }
         $('.aladin-logo-container').toggle(value !== '');
         chart_param_ajax('chart_dss_layer', value);
-        setAladinLayer(value);
+        fchart.setAladinLayer(value);
     });
 
     $('#mirrorx').click(function(event){
@@ -996,10 +954,6 @@
         fchart.setChartUrlFlag('X', value);
         chart_param_ajax('chart_mirror_x', value);
         fchart.setMirrorX(value);
-        if ($('#dss_layer').val() != '') {
-            clearAladinHipsCache();
-            setAladinLayer($('#dss_layer').val());
-        }
         fchart.reloadImage();
     });
 
