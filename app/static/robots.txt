@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /*/chart$
 Disallow: /*/chart-pos-img*
 Disallow: /*/chart-legend-img*
-Disallow: /*/chart-pdf/*
+Disallow: /*/chart-pdf*
