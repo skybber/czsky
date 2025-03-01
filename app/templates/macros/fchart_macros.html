@@ -788,7 +788,7 @@
                 fullScreen:               false,
                 log:                      true
             });
-            if (dssLayerData != '') {
+            if (['colored', 'blue', 'fram'].includes(dssLayerData)) {
                 var surveyOptions = {{ '{ longitudeReversed: true }' if fchart_form.mirror_x.data == 'true' else '{}' }};
                 var surveyConfig = SURVEY_OPTIONS[dssLayerData];
                 let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
