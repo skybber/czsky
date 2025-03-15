@@ -788,8 +788,11 @@
                 fullScreen:               false,
                 log:                      true
             });
+            var mirror_x = {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }};
+            var mirror_y = {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }};
+            aladin.setViewCenter2NorthPoleAngle(mirror_y ? 180.0 : 0);
             if (['colored', 'blue', 'fram'].includes(dssLayerData)) {
-                var surveyOptions = {{ '{ longitudeReversed: true }' if fchart_form.mirror_x.data == 'true' else '{}' }};
+                var surveyOptions = (mirror_x ^ mirror_y) != 0 ? '{ longitudeReversed: true }' : '{}';
                 var surveyConfig = SURVEY_OPTIONS[dssLayerData];
                 let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
                 aladin.setImageSurvey(customSurvey);
@@ -822,11 +825,20 @@
     }
 
     function setAladinLayer(surveyCustomName) {
-        if (surveyCustomName != '') {
+        if (surveyCustomName in SURVEY_OPTIONS) {
             if (aladin != null) {
                 const surveyConfig = SURVEY_OPTIONS[surveyCustomName] || SURVEY_OPTIONS.color;
-                let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, { longitudeReversed: fchart.isMirrorX() });
+                const longRev = (fchart.isMirrorX() ^ fchart.isMirrorY()) != 0;
+                let customSurvey = aladin.createImageSurvey(
+                    surveyConfig.id,
+                    surveyConfig.name,
+                    surveyConfig.url,
+                    'equatorial',
+                    9,
+                    { longitudeReversed: longRev }
+                );
                 aladin.setImageSurvey(customSurvey);
+                aladin.setViewCenter2NorthPoleAngle(fchart.isMirrorY() ? 180.0 : 0);
             }
         }
         fchart.setAladinLayer(surveyCustomName);
@@ -1001,6 +1013,8 @@
         if ($('#dss_layer').val() != '') {
             clearAladinHipsCache();
             setAladinLayer($('#dss_layer').val());
+        } else {
+            setAladinLayer('');
         }
         fchart.reloadImage();
     });
@@ -1013,6 +1027,12 @@
         fchart.setChartUrlFlag('Y', value);
         chart_param_ajax('chart_mirror_y', value);
         fchart.setMirrorY(value);
+        if ($('#dss_layer').val() != '') {
+            clearAladinHipsCache();
+            setAladinLayer($('#dss_layer').val());
+        } else {
+            setAladinLayer('');
+        }
         fchart.reloadImage();
     });
 

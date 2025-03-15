@@ -1844,3 +1844,7 @@ FChart.prototype.getChartLst = function() {
 FChart.prototype.isMirrorX = function() {
    return this.multPhi == -1;
 }
+
+FChart.prototype.isMirrorY = function() {
+    return this.multTheta == -1;
+}

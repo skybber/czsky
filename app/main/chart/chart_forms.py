@@ -40,7 +40,7 @@ class ChartForm(FlaskForm):
     show_star_labels = HiddenField('show_star_labels', default='true')
     eyepiece_fov = HiddenField('eyepiece_fov')
     chart_theme = HiddenField('chart_theme', default='-1')
-    dss_layer = HiddenField('dss_layer', default='false')
+    dss_layer = HiddenField('dss_layer', default='')
     optimize_traffic = HiddenField('optimize_traffic', default='false')
     is_equatorial = HiddenField('is_equatorial', default='true')
     use_auto_location = HiddenField('use_auto_location', default='false')
