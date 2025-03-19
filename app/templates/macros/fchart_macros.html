@@ -531,6 +531,7 @@
 
 <script type="text/javascript">
     const fullScreenWrapperId = 'fullscreen-wrapper';
+    var chartPdfUrl = "{{ fchart_pdf_url | safe }}";
 
     function isWebGL2Supported() {
         try {
@@ -676,9 +677,9 @@
 
     function getChartPdfUrl() {
         if (isEquatorial) {
-            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+            return addCommonChartUrlParams(chartPdfUrl, "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
         } else {
-            return addCommonChartUrlParams("{{ fchart_pdf_url | safe }}", "alt=_ALT_&az=_AZ_&fsz=_FSZ_");
+            return addCommonChartUrlParams(chartPdfUrl, "alt=_ALT_&az=_AZ_&fsz=_FSZ_");
         }
     }
 
@@ -862,7 +863,7 @@
         chart_param_ajax('chart_is_equatorial', value, 'chart_dss_layer', '');
         updateChartUrls();
         adjustAladinVisibility();
-        fchart.setChartUrlFlag('Q', value);
+        setChartUrlFlag('Q', value);
         if (!isEquatorial) {
             setAladinLayer('');
         } else {
@@ -877,7 +878,7 @@
         $('#show_telrad').val(value);
         $('#eyepiece_fov').val('');
         chart_param_ajax('chart_show_telrad', value);
-        fchart.setChartUrlFlag('T', value);
+        setChartUrlFlag('T', value);
         fchart.reloadLegendImage();
     });
 
@@ -886,7 +887,7 @@
         var value = $('#show_picker').val() == 'true' ? 'false' : 'true';
         $('#show_picker').val(value);
         chart_param_ajax('chart_show_picker', value);
-        fchart.setChartUrlFlag('P', value);
+        setChartUrlFlag('P', value);
         fchart.reloadLegendImage();
     });
 
@@ -896,7 +897,7 @@
         var value = $('#show_constell_shapes').val() == 'true' ? 'false' : 'true';
         $('#show_constell_shapes').val(value);
         chart_param_ajax('chart_show_constell_shapes', value);
-        fchart.setChartUrlFlag('C', value);
+        setChartUrlFlag('C', value);
         fchart.reloadImage();
     });
 
@@ -906,7 +907,7 @@
         var value = $('#show_constell_borders').val() == 'true' ? 'false' : 'true';
         $('#show_constell_borders').val(value);
         chart_param_ajax('chart_show_constell_borders', value);
-        fchart.setChartUrlFlag('B', value);
+        setChartUrlFlag('B', value);
         fchart.reloadImage();
     });
 
@@ -916,7 +917,7 @@
         var value = $('#show_egrid').val() == 'true' ? 'false' : 'true';
         $('#show_egrid').val(value);
         chart_param_ajax('chart_show_equatorial_grid', value);
-        fchart.setChartUrlFlag('E', value);
+        setChartUrlFlag('E', value);
         fchart.reloadImage();
     });
 
@@ -926,7 +927,7 @@
         var value = $('#show_dso').val() == 'true' ? 'false' : 'true';
         $('#show_dso').val(value);
         chart_param_ajax('chart_show_dso', value);
-        fchart.setChartUrlFlag('D', value);
+        setChartUrlFlag('D', value);
         fchart.reloadImage();
     });
 
@@ -936,7 +937,7 @@
         var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
         $('#show_solar_system').val(value);
         chart_param_ajax('chart_solar_system', value);
-        fchart.setChartUrlFlag('O', value);
+        setChartUrlFlag('O', value);
         fchart.reloadImage();
     });
 
@@ -946,7 +947,7 @@
         var value = $('#show_dso_mag').val() == 'true' ? 'false' : 'true';
         $('#show_dso_mag').val(value);
         chart_param_ajax('chart_show_dso_mag', value);
-        fchart.setChartUrlFlag('M', value);
+        setChartUrlFlag('M', value);
         fchart.reloadImage();
     });
 
@@ -956,7 +957,7 @@
         var value = $('#show_star_lbl').val() == 'true' ? 'false' : 'true';
         $('#show_star_lbl').val(value);
         chart_param_ajax('chart_show_star_lbl', value);
-        fchart.setChartUrlFlag('N', value);
+        setChartUrlFlag('N', value);
         fchart.reloadImage();
     });
 
@@ -1007,7 +1008,7 @@
         $(this).toggleClass('active');
         var value = $('#mirror_x').val() == 'true' ? 'false' : 'true';
         $('#mirror_x').val(value);
-        fchart.setChartUrlFlag('X', value);
+        setChartUrlFlag('X', value);
         chart_param_ajax('chart_mirror_x', value);
         fchart.setMirrorX(value);
         if ($('#dss_layer').val() != '') {
@@ -1024,7 +1025,7 @@
         $(this).toggleClass('active');
         var value = $('#mirror_y').val() == 'true' ? 'false' : 'true';
         $('#mirror_y').val(value);
-        fchart.setChartUrlFlag('Y', value);
+        setChartUrlFlag('Y', value);
         chart_param_ajax('chart_mirror_y', value);
         fchart.setMirrorY(value);
         if ($('#dss_layer').val() != '') {
@@ -1194,6 +1195,31 @@
         }
     });
 
+    function addFlag(chartUrl, letter) {
+        let match = chartUrl.match(/flags=([^&]*)/);
+        let flags = match ? match[1] : "";
+        if (!flags.includes(letter)) {
+            flags += letter;
+        }
+        return chartUrl.replace(/flags=[^&]*/, "flags=" + flags);
+    }
+
+    function removeFlag(chartUrl, letter) {
+        let match = chartUrl.match(/flags=([^&]*)/);
+        let flags = match ? match[1] : "";
+        flags = flags.replace(new RegExp(letter, "g"), "");
+        return chartUrl.replace(/flags=[^&]*/, "flags=" + flags);
+    }
+
+    function setChartUrlFlag(flag, value) {
+        fchart.setChartUrlFlag(flag, value);
+        if (value == 'true') {
+            chartPdfUrl = addFlag(chartPdfUrl, flag);
+        } else {
+            chartPdfUrl = removeFlag(chartPdfUrl, flag);
+        }
+    }
+
     function getFullscreenSplitViewUrlPart(prefix) {
         let res = "";
         if ($('#fullscreen').val() == 'true') {
@@ -1227,7 +1253,7 @@
         $('#show_telrad').val('false');
         $('#btelrad').removeClass('active');
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
-        fchart.setChartUrlFlag('T', false);
+        setChartUrlFlag('T', 'false');
         fchart.setLegendUrlParam('epfov', '');
         fchart.reloadLegendImage();
     }
