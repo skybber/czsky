@@ -182,13 +182,16 @@ SIMBAD_TO_CZSKY = {
 }
 
 def simbad_query(query):
-    Simbad.ROW_LIMIT=1
-    Simbad.TIMEOUT = 10
-    simbad = Simbad()
-    simbad.add_votable_fields('ids', 'otype', 'dim_minaxis' , 'dim_majaxis', 'dim_angle', 'sptype', 'sao', 'otypes', 'morphtype',
-                              'flux(U)', 'flux(B)', 'flux(V)', 'flux(R)', 'flux(J)', 'flux(H)', 'flux(K)', )
-    simbad_obj = simbad.query_object(query)
-    return simbad_obj
+    try:
+        Simbad.ROW_LIMIT=1
+        simbad = Simbad()
+        simbad.TIMEOUT = 5
+        simbad.add_votable_fields('ids', 'otype', 'dim_minaxis' , 'dim_majaxis', 'dim_angle', 'sptype', 'sao', 'otypes', 'morphtype',
+                                  'flux(U)', 'flux(B)', 'flux(V)', 'flux(R)', 'flux(J)', 'flux(H)', 'flux(K)', )
+        simbad_obj = simbad.query_object(query)
+        return simbad_obj
+    except:
+        return None
 
 def get_otype_from_simbad(simbad):
     if simbad['OTYPES']:
