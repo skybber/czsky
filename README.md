@@ -117,14 +117,8 @@ $ pip install -r requirements.txt
 
 ##### Other dependencies for running locally
 
-You need [Redis](http://redis.io/), and [Sass](http://sass-lang.com/). Chances are, these commands will work:
+You need [Redis](http://redis.io/). Chances are, these commands will work:
 
-
-**Sass:**
-
-```
-$ gem install sass
-```
 
 **Redis:**
 
@@ -168,4 +162,3 @@ web: flask --debug --app manage run --host=0.0.0.0 --port=5000
 To add extra catalogs of stars from **Stellarium**, download the catalogs in Stellarium and locate their storage directory (for Linux, this is `~/.stellarium/stars/default`). Finally copy the downloaded catalogs to the `data/` directory in the CzSkY project.
 
 For Windows users having issues with binding to a redis port locally, refer to [this issue](https://github.com/hack4impact/flask-base/issues/132).
-
