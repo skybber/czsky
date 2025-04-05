@@ -30,4 +30,5 @@ from .star_list import *
 from .supernova import *
 from .equipment import *
 from .user import *
+from .user_object_list import *
 from .wishlist import *

@@ -52,7 +52,7 @@ psycopg==3.1.18
 pycairo==1.27.0
 pycryptodome==3.20.0
 python-dotenv==1.0.1
-PyICU==2.13.1
+PyICU==2.14
 pyparsing==3.1.2
 pyScss==1.4.0
 python-dateutil==2.9.0
