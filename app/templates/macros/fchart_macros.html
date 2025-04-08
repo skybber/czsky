@@ -677,9 +677,9 @@
 
     function getChartPdfUrl() {
         if (isEquatorial) {
-            return addCommonChartUrlParams(chartPdfUrl, "ra=_RA_&dec=_DEC_&fsz=_FSZ_");
+            return addCommonChartUrlParams(chartPdfUrl, "ra=_RA_&dec=_DEC_&fsz=_FSZ_&dt=_DATE_TIME_");
         } else {
-            return addCommonChartUrlParams(chartPdfUrl, "alt=_ALT_&az=_AZ_&fsz=_FSZ_");
+            return addCommonChartUrlParams(chartPdfUrl, "alt=_ALT_&az=_AZ_&fsz=_FSZ_&dt=_DATE_TIME_");
         }
     }
 
