@@ -1,0 +1,98 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            {% if is_new %}
+                <a class="ui basic compact button" href="{{ url_for('main_user_object_list.user_object_lists') }}">
+                    <i class="caret left icon"></i>
+                    {{ _('User object lists') }}
+                </a>
+            {% else %}
+              <a class="ui basic compact button" href="{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=user_object_list.id) }}">
+                  <i class="caret left icon"></i>
+                {{ _('User Object List Info') }}
+              </a>
+            {% endif %}
+
+            <h2 class="ui header">
+                {% if is_new %}
+                    {{ _('Add New User Object List') }}
+                {% else %}
+                    {{ _('Edit User Object List') }}
+                {% endif %}
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+
+                {{ f.render_form_field(form.title) }}
+                {{ f.render_form_field(form.is_public) }}
+                {{ f.render_form_field(form.text) }}
+
+                <div class="two fields">
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                    {% if not is_new %}
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete List') }}</a>
+                    {% endif %}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    {% if not is_new %}
+        <div class="ui tiny modal deleteModal">
+          <div class="header">{{ _('Delete User Object List') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete user object list?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_user_object_list.user_object_list_delete', user_object_list_id=user_object_list.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
+    <script type="text/javascript">
+        $('.ui.rating').rating({
+            maxRating: 5,
+            onRate: function (rating) {
+                $('#rating').val(rating);
+            }
+        });
+        var descrMDE = new EasyMDE({element: document.getElementById('descr'),
+            minHeight: "200px",
+            spellChecker: false,
+            status : false,
+	    });
+
+        {% if not is_new %}
+            $('.ui.modal.deleteModal').modal({
+                onApprove: function() {
+                    return validateModal()
+                }
+            });
+            $('#bdelete').click(function() {
+                $('.ui.modal.deleteModal')
+                    .modal('show');
+            });
+        {% endif %}
+    </script>
+{% endblock %}

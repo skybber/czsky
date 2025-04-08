@@ -1,0 +1,128 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+{% import 'macros/common_macros.html' as commons %}
+{% import 'macros/fchart_macros.html' as fchart with context %}
+
+{% set endpoints = [
+    ('main_user_object_list.user_object_list_info', _('Info'), 'info'),
+    ('main_user_object_list.user_object_list_chart', _('Chart'), 'chart'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, user_object_list_id=user_object_list.id, back=back, back_id=back_id) }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% set flashes = {
+    'error':   get_flashed_messages(category_filter=['form-error']),
+    'info':    get_flashed_messages(category_filter=['form-info']),
+    'success': get_flashed_messages(category_filter=['form-success'])
+} %}
+
+{% macro user_object_list_info(user_object_list) %}
+    {{ f.display_standard_flashes(flashes) }}
+    <table class="ui compact definition unstackable table">
+        <tr>
+            <td class="two wide">{{ _('Title') }}</td>
+            <td colspan="5">{{ user_object_list.title }}</td>
+        </tr>
+        <tr>
+            <td class="two wide">{{ _('Text') }}</td>
+            <td colspan="5">
+                {% filter extended_commonmark('') %}
+{{ user_object_list.text if user_object_list.text else '' }}
+                {% endfilter %}
+            </td>
+        </tr>
+        {% if is_mine_user_object_list %}
+            <tr>
+                <td class="two wide">{{ _('Object list is public') }}</td><td>{% if user_object_list.is_public %}<i class="green check circle outline icon"></i>{% else %}<i class="disabled times circle outline icon">{% endif %}</td>
+            </tr>
+        {% endif %}
+        </tr>
+    </table>
+    <table class="ui compact definition2 unstackable table">
+        {% for o in user_object_list.list_items | sort(attribute='order') %}
+        <tr>
+            <td class="two wide" style="width:50px;white-space: nowrap"><b>{{ o.names_to_html() | safe }}</b></td>
+            <td class="two wide mobile hidden" style="width:50px"><b>{{ o.item_type() | safe }}</b></td>
+            <td>
+                {% filter extended_commonmark('') %}
+{{ o.text_to_html() }}
+                {% endfilter %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% endmacro %}
+
+{# --- Chart --- #}
+{% macro user_object_list_chart(user_object_list) %}
+    {{ fchart.fchart(url_for('main_user_object_list.user_object_list_chart', user_object_list_id=user_object_list.id, back=back, back_id=back_id),
+                     url_for('main_user_object_list.user_object_list_chart_pos_img', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, ),
+                     url_for('main_user_object_list.user_object_list_chart_legend_img', user_object_list_id=user_object_list.id, flags=chart_control.legend_flags,
+                              epfov=chart_control.eyepiece_fov),
+                     None,
+                     None,
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list')
+    }}
+{% endmacro %}
+
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {% if not is_mine_user_object_list %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main.index') }}">
+                            <i class="caret left icon"></i>
+                            {{ _('Dashboard') }}
+                        </a>
+                    {% else %}
+                        <a class="ui basic icon compact button" href="{{ url_for('main_user_object_list.user_object_lists') }}">
+                            <i class="caret left icon"></i>
+                           {{ _('User object lists') }}
+                        </a>
+                    {% endif %}
+
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ user_object_list.title }}
+                    </div>
+
+                </div>
+            </div>
+            {% if is_mine_user_object_list %}
+                <div class="ui right floated floating dropdown icon mini button">
+                    <i class="caret edit icon"></i>
+                    <div class="menu">
+                        <a class="item" href="{{ url_for('main_user_object_list.user_object_list_edit', user_object_list_id=user_object_list.id) }}">
+                            {{ _('Edit Header')}}
+                        </a>
+                        <a class="item" href="{{ url_for('main_user_object_list.user_object_list_items_edit', user_object_list_id=user_object_list.id) }}">
+                            {{ _('Edit Items')}}
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+            {{ navigation(endpoints) }}
+            {% if type == 'info' %}
+                {{ user_object_list_info(user_object_list) }}
+            {% else %}
+                {{ user_object_list_chart(user_object_list) }}
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

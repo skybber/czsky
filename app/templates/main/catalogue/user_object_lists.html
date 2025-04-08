@@ -1,0 +1,52 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_deepskyobject.dso_menu') }}">
+                        <i class="caret left icon"></i>
+                        {{ _('Deepsky') }}
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                       {{ _('User Object Lists') }}{{ (' (' + user.user_name + ')') if user else '' }}
+                    </div>
+                </div>
+                <a class="ui right floated icon positive mini mobile hidden button" href="{{ url_for('main_user_object_list.new_user_object_list') }}">
+                    <i class="plus icon"></i>
+                    {{ _('New user object list') }}
+                </a>
+            </div>
+
+            <div style="overflow-x: scroll;">
+                {{ pagination.info }}
+                <table class="ui searchable sortable unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Title') }}</th>
+                            <th>{{ _('Date') }}</th>
+                            <th>{{ _('Is public') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for uol in user_object_lists %}
+                        {% if user %}
+                        <tr onclick="window.location.href = '{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=uol.id, back='uobjlist_lists', back_id=user.id) }}';">
+                        {% else %}
+                        <tr onclick="window.location.href = '{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=uol.id) }}';">
+                        {% endif %}
+                            <td>{{ uol.title[:64] }}</td>
+                            <td>{{ uol.create_date.strftime('%Y-%m-%d') }}</td>
+                            <td>{% if uol.is_public %}<i class="green check circle outline icon"></i>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {{ pagination.links }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

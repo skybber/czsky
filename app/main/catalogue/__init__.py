@@ -6,3 +6,4 @@ from .supernova_views import main_supernova
 from .double_star_list_views import main_double_star_list
 from .star_views import main_star
 from .double_star_views import main_double_star
+from .user_object_list_views import main_user_object_list

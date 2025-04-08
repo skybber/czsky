@@ -1,0 +1,145 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block scripts %}
+{% endblock %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=user_object_list.id) }}">
+                        <i class="caret left icon"></i>
+                      {{ _('Leave editing') }}
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('Edit User Object List Items') }}
+                    </div>
+                </div>
+            </div>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+
+            {{ f.display_standard_flashes(flashes) }}
+
+            {{ f.begin_form(form, flashes) }}
+                <input id="goback" type="hidden" value="false">
+                <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
+                    <div class="ui blue segment">
+                        <div class="ui tiny header">{{ _('Items') }}</div>
+                    </div>
+                    {% for item in form.items %}
+                        <div class="ui basic segment" data-toggle="fieldset-entry" style="padding-bottom:0px;{% if loop.index0 == 0 %}display:none;{% endif %}">
+                            <div class="two fields">
+                                <div class="four wide field">
+                                    <label>{{ item.name.label }}</label>
+                                    <div class="ui action input">
+                                        {{ item.name() }}
+                                    </div>
+                                    {% if item.name.errors %}
+                                        <div class="ui red pointing label itemerror">
+                                            {{ item.text.errors[0] | safe }}
+                                        </div>
+                                    {% endif %}
+                                <div class="ten wide field">
+                                    <label>{{ item.text.label }}</label>
+                                    <div class="ui action input">
+                                        {{ item.text() }}
+                                    </div>
+                                    {% if item.text.errors %}
+                                        <div class="ui red pointing label itemerror">
+                                            {{ item.text.errors[0] | safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="four wide field">
+                                    <div class="ui action input">
+                                        <button id="item-{{loop.index0}}-remove" class="ui icon red button" type="button" data-toggle="fieldset-remove-row">
+                                            <i class="trash icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="ui segment">
+                        <button class="ui icon mini button" data-toggle="fieldset-add-row" data-target="#items-fieldset" type="button">
+                            <i class="plus icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="two fields">
+                    <button class="ui positive button bupdateback">{{ _('Update and go back')}}</button>
+                    {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                        {{ field(class='positive ui button') }}
+                    {% endfor %}
+                </div>
+
+            {{ f.end_form() }}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        function recalcLabelsVisibility() {
+            var rows = $("[data-toggle=fieldset-entry]");
+            if(rows.length > 1) {
+                $(rows).find("label").hide();
+                $(rows[1]).find("label").show();
+            }
+        }
+
+        $(function() {
+            if ($('.itemerror').length > 0) {
+                $('.itemerror')[0].scrollIntoView({block:'center'});
+            }
+
+            $('.bupdateback' ).click(function() {
+                $('#goback').val('true');
+                $(this).closest('form').submit();
+                return false;
+            });
+
+            recalcLabelsVisibility();
+
+            $("div[data-toggle=fieldset]").each(function() {
+
+                var $this = $(this);
+
+                $this.find("button[data-toggle=fieldset-add-row]").click(function() {
+                    var target = $($(this).data("target"));
+                    var oldrow = target.find("[data-toggle=fieldset-entry]:last");
+                    var cloned = target.find("[data-toggle=fieldset-entry]:first");
+                    var row = cloned.clone(true, true);
+                    var elem_id = oldrow.find(":input")[0].id;
+                    var elem_num = parseInt(elem_id.replace(/.*-(\d{1,4})-.*/m, '$1')) + 1;
+                    row.attr('data-id', elem_num);
+                    row.find(":input").each(function() {
+                        var id = $(this).attr('id').replace('-0-', '-' + (elem_num) + '-');
+                        $(this).attr('name', id).attr('id', id).val('').removeAttr("checked");
+                    });
+                    oldrow.after(row);
+                    row.show();
+                    recalcLabelsVisibility();
+                });
+
+                $this.find("button[data-toggle=fieldset-remove-row]").click(function() {
+                    if($this.find("[data-toggle=fieldset-entry]").length > 1) {
+                        var thisRow = $(this).closest("[data-toggle=fieldset-entry]");
+                        thisRow.remove();
+                    }
+                    recalcLabelsVisibility();
+                });
+
+            });
+        });
+
+    </script>
+
+{% endblock %}

@@ -149,6 +149,10 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_double_star)
         from .main.catalogue import main_supernova as main_supernova
         app.register_blueprint(main_supernova)
+        from .main.catalogue import main_star as main_star
+        app.register_blueprint(main_star)
+        from .main.catalogue import main_user_object_list as main_user_object_list
+        app.register_blueprint(main_user_object_list)
         from .main.location import main_location as main_location
         app.register_blueprint(main_location)
         from .main.observation import main_observation as main_observation
@@ -165,8 +169,6 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_skyquality)
         from .main.userdata import main_userdata as main_userdata
         app.register_blueprint(main_userdata)
-        from .main.catalogue import main_star as main_star
-        app.register_blueprint(main_star)
         from .main.usersettings import main_usersettings as main_usersettings
         app.register_blueprint(main_usersettings)
         from .main.planner import main_planner as main_planner
