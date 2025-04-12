@@ -1,3 +1,4 @@
+import math
 from io import BytesIO
 from functools import lru_cache
 
@@ -41,7 +42,10 @@ all_comets_expiration = datetime.now() + timedelta(days=1)
 def _normalize_to_300s(dt: datetime) -> datetime:
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=utc)
-    return dt.replace(second=0, microsecond=0)
+
+    timestamp = dt.timestamp()
+    floored = math.floor(timestamp / 300) * 300
+    return datetime.fromtimestamp(floored, tz=dt.tzinfo)
 
 
 @lru_cache(maxsize=100)
