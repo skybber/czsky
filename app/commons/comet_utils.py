@@ -1,4 +1,5 @@
 from io import BytesIO
+from functools import lru_cache
 
 import requests
 import re
@@ -35,6 +36,31 @@ utc = dt_module.timezone.utc
 
 all_comets = None
 all_comets_expiration = datetime.now() + timedelta(days=1)
+
+
+def _normalize_to_300s(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=utc)
+    return dt.replace(second=0, microsecond=0)
+
+
+@lru_cache(maxsize=100)
+def _get_comet_cached(comet_id: str, dt: datetime):
+    comet = find_mpc_comet(comet_id)
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    sun, earth = eph['sun'], eph['earth']
+
+    body = sun + mpc.comet_orbit(comet, ts, GM_SUN)
+
+    t = ts.from_datetime(dt.replace(tzinfo=utc))
+    comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(body).radec()
+    return comet_ra_ang.radians, comet_dec_ang.radians
+
+
+def get_comet_radec(comet_id: str, dt: datetime):
+    normalized_dt = _normalize_to_300s(dt)
+    return _get_comet_cached(comet_id, normalized_dt)
 
 
 def get_mag_coma_from_observations(observs):

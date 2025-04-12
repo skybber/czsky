@@ -53,13 +53,14 @@ from app.commons.chart_generator import (
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.comet_utils import (
+    get_all_comets,
+    get_comet_radec,
+    get_mag_coma_from_observations,
+    find_mpc_comet,
+    import_update_comets,
     update_comets_cobs_observations,
     update_evaluated_comet_brightness,
     update_comets_positions,
-    get_mag_coma_from_observations,
-    find_mpc_comet,
-    get_all_comets,
-    import_update_comets
 )
 
 from app.commons.utils import to_float, is_splitview_supported
@@ -360,6 +361,14 @@ def comet_chart_pos_img(comet_id):
 
     comet_ra = to_float(request.args.get('obj_ra'), None)
     comet_dec = to_float(request.args.get('obj_dec'), None)
+
+    request_dt = request.args.get('dt', None)
+    if request_dt is not None:
+        try:
+            dt = datetime.fromisoformat(request_dt)
+            comet_ra, comet_dec = get_comet_radec(comet_id, dt)
+        except ValueError:
+            pass
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
