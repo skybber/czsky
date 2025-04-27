@@ -183,7 +183,7 @@ def user_object_list_delete(user_object_list_id):
     return redirect(url_for('main_user_object_list.user_object_lists'))
 
 
-@main_user_object_list.route('/observing-session/<int:user_object_list_id>/items-edit', methods=['GET', 'POST'])
+@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/items-edit', methods=['GET', 'POST'])
 @login_required
 def user_object_list_items_edit(user_object_list_id):
     """Update user_object_list items"""
