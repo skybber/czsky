@@ -844,6 +844,7 @@ FChart.prototype.setupMovingPos = function () {
 }
 
 FChart.prototype.onPointerDown = function(e) {
+    e.preventDefault();
     if (this.kbdDragging == 0) {
         this.isDragging = true;
         this.draggingStart = true;
@@ -966,6 +967,7 @@ FChart.prototype.moveCenter = function(fromKbdMove) {
 }
 
 FChart.prototype.onPointerMove = function (e) {
+    e.preventDefault();
     let selected  = this.findSelectableObject(e)
     if (selected != null) {
         this.canvas.style.cursor = "pointer"
