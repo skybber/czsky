@@ -844,7 +844,6 @@ FChart.prototype.setupMovingPos = function () {
 }
 
 FChart.prototype.onPointerDown = function(e) {
-    e.preventDefault();
     if (this.kbdDragging == 0) {
         this.isDragging = true;
         this.draggingStart = true;
