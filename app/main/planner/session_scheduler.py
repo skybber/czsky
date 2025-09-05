@@ -184,9 +184,9 @@ def rise_merid_set_up(time_from, time_to, observer, ra_dec_list):
 
 def rise_merid_set_time_str(t, observer, ra_dec_list, tz_info):
     coords = [SkyCoord(x[0] * u.rad, x[1] * u.rad) for x in ra_dec_list]
-    rise_list = _ar_to_HM_format(_unmask_time(observer.target_rise_time(t, coords, n_grid_points=10)), tz_info) if len(coords) > 0 else []
-    merid_list = _ar_to_HM_format(_unmask_time(observer.target_meridian_transit_time(t, coords, n_grid_points=10)), tz_info) if len(coords) > 0 else []
-    set_list = _ar_to_HM_format(_unmask_time(observer.target_set_time(t, coords, n_grid_points=10)), tz_info) if len(coords) > 0 else []
+    rise_list = _ar_to_HM_format(_unmask_time(_wrap2array(observer.target_rise_time(t, coords, n_grid_points=10))), tz_info) if len(coords) > 0 else []
+    merid_list = _ar_to_HM_format(_unmask_time(_wrap2array(observer.target_meridian_transit_time(t, coords, n_grid_points=10))), tz_info) if len(coords) > 0 else []
+    set_list = _ar_to_HM_format(_unmask_time(_wrap2array(observer.target_set_time(t, coords, n_grid_points=10))), tz_info) if len(coords) > 0 else []
 
     return [(rise_list[i], merid_list[i], set_list[i]) for i in range(len(rise_list))]
 
