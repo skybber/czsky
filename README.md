@@ -2,6 +2,12 @@
 
 ![OrionDss](https://user-images.githubusercontent.com/2523097/195431903-615c48f6-4268-4441-bf66-7120a29319fa.png)
 
+## Live
+
+🌍 Production: https://www.czsky.eu
+🇨🇿 CZ version: https://www.czsky.cz
+
+
 ## Prerequisites 
 
 Before running this project, install `libicu-dev`, which provides International Components for Unicode libraries. Below are installation steps for various operating systems.
