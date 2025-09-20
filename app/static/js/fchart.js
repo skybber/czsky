@@ -11,19 +11,15 @@ function celestPostDeg2Rad(pos) {
 }
 
 function normalizeDelta(e) {
-    let delta = 0;
-    let wheelDelta = e.originalEvent.wheelDelta;
-    let deltaY = e.originalEvent.deltaY;
-
-    // CHROME WIN/MAC | SAFARI 7 MAC | OPERA WIN/MAC | EDGE
-    if (wheelDelta) {
-        delta = -wheelDelta / 120;
+    const oe = e.originalEvent || e;
+    if (typeof oe.deltaY === 'number') {
+        const L = (oe.deltaMode === 1) ? 16 : (oe.deltaMode === 2) ? 100 : 1;
+        return Math.sign(oe.deltaY * L);
     }
-    // FIREFOX WIN / MAC | IE
-    if(deltaY) {
-        deltaY > 0 ? delta = 1 : delta = -1;
+    if (typeof oe.wheelDelta === 'number') {
+        return -Math.sign(oe.wheelDelta);
     }
-    return delta;
+    return 0;
 }
 
 // uses affine texture mapping to draw a textured triangle
@@ -589,7 +585,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
     }.bind(this));
 }
 
-FChart.prototype.formatUrl = function(inpUrl, currentTimeISO) {
+FChart.prototype.formatUrl = function(inpUrl) {
     let url = inpUrl;
     if (this.isEquatorial) {
         url = url.replace('_RA_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
@@ -682,10 +678,10 @@ FChart.prototype.setupImgGrid = function(centerPhi, centerTheta) {
     this.imgGrid = [];
     let scale = this.getFChartScale();
     this.setProjectionCenter(centerPhi, centerTheta);
-    for (i=0; i <= this.GRID_SIZE; i++) {
+    for (let i=0; i <= this.GRID_SIZE; i++) {
         let screenX = 0;
         let y = (screenY - this.canvas.height / 2.0) / scale;
-        for (j=0; j <= this.GRID_SIZE; j++) {
+        for (let j=0; j <= this.GRID_SIZE; j++) {
             let x = (screenX - this.canvas.width / 2.0) / scale;
 
             let pt = this.mirroredPos2CelestK(x, y);
@@ -1034,9 +1030,6 @@ FChart.prototype.onTouchMove = function (e) {
                 this.adjustZoom(1);
                 this.initialDistance = distance;
             }
-        }
-        if (this.adjustZoom(null, zoomFac)) {
-            this.initialDistance = distance;
         }
     } else {
         this.onPointerMove(e);
@@ -1490,12 +1483,10 @@ FChart.prototype.nextScaleFac = function() {
 }
 
 FChart.prototype.isInRealFullScreen = function() {
-    if (this.isRealFullScreenSupported) {
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            return true;
-        }
+    if (!this.isRealFullScreenSupported) {
+        return false;
     }
-    return false;
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
 }
 
 FChart.prototype.isInFullScreen = function() {
@@ -1628,7 +1619,6 @@ FChart.prototype.toggleSplitView = function() {
     this.setViewCenterToQueryParams(queryParams);
 
     queryParams.set('fsz', this.fieldSizes[this.imgFldSizeIndex]);
-    history.replaceState(null, null, "?" + queryParams.toString());
 
     if (this.isInSplitView()) {
         queryParams.set('splitview', 'true');
@@ -1680,7 +1670,7 @@ FChart.prototype.onChartTimeChanged = function(callback) {
     this.onChartTimeChangedCallback = callback;
 };
 
-FChart.prototype.callScreenModeChangeCallback = function(callback) {
+FChart.prototype.callScreenModeChangeCallback = function() {
     if (this.onScreenModeChangeCallback != undefined) {
         let fullScreen = this.isInFullScreen();
         let splitView = this.isInSplitView();
@@ -1734,7 +1724,7 @@ FChart.prototype.setUrlFlag = function (urlValue, flag, newValue) {
     if (flags) {
         url.searchParams.set('flags', flags);
     } else {
-        url.searchParams.set('flags', '');
+        url.searchParams.delete('flags');
     }
     return url.pathname + url.search + url.hash;
 }
@@ -1835,7 +1825,6 @@ FChart.prototype.setLatitude = function(latitude) {
 }
 
 FChart.prototype.getChartLst = function() {
-    return AstroMath.localSiderealTime(new Date(), this.longitude);
     if (this.useCurrentTime) {
         return AstroMath.localSiderealTime(new Date(), this.longitude);
     }
