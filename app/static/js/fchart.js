@@ -266,7 +266,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('dblclick', this.onDblClick.bind(this));
 
-    $(this.canvas).bind('mousedown', this.onPointerDown.bind(this));
+    $(this.canvas).bind('mousedown', this.onMouseDown.bind(this));
 
     $(this.canvas).bind('touchstart', (function(e) {
         if (e.originalEvent.targetTouches && e.originalEvent.targetTouches.length==2) {
@@ -837,6 +837,11 @@ FChart.prototype.setupMovingPos = function () {
     let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
     let y = (this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
     this.movingPos = this.mirroredPos2Celest(x, y);
+}
+
+FChart.prototype.onMouseDown = function(e) {
+    e.preventDefault();
+    this.onPointerDown(e);
 }
 
 FChart.prototype.onPointerDown = function(e) {
