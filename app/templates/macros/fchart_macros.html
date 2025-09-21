@@ -793,21 +793,21 @@
             var mirror_y = {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }};
             aladin.setViewCenter2NorthPoleAngle(mirror_y ? 180.0 : 0);
             if (['colored', 'blue', 'fram'].includes(dssLayerData)) {
-                var surveyOptions = (mirror_x ^ mirror_y) != 0 ? '{ longitudeReversed: true }' : '{}';
+                var surveyOptions = (mirror_x ^ mirror_y) != 0 ? { longitudeReversed: true } : {};
                 var surveyConfig = SURVEY_OPTIONS[dssLayerData];
                 let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
                 aladin.setImageSurvey(customSurvey);
             }
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                   longitude, latitude, useCurrentTime, chartDateTimeISO,
-                                  theme, legendUrl, chartUrl, aladin, projection);
-            fchart.setUseCurrentTime({{ fchart_form.use_current_time.data }});
+                                  theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId);
+            fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
             fchart.onWindowLoad();
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                               longitude, latitude, useCurrentTime, chartDateTimeISO,
-                              theme, legendUrl, chartUrl, null, projection);
+                              theme, legendUrl, chartUrl, null, projection, fullScreenWrapperId);
     }
 
     adjustAladinVisibility();
@@ -828,7 +828,7 @@
     function setAladinLayer(surveyCustomName) {
         if (surveyCustomName in SURVEY_OPTIONS) {
             if (aladin != null) {
-                const surveyConfig = SURVEY_OPTIONS[surveyCustomName] || SURVEY_OPTIONS.color;
+                const surveyConfig = SURVEY_OPTIONS[surveyCustomName] || SURVEY_OPTIONS.colored;
                 const longRev = (fchart.isMirrorX() ^ fchart.isMirrorY()) != 0;
                 let customSurvey = aladin.createImageSurvey(
                     surveyConfig.id,
@@ -1195,15 +1195,20 @@
         }
     });
 
-    function addFlag(chartUrl, letter) {
-        let match = chartUrl.match(/flags=([^&]*)/);
-        let flags = match ? match[1] : "";
-        if (!flags.includes(letter)) {
+    function ensureFlagsParam(url){
+        if(!/[\?&]flags=/.test(url)){
+            return url + (url.includes('?') ? '&' : '?') + 'flags=';
+        }
+        return url;
+    }
+    function addFlag(url, letter){
+        url = ensureFlagsParam(url);
+        const m = url.match(/flags=([^&]*)/); let flags = m? m[1] : '';
+        if(!flags.includes(letter)) {
             flags += letter;
         }
-        return chartUrl.replace(/flags=[^&]*/, "flags=" + flags);
+        return url.replace(/flags=[^&]*/, 'flags=' + flags);
     }
-
     function removeFlag(chartUrl, letter) {
         let match = chartUrl.match(/flags=([^&]*)/);
         let flags = match ? match[1] : "";
@@ -1301,7 +1306,7 @@
     }
 
     function updateDateTimeControls(useCurrentTime) {
-        $("#useCurrentTime").val(useCurrentTime ? "true" : "false");
+        $("#use_current_time").val(useCurrentTime ? "true" : "false");
 
         var dateTimeInputs = [
             "#yearInput",
@@ -1449,7 +1454,7 @@
 
         $('#layers_dropdown').dropdown({ displayType : 'block' });
 
-        updateDateTimeControls({{ fchart_form.use_current_time.data }});
+        updateDateTimeControls({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
         syncDateTimeComponentsInputs(true);
 
         $('.ui.dropdown.dlocation').dropdown({
