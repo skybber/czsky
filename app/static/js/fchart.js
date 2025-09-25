@@ -27,8 +27,8 @@ function normalizeDelta(e) {
 // img *pixel* coordinates [u0, v0], [u1, v1], [u2, v2]
 // code from http://www.dhteumeuleu.com/lab/image3D.html
 function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
-                                    u0, v0, u1, v1, u2, v2, alpha,
-                                    dx, dy, applyCorrection) {
+                              u0, v0, u1, v1, u2, v2, alpha,
+                              dx, dy, applyCorrection) {
     dx = dx || 0;
     dy = dy || 0;
 
@@ -49,7 +49,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
     ctx.save();
     if (alpha) {
-            ctx.globalAlpha = alpha;
+        ctx.globalAlpha = alpha;
     }
 
     let coeff = 0.01; // default value
@@ -77,11 +77,11 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
     let d_inv = 1/ (u0 * (v2 - v1) - u1 * v2 + u2 * v1 + (u1 - u2) * v0);
     ctx.transform(
         -(v0 * (x2 - x1) -  v1 * x2  + v2 *  x1 + (v1 - v2) * x0) * d_inv, // m11
-            (v1 *  y2 + v0  * (y1 - y2) - v2 *  y1 + (v2 - v1) * y0) * d_inv, // m12
-            (u0 * (x2 - x1) -  u1 * x2  + u2 *  x1 + (u1 - u2) * x0) * d_inv, // m21
+        (v1 *  y2 + v0  * (y1 - y2) - v2 *  y1 + (v2 - v1) * y0) * d_inv, // m12
+        (u0 * (x2 - x1) -  u1 * x2  + u2 *  x1 + (u1 - u2) * x0) * d_inv, // m21
         -(u1 *  y2 + u0  * (y1 - y2) - u2 *  y1 + (u2 - u1) * y0) * d_inv, // m22
-            (u0 * (v2 * x1  -  v1 * x2) + v0 * (u1 *  x2 - u2  * x1) + (u2 * v1 - u1 * v2) * x0) * d_inv, // dx
-            (u0 * (v2 * y1  -  v1 * y2) + v0 * (u1 *  y2 - u2  * y1) + (u2 * v1 - u1 * v2) * y0) * d_inv  // dy
+        (u0 * (v2 * x1  -  v1 * x2) + v0 * (u1 *  x2 - u2  * x1) + (u2 * v1 - u1 * v2) * x0) * d_inv, // dx
+        (u0 * (v2 * y1  -  v1 * y2) + v0 * (u1 *  y2 - u2  * y1) + (u2 * v1 - u1 * v2) * y0) * d_inv  // dy
     );
     ctx.drawImage(img, 0, 0);
     //ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width, img.height);
@@ -234,6 +234,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
     this.fullScreenWrapperId = fullScreenWrapperId;
+    this.zoomPivot = { dx: 0, dy: 0 };
+    this.zoomAnchorCelest = null;
+    this.requestCenter = null;
+    this.zoomBaseCenter = null;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -272,7 +276,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         if (e.originalEvent.targetTouches && e.originalEvent.targetTouches.length==2) {
             this.isDragging = false;
             this.initialDistance = Math.sqrt((e.originalEvent.targetTouches[0].clientX - e.originalEvent.targetTouches[1].clientX)**2 +
-                                             (e.originalEvent.targetTouches[0].clientY - e.originalEvent.targetTouches[1].clientY)**2);
+                (e.originalEvent.targetTouches[0].clientY - e.originalEvent.targetTouches[1].clientY)**2);
         } else {
             this.onPointerDown(e);
         }
@@ -290,6 +294,21 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
+        const rect = this.canvas.getBoundingClientRect();
+        const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
+        const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
+
+        this.zoomPivot.dx = ex - this.canvas.width  / 2;
+        this.zoomPivot.dy = ey - this.canvas.height / 2;
+
+        if (!this.zoomAnchorCelest) {
+            const scale = this.getFChartScale();
+            const x = this.zoomPivot.dx / scale;
+            const y = this.zoomPivot.dy / scale;
+            this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
+            this.zoomBaseCenter = { phi: this.viewCenter.phi, theta: this.viewCenter.theta };
+        }
+
         this.adjustZoom(normalizeDelta(e));
     }).bind(this));
 
@@ -309,7 +328,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
         $(document).bind('mousemove',  (function(e) {
             let delta = {x: e.clientX - md.e.clientX,
-                         y: e.clientY - md.e.clientY};
+                y: e.clientY - md.e.clientY};
 
             delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
 
@@ -502,7 +521,16 @@ FChart.prototype.redrawAll = function () {
                 0, 0, this.aladin.view.imageCanvas.width, this.aladin.view.imageCanvas.height,
                 0, 0, this.canvas.width, this.canvas.height);
         }
-        this.ctx.drawImage(curSkyImg, (this.canvas.width-img_width)/2, (this.canvas.height-img_height)/2, img_width, img_height);
+
+        let drawX = (this.canvas.width  - img_width ) / 2;
+        let drawY = (this.canvas.height - img_height) / 2;
+
+        if (this.zoomImgActive) {
+            drawX += (1 - this.scaleFac) * this.zoomPivot.dx;
+            drawY += (1 - this.scaleFac) * this.zoomPivot.dy;
+        }
+
+        this.ctx.drawImage(curSkyImg, drawX, drawY, img_width, img_height);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
 }
@@ -559,8 +587,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
         url += '&hqual=1';
     }
 
-    let centerPhi = this.viewCenter.phi;
-    let centerTheta = this.viewCenter.theta;
+    const cent = this.requestCenter ?? this.viewCenter;
     let reqFldSizeIndex = this.fldSizeIndex;
 
     // this.skyImgBuf[this.skyImg.background].src = url;
@@ -572,7 +599,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
         if (currRequestId == this.requestId) {
             let img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
             this.selectableRegions = data.img_map;
-            this.activateImageOnLoad(centerPhi, centerTheta, reqFldSizeIndex, forceReload);
+            this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
             this.setViewCenterToQueryParams(queryParams);
@@ -587,12 +614,14 @@ FChart.prototype.doReloadImage = function(forceReload) {
 
 FChart.prototype.formatUrl = function(inpUrl) {
     let url = inpUrl;
+    const cent = this.requestCenter ?? this.viewCenter;
+
     if (this.isEquatorial) {
-        url = url.replace('_RA_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
-        url = url.replace('_DEC_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_RA_', cent.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_DEC_', cent.theta.toFixed(this.URL_ANG_PRECISION));
     } else {
-        url = url.replace('_AZ_', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
-        url = url.replace('_ALT_', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_AZ_', cent.phi.toFixed(this.URL_ANG_PRECISION));
+        url = url.replace('_ALT_', cent.theta.toFixed(this.URL_ANG_PRECISION));
     }
     if (this.useCurrentTime) {
         this.lastChartTimeISO = new Date().toISOString();
@@ -617,6 +646,8 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.skyImg.background = old;
         this.imgFldSizeIndex = reqFldSizeIndex;
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
+        this.setViewCenter(centerPhi, centerTheta);
+        this.requestCenter = null;
         this.setupImgGrid(centerPhi, centerTheta);
         if (this.zoomInterval === undefined) {
             if (this.zoomEnding) {
@@ -671,6 +702,32 @@ FChart.prototype.mirroredPos2CelestK = function(x, y) {
     return { phi: pos.phi, theta: pos.theta, k: k };
 }
 
+FChart.prototype.getScaleForFoV = function(fovDeg) {
+    this.setProjectionToViewCenter();
+    const wh = Math.max(this.canvas.width, this.canvas.height);
+    const fieldradius = deg2rad(fovDeg) / 2.0;
+    return wh / 2.0 / this.projectAngle2Screen(fieldradius);
+};
+
+FChart.prototype.unprojectAtCenter = function(centerPhi, centerTheta, x, y) {
+    const oldPhi = this.projectionCenterPhi
+    const oldTheta = this.projectionCenterTheta;
+    this.setProjectionCenter(centerPhi, centerTheta);
+    const pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
+    this.setProjectionCenter(oldPhi, oldTheta);
+    return pos; // {phi, theta}
+};
+
+FChart.prototype.getScaleForFoVAt = function(centerPhi, centerTheta, fovDeg) {
+    const oldPhi = this.projectionCenterPhi, oldTheta = this.projectionCenterTheta;
+    this.setProjectionCenter(centerPhi, centerTheta);
+    const wh = Math.max(this.canvas.width, this.canvas.height);
+    const fieldradius = deg2rad(fovDeg) / 2.0;
+    const s = this.projectAngle2Screen(fieldradius);
+    this.setProjectionCenter(oldPhi, oldTheta);
+    return wh / 2.0 / s;
+};
+
 FChart.prototype.setupImgGrid = function(centerPhi, centerTheta) {
     let dx = this.canvas.width / this.GRID_SIZE;
     let dy = this.canvas.height / this.GRID_SIZE;
@@ -715,6 +772,7 @@ FChart.prototype.getEventLocation = function(e) {
 }
 
 FChart.prototype.getFChartScale = function() {
+    this.setProjectionToViewCenter();
     // Compute scale as FChart3 does
     let wh = Math.max(this.canvas.width, this.canvas.height);
     let fldSize = this.fieldSizes[this.imgFldSizeIndex];
@@ -726,6 +784,10 @@ FChart.prototype.getFChartScale = function() {
 FChart.prototype.projectAngle2Screen = function(fldRadiue) {
     let oldPhi = this.projectionCenterPhi;
     let oldTheta = this.projectionCenterTheta;
+    if (oldPhi === undefined || oldTheta === undefined) {
+        oldPhi   = this.viewCenter.phi;
+        oldTheta = this.viewCenter.theta;
+    }
     this.setProjectionCenter(0, 0);
     let screenPos = this.projection.project(rad2deg(fldRadiue), 0);
     this.setProjectionCenter(oldPhi, oldTheta);
@@ -937,13 +999,13 @@ FChart.prototype.syncAladinViewCenter = function () {
     }
 }
 
-FChart.prototype.syncAladinZoom = function (syncCenter) {
+FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
     if (this.aladin != null && this.showAladin) {
         this.aladin.setFoV(this.aladinImgField / this.scaleFac);
-        if (syncCenter) {
-            let centerPhi = this.viewCenter.phi;
-            let centerTheta = this.viewCenter.theta;
-            this.aladin.view.pointToAndRedraw(rad2deg(centerPhi), rad2deg(centerTheta));
+        if (centerOverride) {
+            this.aladin.view.pointToAndRedraw(rad2deg(centerOverride.phi), rad2deg(centerOverride.theta));
+        } else if (syncCenter) {
+            this.aladin.view.pointToAndRedraw(rad2deg(this.viewCenter.phi), rad2deg(this.viewCenter.theta));
         } else {
             this.aladin.view.requestRedraw();
         }
@@ -991,7 +1053,7 @@ FChart.prototype.recordMovePos = function (e) {
 
 FChart.prototype.reduceMoveTrack = function (ts) {
     let reduced = false;
-    for (i=0; i<this.moveTrack.length; i++) {
+    for (let i=0; i<this.moveTrack.length; i++) {
         if (this.moveTrack[i][0] >= ts-this.SLOWDOWN_ANALYZE_MILLIS) {
             if (i>0) {
                 this.moveTrack = this.moveTrack.splice(i);
@@ -1022,7 +1084,7 @@ FChart.prototype.onTouchMove = function (e) {
     e.preventDefault();
     if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
         let distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
-                                 (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
+            (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
         if (distance > this.initialDistance) {
             let zoomAmount = distance / this.initialDistance;
             if (zoomAmount > 1.15) {
@@ -1079,7 +1141,7 @@ FChart.prototype.setupSlowDown = function (e) {
 FChart.prototype.slowDownFunc = function (e) {
     let now = Date.now();
     while (this.slowdownIntervalStep < this.SLOWDOWN_STEPS && this.slowdownNextTs < now) {
-        
+
         this.moveSpeedX *= this.SLOWDOWN_COEF;
         this.moveSpeedY *= this.SLOWDOWN_COEF;
         this.pointerX += this.moveSpeedX;
@@ -1115,7 +1177,7 @@ FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
     if (!this.isDragging && this.kbdDragging == 0) {
         this.setMovingPosToCenter();
 
-        let fldPixSize = Math.sqrt(this.canvas.width**2, this.canvas.height**2);
+        let fldPixSize = Math.sqrt(this.canvas.width**2 + this.canvas.height**2);
 
         var dAng = deg2rad(this.imgField);
         if (mx != 0) {
@@ -1208,7 +1270,7 @@ FChart.prototype.kbdSmoothMove = function() {
 
         let dAng = deg2rad(this.imgField) / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
         if (this.kbdMoveDX != 0) {
-             dAng = dAng / Math.cos(0.9 * this.viewCenter.theta);
+            dAng = dAng / Math.cos(0.9 * this.viewCenter.theta);
         }
 
         this.moveViewCenterByAng(dAng, this.kbdMoveDX, this.kbdMoveDY);
@@ -1263,7 +1325,7 @@ FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
 }
 
 FChart.prototype.drawImgGrid = function (curSkyImg) {
-   this.drawImgGrid(curSkyImg, false);
+    this.drawImgGrid(curSkyImg, false);
 }
 
 FChart.prototype.cohenSutherlandEnc = function (p, curSkyImg) {
@@ -1302,7 +1364,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     let centerPhi = this.viewCenter.phi - dPT.dPhi;
     let centerTheta = this.viewCenter.theta - dPT.dTheta;
     this.setProjectionCenter(centerPhi, centerTheta);
-    for (i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
+    for (let i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
         let pos = this.projection.project(rad2deg(this.imgGrid[i][0]), rad2deg(this.imgGrid[i][1]));
         if (pos != null) {
             let k = this.imgGrid[i][2];
@@ -1322,9 +1384,9 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
             0, 0, this.canvas.width, this.canvas.height);
     }
 
-    for (j=0; j < this.GRID_SIZE; j++) {
+    for (let j=0; j < this.GRID_SIZE; j++) {
         let imgX = 0;
-        for (i=0; i < this.GRID_SIZE; i++) {
+        for (let i=0; i < this.GRID_SIZE; i++) {
             let p1 = screenImgGrid[i + j * (this.GRID_SIZE + 1)];
             let p2 = screenImgGrid[i + 1 + j * (this.GRID_SIZE + 1)];
             let p3 = screenImgGrid[i + (j  + 1) * (this.GRID_SIZE + 1)];
@@ -1380,6 +1442,26 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
     this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
     if (this.fldSizeIndex != oldFldSizeIndex) {
+        if (this.zoomAnchorCelest) {
+            const base = this.zoomBaseCenter ?? this.viewCenter; // použij zamražené centrum (fallback: aktuální)
+
+            const targetFoV = this.fieldSizes[this.fldSizeIndex];
+            const scaleNew  = this.getScaleForFoV(targetFoV);
+            const xNew = this.zoomPivot.dx / scaleNew;
+            const yNew = this.zoomPivot.dy / scaleNew;
+
+            const curUnderCursorNew = this.unprojectAtCenter(base.phi, base.theta, xNew, yNew);
+
+            let dPhi = this.zoomAnchorCelest.phi - curUnderCursorNew.phi;
+            if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
+            if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
+            const dTheta = this.zoomAnchorCelest.theta - curUnderCursorNew.theta;
+
+            this.requestCenter = {
+                phi: base.phi + dPhi,
+                theta: base.theta + dTheta
+            };
+        }
         this.startScaleFac = this.scaleFac;
         if (this.zoomImgField === undefined) {
             this.zoomImgField = this.imgField;
@@ -1422,22 +1504,22 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
 }
 
 FChart.prototype.computeZoomTimeout = function () {
-   let diff = performance.now() - this.nextZoomTime;
-   //console.log(this.zoomStep + ' ' + performance.now() + ' ' + diff)
-   let skipped = false;
-   while (diff >= this.ZOOM_TIMEOUT && this.zoomStep < this.MAX_ZOOM_STEPS) {
-       this.nextScaleFac();
-       diff = diff - this.ZOOM_TIMEOUT;
-       skipped = true;
-   }
-   let ret;
-   if (this.zoomStep == this.MAX_ZOOM_STEPS || skipped) {
-       ret = 0;
-   } else {
-       ret = this.ZOOM_TIMEOUT - diff;
-   }
-   this.nextZoomTime = performance.now() + ret;
-   return ret;
+    let diff = performance.now() - this.nextZoomTime;
+    //console.log(this.zoomStep + ' ' + performance.now() + ' ' + diff)
+    let skipped = false;
+    while (diff >= this.ZOOM_TIMEOUT && this.zoomStep < this.MAX_ZOOM_STEPS) {
+        this.nextScaleFac();
+        diff = diff - this.ZOOM_TIMEOUT;
+        skipped = true;
+    }
+    let ret;
+    if (this.zoomStep == this.MAX_ZOOM_STEPS || skipped) {
+        ret = 0;
+    } else {
+        ret = this.ZOOM_TIMEOUT - diff;
+    }
+    this.nextZoomTime = performance.now() + ret;
+    return ret;
 }
 
 FChart.prototype.setZoomInterval = function (zoomTimeout) {
@@ -1454,8 +1536,28 @@ FChart.prototype.zoomFunc = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.nextScaleFac();
     }
+
+    let centerOverride = null;
+    if (this.zoomAnchorCelest) {
+        const base = this.zoomBaseCenter ?? this.viewCenter;
+
+        const currFoV   = this.aladinImgField / this.scaleFac;
+        const currScale = this.getScaleForFoVAt(base.phi, base.theta, currFoV);
+
+        const x = this.zoomPivot.dx / currScale;
+        const y = this.zoomPivot.dy / currScale;
+
+        const underCursorNow = this.unprojectAtCenter(base.phi, base.theta, x, y);
+
+        let dPhi = this.zoomAnchorCelest.phi - underCursorNow.phi;
+        if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
+        if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
+        const dTheta = this.zoomAnchorCelest.theta - underCursorNow.theta;
+        centerOverride = { phi: base.phi + dPhi, theta: base.theta + dTheta };
+    }
+
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
-        this.syncAladinZoom(false);
+        this.syncAladinZoom(false, centerOverride);
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
@@ -1473,6 +1575,9 @@ FChart.prototype.zoomFunc = function() {
         clearInterval(this.zoomInterval);
         this.zoomImgField = undefined;
         this.zoomInterval = undefined;
+        this.zoomAnchorCelest = null;
+        this.zoomPivot = { dx: 0, dy: 0 };
+        this.zoomBaseCenter = null;
     }
 }
 
@@ -1503,7 +1608,7 @@ FChart.prototype.isInSplitView = function() {
 }
 
 FChart.prototype.setupFullscreen = function () {
-   this.doToggleFullscreen(true, false);
+    this.doToggleFullscreen(true, false);
 }
 
 FChart.prototype.toggleFullscreen = function() {
@@ -1837,7 +1942,7 @@ FChart.prototype.getChartLst = function() {
 }
 
 FChart.prototype.isMirrorX = function() {
-   return this.multPhi == -1;
+    return this.multPhi == -1;
 }
 
 FChart.prototype.isMirrorY = function() {
