@@ -239,7 +239,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.requestCenter = null;
     this.zoomBaseCenter = null;
     this.zoomEase = null;
-    this.suppressReloadOnce = false;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -569,9 +568,6 @@ FChart.prototype.reloadLegendImage = function () {
 }
 
 FChart.prototype.reloadImage = function() {
-    if (this.suppressReloadOnce) {
-        this.suppressReloadOnce = false; return false;
-    }
     if (!this.isReloadingImage) {
         this.isReloadingImage = true;
         this.doReloadImage(false);
@@ -581,9 +577,6 @@ FChart.prototype.reloadImage = function() {
 }
 
 FChart.prototype.forceReloadImage = function() {
-    if (this.suppressReloadOnce) {
-        this.suppressReloadOnce = false; return false;
-    }
     this.isReloadingImage = true;
     this.doReloadImage(true);
 }
@@ -613,8 +606,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.setViewCenterToQueryParams(queryParams);
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
-            if (this.useCurrentTime && this.onChartTimeChangedCallback) {
-                this.suppressReloadOnce = true;
+            if (this.useCurrentTime) {
                 this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
             }
         }
