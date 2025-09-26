@@ -238,6 +238,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.zoomAnchorCelest = null;
     this.requestCenter = null;
     this.zoomBaseCenter = null;
+    this.zoomEase = null;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -308,7 +309,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
             this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
             this.zoomBaseCenter = { phi: this.viewCenter.phi, theta: this.viewCenter.theta };
         }
-
+        this.zoomEase = 'cubic';
         this.adjustZoom(normalizeDelta(e));
     }).bind(this));
 
@@ -946,11 +947,13 @@ FChart.prototype.onKeyDown = function (e) {
 
     if (e.keyCode == 33) {
         if (this.zoomInterval === undefined) {
+            this.zoomEase = 'linear';
             this.adjustZoom(1);
         }
         e.preventDefault();
     } else if (e.keyCode == 34) {
         if (this.zoomInterval === undefined) {
+            this.zoomEase = 'linear';
             this.adjustZoom(-1);
         }
         e.preventDefault();
@@ -1088,12 +1091,14 @@ FChart.prototype.onTouchMove = function (e) {
         if (distance > this.initialDistance) {
             let zoomAmount = distance / this.initialDistance;
             if (zoomAmount > 1.15) {
+                this.zoomEase = 'linear';
                 this.adjustZoom(-1);
                 this.initialDistance = distance;
             }
         } else {
             let zoomAmount = this.initialDistance / distance;
             if (zoomAmount > 1.15) {
+                this.zoomEase = 'linear';
                 this.adjustZoom(1);
                 this.initialDistance = distance;
             }
@@ -1429,6 +1434,9 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw) {
     return true;
 }
 
+FChart.prototype.easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
+FChart.prototype.linearEase   = function (t) { return t; };
+
 FChart.prototype.adjustZoom = function(zoomAmount) {
     if (this.isDragging) {
         return false;
@@ -1578,17 +1586,16 @@ FChart.prototype.zoomFunc = function() {
         this.zoomAnchorCelest = null;
         this.zoomPivot = { dx: 0, dy: 0 };
         this.zoomBaseCenter = null;
+        this.zoomEase = 'linear';
     }
 }
 
 FChart.prototype.nextScaleFac = function() {
     if (this.zoomStep < this.MAX_ZOOM_STEPS) {
         this.zoomStep ++;
-        if (this.scaleFacTotal > 1) {
-            this.scaleFac = this.startScaleFac + (this.scaleFacTotal - 1) * this.zoomStep / this.MAX_ZOOM_STEPS;
-        } else {
-            this.scaleFac = this.startScaleFac - (this.startScaleFac - this.scaleFacTotal) * this.zoomStep / this.MAX_ZOOM_STEPS;
-        }
+        const t = this.zoomStep / this.MAX_ZOOM_STEPS;
+        const k = (this.zoomEase === 'cubic') ? this.easeOutCubic(t) : this.linearEase(t);
+        this.scaleFac = this.startScaleFac + (this.scaleFacTotal - this.startScaleFac) * k;
     }
 }
 
