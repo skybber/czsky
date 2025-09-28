@@ -137,6 +137,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.zoomImgActive = false;
     this.zoomEnding = false;
     this.zoomBitmap = null;
+    this.zoomBitmapReqId = 0;
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
@@ -1488,8 +1489,12 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         this.nextScaleFac();
         if (!this.zoomImgActive) {
             this.zoomBitmap = this.skyImgBuf[this.skyImg.active];
+            this.zoomBitmapReqId++;
+            const reqId = this.zoomBitmapReqId;
             createImageBitmap(this.zoomBitmap).then(bmp => {
-              this.zoomBitmap = bmp;
+              if (reqId === this.zoomBitmapReqId && this.zoomImgActive) {
+                  this.zoomBitmap = bmp;
+              }
             });
         }
 
@@ -1597,6 +1602,7 @@ FChart.prototype.zoomFunc = function() {
         this.zoomBaseCenter = null;
         this.zoomEase = 'linear';
         this.zoomBitmap = null;
+        this.zoomBitmapReqId++;
     }
 }
 
