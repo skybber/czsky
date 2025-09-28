@@ -296,19 +296,21 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
-        const rect = this.canvas.getBoundingClientRect();
-        const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
-        const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
+        if (this.aladin == null || !this.showAladin) {
+            const rect = this.canvas.getBoundingClientRect();
+            const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
+            const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
 
-        this.zoomPivot.dx = ex - this.canvas.width  / 2;
-        this.zoomPivot.dy = ey - this.canvas.height / 2;
+            this.zoomPivot.dx = ex - this.canvas.width / 2;
+            this.zoomPivot.dy = ey - this.canvas.height / 2;
 
-        if (!this.zoomAnchorCelest) {
-            const scale = this.getFChartScale();
-            const x = this.zoomPivot.dx / scale;
-            const y = this.zoomPivot.dy / scale;
-            this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
-            this.zoomBaseCenter = { phi: this.viewCenter.phi, theta: this.viewCenter.theta };
+            if (!this.zoomAnchorCelest) {
+                const scale = this.getFChartScale();
+                const x = this.zoomPivot.dx / scale;
+                const y = this.zoomPivot.dy / scale;
+                this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
+                this.zoomBaseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
+            }
         }
         this.zoomEase = 'cubic';
         this.adjustZoom(normalizeDelta(e));
