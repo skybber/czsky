@@ -1479,7 +1479,7 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         if (this.zoomImgField === undefined) {
             this.zoomImgField = this.imgField;
         }
-        let imgFieldSize = this.projectAngle2Screen(Math.PI * this.zoomImgField / (2 * 180)) /  this.scaleFac;
+        let imgFieldSize = this.projectAngle2Screen(Math.PI * this.zoomImgField / (2 * 180));
         let newFldSize = this.projectAngle2Screen(Math.PI * this.fieldSizes[this.fldSizeIndex] / (2 * 180));
         this.scaleFacTotal = imgFieldSize / newFldSize;
 
