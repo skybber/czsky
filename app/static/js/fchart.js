@@ -429,7 +429,8 @@ FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
             queryParams.delete('ra');
             queryParams.delete('dec');
         }
-        this.setViewCenterToQueryParams(queryParams);
+        this.setViewCenterToQueryParams(queryParams, this.viewCenter);
+        this.setCenterToHiddenInputs(this.viewCenter);
         history.replaceState(null, null, "?" + queryParams.toString());
     }
     this.legendUrl = legendUrl;
@@ -621,7 +622,8 @@ FChart.prototype.doReloadImage = function(forceReload) {
             this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
             let queryParams = new URLSearchParams(window.location.search);
-            this.setViewCenterToQueryParams(queryParams);
+            this.setViewCenterToQueryParams(queryParams, cent);
+            this.setCenterToHiddenInputs(cent);
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
             if (this.useCurrentTime && this.onChartTimeChangedCallback) {
@@ -667,9 +669,9 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.imgFldSizeIndex = reqFldSizeIndex;
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setViewCenter(centerPhi, centerTheta);
-        this.requestCenter = null;
         this.setupImgGrid(centerPhi, centerTheta);
         if (this.zoomInterval === undefined) {
+            this.requestCenter = null;
             if (this.zoomEnding) {
                 this.zoomEnding = false;
                 this.zoomImgActive = false;
@@ -1023,14 +1025,6 @@ FChart.prototype.moveCenter = function(fromKbdMove) {
         let dPT = this.getDeltaPhiTheta(fromKbdMove);
         this.setViewCenter(this.viewCenter.phi-dPT.dPhi, this.viewCenter.theta-dPT.dTheta)
         this.setupMovingPos();
-    }
-
-    if (this.isEquatorial) {
-        $('#ra').val(this.viewCenter.phi);
-        $('#dec').val(this.viewCenter.theta);
-    } else {
-        $('#az').val(this.viewCenter.phi);
-        $('#alt').val(this.viewCenter.theta);
     }
 }
 
@@ -1508,8 +1502,10 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             // wait some time to keep order of requests
             this.zoomQueuedImgs--;
             if (this.zoomQueuedImgs == 0) {
-                this.reloadLegendImage();
-                this.forceReloadImage();
+                if (!this.zoomEnding) {
+                    this.reloadLegendImage();
+                    this.forceReloadImage();
+                }
             }
         }).bind(this), 20);
         if (this.onFieldChangeCallback  != undefined) {
@@ -1584,13 +1580,14 @@ FChart.prototype.zoomFunc = function() {
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
         if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
-            this.syncAladinZoom(true);
-            this.redrawAll();
+            // this.syncAladinZoom(true);
+            // this.redrawAll();
             this.zoomEnding = true;
         } else {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
             this.zoomingImgField = this.imgField;
+            this.requestCenter = null;
             this.syncAladinZoom(true);
             this.redrawAll();
         }
@@ -1749,7 +1746,7 @@ FChart.prototype.toggleSplitView = function() {
     this.reloadLegendImage();
     this.forceReloadImage();
 
-    this.setViewCenterToQueryParams(queryParams);
+    this.setViewCenterToQueryParams(queryParams, this.viewCenter);
 
     queryParams.set('fsz', this.fieldSizes[this.imgFldSizeIndex]);
 
@@ -1932,19 +1929,29 @@ FChart.prototype.setAladinLayer = function (dssLayer) {
     this.reloadImage();
 }
 
-FChart.prototype.setViewCenterToQueryParams = function(queryParams) {
+FChart.prototype.setViewCenterToQueryParams = function(queryParams, cent) {
     if (this.isEquatorial) {
-        queryParams.set('ra', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
-        queryParams.set('dec', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('ra', cent.phi.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('dec', cent.theta.toFixed(this.URL_ANG_PRECISION));
     } else {
-        queryParams.set('alt', this.viewCenter.theta.toFixed(this.URL_ANG_PRECISION));
-        queryParams.set('az', this.viewCenter.phi.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('alt', cent.theta.toFixed(this.URL_ANG_PRECISION));
+        queryParams.set('az', cent.phi.toFixed(this.URL_ANG_PRECISION));
     }
 
     if (this.useCurrentTime) {
         queryParams.delete('dt');
     } else {
         queryParams.set('dt', this.dateTimeISO);
+    }
+}
+
+FChart.prototype.setCenterToHiddenInputs = function(cent) {
+    if (this.isEquatorial) {
+        $('#ra').val(cent.phi);
+        $('#dec').val(cent.theta);
+    } else {
+        $('#az').val(cent.phi);
+        $('#alt').val(cent.theta);
     }
 }
 
