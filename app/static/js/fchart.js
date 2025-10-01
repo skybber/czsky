@@ -1493,10 +1493,10 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             // wait some time to keep order of requests
             this.zoomQueuedImgs--;
             if (this.zoomQueuedImgs == 0) {
-                if (!this.zoomEnding) {
+                // if (!this.zoomEnding) {
                     this.reloadLegendImage();
                     this.forceReloadImage();
-                }
+                //}
             }
         }).bind(this), 20);
         if (this.onFieldChangeCallback  != undefined) {
