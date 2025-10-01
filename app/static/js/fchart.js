@@ -129,8 +129,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.ctx = this.canvas.getContext('2d');
 
     this.projection = projection;
-    this.projectionCenterPhi = undefined;
-    this.projectionCenterTheta = undefined;
+    this.projectionCenter  = { phi: undefined, theta: undefined }
 
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
@@ -297,21 +296,19 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('wheel', (function(e) {
         e.preventDefault();
-        if (this.aladin == null || !this.showAladin) {
-            const rect = this.canvas.getBoundingClientRect();
-            const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
-            const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
+        const rect = this.canvas.getBoundingClientRect();
+        const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
+        const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
 
-            this.zoomPivot.dx = ex - this.canvas.width / 2;
-            this.zoomPivot.dy = ey - this.canvas.height / 2;
+        this.zoomPivot.dx = ex - this.canvas.width / 2;
+        this.zoomPivot.dy = ey - this.canvas.height / 2;
 
-            if (!this.zoomAnchorCelest) {
-                const scale = this.getFChartScale();
-                const x = this.zoomPivot.dx / scale;
-                const y = this.zoomPivot.dy / scale;
-                this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
-                this.zoomBaseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
-            }
+        if (!this.zoomAnchorCelest) {
+            const scale = this.getFChartScale();
+            const x = this.zoomPivot.dx / scale;
+            const y = this.zoomPivot.dy / scale;
+            this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
+            this.zoomBaseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
         }
         this.zoomEase = 'cubic';
         this.adjustZoom(normalizeDelta(e));
@@ -400,8 +397,8 @@ FChart.prototype.setProjectionToViewCenter = function() {
 }
 
 FChart.prototype.setProjectionCenter = function(phi, theta) {
-    this.projectionCenterPhi = phi;
-    this.projectionCenterTheta = theta;
+    this.projectionCenter.phi = phi;
+    this.projectionCenter.theta = theta;
     this.projection.setCenter(rad2deg(phi), rad2deg(theta));
 }
 
@@ -518,7 +515,7 @@ FChart.prototype.redrawAll = function () {
         && (this.isDragging
             || this.kbdDragging != 0
             || this.pendingMoveRequest != undefined
-            || this.zoomImgActive && this.zoomAnchorCelest && this.aladin != null && this.showAladin
+            || this.zoomImgActive && this.zoomAnchorCelest
         )
     ) {
         gridDraw = this.drawImgGrid(curSkyImg, true);
@@ -675,6 +672,7 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
             if (this.zoomEnding) {
                 this.zoomEnding = false;
                 this.zoomImgActive = false;
+                this.zoomImgGrid = null;
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
                     this.zoomingImgField = this.imgField;
@@ -710,10 +708,8 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
     }.bind(this);
 }
 
-FChart.prototype.mirroredPos2Celest = function(x, y, setViewCenter=true) {
-    if (setViewCenter) {
-        this.setProjectionToViewCenter();
-    }
+FChart.prototype.mirroredPos2Celest = function(x, y) {
+    this.setProjectionToViewCenter();
     let pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
     return { phi: pos.phi, theta: pos.theta };
 }
@@ -724,16 +720,9 @@ FChart.prototype.mirroredPos2CelestK = function(x, y) {
     return { phi: pos.phi, theta: pos.theta, k: k };
 }
 
-FChart.prototype.getScaleForFoV = function(fovDeg) {
-    this.setProjectionToViewCenter();
-    const wh = Math.max(this.canvas.width, this.canvas.height);
-    const fieldradius = deg2rad(fovDeg) / 2.0;
-    return wh / 2.0 / this.projectAngle2Screen(fieldradius);
-};
-
 FChart.prototype.unprojectAtCenter = function(centerPhi, centerTheta, x, y) {
-    const oldPhi = this.projectionCenterPhi
-    const oldTheta = this.projectionCenterTheta;
+    const oldPhi = this.projectionCenter.phi
+    const oldTheta = this.projectionCenter.theta;
     this.setProjectionCenter(centerPhi, centerTheta);
     const pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
     this.setProjectionCenter(oldPhi, oldTheta);
@@ -783,17 +772,21 @@ FChart.prototype.getEventLocation = function(e) {
     return pos;
 }
 
+FChart.prototype.getFChartScaleForFoV = function(fovDeg) {
+    const wh = Math.max(this.canvas.width, this.canvas.height);
+    const fieldradius = deg2rad(fovDeg) / 2.0;
+    return wh / 2.0 / this.projectAngle2Screen(fieldradius);
+};
+
 FChart.prototype.getFChartScale = function(useZoomField = false) {
     // Compute scale as FChart3 does
-    let wh = Math.max(this.canvas.width, this.canvas.height);
-    const fovDeg = (useZoomField && this.zoomImgActive) ? this.zoomingImgField : this.fieldSizes[this.imgFldSizeIndex]
-    let fieldradius = deg2rad(fovDeg) / 2.0;
-    return wh / 2.0 / this.projectAngle2Screen(fieldradius);
+    const fovDeg = useZoomField && this.zoomImgActive ? this.zoomingImgField / this.scaleFac : this.fieldSizes[this.imgFldSizeIndex];
+    return this.getFChartScaleForFoV(fovDeg);
 }
 
 FChart.prototype.projectAngle2Screen = function(fldRadius) {
-    let oldPhi = this.projectionCenterPhi;
-    let oldTheta = this.projectionCenterTheta;
+    let oldPhi = this.projectionCenter.phi;
+    let oldTheta = this.projectionCenter.theta;
     this.setProjectionCenter(0, 0);
     let screenPos = this.projection.project(rad2deg(fldRadius), 0);
     this.setProjectionCenter(oldPhi, oldTheta);
@@ -1360,7 +1353,6 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
     let w2 = curSkyImg.width / 2;
     let h2 = curSkyImg.height / 2;
 
-    let zoomScale = this.zoomImgActive ? this.scaleFac : 1.0;
     let centerOv = this.zoomImgActive ? (this.getZoomCenterOverride() ?? this.viewCenter) : null;
     let curImgGrid = this.zoomImgActive ? this.zoomImgGrid : this.imgGrid;
     let centerPhi = (centerOv?.phi ?? this.viewCenter.phi) - dPT.dPhi;
@@ -1372,8 +1364,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
         let pos = this.projection.project(rad2deg(curImgGrid[i][0]), rad2deg(curImgGrid[i][1]));
         if (pos != null) {
             let k = curImgGrid[i][2];
-            const X = this.multPhi * pos.X * zoomScale * scale / k;
-            const Y = this.multTheta * pos.Y * zoomScale * scale / k;
+            const X = this.multPhi * pos.X * scale / k;
+            const Y = this.multTheta * pos.Y * scale / k;
             screenImgGrid.push([X + w2, Y + h2]);} else {
             screenImgGrid.push(null);
         }
@@ -1450,33 +1442,32 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
     this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
 
     if (this.fldSizeIndex != oldFldSizeIndex) {
-        if (this.zoomAnchorCelest) {
-            const base = this.zoomBaseCenter ?? this.viewCenter;
-
-            const targetFoV = this.fieldSizes[this.fldSizeIndex];
-            const scaleNew  = this.getScaleForFoV(targetFoV);
-            const xNew = this.zoomPivot.dx / scaleNew;
-            const yNew = this.zoomPivot.dy / scaleNew;
-
-            const curUnderCursorNew = this.unprojectAtCenter(base.phi, base.theta, xNew, yNew);
-
-            let dPhi = this.zoomAnchorCelest.phi - curUnderCursorNew.phi;
-            if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
-            if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
-            const dTheta = this.zoomAnchorCelest.theta - curUnderCursorNew.theta;
-
-            this.requestCenter = {
-                phi: base.phi + dPhi,
-                theta: base.theta + dTheta
-            };
-        }
         this.startScaleFac = this.scaleFac;
         if (this.zoomImgField === undefined) {
             this.zoomImgField = this.imgField;
         }
-        let imgFieldSize = this.projectAngle2Screen(Math.PI * this.zoomImgField / (2 * 180));
-        let newFldSize = this.projectAngle2Screen(Math.PI * this.fieldSizes[this.fldSizeIndex] / (2 * 180));
+        let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoomImgField) / 2);
+        let newFldSize = this.projectAngle2Screen(deg2rad(this.fieldSizes[this.fldSizeIndex]) / 2);
         this.scaleFacTotal = imgFieldSize / newFldSize;
+
+        if (this.zoomAnchorCelest) {
+            const fovDeg = this.zoomingImgField / this.scaleFacTotal;
+            const scale = this.getFChartScaleForFoV(fovDeg);
+
+            const x = this.zoomPivot.dx / scale;
+            const y = this.zoomPivot.dy / scale;
+
+            const underCursorNow = this.unprojectAtCenter(this.zoomBaseCenter.phi, this.zoomBaseCenter.theta, x, y);
+
+            let dPhi = this.zoomAnchorCelest.phi - underCursorNow.phi;
+            if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
+            if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
+            const dTheta = this.zoomAnchorCelest.theta - underCursorNow.theta;
+            this.requestCenter = {
+                phi: this.zoomBaseCenter.phi + dPhi,
+                theta: this.zoomBaseCenter.theta + dTheta
+            };
+        }
 
         this.zoomStep = 0;
         this.nextZoomTime = performance.now();
@@ -1551,15 +1542,12 @@ FChart.prototype.getZoomCenterOverride = function () {
     if (!this.zoomAnchorCelest) {
         return null;
     }
-
-    const base = this.zoomBaseCenter ?? this.viewCenter;
-    const currFoV   = this.zoomingImgField / this.scaleFac;
-    const s = this.projectAngle2Screen(deg2rad(currFoV) / 2.0);
-    const currScale = Math.max(this.canvas.width, this.canvas.height) / 2.0 / s;
+    const currScale = this.getFChartScale(true);
 
     const x = this.zoomPivot.dx / currScale;
     const y = this.zoomPivot.dy / currScale;
 
+    const base = this.zoomBaseCenter ?? this.viewCenter;
     const underCursorNow = this.unprojectAtCenter(base.phi, base.theta, x, y);
 
     let dPhi = this.zoomAnchorCelest.phi - underCursorNow.phi;
@@ -1588,6 +1576,7 @@ FChart.prototype.zoomFunc = function() {
             this.scaleFac = 1.0;
             this.zoomingImgField = this.imgField;
             this.requestCenter = null;
+            this.zoomImgGrid = null;
             this.syncAladinZoom(true);
             this.redrawAll();
         }
@@ -1641,7 +1630,6 @@ FChart.prototype.exitFullscreen = function() {
 
 FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
     let queryParams = new URLSearchParams(window.location.search);
-
     if (this.isRealFullScreenSupported) {
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (!exitFullScreen) {
