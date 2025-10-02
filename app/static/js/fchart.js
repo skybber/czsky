@@ -199,9 +199,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isReloadingImage = false;
 
     this.imgField = this.fieldSizes[this.imgFldSizeIndex];
-    this.zoomingImgField = this.imgField;
+    this.zoomImgField = this.imgField;
     this.scaleFac = 1.0;
-    this.zoomImgField = undefined;
+    this.zoomStartImgField = undefined;
 
     this.onFieldChangeCallback = undefined;
     this.onScreenModeChangeCallback = undefined;
@@ -675,14 +675,14 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
                 this.zoomImgGrid = null;
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
-                    this.zoomingImgField = this.imgField;
+                    this.zoomImgField = this.imgField;
                     this.syncAladinZoom(true);
                 }
             }
             if (this.scaleFac == 1.0 || forceReload) {
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
-                    this.zoomingImgField = this.imgField;
+                    this.zoomImgField = this.imgField;
                     this.syncAladinZoom(true);
                 }
                 this.redrawAll();
@@ -773,15 +773,15 @@ FChart.prototype.getEventLocation = function(e) {
 }
 
 FChart.prototype.getFChartScaleForFoV = function(fovDeg) {
+    // Compute scale as FChart3 does
     const wh = Math.max(this.canvas.width, this.canvas.height);
     const fieldradius = deg2rad(fovDeg) / 2.0;
     return wh / 2.0 / this.projectAngle2Screen(fieldradius);
 };
 
-FChart.prototype.getFChartScale = function(useZoomField = false) {
+FChart.prototype.getFChartScale = function() {
     // Compute scale as FChart3 does
-    const fovDeg = useZoomField && this.zoomImgActive ? this.zoomingImgField / this.scaleFac : this.fieldSizes[this.imgFldSizeIndex];
-    return this.getFChartScaleForFoV(fovDeg);
+    return this.getFChartScaleForFoV(this.fieldSizes[this.imgFldSizeIndex]);
 }
 
 FChart.prototype.projectAngle2Screen = function(fldRadius) {
@@ -1002,7 +1002,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 
 FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
     if (this.aladin != null && this.showAladin) {
-        this.aladin.setFoV(this.zoomingImgField / this.scaleFac);
+        this.aladin.setFoV(this.zoomImgField / this.scaleFac);
         if (centerOverride) {
             this.aladin.view.pointToAndRedraw(rad2deg(centerOverride.phi), rad2deg(centerOverride.theta));
         } else if (syncCenter) {
@@ -1347,7 +1347,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    let scale = this.getFChartScale(true);
+    let scale = this.getFChartScaleForFoV(this.zoomImgField) * this.scaleFac;
 
     let screenImgGrid = [];
     let w2 = curSkyImg.width / 2;
@@ -1443,15 +1443,16 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
 
     if (this.fldSizeIndex != oldFldSizeIndex) {
         this.startScaleFac = this.scaleFac;
-        if (this.zoomImgField === undefined) {
+        if (this.zoomStartImgField === undefined) {
+            this.zoomStartImgField = this.imgField;
             this.zoomImgField = this.imgField;
         }
-        let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoomImgField) / 2);
+        let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoomStartImgField) / 2);
         let newFldSize = this.projectAngle2Screen(deg2rad(this.fieldSizes[this.fldSizeIndex]) / 2);
         this.scaleFacTotal = imgFieldSize / newFldSize;
 
         if (this.zoomAnchorCelest) {
-            const fovDeg = this.zoomingImgField / this.scaleFacTotal;
+            const fovDeg = this.zoomImgField / this.scaleFacTotal;
             const scale = this.getFChartScaleForFoV(fovDeg);
 
             const x = this.zoomPivot.dx / scale;
@@ -1542,7 +1543,8 @@ FChart.prototype.getZoomCenterOverride = function () {
     if (!this.zoomAnchorCelest) {
         return null;
     }
-    const currScale = this.getFChartScale(true);
+
+    const currScale = this.getFChartScaleForFoV(this.zoomImgField / this.scaleFac);
 
     const x = this.zoomPivot.dx / currScale;
     const y = this.zoomPivot.dy / currScale;
@@ -1574,7 +1576,7 @@ FChart.prototype.zoomFunc = function() {
         } else {
             this.zoomImgActive = false;
             this.scaleFac = 1.0;
-            this.zoomingImgField = this.imgField;
+            this.zoomImgField = this.imgField;
             this.requestCenter = null;
             this.zoomImgGrid = null;
             this.syncAladinZoom(true);
@@ -1582,7 +1584,7 @@ FChart.prototype.zoomFunc = function() {
         }
         clearInterval(this.zoomInterval);
         this.zoomInterval = undefined;
-        this.zoomImgField = undefined;
+        this.zoomStartImgField = undefined;
         this.zoomAnchorCelest = null;
         this.zoomPivot = { dx: 0, dy: 0 };
         this.zoomBaseCenter = null;
