@@ -678,7 +678,10 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         _actualize_stars_pref_maglims(form.maglim.data, form.radius.data)
 
     form.dso_maglim.data = _check_in_mag_interval(form.dso_maglim.data, cur_dso_mag_scale)
-    session['pref_dso_maglim'  + str(fld_size)] = form.dso_maglim.data
+
+    # set pref_dso_mag_lim only if width is set due mobiles has decreased dso mag
+    if request.args.get('width', type=int) is not None:
+        session['pref_dso_maglim' + str(fld_size)] = form.dso_maglim.data
 
     if request.method == 'POST':
         _actualize_dso_pref_maglims(form.dso_maglim.data, form.radius.data)
