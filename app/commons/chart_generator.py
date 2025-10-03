@@ -902,9 +902,6 @@ def _get_fld_size_maglim(fld_size_index):
     mag_scale = MAG_SCALES[fld_size_index]
     dso_mag_scale = DSO_MAG_SCALES[fld_size_index]
 
-    width = request.args.get('width', type=int)
-    is_mobile = width is not None and width <= MOBILE_WIDTH
-
     maglim = session.get('pref_maglim' + str(fld_size))
     if maglim is None:
         maglim = (mag_scale[0] + mag_scale[1]) // 2
@@ -915,11 +912,7 @@ def _get_fld_size_maglim(fld_size_index):
             dso_maglim = dso_mag_scale[0] + 1  # use the second lowest mag to decrease number of DSO in the largest field
         else:
             dso_maglim = (dso_mag_scale[0] + dso_mag_scale[1]) // 2
-
-        if is_mobile and fld_size in (180, 140):
-            dso_maglim = dso_mag_scale[0]
-
-        for i in range(fld_size_index + 1, len(DSO_MAG_SCALES)):
+        for i in range(fld_size_index+1, len(DSO_MAG_SCALES)):
             prev_dso_maglim = session.get('pref_dso_maglim' + str(FIELD_SIZES[i]))
             if prev_dso_maglim is not None and prev_dso_maglim > dso_maglim:
                 dso_maglim = prev_dso_maglim
