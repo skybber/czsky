@@ -671,7 +671,11 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         if (this.zoom.interval === undefined) {
             if (this.zoom.ending) {
                 this.zoom.ending = false;
+                this.zoom.active = false;
+                this.zoom.scaleFac = 1.0;
                 this.zoom.imgField = this.imgField;
+                this.zoom.requestCenter = null;
+                this.zoom.imgGrid = null;
                 this.syncAladinZoom(true);
                 this.reloadLegendImage();
                 this.redrawAll();
@@ -1592,27 +1596,25 @@ FChart.prototype.zoomFunc = function() {
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
-        clearInterval(this.zoom.interval);
-        this.zoom.interval = undefined;
-        this.zoom.active = false;
-        this.zoom.startImgField = undefined;
-        this.zoom.anchorCelest = null;
-        this.zoom.pivot = { dx: 0, dy: 0 };
-        this.zoom.baseCenter = null;
-        this.zoom.ease = 'linear';
-        this.zoom.bitmap = null;
-        this.zoom.scaleFac = 1.0;
-        this.zoom.requestCenter = null;
-        this.zoom.imgGrid = null;
-
         if (this.zoom.queuedImgs > 0 || this.isReloadingImage) {
             this.zoom.ending = true;
         } else {
+            this.zoom.active = false;
+            this.zoom.scaleFac = 1.0;
             this.zoom.imgField = this.imgField;
+            this.zoom.requestCenter = null;
+            this.zoom.imgGrid = null;
             this.syncAladinZoom(true);
             this.reloadLegendImage();
             this.redrawAll();
         }
+        clearInterval(this.zoom.interval);
+        this.zoom.interval = undefined;
+        this.zoom.startImgField = undefined;
+        this.zoom.anchorCelest = null;
+        this.zoom.pivot = { dx: 0, dy: 0 };
+        this.zoom.baseCenter = null;
+        this.zoom.bitmap = null;
     }
 }
 
