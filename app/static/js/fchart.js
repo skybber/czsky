@@ -136,11 +136,11 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.zoomImgActive = false;
     this.zoomEnding = false;
     this.zoomBitmap = null;
-    this.zoomBitmapReqId = 0;
+    this.zoomBitmapRequestId = 0;
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
-    this.requestId = 0;
+    this.imgLoadRequestId = 0;
 
     this.isDragging = false;
     this.kbdDragging = 0;
@@ -238,7 +238,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.requestCenter = null;
     this.zoomBaseCenter = null;
     this.zoomEase = null;
-    this.suppressReloadOnce = false;
     this.zoomImgGrid = null;
 
     if (this.aladin != null) {
@@ -576,10 +575,6 @@ FChart.prototype.reloadLegendImage = function () {
 }
 
 FChart.prototype.reloadImage = function() {
-    if (this.suppressReloadOnce) {
-        this.suppressReloadOnce = false;
-        return false;
-    }
     if (!this.isReloadingImage) {
         this.isReloadingImage = true;
         this.doReloadImage(false);
@@ -589,10 +584,6 @@ FChart.prototype.reloadImage = function() {
 }
 
 FChart.prototype.forceReloadImage = function() {
-    if (this.suppressReloadOnce) {
-        this.suppressReloadOnce = false;
-        return false;
-    }
     this.isReloadingImage = true;
     this.doReloadImage(true);
 }
@@ -604,16 +595,17 @@ FChart.prototype.doReloadImage = function(forceReload) {
         url += '&hqual=1';
     }
 
-    const cent = this.requestCenter ?? this.viewCenter;
-    let reqFldSizeIndex = this.fldSizeIndex;
+    const cent = {
+        phi: this.requestCenter?.phi ?? this.viewCenter.phi,
+        theta: this.requestCenter?.theta ?? this.viewCenter.theta
+    };
+    const reqFldSizeIndex = this.fldSizeIndex;
+    const currRequestId = ++this.imgLoadRequestId;
 
-    // this.skyImgBuf[this.skyImg.background].src = url;
-    this.requestId ++;
-    let currRequestId = this.requestId;
     $.getJSON(url, {
         json : true
     }, function(data) {
-        if (currRequestId == this.requestId) {
+        if (currRequestId == this.imgLoadRequestId) {
             let img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
             this.selectableRegions = data.img_map;
             this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
@@ -624,7 +616,6 @@ FChart.prototype.doReloadImage = function(forceReload) {
             queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
             history.replaceState(null, null, "?" + queryParams.toString());
             if (this.useCurrentTime && this.onChartTimeChangedCallback) {
-                this.suppressReloadOnce = true;
                 this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
             }
         }
@@ -1475,12 +1466,22 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         this.nextScaleFac();
         if (!this.zoomImgActive) {
             this.zoomBitmap = this.skyImgBuf[this.skyImg.active];
-            this.zoomBitmapReqId++;
-            const reqId = this.zoomBitmapReqId;
+            const reqId = ++this.zoomBitmapRequestId;
+
             createImageBitmap(this.zoomBitmap).then(bmp => {
-              if (reqId === this.zoomBitmapReqId && this.zoomImgActive) {
-                  this.zoomBitmap = bmp;
-              }
+                if (reqId !== this.zoomBitmapRequestId) {
+                    bmp.close?.();
+                    return;
+                }
+                if (this.zoomBitmap) {
+                    if (this.zoomBitmap.close) {
+                        try {
+                            this.zoomBitmap.close();
+                        } catch {
+                        }
+                    }
+                    this.zoomBitmap = bmp;
+                }
             });
         }
 
@@ -1494,10 +1495,8 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             // wait some time to keep order of requests
             this.zoomQueuedImgs--;
             if (this.zoomQueuedImgs == 0) {
-                // if (!this.zoomEnding) {
-                    this.reloadLegendImage();
-                    this.forceReloadImage();
-                //}
+                this.reloadLegendImage();
+                this.forceReloadImage();
             }
         }).bind(this), 20);
         if (this.onFieldChangeCallback  != undefined) {
@@ -1590,7 +1589,7 @@ FChart.prototype.zoomFunc = function() {
         this.zoomBaseCenter = null;
         this.zoomEase = 'linear';
         this.zoomBitmap = null;
-        this.zoomBitmapReqId++;
+        this.zoomBitmapRequestId++;
     }
 }
 
