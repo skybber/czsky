@@ -44,8 +44,8 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
     v2 += dy;
 
     // ---- centroid ----
-    let xc = (x0 + x1 + x2) / 3;
-    let yc = (y0 + y1 + y2) / 3;
+    const xc = (x0 + x1 + x2) / 3;
+    const yc = (y0 + y1 + y2) / 3;
 
     ctx.save();
     if (alpha) {
@@ -133,10 +133,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     this.skyImgBuf = [new Image(), new Image()];
     this.skyImg = { active: 0, background: 1 };
-    this.zoomImgActive = false;
-    this.zoomEnding = false;
-    this.zoomBitmap = null;
-    this.zoomBitmapRequestId = 0;
 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
@@ -155,15 +151,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.imgFldSizeIndex = fldSizeIndex;
     this.fldSizeIndex = fldSizeIndex;
     this.fieldSizes = fieldSizes;
-    this.fldSizeIndexR = fldSizeIndex + 1;
     this.isResizing = false;
     this.isNextResizeEvnt = false;
 
-    this.MAX_ZOOM = fieldSizes.length + 0.49;
-    this.MIN_ZOOM = 0.5;
-    this.ZOOM_INTERVAL = 300;
-    this.MAX_ZOOM_STEPS = 20;
-    this.ZOOM_TIMEOUT = this.ZOOM_INTERVAL / this.MAX_ZOOM_STEPS;
     this.DRAGGING_START_TIMEOUT = 100;
     this.SLOWDOWN_ANALYZE_MILLIS = 100;
     this.SLOWDOWN_STEPS = 25;
@@ -195,21 +185,13 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.chartUrl = chartUrl;
     this.searchUrl = searchUrl;
 
-    this.zoomQueuedImgs = 0;
     this.isReloadingImage = false;
-
     this.imgField = this.fieldSizes[this.imgFldSizeIndex];
-    this.zoomImgField = this.imgField;
-    this.scaleFac = 1.0;
-    this.zoomStartImgField = undefined;
 
     this.onFieldChangeCallback = undefined;
     this.onScreenModeChangeCallback = undefined;
     this.onChartTimeChangedCallback = undefined;
     this.splitview = splitview;
-    this.zoomInterval = undefined;
-    this.zoomStep = undefined;
-    this.nextZoomTime = undefined;
     this.multPhi = mirror_x ? -1 : 1;
     this.multTheta = mirror_y ? -1 : 1;
     this.pendingMoveRequest = undefined;
@@ -233,12 +215,34 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
     this.fullScreenWrapperId = fullScreenWrapperId;
-    this.zoomPivot = { dx: 0, dy: 0 };
-    this.zoomAnchorCelest = null;
-    this.requestCenter = null;
-    this.zoomBaseCenter = null;
-    this.zoomEase = null;
-    this.zoomImgGrid = null;
+
+    this.zoom = {
+        active: false,
+        interval: undefined,
+        step: undefined,
+        scaleFac: 1.0,
+        startScaleFac: 1.0,
+        nextZoomTime: undefined,
+        startFoV: undefined,
+        baseCenter: null,
+        anchorCelest: null,
+        pivot: { dx:0, dy:0 },
+        requestCenter: null,
+        imgField: this.imgField,
+        startImgField: undefined,
+        imgGrid: null,
+        bitmap: null,
+        bitmapRequestId: 0,
+        queuedImgs: 0,
+        ending: false,
+        ease: null,
+        // constants
+        intervalMs: 300,
+        maxSteps: 20,
+        stepTimeout: 0,
+    };
+    
+    this.zoom.stepTimeout = this.zoom.intervalMs / this.zoom.maxSteps;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -248,7 +252,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         }
         let t = this;
         this.aladin.on('redrawFinished', function () {
-            if (t.showAladin && !t.isReloadingImage && t.zoomInterval === undefined) {
+            if (t.showAladin && !t.isReloadingImage && t.zoom.interval === undefined) {
                 t.redrawAll();
             }
         });
@@ -299,17 +303,17 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
         const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
 
-        this.zoomPivot.dx = ex - this.canvas.width / 2;
-        this.zoomPivot.dy = ey - this.canvas.height / 2;
+        this.zoom.pivot.dx = ex - this.canvas.width / 2;
+        this.zoom.pivot.dy = ey - this.canvas.height / 2;
 
-        if (!this.zoomAnchorCelest) {
+        if (!this.zoom.anchorCelest) {
             const scale = this.getFChartScale();
-            const x = this.zoomPivot.dx / scale;
-            const y = this.zoomPivot.dy / scale;
-            this.zoomAnchorCelest = this.mirroredPos2Celest(x, y);
-            this.zoomBaseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
+            const x = this.zoom.pivot.dx / scale;
+            const y = this.zoom.pivot.dy / scale;
+            this.zoom.anchorCelest = this.mirroredPos2Celest(x, y);
+            this.zoom.baseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
         }
-        this.zoomEase = 'cubic';
+        this.zoom.ease = 'cubic';
         this.adjustZoom(normalizeDelta(e));
     }).bind(this));
 
@@ -328,8 +332,10 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         $(this.iframe).css('pointer-events', 'none');
 
         $(document).bind('mousemove',  (function(e) {
-            let delta = {x: e.clientX - md.e.clientX,
-                y: e.clientY - md.e.clientY};
+            let delta = {
+                x: e.clientX - md.e.clientX,
+                y: e.clientY - md.e.clientY
+            };
 
             delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
 
@@ -337,8 +343,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
             $(this.iframe).width(md.firstWidth + delta.x);
             $(this.fchartDiv).css('left', md.secondLeft + delta.x);
             $(this.fchartDiv).width(md.secondWidth - delta.x);
-            let computedWidth = $(this.fchartDiv).width();
-            let computedHeight = $(this.fchartDiv).height();
+            const computedWidth = $(this.fchartDiv).width();
+            const computedHeight = $(this.fchartDiv).height();
             this.adjustCanvasSizeWH(computedWidth, computedHeight);
         }).bind(this));
 
@@ -454,14 +460,14 @@ FChart.prototype.onWindowLoad = function() {
 }
 
 FChart.prototype.adjustCanvasSize = function() {
-    let computedWidth = $(this.fchartDiv).width();
-    let computedHeight = $(this.fchartDiv).height();
+    const computedWidth = $(this.fchartDiv).width();
+    const computedHeight = $(this.fchartDiv).height();
     this.adjustCanvasSizeWH(computedWidth, computedHeight);
 }
 
 FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
-    let newWidth = Math.max(computedWidth, 1);
-    let newHeight = Math.max(computedHeight, 1);
+    const newWidth = Math.max(computedWidth, 1);
+    const newHeight = Math.max(computedHeight, 1);
     if (newWidth != this.canvas.width || newHeight != this.canvas.height) {
         this.canvas.width = Math.max(computedWidth, 1);
         this.canvas.height = Math.max(computedHeight, 1);
@@ -499,8 +505,8 @@ FChart.prototype.doResize = function() {
 FChart.prototype.redrawAll = function () {
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
     let curSkyImg;
-    if (this.zoomImgActive && this.zoomBitmap) {
-        curSkyImg = this.zoomBitmap;
+    if (this.zoom.active && this.zoom.bitmap) {
+        curSkyImg = this.zoom.bitmap;
     } else {
         curSkyImg = this.skyImgBuf[this.skyImg.active];
     }
@@ -514,14 +520,14 @@ FChart.prototype.redrawAll = function () {
         && (this.isDragging
             || this.kbdDragging != 0
             || this.pendingMoveRequest != undefined
-            || this.zoomImgActive && this.zoomAnchorCelest
+            || this.zoom.active && this.zoom.anchorCelest
         )
     ) {
         gridDraw = this.drawImgGrid(curSkyImg, true);
     }
     if (!gridDraw) {
-        let img_width = curSkyImg.width * this.scaleFac;
-        let img_height = curSkyImg.height * this.scaleFac;
+        const img_width = curSkyImg.width * this.zoom.scaleFac;
+        const img_height = curSkyImg.height * this.zoom.scaleFac;
         this.ctx.fillStyle = this.getThemeColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         if (this.aladin != null && this.showAladin) {
@@ -533,9 +539,9 @@ FChart.prototype.redrawAll = function () {
         let drawX = (this.canvas.width  - img_width ) / 2;
         let drawY = (this.canvas.height - img_height) / 2;
 
-        if (this.zoomImgActive) {
-            drawX += (1 - this.scaleFac) * this.zoomPivot.dx;
-            drawY += (1 - this.scaleFac) * this.zoomPivot.dy;
+        if (this.zoom.active) {
+            drawX += (1 - this.zoom.scaleFac) * this.zoom.pivot.dx;
+            drawY += (1 - this.zoom.scaleFac) * this.zoom.pivot.dy;
         }
 
         this.ctx.drawImage(curSkyImg, drawX, drawY, img_width, img_height);
@@ -566,7 +572,7 @@ FChart.prototype.reloadLegendImage = function () {
 
     this.legendImgBuf[this.legendImg.background].onload = (function() {
         this.legendImgBuf[this.legendImg.background].onload = null;
-        let old = this.legendImg.active;
+        const old = this.legendImg.active;
         this.legendImg.active = this.legendImg.background;
         this.legendImg.background = old;
         this.redrawAll();
@@ -596,8 +602,8 @@ FChart.prototype.doReloadImage = function(forceReload) {
     }
 
     const cent = {
-        phi: this.requestCenter?.phi ?? this.viewCenter.phi,
-        theta: this.requestCenter?.theta ?? this.viewCenter.theta
+        phi: this.zoom.requestCenter?.phi ?? this.viewCenter.phi,
+        theta: this.zoom.requestCenter?.theta ?? this.viewCenter.theta
     };
     const reqFldSizeIndex = this.fldSizeIndex;
     const currRequestId = ++this.imgLoadRequestId;
@@ -606,7 +612,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
         json : true
     }, function(data) {
         if (currRequestId == this.imgLoadRequestId) {
-            let img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
+            const img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
             this.selectableRegions = data.img_map;
             this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
             this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
@@ -624,7 +630,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
 
 FChart.prototype.formatUrl = function(inpUrl) {
     let url = inpUrl;
-    const cent = this.requestCenter ?? this.viewCenter;
+    const cent = this.zoom.requestCenter ?? this.viewCenter;
 
     if (this.isEquatorial) {
         url = url.replace('_RA_', cent.phi.toFixed(this.URL_ANG_PRECISION));
@@ -658,10 +664,10 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setViewCenter(centerPhi, centerTheta);
         this.setupImgGrid(centerPhi, centerTheta);
-        if (this.zoomInterval === undefined) {
-            if (this.zoomEnding) {
-                this.zoomEnding = false;
-                this.zoomImgField = this.imgField;
+        if (this.zoom.interval === undefined) {
+            if (this.zoom.ending) {
+                this.zoom.ending = false;
+                this.zoom.imgField = this.imgField;
                 this.syncAladinZoom(true);
                 this.reloadLegendImage();
                 this.redrawAll();
@@ -669,10 +675,10 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
                 return;
             }
 
-            if (this.scaleFac == 1.0 || forceReload) {
-                if (this.scaleFac != 1.0) {
-                    this.scaleFac = 1.0;
-                    this.zoomImgField = this.imgField;
+            if (this.zoom.scaleFac == 1.0 || forceReload) {
+                if (this.zoom.scaleFac != 1.0) {
+                    this.zoom.scaleFac = 1.0;
+                    this.zoom.imgField = this.imgField;
                     this.syncAladinZoom(true);
                 }
                 this.redrawAll();
@@ -682,8 +688,8 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         }
         this.isReloadingImage = false;
         if (this.pendingMoveRequest != undefined) {
-            let wasPointerUp = this.pendingMoveRequest.isPointerUp;
-            let wasKbdDragging = this.pendingMoveRequest.wasKbdDragging;
+            const wasPointerUp = this.pendingMoveRequest.isPointerUp;
+            const wasKbdDragging = this.pendingMoveRequest.wasKbdDragging;
             this.moveCenter(wasKbdDragging);
             if (this.pendingMoveRequest.wasKbdDragging) {
                 this.setMovingPosToCenter();
@@ -700,13 +706,13 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
 
 FChart.prototype.mirroredPos2Celest = function(x, y) {
     this.setProjectionToViewCenter();
-    let pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
+    const pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
     return { phi: pos.phi, theta: pos.theta };
 }
 
 FChart.prototype.mirroredPos2CelestK = function(x, y) {
-    let k = 1;
-    let pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
+    const k = 1;
+    const pos = celestPostDeg2Rad(this.projection.unproject(this.multPhi * x, this.multTheta * y));
     return { phi: pos.phi, theta: pos.theta, k: k };
 }
 
@@ -720,11 +726,11 @@ FChart.prototype.unprojectAtCenter = function(centerPhi, centerTheta, x, y) {
 };
 
 FChart.prototype.setupImgGrid = function(centerPhi, centerTheta) {
-    let dx = this.canvas.width / this.GRID_SIZE;
-    let dy = this.canvas.height / this.GRID_SIZE;
+    const dx = this.canvas.width / this.GRID_SIZE;
+    const dy = this.canvas.height / this.GRID_SIZE;
+    const scale = this.getFChartScale();
     let screenY = 0;
     this.imgGrid = [];
-    let scale = this.getFChartScale();
     this.setProjectionCenter(centerPhi, centerTheta);
     for (let i=0; i <= this.GRID_SIZE; i++) {
         let screenX = 0;
@@ -775,8 +781,8 @@ FChart.prototype.getFChartScale = function() {
 }
 
 FChart.prototype.projectAngle2Screen = function(fldRadius) {
-    let oldPhi = this.projectionCenter.phi;
-    let oldTheta = this.projectionCenter.theta;
+    const oldPhi = this.projectionCenter.phi;
+    const oldTheta = this.projectionCenter.theta;
     this.setProjectionCenter(0, 0);
     let screenPos = this.projection.project(rad2deg(fldRadius), 0);
     this.setProjectionCenter(oldPhi, oldTheta);
@@ -934,14 +940,14 @@ FChart.prototype.onKeyDown = function (e) {
     }
 
     if (e.keyCode == 33) {
-        if (this.zoomInterval === undefined) {
-            this.zoomEase = 'linear';
+        if (this.zoom.interval === undefined) {
+            this.zoom.ease = 'linear';
             this.adjustZoom(1);
         }
         e.preventDefault();
     } else if (e.keyCode == 34) {
-        if (this.zoomInterval === undefined) {
-            this.zoomEase = 'linear';
+        if (this.zoom.interval === undefined) {
+            this.zoom.ease = 'linear';
             this.adjustZoom(-1);
         }
         e.preventDefault();
@@ -992,7 +998,7 @@ FChart.prototype.syncAladinViewCenter = function () {
 
 FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
     if (this.aladin != null && this.showAladin) {
-        this.aladin.setFoV(this.zoomImgField / this.scaleFac);
+        this.aladin.setFoV(this.zoom.imgField / this.zoom.scaleFac);
         if (centerOverride) {
             this.aladin.view.pointToAndRedraw(rad2deg(centerOverride.phi), rad2deg(centerOverride.theta));
         } else if (syncCenter) {
@@ -1071,14 +1077,14 @@ FChart.prototype.onTouchMove = function (e) {
         if (distance > this.initialDistance) {
             let zoomAmount = distance / this.initialDistance;
             if (zoomAmount > 1.15) {
-                this.zoomEase = 'linear';
+                this.zoom.ease = 'linear';
                 this.adjustZoom(-1);
                 this.initialDistance = distance;
             }
         } else {
             let zoomAmount = this.initialDistance / distance;
             if (zoomAmount > 1.15) {
-                this.zoomEase = 'linear';
+                this.zoom.ease = 'linear';
                 this.adjustZoom(1);
                 this.initialDistance = distance;
             }
@@ -1328,23 +1334,23 @@ FChart.prototype.isNeighbCH = function (c1, c2) {
 
 FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
     let fromKbdMove = this.pendingMoveRequest != undefined && this.pendingMoveRequest.wasKbdDragging;
-    let dPT = !this.zoomImgActive ? this.getDeltaPhiTheta(fromKbdMove) : { dPhi: 0, dTheta: 0 };
+    let dPT = !this.zoom.active ? this.getDeltaPhiTheta(fromKbdMove) : { dPhi: 0, dTheta: 0 };
 
-    if (forceDraw && dPT.dPhi == 0 && dPT.dTheta == 0 && !this.zoomImgActive) {
+    if (forceDraw && dPT.dPhi == 0 && dPT.dTheta == 0 && !this.zoom.active) {
         return false;
     }
 
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    let scale = this.getFChartScaleForFoV(this.zoomImgField) * this.scaleFac;
+    let scale = this.getFChartScaleForFoV(this.zoom.imgField) * this.zoom.scaleFac;
 
     let screenImgGrid = [];
     let w2 = curSkyImg.width / 2;
     let h2 = curSkyImg.height / 2;
 
-    let centerOv = this.zoomImgActive ? (this.getZoomCenterOverride() ?? this.viewCenter) : null;
-    let curImgGrid = this.zoomImgActive ? this.zoomImgGrid : this.imgGrid;
+    let centerOv = this.zoom.active ? (this.getZoomCenterOverride() ?? this.viewCenter) : null;
+    let curImgGrid = this.zoom.active ? this.zoom.imgGrid : this.imgGrid;
     let centerPhi = (centerOv?.phi ?? this.viewCenter.phi) - dPT.dPhi;
     let centerTheta = (centerOv?.theta ?? this.viewCenter.theta) - dPT.dTheta;
 
@@ -1424,173 +1430,177 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         return false;
     }
 
-    this.fldSizeIndexR += zoomAmount;
-    let oldFldSizeIndex = this.fldSizeIndex;
+    const old = this.fldSizeIndex;
+    this.fldSizeIndex += zoomAmount;
+    this.fldSizeIndex = Math.max(0, Math.min(this.fldSizeIndex, this.fieldSizes.length - 1));
 
-    this.fldSizeIndexR = Math.min( this.fldSizeIndexR, this.MAX_ZOOM );
-    this.fldSizeIndexR = Math.max( this.fldSizeIndexR, this.MIN_ZOOM );
-    this.fldSizeIndex = Math.round(this.fldSizeIndexR) - 1;
-
-    if (this.fldSizeIndex != oldFldSizeIndex) {
-        this.startScaleFac = this.scaleFac;
-        if (this.zoomStartImgField === undefined) {
-            this.zoomStartImgField = this.imgField;
-            this.zoomImgField = this.imgField;
-        }
-        let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoomStartImgField) / 2);
-        let newFldSize = this.projectAngle2Screen(deg2rad(this.fieldSizes[this.fldSizeIndex]) / 2);
-        this.scaleFacTotal = imgFieldSize / newFldSize;
-
-        if (this.zoomAnchorCelest) {
-            const fovDeg = this.zoomImgField / this.scaleFacTotal;
-            const scale = this.getFChartScaleForFoV(fovDeg);
-
-            const x = this.zoomPivot.dx / scale;
-            const y = this.zoomPivot.dy / scale;
-
-            const underCursorNow = this.unprojectAtCenter(this.zoomBaseCenter.phi, this.zoomBaseCenter.theta, x, y);
-
-            let dPhi = this.zoomAnchorCelest.phi - underCursorNow.phi;
-            if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
-            if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
-            const dTheta = this.zoomAnchorCelest.theta - underCursorNow.theta;
-            this.requestCenter = {
-                phi: this.zoomBaseCenter.phi + dPhi,
-                theta: this.zoomBaseCenter.theta + dTheta
-            };
-        }
-
-        this.zoomStep = 0;
-        this.nextZoomTime = performance.now();
-        this.nextScaleFac();
-        if (!this.zoomImgActive) {
-            this.zoomBitmap = this.skyImgBuf[this.skyImg.active];
-            const reqId = ++this.zoomBitmapRequestId;
-
-            createImageBitmap(this.zoomBitmap).then(bmp => {
-                if (reqId != this.zoomBitmapRequestId) {
-                    bmp.close?.();
-                    return;
-                }
-                if (this.zoomBitmap) {
-                    this.closeZoomBitmap();
-                    this.zoomBitmap = bmp;
-                }
-            });
-        }
-
-        this.zoomImgGrid = this.imgGrid;
-        this.zoomImgActive = true;
-        this.syncAladinZoom(false);
-        this.redrawAll();
-        this.setZoomInterval(this.computeZoomTimeout());
-        this.zoomQueuedImgs++;
-        setTimeout((function() {
-            // wait some time to keep order of requests
-            this.zoomQueuedImgs--;
-            if (this.zoomQueuedImgs == 0) {
-                // this.reloadLegendImage();
-                this.forceReloadImage();
-            }
-        }).bind(this), 20);
-        if (this.onFieldChangeCallback  != undefined) {
-            this.onFieldChangeCallback.call(this, this.fldSizeIndex);
-        }
-        return true;
+    if (this.fldSizeIndex === old) {
+        return false;
     }
+
+    this.zoom.startScaleFac = this.zoom.scaleFac;
+    if (this.zoom.startImgField === undefined) {
+        this.zoom.startImgField = this.imgField;
+        this.zoom.imgField = this.imgField;
+    }
+
+    let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoom.startImgField) / 2);
+    let newFldSize = this.projectAngle2Screen(deg2rad(this.fieldSizes[this.fldSizeIndex]) / 2);
+    this.zoom.scaleFacTotal = imgFieldSize / newFldSize;
+
+    if (this.zoom.anchorCelest) {
+        this.setZoomRequestCenterFromAnchor();
+    }
+
+    this.zoom.step = 0;
+    this.zoom.nextZoomTime = performance.now();
+    this.nextScaleFac();
+    if (!this.zoom.active) {
+        this.zoom.bitmap = this.skyImgBuf[this.skyImg.active];
+        const reqId = ++this.zoom.bitmapRequestId;
+
+        createImageBitmap(this.zoom.bitmap).then(bmp => {
+            if (reqId != this.zoom.bitmapRequestId) {
+                bmp.close?.();
+                return;
+            }
+            if (this.zoom.bitmap) {
+                this.closeZoomBitmap();
+                this.zoom.bitmap = bmp;
+            }
+        });
+    }
+
+    this.zoom.imgGrid = this.imgGrid;
+    this.zoom.active = true;
+    this.syncAladinZoom(false);
+    this.redrawAll();
+    this.setZoomInterval(this.computeZoomTimeout());
+    this.zoom.queuedImgs++;
+    setTimeout((function() {
+        // wait some time to keep order of requests
+        this.zoom.queuedImgs--;
+        if (this.zoom.queuedImgs == 0) {
+            // this.reloadLegendImage();
+            this.forceReloadImage();
+        }
+    }).bind(this), 20);
+    if (this.onFieldChangeCallback  != undefined) {
+        this.onFieldChangeCallback.call(this, this.fldSizeIndex);
+    }
+    return true;
+}
+
+FChart.prototype.setZoomRequestCenterFromAnchor = function() {
+    const fovDeg = this.zoom.imgField / this.zoom.scaleFacTotal;
+    const scale = this.getFChartScaleForFoV(fovDeg);
+
+    const x = this.zoom.pivot.dx / scale;
+    const y = this.zoom.pivot.dy / scale;
+
+    const underCursorNow = this.unprojectAtCenter(this.zoom.baseCenter.phi, this.zoom.baseCenter.theta, x, y);
+
+    let dPhi = this.zoom.anchorCelest.phi - underCursorNow.phi;
+    if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
+    if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
+    const dTheta = this.zoom.anchorCelest.theta - underCursorNow.theta;
+    this.zoom.requestCenter = {
+        phi: this.zoom.baseCenter.phi + dPhi,
+        theta: this.zoom.baseCenter.theta + dTheta
+    };
 }
 
 FChart.prototype.closeZoomBitmap = function () {
-    if (this.zoomBitmap) {
-        if (this.zoomBitmap.close) {
+    if (this.zoom.bitmap) {
+        if (this.zoom.bitmap.close) {
             try {
-                this.zoomBitmap.close();
+                this.zoom.bitmap.close();
             } catch {
             }
         }
-        this.zoomBitmap = null;
+        this.zoom.bitmap = null;
     }
 }
 
 FChart.prototype.computeZoomTimeout = function () {
-    let diff = performance.now() - this.nextZoomTime;
-    //console.log(this.zoomStep + ' ' + performance.now() + ' ' + diff)
+    let diff = performance.now() - this.zoom.nextZoomTime;
+    //console.log(this.zoom.step + ' ' + performance.now() + ' ' + diff)
     let skipped = false;
-    while (diff >= this.ZOOM_TIMEOUT && this.zoomStep < this.MAX_ZOOM_STEPS) {
+    while (diff >= this.zoom.stepTimeout && this.zoom.step < this.zoom.maxSteps) {
         this.nextScaleFac();
-        diff = diff - this.ZOOM_TIMEOUT;
+        diff = diff - this.zoom.stepTimeout;
         skipped = true;
     }
     let ret;
-    if (this.zoomStep == this.MAX_ZOOM_STEPS || skipped) {
+    if (this.zoom.step == this.zoom.maxSteps || skipped) {
         ret = 0;
     } else {
-        ret = this.ZOOM_TIMEOUT - diff;
+        ret = this.zoom.stepTimeout - diff;
     }
     if (ret <= 0) {
         ret = this.FREQ_60_HZ_TIMEOUT;
     }
-    this.nextZoomTime = performance.now() + ret;
+    this.zoom.nextZoomTime = performance.now() + ret;
     return ret;
 }
 
 FChart.prototype.setZoomInterval = function (zoomTimeout) {
-    if (this.zoomInterval != undefined) {
-        clearInterval(this.zoomInterval);
+    if (this.zoom.interval != undefined) {
+        clearInterval(this.zoom.interval);
     }
     let t = this;
-    this.zoomInterval = setInterval(function () {
+    this.zoom.interval = setInterval(function () {
         t.zoomFunc();
     }, zoomTimeout);
 }
 
 FChart.prototype.getZoomCenterOverride = function () {
-    if (!this.zoomAnchorCelest) {
+    if (!this.zoom.anchorCelest) {
         return null;
     }
 
-    const currScale = this.getFChartScaleForFoV(this.zoomImgField / this.scaleFac);
+    const currScale = this.getFChartScaleForFoV(this.zoom.imgField / this.zoom.scaleFac);
 
-    const x = this.zoomPivot.dx / currScale;
-    const y = this.zoomPivot.dy / currScale;
+    const x = this.zoom.pivot.dx / currScale;
+    const y = this.zoom.pivot.dy / currScale;
 
-    const base = this.zoomBaseCenter ?? this.viewCenter;
+    const base = this.zoom.baseCenter ?? this.viewCenter;
     const underCursorNow = this.unprojectAtCenter(base.phi, base.theta, x, y);
 
-    let dPhi = this.zoomAnchorCelest.phi - underCursorNow.phi;
+    let dPhi = this.zoom.anchorCelest.phi - underCursorNow.phi;
     if (dPhi >  Math.PI) dPhi -= 2 * Math.PI;
     if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
-    const dTheta = this.zoomAnchorCelest.theta - underCursorNow.theta;
+    const dTheta = this.zoom.anchorCelest.theta - underCursorNow.theta;
     return { phi: base.phi + dPhi, theta: base.theta + dTheta };
 };
 
 FChart.prototype.zoomFunc = function() {
-    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+    if (this.zoom.step < this.zoom.maxSteps) {
         this.nextScaleFac();
     }
 
-    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
+    if (this.zoom.step < this.zoom.maxSteps) {
         this.syncAladinZoom(false, this.getZoomCenterOverride());
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
-        clearInterval(this.zoomInterval);
-        this.zoomInterval = undefined;
-        this.zoomImgActive = false;
-        this.zoomStartImgField = undefined;
-        this.zoomAnchorCelest = null;
-        this.zoomPivot = { dx: 0, dy: 0 };
-        this.zoomBaseCenter = null;
-        this.zoomEase = 'linear';
-        this.zoomBitmap = null;
-        this.scaleFac = 1.0;
-        this.requestCenter = null;
-        this.zoomImgGrid = null;
+        clearInterval(this.zoom.interval);
+        this.zoom.interval = undefined;
+        this.zoom.active = false;
+        this.zoom.startImgField = undefined;
+        this.zoom.anchorCelest = null;
+        this.zoom.pivot = { dx: 0, dy: 0 };
+        this.zoom.baseCenter = null;
+        this.zoom.ease = 'linear';
+        this.zoom.bitmap = null;
+        this.zoom.scaleFac = 1.0;
+        this.zoom.requestCenter = null;
+        this.zoom.imgGrid = null;
 
-        if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
-            this.zoomEnding = true;
+        if (this.zoom.queuedImgs > 0 || this.isReloadingImage) {
+            this.zoom.ending = true;
         } else {
-            this.zoomImgField = this.imgField;
+            this.zoom.imgField = this.imgField;
             this.syncAladinZoom(true);
             this.reloadLegendImage();
             this.redrawAll();
@@ -1599,11 +1609,11 @@ FChart.prototype.zoomFunc = function() {
 }
 
 FChart.prototype.nextScaleFac = function() {
-    if (this.zoomStep < this.MAX_ZOOM_STEPS) {
-        this.zoomStep ++;
-        const t = this.zoomStep / this.MAX_ZOOM_STEPS;
-        const k = (this.zoomEase === 'cubic') ? this.easeOutCubic(t) : this.linearEase(t);
-        this.scaleFac = this.startScaleFac + (this.scaleFacTotal - this.startScaleFac) * k;
+    if (this.zoom.step < this.zoom.maxSteps) {
+        this.zoom.step ++;
+        const t = this.zoom.step / this.zoom.maxSteps;
+        const k = (this.zoom.ease === 'cubic') ? this.easeOutCubic(t) : this.linearEase(t);
+        this.zoom.scaleFac = this.zoom.startScaleFac + (this.zoom.scaleFacTotal - this.zoom.startScaleFac) * k;
     }
 }
 
@@ -1764,7 +1774,7 @@ FChart.prototype.setSplitViewPosition = function() {
         $('.fchart-iframe').width($(window).width() - 36);
         $('.fchart-separator').hide();
     }
-    let leftWidth = $('.fchart-iframe').width() + 6;
+    const leftWidth = $('.fchart-iframe').width() + 6;
     $(this.fchartDiv).css('left', leftWidth);
     $(this.fchartDiv).css('width','calc(100% - ' + leftWidth + 'px)');
 }
