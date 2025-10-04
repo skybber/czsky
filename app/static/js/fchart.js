@@ -671,6 +671,7 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         if (this.zoom.interval === undefined) {
             if (this.zoom.ending) {
                 this.zoom.ending = false;
+                this.zoom.imgField = this.imgField;
                 this.syncAladinZoom(true);
                 this.reloadLegendImage();
                 this.redrawAll();
@@ -681,6 +682,7 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
             if (this.zoom.scaleFac == 1.0 || forceReload) {
                 if (this.zoom.scaleFac != 1.0) {
                     this.zoom.scaleFac = 1.0;
+                    this.zoom.imgField = this.imgField;
                     this.syncAladinZoom(true);
                 }
                 this.redrawAll();
