@@ -138,30 +138,13 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.legendImg = { active: 0, background: 1 };
     this.imgLoadRequestId = 0;
 
-    this.isDragging = false;
-    this.kbdDragging = 0;
-    this.draggingStart = false;
-    this.pointerX = undefined;
-    this.pointerY = undefined;
-    this.pointerYFac = undefined;
-    this.movingPos = undefined;
-    this.initialDistance = undefined;
-    this.pointerMoveTimeout = false;
-
     this.imgFldSizeIndex = fldSizeIndex;
     this.fldSizeIndex = fldSizeIndex;
     this.fieldSizes = fieldSizes;
     this.isResizing = false;
     this.isNextResizeEvnt = false;
 
-    this.DRAGGING_START_TIMEOUT = 100;
-    this.SLOWDOWN_ANALYZE_MILLIS = 100;
-    this.SLOWDOWN_STEPS = 25;
-    this.SLOWDOWN_INTERVAL_MILLIS = 20;
-    this.SLOWDOWN_COEF = Math.pow(0.05, 1 / this.SLOWDOWN_STEPS);
-
     this.GRID_SIZE = 10;
-    this.MOVE_SEC_PER_SCREEN = 2;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
     this.URL_ANG_PRECISION = 9;
@@ -197,24 +180,45 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.pendingMoveRequest = undefined;
     this.lastSmoothMoveTime = -1;
 
-    this.moveInterval = undefined;
-    this.kbdMoveDX = 0;
-    this.kbdMoveDY = 0;
     this.selectableRegions = undefined;
     this.imgGrid = undefined;
 
     this.aladin = aladin;
     this.showAladin = showAladin;
 
-    this.moveTrack = [];
-    this.moveSpeedX = 0;
-    this.moveSpeedY = 0;
-    this.slowdownInterval = undefined;
-    this.slowdownIntervalStep = 0;
-    this.slowdownNextTs = undefined;
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
     this.fullScreenWrapperId = fullScreenWrapperId;
+
+    this.move = {
+        interval: undefined,
+        isDragging: false,
+        draggingStart: false,
+        movingPos: undefined,
+        pointerX: undefined,
+        pointerY: undefined,
+        pointerYFac: undefined,
+        kbdDragging: 0,
+        kbdDX: 0,
+        kbdDY: 0,
+        track: [],
+        speedX: 0,
+        speedY: 0,
+        pointerTimeout: false,
+        initialDistance: undefined,
+        // slowdown
+        slowdownInterval: undefined,
+        slowdownIntervalStep: 0,
+        slowdownNextTs: undefined,
+        // constants
+        draggingStartTimeout: 100,
+        slowdownAnalyzeMillis: 100,
+        slowdownSteps: 25,
+        slowdownCoef: 0,
+        slowdownIntervalMillis: 20,
+        moveSecPerScreen: 2
+    };
+    this.move.slowdownCoef = Math.pow(0.05, 1 / this.move.slowdownSteps);
 
     this.zoom = {
         active: false,
@@ -279,8 +283,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('touchstart', (function(e) {
         if (e.originalEvent.targetTouches && e.originalEvent.targetTouches.length==2) {
-            this.isDragging = false;
-            this.initialDistance = Math.sqrt((e.originalEvent.targetTouches[0].clientX - e.originalEvent.targetTouches[1].clientX)**2 +
+            this.move.isDragging = false;
+            this.move.initialDistance = Math.sqrt((e.originalEvent.targetTouches[0].clientX - e.originalEvent.targetTouches[1].clientX)**2 +
                 (e.originalEvent.targetTouches[0].clientY - e.originalEvent.targetTouches[1].clientY)**2);
         } else {
             this.onPointerDown(e);
@@ -517,8 +521,8 @@ FChart.prototype.redrawAll = function () {
 
     let gridDraw = false;
     if (this.imgGrid != undefined
-        && (this.isDragging
-            || this.kbdDragging != 0
+        && (this.move.isDragging
+            || this.move.kbdDragging != 0
             || this.pendingMoveRequest != undefined
             || this.zoom.active && this.zoom.anchorCelest
         )
@@ -821,18 +825,18 @@ FChart.prototype.onClick = function(e) {
 
 FChart.prototype.onDblClick = function(e) {
     // mouse down
-    this.isDragging = true;
-    this.pointerX = this.getEventLocation(e).x;
-    this.pointerY = this.getEventLocation(e).y;
+    this.move.isDragging = true;
+    this.move.pointerX = this.getEventLocation(e).x;
+    this.move.pointerY = this.getEventLocation(e).y;
 
     this.setupMovingPos();
 
     // mouse up in the center
     let rect = this.canvas.getBoundingClientRect();
-    this.pointerX = rect.left + this.canvas.width / 2.0;
-    this.pointerY = rect.top + this.canvas.height / 2.0;
+    this.move.pointerX = rect.left + this.canvas.width / 2.0;
+    this.move.pointerY = rect.top + this.canvas.height / 2.0;
     this.syncAladinViewCenter();
-    this.isDragging = false
+    this.move.isDragging = false
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
     let curSkyImg = this.skyImgBuf[this.skyImg.active];
 
@@ -844,16 +848,16 @@ FChart.prototype.onDblClick = function(e) {
 }
 
 FChart.prototype.getDeltaPhiTheta = function(fromKbdMove) {
-    if (this.movingPos != undefined) {
+    if (this.move.movingPos != undefined) {
         let rect = this.canvas.getBoundingClientRect();
         let scale = this.getFChartScale();
-        let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
-        let y = (this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+        let x = (this.move.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+        let y = (this.move.pointerY - rect.top - this.canvas.height / 2.0) / scale;
 
         let movingToPos = this.mirroredPos2Celest(x, y);
 
-        let dPhi = movingToPos.phi - this.movingPos.phi;
-        let dTheta = movingToPos.theta - this.movingPos.theta;
+        let dPhi = movingToPos.phi - this.move.movingPos.phi;
+        let dTheta = movingToPos.theta - this.move.movingPos.theta;
 
         this.setProjectionToViewCenter();
         if (this.viewCenter.theta > 0) {
@@ -891,9 +895,9 @@ FChart.prototype.getDeltaPhiTheta = function(fromKbdMove) {
 FChart.prototype.setupMovingPos = function () {
     let rect = this.canvas.getBoundingClientRect();
     let scale = this.getFChartScale();
-    let x = (this.pointerX - rect.left - this.canvas.width / 2.0) / scale;
-    let y = (this.pointerY - rect.top - this.canvas.height / 2.0) / scale;
-    this.movingPos = this.mirroredPos2Celest(x, y);
+    let x = (this.move.pointerX - rect.left - this.canvas.width / 2.0) / scale;
+    let y = (this.move.pointerY - rect.top - this.canvas.height / 2.0) / scale;
+    this.move.movingPos = this.mirroredPos2Celest(x, y);
 }
 
 FChart.prototype.onMouseDown = function(e) {
@@ -902,26 +906,26 @@ FChart.prototype.onMouseDown = function(e) {
 }
 
 FChart.prototype.onPointerDown = function(e) {
-    if (this.kbdDragging == 0) {
-        this.isDragging = true;
-        this.draggingStart = true;
-        this.pointerX = this.getEventLocation(e).x;
-        this.pointerY = this.getEventLocation(e).y;
+    if (this.move.kbdDragging == 0) {
+        this.move.isDragging = true;
+        this.move.draggingStart = true;
+        this.move.pointerX = this.getEventLocation(e).x;
+        this.move.pointerY = this.getEventLocation(e).y;
 
         this.setupMovingPos();
     }
 }
 
 FChart.prototype.onPointerUp = function(e) {
-    if (this.isDragging) {
-        this.pointerX = this.getEventLocation(e).x;
-        this.pointerY = this.getEventLocation(e).y;
+    if (this.move.isDragging) {
+        this.move.pointerX = this.getEventLocation(e).x;
+        this.move.pointerY = this.getEventLocation(e).y;
         this.syncAladinViewCenter();
-        this.isDragging = false
-        if (!this.draggingStart) { // there was some mouse movement
+        this.move.isDragging = false
+        if (!this.move.draggingStart) { // there was some mouse movement
             this.renderOnTimeOutFromPointerMove(true);
         } else {
-            this.draggingStart = false
+            this.move.draggingStart = false
         }
     }
 }
@@ -961,20 +965,20 @@ FChart.prototype.onKeyDown = function (e) {
 }
 
 FChart.prototype.onKeyUp = function (e) {
-    if (e.keyCode == this.kbdDragging) {
+    if (e.keyCode == this.move.kbdDragging) {
         this.movingKeyUp();
     }
 }
 
 FChart.prototype.movingKeyUp = function () {
-    if (this.kbdDragging != 0) {
-        if (this.moveInterval != undefined) {
-            clearInterval(this.moveInterval);
-            this.moveInterval = undefined;
+    if (this.move.kbdDragging != 0) {
+        if (this.move.interval != undefined) {
+            clearInterval(this.move.interval);
+            this.move.interval = undefined;
         }
         this.renderOnTimeOutFromPointerMove(true);
-        this.kbdDragging = 0;
-        this.draggingStart = false
+        this.move.kbdDragging = 0;
+        this.move.draggingStart = false
     }
 }
 
@@ -1010,7 +1014,7 @@ FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
 }
 
 FChart.prototype.moveCenter = function(fromKbdMove) {
-    if (this.movingPos != undefined) {
+    if (this.move.movingPos != undefined) {
         let dPT = this.getDeltaPhiTheta(fromKbdMove);
         this.setViewCenter(this.viewCenter.phi-dPT.dPhi, this.viewCenter.theta-dPT.dTheta)
         this.setupMovingPos();
@@ -1026,9 +1030,9 @@ FChart.prototype.onPointerMove = function (e) {
         this.canvas.style.cursor = "default"
     }
 
-    if (this.isDragging) {
-        this.pointerX = this.getEventLocation(e).x;
-        this.pointerY = this.getEventLocation(e).y;
+    if (this.move.isDragging) {
+        this.move.pointerX = this.getEventLocation(e).x;
+        this.move.pointerY = this.getEventLocation(e).y;
         this.doDraggingMove(false);
         this.recordMovePos();
     }
@@ -1036,23 +1040,23 @@ FChart.prototype.onPointerMove = function (e) {
 
 FChart.prototype.recordMovePos = function (e) {
     let ts = Date.now();
-    this.moveTrack.push([ts, this.pointerX, this.pointerY]);
+    this.move.track.push([ts, this.move.pointerX, this.move.pointerY]);
     this.reduceMoveTrack(ts);
 }
 
 FChart.prototype.reduceMoveTrack = function (ts) {
     let reduced = false;
-    for (let i=0; i<this.moveTrack.length; i++) {
-        if (this.moveTrack[i][0] >= ts-this.SLOWDOWN_ANALYZE_MILLIS) {
+    for (let i=0; i<this.move.track.length; i++) {
+        if (this.move.track[i][0] >= ts-this.move.slowdownAnalyzeMillis) {
             if (i>0) {
-                this.moveTrack = this.moveTrack.splice(i);
+                this.move.track = this.move.track.splice(i);
             }
             reduced = true;
             break;
         }
     }
     if (!reduced) {
-        this.moveTrack = [];
+        this.move.track = [];
     }
 }
 
@@ -1071,22 +1075,22 @@ FChart.prototype.doDraggingMove = function (isPointerUp) {
 
 FChart.prototype.onTouchMove = function (e) {
     e.preventDefault();
-    if (this.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
+    if (this.move.initialDistance != undefined && e.originalEvent.touches && e.originalEvent.touches.length==2) {
         let distance = Math.sqrt((e.originalEvent.touches[0].clientX - e.originalEvent.touches[1].clientX)**2 +
             (e.originalEvent.touches[0].clientY - e.originalEvent.touches[1].clientY) **2);
-        if (distance > this.initialDistance) {
-            let zoomAmount = distance / this.initialDistance;
+        if (distance > this.move.initialDistance) {
+            let zoomAmount = distance / this.move.initialDistance;
             if (zoomAmount > 1.15) {
                 this.zoom.ease = 'linear';
                 this.adjustZoom(-1);
-                this.initialDistance = distance;
+                this.move.initialDistance = distance;
             }
         } else {
-            let zoomAmount = this.initialDistance / distance;
+            let zoomAmount = this.move.initialDistance / distance;
             if (zoomAmount > 1.15) {
                 this.zoom.ease = 'linear';
                 this.adjustZoom(1);
-                this.initialDistance = distance;
+                this.move.initialDistance = distance;
             }
         }
     } else {
@@ -1095,33 +1099,33 @@ FChart.prototype.onTouchMove = function (e) {
 }
 
 FChart.prototype.onTouchEnd = function (e) {
-    if (this.initialDistance != null) {
-        this.initialDistance = undefined;
+    if (this.move.initialDistance != null) {
+        this.move.initialDistance = undefined;
     } else {
-        let wasDragging = this.isDragging;
+        let wasDragging = this.move.isDragging;
         this.onPointerUp(e);
-        if (wasDragging && this.moveTrack.length >= 2) {
+        if (wasDragging && this.move.track.length >= 2) {
             this.setupSlowDown();
         }
     }
 }
 
 FChart.prototype.setupSlowDown = function (e) {
-    let len = this.moveTrack.length;
+    let len = this.move.track.length;
     let now = Date.now();
-    if (len > 1 && this.moveTrack[len - 1][0] > now-50) {
-        let tmDiff = this.moveTrack[len - 1][0] - this.moveTrack[0][0];
+    if (len > 1 && this.move.track[len - 1][0] > now-50) {
+        let tmDiff = this.move.track[len - 1][0] - this.move.track[0][0];
         if (tmDiff > 0) {
-            this.moveSpeedX = (this.moveTrack[len - 1][1] - this.moveTrack[0][1]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
-            this.moveSpeedY = (this.moveTrack[len - 1][2] - this.moveTrack[0][2]) / tmDiff * this.SLOWDOWN_INTERVAL_MILLIS;
-            if (Math.abs(this.moveSpeedX) > 5 || Math.abs(this.moveSpeedY) > 5) {
-                this.slowdownIntervalStep = 0;
-                this.slowdownNextTs = Date.now() + 2*this.SLOWDOWN_INTERVAL_MILLIS;
+            this.move.speedX = (this.move.track[len - 1][1] - this.move.track[0][1]) / tmDiff * this.move.slowdownIntervalMillis;
+            this.move.speedY = (this.move.track[len - 1][2] - this.move.track[0][2]) / tmDiff * this.move.slowdownIntervalMillis;
+            if (Math.abs(this.move.speedX) > 5 || Math.abs(this.move.speedY) > 5) {
+                this.move.slowdownIntervalStep = 0;
+                this.move.slowdownNextTs = Date.now() + 2*this.move.slowdownIntervalMillis;
                 let t = this;
-                if (this.slowdownInterval != undefined) {
-                    clearInterval(this.slowdownInterval);
+                if (this.move.slowdownInterval != undefined) {
+                    clearInterval(this.move.slowdownInterval);
                 }
-                this.slowdownInterval = setInterval(function () {
+                this.move.slowdownInterval = setInterval(function () {
                     t.slowDownFunc();
                 }, 20);
             }
@@ -1131,19 +1135,19 @@ FChart.prototype.setupSlowDown = function (e) {
 
 FChart.prototype.slowDownFunc = function (e) {
     let now = Date.now();
-    while (this.slowdownIntervalStep < this.SLOWDOWN_STEPS && this.slowdownNextTs < now) {
+    while (this.move.slowdownIntervalStep < this.move.slowdownSteps && this.move.slowdownNextTs < now) {
 
-        this.moveSpeedX *= this.SLOWDOWN_COEF;
-        this.moveSpeedY *= this.SLOWDOWN_COEF;
-        this.pointerX += this.moveSpeedX;
-        this.pointerY += this.moveSpeedY;
-        this.slowdownIntervalStep ++;
-        this.slowdownNextTs += this.SLOWDOWN_INTERVAL_MILLIS;
+        this.move.speedX *= this.move.slowdownCoef;
+        this.move.speedY *= this.move.slowdownCoef;
+        this.move.pointerX += this.move.speedX;
+        this.move.pointerY += this.move.speedY;
+        this.move.slowdownIntervalStep ++;
+        this.move.slowdownNextTs += this.move.slowdownIntervalMillis;
     }
-    if (this.slowdownIntervalStep >= this.SLOWDOWN_STEPS) {
+    if (this.move.slowdownIntervalStep >= this.move.slowdownSteps) {
         this.doDraggingMove(true);
-        clearInterval(this.slowdownInterval);
-        this.slowdownInterval = undefined;
+        clearInterval(this.move.slowdownInterval);
+        this.move.slowdownInterval = undefined;
     } else {
         this.doDraggingMove(false);
     }
@@ -1160,12 +1164,12 @@ FChart.prototype.moveViewCenterByAng = function(dAng, multX, multY) {
 
     let scale = this.getFChartScale();
     let rect = this.canvas.getBoundingClientRect();
-    this.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
-    this.pointerY = rect.top + this.pointerYFac * this.canvas.height + movedPointer.Y * scale;
+    this.move.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
+    this.move.pointerY = rect.top + this.move.pointerYFac * this.canvas.height + movedPointer.Y * scale;
 }
 
 FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
-    if (!this.isDragging && this.kbdDragging == 0) {
+    if (!this.move.isDragging && this.move.kbdDragging == 0) {
         this.setMovingPosToCenter();
 
         let fldPixSize = Math.sqrt(this.canvas.width**2 + this.canvas.height**2);
@@ -1187,32 +1191,32 @@ FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
         if (this.imgGrid != undefined) {
             this.drawImgGrid(curSkyImg);
         }
-        this.kbdDragging = keycode;
+        this.move.kbdDragging = keycode;
         this.ctx.drawImage(curLegendImg, 0, 0);
         this.renderOnTimeOutFromPointerMove(false);
-        this.kbdDragging = 0;
+        this.move.kbdDragging = 0;
     }
 }
 
 FChart.prototype.kbdMove = function(keyCode, mx, my) {
-    if (!this.isDragging) {
-        if (this.kbdDragging == 0) {
-            this.draggingStart = true;
-            this.kbdDragging = keyCode;
-            this.kbdMoveDX = mx;
-            this.kbdMoveDY = my;
+    if (!this.move.isDragging) {
+        if (this.move.kbdDragging == 0) {
+            this.move.draggingStart = true;
+            this.move.kbdDragging = keyCode;
+            this.move.kbdDX = mx;
+            this.move.kbdDY = my;
             this.setMovingPosToCenter();
             this.lastSmoothMoveTime = performance.now();
             this.kbdSmoothMove();
             let t = this;
-            this.moveInterval = setInterval(function(){ t.kbdSmoothMove(); }, 20);
+            this.move.interval = setInterval(function(){ t.kbdSmoothMove(); }, 20);
             return true;
-        } if (this.kbdDragging != keyCode) {
-            this.kbdDragging = keyCode;
-            this.kbdMoveDX = mx;
-            this.kbdMoveDY = my;
+        } if (this.move.kbdDragging != keyCode) {
+            this.move.kbdDragging = keyCode;
+            this.move.kbdDX = mx;
+            this.move.kbdDY = my;
             return true;
-        } if (this.kbdDragging == keyCode) {
+        } if (this.move.kbdDragging == keyCode) {
             return true;
         }
     }
@@ -1221,27 +1225,27 @@ FChart.prototype.kbdMove = function(keyCode, mx, my) {
 
 FChart.prototype.setMovingPosToCenter = function() {
     let rect = this.canvas.getBoundingClientRect();
-    this.pointerX = rect.left + this.canvas.width / 2.0;
-    if (this.kbdDragging != null && this.kbdMoveDY != 0) {
-        this.pointerYFac = 0.5;
+    this.move.pointerX = rect.left + this.canvas.width / 2.0;
+    if (this.move.kbdDragging != null && this.move.kbdDY != 0) {
+        this.move.pointerYFac = 0.5;
         let scale = this.getFChartScale();
-        if (this.kbdMoveDY * this.multTheta > 0) {
+        if (this.move.kbdDY * this.multTheta > 0) {
             let polePos = this.projection.project(0, 90.0);
             if (polePos.Y * scale > -0.25 * this.canvas.height) {
-                this.pointerYFac = 0.1;
+                this.move.pointerYFac = 0.1;
             }
         } else {
             let polePos = this.projection.project(0, -90.0);
             if (polePos.Y * scale < 0.25 * this.canvas.height) {
-                this.pointerYFac = 0.9;
+                this.move.pointerYFac = 0.9;
             }
         }
-        this.pointerY = rect.top + this.pointerYFac * this.canvas.height;
+        this.move.pointerY = rect.top + this.move.pointerYFac * this.canvas.height;
         this.setupMovingPos();
     } else {
-        this.pointerYFac = 0.5;
-        this.pointerY = rect.top + this.canvas.height / 2.0;
-        this.movingPos = {
+        this.move.pointerYFac = 0.5;
+        this.move.pointerY = rect.top + this.canvas.height / 2.0;
+        this.move.movingPos = {
             "phi": this.viewCenter.phi,
             "theta": this.viewCenter.theta
         }
@@ -1249,7 +1253,7 @@ FChart.prototype.setMovingPosToCenter = function() {
 }
 
 FChart.prototype.kbdSmoothMove = function() {
-    if (this.kbdDragging != 0) {
+    if (this.move.kbdDragging != 0) {
         let now = performance.now();
         let timeout = now - this.lastSmoothMoveTime;
         if (timeout > 1000) {
@@ -1259,12 +1263,12 @@ FChart.prototype.kbdSmoothMove = function() {
         }
         this.lastSmoothMoveTime = now;
 
-        let dAng = deg2rad(this.imgField) / this.MOVE_SEC_PER_SCREEN / (1000.0 / timeout);
-        if (this.kbdMoveDX != 0) {
+        let dAng = deg2rad(this.imgField) / this.move.moveSecPerScreen / (1000.0 / timeout);
+        if (this.move.kbdDX != 0) {
             dAng = dAng / Math.cos(0.9 * this.viewCenter.theta);
         }
 
-        this.moveViewCenterByAng(dAng, this.kbdMoveDX, this.kbdMoveDY);
+        this.moveViewCenterByAng(dAng, this.move.kbdDX, this.move.kbdDY);
 
         let curLegendImg = this.legendImgBuf[this.legendImg.active];
         let curSkyImg = this.skyImgBuf[this.skyImg.active];
@@ -1281,20 +1285,20 @@ FChart.prototype.kbdSmoothMove = function() {
 }
 
 FChart.prototype.renderOnTimeOutFromPointerMove = function(isPointerUp) {
-    if (!this.pointerMoveTimeout || isPointerUp) {
-        let timeout = this.draggingStart ? this.DRAGGING_START_TIMEOUT : this.FREQ_60_HZ_TIMEOUT/2;
+    if (!this.move.pointerTimeout || isPointerUp) {
+        let timeout = this.move.draggingStart ? this.move.draggingStartTimeout : this.FREQ_60_HZ_TIMEOUT/2;
 
-        this.draggingStart = false;
-        this.pointerMoveTimeout = true;
+        this.move.draggingStart = false;
+        this.move.pointerTimeout = true;
 
         if (isPointerUp) {
             timeout += 10;
         }
 
-        let wasKbdDragging = (this.kbdDragging != 0);
+        let wasKbdDragging = (this.move.kbdDragging != 0);
 
         setTimeout((function() {
-            this.pointerMoveTimeout = false;
+            this.move.pointerTimeout = false;
             if (this.isReloadingImage) {
                 this.pendingMoveRequest = {
                     'wasKbdDragging': wasKbdDragging,
@@ -1426,7 +1430,7 @@ FChart.prototype.easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
 FChart.prototype.linearEase   = function (t) { return t; };
 
 FChart.prototype.adjustZoom = function(zoomAmount) {
-    if (this.isDragging) {
+    if (this.move.isDragging) {
         return false;
     }
 
