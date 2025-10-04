@@ -499,8 +499,8 @@ FChart.prototype.doResize = function() {
 FChart.prototype.redrawAll = function () {
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
     let curSkyImg;
-    if (this.zoomImgActive) {
-        curSkyImg = this.zoomBitmap ?? this.skyImgBuf[this.skyImg.active];
+    if (this.zoomImgActive && this.zoomBitmap) {
+        curSkyImg = this.zoomBitmap;
     } else {
         curSkyImg = this.skyImgBuf[this.skyImg.active];
     }
@@ -1469,17 +1469,12 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             const reqId = ++this.zoomBitmapRequestId;
 
             createImageBitmap(this.zoomBitmap).then(bmp => {
-                if (reqId !== this.zoomBitmapRequestId) {
+                if (reqId != this.zoomBitmapRequestId) {
                     bmp.close?.();
                     return;
                 }
                 if (this.zoomBitmap) {
-                    if (this.zoomBitmap.close) {
-                        try {
-                            this.zoomBitmap.close();
-                        } catch {
-                        }
-                    }
+                    this.closeZoomBitmap();
                     this.zoomBitmap = bmp;
                 }
             });
@@ -1503,6 +1498,18 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             this.onFieldChangeCallback.call(this, this.fldSizeIndex);
         }
         return true;
+    }
+}
+
+FChart.prototype.closeZoomBitmap = function () {
+    if (this.zoomBitmap) {
+        if (this.zoomBitmap.close) {
+            try {
+                this.zoomBitmap.close();
+            } catch {
+            }
+        }
+        this.zoomBitmap = null;
     }
 }
 
