@@ -190,6 +190,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.fullscreenWrapper = undefined;
     this.fullScreenWrapperId = fullScreenWrapperId;
 
+    this.disableReloadImg = false;
+
     this.move = {
         interval: undefined,
         isDragging: false,
@@ -581,6 +583,10 @@ FChart.prototype.reloadLegendImage = function () {
 }
 
 FChart.prototype.reloadImage = function() {
+    if (this.disableReloadImg) {
+        return;
+    }
+
     if (!this.isReloadingImage) {
         this.isReloadingImage = true;
         this.doReloadImage(false);
@@ -590,6 +596,10 @@ FChart.prototype.reloadImage = function() {
 }
 
 FChart.prototype.forceReloadImage = function() {
+    if (this.disableReloadImg) {
+        return;
+    }
+
     this.isReloadingImage = true;
     this.doReloadImage(true);
 }
@@ -611,19 +621,24 @@ FChart.prototype.doReloadImage = function(forceReload) {
     $.getJSON(url, {
         json : true
     }, function(data) {
-        if (currRequestId == this.imgLoadRequestId) {
-            const img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
-            this.selectableRegions = data.img_map;
-            this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
-            this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
-            let queryParams = new URLSearchParams(window.location.search);
-            this.setViewCenterToQueryParams(queryParams, cent);
-            this.setCenterToHiddenInputs(cent);
-            queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
-            history.replaceState(null, null, "?" + queryParams.toString());
-            if (this.useCurrentTime && this.onChartTimeChangedCallback) {
-                this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
+        try {
+            this.disableReloadImg = true;
+            if (currRequestId == this.imgLoadRequestId) {
+                const img_format = (data.hasOwnProperty('img_format')) ? data.img_format : 'png';
+                this.selectableRegions = data.img_map;
+                this.activateImageOnLoad(cent.phi, cent.theta, reqFldSizeIndex, forceReload);
+                this.skyImgBuf[this.skyImg.background].src = 'data:image/' + img_format + ';base64,' + data.img;
+                let queryParams = new URLSearchParams(window.location.search);
+                this.setViewCenterToQueryParams(queryParams, cent);
+                this.setCenterToHiddenInputs(cent);
+                queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
+                history.replaceState(null, null, "?" + queryParams.toString());
+                if (this.useCurrentTime && this.onChartTimeChangedCallback) {
+                    this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
+                }
             }
+        } finally {
+            this.disableReloadImg = false;
         }
     }.bind(this));
 }
