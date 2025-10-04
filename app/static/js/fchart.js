@@ -241,12 +241,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         ending: false,
         ease: null,
         // constants
-        intervalMs: 300,
+        timeoutMs: 300,
         maxSteps: 20,
         stepTimeout: 0,
     };
     
-    this.zoom.stepTimeout = this.zoom.intervalMs / this.zoom.maxSteps;
+    this.zoom.stepTimeout = this.zoom.timeoutMs / this.zoom.maxSteps;
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -483,9 +483,7 @@ FChart.prototype.adjustCanvasSizeWH = function(computedWidth, computedHeight) {
 FChart.prototype.onResize = function() {
     if (!this.isResizing) {
         this.isResizing = true;
-        setTimeout((function() {
-            this.doResize();
-        }).bind(this), 100);
+        setTimeout(() => this.doResize(), 100);
     } else {
         this.isNextResizeEvnt = true;
     }
@@ -500,9 +498,7 @@ FChart.prototype.doResize = function() {
         this.syncAladinDivSize();
     } else {
         this.isNextResizeEvnt = false;
-        setTimeout((function() {
-            this.doResize();
-        }).bind(this), 100);
+        setTimeout(() => this.doResize(), 100);
     }
 }
 
@@ -668,7 +664,7 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setViewCenter(centerPhi, centerTheta);
         this.setupImgGrid(centerPhi, centerTheta);
-        if (this.zoom.interval === undefined) {
+        if (!this.zoom.active) {
             if (this.zoom.ending) {
                 this.zoom.ending = false;
                 this.zoom.imgField = this.imgField;
@@ -944,13 +940,13 @@ FChart.prototype.onKeyDown = function (e) {
     }
 
     if (e.keyCode == 33) {
-        if (this.zoom.interval === undefined) {
+        if (!this.zoom.active) {
             this.zoom.ease = 'linear';
             this.adjustZoom(1);
         }
         e.preventDefault();
     } else if (e.keyCode == 34) {
-        if (this.zoom.interval === undefined) {
+        if (!this.zoom.active) {
             this.zoom.ease = 'linear';
             this.adjustZoom(-1);
         }
@@ -1483,16 +1479,18 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
     this.zoom.active = true;
     this.syncAladinZoom(false);
     this.redrawAll();
-    this.setZoomInterval(this.computeZoomTimeout());
+    setTimeout(() => this.zoomFunc(), this.computeZoomTimeout())
     this.zoom.queuedImgs++;
-    setTimeout((function() {
+
+    setTimeout(() => {
         // wait some time to keep order of requests
         this.zoom.queuedImgs--;
-        if (this.zoom.queuedImgs == 0) {
+        if (this.zoom.queuedImgs === 0) {
             // this.reloadLegendImage();
             this.forceReloadImage();
         }
-    }).bind(this), 20);
+    }, 20);
+
     if (this.onFieldChangeCallback  != undefined) {
         this.onFieldChangeCallback.call(this, this.fldSizeIndex);
     }
@@ -1552,16 +1550,6 @@ FChart.prototype.computeZoomTimeout = function () {
     return ret;
 }
 
-FChart.prototype.setZoomInterval = function (zoomTimeout) {
-    if (this.zoom.interval != undefined) {
-        clearInterval(this.zoom.interval);
-    }
-    let t = this;
-    this.zoom.interval = setInterval(function () {
-        t.zoomFunc();
-    }, zoomTimeout);
-}
-
 FChart.prototype.getZoomCenterOverride = function () {
     if (!this.zoom.anchorCelest) {
         return null;
@@ -1590,16 +1578,17 @@ FChart.prototype.zoomFunc = function() {
     if (this.zoom.step < this.zoom.maxSteps) {
         this.syncAladinZoom(false, this.getZoomCenterOverride());
         this.redrawAll();
-        this.setZoomInterval(this.computeZoomTimeout());
+        setTimeout(() => this.zoomFunc(), this.computeZoomTimeout())
     } else {
-        clearInterval(this.zoom.interval);
-        this.zoom.interval = undefined;
+        if (this.zoom.interval) {
+            clearInterval(this.zoom.interval);
+            this.zoom.interval = undefined;
+        }
         this.zoom.active = false;
         this.zoom.startImgField = undefined;
         this.zoom.anchorCelest = null;
         this.zoom.pivot = { dx: 0, dy: 0 };
         this.zoom.baseCenter = null;
-        this.zoom.ease = 'linear';
         this.zoom.bitmap = null;
         this.zoom.scaleFac = 1.0;
         this.zoom.requestCenter = null;
