@@ -940,13 +940,13 @@ FChart.prototype.onKeyDown = function (e) {
     }
 
     if (e.keyCode == 33) {
-        if (!this.zoom.active) {
+        if (!this.zoom.active && !this.zoom.ending) {
             this.zoom.ease = 'linear';
             this.adjustZoom(1);
         }
         e.preventDefault();
     } else if (e.keyCode == 34) {
-        if (!this.zoom.active) {
+        if (!this.zoom.active && !this.zoom.ending) {
             this.zoom.ease = 'linear';
             this.adjustZoom(-1);
         }
