@@ -671,7 +671,6 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         if (this.zoom.interval === undefined) {
             if (this.zoom.ending) {
                 this.zoom.ending = false;
-                this.zoom.imgField = this.imgField;
                 this.syncAladinZoom(true);
                 this.reloadLegendImage();
                 this.redrawAll();
@@ -682,7 +681,6 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
             if (this.zoom.scaleFac == 1.0 || forceReload) {
                 if (this.zoom.scaleFac != 1.0) {
                     this.zoom.scaleFac = 1.0;
-                    this.zoom.imgField = this.imgField;
                     this.syncAladinZoom(true);
                 }
                 this.redrawAll();
@@ -1442,10 +1440,14 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         return false;
     }
 
+    const wasActive = this.zoom.active;
+
     this.zoom.startScaleFac = this.zoom.scaleFac;
-    if (this.zoom.startImgField === undefined) {
+
+    if (!wasActive) {
         this.zoom.startImgField = this.imgField;
         this.zoom.imgField = this.imgField;
+        this.zoom.imgGrid = this.imgGrid;
     }
 
     let imgFieldSize = this.projectAngle2Screen(deg2rad(this.zoom.startImgField) / 2);
@@ -1459,7 +1461,8 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
     this.zoom.step = 0;
     this.zoom.nextZoomTime = performance.now();
     this.nextScaleFac();
-    if (!this.zoom.active) {
+
+    if (!wasActive) {
         this.zoom.bitmap = this.skyImgBuf[this.skyImg.active];
         const reqId = ++this.zoom.bitmapRequestId;
 
@@ -1475,7 +1478,6 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         });
     }
 
-    this.zoom.imgGrid = this.imgGrid;
     this.zoom.active = true;
     this.syncAladinZoom(false);
     this.redrawAll();
