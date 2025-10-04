@@ -661,17 +661,10 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         if (this.zoomInterval === undefined) {
             if (this.zoomEnding) {
                 this.zoomEnding = false;
-
-                this.zoomImgActive = false;
-                this.scaleFac = 1.0;
                 this.zoomImgField = this.imgField;
-                this.requestCenter = null;
-                this.zoomImgGrid = null;
-
                 this.syncAladinZoom(true);
                 this.reloadLegendImage();
                 this.redrawAll();
-
                 this.isReloadingImage = false;
                 return;
             }
@@ -1581,27 +1574,27 @@ FChart.prototype.zoomFunc = function() {
         this.redrawAll();
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
-        if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
-            this.zoomEnding = true;
-        } else {
-            this.zoomImgActive = false;
-            this.scaleFac = 1.0;
-            this.zoomImgField = this.imgField;
-            this.requestCenter = null;
-            this.zoomImgGrid = null;
-            this.syncAladinZoom(true);
-            this.reloadLegendImage();
-            this.redrawAll();
-        }
         clearInterval(this.zoomInterval);
         this.zoomInterval = undefined;
+        this.zoomImgActive = false;
         this.zoomStartImgField = undefined;
         this.zoomAnchorCelest = null;
         this.zoomPivot = { dx: 0, dy: 0 };
         this.zoomBaseCenter = null;
         this.zoomEase = 'linear';
         this.zoomBitmap = null;
-        this.zoomBitmapRequestId++;
+        this.scaleFac = 1.0;
+        this.requestCenter = null;
+        this.zoomImgGrid = null;
+
+        if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
+            this.zoomEnding = true;
+        } else {
+            this.zoomImgField = this.imgField;
+            this.syncAladinZoom(true);
+            this.reloadLegendImage();
+            this.redrawAll();
+        }
     }
 }
 
