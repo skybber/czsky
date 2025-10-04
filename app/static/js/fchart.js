@@ -659,17 +659,23 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.setViewCenter(centerPhi, centerTheta);
         this.setupImgGrid(centerPhi, centerTheta);
         if (this.zoomInterval === undefined) {
-            this.requestCenter = null;
             if (this.zoomEnding) {
                 this.zoomEnding = false;
+
                 this.zoomImgActive = false;
+                this.scaleFac = 1.0;
+                this.zoomImgField = this.imgField;
+                this.requestCenter = null;
                 this.zoomImgGrid = null;
-                if (this.scaleFac != 1.0) {
-                    this.scaleFac = 1.0;
-                    this.zoomImgField = this.imgField;
-                    this.syncAladinZoom(true);
-                }
+
+                this.syncAladinZoom(true);
+                this.reloadLegendImage();
+                this.redrawAll();
+
+                this.isReloadingImage = false;
+                return;
             }
+
             if (this.scaleFac == 1.0 || forceReload) {
                 if (this.scaleFac != 1.0) {
                     this.scaleFac = 1.0;
@@ -1490,7 +1496,7 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
             // wait some time to keep order of requests
             this.zoomQueuedImgs--;
             if (this.zoomQueuedImgs == 0) {
-                this.reloadLegendImage();
+                // this.reloadLegendImage();
                 this.forceReloadImage();
             }
         }).bind(this), 20);
@@ -1576,8 +1582,6 @@ FChart.prototype.zoomFunc = function() {
         this.setZoomInterval(this.computeZoomTimeout());
     } else {
         if (this.zoomQueuedImgs > 0 || this.isReloadingImage) {
-            // this.syncAladinZoom(true);
-            // this.redrawAll();
             this.zoomEnding = true;
         } else {
             this.zoomImgActive = false;
@@ -1586,6 +1590,7 @@ FChart.prototype.zoomFunc = function() {
             this.requestCenter = null;
             this.zoomImgGrid = null;
             this.syncAladinZoom(true);
+            this.reloadLegendImage();
             this.redrawAll();
         }
         clearInterval(this.zoomInterval);
