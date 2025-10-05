@@ -144,7 +144,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isResizing = false;
     this.isNextResizeEvnt = false;
 
-    this.GRID_SIZE = 7;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
     this.URL_ANG_PRECISION = 9;
@@ -247,8 +246,16 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         maxSteps: 20,
         stepTimeout: 0,
     };
-    
+
     this.zoom.stepTimeout = this.zoom.timeoutMs / this.zoom.maxSteps;
+
+    this.gridSize = this.guessGridSize();
+    this.perf = {
+        gridMsEMA: null,
+        lastAdjustTs: 0,
+        framesAbove: 0,
+        framesBelow: 0
+    };
 
     if (this.aladin != null) {
         if (theme == 'light') {
@@ -381,6 +388,23 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     // });
 
 }
+
+FChart.prototype.guessGridSize = function () {
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem   = navigator.deviceMemory || 4;
+
+  let base =
+    (cores >= 16) ? 12 :
+    (cores >= 12) ? 10 :
+    (cores >= 8)  ? 9  :
+    (cores >= 6)  ? 7  :
+    (cores >= 4)  ? 6  : 5;
+
+  if (mem <= 4) base = Math.max(5, base - 1);
+  if (mem >= 12) base = Math.min(12, base + 0);
+
+  return Math.max(5, Math.min(12, base));
+};
 
 FChart.prototype.setViewCenter = function (phi, theta) {
     if (phi > Math.PI*2) {
@@ -678,7 +702,7 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
         this.imgFldSizeIndex = reqFldSizeIndex;
         this.imgField = this.fieldSizes[this.imgFldSizeIndex];
         this.setViewCenter(centerPhi, centerTheta);
-        this.setupImgGrid(centerPhi, centerTheta);
+        this.imgGrid = this.createImgGrid(centerPhi, centerTheta);
         if (!this.zoom.active) {
             if (this.zoom.ending) {
                 this.zoom.ending = false;
@@ -740,26 +764,29 @@ FChart.prototype.unprojectAtCenter = function(centerPhi, centerTheta, x, y) {
     return pos; // {phi, theta}
 };
 
-FChart.prototype.setupImgGrid = function(centerPhi, centerTheta) {
-    const dx = this.canvas.width / this.GRID_SIZE;
-    const dy = this.canvas.height / this.GRID_SIZE;
-    const scale = this.getFChartScale();
+FChart.prototype.createImgGrid = function(centerPhi, centerTheta, scale = null) {
+    const dx = this.canvas.width / this.gridSize;
+    const dy = this.canvas.height / this.gridSize;
+    if (!scale) {
+        scale = this.getFChartScale();
+    }
     let screenY = 0;
-    this.imgGrid = [];
+    let result = { centerPhi: centerPhi, centerTheta: centerTheta, scale: scale, grid: []};
     this.setProjectionCenter(centerPhi, centerTheta);
-    for (let i=0; i <= this.GRID_SIZE; i++) {
+    for (let i=0; i <= this.gridSize; i++) {
         let screenX = 0;
         let y = (screenY - this.canvas.height / 2.0) / scale;
-        for (let j=0; j <= this.GRID_SIZE; j++) {
+        for (let j=0; j <= this.gridSize; j++) {
             let x = (screenX - this.canvas.width / 2.0) / scale;
 
             let pt = this.mirroredPos2CelestK(x, y);
-            this.imgGrid.push([pt.phi, pt.theta, pt.k]);
+            result.grid.push([pt.phi, pt.theta, pt.k]);
             screenX += dx;
         }
         screenY += dy;
     }
     this.setProjectionToViewCenter();
+    return result;
 }
 
 FChart.prototype.getEventLocation = function(e) {
@@ -1374,6 +1401,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
         return false;
     }
 
+    const t0 = performance.now();
+
     this.ctx.fillStyle = this.getThemeColor();
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -1390,10 +1419,10 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
 
     this.setProjectionCenter(centerPhi, centerTheta);
 
-    for (let i=0; i < (this.GRID_SIZE+1)**2 ; i++) {
-        let pos = this.projection.project(rad2deg(curImgGrid[i][0]), rad2deg(curImgGrid[i][1]));
+    for (let i=0; i < (this.gridSize+1)**2 ; i++) {
+        let pos = this.projection.project(rad2deg(curImgGrid.grid[i][0]), rad2deg(curImgGrid.grid[i][1]));
         if (pos != null) {
-            let k = curImgGrid[i][2];
+            let k = curImgGrid.grid[i][2];
             const X = this.multPhi * pos.X * scale / k;
             const Y = this.multTheta * pos.Y * scale / k;
             screenImgGrid.push([X + w2, Y + h2]);} else {
@@ -1402,8 +1431,8 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
     }
     this.setProjectionCenter(this.viewCenter.phi, this.viewCenter.theta);
     let imgY = 0;
-    let dimgX = curSkyImg.width / this.GRID_SIZE;
-    let dimgY = curSkyImg.height / this.GRID_SIZE;
+    let dimgX = curSkyImg.width / this.gridSize;
+    let dimgY = curSkyImg.height / this.gridSize;
 
     if (this.aladin != null && this.showAladin) {
         this.ctx.drawImage(this.aladin.view.imageCanvas,
@@ -1411,13 +1440,13 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
             0, 0, this.canvas.width, this.canvas.height);
     }
 
-    for (let j=0; j < this.GRID_SIZE; j++) {
+    for (let j=0; j < this.gridSize; j++) {
         let imgX = 0;
-        for (let i=0; i < this.GRID_SIZE; i++) {
-            let p1 = screenImgGrid[i + j * (this.GRID_SIZE + 1)];
-            let p2 = screenImgGrid[i + 1 + j * (this.GRID_SIZE + 1)];
-            let p3 = screenImgGrid[i + (j  + 1) * (this.GRID_SIZE + 1)];
-            let p4 = screenImgGrid[i + 1 + (j  + 1) * (this.GRID_SIZE + 1)];
+        for (let i=0; i < this.gridSize; i++) {
+            let p1 = screenImgGrid[i + j * (this.gridSize + 1)];
+            let p2 = screenImgGrid[i + 1 + j * (this.gridSize + 1)];
+            let p3 = screenImgGrid[i + (j  + 1) * (this.gridSize + 1)];
+            let p4 = screenImgGrid[i + 1 + (j  + 1) * (this.gridSize + 1)];
             let c1 = this.cohenSutherlandEnc(p1, curSkyImg);
             let c2 = this.cohenSutherlandEnc(p2, curSkyImg);
             let c3 = this.cohenSutherlandEnc(p3, curSkyImg);
@@ -1453,8 +1482,53 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
         }
         imgY += dimgY;
     }
+
+    this.maybeAutoAdjustGrid(performance.now() - t0);
+
     return true;
 }
+
+FChart.prototype.maybeAutoAdjustGrid = function (lastMs) {
+    const alpha = 0.25;
+    this.perf.gridMsEMA = (this.perf.gridMsEMA == null)
+        ? lastMs
+        : (this.perf.gridMsEMA * (1 - alpha) + lastMs * alpha);
+
+    const now = performance.now();
+    if (now - this.perf.lastAdjustTs < 400) return;
+
+    const HIGH = 9.0;
+    const LOW = 4.0;
+
+    if (this.perf.gridMsEMA > HIGH) {
+        this.perf.framesAbove++;
+        this.perf.framesBelow = Math.max(0, this.perf.framesBelow - 1);
+        if (this.perf.framesAbove >= 3 && this.gridSize > 5) {
+            this.gridSize--;
+            this.imgGrid = this.createImgGrid(this.imgGrid.centerPhi, this.imgGrid.centerTheta);
+            if (this.zoom.imgGrid) {
+                this.zoom.imgGrid = this.createImgGrid(this.zoom.imgGrid.centerPhi, this.zoom.imgGrid.centerTheta, this.zoom.imgGrid.scale);
+            }
+            this.perf.lastAdjustTs = now;
+            this.perf.framesAbove = 0;
+        }
+    } else if (this.perf.gridMsEMA < LOW) {
+        this.perf.framesBelow++;
+        this.perf.framesAbove = Math.max(0, this.perf.framesAbove - 1);
+        if (this.perf.framesBelow >= 6 && this.gridSize < 12) {
+            this.gridSize++;
+            this.imgGrid = this.createImgGrid(this.imgGrid.centerPhi, this.imgGrid.centerTheta);
+            if (this.zoom.imgGrid) {
+                this.zoom.imgGrid = this.createImgGrid(this.zoom.imgGrid.centerPhi, this.zoom.imgGrid.centerTheta, this.zoom.imgGrid.scale);
+            }
+            this.perf.lastAdjustTs = now;
+            this.perf.framesBelow = 0;
+        }
+    } else {
+        this.perf.framesAbove = 0;
+        this.perf.framesBelow = 0;
+    }
+};
 
 FChart.prototype.easeOutCubic = function (t) { return 1 - Math.pow(1 - t, 3); };
 FChart.prototype.linearEase   = function (t) { return t; };
