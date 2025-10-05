@@ -144,7 +144,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.isResizing = false;
     this.isNextResizeEvnt = false;
 
-    this.GRID_SIZE = 10;
+    this.GRID_SIZE = 7;
     this.FREQ_60_HZ_TIMEOUT = 16.67;
     this.MIN_POLE_ANG_DIST = Math.PI/60/180;
     this.URL_ANG_PRECISION = 9;
@@ -1494,9 +1494,10 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
     this.zoom.active = true;
     this.syncAladinZoom(false);
     this.redrawAll();
+    this.ctx.imageSmoothingEnabled = true;
     setTimeout(() => this.zoomFunc(), this.computeZoomTimeout())
-    this.zoom.queuedImgs++;
 
+    this.zoom.queuedImgs++;
     setTimeout(() => {
         // wait some time to keep order of requests
         this.zoom.queuedImgs--;
@@ -1551,6 +1552,7 @@ FChart.prototype.computeZoomTimeout = function () {
         this.nextScaleFac();
         diff = diff - this.zoom.stepTimeout;
         skipped = true;
+        this.ctx.imageSmoothingEnabled = false;
     }
     let ret;
     if (this.zoom.step == this.zoom.maxSteps || skipped) {
@@ -1608,6 +1610,7 @@ FChart.prototype.zoomFunc = function() {
         this.zoom.scaleFac = 1.0;
         this.zoom.requestCenter = null;
         this.zoom.imgGrid = null;
+        this.ctx.imageSmoothingEnabled = true;
 
         if (this.zoom.queuedImgs > 0 || this.isReloadingImage) {
             this.zoom.ending = true;
