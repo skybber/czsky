@@ -15,6 +15,7 @@ from .chart_theme import ChartTheme
 class Permission:
     GENERAL = 0x01
     EDIT_COMMON_CONTENT = 0x10
+    MONITOR = 0x20
     ADMINISTER = 0xff
 
 
@@ -99,6 +100,9 @@ class User(UserMixin, db.Model):
 
     def is_editor(self):
         return self.can(Permission.EDIT_COMMON_CONTENT)
+
+    def is_monitor(self):
+        return self.can(Permission.MONITOR)
 
     @property
     def password(self):

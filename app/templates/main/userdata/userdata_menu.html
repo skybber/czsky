@@ -30,6 +30,10 @@
                     {{ dash.dashboard_option(_('News list'), 'main_news.news_list',
                                         description=_('Show all news'), icon='rss icon') }}
                 {% endif %}
+                {% if can_view_system %}
+                    {{ dash.dashboard_option(_('System view'), 'main_system.htop',
+                                        description=_('Show system'), icon='computer icon') }}
+                {% endif %}
             </div>
         </div>
     </div>

@@ -24,7 +24,8 @@ main_userdata = Blueprint('main_userdata', __name__)
 @login_required
 def userdata_menu():
     can_edit_news = current_user.is_editor()
-    return render_template('main/userdata/userdata_menu.html', can_edit_news=can_edit_news)
+    can_view_system = current_user.is_monitor()
+    return render_template('main/userdata/userdata_menu.html', can_edit_news=can_edit_news, can_view_system=can_view_system)
 
 
 @main_userdata.route('/data-store-personal', methods=['GET'])
