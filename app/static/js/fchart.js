@@ -1011,9 +1011,28 @@ FChart.prototype.syncAladinViewCenter = function () {
     }
 }
 
+FChart.prototype.angSepRad = function (a, b) {
+  const dphi = a.phi - b.phi;
+  return Math.acos(
+    Math.sin(a.theta) * Math.sin(b.theta) +
+    Math.cos(a.theta) * Math.cos(b.theta) * Math.cos(dphi)
+  );
+};
+
 FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
     if (this.aladin != null && this.showAladin) {
-        this.aladin.setFoV(this.zoom.imgField / this.zoom.scaleFac);
+        let scale = 1.0;
+        if (this.zoom.active) {
+            const scale = this.getFChartScaleForFoV(this.zoom.imgField) * this.zoom.scaleFac;
+            const ov = centerOverride || this.getZoomCenterOverride() || this.viewCenter;
+            const x = (this.canvas.width / 2) / scale;
+            const L = this.unprojectAtCenter(ov.phi, ov.theta, -x, 0);
+            const R = this.unprojectAtCenter(ov.phi, ov.theta,  x, 0);
+            const fovDeg = rad2deg(this.angSepRad(L, R));
+            this.aladin.setFoV(fovDeg);
+        } else {
+            this.aladin.setFoV(this.zoom.imgField / scale);
+        }
         if (centerOverride) {
             this.aladin.view.pointToAndRedraw(rad2deg(centerOverride.phi), rad2deg(centerOverride.theta));
         } else if (syncCenter) {
