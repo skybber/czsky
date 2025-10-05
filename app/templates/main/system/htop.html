@@ -1,33 +1,28 @@
 {% extends 'layouts/base.html' %}
 
 {% block content %}
-    <div class="ui stackable grid container">
-        <div class="fourteen wide tablet fourteen wide computer column">
-            <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
-                <i class="caret left icon"></i>
-                {{ _('Settings') }}
+    <div class="ui black inverted fitted segment" style="min-height:100vh; display:flex; flex-direction:column;">
+        <div class="ui inverted secondary menu">
+            <a class="item" href="{{ url_for('main_userdata.userdata_menu') }}">
+                <i class="caret left icon"></i> {{ _('Settings') }}
             </a>
-            <h2 class="ui header">
-                {{ _('htop') }}
-            </h2>
-            <div class="ui segment" style="background:#000; color:#ddd; overflow:auto; max-height:75vh; border:none;">
-                <style>
-                      .htop-aha-output,
-                      .htop-aha-output pre,
-                      .htop-aha-output span {
-                      background-color: #000 !important;
-                    }
-                    .htop-aha-output pre {
-                        margin: 0;
-                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-                        white-space: pre;
-                        min-width: 120ch;
-                        color: #ddd; /* default text na černém */
-                    }
-                </style>
-                {{ htop_output|safe }}
+            <div class="item">
+                <h2 class="ui inverted header" style="margin:0;">{{ _('htop') }}</h2>
             </div>
-        </div>
+            <div class="right menu">
+              <div class="item">
+                  <span class="ui tiny grey text">Auto-refresh 10s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ui black inverted fitted segment" style="flex:1 1 auto; overflow:auto; margin:0;">
+              <div class="ui container fluid">
+                  <div class="htop-aha-output">
+                      {{ htop_output|safe }}
+                  </div>
+              </div>
+          </div>
     </div>
     <script>
       setTimeout(function(){ window.location.reload(); }, 10000);
