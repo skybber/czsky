@@ -241,6 +241,9 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         queuedImgs: 0,
         ending: false,
         ease: null,
+        startTime: 0,
+        duration: 0,
+        rafId: 0,
         // constants
         timeoutMs: 300,
         maxSteps: 20,
@@ -248,6 +251,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     };
 
     this.zoom.stepTimeout = this.zoom.timeoutMs / this.zoom.maxSteps;
+    this.zoom.duration  = this.zoom.timeoutMs;
 
     this.gridSize = this.guessGridSize();
     this.perf = {
@@ -1483,7 +1487,7 @@ FChart.prototype.drawImgGrid = function (curSkyImg, forceDraw = false) {
         imgY += dimgY;
     }
 
-    this.maybeAutoAdjustGrid(performance.now() - t0);
+    // this.maybeAutoAdjustGrid(performance.now() - t0);
 
     return true;
 }
@@ -1498,7 +1502,7 @@ FChart.prototype.maybeAutoAdjustGrid = function (lastMs) {
     if (now - this.perf.lastAdjustTs < 400) return;
 
     const HIGH = 9.0;
-    const LOW = 4.0;
+    const LOW  = 4.0;
 
     if (this.perf.gridMsEMA > HIGH) {
         this.perf.framesAbove++;
@@ -1566,7 +1570,6 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
 
     this.zoom.step = 0;
     this.zoom.nextZoomTime = performance.now();
-    this.nextScaleFac();
 
     if (!wasActive) {
         this.zoom.bitmap = this.skyImgBuf[this.skyImg.active];
@@ -1584,11 +1587,18 @@ FChart.prototype.adjustZoom = function(zoomAmount) {
         });
     }
 
-    this.zoom.active = true;
-    this.syncAladinZoom(false);
     this.redrawAll();
+
+    if (this.zoom.rafId) {
+      cancelAnimationFrame(this.zoom.rafId);
+      this.zoom.rafId = 0;
+    }
+
+    this.zoom.startTime = 0
     this.ctx.imageSmoothingEnabled = true;
-    setTimeout(() => this.zoomFunc(), this.computeZoomTimeout())
+
+    this.zoom.active = true;
+    this.zoom.rafId = requestAnimationFrame(this.zoomFrame.bind(this));
 
     this.zoom.queuedImgs++;
     setTimeout(() => {
@@ -1625,6 +1635,58 @@ FChart.prototype.setZoomRequestCenterFromAnchor = function() {
     };
 }
 
+FChart.prototype.zoomFrame = function (ts) {
+    if (!this.zoom.active) return;
+
+    if (!this.zoom.startTime) {
+        this.zoom.startTime = ts;
+    }
+
+    const elapsed = ts - this.zoom.startTime;
+    const t = Math.min(1, elapsed / this.zoom.duration);
+
+    const k = (this.zoom.ease === 'cubic') ? this.easeOutCubic(t) : this.linearEase(t);
+
+    this.zoom.scaleFac = this.zoom.startScaleFac + (this.zoom.scaleFacTotal - this.zoom.startScaleFac) * k;
+
+    this.syncAladinZoom(false, this.getZoomCenterOverride());
+    this.redrawAll();
+
+    if (t < 1) {
+        this.zoom.rafId = requestAnimationFrame(this.zoomFrame.bind(this));
+    } else {
+        this.finishZoom();
+    }
+};
+
+FChart.prototype.finishZoom = function () {
+    if (this.zoom.rafId) {
+        cancelAnimationFrame(this.zoom.rafId);
+        this.zoom.rafId = 0;
+    }
+
+    this.zoom.active = false;
+    this.zoom.startImgField = undefined;
+    this.zoom.anchorCelest = null;
+    this.zoom.pivot = {dx: 0, dy: 0};
+    this.zoom.baseCenter = null;
+    this.zoom.bitmap = null;
+    this.zoom.scaleFac = 1.0;
+    this.zoom.requestCenter = null;
+    this.zoom.imgGrid = null;
+    this.ctx.imageSmoothingEnabled = true;
+
+    if (this.zoom.queuedImgs > 0 || this.isReloadingImage) {
+        this.zoom.ending = true;
+    } else {
+        this.zoom.imgField = this.imgField;
+        this.syncAladinZoom(true);
+        this.reloadLegendImage();
+        this.redrawAll();
+    }
+};
+
+
 FChart.prototype.closeZoomBitmap = function () {
     if (this.zoom.bitmap) {
         if (this.zoom.bitmap.close) {
@@ -1635,29 +1697,6 @@ FChart.prototype.closeZoomBitmap = function () {
         }
         this.zoom.bitmap = null;
     }
-}
-
-FChart.prototype.computeZoomTimeout = function () {
-    let diff = performance.now() - this.zoom.nextZoomTime;
-    //console.log(this.zoom.step + ' ' + performance.now() + ' ' + diff)
-    let skipped = false;
-    while (diff >= this.zoom.stepTimeout && this.zoom.step < this.zoom.maxSteps) {
-        this.nextScaleFac();
-        diff = diff - this.zoom.stepTimeout;
-        skipped = true;
-        this.ctx.imageSmoothingEnabled = false;
-    }
-    let ret;
-    if (this.zoom.step == this.zoom.maxSteps || skipped) {
-        ret = 0;
-    } else {
-        ret = this.zoom.stepTimeout - diff;
-    }
-    if (ret <= 0) {
-        ret = this.FREQ_60_HZ_TIMEOUT;
-    }
-    this.zoom.nextZoomTime = performance.now() + ret;
-    return ret;
 }
 
 FChart.prototype.getZoomCenterOverride = function () {
@@ -1679,51 +1718,6 @@ FChart.prototype.getZoomCenterOverride = function () {
     const dTheta = this.zoom.anchorCelest.theta - underCursorNow.theta;
     return { phi: base.phi + dPhi, theta: base.theta + dTheta };
 };
-
-FChart.prototype.zoomFunc = function() {
-    if (this.zoom.step < this.zoom.maxSteps) {
-        this.nextScaleFac();
-    }
-
-    if (this.zoom.step < this.zoom.maxSteps) {
-        this.syncAladinZoom(false, this.getZoomCenterOverride());
-        this.redrawAll();
-        setTimeout(() => this.zoomFunc(), this.computeZoomTimeout())
-    } else {
-        if (this.zoom.interval) {
-            clearInterval(this.zoom.interval);
-            this.zoom.interval = undefined;
-        }
-        this.zoom.active = false;
-        this.zoom.startImgField = undefined;
-        this.zoom.anchorCelest = null;
-        this.zoom.pivot = { dx: 0, dy: 0 };
-        this.zoom.baseCenter = null;
-        this.zoom.bitmap = null;
-        this.zoom.scaleFac = 1.0;
-        this.zoom.requestCenter = null;
-        this.zoom.imgGrid = null;
-        this.ctx.imageSmoothingEnabled = true;
-
-        if (this.zoom.queuedImgs > 0 || this.isReloadingImage) {
-            this.zoom.ending = true;
-        } else {
-            this.zoom.imgField = this.imgField;
-            this.syncAladinZoom(true);
-            this.reloadLegendImage();
-            this.redrawAll();
-        }
-    }
-}
-
-FChart.prototype.nextScaleFac = function() {
-    if (this.zoom.step < this.zoom.maxSteps) {
-        this.zoom.step ++;
-        const t = this.zoom.step / this.zoom.maxSteps;
-        const k = (this.zoom.ease === 'cubic') ? this.easeOutCubic(t) : this.linearEase(t);
-        this.zoom.scaleFac = this.zoom.startScaleFac + (this.zoom.scaleFacTotal - this.zoom.startScaleFac) * k;
-    }
-}
 
 FChart.prototype.isInRealFullScreen = function() {
     if (!this.isRealFullScreenSupported) {
