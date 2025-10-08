@@ -1056,7 +1056,8 @@ FChart.prototype.syncAladinZoom = function (syncCenter, centerOverride) {
         if (this.zoom.active) {
             const scale = this.getFChartScaleForFoV(this.zoom.imgField) * this.zoom.scaleFac;
             const ov = centerOverride || this.getZoomCenterOverride() || this.viewCenter;
-            const x = (this.canvas.width / 2) / scale;
+            const wh = Math.max(this.canvas.width, this.canvas.height);
+            const x = (wh / 2) / scale;
             const L = this.unprojectAtCenter(ov.phi, ov.theta, -x, 0);
             const R = this.unprojectAtCenter(ov.phi, ov.theta,  x, 0);
             const fovDeg = rad2deg(this.angSepRad(L, R));
