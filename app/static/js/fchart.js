@@ -1188,7 +1188,7 @@ FChart.prototype.onWheel = function (e) {
 
     const { dy} = this.wheelPixels(e);
 
-    if (Math.abs(dy) < 12) return;
+    if (Math.abs(dy) < 6) return;
 
     const isNegative = dy < 0;
     if (isNegative != this.wheel.lastNegative) {
