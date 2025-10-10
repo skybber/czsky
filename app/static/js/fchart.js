@@ -261,6 +261,15 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         framesBelow: 0
     };
 
+    this.wheel = {
+        stepFracAccum: 0,
+        minStepIntervalMs: 45,
+        lastStepTs: 0,
+        lastNegative: false,
+        C: 0.018,
+        MAX: 0.20
+    };
+
     if (this.aladin != null) {
         if (theme == 'light') {
             this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", {reversed: true});
@@ -314,25 +323,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('touchmove', this.onTouchMove.bind(this));
 
-    $(this.canvas).bind('wheel', (function(e) {
-        e.preventDefault();
-        const rect = this.canvas.getBoundingClientRect();
-        const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
-        const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
-
-        this.zoom.pivot.dx = ex - this.canvas.width / 2;
-        this.zoom.pivot.dy = ey - this.canvas.height / 2;
-
-        if (!this.zoom.anchorCelest) {
-            const scale = this.getFChartScale();
-            const x = this.zoom.pivot.dx / scale;
-            const y = this.zoom.pivot.dy / scale;
-            this.zoom.anchorCelest = this.mirroredPos2Celest(x, y);
-            this.zoom.baseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
-        }
-        this.zoom.ease = 'cubic';
-        this.adjustZoom(normalizeDelta(e));
-    }).bind(this));
+    $(this.canvas).bind('wheel', this.onWheel.bind(this));
 
     $(this.canvas).bind('keydown', this.onKeyDown.bind(this));
     $(this.canvas).bind('keyup', this.onKeyUp.bind(this));
@@ -1171,6 +1162,86 @@ FChart.prototype.onTouchEnd = function (e) {
         }
     }
 }
+
+FChart.prototype.onWheel = function (e) {
+    e.preventDefault();
+    const rect = this.canvas.getBoundingClientRect();
+    const ex = (e.clientX ?? (e.originalEvent?.clientX)) - rect.left;
+    const ey = (e.clientY ?? (e.originalEvent?.clientY)) - rect.top;
+
+    this.zoom.pivot.dx = ex - this.canvas.width / 2;
+    this.zoom.pivot.dy = ey - this.canvas.height / 2;
+
+    if (!this.zoom.anchorCelest) {
+        const scale = this.getFChartScale();
+        const x = this.zoom.pivot.dx / scale;
+        const y = this.zoom.pivot.dy / scale;
+        this.zoom.anchorCelest = this.mirroredPos2Celest(x, y);
+        this.zoom.baseCenter = {phi: this.viewCenter.phi, theta: this.viewCenter.theta};
+    }
+    this.zoom.ease = 'cubic';
+
+    if (this.isMouseWheelLike(e)) {
+        this.adjustZoom(normalizeDelta(e));
+        return;
+    }
+
+    const { dy} = this.wheelPixels(e);
+
+    if (Math.abs(dy) < 12) return;
+
+    const isNegative = dy < 0;
+    if (isNegative != this.wheel.lastNegative) {
+        this.wheel.stepFracAccum = 0;
+        this.wheel.lastNegative = isNegative;
+    }
+
+    const MAX = this.wheel.MAX;
+    const f = Math.max(-MAX, Math.min(MAX, -dy * this.wheel.C));
+
+    this.wheel.stepFracAccum += f;
+
+    const now = performance.now();
+    let steps = 0;
+
+    if (this.wheel.stepFracAccum >= 1) {
+        steps = -1;
+        this.wheel.stepFracAccum -= 1;
+    } else if (this.wheel.stepFracAccum <= -1) {
+        steps = 1;
+        this.wheel.stepFracAccum += 1;
+    }
+
+    if (steps !== 0 && (now - this.wheel.lastStepTs) >= this.wheel.minStepIntervalMs) {
+        this.adjustZoom(steps);
+        this.wheel.lastStepTs = now;
+    }
+}
+
+FChart.prototype.wheelPixels = function (e) {
+  const oe = e.originalEvent || e;
+  const L = (oe.deltaMode === 1) ? 16 : (oe.deltaMode === 2) ? 100 : 1; // lines/pages→px
+  const dy = (typeof oe.deltaY === 'number') ? oe.deltaY * L
+           : (typeof oe.wheelDelta === 'number') ? -oe.wheelDelta
+           : 0;
+  const dx = (typeof oe.deltaX === 'number') ? oe.deltaX * L : 0;
+  return { dx, dy };
+};
+
+FChart.prototype.isMouseWheelLike = function (e) {
+  const oe = e.originalEvent || e;
+
+  if (oe.ctrlKey || oe.metaKey) return false;
+
+  if (oe.deltaMode === 1) return true;
+
+  if (typeof oe.wheelDelta === 'number' && Math.abs(oe.wheelDelta) % 120 === 0) return true;
+
+  const { dx, dy } = this.wheelPixels(e);
+  if (Math.abs(dy) >= 80 && Math.abs(dx) < 1) return true;
+
+  return false;
+};
 
 FChart.prototype.setupSlowDown = function (e) {
     let len = this.move.track.length;
