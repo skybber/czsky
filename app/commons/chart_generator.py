@@ -482,10 +482,10 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     return img_bytes
 
 
-def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
+def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None, default_fsz=None):
     ra = request.args.get('ra', type=float)
     dec = request.args.get('dec', type=float)
-    fsz = request.args.get('fsz', None)
+    fsz = request.args.get('fsz', default_fsz, type=float)
 
     if ra is None and dec is None and fsz:
         alt = request.args.get('alt', type=float)
@@ -501,13 +501,11 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None):
         form.ra.data = ra
         form.dec.data = dec
         gui_fld_size = to_float(fsz, FIELD_SIZES[-1])
-        for i in range(len(FIELD_SIZES)-1, -1, -1):
-            if gui_fld_size >= FIELD_SIZES[i]:
-                form.radius.data = i
-                break
-        else:
-            form.radius.data = len(FIELD_SIZES)
+        form.radius.data = _get_fld_size_index(gui_fld_size)
     elif request.method == 'GET':
+        if form.radius.data == (len(FIELD_SIZES) - 1) and fsz:
+            form.radius.data = _get_fld_size_index(fsz)
+            print('2 {}'.format(form.radius.data))
         if form.ra.data is None or form.dec.data is None:
             form.ra.data = default_ra
             form.dec.data = default_dec
@@ -924,15 +922,17 @@ def _get_fld_size_maglim(fld_size_index):
     return fld_size, maglim, dso_maglim
 
 
+def _get_fld_size_index(fld_size):
+    for fld_size_index, fs in enumerate(FIELD_SIZES):
+        if fs >= fld_size:
+            return fld_size_index
+    return len(FIELD_SIZES) - 1
+
+
 def get_fld_size_mags_from_request():
     gui_fld_size = to_float(request.args.get('fsz'), 23.0)
 
-    for fld_size_index, fs in enumerate(FIELD_SIZES):
-        if fs >= gui_fld_size:
-            break
-    else:
-        fld_size_index = len(FIELD_SIZES) - 1
-
+    fld_size_index = _get_fld_size_index(gui_fld_size)
     gui_fld_label = 'FoV: ' + FIELD_LABELS[fld_size_index]
 
     fld_size, maglim, dso_maglim = _get_fld_size_maglim(fld_size_index)

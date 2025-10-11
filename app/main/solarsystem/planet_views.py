@@ -163,7 +163,7 @@ def planet_info(planet_iau_code):
     planet_ra = planet_ra_ang.radians
     planet_dec = planet_dec_ang.radians
 
-    common_ra_dec_dt_fsz_from_request(form, planet_ra, planet_dec)
+    common_ra_dec_dt_fsz_from_request(form, planet_ra, planet_dec, 60)
 
     chart_control = common_prepare_chart_data(form)
 

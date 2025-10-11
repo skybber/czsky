@@ -230,7 +230,7 @@ def minor_planets_chart():
 
     minor_planet = MinorPlanet.query.filter(MinorPlanet.eval_mag < 9).order_by('eval_mag').first()
 
-    common_ra_dec_dt_fsz_from_request(form, minor_planet.cur_ra, minor_planet.cur_dec)
+    common_ra_dec_dt_fsz_from_request(form, minor_planet.cur_ra, minor_planet.cur_dec, 60)
 
     default_chart_iframe_url = None
     if minor_planet:
@@ -337,7 +337,7 @@ def minor_planet_info(minor_planet_id):
     minor_planet_ra = minor_planet_ra_ang.radians
     minor_planet_dec = minor_planet_dec_ang.radians
 
-    common_ra_dec_dt_fsz_from_request(form, minor_planet_ra, minor_planet_dec)
+    common_ra_dec_dt_fsz_from_request(form, minor_planet_ra, minor_planet_dec, 60)
 
     chart_control = common_prepare_chart_data(form)
 

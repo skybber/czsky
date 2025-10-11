@@ -230,7 +230,7 @@ def supernova_chart(designation):
 
     form = ChartForm()
 
-    common_ra_dec_dt_fsz_from_request(form, supernova.ra, supernova.dec)
+    common_ra_dec_dt_fsz_from_request(form, supernova.ra, supernova.dec, 60)
 
     chart_control = common_prepare_chart_data(form)
 

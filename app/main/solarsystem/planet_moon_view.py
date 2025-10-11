@@ -120,7 +120,7 @@ def planet_moon_info(planet_moon_name):
 
     plm_obj = create_planet_moon_obj(planet_moon.name)
 
-    common_ra_dec_dt_fsz_from_request(form, plm_obj.ra, plm_obj.dec)
+    common_ra_dec_dt_fsz_from_request(form, plm_obj.ra, plm_obj.dec, 60)
 
     chart_control = common_prepare_chart_data(form)
 

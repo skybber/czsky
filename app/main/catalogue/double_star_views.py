@@ -401,7 +401,7 @@ def double_star_chart(double_star_id):
 
     form = ChartForm()
 
-    common_ra_dec_dt_fsz_from_request(form, double_star.ra_first, double_star.dec_first)
+    common_ra_dec_dt_fsz_from_request(form, double_star.ra_first, double_star.dec_first, 60)
 
     chart_control = common_prepare_chart_data(form)
 
