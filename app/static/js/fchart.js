@@ -211,6 +211,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.fullscreenWrapper = undefined;
 
     this.disableReloadImg = false;
+    this.lastInputWasTouch = false;
 
     this.move = {
         interval: undefined,
@@ -331,6 +332,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     $(this.canvas).bind('mousedown', this.onMouseDown.bind(this));
 
     $(this.canvas).bind('touchstart', (function(e) {
+        this.lastInputWasTouch = true;
         if (e.originalEvent.targetTouches && e.originalEvent.targetTouches.length==2) {
             this.move.isDragging = false;
             this.move.initialDistance = Math.sqrt((e.originalEvent.targetTouches[0].clientX - e.originalEvent.targetTouches[1].clientX)**2 +
@@ -342,13 +344,22 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     $(this.canvas).bind('mouseup', this.onPointerUp.bind(this));
 
-    $(this.canvas).bind('touchend', this.onTouchEnd.bind(this));
+    $(this.canvas).bind('touchmove', (function (e) {
+        this.lastInputWasTouch = true;
+        this.onTouchMove(e);
+    }).bind(this));
+
+    $(this.canvas).bind('touchend', (function (e) {
+        this.lastInputWasTouch = true;
+        this.onTouchEnd(e);
+    }).bind(this));
+
+    $(this.canvas).bind('mousemove', (function (e) {
+        this.lastInputWasTouch = false;
+        this.onPointerMove(e);
+    }).bind(this));
 
     $(this.canvas).bind('mouseout', this.onMouseOut.bind(this));
-
-    $(this.canvas).bind('mousemove', this.onPointerMove.bind(this));
-
-    $(this.canvas).bind('touchmove', this.onTouchMove.bind(this));
 
     $(this.canvas).bind('wheel', this.onWheel.bind(this));
 
@@ -1865,17 +1876,25 @@ FChart.prototype.drawOverlay = function () {
     if (!this.canvas || !this.ctx) return;
 
     let phi, theta;
-    if (this.move.pointerInside) {
-        const pos = this.getCelestAtClientXY(this.move.pointerX || 0, this.move.pointerY || 0);
-        if (pos && isFinite(pos.phi) && isFinite(pos.theta)) {
-            phi = pos.phi;
-            theta = pos.theta;
-        }
-    }
-    if (phi === undefined || theta === undefined) {
+    const isMobile = this.canvas.width <= 768;
+
+    if (isMobile && this.lastInputWasTouch) {
         const c = this.currentOverlayCenter();
         phi = c.phi;
         theta = c.theta;
+    } else {
+        if (this.move.pointerInside) {
+            const pos = this.getCelestAtClientXY(this.move.pointerX || 0, this.move.pointerY || 0);
+            if (pos && isFinite(pos.phi) && isFinite(pos.theta)) {
+                phi = pos.phi;
+                theta = pos.theta;
+            }
+        }
+        if (phi === undefined || theta === undefined) {
+            const c = this.currentOverlayCenter();
+            phi = c.phi;
+            theta = c.theta;
+        }
     }
 
     const raText = `RA ${formatRA(phi)}`;
@@ -1889,7 +1908,6 @@ FChart.prototype.drawOverlay = function () {
 
     const pad = 6;
     const lineH = 16;
-    const isMobile = this.canvas.width <= 768;
 
     const textColor = (this.theme === 'night') ? '#ff4a4a'
                      : (this.theme === 'light' ? '#000' : '#fff');
