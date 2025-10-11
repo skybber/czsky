@@ -220,6 +220,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         movingPos: undefined,
         pointerX: undefined,
         pointerY: undefined,
+        curPointerX: undefined,
+        curPointerY: undefined,
         pointerInside: false,
         pointerYFac: undefined,
         kbdDragging: 0,
@@ -468,6 +470,11 @@ FChart.prototype.setProjectionCenter = function(phi, theta) {
     this.projectionCenter.phi = phi;
     this.projectionCenter.theta = theta;
     this.projection.setCenter(rad2deg(phi), rad2deg(theta));
+}
+
+FChart.prototype.setCurPointerXY = function (pointerX=undefined, pointerY=undefined) {
+    this.move.curPointerX = pointerX ?? this.move.pointerX;
+    this.move.curPointerY = pointerY ?? this.move.pointerY;
 }
 
 FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
@@ -900,6 +907,7 @@ FChart.prototype.onDblClick = function(e) {
     this.move.isDragging = true;
     this.move.pointerX = this.getEventLocation(e).x;
     this.move.pointerY = this.getEventLocation(e).y;
+    this.setCurPointerXY();
 
     this.setupMovingPos();
 
@@ -907,6 +915,7 @@ FChart.prototype.onDblClick = function(e) {
     let rect = this.canvas.getBoundingClientRect();
     this.move.pointerX = rect.left + this.canvas.width / 2.0;
     this.move.pointerY = rect.top + this.canvas.height / 2.0;
+    this.setCurPointerXY();
     this.syncAladinViewCenter();
     this.move.isDragging = false
     let curLegendImg = this.legendImgBuf[this.legendImg.active];
@@ -984,6 +993,7 @@ FChart.prototype.onPointerDown = function(e) {
         this.move.draggingStart = true;
         this.move.pointerX = this.getEventLocation(e).x;
         this.move.pointerY = this.getEventLocation(e).y;
+        this.setCurPointerXY();
 
         this.setupMovingPos();
     }
@@ -993,6 +1003,7 @@ FChart.prototype.onPointerUp = function(e) {
     if (this.move.isDragging) {
         this.move.pointerX = this.getEventLocation(e).x;
         this.move.pointerY = this.getEventLocation(e).y;
+        this.setCurPointerXY();
         this.syncAladinViewCenter();
         this.move.isDragging = false
         if (!this.move.draggingStart) { // there was some mouse movement
@@ -1122,11 +1133,12 @@ FChart.prototype.onPointerMove = function (e) {
     this.canvas.style.cursor = selected != null ? "pointer" : "default";
 
     const loc = this.getEventLocation(e);
-    this.move.pointerX = loc.x;
-    this.move.pointerY = loc.y;
+    this.setCurPointerXY(loc.x, loc.y);
     this.move.pointerInside = true;
 
     if (this.move.isDragging) {
+        this.move.pointerX = loc.x;
+        this.move.pointerY = loc.y;
         this.doDraggingMove(false);
         this.recordMovePos();
     } else {
@@ -1318,6 +1330,7 @@ FChart.prototype.slowDownFunc = function (e) {
         this.move.speedY *= this.move.slowdownCoef;
         this.move.pointerX += this.move.speedX;
         this.move.pointerY += this.move.speedY;
+        this.setCurPointerXY();
         this.move.slowdownIntervalStep ++;
         this.move.slowdownNextTs += this.move.slowdownIntervalMillis;
     }
@@ -1343,6 +1356,7 @@ FChart.prototype.moveViewCenterByAng = function(dAng, multX, multY) {
     let rect = this.canvas.getBoundingClientRect();
     this.move.pointerX = rect.left + this.canvas.width / 2.0 + movedPointer.X * scale;
     this.move.pointerY = rect.top + this.move.pointerYFac * this.canvas.height + movedPointer.Y * scale;
+    this.setCurPointerXY();
 }
 
 FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
@@ -1419,10 +1433,12 @@ FChart.prototype.setMovingPosToCenter = function() {
             }
         }
         this.move.pointerY = rect.top + this.move.pointerYFac * this.canvas.height;
+        this.setCurPointerXY();
         this.setupMovingPos();
     } else {
         this.move.pointerYFac = 0.5;
         this.move.pointerY = rect.top + this.canvas.height / 2.0;
+        this.setCurPointerXY();
         this.move.movingPos = {
             "phi": this.viewCenter.phi,
             "theta": this.viewCenter.theta
@@ -1884,7 +1900,7 @@ FChart.prototype.drawOverlay = function () {
         theta = c.theta;
     } else {
         if (this.move.pointerInside) {
-            const pos = this.getCelestAtClientXY(this.move.pointerX || 0, this.move.pointerY || 0);
+            const pos = this.getCelestAtClientXY(this.move.curPointerX || 0, this.move.curPointerY || 0);
             if (pos && isFinite(pos.phi) && isFinite(pos.theta)) {
                 phi = pos.phi;
                 theta = pos.theta;
