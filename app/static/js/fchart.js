@@ -22,6 +22,29 @@ function normalizeDelta(e) {
     return 0;
 }
 
+function pad2(n) {
+    return (n < 10 ? "0" : "") + Math.floor(Math.abs(n));
+}
+
+function formatRA(rad) {
+    let hours = rad * 12 / Math.PI; // 0..24
+    if (hours < 0) hours += 24;
+    if (hours >= 24) hours -= 24;
+    const h = Math.floor(hours);
+    const m = Math.floor((hours - h) * 60);
+    const s = Math.floor((((hours - h) * 60) - m) * 60);
+    return `${pad2(h)}h ${pad2(m)}m ${pad2(s)}s`;
+}
+
+function formatDEC(rad) {
+    const sign = rad >= 0 ? "+" : "-";
+    const deg = Math.abs(rad) * 180 / Math.PI;
+    const d = Math.floor(deg);
+    const m = Math.floor((deg - d) * 60);
+    const s = Math.floor((((deg - d) * 60) - m) * 60);
+    return `${sign}${pad2(d)}° ${pad2(m)}′ ${pad2(s)}″`;
+}
+
 // uses affine texture mapping to draw a textured triangle
 // at screen coordinates [x0, y0], [x1, y1], [x2, y2] from
 // img *pixel* coordinates [u0, v0], [u1, v1], [u2, v2]
@@ -94,8 +117,7 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
                  useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, searchUrl,
-                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
-                 fullScreenWrapperId) {
+                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
 
     this.fchartDiv = fchartDiv;
 
@@ -187,7 +209,6 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
     this.fullscreenWrapper = undefined;
-    this.fullScreenWrapperId = fullScreenWrapperId;
 
     this.disableReloadImg = false;
 
@@ -198,6 +219,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         movingPos: undefined,
         pointerX: undefined,
         pointerY: undefined,
+        pointerInside: false,
         pointerYFac: undefined,
         kbdDragging: 0,
         kbdDX: 0,
@@ -270,6 +292,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         MAX: 0.20
     };
 
+    this.overlayTimer = setInterval(() => { try { this.drawOverlay(); } catch(e){} }, 1000);
+
     if (this.aladin != null) {
         if (theme == 'light') {
             this.aladin.getBaseImageLayer().getColorCfg().setColormap("grayscale", {reversed: true});
@@ -293,9 +317,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         this.setSplitViewPosition();
     }
 
-    window.addEventListener('resize', (function(e) {
-        this.onResize();
-    }).bind(this), false);
+    window.addEventListener('resize', () => { this.onResize(); } );
+    window.addEventListener('beforeunload', () => {
+        if (this.overlayTimer) {
+            clearInterval(this.overlayTimer);
+        }
+    });
 
     $(this.canvas).bind('click', this.onClick.bind(this));
 
@@ -568,6 +595,7 @@ FChart.prototype.redrawAll = function () {
         this.ctx.drawImage(curSkyImg, drawX, drawY, img_width, img_height);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
+    this.drawOverlay();
 }
 
 FChart.prototype.reloadLegendImage = function () {
@@ -877,6 +905,7 @@ FChart.prototype.onDblClick = function(e) {
         this.drawImgGrid(curSkyImg);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
+    this.drawOverlay();
     this.renderOnTimeOutFromPointerMove(false);
 }
 
@@ -966,6 +995,8 @@ FChart.prototype.onPointerUp = function(e) {
 FChart.prototype.onMouseOut = function(e) {
     this.movingKeyUp();
     this.onPointerUp(e);
+    this.move.pointerInside = false;
+    this.drawOverlay();
 }
 
 FChart.prototype.onKeyDown = function (e) {
@@ -1077,17 +1108,18 @@ FChart.prototype.moveCenter = function(fromKbdMove) {
 FChart.prototype.onPointerMove = function (e) {
     e.preventDefault();
     let selected  = this.findSelectableObject(e)
-    if (selected != null) {
-        this.canvas.style.cursor = "pointer"
-    } else {
-        this.canvas.style.cursor = "default"
-    }
+    this.canvas.style.cursor = selected != null ? "pointer" : "default";
+
+    const loc = this.getEventLocation(e);
+    this.move.pointerX = loc.x;
+    this.move.pointerY = loc.y;
+    this.move.pointerInside = true;
 
     if (this.move.isDragging) {
-        this.move.pointerX = this.getEventLocation(e).x;
-        this.move.pointerY = this.getEventLocation(e).y;
         this.doDraggingMove(false);
         this.recordMovePos();
+    } else {
+        this.drawOverlay();
     }
 }
 
@@ -1123,6 +1155,7 @@ FChart.prototype.doDraggingMove = function (isPointerUp) {
         this.drawImgGrid(curSkyImg);
     }
     this.ctx.drawImage(curLegendImg, 0, 0);
+    this.drawOverlay();
     this.renderOnTimeOutFromPointerMove(isPointerUp);
 }
 
@@ -1326,6 +1359,7 @@ FChart.prototype.kbdShiftMove = function(keycode, mx, my) {
         }
         this.move.kbdDragging = keycode;
         this.ctx.drawImage(curLegendImg, 0, 0);
+        this.drawOverlay();
         this.renderOnTimeOutFromPointerMove(false);
         this.move.kbdDragging = 0;
     }
@@ -1412,6 +1446,7 @@ FChart.prototype.kbdSmoothMove = function() {
             this.drawImgGrid(curSkyImg);
         }
         this.ctx.drawImage(curLegendImg, 0, 0);
+        this.drawOverlay();
 
         this.renderOnTimeOutFromPointerMove(false);
     }
@@ -1758,7 +1793,6 @@ FChart.prototype.finishZoom = function () {
     }
 };
 
-
 FChart.prototype.closeZoomBitmap = function () {
     if (this.zoom.bitmap) {
         if (this.zoom.bitmap.close) {
@@ -1789,7 +1823,120 @@ FChart.prototype.getZoomCenterOverride = function () {
     if (dPhi < -Math.PI) dPhi += 2 * Math.PI;
     const dTheta = this.zoom.anchorCelest.theta - underCursorNow.theta;
     return { phi: base.phi + dPhi, theta: base.theta + dTheta };
-};
+}
+
+FChart.prototype.currentOverlayCenter = function () {
+    if (this.zoom && this.zoom.active) {
+        return this.getZoomCenterOverride() || this.viewCenter;
+    }
+    return this.viewCenter;
+}
+
+FChart.prototype.currentOverlayScale = function () {
+    if (this.zoom.active) {
+        return this.getFChartScaleForFoV(this.zoom.imgField) * this.zoom.scaleFac;
+    }
+    return this.getFChartScale();
+}
+
+FChart.prototype.getCelestAtClientXY = function (clientX, clientY) {
+    const rect = this.canvas.getBoundingClientRect();
+    const ex = clientX - rect.left;
+    const ey = clientY - rect.top;
+    const scale = this.currentOverlayScale();
+
+    let dx = ex - this.canvas.width / 2;
+    let dy = ey - this.canvas.height / 2;
+
+    if (this.zoom.active) {
+        dx -= (1 - this.zoom.scaleFac) * this.zoom.pivot.dx;
+        dy -= (1 - this.zoom.scaleFac) * this.zoom.pivot.dy;
+    }
+
+    const x = dx / scale;
+    const y = dy / scale;
+
+    const center = this.currentOverlayCenter();
+    const pos = this.unprojectAtCenter(center.phi, center.theta, x, y);
+    return pos; // {phi, theta}
+}
+
+FChart.prototype.drawOverlay = function () {
+    if (!this.canvas || !this.ctx) return;
+
+    let phi, theta;
+    if (this.move.pointerInside) {
+        const pos = this.getCelestAtClientXY(this.move.pointerX || 0, this.move.pointerY || 0);
+        if (pos && isFinite(pos.phi) && isFinite(pos.theta)) {
+            phi = pos.phi;
+            theta = pos.theta;
+        }
+    }
+    if (phi === undefined || theta === undefined) {
+        const c = this.currentOverlayCenter();
+        phi = c.phi;
+        theta = c.theta;
+    }
+
+    const raText = `RA ${formatRA(phi)}`;
+    const decText = `DEC ${formatDEC(theta)}`;
+    const timeText = new Date().toLocaleTimeString();
+
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.font = '12px monospace';
+    ctx.textBaseline = 'top';
+
+    const pad = 6;
+    const lineH = 16;
+    const isMobile = this.canvas.width <= 768;
+
+    const textColor = (this.theme === 'night') ? '#ff4a4a'
+                     : (this.theme === 'light' ? '#000' : '#fff');
+    const bgColor = this.theme === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
+
+    if (isMobile) {
+        const w = Math.max(
+            ctx.measureText(timeText).width,
+            ctx.measureText(raText).width,
+            ctx.measureText(decText).width
+        ) + pad * 2;
+        const h = lineH * 3 + pad * 2;
+        const x0 = 0, y0 = 0;
+
+        ctx.clearRect(x0, y0, w + 2, h + 2);
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(x0, y0, w, h);
+        ctx.fillStyle = textColor;
+        ctx.fillText(timeText, x0 + pad, y0 + pad);
+        ctx.fillText(raText, x0 + pad, y0 + pad + lineH);
+        ctx.fillText(decText, x0 + pad, y0 + pad + 2 * lineH);
+
+    } else {
+        const line = `${raText}  ${decText}`;
+        const margin = 8;
+        const w = ctx.measureText(line).width + pad * 2;
+        const h = lineH + pad * 2;
+
+        let aladinShift = 0;
+        if (this.aladin && this.showAladin) {
+            aladinShift = 90;
+        }
+
+        const x0 = this.canvas.width - w - margin - aladinShift;
+        const y0 = this.canvas.height - h - margin;
+
+        ctx.clearRect(x0 - 1, y0 - 1, w + 2, h + 2);
+        ctx.fillStyle = (this.theme === 'light') ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
+        ctx.fillRect(x0, y0, w, h);
+
+        ctx.fillStyle = (this.theme === 'night') ? '#ff4a4a'
+            : (this.theme === 'light' ? '#000' : '#fff');
+        ctx.fillText(line, x0 + pad, y0 + pad + 4);
+    }
+
+    ctx.restore();
+}
 
 FChart.prototype.isInRealFullScreen = function() {
     if (!this.isRealFullScreenSupported) {
@@ -1826,7 +1973,6 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
                 const elem = $(this.fchartDiv)[0];
 
                 this.fullscreenWrapper = document.createElement('div');
-                this.fullscreenWrapper.id = this.fullScreenWrapperId;
                 elem.parentNode.insertBefore(this.fullscreenWrapper, elem);
                 this.fullscreenWrapper.appendChild(elem);
 
