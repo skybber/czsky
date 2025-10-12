@@ -97,7 +97,7 @@ def chart_pos_img():
 
 @main_chart.route('/chart/chart-legend-img', methods=['GET'])
 def chart_legend_img():
-    img_bytes = common_chart_legend_img(None, None)
+    img_bytes = common_chart_legend_img()
     return send_file(img_bytes, mimetype='image/png')
 
 

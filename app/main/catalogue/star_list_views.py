@@ -134,16 +134,6 @@ def star_list_chart_pos_img(star_list_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_star_list.route('/star-list/<string:star_list_id>/chart-legend-img', methods=['GET'])
-def star_list_chart_legend_img(star_list_id):
-    star_list = _find_star_list(star_list_id)
-    if star_list is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_star_list.route('/star-list/<string:star_list_id>/chart-pdf', methods=['GET'])
 def star_list_chart_pdf(star_list_id):
     star_list = _find_star_list(star_list_id)

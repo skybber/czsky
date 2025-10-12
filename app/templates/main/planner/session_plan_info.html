@@ -158,8 +158,7 @@
 {% macro session_plan_chart(session_plan) %}
     {{ fchart.fchart(url_for('main_sessionplan.session_plan_chart', session_plan_id=session_plan.id, back=back, back_id=back_id),
                      url_for('main_sessionplan.session_plan_chart_pos_img', session_plan_id=session_plan.id, flags=chart_control.chart_flags, ),
-                     url_for('main_sessionplan.session_plan_chart_legend_img', session_plan_id=session_plan.id, flags=chart_control.legend_flags,
-                              epfov=chart_control.eyepiece_fov),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_sessionplan.session_plan_chart_pdf', session_plan_id=session_plan.id, flags=chart_control.chart_pdf_flags,
                               epfov=chart_control.eyepiece_fov),
                      url_for('main_sessionplan.session_plan_chart_items', session_plan_id=session_plan.id, flags=chart_control.chart_flags, ),

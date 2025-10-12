@@ -413,7 +413,7 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     return img_bytes, out_img_format
 
 
-def common_chart_legend_img(obj_ra, obj_dec):
+def common_chart_legend_img():
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     is_equatorial = request.args.get('ra') is not None

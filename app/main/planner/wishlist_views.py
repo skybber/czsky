@@ -292,17 +292,6 @@ def wish_list_chart_pos_img():
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_wishlist.route('/wish-list/chart-legend-img', methods=['GET'])
-@login_required
-def wish_list_chart_legend_img():
-    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
-    if wish_list is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_wishlist.route('/wish-list/chart-pdf', methods=['GET'])
 def wish_list_chart_pdf():
     wish_list = WishList.query.filter_by(user_id=current_user.id).first()

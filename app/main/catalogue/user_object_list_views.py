@@ -305,11 +305,3 @@ def user_object_list_chart_pdf(user_object_list_id):
 
     return send_file(img_bytes, mimetype='application/pdf')
 
-
-@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-legend-img', methods=['GET'])
-def user_object_list_chart_legend_img(user_object_list_id):
-    user_object_list = UserObjectList.query.filter_by(id=user_object_list_id).first()
-    is_mine_user_object_list = _check_user_object_list(user_object_list, allow_public=True)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')

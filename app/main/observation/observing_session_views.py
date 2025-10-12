@@ -557,15 +557,6 @@ def observing_session_chart_pdf(observing_session_id):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-legend-img', methods=['GET'])
-def observing_session_chart_legend_img(observing_session_id):
-    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
-    is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_observing_session.route('/observing-session/<int:observing_session_id>/run-plan', methods=['GET', 'POST'])
 def observing_session_run_plan(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()

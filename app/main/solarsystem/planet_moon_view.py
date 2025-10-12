@@ -151,19 +151,6 @@ def planet_moon_chart_pos_img(planet_moon_name):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-legend-img', methods=['GET'])
-def planet_moon_chart_legend_img(planet_moon_name):
-    planet_moon = PlanetMoon.get_by_name(planet_moon_name)
-    if planet_moon is None:
-        abort(404)
-
-    plm_ra = to_float(request.args.get('obj_ra'), None)
-    plm_dec = to_float(request.args.get('obj_dec'), None)
-
-    img_bytes = common_chart_legend_img(plm_ra, plm_dec)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf', methods=['GET'])
 def planet_moon_chart_pdf(planet_moon_name):
     planet_moon = PlanetMoon.get_by_name(planet_moon_name)

@@ -718,15 +718,6 @@ def session_plan_chart_pos_img(session_plan_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-legend-img', methods=['GET'])
-def session_plan_chart_legend_img(session_plan_id):
-    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan, allow_public=True)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf', methods=['GET'])
 def session_plan_chart_pdf(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()

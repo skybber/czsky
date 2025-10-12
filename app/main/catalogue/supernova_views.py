@@ -264,16 +264,6 @@ def supernova_chart_pos_img(designation):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_supernova.route('/supernova/<string:designation>/chart-legend-img', methods=['GET'])
-def supernova_chart_legend_img(designation):
-    supernova = Supernova.query.filter_by(designation=designation).first()
-    if supernova is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(supernova.ra, supernova.dec)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_supernova.route('/supernova/<string:designation>/chart-pdf', methods=['GET'])
 def supernova_chart_pdf(designation):
     supernova = Supernova.query.filter_by(designation=designation).first()

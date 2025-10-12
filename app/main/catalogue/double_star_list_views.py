@@ -264,16 +264,6 @@ def double_star_list_chart_pos_img(double_star_list_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-legend-img', methods=['GET'])
-def double_star_list_chart_legend_img(double_star_list_id):
-    double_star_list = _find_double_star_list(double_star_list_id)
-    if double_star_list is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pdf', methods=['GET'])
 def double_star_list_chart_pdf(double_star_list_id):
     double_star_list = _find_double_star_list(double_star_list_id)

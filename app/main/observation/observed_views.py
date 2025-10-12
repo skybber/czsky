@@ -262,17 +262,6 @@ def observed_list_chart_pos_img():
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_observed.route('/observed-list/chart-legend-img', methods=['GET'])
-@login_required
-def observed_list_chart_legend_img():
-    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
-    if observed_list is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 def _get_observed_list_items(user_id):
     observed_list = ObservedList.query.filter_by(user_id=user_id).first()
     if observed_list:

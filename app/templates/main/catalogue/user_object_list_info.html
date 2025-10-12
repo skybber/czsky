@@ -66,8 +66,7 @@
 {% macro user_object_list_chart(user_object_list) %}
     {{ fchart.fchart(url_for('main_user_object_list.user_object_list_chart', user_object_list_id=user_object_list.id, back=back, back_id=back_id),
                      url_for('main_user_object_list.user_object_list_chart_pos_img', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, ),
-                     url_for('main_user_object_list.user_object_list_chart_legend_img', user_object_list_id=user_object_list.id, flags=chart_control.legend_flags,
-                              epfov=chart_control.eyepiece_fov),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      None,
                      None,
                      fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list')

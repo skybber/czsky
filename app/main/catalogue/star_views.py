@@ -240,16 +240,6 @@ def star_chart_pos_img(star_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_star.route('/star/<string:star_id>/chart-legend-img', methods=['GET'])
-def star_chart_legend_img(star_id):
-    star = Star.query.filter_by(id=star_id).first()
-    if star is None:
-        abort(404)
-
-    img_bytes = common_chart_legend_img(star.ra, star.dec)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_star.route('/star/<string:star_id>/chart-pdf', methods=['GET'])
 def star_chart_pdf(star_id):
     star = Star.query.filter_by(id=star_id).first()

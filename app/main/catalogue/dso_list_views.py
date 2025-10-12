@@ -229,12 +229,6 @@ def dso_list_chart_pos_img(dso_list_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-legend-img', methods=['GET'])
-def dso_list_chart_legend_img(dso_list_id):
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf', methods=['GET'])
 def dso_list_chart_pdf(dso_list_id):
     dso_list_dsos = _find_dso_list_dsos(dso_list_id)

@@ -195,12 +195,6 @@ def comets_chart_pos_img():
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_comet.route('/comets/chart-legend-img', methods=['GET'])
-def comets_chart_legend_img():
-    img_bytes = common_chart_legend_img(None, None)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_comet.route('/comets/chart-pdf', methods=['GET'])
 def comets_chart_pdf():
     comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
@@ -382,19 +376,6 @@ def comet_chart_pos_img(comet_id):
     img_bytes, img_format = common_chart_pos_img(comet_ra, comet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
-@main_comet.route('/comet/<string:comet_id>/chart-legend-img', methods=['GET'])
-def comet_chart_legend_img(comet_id):
-    comet = find_mpc_comet(comet_id)
-    if comet is None:
-        abort(404)
-
-    comet_ra = to_float(request.args.get('obj_ra'), None)
-    comet_dec = to_float(request.args.get('obj_dec'), None)
-
-    img_bytes = common_chart_legend_img(comet_ra, comet_dec)
-    return send_file(img_bytes, mimetype='image/png')
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pdf', methods=['GET'])

@@ -121,7 +121,7 @@
 {% macro comets_chart() %}
     {{ fchart.fchart(url_for('main_comet.comets_chart', back=back, back_id=back_id),
                      url_for('main_comet.comets_chart_pos_img', flags=chart_control.chart_flags, ),
-                     url_for('main_comet.comets_chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_comet.comets_chart_pdf', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

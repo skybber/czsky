@@ -216,7 +216,7 @@
 {% macro deepskyobject_chart() %}
     {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
                      url_for('main_deepskyobject.deepskyobject_chart_pos_img', dso_id=dso.id, flags=chart_control.chart_flags, back=back, back_id=back_id),
-                     url_for('main_deepskyobject.deepskyobject_chart_legend_img', dso_id=dso.id, flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,

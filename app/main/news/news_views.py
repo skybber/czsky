@@ -124,18 +124,6 @@ def news_chart_pos_img(news_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_news.route('/news/<int:news_id>/chart-legend-img', methods=['GET'])
-def news_chart_legend_img(news_id):
-    news = News.query.filter_by(id=news_id).first()
-    if news is None:
-        abort(404)
-    if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
-        abort(404)
-
-    img_bytes = common_chart_legend_img(news.ra, news.dec)
-    return send_file(img_bytes, mimetype='image/png')
-
-
 @main_news.route('/news/<int:news_id>/chart-pdf', methods=['GET'])
 def news_chart_pdf(news_id):
     news = News.query.filter_by(id=news_id).first()
