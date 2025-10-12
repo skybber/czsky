@@ -878,19 +878,17 @@ def _actualize_dso_pref_maglims(cur_maglim, magscale_index):
 
 def _get_stars_maglim_data():
     m = {}
-    for i in range(len(MAG_SCALES)):
-        key = 'pref_maglim' + str(FIELD_SIZES[i])
-        if key in session:
-            m[i] = session.get(key)
+    for i in range(len(FIELD_SIZES)):
+        _, ml, _ = _get_fld_size_maglim(i)
+        m[i] = ml
     return m
 
 
 def _get_dso_maglim_data():
     m = {}
-    for i in range(len(MAG_SCALES)):
-        key = 'pref_dso_maglim' + str(FIELD_SIZES[i])
-        if key in session:
-            m[i] = session.get(key)
+    for i in range(len(FIELD_SIZES)):
+        _, _, dml = _get_fld_size_maglim(i)
+        m[i] = dml
     return m
 
 

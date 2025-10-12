@@ -598,12 +598,12 @@
 
             $('#maglim_menu').empty();
             for (var i = magRanges[fldSizeIndex][0]; i <= magRanges[fldSizeIndex][1]; i++) {
-                $('<div class="item">' + i +'</div>').appendTo('#maglim_menu');
+                $('<div class="item" data-value="'+ i +'">' + i +'</div>').appendTo('#maglim_menu');
             }
 
             $('#dso_maglim_menu').empty();
             for (var j = dsoMagRanges[fldSizeIndex][0]; j <= dsoMagRanges[fldSizeIndex][1]; j++) {
-                $('<div class="item">' + j +'</div>').appendTo('#dso_maglim_menu');
+                $('<div class="item" data-value="'+ j +'">' + j +'</div>').appendTo('#dso_maglim_menu');
             }
 
             submitDisabled = false;
