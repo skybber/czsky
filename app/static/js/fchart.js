@@ -1901,7 +1901,7 @@ FChart.prototype.getCelestAtClientXY = function (clientX, clientY) {
     const y = dy / scale;
 
     const center = this.currentOverlayCenter();
-    const pos = this.unprojectAtCenter(center.phi, center.theta, x, y);
+    const pos = this.unprojectAtCenter(center.phi, center.theta, (this.isEquatorial ? x : -x), y);
     return pos; // {phi, theta}
 }
 
