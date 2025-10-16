@@ -14,3 +14,14 @@ def allow_view_session_plan(session_plan):
         elif session_plan.user_id != current_user.id:
             return False
     return True
+
+
+def allow_view_user_object_list(user_object_list):
+    if not user_object_list:
+        return False
+
+    if not user_object_list.is_public:
+        if user_object_list.user_id != current_user.id:
+            return False
+    return True
+

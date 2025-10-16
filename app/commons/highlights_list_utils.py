@@ -26,7 +26,7 @@ from app.models import (
 
 from app import db
 
-from app.commons.permission_utils import allow_view_session_plan
+from app.commons.permission_utils import allow_view_session_plan, allow_view_user_object_list
 from .dso_utils import (
     CHART_DOUBLE_STAR_PREFIX,
     CHART_COMET_PREFIX,
@@ -98,6 +98,19 @@ def common_highlights_from_session_plan(session_plan):
                 highlights_pos_list.append([item.ra, item.dec, CHART_MINOR_PLANET_PREFIX + str(item.minor_planet_id), item.minor_planet.designation])
             elif item.item_type == SessionPlanItemType.PLANET:
                 highlights_pos_list.append([item.ra, item.dec, CHART_PLANET_PREFIX + str(item.planet_id), item.planet.iau_code])
+    return highlights_dso_list, highlights_pos_list
+
+
+def common_highlights_from_user_object_list(user_object_list):
+    highlights_dso_list = []
+    highlights_pos_list = []
+
+    if user_object_list and allow_view_user_object_list(user_object_list):
+        for item in user_object_list.list_items:
+            if item.deepsky_objects is not None:
+                highlights_dso_list.extend(item.deepsky_objects)
+            elif item.double_star_id is not None:
+                highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
     return highlights_dso_list, highlights_pos_list
 
 

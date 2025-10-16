@@ -16,6 +16,7 @@ from flask_login import current_user, login_required
 from flask_babel import gettext
 
 from app import db, csrf
+from app.commons.highlights_list_utils import common_highlights_from_user_object_list
 
 from app.main.catalogue.user_object_list_forms import (
     UserObjectListNewForm,
