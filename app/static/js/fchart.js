@@ -164,7 +164,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     let iframe_style = "display:none;background-color:" + iframe_background;
     this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(url) + '" frameborder="0" class="fchart-iframe" style="' + iframe_style + '"></iframe>').appendTo(this.fchartDiv)[0];
     this.separator = $('<div class="fchart-separator fchart-separator-theme" style="display:none"></div>').appendTo(this.fchartDiv)[0];
-    this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="1" style="outline: 0;"></canvas>').appendTo(this.fchartDiv)[0];
+    this.canvas = $('<canvas  id="fcCanvas" class="fchart-canvas" tabindex="0" style="outline: 0;"></canvas>').appendTo(this.fchartDiv)[0];
     this.ctx = this.canvas.getContext('2d');
 
     this.projection = projection;
@@ -537,6 +537,16 @@ FChart.prototype.setDateTimeISO = function (dateTimeISO) {
 }
 
 FChart.prototype.onWindowLoad = function() {
+    this.adjustCanvasSize();
+    $(this.canvas).focus();
+    $(document).on('click', (e) => {
+        const $target = $(e.target);
+        const isUI = $target.closest('.ui.menu, .ui.dropdown, .ui.popup, input, textarea, .calendar').length > 0;
+        if (!isUI) {
+            this.canvas.focus();
+        }
+    });
+
     this.adjustCanvasSize();
     $(this.canvas).focus();
     this.reloadLegendImage();
