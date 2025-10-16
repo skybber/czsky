@@ -45,6 +45,23 @@ function formatDEC(rad) {
     return `${sign}${pad2(d)}° ${pad2(m)}′ ${pad2(s)}″`;
 }
 
+function normRad0to2Pi(rad) {
+    let x = rad % (2*Math.PI);
+    return (x < 0) ? x + 2*Math.PI : x;
+}
+
+function formatAZ(rad) {
+    const deg = rad2deg(normRad0to2Pi(rad));
+    const d = Math.floor(deg);
+    const m = Math.floor((deg - d) * 60);
+    const s = Math.floor((((deg - d) * 60) - m) * 60);
+    return `${pad2(d)}° ${pad2(m)}′ ${pad2(s)}″`;
+}
+
+function formatALT(rad) {
+    return formatDEC(rad);
+}
+
 // uses affine texture mapping to draw a textured triangle
 // at screen coordinates [x0, y0], [x1, y1], [x2, y2] from
 // img *pixel* coordinates [u0, v0], [u1, v1], [u2, v2]
@@ -1913,9 +1930,15 @@ FChart.prototype.drawOverlay = function () {
         }
     }
 
-    const raText = `RA ${formatRA(phi)}`;
-    const decText = `DEC ${formatDEC(theta)}`;
-    const timeText = new Date().toLocaleTimeString();
+    let lineLeft = '', lineRight = '';
+    if (this.isEquatorial) {
+        lineLeft  = `RA ${formatRA(phi)}`;
+        lineRight = `DEC ${formatDEC(theta)}`;
+    } else {
+        lineLeft  = `AZ ${formatAZ(phi)}`;
+        lineRight = `ALT ${formatALT(theta)}`;
+    }
+    const line = `${lineLeft}  ${lineRight}`;
 
     const ctx = this.ctx;
     ctx.save();
@@ -1926,14 +1949,15 @@ FChart.prototype.drawOverlay = function () {
     const lineH = 16;
 
     const textColor = (this.theme === 'night') ? '#ff4a4a'
-                     : (this.theme === 'light' ? '#000' : '#fff');
+        : (this.theme === 'light' ? '#000' : '#fff');
     const bgColor = this.theme === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
 
     if (isMobile) {
+        const timeText = new Date().toLocaleTimeString();
         const w = Math.max(
             ctx.measureText(timeText).width,
-            ctx.measureText(raText).width,
-            ctx.measureText(decText).width
+            ctx.measureText(lineLeft).width,
+            ctx.measureText(lineRight).width
         ) + pad * 2;
         const h = lineH * 3 + pad * 2;
         const x0 = 0, y0 = 0;
@@ -1943,11 +1967,10 @@ FChart.prototype.drawOverlay = function () {
         ctx.fillRect(x0, y0, w, h);
         ctx.fillStyle = textColor;
         ctx.fillText(timeText, x0 + pad, y0 + pad);
-        ctx.fillText(raText, x0 + pad, y0 + pad + lineH);
-        ctx.fillText(decText, x0 + pad, y0 + pad + 2 * lineH);
+        ctx.fillText(lineLeft,  x0 + pad, y0 + pad + lineH);
+        ctx.fillText(lineRight, x0 + pad, y0 + pad + 2 * lineH);
 
     } else {
-        const line = `${raText}  ${decText}`;
         const margin = 8;
         const w = ctx.measureText(line).width + pad * 2;
         const h = lineH + pad * 2;
@@ -1964,8 +1987,7 @@ FChart.prototype.drawOverlay = function () {
         ctx.fillStyle = (this.theme === 'light') ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
         ctx.fillRect(x0, y0, w, h);
 
-        ctx.fillStyle = (this.theme === 'night') ? '#ff4a4a'
-            : (this.theme === 'light' ? '#000' : '#fff');
+        ctx.fillStyle = textColor;
         ctx.fillText(line, x0 + pad, y0 + pad + 4);
     }
 
