@@ -1220,8 +1220,12 @@
         fchart.setChartUrlFlag(flag, value);
         if (value == 'true') {
             chartPdfUrl = addFlag(chartPdfUrl, flag);
+            chartUrlEq = addFlag(chartUrlEq, flag);
+            chartUrlHoriz = addFlag(chartUrlHoriz, flag);
         } else {
             chartPdfUrl = removeFlag(chartPdfUrl, flag);
+            chartUrlEq = removeFlag(chartUrlEq, flag);
+            chartUrlHoriz = removeFlag(chartUrlHoriz, flag);
         }
     }
 
