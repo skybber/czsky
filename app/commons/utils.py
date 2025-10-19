@@ -91,6 +91,16 @@ def is_splitview_supported():
     # return False
 
 
+def is_mobile():
+    screenWidth = request.args.get("screenWidth")
+    if screenWidth:
+        try:
+            screenWidth = int(screenWidth)
+            return screenWidth < 768
+        except ValueError:
+            pass
+    return False
+
 def get_about_oal():
     return gettext("""
 ## Goal

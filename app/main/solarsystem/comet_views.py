@@ -63,7 +63,7 @@ from app.commons.comet_utils import (
     update_comets_positions,
 )
 
-from app.commons.utils import to_float, is_splitview_supported
+from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
@@ -221,10 +221,11 @@ def comet_seltab(comet_id):
     if seltab == 'cobs' or not seltab and embed == 'comets':
         return _do_redirect('main_comet.comet_cobs_observations', comet)
 
+    kwargs = {}
     if is_splitview_supported():
-        return _do_redirect('main_comet.comet_info', comet, splitview=True)
+        kwargs['fullscreen' if is_mobile() else 'splitview'] = True
+    return _do_redirect('main_comet.comet_info', comet, **kwargs)
 
-    return _do_redirect('main_comet.comet_info', comet)
 
 
 @main_comet.route('/comet/<string:comet_id>', methods=['GET', 'POST'])
@@ -507,11 +508,12 @@ def _check_in_mag_interval(mag, mag_interval):
         return mag_interval[1]
     return mag
 
-def _do_redirect(url, comet, splitview=False):
+
+def _do_redirect(url, comet, splitview=False, fullscreen=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
-    fullscreen = request.args.get('fullscreen')
+    fullscreen = 'true' if fullscreen else request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
     return redirect(url_for(url, comet_id=comet.comet_id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))

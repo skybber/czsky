@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
 )
 
-from app.commons.utils import to_float, is_splitview_supported
+from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 
@@ -98,10 +98,11 @@ def planet_moon_seltab(planet_moon_name):
     if request.args.get('embed'):
         return _do_redirect('main_planet_moon.planet_moon_catalogue_data', planet_moon)
 
+    kwargs = {}
     if is_splitview_supported():
-        return _do_redirect('main_planet_moon.planet_moon_info', planet_moon, splitview=True)
+        kwargs['fullscreen' if is_mobile() else 'splitview'] = True
 
-    return _do_redirect('main_planet_moon.planet_moon_info', planet_moon)
+    return _do_redirect('main_planet_moon.planet_moon_info', planet_moon, **kwargs)
 
 
 @main_planet_moon.route('/planet-moon/<string:planet_moon_name>', methods=['GET', 'POST'])
@@ -278,11 +279,11 @@ def planet_moon_observation_log_delete(planet_moon_name):
     return redirect(url_for('main_planet_moon.planet_moon_observation_log', planet_moon_name=planet_moon_name, back=back, back_id=back_id))
 
 
-def _do_redirect(url, planet_moon, splitview=False):
+def _do_redirect(url, planet_moon, splitview=False, fullscreen=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
-    fullscreen = request.args.get('fullscreen')
+    fullscreen = 'true' if fullscreen else request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     return redirect(url_for(url, planet_moon_name=planet_moon.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 

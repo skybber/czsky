@@ -68,7 +68,7 @@ from app.commons.chart_generator import (
     get_trajectory_b64,
 )
 
-from app.commons.utils import to_float, is_splitview_supported
+from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
@@ -283,10 +283,11 @@ def minor_planet_seltab(minor_planet_id):
     if show_observation_log():
         return _do_redirect('main_minor_planet.minor_planet_observation_log', minor_planet)
 
+    kwargs = {}
     if is_splitview_supported():
-        return _do_redirect('main_minor_planet.minor_planet_info', minor_planet, splitview=True)
+        kwargs['fullscreen' if is_mobile() else 'splitview'] = True
 
-    return _do_redirect('main_minor_planet.minor_planet_info', minor_planet)
+    return _do_redirect('main_minor_planet.minor_planet_info', minor_planet, **kwargs)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>', methods=['GET', 'POST'])
@@ -517,11 +518,11 @@ def minor_planet_observation_log_delete(minor_planet_id):
     return redirect(url_for('main_minor_planet.minor_planet_observation_log', minor_planet_id=minor_planet_id, back=back, back_id=back_id))
 
 
-def _do_redirect(url, minor_planet, splitview=False):
+def _do_redirect(url, minor_planet, splitview=False, fullscreen=False):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     embed = request.args.get('embed', None)
-    fullscreen = request.args.get('fullscreen')
+    fullscreen = 'true' if fullscreen else request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     return redirect(url_for(url, minor_planet_id=minor_planet.int_designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
 
