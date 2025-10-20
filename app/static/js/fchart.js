@@ -62,12 +62,8 @@ function formatALT(rad) {
     return formatDEC(rad);
 }
 
-function topoToAtroAzimuth(phi) {
-    phi = -phi + Math.PI;
-    if (phi < 0) {
-        phi = phi + 2*Math.PI
-    }
-    return phi;
+function fixAzimuth(phi) {
+    return -phi + 2*Math.PI;
 }
 
 // uses affine texture mapping to draw a textured triangle
@@ -1921,7 +1917,7 @@ FChart.prototype.getCelestAtClientXY = function (clientX, clientY) {
     const center = this.currentOverlayCenter();
     const pos = this.unprojectAtCenter(center.phi, center.theta, x, y);
     if (!this.isEquatorial) {
-        pos.phi = topoToAtroAzimuth(pos.phi)
+        pos.phi = fixAzimuth(pos.phi)
     }
     return pos; // {phi, theta}
 }
@@ -1946,7 +1942,7 @@ FChart.prototype.drawOverlay = function () {
         }
         if (phi === undefined || theta === undefined) {
             const c = this.currentOverlayCenter();
-            phi = topoToAtroAzimuth(c.phi);
+            phi = fixAzimuth(c.phi);
             theta = c.theta;
         }
     }
