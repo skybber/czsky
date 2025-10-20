@@ -127,6 +127,7 @@ class FlagValue(Enum):
     SHOW_DEEPSKY = 'D'
     SHOW_SOLAR_SYSTEM = 'O'
     SHOW_EQUATORIAL_GRID = 'E'
+    SHOW_HORIZONTAL_GRID = 'H'
     SHOW_DSO_MAG = 'M'
     SHOW_STAR_LABELS = 'N'
     SHOW_PICKER = 'P'
@@ -641,6 +642,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_constell_borders.data = session.get('chart_show_constell_borders', form.show_constell_borders.data)
         form.dss_layer.data = session.get('chart_dss_layer', form.dss_layer.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
+        form.show_horizontal_grid.data = session.get('chart_show_horizontal_grid', form.show_horizontal_grid.data)
         form.show_dso_mag.data = session.get('chart_show_dso_mag', form.show_dso_mag.data)
         form.show_star_labels.data = session.get('chart_show_star_labels', form.show_star_labels.data)
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
@@ -661,6 +663,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') in ['blue', 'fram']:
             session['chart_dss_layer'] = 'colored'
         session['chart_show_equatorial_grid'] = form.show_equatorial_grid.data
+        session['chart_show_horizontal_grid'] = form.show_horizontal_grid.data
         session['chart_mirror_x'] = form.mirror_x.data
         session['chart_mirror_y'] = form.mirror_y.data
         session['chart_show_dso_mag'] = form.show_dso_mag.data
@@ -973,6 +976,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     config.show_deepsky = FlagValue.SHOW_DEEPSKY.value in flags
     config.show_nebula_outlines = config.show_deepsky
     config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
+    config.show_horizontal_grid = FlagValue.SHOW_HORIZONTAL_GRID.value in flags
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, width)
     config.show_picker = False  # do not show picker, only activate it
@@ -1039,8 +1043,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     local_sidereal_time, lat, lon = _get_lst_lat_lot()
 
-    if not is_equatorial:
-        engine.set_observer(local_sidereal_time, lat)
+    engine.set_observer(local_sidereal_time, lat, is_equatorial)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -1122,7 +1125,6 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     config.show_dso_legend = False
     config.show_orientation_legend = True
-    config.show_equatorial_grid = True
 
     config.show_flamsteed = (fld_size <= 20)
 
@@ -1130,6 +1132,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.show_constellation_borders = FlagValue.CONSTELL_BORDERS.value in flags
     config.show_deepsky = FlagValue.SHOW_DEEPSKY.value in flags
     config.show_equatorial_grid = FlagValue.SHOW_EQUATORIAL_GRID.value in flags
+    config.show_horizontal_grid = FlagValue.SHOW_HORIZONTAL_GRID.value in flags
     config.fov_telrad = FlagValue.FOV_TELRAD.value in flags
     config.show_simple_milky_way = False
     config.show_enhanced_milky_way_10k = False
@@ -1161,8 +1164,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
 
     local_sidereal_time, lat, lon = _get_lst_lat_lot()
-    if not is_equatorial:
-        engine.set_observer(local_sidereal_time, lat)
+    engine.set_observer(local_sidereal_time, lat, is_equatorial)
 
     if obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1216,7 +1218,8 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     config.show_numeric_map_scale_legend = True
 
     config.show_field_border = False
-    config.show_equatorial_grid = True
+    config.show_equatorial_grid = False
+    config.show_horizontal_grid = False
     config.show_picker = FlagValue.SHOW_PICKER.value in flags
     config.picker_radius = PICKER_RADIUS
 
@@ -1334,6 +1337,9 @@ def _get_chart_legend_flags(form):
     if form.show_equatorial_grid.data == 'true':
         chart_flags += FlagValue.SHOW_EQUATORIAL_GRID.value
 
+    if form.show_horizontal_grid.data == 'true':
+        chart_flags += FlagValue.SHOW_HORIZONTAL_GRID.value
+
     if form.dss_layer.data == 'colored':
         chart_flags += FlagValue.DSS_COLORED.value
 
@@ -1442,7 +1448,7 @@ def set_chart_session_param(key, value):
             session['user_location'] = value
     elif key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
                  'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_dss_layer',
-                 'chart_show_equatorial_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
+                 'chart_show_equatorial_grid', 'chart_show_horizontal_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
                  'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':

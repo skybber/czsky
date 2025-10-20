@@ -44,6 +44,7 @@
             <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
             <input type="hidden" id="show_star_lbl" name="{{ fchart_form.show_star_labels.name }}" value="{{ fchart_form.show_star_labels.data }}">
             <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
+            <input type="hidden" id="show_hgrid" name="{{ fchart_form.show_horizontal_grid.name }}" value="{{ fchart_form.show_horizontal_grid.data }}">
             <input type="hidden" id="dss_layer" name="{{ fchart_form.dss_layer.name }}" value="{{ fchart_form.dss_layer.data }}">
             <input type="hidden" id="eyepiece_fov" name="{{ fchart_form.eyepiece_fov.name }}" value="{{ fchart_form.eyepiece_fov.data }}">
             <input type="hidden" id="mirror_x" name="{{ fchart_form.mirror_x.name }}" value="{{ fchart_form.mirror_x.data }}" >
@@ -277,6 +278,12 @@
                             <button id="begrid" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_equatorial_grid.data=='true' else ''}}" style="text-align:left">
                                 <i class="globe icon"></i>
                                 {{ _('Equatorial grid')}}
+                            </button>
+                        </div>
+                        <div class="item">
+                            <button id="bhgrid" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_horizontal_grid.data=='true' else ''}}" style="text-align:left">
+                                <i class="globe icon"></i>
+                                {{ _('Horizontal grid')}}
                             </button>
                         </div>
                         <div class="item">
@@ -918,6 +925,28 @@
         $('#show_egrid').val(value);
         chart_param_ajax('chart_show_equatorial_grid', value);
         setChartUrlFlag('E', value);
+        if (value == 'true' && $('#show_hgrid').val() == 'true') {
+            $('#bhgrid').removeClass('active');
+            $('#show_hgrid').val('false');
+            chart_param_ajax('chart_show_horizontal_grid', 'false');
+            setChartUrlFlag('H', 'false');
+        }
+        fchart.reloadImage();
+    });
+
+    $('#bhgrid').click(function(event){
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        var value = $('#show_hgrid').val() == 'true' ? 'false' : 'true';
+        $('#show_hgrid').val(value);
+        chart_param_ajax('chart_show_horizontal_grid', value);
+        setChartUrlFlag('H', value);
+        if (value == 'true' && $('#show_egrid').val() == 'true') {
+            $('#begrid').removeClass('active');
+            $('#show_egrid').val('false');
+            chart_param_ajax('chart_show_equatorial_grid', 'false');
+            setChartUrlFlag('E', 'false');
+        }
         fchart.reloadImage();
     });
 
