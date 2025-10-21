@@ -446,23 +446,19 @@
         {% endif %}
     </div>
 
-    <div class="ui" style="position: absolute; top: 0; bottom: 0;display: flex;align-items: center;">
-        <div class="ui small buttons">
-              <button id="bhideleftpanel" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic button"  style="z-index:100;display:none">
-                  <i class="angle left icon"></i>
-              </button>
-              <button id="bshowleftpanel1" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic mobile hidden button"  style="z-index:100;display:none;">
-                  <i class="angle right icon"></i>
-              </button>
-        </div>
+    <div class="ui" style="position: absolute; top: 0; bottom: 0; display: flex; align-items: center;">
+        <button id="bhideleftpanel" type="button" class="ui icon {{ '' if chart_control.theme=='light' else 'inverted' }} button custom-nav round-right-only" style="z-index:100;display:none" >
+            <i class="angle left icon"></i>
+        </button>
+        <button id="bshowleftpanel1" type="button" class="ui icon {{ '' if chart_control.theme=='light' else 'inverted' }} button custom-nav round-right-only mobile hidden" style="z-index:100;display:none;">
+            <i class="angle right icon"></i>
+        </button>
     </div>
 
     <div class="ui" style="position: absolute; top: 0; bottom: 0; right: 0; display: flex; align-items: center;">
-        <div class="ui small buttons">
-              <button id="bshowleftpanel2" type="button" class="ui compact icon {{ '' if chart_control.theme=='light' else 'inverted' }} secondary basic mobile only button"  style="z-index:100;display:none;" >
-                  <i class="angle left icon"></i>
-              </button>
-        </div>
+        <button id="bshowleftpanel2" type="button" class="ui icon {{ '' if chart_control.theme=='light' else 'inverted' }} button custom-nav round-left-only mobile only" style="z-index:100;display:none;">
+            <i class="angle left icon"></i>
+        </button>
     </div>
 
     <div id="isearch2" class="ui tablet hidden computer hidden input" style="z-index:100; position: absolute; bottom: 0; right:0; display:none;">
@@ -1519,5 +1515,45 @@
 
     $('.chart-popup').popup({ on: 'click' });
 </script>
+
+<style>
+    .ui.button.custom-nav {
+      border: none;
+      box-shadow: none;
+      margin: 0px;
+    }
+
+    .ui.inverted.button.custom-nav {
+      color: {{ '#cacbcc' if chart_control.theme!='night' else '#ae8f8f' }};
+      background-color: {{ '#383c4a' if chart_control.theme!='night' else '#211010' }};
+    }
+
+    .ui.icon.button.custom-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      height: 56px;
+      width: 24px;
+    }
+
+    .ui.inverted.button.custom-nav:hover {
+      filter: brightness(0.5);
+    }
+
+    .ui.button.round-right-only {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      border-top-right-radius: 6px;
+      border-bottom-right-radius: 6px;
+    }
+
+    .ui.button.round-left-only {
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+    }
+</style>
 
 {% endmacro %}
