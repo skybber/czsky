@@ -1523,11 +1523,6 @@
       margin: 0px;
     }
 
-    .ui.inverted.button.custom-nav {
-      color: {{ '#cacbcc' if chart_control.theme!='night' else '#ae8f8f' }};
-      background-color: {{ '#383c4a' if chart_control.theme!='night' else '#211010' }};
-    }
-
     .ui.icon.button.custom-nav {
       display: inline-flex;
       align-items: center;
@@ -1537,8 +1532,13 @@
       width: 24px;
     }
 
-    .ui.inverted.button.custom-nav:hover {
-      filter: brightness(0.5);
+    .ui.inverted.button.custom-nav,
+    .ui.inverted.button.custom-nav:hover,
+    .ui.inverted.button.custom-nav:focus,
+    .ui.inverted.button.custom-nav:active {
+      color: {{ '#cacbcc' if chart_control.theme!='night' else '#ae8f8f' }};
+      background-color: {{ '#383c4a' if chart_control.theme!='night' else '#211010' }};
+      box-shadow: none !important;
     }
 
     .ui.button.round-right-only {
