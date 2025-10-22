@@ -19,6 +19,7 @@ from flask_migrate import Migrate
 from app import create_app, db
 
 from app.models import (
+    Comet,
     Constellation,
     ChartTheme,
     Role,
@@ -242,6 +243,17 @@ def import_comets():
     update_evaluated_comet_brightness(all_mpc_comets=all_mpc_comets, show_progress=True)
     update_comets_cobs_observations()
     update_comets_positions(None, True)
+
+
+@app.cli.command("delete_lost_comets")
+def delete_lost_comets():
+    from app.commons.comet_utils import find_mpc_comet
+    comets = Comet.query.all()
+    for comet in comets:
+        if find_mpc_comet(comet.comet_id) is None:
+            print('Deleting comet', comet.comet_id)
+            db.session.delete(comet)
+    db.session.commit()
 
 
 @app.cli.command("import_planets")
