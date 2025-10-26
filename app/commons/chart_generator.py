@@ -982,7 +982,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
     config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, width)
     config.show_picker = False  # do not show picker, only activate it
-    config.show_horizont = True
+    config.show_horizon = True
     config.use_optimized_mw = (high_quality != '1')
 
     if FlagValue.SHOW_PICKER.value in flags:
@@ -1143,7 +1143,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.show_star_labels = FlagValue.SHOW_STAR_LABELS.value in flags
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.5  # increase radius of star by 1.5 magnitude
-    config.show_horizont = True
+    config.show_horizon = True
 
     if show_legend:
         config.show_mag_scale_legend = True
