@@ -958,6 +958,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     global free_mem_counter
     tm = time()
 
+    high_quality = request.args.get('hqual', '')
+
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
@@ -981,6 +983,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, width)
     config.show_picker = False  # do not show picker, only activate it
     config.show_horizont = True
+    config.use_optimized_mw = (high_quality != '1')
+
     if FlagValue.SHOW_PICKER.value in flags:
         config.picker_radius = PICKER_RADIUS
     else:
@@ -998,7 +1002,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     if dso_maglim is None:
         dso_maglim = -10
 
-    high_quality = request.args.get('hqual', '')
     avif = request.args.get('avif', '')
 
     jpg_low_quality = int(current_app.config.get('CHART_JPEG_LOW_QUALITY'))
@@ -1095,7 +1098,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
                     trajectory=trajectory,
                     hl_constellation=hl_constellation,
                     visible_objects=visible_objects,
-                    use_optimized_mw=(high_quality != '1'),
                     transparent=transparent)
 
     free_mem_counter += 1
