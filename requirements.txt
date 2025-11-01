@@ -63,7 +63,7 @@ requests==2.32.4
 rq==1.16.2
 setuptools==78.1.1
 six==1.16.0
-skia-python==132.0b11
+skia-python==138.0
 skyfield==1.52
 SQLAlchemy==2.0.36
 text-unidecode==1.3
