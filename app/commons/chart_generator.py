@@ -216,7 +216,7 @@ def _load_used_catalogs():
                                                      force_unknown=False,
                                                      show_catalogs=ADD_SHOW_CATALOGS,
                                                      use_pgc_catalog=True,
-                                                     enhanced_mw_optim_max_col_diff=18/255.0)
+                                                     enhanced_mw_optim_max_col_diff=14/255.0)
                 global dso_name_cache
                 dso_name_cache = {}
     return used_catalogs
