@@ -14,7 +14,7 @@ Click==8.1.7
 commonmark==0.9.1
 email-validator==2.1.1
 Faker==25.0.1
-fchart3==0.10.3
+fchart3==0.11.0
 Flask==3.0.3
 Flask-Assets==2.1.0
 Flask-Babel==4.0.0
