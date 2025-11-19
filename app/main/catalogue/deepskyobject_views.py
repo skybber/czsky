@@ -818,4 +818,5 @@ def _do_redirect(url, dso, splitview=False):
     fullscreen = request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
-    return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
+    dt = request.args.get('dt')
+    return redirect(url_for(url, dso_id=dso.name, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season, dt=dt))

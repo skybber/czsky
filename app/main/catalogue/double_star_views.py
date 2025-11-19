@@ -602,7 +602,8 @@ def _do_redirect(url, double_star, splitview=False):
     fullscreen = request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     season = request.args.get('season')
-    return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season))
+    dt = request.args.get('dt')
+    return redirect(url_for(url, double_star_id=double_star.id, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, season=season, dt=dt))
 
 
 def _get_user_descr(double_star_id):

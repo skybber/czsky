@@ -67,9 +67,9 @@ def chart():
     if ra is not None and dec is not None:
         form.ra.data = float(ra)
         form.dec.data = float(dec)
-    elif not common_ra_dec_dt_fsz_from_request(form):
+    if not common_ra_dec_dt_fsz_from_request(form):
         common_set_initial_celestial_position(form)
-    set_horiz_from_equatorial(form)
+        set_horiz_from_equatorial(form)
 
     chart_control = common_prepare_chart_data(form)
 

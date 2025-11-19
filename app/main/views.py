@@ -143,7 +143,9 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')))
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
+                                ))
 
     # 3. Search Double Star
     double_star = search_double_star(query)
@@ -156,7 +158,9 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')))
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
+                                ))
 
     # 4. Search Star
     star, usd = search_star(query)
@@ -181,7 +185,8 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
                                 ))
 
     # 6. Search planet moons
@@ -195,7 +200,8 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
                                 ))
 
     # 7. Search comet
@@ -209,7 +215,9 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')))
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
+                                ))
 
     # 8. Search minor planet
     minor_planet = search_minor_planet(query)
@@ -222,7 +230,8 @@ def do_global_search(query, level):
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
                                 embed=request.args.get('embed'),
-                                screenWidth=request.args.get('screenWidth')
+                                screenWidth=request.args.get('screenWidth'),
+                                dt=request.args.get('dt'),
                                 ))
 
     # 9. search by radec
@@ -268,7 +277,13 @@ def _search_by_ra_dec(query):
     try:
         ra, dec = parse_radec(query)
         if ra is not None and dec is not None:
-            return redirect(url_for('main_chart.chart', mra=ra, mdec=dec, embed=request.args.get('embed')))
+            return redirect(url_for('main_chart.chart',
+                                    mra=ra,
+                                    mdec=dec,
+                                    fullscreen=request.args.get('fullscreen'),
+                                    splitview=request.args.get('splitview'),
+                                    embed=request.args.get('embed'),
+                                    dt=request.args.get('dt')))
     except ValueError:
         pass
 

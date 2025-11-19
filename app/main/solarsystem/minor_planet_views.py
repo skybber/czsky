@@ -524,7 +524,8 @@ def _do_redirect(url, minor_planet, splitview=False, fullscreen=False):
     embed = request.args.get('embed', None)
     fullscreen = 'true' if fullscreen else request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
-    return redirect(url_for(url, minor_planet_id=minor_planet.int_designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed))
+    dt = request.args.get('dt')
+    return redirect(url_for(url, minor_planet_id=minor_planet.int_designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, dt=dt))
 
 
 def _check_in_mag_interval(mag, mag_interval):

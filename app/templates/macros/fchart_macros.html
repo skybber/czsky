@@ -1199,12 +1199,14 @@
     $('.search-dso').on('keydown', function(event) {
         if(event.which === 13) {
             event.preventDefault();
-            window.location.href = encodeURI(
-                "{{ url_for('main.global_search') }}?q=" + $(this).val()
-                + "&fromchart=true&seltab=chart"
-                + getFullscreenSplitViewUrlPart("&")
-                + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}')
-            );
+            var url = "{{ url_for('main.global_search') }}?q=" + $(this).val()
+                      + "&fromchart=true&seltab=chart"
+                      + getFullscreenSplitViewUrlPart("&")
+                      + "&back_url=" + encodeURIComponent('{{ chart_control.back_search_url_b64 }}');
+            if ($("#use_current_time").val() == 'false') {
+                url += "&dt=" + $('#chart_date_time').val();
+            }
+            window.location.href = encodeURI(url);
         }
     });
 
