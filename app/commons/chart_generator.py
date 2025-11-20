@@ -1210,6 +1210,8 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     global free_mem_counter
     # tm = time()
 
+    flags = '' if flags is None else flags
+
     used_catalogs = _load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
