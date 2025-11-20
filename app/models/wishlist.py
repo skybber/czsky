@@ -68,6 +68,9 @@ class WishList(db.Model):
     def get_wished_dsos_by_user_id(user_id):
         wish_list = WishList.query.filter_by(user_id=user_id).first()
 
+        if not wish_list:
+            return []
+
         wished_subquery = db.session.query(WishListItem.dso_id) \
             .join(WishListItem.wish_list) \
             .filter(WishList.id == wish_list.id, WishList.user_id == user_id, WishListItem.dso_id is not None)
