@@ -14,7 +14,7 @@ Click==8.1.7
 commonmark==0.9.1
 email-validator==2.1.1
 Faker==25.0.1
-fchart3==0.11.0
+fchart3==0.11.1
 Flask==3.0.3
 Flask-Assets==2.1.0
 Flask-Babel==4.0.0
@@ -42,7 +42,7 @@ lru-dict==1.3.0
 Mako==1.3.3
 MarkupSafe==2.1.5
 numpy==2.2.1
-openai==0.28.1
+openai==2.8.1
 packaging==24.0
 pandas==2.2.3
 Pillow==11.1.0
@@ -52,7 +52,7 @@ psycopg==3.1.18
 pycairo==1.27.0
 pycryptodome==3.20.0
 python-dotenv==1.0.1
-PyICU==2.14
+PyICU==2.16
 pyparsing==3.1.2
 pyScss==1.4.0
 python-dateutil==2.9.0

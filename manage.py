@@ -453,10 +453,81 @@ def tmp_import_wikipedia_ngc():
 @app.cli.command("tmp_translate_wikipedia_ngc")
 def tmp_translate_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import translate_wikipedia_ngc
-    gpt_prompt = '''Přelož astronomický text do češtiny. Používej české názvy souhvězdí. Používej český termín 'galaxie s příčkou'. Překládaný text začína sekvencí __0__. Nikdy neodstraňuj značky typu __0__ :
+    gpt_prompt = """Přelož následující astronomický text z angličtiny do češtiny.
+    
+    PŘEKLADOVÁ PRAVIDLA
+    - Překládej věcně přesně, nic nepřidávej ani nevynechávej.
+    - NEMĚŇ žádná čísla, jednotky, směry (north / south / east / west / northeast / southwest atd.) ani vztahy typu „closer / further“, „brighter / fainter“.
+    - Zachovej všechny názvy objektů (NGC, UGC, PGC, AGC, IC, SN 1994Z, SN 2011jo, Abell 2731 atd.) beze změny.
+    - Zachovej všechny morfologické klasifikace (např. SAB(rs)bc, SBb, SA(s)c, SB(rs)cd) přesně tak, jak jsou. Tyto zkratky NEPŘEKLÁDEJ.
 
-'''
-    translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt, datetime.now())
+    ODBORNÁ TERMINOLOGIE – POUŽÍVEJ KONSISTENTNĚ
+
+    Obecné pojmy:
+    - stellar cluster → hvězdokupa
+    - open cluster → otevřená hvězdokupa
+    - globular cluster → kulová hvězdokupa
+    - star formation rate → rychlost tvorby hvězd
+    - interstellar medium → mezihvězdné prostředí
+    - star cluster → hvězdokupa
+
+    Typy galaxií:
+    - galaxy → galaxie
+    - spiral galaxy → spirální galaxie
+    - barred spiral galaxy → spirální galaxie s příčkou
+    - unbarred spiral galaxy / unbarred spiral → spirální galaxie bez příčky
+    - lenticular galaxy → čočková galaxie
+    - barred lenticular galaxy → čočková galaxie s příčkou
+    - irregular galaxy → nepravidelná galaxie
+    - barred irregular galaxy → nepravidelná galaxie s příčkou
+    - edge-on galaxy → galaxie pozorovaná téměř z boku
+    - luminous infrared galaxy → svítivá infračervená galaxie
+    - gas-rich galaxy → galaxie bohatá na plyn
+    - brightest cluster galaxy → nejjasnější galaxie kupy
+
+    Galaktická dynamika a struktura:
+    - galactic nucleus → galaktické jádro
+    - (central) bar nucleus / center bar nucleus → (centrální) příčkové jádro
+    - galactic habitable zone → galaktická obyvatelná zóna
+    - major merger → velké sloučení galaxií
+    - merger (of two galaxies) → sloučení dvou galaxií
+    - annulus → prstencová oblast
+    - companion galaxy → doprovodná galaxie
+    - companion spiral galaxy / companion spiral → doprovodná spirální galaxie
+    - radial velocity → radiální rychlost
+    - redshift → rudý posuv (červený posuv)
+    - filamentary features → filamentární struktury
+    - jet-like structure → tryskovitá struktura
+
+    Jednotky a vzdálenosti:
+    - million light-years → milionů světelných let
+    - megalight-years, Mly → milionů světelných let (NE používej tvary typu „megasvítelných let“)
+    - kiloparsec, kiloparsecs → kiloparsek, kiloparseky
+    - apparent magnitude → zdánlivá hvězdná velikost
+    - angular size → úhlová velikost
+
+    Souhvězdí – VŽDY české názvy:
+    - Pegasus → souhvězdí Pegasa
+    - Andromeda → souhvězdí Andromedy
+    - Pisces → souhvězdí Ryb
+    - Sculptor → souhvězdí Sochaře
+    - Cetus → souhvězdí Velryby
+    - Phoenix → souhvězdí Fénixe
+    (ostatní souhvězdí překládej běžnými českými názvy, pokud existují.)
+
+    Supernovy:
+    - supernova → supernova
+    - supernova explosion → výbuch supernovy
+
+    FORMÁTOVÁNÍ A ZNAČKY
+    - Zachovej formátování odstavců, uvozovek a citací (např. [1], (Smith 2020)).
+    - Názvy typu „NGC 1“, „NGC 23“, „UGC 57“, „PGC 564“, „IC 1546“ nech vždy v originálním tvaru.
+
+    STYL
+    - Používej odbornou češtinu.
+    - Jako výstup vrať pouze přeložený text bez dodatečných poznámek.
+    """
+    translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt, datetime.now(), "\nText k překladu začíná značkou __0__:", bulk_mode=False)
 
 
 @app.cli.command("tmp_fix_wikipedia_ngc")

@@ -17,14 +17,21 @@ from app.models.user import User
 
 WIKIPEDIA_REF = '{} Wikipedia'
 
+client = openai.OpenAI(
+    base_url="http://127.0.0.1:5000/v1",
+    api_key="not-needed",
+)
+
+
 class TranslHolder:
-    def __init__(self, gpt_prompt):
+    def __init__(self, gpt_prompt, bulk_mode):
         self.encoding = tiktoken.encoding_for_model('gpt-4')
         self.gpt_prompt = gpt_prompt
         self.dso_names = []
         self.descrs = []
         self.texts = []
         self.string = ''
+        self.bulk_mode = bulk_mode
 
     def add_descr(self, dso_name, descr, t):
         if self._should_flush(t):
@@ -40,19 +47,24 @@ class TranslHolder:
     def _should_flush(self, t):
         if len(self.texts) == 0:
             return False
+        if not self.bulk_mode:
+            return True
         new_string = self.string + self._format_part(t)
         num_tokens = len(self.encoding.encode(self.gpt_prompt + new_string))
-        return num_tokens > 1300
+        return num_tokens > 2500
 
     def _translate_it(self, text):
         while True:
             try:
-                messages = [{"role": "user", "content": self.gpt_prompt + text}]
+                messages = [
+                    {"role": "system", "content": self.gpt_prompt},
+                    {"role": "user", "content": text},
+                ]
 
-                completion = openai.ChatCompletion.create(
-                    model='gpt-4o-2024-05-13',
+                completion = client.chat.completions.create(
+                    model='unknown',
                     messages=messages,
-                    temperature=0.0
+                    temperature=0.0,
                 )
 
                 translated = completion.choices[0].message.content
@@ -63,10 +75,36 @@ class TranslHolder:
                 time.sleep(10)
 
     def flush(self):
-        if len(self.string) == 0:
+        if self.bulk_mode:
+            self._flush_bulk()
+        else:
+            self._flush_single()
+
+    def _flush_single(self):
+        if len(self.texts) == 0:
             return
 
-        print('Translating {} '.format(self.dso_names))
+        for i, d in enumerate(self.descrs):
+            t = self.texts[i]
+
+            tr = self._translate_it(t).strip()
+
+            print('EN:\n{}\n\nCZ_RAW:\n{}\n\n'.format(t, tr), flush=True)
+
+            d.text = tr
+            db.session.add(d)
+            db.session.flush()
+
+        db.session.commit()
+
+        self.dso_names = []
+        self.descrs = []
+        self.texts = []
+        self.string = ''
+
+    def _flush_bulk(self):
+        if len(self.string) == 0:
+            return
 
         required_tag = '__{}__'.format(len(self.texts))
 
@@ -74,13 +112,21 @@ class TranslHolder:
 
         transl = self._translate_it(self.string).strip()
 
-        if not required_tag in transl:
-            print('Bulk translation failed!')
+        tags_ok = all(f"__{i}__" in transl for i in range(len(self.texts)))
+
+        if not tags_ok:
             for i, t in enumerate(self.texts):
                 d = self.descrs[i]
-                tr = self._translate_it(t).strip()
-                print('{}\n{}\n'.format(t, tr))
-                d.text = tr
+                single_input = f"__0__\n{t}\n__1__"
+                tr = self._translate_it(single_input).strip()
+                i1 = tr.find('__0__')
+                i2 = tr.find('__1__')
+                if i1 != -1 and i2 != -1:
+                    tr_clean = tr[i1 + len('__0__'):i2].strip()
+                else:
+                    tr_clean = tr
+                print('EN:\n{}\n\nCZ_RAW:\n{}\n\n'.format(t, tr_clean), flush=True)
+                d.text = tr_clean
                 db.session.add(d)
                 db.session.flush()
         else:
@@ -89,11 +135,15 @@ class TranslHolder:
 
             for i, d in enumerate(self.descrs):
                 tag1 = '__{}__'.format(i)
-                tag2 = '__{}__'.format(i+1)
                 i1 = transl.find(tag1)
-                i2 = transl.find(tag2)
                 i1_orig = self.string.find(tag1)
+
+                tag2 = '__{}__'.format(i+1)
+                i2 = transl.find(tag2)
                 i2_orig = self.string.find(tag2)
+
+                if i2 == -1 and i == len(self.descrs) - 1:
+                    i2 = len(transl)
 
                 if i1 == -1 or i1_orig == -1:
                     print('Tag __x__ not found {}'.format(tag1))
@@ -103,11 +153,13 @@ class TranslHolder:
                     print('Tag __x__ not found {}'.format(tag2))
                     exit()
 
-                t = transl[i1+len(tag1):i2].strip().replace('__0__', '')
+                t = transl[i1 + len(tag1):i2].strip()
+                if t.startswith('__0__'):
+                    t = t[len('__0__'):].lstrip()
 
                 t_orig = self.string[i1_orig+len(tag1):i2_orig].strip()
 
-                print('{}\n{}\n'.format(t_orig, t))
+                print('EN:\n{}\n\nCZ_RAW:\n{}\n\n'.format(t_orig, t), flush=True)
 
                 d.text = t
                 db.session.add(d)
@@ -119,6 +171,7 @@ class TranslHolder:
         self.descrs = []
         self.texts = []
         self.string = ''
+
 
 def import_wikipedia_ngc(do_update=False):
 
@@ -220,7 +273,8 @@ def import_wikipedia_ngc(do_update=False):
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
 
-def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt, update_date):
+
+def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt, update_date, bulk_prompt_ext, bulk_mode):
 
     user_editor_cs = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_CS')).first()
     user_wikipedia = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_WIKIPEDIA')).first()
@@ -230,7 +284,8 @@ def translate_wikipedia_ngc(lang_code, ref_prefix, gpt_prompt, update_date):
         return
 
     try:
-        tholder = TranslHolder(gpt_prompt)
+        final_gpt_prompt = gpt_prompt + bulk_prompt_ext if bulk_mode else gpt_prompt
+        tholder = TranslHolder(final_gpt_prompt, bulk_mode)
         user_descr = UserDsoDescription.query.filter_by(user_id=user_wikipedia.id, lang_code='en').all()
 
         for udd_en in user_descr:
@@ -284,7 +339,7 @@ def fix_wikipedia_ngc(lang_code, ref_prefix, text_like, gpt_prompt):
         return
 
     try:
-        tholder = TranslHolder(gpt_prompt)
+        tholder = TranslHolder(gpt_prompt, False)
         user_descr = UserDsoDescription.query.filter_by(user_id=user_wikipedia.id, lang_code='en').all()
 
         for udd_en in user_descr:
