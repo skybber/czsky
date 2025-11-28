@@ -320,7 +320,7 @@ def _parse_other_designation(des, print_not_found):
     var_id = None
     star_name = None
 
-    m = re.search('\(([A-Z][a-z]+)\)', des)
+    m = re.search(r'\(([A-Z][a-z]+)\)', des)
     if m:
         star_name = m.group(1)
 
