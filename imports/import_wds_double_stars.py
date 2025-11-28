@@ -299,16 +299,16 @@ def _fix_greek(gr):
     return gr.capitalize()
 
 
-p1 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+(?:\,\d+)?)\s+([a-zA-Z]+)$')
-p2 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)$')
-p3 = re.compile('^(\d+)\s+([a-zA-Z]+)$')
-p4 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)$')
-p5 = re.compile('^(V\d+)\s+([a-zA-Z]+)$')
-p6 = re.compile('^([a-zA-Z]+)\s+(\d+(?:\,\d+)?)\s+([a-zA-Z]+)$')
-p7 = re.compile('^(\d+)\s+([a-zA-Z]+)\s*,\s*(\w+)\s+([a-zA-Z]+)$')
-p8 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
-p9 = re.compile('^([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
-p10 = re.compile('^(\d+)\s+([a-zA-Z]+)\s+(\d+(?:\,\d+)?)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
+p1 = re.compile(r'^(\d+)\s+([a-zA-Z]+)\s+(\d+(?:,\d+)?)\s+([a-zA-Z]+)$')
+p2 = re.compile(r'^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)$')
+p3 = re.compile(r'^(\d+)\s+([a-zA-Z]+)$')
+p4 = re.compile(r'^([a-zA-Z]+)\s+([a-zA-Z]+)$')
+p5 = re.compile(r'^(V\d+)\s+([a-zA-Z]+)$')
+p6 = re.compile(r'^([a-zA-Z]+)\s+(\d+(?:,\d+)?)\s+([a-zA-Z]+)$')
+p7 = re.compile(r'^(\d+)\s+([a-zA-Z]+)\s*,\s*(\w+)\s+([a-zA-Z]+)$')
+p8 = re.compile(r'^(\d+)\s+([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
+p9 = re.compile(r'^([a-zA-Z]+)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
+p10 = re.compile(r'^(\d+)\s+([a-zA-Z]+)\s+(\d+(?:,\d+)?)\s+([a-zA-Z]+)\s*,\s*([a-zA-Z]+)\s+([a-zA-Z]+)$')
 
 
 def _parse_other_designation(des, print_not_found):
