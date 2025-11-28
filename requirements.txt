@@ -45,8 +45,8 @@ numpy==2.2.1
 openai==2.8.1
 packaging==24.0
 pandas==2.2.3
-Pillow==11.1.0
-pillow-avif-plugin==1.4.3
+Pillow==12.0.0
+pillow-avif-plugin==1.5.2
 pipupgrade==1.12.0
 psycopg==3.1.18
 pycairo==1.27.0

@@ -29,7 +29,7 @@ from app.models import (
     UserDsoApertureDescription,
 )
 
-from app.commons.solar_system_chart_utils import MAR099S_BSP, JUP365_BSP, JUP344_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
+from app.commons.solar_system_chart_utils import MAR099S_BSP, JUP365_BSP, JUP347_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
 
 from imports.import_utils import progress
 
@@ -393,7 +393,7 @@ def update_pgc_imported_dsos():
 def preload_ephemeris():
     skyfield.api.load(MAR099S_BSP)
     skyfield.api.load(JUP365_BSP)
-    skyfield.api.load(JUP344_BSP)
+    skyfield.api.load(JUP347_BSP)
     skyfield.api.load(SAT_441_BSP)
     skyfield.api.load(URA111_BSP)
     skyfield.api.load(NEP097_BSP)

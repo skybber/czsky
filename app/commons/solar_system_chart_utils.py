@@ -16,9 +16,10 @@ from app.models import (
 
 MAR099S_BSP = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar099s.bsp"
 JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
-JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
+JUP347_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup347.bsp'
 SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
-URA111_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/ura111.bsp'
+# TODO: URA is splitted now to ura184_part-1.bsp ... ura184_part-3.bsp
+URA111_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/a_old_versions/ura111.bsp'
 NEP097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/nep097.bsp'
 
 
@@ -56,7 +57,7 @@ PLANET_MOONS_DATA = {
             'Callisto': [-1.05, (1.0, 0.979, 0.897)],
             'Amalthea': [7.4, (1.0, 0.627, 0.492)],
         },
-        JUP344_BSP: {
+        JUP347_BSP: {
             'Himalia': [8.14, (1.0, 0.9, 0.75)],
         },
     },
