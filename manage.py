@@ -114,17 +114,18 @@ def run_worker():
     """Initializes a slim rq task queue."""
     listen = ['default']
     from redis import Redis
-    from rq import Connection, Queue, Worker
+    from rq import Queue, Worker
+
     conn = Redis(
         host=app.config['RQ_DEFAULT_HOST'],
         port=app.config['RQ_DEFAULT_PORT'],
         db=0,
-        password=app.config['RQ_DEFAULT_PASSWORD'])
+        password=app.config['RQ_DEFAULT_PASSWORD']
+    )
 
-    with Connection(conn):
-        worker = Worker(map(Queue, listen), connection=conn)
-        worker.work()
-
+    queues = [Queue(name, connection=conn) for name in listen]
+    worker = Worker(queues)
+    worker.work()
 
 @app.cli.command("format")
 def format():
