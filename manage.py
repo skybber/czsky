@@ -29,7 +29,7 @@ from app.models import (
     UserDsoApertureDescription,
 )
 
-from app.commons.solar_system_chart_utils import MAR097_BSP, JUP365_BSP, JUP344_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
+from app.commons.solar_system_chart_utils import MAR099S_BSP, JUP365_BSP, JUP344_BSP, SAT_441_BSP, URA111_BSP, NEP097_BSP
 
 from imports.import_utils import progress
 
@@ -231,7 +231,7 @@ def import_minor_planets():
     from app.commons.minor_planet_utils import update_minor_planets_positions, update_minor_planets_brightness
     import_mpcorb_minor_planets('data/MPCORB.9999.DAT')
     update_minor_planets_positions(True)
-    update_minor_planets_brightness(True)
+    # update_minor_planets_brightness(True)
 
 
 @app.cli.command("import_comets")
@@ -391,7 +391,7 @@ def update_pgc_imported_dsos():
 
 @app.cli.command("preload_ephemeris")
 def preload_ephemeris():
-    skyfield.api.load(MAR097_BSP)
+    skyfield.api.load(MAR099S_BSP)
     skyfield.api.load(JUP365_BSP)
     skyfield.api.load(JUP344_BSP)
     skyfield.api.load(SAT_441_BSP)
