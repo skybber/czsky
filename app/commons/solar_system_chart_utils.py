@@ -14,7 +14,7 @@ from app.models import (
     BODY_KEY_DICT,
 )
 
-MAR097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar097.bsp'
+MAR099S_BSP = "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/mar099s.bsp"
 JUP365_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup365.bsp'
 JUP344_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/jup344.bsp'
 SAT_441_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/sat441.bsp'
@@ -43,7 +43,7 @@ PLANET_NORTH_POLE = {
 
 PLANET_MOONS_DATA = {
     fchart3.SolarSystemBody.MARS: {
-        MAR097_BSP: {
+        MAR099S_BSP: {
             'Phobos': [11.8, (1.0, 0.919, 0.806)],
             'Deimos': [12.89, (1.0, 0.93, 0.832)],
         },
