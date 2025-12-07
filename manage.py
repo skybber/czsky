@@ -527,6 +527,7 @@ def tmp_translate_wikipedia_ngc():
     STYL
     - Používej odbornou češtinu.
     - Jako výstup vrať pouze přeložený text bez dodatečných poznámek.
+    
     """
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt, datetime.now(), "\nText k překladu začíná značkou __0__:", bulk_mode=False)
 
