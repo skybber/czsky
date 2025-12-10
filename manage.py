@@ -455,14 +455,14 @@ def tmp_import_wikipedia_ngc():
 def tmp_translate_wikipedia_ngc():
     from imports.import_wiki_ngc_ic import translate_wikipedia_ngc
     gpt_prompt = """Přelož následující astronomický text z angličtiny do češtiny.
-    
+
     PŘEKLADOVÁ PRAVIDLA
     - Překládej věcně přesně, nic nepřidávej ani nevynechávej.
     - NEMĚŇ žádná čísla, jednotky, směry (north / south / east / west / northeast / southwest atd.) ani vztahy typu „closer / further“, „brighter / fainter“.
     - Zachovej všechny názvy objektů (NGC, UGC, PGC, AGC, IC, SN 1994Z, SN 2011jo, Abell 2731 atd.) beze změny.
     - Zachovej všechny morfologické klasifikace (např. SAB(rs)bc, SBb, SA(s)c, SB(rs)cd) přesně tak, jak jsou. Tyto zkratky NEPŘEKLÁDEJ.
 
-    ODBORNÁ TERMINOLOGIE – POUŽÍVEJ KONSISTENTNĚ
+    ODBornÁ TERMINOLOGIE – POUŽÍVEJ KONSISTENTNĚ
 
     Obecné pojmy:
     - stellar cluster → hvězdokupa
@@ -507,14 +507,97 @@ def tmp_translate_wikipedia_ngc():
     - apparent magnitude → zdánlivá hvězdná velikost
     - angular size → úhlová velikost
 
-    Souhvězdí – VŽDY české názvy:
-    - Pegasus → souhvězdí Pegasa
+    Souhvězdí – VŽDY české názvy (anglický název → český tvar „souhvězdí …“):
     - Andromeda → souhvězdí Andromedy
-    - Pisces → souhvězdí Ryb
-    - Sculptor → souhvězdí Sochaře
+    - Antlia → souhvězdí Vývěvy
+    - Apus → souhvězdí Rajky
+    - Aquarius → souhvězdí Vodnáře
+    - Aquila → souhvězdí Orla
+    - Ara → souhvězdí Oltáře
+    - Aries → souhvězdí Berana
+    - Auriga → souhvězdí Vozky
+    - Boötes → souhvězdí Pastýře
+    - Caelum → souhvězdí Rydla
+    - Camelopardalis → souhvězdí Žirafy
+    - Cancer → souhvězdí Raka
+    - Canes Venatici → souhvězdí Honících psů
+    - Canis Major → souhvězdí Velkého psa
+    - Canis Minor → souhvězdí Malého psa
+    - Capricornus → souhvězdí Kozoroha
+    - Carina → souhvězdí Lodního kýlu
+    - Cassiopeia → souhvězdí Kasiopeje
+    - Centaurus → souhvězdí Kentaura
+    - Cepheus → souhvězdí Cefea
     - Cetus → souhvězdí Velryby
+    - Chamaeleon → souhvězdí Chameleona
+    - Circinus → souhvězdí Kružítka
+    - Columba → souhvězdí Holubice
+    - Coma Berenices → souhvězdí Vlasů Bereniky
+    - Corona Australis → souhvězdí Jižní koruny
+    - Corona Borealis → souhvězdí Severní koruny
+    - Corvus → souhvězdí Havrana
+    - Crater → souhvězdí Poháru
+    - Crux → souhvězdí Jižního kříže
+    - Cygnus → souhvězdí Labutě
+    - Delphinus → souhvězdí Delfína
+    - Dorado → souhvězdí Mečouna
+    - Draco → souhvězdí Draka
+    - Equuleus → souhvězdí Koníčka
+    - Eridanus → souhvězdí Eridanu
+    - Fornax → souhvězdí Pece
+    - Gemini → souhvězdí Blíženců
+    - Grus → souhvězdí Jeřába
+    - Hercules → souhvězdí Herkula
+    - Horologium → souhvězdí Hodin
+    - Hydra → souhvězdí Hydry
+    - Hydrus → souhvězdí Malého vodního hada
+    - Indus → souhvězdí Indiána
+    - Lacerta → souhvězdí Ještěrky
+    - Leo → souhvězdí Lva
+    - Leo Minor → souhvězdí Malého lva
+    - Lepus → souhvězdí Zajíce
+    - Libra → souhvězdí Vah
+    - Lupus → souhvězdí Vlka
+    - Lynx → souhvězdí Rysa
+    - Lyra → souhvězdí Lyry
+    - Mensa → souhvězdí Tabulové hory
+    - Microscopium → souhvězdí Mikroskopu
+    - Monoceros → souhvězdí Jednorožce
+    - Musca → souhvězdí Mouchy
+    - Norma → souhvězdí Pravítka
+    - Octans → souhvězdí Oktantu
+    - Ophiuchus → souhvězdí Hadonoše
+    - Orion → souhvězdí Orionu
+    - Pavo → souhvězdí Páva
+    - Pegasus → souhvězdí Pegasa
+    - Perseus → souhvězdí Persea
     - Phoenix → souhvězdí Fénixe
-    (ostatní souhvězdí překládej běžnými českými názvy, pokud existují.)
+    - Pictor → souhvězdí Malíře
+    - Pisces → souhvězdí Ryb
+    - Piscis Austrinus → souhvězdí Jižní ryby
+    - Puppis → souhvězdí Lodní zádě
+    - Pyxis → souhvězdí Kompasu
+    - Reticulum → souhvězdí Sítě
+    - Sagitta → souhvězdí Šípu
+    - Sagittarius → souhvězdí Střelce
+    - Scorpius → souhvězdí Štíra
+    - Sculptor → souhvězdí Sochaře
+    - Scutum → souhvězdí Štítu
+    - Serpens → souhvězdí Hada
+    - Sextans → souhvězdí Sextantu
+    - Taurus → souhvězdí Býka
+    - Telescopium → souhvězdí Dalekohledu
+    - Triangulum → souhvězdí Trojúhelníku
+    - Triangulum Australe → souhvězdí Jižního trojúhelníku
+    - Tucana → souhvězdí Tukana
+    - Ursa Major → souhvězdí Velké medvědice
+    - Ursa Minor → souhvězdí Malého medvěda
+    - Vela → souhvězdí Plachet
+    - Virgo → souhvězdí Panny
+    - Volans → souhvězdí Létající ryby
+    - Vulpecula → souhvězdí Lištičky
+
+    (Pokud se v textu objeví jiný název souhvězdí, překládej ho běžným českým názvem, pokud existuje.)
 
     Supernovy:
     - supernova → supernova
@@ -527,7 +610,7 @@ def tmp_translate_wikipedia_ngc():
     STYL
     - Používej odbornou češtinu.
     - Jako výstup vrať pouze přeložený text bez dodatečných poznámek.
-    
+
     """
     translate_wikipedia_ngc('cs', 'Zdroj', gpt_prompt, datetime.now(), "\nText k překladu začíná značkou __0__:", bulk_mode=False)
 
