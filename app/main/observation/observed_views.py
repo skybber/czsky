@@ -163,8 +163,7 @@ def observed_list_delete():
     ObservedListItem.query.filter_by(observed_list_id=observed_list.id).delete()
     db.session.commit()
     flash(gettext('Observed list deleted'), 'form-success')
-    observed_list_items = enumerate(observed_list.observed_list_items)
-    return render_template('main/observation/observed_list.html', observed_list=observed_list, add_form=add_form, observed_list_items=observed_list_items)
+    return redirect(url_for('main_observed.observed_list_info'))
 
 
 @main_observed.route('/observed-list-upload', methods=['POST'])
