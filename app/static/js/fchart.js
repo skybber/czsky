@@ -1940,7 +1940,8 @@ FChart.prototype.drawOverlay = function () {
     const dateText = `${yyyy}-${mm}-${dd}`;        // 2025-12-21
     const timeText = `${HH}:${MI}:${SS}`;          // 24h
 
-    const dateTimeText = `📅 ${dateText} ${timeText}`;
+    const timeIcon  = (this.theme === 'night') ? '⏱' : '📅';
+    const dateTimeText = timeIcon + ` ${dateText} ${timeText}`;
 
     let phi, theta;
     const isMobile = this.canvas.width <= 768;
