@@ -1925,6 +1925,23 @@ FChart.prototype.getCelestAtClientXY = function (clientX, clientY) {
 FChart.prototype.drawOverlay = function () {
     if (!this.canvas || !this.ctx) return;
 
+    const dtObj = (this.useCurrentTime)
+        ? new Date()
+        : new Date(this.dateTimeISO || Date.now());
+
+    const yyyy = dtObj.getFullYear();
+    const mm = pad2(dtObj.getMonth() + 1);
+    const dd = pad2(dtObj.getDate());
+
+    const HH = pad2(dtObj.getHours());      // 24h
+    const MI = pad2(dtObj.getMinutes());
+    const SS = pad2(dtObj.getSeconds());
+
+    const dateText = `${yyyy}-${mm}-${dd}`;        // 2025-12-21
+    const timeText = `${HH}:${MI}:${SS}`;          // 24h
+
+    const dateTimeText = `📅 ${dateText} ${timeText}`;
+
     let phi, theta;
     const isMobile = this.canvas.width <= 768;
 
@@ -1955,7 +1972,6 @@ FChart.prototype.drawOverlay = function () {
         lineLeft  = `AZ ${formatAZ(phi)}`;
         lineRight = `ALT ${formatALT(theta)}`;
     }
-    const line = `${lineLeft}  ${lineRight}`;
 
     const ctx = this.ctx;
     ctx.save();
@@ -1970,9 +1986,9 @@ FChart.prototype.drawOverlay = function () {
     const bgColor = this.theme === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
 
     if (isMobile) {
-        const timeText = new Date().toLocaleTimeString();
+        // mobile: 3 lines (datetime + left + right)
         const w = Math.max(
-            ctx.measureText(timeText).width,
+            ctx.measureText(dateTimeText).width,
             ctx.measureText(lineLeft).width,
             ctx.measureText(lineRight).width
         ) + pad * 2;
@@ -1983,13 +1999,16 @@ FChart.prototype.drawOverlay = function () {
         ctx.fillStyle = bgColor;
         ctx.fillRect(x0, y0, w, h);
         ctx.fillStyle = textColor;
-        ctx.fillText(timeText, x0 + pad, y0 + pad);
-        ctx.fillText(lineLeft,  x0 + pad, y0 + pad + lineH);
-        ctx.fillText(lineRight, x0 + pad, y0 + pad + 2 * lineH);
+        ctx.fillText(dateTimeText, x0 + pad, y0 + pad);
+        ctx.fillText(lineLeft,     x0 + pad, y0 + pad + lineH);
+        ctx.fillText(lineRight,    x0 + pad, y0 + pad + 2 * lineH);
 
     } else {
         const margin = 8;
-        const w = ctx.measureText(line).width + pad * 2;
+        const coordText = `⌖ ${lineLeft}  ${lineRight}`;
+
+        const gap = 16;
+        const w = ctx.measureText(coordText).width + gap + ctx.measureText(dateTimeText).width + pad * 2;
         const h = lineH + pad * 2;
 
         let aladinShift = 0;
@@ -2005,7 +2024,16 @@ FChart.prototype.drawOverlay = function () {
         ctx.fillRect(x0, y0, w, h);
 
         ctx.fillStyle = textColor;
-        ctx.fillText(line, x0 + pad, y0 + pad + 4);
+
+        ctx.textAlign = 'left';
+        ctx.fillText(coordText, x0 + pad, y0 + pad + 4);
+
+        // right: datetime (right-aligned to box edge)
+        ctx.textAlign = 'right';
+        ctx.fillText(dateTimeText, x0 + w - pad, y0 + pad + 4);
+
+        // restore default align for safety
+        ctx.textAlign = 'left';
     }
 
     ctx.restore();
