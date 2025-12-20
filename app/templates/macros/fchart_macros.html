@@ -344,26 +344,6 @@
                                 {{ _('Solar system')}}
                             </button>
                         </div>
-                        <div class="item div_dsscolored">
-                            <button id="bdsscolored" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}}" style="text-align:left">
-                                <i class="image outline icon"></i>
-                                {{ _('Aladin color') }}
-                            </button>
-                        </div>
-                        {% if chart_control.theme!='night' %}
-                        <div class="item div_dssblue">
-                            <button id="bdssblue" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}}" style="text-align:left">
-                                <i class="image outline icon"></i>
-                                {{ _('Aladin blue') }}
-                            </button>
-                        </div>
-                        <div class="item div_dssfram">
-                            <button id="bdssfram" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='fram' else ''}}" style="text-align:left">
-                                <i class="image outline icon"></i>
-                                {{ _('Aladin fram') }}
-                            </button>
-                        </div>
-                        {% endif %}
                         <div class="item">
                             <button id="bdsomag" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}}" style="text-align:left">
                                 <i class="star of life icon"></i>
@@ -376,6 +356,49 @@
                                   {{ _('Star labels')}}
                             </button>
                         </div>
+                        <div class="item">
+                            <button class="ui tiny labeled icon button"  style="text-align:left">
+                                <i class="image outline icon"></i>
+                                <span class="text">Aladin<i class="dropdown icon"></i></span>
+                            </button>
+                            <div class="right menu">
+                                <div class="item div_dsscolored">
+                                    <button id="bdsscolored" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}}" style="text-align:left">
+                                        <i class="image outline icon"></i>
+                                        {{ _('Aladin color') }}
+                                    </button>
+                                </div>
+                                {% if chart_control.theme!='night' %}
+                                <div class="item div_dssblue">
+                                    <button id="bdssblue" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='blue' else ''}}" style="text-align:left">
+                                        <i class="image outline icon"></i>
+                                        {{ _('Aladin blue') }}
+                                    </button>
+                                </div>
+                                <div class="item div_dssfram">
+                                    <button id="bdssfram" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='fram' else ''}}" style="text-align:left">
+                                        <i class="image outline icon"></i>
+                                        {{ _('Aladin fram') }}
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="item">
+                            <button class="ui tiny labeled icon button"  style="text-align:left">
+                                <i class="map palette icon"></i>
+                                <span class="text">{{ _('Chart Themes') }}<i class="dropdown icon"></i></span>
+                            </button>
+                            <div class="right menu">
+                                <div class="item" onclick="setTheme('dark')">{{ _('Dark Mode') }}</div>
+                                <div class="item" onclick="setTheme('light')">{{ _('Light Mode') }}</div>
+                                <div class="item" onclick="setTheme('night')">{{ _('Night Mode') }}</div>
+                                {% for t in current_user.user_themes %}
+                                    <div class="item" onclick="setCustomTheme({{ t.id }})">{{ t.name }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
                         <div class="item">
                             <button id="mirrorx" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mirror_x.data=='true' else ''}}" style="text-align:left">
                                 <i class="exchange alternate icon"></i>
@@ -1519,6 +1542,37 @@
             }
         });
         return response;
+    }
+
+    const THEME_URLS = {
+        dark:  "{{ url_for('main.theme_dark') }}",
+        light: "{{ url_for('main.theme_light') }}",
+        night: "{{ url_for('main.theme_night') }}"
+    };
+
+    function applyThemeUrl(url) {
+        $.ajax({
+            url: url,
+            method: "GET",
+            cache: false
+        }).always(function () {
+            const $form = $("#fmchart");
+            if ($form.length) {
+                $form[0].submit();
+            } else {
+                window.location.reload();
+            }
+        });
+    }
+
+    function setTheme(themeName) {
+        applyThemeUrl(THEME_URLS[themeName]);
+    }
+
+    function setCustomTheme(themeId) {
+        var customThemeUrl = "{{ url_for('main.theme_custom', chart_theme_id=123) }}";
+        customThemeUrl = customThemeUrl.replace('123', themeId)
+        applyThemeUrl(customThemeUrl);
     }
 
     window.onload = function() {
