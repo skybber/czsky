@@ -351,11 +351,11 @@
                 <div class="ui huge breadcrumb">
                     {{ back_navig.back_navig(back, back_id, 'double_stars', embed, anchor='#star{}'.format(double_star.star_id)) }}
                     <div class="active section">
-                        {{ double_star.get_common_name() }}{{ (' - ' + double_star.components) if double_star.components else '' }}
+                        {{ double_star.get_common_name() }}{{ (' - ' + double_star.components) if double_star.components and embed != 'fc' else '' }}
                     </div>
                 </div>
                 {% if embed == 'fc' %}
-                    <a id="bpin" class="ui basic icon compact button" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                    <a id="bpin" class="ui basic icon compact button" style="margin-left: 4px;" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
                         <i class="crosshairs icon"></i>
                     </a>
                 {% endif %}

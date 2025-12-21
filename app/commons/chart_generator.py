@@ -48,7 +48,7 @@ from .chart_theme_definition import COMMON_THEMES, ChartThemeDefinition
 MOBILE_WIDTH = 768
 
 used_catalogs = None
-dso_name_cache = None
+dso_name_cache = {}
 dso_hide_filter = None
 
 MAX_IMG_WIDTH = 3000
@@ -217,14 +217,12 @@ def _load_used_catalogs():
                                                      show_catalogs=ADD_SHOW_CATALOGS,
                                                      use_pgc_catalog=True,
                                                      enhanced_mw_optim_max_col_diff=14/255.0)
-                global dso_name_cache
-                dso_name_cache = {}
     return used_catalogs
 
 
 def _get_dso_hide_filter():
     global dso_hide_filter
-    if not dso_hide_filter:
+    if dso_hide_filter is None:
         dso_hide_filter = []
         with open(os.path.join(os.getcwd(), 'data/dso_hide_filter.csv'), 'r') as ifile:
             lines = ifile.readlines()
@@ -315,7 +313,7 @@ def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=
                                       bg_b + (config.milky_way_color[2]-bg_b) * fade)
         else:
             config.show_enhanced_milky_way_10k = False
-            config.show_enhanced_milky_way_33k = False
+            config.show_enhanced_milky_way_30k = False
 
 
 def _eval_show_star_labels(default_val, fld_size, width):
@@ -506,7 +504,6 @@ def common_ra_dec_dt_fsz_from_request(form, default_ra=None, default_dec=None, d
     elif request.method == 'GET':
         if form.radius.data == (len(FIELD_SIZES) - 1) and fsz:
             form.radius.data = _get_fld_size_index(fsz)
-            print('2 {}'.format(form.radius.data))
         if form.ra.data is None or form.dec.data is None:
             form.ra.data = default_ra
             form.dec.data = default_dec
@@ -1048,10 +1045,12 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     engine.set_observer(local_sidereal_time, lat, is_equatorial)
 
-    if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
+    if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
         highlights = _create_highlights_from_pos_list(highlights_pos_list, config.highlight_color, config.highlight_linewidth)
+        if (obj_ra is not None) and (obj_dec is not None):
+            highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
         highlights = None
 
@@ -1168,10 +1167,12 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     local_sidereal_time, lat, lon = _get_lst_lat_lot()
     engine.set_observer(local_sidereal_time, lat, is_equatorial)
 
-    if obj_ra is not None and obj_dec is not None:
+    if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
     elif highlights_pos_list:
         highlights = _create_highlights_from_pos_list(highlights_pos_list, config.highlight_color, config.highlight_linewidth)
+        if (obj_ra is not None) and (obj_dec is not None):
+            highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
         highlights = None
 
@@ -1191,7 +1192,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     else:
         sl_bodies = None
 
-    pl_moons = get_planet_moons(get_utc_time(), dso_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
+    pl_moons = get_planet_moons(get_utc_time(), star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
                     solsys_bodies=sl_bodies,
@@ -1568,7 +1569,7 @@ def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
 
         _surface = cairo.ImageSurface(cairo.FORMAT_A8, 0, 0)
         _ft_destroy_key = ct.c_int() # dummy address
-        _initialized = True
+        ft_initialized = True
 
     ft_face = ct.c_void_p()
     cr_face = None
@@ -1602,7 +1603,7 @@ def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
                 )
             if status != CAIRO_STATUS_SUCCESS:
                 raise RuntimeError("Error %d doing user_data dance for %s" % (status, filename))
-            ft_face = None # Cairo has stolen my reference
+            ft_face = None  # Cairo has stolen my reference
 
         # set Cairo font face into Cairo context
         cairo_ctx = cairo.Context(_surface)
@@ -1612,9 +1613,11 @@ def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
         if status != CAIRO_STATUS_SUCCESS :
             raise RuntimeError("Error %d creating cairo font face for %s" % (status, filename))
 
-    finally :
-        _cairo_so.cairo_font_face_destroy(cr_face)
-        _freetype_so.FT_Done_Face(ft_face)
+    finally:
+        if cr_face:
+            _cairo_so.cairo_font_face_destroy(cr_face)
+        if ft_face:
+            _freetype_so.FT_Done_Face(ft_face)
 
     # get back Cairo font face as a Python object
     face = cairo_ctx.get_font_face()

@@ -162,8 +162,8 @@ def _get_prev_next_from_double_star_list(double_star_list, double_star):
                     break
             else:
                 next_item = None
-            return prev_item, next_item
-    return None, None
+            return prev_item, item, next_item
+    return None, None, None
 
 
 def _get_prev_next_from_star_list(star_list, star):
@@ -220,7 +220,7 @@ def _get_prev_next_from_observing_session(observing_session, sky_obj):
                     next_item = dso
                     return prev_item, next_item
         elif observation.target_type == ObservationTargetType.DBL_STAR:
-            if type(sky_obj) is DoubleStar and observation.double_star_id == sky_obj.id:
+            if isinstance(sky_obj, DoubleStar) and observation.double_star_id == sky_obj.id:
                 find_next = True
             elif not find_next:
                 prev_item = observation.double_star
@@ -234,8 +234,8 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
     sorted_list = sorted(common_list, key=lambda x: x.id)
     constell_ids = Constellation.get_season_constell_ids(request.args.get('season', None))
     for i, item in enumerate(sorted_list):
-        if type(sky_obj) == DeepskyObject and item.dso_id == sky_obj.id or \
-           type(sky_obj) == DoubleStar and item.double_star_id == sky_obj.id:
+        if isinstance(sky_obj, DeepskyObject) and item.dso_id == sky_obj.id or \
+           isinstance(sky_obj, DoubleStar) and item.double_star_id == sky_obj.id:
             for prev_item in reversed(sorted_list[0:i]):
                 if constell_ids is None:
                     break
@@ -323,11 +323,11 @@ def create_navigation_wrappers(sky_obj, tab=None):
     elif back == 'dbl_star_list' and back_id is not None:
         double_star_list = DoubleStarList.query.filter_by(id=back_id).first()
         if double_star_list:
-            prev_item, next_item = _get_prev_next_from_double_star_list(double_star_list, sky_obj)
+            prev_item, cur_item, next_item = _get_prev_next_from_double_star_list(double_star_list, sky_obj)
             prev_obj = prev_item.double_star if prev_item else None
             next_obj = next_item.double_star if next_item else None
     else:
-        if type(sky_obj) == DeepskyObject:
+        if isinstance(sky_obj, DeepskyObject):
             prev_obj, next_obj = sky_obj.get_prev_next_dso()
             prev_label = prev_obj.catalog_number() if prev_obj else None
             cur_label = sky_obj.catalog_number() if sky_obj else None
