@@ -35,24 +35,16 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, name, icon in items %}
+            {% if route == 'main_deepskyobject.deepskyobject_chart' %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id, season=season, embed=embed, splitview='true') }}">
+                {{ name }}
+            </a>
+            {% else %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_id=dso.name, back=back, back_id=back_id, season=season, embed=embed) }}">
                 {{ name }}
             </a>
+            {% endif %}
         {% endfor %}
-        <!--
-        <div class="right menu" style="margin-bottom:0px;">
-            <div class="item">
-                <div class="ui mini multiple selection dropdown" style="float:right;">
-                   <input type="hidden" name="plan">
-                   <i class="dropdown icon"></i>
-                   <div class="default mini text">Select plan</div>
-                   <div class="menu">
-                      <div class="item" data-value="wish"><i class="heart red icon"></i>wishlist</div>
-                   </div>
-                </div>
-            </div>
-        </div>
-         -->
     </div>
 {% endmacro %}
 

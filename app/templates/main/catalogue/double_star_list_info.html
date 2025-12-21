@@ -3,31 +3,27 @@
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% if double_star_list.has_detail_view %}
-{% set endpoints = [
-    ('main_double_star_list.double_star_list_detail', _('Detail'), 'detail'),
-    ('main_double_star_list.double_star_list_info', _('List'), 'info'),
-    ('main_double_star_list.double_star_list_chart', _('Chart'), 'chart'),
-] %}
-{% else %}
-{% set endpoints = [
-    ('main_double_star_list.double_star_list_info', _('Info'), 'info'),
-    ('main_double_star_list.double_star_list_chart', _('Chart'), 'chart'),
-] %}
-{% endif %}
-
 {% if not back %}
     {% set back = request.args.get('back') %}
     {% set back_id = request.args.get('back_id') %}
 {% endif %}
 
-{% macro navigation(items) %}
+{% macro navigation() %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_list_id=double_star_list.id, back=back, back_id=back_id) }}">
-                {{ pupup_text }}
-            </a>
-        {% endfor %}
+{% if double_star_list.has_detail_view %}
+        <a class="item {% if request.endpoint == 'main_double_star_list.double_star_list_detail' %}active{% endif %}"
+           href="{{ url_for('main_double_star_list.double_star_list_detail', double_star_list_id=double_star_list.id, back=back, back_id=back_id) }}">
+            {{ _('Detail') }}
+        </a>
+{% endif %}
+        <a class="item {% if request.endpoint == 'main_double_star_list.double_star_list_info' %}active{% endif %}"
+           href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=double_star_list.id, back=back, back_id=back_id) }}">
+            {{ _('Info') }}
+        </a>
+        <a class="item {% if request.endpoint == 'main_double_star_list.double_star_list_chart' %}active{% endif %}"
+           href="{{ url_for('main_double_star_list.double_star_list_chart', double_star_list_id=double_star_list.id, back=back, back_id=back_id, splitview='true') }}">
+            {{ _('Chart') }}
+        </a>
     </div>
 {% endmacro %}
 
@@ -375,7 +371,7 @@
                 </div>
             </div>
 
-            {{ navigation(endpoints) }}
+            {{ navigation() }}
             {% if type == 'detail' %}
                 {{ double_star_list_detail(double_star_list) }}
             {% elif type == 'info' %}

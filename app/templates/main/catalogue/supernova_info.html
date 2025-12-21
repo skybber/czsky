@@ -28,9 +28,17 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, designation=supernova.designation, back=back, back_id=back_id, embed=embed) }}">
+            {% if route == 'main_supernova.supernova_chart' %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}"
+               href="{{ url_for(route, designation=supernova.designation, back=back, back_id=back_id, embed=embed, splitview='true') }}">
                 {{ pupup_text }}
             </a>
+            {% else %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}"
+               href="{{ url_for(route, designation=supernova.designation, back=back, back_id=back_id, embed=embed) }}">
+                {{ pupup_text }}
+            </a>
+            {% endif %}
         {% endfor %}
     </div>
 {% endmacro %}

@@ -3,23 +3,21 @@
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_dso_list.dso_list_info', _('Info'), 'info'),
-    ('main_dso_list.dso_list_chart', _('Chart'), 'chart'),
-] %}
-
 {% if not back %}
     {% set back = request.args.get('back') %}
     {% set back_id = request.args.get('back_id') %}
 {% endif %}
 
-{% macro navigation(items) %}
+{% macro navigation() %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, dso_list_id=dso_list.id, back=back, back_id=back_id) }}">
-                {{ pupup_text }}
+            <a class="item {% if request.endpoint == 'main_dso_list.dso_list_info' %}active{% endif %}"
+               href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=dso_list.id, back=back, back_id=back_id) }}">
+                {{ _('Info') }}
             </a>
-        {% endfor %}
+            <a class="item {% if request.endpoint == 'main_dso_list.dso_list_chart' %}active{% endif %}"
+               href="{{ url_for('main_dso_list.dso_list_chart', dso_list_id=dso_list.id, back=back, back_id=back_id, splitview='true') }}">
+                {{ _('Chart') }}
+            </a>
     </div>
 {% endmacro %}
 
@@ -256,7 +254,7 @@
                 </div>
             </div>
 
-            {{ navigation(endpoints) }}
+            {{ navigation() }}
             {% if type == 'info' %}
                 {{ dso_list_info(dso_list) }}
             {% else %}

@@ -3,18 +3,16 @@
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_observed.observed_list_info', _('Info'), 'info'),
-    ('main_observed.observed_list_chart', _('Chart'), 'chart'),
-] %}
-
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, back=back, back_id=back_id) }}">
-                {{ pupup_text }}
-            </a>
-        {% endfor %}
+        <a class="item {% if request.endpoint == 'main_observed.observed_list_info' %}active{% endif %}"
+           href="{{ url_for('main_observed.observed_list_info', back=back, back_id=back_id) }}">
+            {{ _('Info') }}
+        </a>
+        <a class="item {% if request.endpoint == 'main_observed.observed_list_chart' %}active{% endif %}"
+           href="{{ url_for('main_observed.observed_list_chart', back=back, back_id=back_id, splitview='true') }}">
+            {{ _('Chart') }}
+        </a>
     </div>
 {% endmacro %}
 

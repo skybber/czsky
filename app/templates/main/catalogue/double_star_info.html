@@ -34,9 +34,15 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
+            {% if route == 'main_double_star.double_star_chart' %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_id=double_star.id, back=back, back_id=back_id, embed=embed, splitview='true') }}">
+                {{ pupup_text }}
+            </a>
+            {% else %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, double_star_id=double_star.id, back=back, back_id=back_id, embed=embed) }}">
                 {{ pupup_text }}
             </a>
+            {% endif %}
         {% endfor %}
     </div>
 {% endmacro %}

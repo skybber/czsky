@@ -3,18 +3,16 @@
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
-{% set endpoints = [
-    ('main_comet.comets', _('List'), 'list'),
-    ('main_comet.comets_chart', _('Chart'), 'chart'),
-] %}
-
-{% macro navigation(items) %}
+{% macro navigation() %}
     <div class="ui icon secondary pointing menu">
-        {% for route, pupup_text, icon in items %}
-            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ url_for(route, back=back, back_id=back_id) }}">
-                {{ pupup_text }}
-            </a>
-        {% endfor %}
+        <a class="item {% if request.endpoint == 'main_comet.comets' %}active{% endif %}"
+           href="{{ url_for('main_comet.comets', back=back, back_id=back_id) }}">
+            {{ _('List') }}
+        </a>
+        <a class="item {% if request.endpoint == 'main_comet.comets_chart' %}active{% endif %}"
+           href="{{ url_for('main_comet.comets_chart', back=back, back_id=back_id, splitview='true') }}">
+            {{ _('Chart') }}
+        </a>
     </div>
 {% endmacro %}
 
@@ -150,7 +148,7 @@
                 </div>
             </div>
 
-            {{ navigation(endpoints) }}
+            {{ navigation() }}
             {% if type == 'list' %}
                 {{ comets_list() }}
             {% else %}
