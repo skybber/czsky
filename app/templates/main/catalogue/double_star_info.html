@@ -354,6 +354,11 @@
                         {{ double_star.get_common_name() }}{{ (' - ' + double_star.components) if double_star.components else '' }}
                     </div>
                 </div>
+                {% if embed == 'fc' %}
+                    <a id="bpin" class="ui basic icon compact button" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                        <i class="crosshairs icon"></i>
+                    </a>
+                {% endif %}
 
                 {% if next_wrap and embed != 'pl' %}
                     <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
@@ -390,6 +395,12 @@
             {% if prev_wrap %}
                 $('#bprev' ).click(function() {
                     parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
+                    return true;
+                });
+            {% endif %}
+            {% if cur_wrap %}
+                $('#bpin' ).click(function() {
+                    parent.window.location.href = appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}');
                     return true;
                 });
             {% endif %}

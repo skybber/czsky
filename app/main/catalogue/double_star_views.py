@@ -38,7 +38,6 @@ from app.models import (
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -57,7 +56,7 @@ from app.commons.search_utils import (
 from app.commons.dso_utils import normalize_double_star_name
 
 from app.main.chart.chart_forms import ChartForm
-from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
@@ -158,7 +157,7 @@ def double_star_info(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'info'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star)
 
     user_descr = _get_user_descr(double_star_id)
 
@@ -186,7 +185,7 @@ def double_star_info(double_star_id):
 
     return render_template('main/catalogue/double_star_info.html', type='info', double_star=double_star,
                            wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
+                           embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, user_descr=user_descr,
                            has_observations=has_observations, show_obs_log=show_obs_log, editable=editable)
 
 
@@ -216,15 +215,15 @@ def double_star_surveys(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'surveys'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star)
 
     user_descr = _get_user_descr(double_star_id)
     has_observations = _has_double_star_observations(double_star)
     show_obs_log = show_observation_log()
 
-    return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
-                           has_observations=has_observations, show_obs_log=show_obs_log, field_size=40.0)
+    return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star, embed=embed,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           user_descr=user_descr, has_observations=has_observations, show_obs_log=show_obs_log, field_size=40.0)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/observations')
@@ -234,7 +233,7 @@ def double_star_observations(double_star_id):
     if double_star is None:
         abort(404)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observations')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star, tab='observations')
 
     embed = request.args.get('embed', None)
 
@@ -250,8 +249,8 @@ def double_star_observations(double_star_id):
 
     show_obs_log = show_observation_log()
     return render_template('main/catalogue/double_star_info.html', type='observations', double_star=double_star,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, has_observations=True,
-                           show_obs_log=show_obs_log, observations=observations,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           embed=embed, has_observations=True, show_obs_log=show_obs_log, observations=observations,
                            )
 
 
@@ -266,16 +265,16 @@ def double_star_catalogue_data(double_star_id):
     if embed:
         session['double_star_embed_seltab'] = 'catalogue_data'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star)
 
     user_descr = _get_user_descr(double_star_id)
 
     has_observations = _has_double_star_observations(double_star)
     show_obs_log = show_observation_log()
 
-    return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, user_descr=user_descr,
-                           has_observations=has_observations, show_obs_log=show_obs_log, )
+    return render_template('main/catalogue/double_star_info.html', type='catalogue_data', double_star=double_star, embed=embed,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           user_descr=user_descr, has_observations=has_observations, show_obs_log=show_obs_log, )
 
 
 @main_double_star.route('/double-star/switch-wish-list', methods=['GET'])
@@ -405,7 +404,7 @@ def double_star_chart(double_star_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star)
 
     user_descr = _get_user_descr(double_star_id)
     has_observations = _has_double_star_observations(double_star)
@@ -416,8 +415,8 @@ def double_star_chart(double_star_id):
 
     default_chart_iframe_url = url_for('main_double_star.double_star_info', back=back, back_id=back_id, double_star_id=double_star_id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star,
-                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap,
+    return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star, chart_control=chart_control,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed, user_descr=user_descr,
                            has_observations=has_observations, show_obs_log=show_obs_log,)
 
@@ -516,11 +515,12 @@ def double_star_observation_log(double_star_id):
     if embed:
         session['dso_embed_seltab'] = 'obs_log'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(double_star, tab='observation_log')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star, tab='observation_log')
 
     return render_template('main/catalogue/double_star_info.html', type='observation_log', double_star=double_star, form=form,
                            embed=embed, is_new_observation_log=is_new_observation_log, observing_session=observing_session,
-                           back=back, back_id=back_id, has_observations=False, show_obs_log=True, prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           back=back, back_id=back_id, has_observations=False, show_obs_log=True,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            )
 
 

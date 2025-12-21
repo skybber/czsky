@@ -1,11 +1,8 @@
-
 from flask import (
     request,
     url_for,
 )
 from flask_login import current_user
-
-from app import db
 
 from app.models import (
     Constellation,
@@ -31,7 +28,7 @@ OBJ_ID_DOUBLE_STAR_PREFIX = 'dbl'
 OBJ_ID_STAR_PREFIX = 'star'
 
 
-class PrevNextWrapper:
+class SkyObjectWrapper:
     def __init__(self, sky_obj, label, tab):
         self._sky_obj = sky_obj
         self._label = label
@@ -43,12 +40,13 @@ class PrevNextWrapper:
         back = request.args.get('back')
         back_id = request.args.get('back_id')
 
-        if type(self._sky_obj) == DeepskyObject:
+        if isinstance(self._sky_obj, DeepskyObject):
             return url_for('main_deepskyobject.deepskyobject_seltab', dso_id=self._sky_obj.name, seltab=self._tab, back=back, back_id=back_id, season=season, embed=embed)
-        if type(self._sky_obj) == Star:
+        if isinstance(self._sky_obj, Star):
             return url_for('main_star.star_chart', star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, embed=embed)
-        if type(self._sky_obj) == DoubleStar:
+        if isinstance(self._sky_obj, DoubleStar):
             return url_for('main_double_star.double_star_seltab', double_star_id=self._sky_obj.id, seltab=self._tab, back=back, back_id=back_id, season=season, embed=embed)
+        return ''
 
     def top_url(self):
         embed = request.args.get('embed')
@@ -56,11 +54,11 @@ class PrevNextWrapper:
         back = request.args.get('back')
         back_id = request.args.get('back_id')
 
-        if type(self._sky_obj) == DeepskyObject:
+        if isinstance(self._sky_obj, DeepskyObject):
             obj_id = OBJ_ID_DSO_PREFIX + str(self._sky_obj.id)
-        elif type(self._sky_obj) == DoubleStar:
+        elif isinstance(self._sky_obj, DoubleStar):
             obj_id = OBJ_ID_DOUBLE_STAR_PREFIX + str(self._sky_obj.id)
-        elif type(self._sky_obj) == Star:
+        elif isinstance(self._sky_obj, Star):
             obj_id = OBJ_ID_STAR_PREFIX + str(self._sky_obj.id)
         else:
             obj_id = '' + str(self._sky_obj.id)
@@ -72,10 +70,10 @@ class PrevNextWrapper:
         if back == 'session_plan':
             return url_for('main_sessionplan.session_plan_chart', session_plan_id=back_id, obj_id=obj_id, back=back, back_id=back_id, season=season, splitview='true')
 
-        if type(self._sky_obj) == DeepskyObject:
+        if isinstance(self._sky_obj, DeepskyObject):
             return url_for('main_deepskyobject.deepskyobject_chart', dso_id=self._sky_obj.name, back=back, back_id=back_id, season=season, splitview='true')
 
-        if type(self._sky_obj) == DoubleStar:
+        if isinstance(self._sky_obj, DoubleStar):
             return url_for('main_double_star.double_star_chart', double_star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, splitview='true')
 
         return ''
@@ -83,16 +81,17 @@ class PrevNextWrapper:
     def label(self):
         if self._label:
             return self._label
-        if type(self._sky_obj) == DeepskyObject:
+        if isinstance(self._sky_obj, DeepskyObject):
             return self._sky_obj.denormalized_name()
-        if type(self._sky_obj) == Star:
+        if isinstance(self._sky_obj, Star):
             if self._sky_obj.var_id is not None:
                 return self._sky_obj.var_id
             if self._sky_obj.hd is not None:
                 return 'HD' + self._sky_obj.hd
             return ''
-        if type(self._sky_obj) == DoubleStar:
+        if isinstance(self._sky_obj, DoubleStar):
             return self._sky_obj.common_cat_id
+        return None
 
 
 def parse_prefix_obj_id(url_obj_id):
@@ -201,8 +200,8 @@ def _get_prev_next_from_dso_list(dso_list, dso):
                     break
             else:
                 next_item = None
-            return prev_item, next_item
-    return None, None
+            return prev_item, item, next_item
+    return None, None, None
 
 
 def _get_prev_next_from_observing_session(observing_session, sky_obj):
@@ -259,13 +258,14 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
     return None, None
 
 
-def create_prev_next_wrappers(sky_obj, tab=None):
+def create_navigation_wrappers(sky_obj, tab=None):
     back = request.args.get('back')
     back_id = request.args.get('back_id')
 
     prev_obj = None
     next_obj = None
     prev_label = None
+    cur_label = None
     next_label = None
 
     if back == 'observation':
@@ -308,8 +308,9 @@ def create_prev_next_wrappers(sky_obj, tab=None):
     elif back == 'dso_list' and back_id is not None:
         dso_list = DsoList.query.filter_by(id=back_id).first()
         if dso_list:
-            prev_item, next_item = _get_prev_next_from_dso_list(dso_list, sky_obj)
+            prev_item, cur_item, next_item = _get_prev_next_from_dso_list(dso_list, sky_obj)
             prev_label = str(prev_item.item_id) if prev_item else None
+            cur_label = str(cur_item.item_id) if cur_item else None
             next_label = str(next_item.item_id) if next_item else None
             prev_obj = prev_item.deepsky_object if prev_item else None
             next_obj = next_item.deepsky_object if next_item else None
@@ -329,9 +330,11 @@ def create_prev_next_wrappers(sky_obj, tab=None):
         if type(sky_obj) == DeepskyObject:
             prev_obj, next_obj = sky_obj.get_prev_next_dso()
             prev_label = prev_obj.catalog_number() if prev_obj else None
+            cur_label = sky_obj.catalog_number() if sky_obj else None
             next_label = next_obj.catalog_number() if next_obj else None
 
-    prev_wrapper = PrevNextWrapper(prev_obj, prev_label, tab) if prev_obj else None
-    next_wrapper = PrevNextWrapper(next_obj, next_label, tab) if next_obj else None
+    prev_wrap = SkyObjectWrapper(prev_obj, prev_label, tab) if prev_obj else None
+    cur_wrap = SkyObjectWrapper(sky_obj, cur_label, tab) if sky_obj else None
+    next_wrap = SkyObjectWrapper(next_obj, next_label, tab) if next_obj else None
 
-    return prev_wrapper, next_wrapper
+    return prev_wrap, cur_wrap, next_wrap

@@ -23,14 +23,13 @@ from app import db, csrf
 from app.models import Star, UserStarDescription
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request
-from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 
 main_star = Blueprint('main_star', __name__)
@@ -54,9 +53,10 @@ def star_info(star_id):
     if embed:
         session['star_embed_seltab'] = 'info'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star)
 
-    return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None, prev_wrap=prev_wrap, next_wrap=next_wrap,
+    return render_template('main/catalogue/star_info.html', type='info', star=star, user_descr=None,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=False, embed=embed, )
 
 
@@ -71,9 +71,10 @@ def star_surveys(star_id):
     if embed:
         session['star_embed_seltab'] = 'surveys'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star)
 
-    return render_template('main/catalogue/star_info.html', type='surveys', star=star, user_descr=None, prev_wrap=prev_wrap, next_wrap=next_wrap,
+    return render_template('main/catalogue/star_info.html', type='surveys', star=star, user_descr=None,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=False, embed=embed, field_size=40.0)
 
 
@@ -92,11 +93,12 @@ def star_descr_info(star_descr_id):
     editable = current_user.is_editor()
 
     if user_descr.star is not None:
-        prev_wrap, next_wrap = create_prev_next_wrappers(user_descr.star)
+        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star)
     else:
-        prev_wrap, next_wrap = None, None
+        prev_wrap, cur_wrap, next_wrap = None, None, None
 
-    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr, prev_wrap=prev_wrap, next_wrap=next_wrap,
+    return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=editable, embed=embed, )
 
 
@@ -115,11 +117,12 @@ def star_descr_surveys(star_descr_id):
     editable = current_user.is_editor()
 
     if user_descr.star is not None:
-        prev_wrap, next_wrap = create_prev_next_wrappers(user_descr.star)
+        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star)
     else:
-        prev_wrap, next_wrap = None, None
+        prev_wrap, cur_wrap, next_wrap = None, None, None
 
-    return render_template('main/catalogue/star_info.html', type='surveys', user_descr=user_descr, prev_wrap=prev_wrap, next_wrap=next_wrap,
+    return render_template('main/catalogue/star_info.html', type='surveys', user_descr=user_descr,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=editable, embed=embed, field_size=40.0)
 
 
@@ -134,10 +137,10 @@ def star_catalogue_data(star_id):
     if embed:
         session['star_embed_seltab'] = 'info'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star)
 
-    return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, )
+    return render_template('main/catalogue/star_info.html', type='catalogue_data', star=star,  user_descr=None, embed=embed,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, )
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-catalogue-data')
@@ -153,12 +156,12 @@ def star_descr_catalogue_data(star_descr_id):
         session['star_embed_seltab'] = 'info'
 
     if user_descr.star is not None:
-        prev_wrap, next_wrap = create_prev_next_wrappers(user_descr.star)
+        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star)
     else:
-        prev_wrap, next_wrap = None, None
+        prev_wrap, cur_wrap, next_wrap = None, None, None
 
     return render_template('main/catalogue/star_info.html', type='catalogue_data', user_descr=user_descr,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, embed=embed, )
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, embed=embed, )
 
 
 @main_star.route('/star/<int:star_id>/chart', methods=['GET', 'POST'])
@@ -178,14 +181,15 @@ def star_chart(star_id):
     common_ra_dec_dt_fsz_from_request(form, star.ra, star.dec, 60)
 
     chart_control = common_prepare_chart_data(form)
-    prev_wrap, next_wrap = create_prev_next_wrappers(star)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star)
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
 
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url, embed=embed, )
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           default_chart_iframe_url=default_chart_iframe_url, embed=embed, )
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-chart', methods=['GET', 'POST'])
@@ -212,16 +216,16 @@ def star_descr_chart(star_descr_id):
     chart_control = common_prepare_chart_data(form)
 
     if user_descr.star is not None:
-        prev_wrap, next_wrap = create_prev_next_wrappers(user_descr.star)
+        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star)
     else:
-        prev_wrap, next_wrap = None, None
+        prev_wrap, cur_wrap, next_wrap = None, None, None
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
 
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
                            embed=embed, )
 
 

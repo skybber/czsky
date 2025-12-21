@@ -64,7 +64,7 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
-from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists, create_observed_dso_ids_list
 
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
@@ -329,7 +329,7 @@ def deepskyobject_info(dso_id):
     if not user_descr and not apert_descriptions and not title_img and dso != orig_dso:
         user_descr, apert_descriptions, title_img = _get_dso_descriptions(orig_dso)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='info')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='info')
 
     editable = current_user.is_editor()
     descr_available = user_descr and user_descr.text or any([adescr for adescr in apert_descriptions])
@@ -370,7 +370,7 @@ def deepskyobject_info(dso_id):
                            editable=editable, descr_available=descr_available, dso_image_info=dso_image_info, other_names=other_names,
                            wish_list=wish_list, observed_list=observed_list, offered_session_plans=offered_session_plans,
                            title_img=title_img, embed=embed, has_observations=has_observations,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
                            )
 
 
@@ -399,7 +399,7 @@ def deepskyobject_surveys(dso_id):
     if dso is None:
         abort(404)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='surveys')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='surveys')
     exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
 
     field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
@@ -413,7 +413,7 @@ def deepskyobject_surveys(dso_id):
 
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            field_size=field_size, embed=embed, has_observations=has_observations,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
                            )
 
 
@@ -431,7 +431,7 @@ def deepskyobject_observations(dso_id):
     if dso is None:
         abort(404)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='observations')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='observations')
 
     other_names = _get_other_names(dso)
     embed = request.args.get('embed', None)
@@ -449,7 +449,7 @@ def deepskyobject_observations(dso_id):
     show_obs_log = show_observation_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='observations', dso=dso,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, other_names=other_names,
                            embed=embed, has_observations=True, observations=observations,
                            show_obs_log=show_obs_log,
                            )
@@ -462,7 +462,7 @@ def deepskyobject_catalogue_data(dso_id):
     if dso is None:
         abort(404)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='catalogue_data')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='catalogue_data')
 
     other_names = _get_other_names(dso)
     embed = request.args.get('embed', None)
@@ -474,7 +474,7 @@ def deepskyobject_catalogue_data(dso_id):
     show_obs_log = show_observation_log()
 
     return render_template('main/catalogue/deepskyobject_info.html', type='catalogue_data', dso=dso,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, other_names=other_names,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, other_names=other_names,
                            embed=embed, has_observations=has_observations, show_obs_log=show_obs_log,
                            )
 
@@ -489,7 +489,7 @@ def deepskyobject_chart(dso_id):
 
     form = ChartForm()
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='chart')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='chart')
 
     common_ra_dec_dt_fsz_from_request(form, dso.ra, dso.dec, 60)
 
@@ -517,7 +517,7 @@ def deepskyobject_chart(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
                            embed=embed, has_observations=has_observations, show_obs_log=show_obs_log,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            )
 
 
@@ -733,7 +733,7 @@ def deepskyobject_observation_log(dso_id):
     if embed:
         session['dso_embed_seltab'] = 'obs_log'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(orig_dso, tab='observation_log')
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='observation_log')
     has_observations = _has_dso_observations(dso, orig_dso)
 
     _, apert_descriptions, _  = _get_dso_descriptions(dso)
@@ -741,7 +741,7 @@ def deepskyobject_observation_log(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='observation_log', dso=dso, form=form,
                            embed=embed, observing_session=observing_session, is_new_observation_log=is_new_observation_log,
                            back=back, back_id=back_id, has_observations=has_observations, show_obs_log=True,
-                           prev_wrap=prev_wrap, next_wrap=next_wrap, apert_descriptions=apert_descriptions,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, apert_descriptions=apert_descriptions,
                            )
 
 

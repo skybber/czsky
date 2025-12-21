@@ -504,6 +504,11 @@
                     <div class="active section">
                         {{ dso.denormalized_name() }}
                     </div>
+                    {% if embed == 'fc' %}
+                        <a id="bpin" class="ui basic icon compact button" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                            <i class="crosshairs icon"></i>
+                        </a>
+                    {% endif %}
                 </div>
 
             {% if next_wrap and embed != 'pl' %}
@@ -546,6 +551,12 @@
             {% if prev_wrap %}
                 $('#bprev' ).click(function() {
                     parent.window.location.href = appendScreenWidthToUrl('{{ prev_wrap.top_url() | safe }}');
+                    return true;
+                });
+            {% endif %}
+            {% if cur_wrap %}
+                $('#bpin' ).click(function() {
+                    parent.window.location.href = appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}');
                     return true;
                 });
             {% endif %}

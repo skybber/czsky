@@ -60,7 +60,7 @@ from app.commons.supernova_loader import update_supernovae_from_rochesterastrono
 from app.commons.dso_utils import normalize_supernova_name
 
 from app.main.chart.chart_forms import ChartForm
-from app.commons.prevnext_utils import create_prev_next_wrappers
+from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 
 from .supernova_forms import SearchSupernovaForm
@@ -169,10 +169,10 @@ def supernova_info(designation):
     if embed:
         session['supernova_embed_seltab'] = 'catalogue_data'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova)
 
-    return render_template('main/catalogue/supernova_info.html', type='info', supernova=supernova,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap,)
+    return render_template('main/catalogue/supernova_info.html', type='info', supernova=supernova, embed=embed,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,)
 
 
 @main_supernova.route('/supernova/<string:designation>/surveys')
@@ -186,10 +186,10 @@ def supernova_surveys(designation):
     if embed:
         session['supernova_embed_seltab'] = 'surveys'
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova)
 
     return render_template('main/catalogue/supernova_info.html', type='surveys', supernova=supernova,
-                           embed=embed, prev_wrap=prev_wrap, next_wrap=next_wrap, field_size=40.0)
+                           embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, field_size=40.0)
 
 
 @main_supernova.route('/supernova/<string:designation>/seltab')
@@ -234,16 +234,16 @@ def supernova_chart(designation):
 
     chart_control = common_prepare_chart_data(form)
 
-    prev_wrap, next_wrap = create_prev_next_wrappers(supernova)
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova)
 
     back = request.args.get('back')
     back_id = request.args.get('back_id')
 
     default_chart_iframe_url = url_for('main_supernova.supernova_info', designation=designation, back=back, back_id=back_id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova,
-                           chart_control=chart_control, prev_wrap=prev_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
-                           embed=embed,)
+    return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova, chart_control=chart_control,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           default_chart_iframe_url=default_chart_iframe_url, embed=embed,)
 
 
 @main_supernova.route('/supernova/<string:designation>/chart-pos-img', methods=['GET'])
