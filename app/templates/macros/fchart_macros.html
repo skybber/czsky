@@ -356,7 +356,7 @@
                                   {{ _('Star labels')}}
                             </button>
                         </div>
-                        <div class="item">
+                        <div class="item div_aladin">
                             <button class="ui tiny labeled icon button"  style="text-align:left">
                                 <i class="image outline icon"></i>
                                 <span class="text">Aladin<i class="dropdown icon"></i></span>
@@ -726,10 +726,12 @@
 
     function adjustAladinVisibility() {
         if (!isEquatorial || !isWebGL2Supported()) {
+            $('.div_aladin').hide();
             $('.div_dsscolored').hide();
             $('.div_dssblue').hide();
             $('.div_dssfram').hide();
         } else {
+            $('.div_aladin').show();
             $('.div_dsscolored').show();
             $('.div_dssblue').show();
             $('.div_dssfram').show();
