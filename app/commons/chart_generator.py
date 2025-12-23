@@ -162,6 +162,7 @@ catalog_lock = threading.Lock()
 
 geoip_reader = None
 
+
 class ChartControl:
     def __init__(self, chart_fsz=None, mag_scale=None, mag_ranges=None, mag_range_values=None,
                  dso_mag_scale=None, dso_mag_ranges=None, dso_mag_range_values=None, theme=None, gui_field_sizes=None,
@@ -1139,7 +1140,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.show_enhanced_milky_way_10k = False
     config.show_enhanced_milky_way_30k = False
     config.show_dso_mag = FlagValue.SHOW_DSO_MAG.value in flags
-    config.show_star_labels = FlagValue.SHOW_STAR_LABELS.value in flags
+    config.show_star_labels = _eval_show_star_labels(FlagValue.SHOW_STAR_LABELS.value in flags, fld_size, 1000)
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.5  # increase radius of star by 1.5 magnitude
     config.show_horizon = True
@@ -1540,6 +1541,14 @@ def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
     CAIRO_STATUS_SUCCESS = 0
     FT_Err_Ok = 0
 
+    class PycairoContext(ct.Structure):
+        _fields_ = \
+            [
+                ("PyObject_HEAD", ct.c_byte * object.__basicsize__),
+                ("ctx", ct.c_void_p),
+                ("base", ct.c_void_p),
+            ]
+
     if not ft_initialized:
         # find shared objects
         _freetype_so = ct.CDLL("libfreetype.so.6")
@@ -1558,14 +1567,6 @@ def _create_cairo_font_face_for_file(filename, faceindex=0, loadoptions=0):
         status = _freetype_so.FT_Init_FreeType(ct.byref(_ft_lib))
         if status != FT_Err_Ok :
             raise RuntimeError("Error %d initializing FreeType library." % status)
-
-        class PycairoContext(ct.Structure):
-            _fields_ = \
-                [
-                    ("PyObject_HEAD", ct.c_byte * object.__basicsize__),
-                    ("ctx", ct.c_void_p),
-                    ("base", ct.c_void_p),
-                ]
 
         _surface = cairo.ImageSurface(cairo.FORMAT_A8, 0, 0)
         _ft_destroy_key = ct.c_int() # dummy address
