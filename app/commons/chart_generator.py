@@ -22,6 +22,7 @@ from astropy.time import Time
 import pillow_avif
 
 import fchart3
+from fchart3 import CoordSystem
 
 from flask import (
     abort,
@@ -40,6 +41,7 @@ from app.models import (
     SessionPlan,
     Telescope,
 )
+
 from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
@@ -595,15 +597,30 @@ def _resolve_city_lat_lon():
     return city_name, lat, lon
 
 
+def _get_datetime():
+    request_dt = request.args.get('dt', None)
+    if not request_dt:
+        return datetime.now(timezone.utc)
+
+    s = request_dt.strip()
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+
+    dt = datetime.fromisoformat(s)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+    return dt
+
+
 def _get_lst_lat_lot():
     request_dt = request.args.get('dt', None)
     try:
         tm = Time(request_dt) if request_dt else Time.now()
     except ValueError:
         tm = Time.now()
-
     city_name, lat, lon = _resolve_city_lat_lon()
-
     return tm.sidereal_time('apparent', longitude=lon).radian, deg2rad(lat), deg2rad(lon)
 
 
@@ -997,6 +1014,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     else:
         config.widget_mode = fchart3.WidgetMode.ALLOC_SPACE_ONLY
 
+    _, lat, lon = _resolve_city_lat_lon()
+    config.coord_system = CoordSystem.EQUATORIAL if is_equatorial else CoordSystem.HORIZONTAL
+    config.observer_lat_deg = lat
+    config.observer_lon_deg = lon
+
     if dso_maglim is None:
         dso_maglim = -10
 
@@ -1042,10 +1064,6 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y, projection)
 
-    local_sidereal_time, lat, lon = _get_lst_lat_lot()
-
-    engine.set_observer(local_sidereal_time, lat, is_equatorial)
-
     if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
@@ -1088,6 +1106,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
         pl_moons = None
 
     engine.make_map(used_catalogs,
+                    dt=_get_datetime(),
                     jd=None,  # jd=skyfield_ts.now().tdb,
                     solsys_bodies=sl_bodies,
                     planet_moons=pl_moons,
@@ -1150,6 +1169,11 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
         config.show_map_scale_legend = True
         config.show_field_border = True
 
+    _, lat, lon = _resolve_city_lat_lon()
+    config.coord_system = CoordSystem.EQUATORIAL if is_equatorial else CoordSystem.HORIZONTAL
+    config.observer_lat_deg = lat
+    config.observer_lon_deg = lon
+
     if dso_maglim is None:
         dso_maglim = -10
 
@@ -1164,9 +1188,6 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
     engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
-
-    local_sidereal_time, lat, lon = _get_lst_lat_lot()
-    engine.set_observer(local_sidereal_time, lat, is_equatorial)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1196,6 +1217,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     pl_moons = get_planet_moons(get_utc_time(), star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
     engine.make_map(used_catalogs,
+                    dt=_get_datetime(),
                     solsys_bodies=sl_bodies,
                     planet_moons=pl_moons,
                     showing_dsos=showing_dsos,
