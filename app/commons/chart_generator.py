@@ -1105,6 +1105,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     else:
         pl_moons = None
 
+    trajectories = [trajectory] if trajectory else None
+
     engine.make_map(used_catalogs,
                     dt=_get_datetime(),
                     jd=None,  # jd=skyfield_ts.now().tdb,
@@ -1114,7 +1116,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
                     dso_highlights=dso_highlights,
                     highlights=highlights,
                     dso_hide_filter=_get_dso_hide_filter(),
-                    trajectory=trajectory,
+                    trajectories=trajectories,
                     hl_constellation=hl_constellation,
                     visible_objects=visible_objects,
                     transparent=transparent)
@@ -1216,6 +1218,8 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     pl_moons = get_planet_moons(get_utc_time(), star_maglim) if FlagValue.SHOW_SOLAR_SYSTEM.value in flags else None
 
+    trajectories = [trajectory] if trajectory else None
+
     engine.make_map(used_catalogs,
                     dt=_get_datetime(),
                     solsys_bodies=sl_bodies,
@@ -1224,7 +1228,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
                     dso_highlights=dso_highlights,
                     highlights=highlights,
                     dso_hide_filter=dso_hide_filter,
-                    trajectory=trajectory,
+                    trajectories=trajectories,
                     visible_objects=visible_objects)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
