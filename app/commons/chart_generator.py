@@ -1048,8 +1048,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     if show_dss and img_format == 'jpg':
         img_format = 'png'
 
-    # projection = fchart3.ProjectionType.ORTHOGRAPHIC if show_dss else fchart3.ProjectionType.STEREOGRAPHIC
-    projection = fchart3.ProjectionType.STEREOGRAPHIC
+    config.projection = fchart3.ProjectionType.STEREOGRAPHIC
 
     artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format,
                                   pixels=True if width else False, jpg_quality=jpg_quality,
@@ -1062,7 +1061,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y, projection)
+    engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y)
 
     if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
@@ -1189,7 +1188,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, fchart3.ProjectionType.STEREOGRAPHIC)
+    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y)
 
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
@@ -1261,6 +1260,7 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     config.star_mag_shift = 1.0  # increase radius of star by 1 magnitude
 
     config.show_flamsteed = (fld_size <= 20)
+    config.projection = fchart3.ProjectionType.STEREOGRAPHIC
 
     if dso_maglim is None:
         dso_maglim = -10
@@ -1269,13 +1269,10 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
 
-    # projection = fchart3.ProjectionType.ORTHOGRAPHIC if ('S' in flags) else fchart3.ProjectionType.STEREOGRAPHIC
-    projection = fchart3.ProjectionType.STEREOGRAPHIC
-
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags
 
-    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y, projection)
+    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y)
 
     engine.make_map(used_catalogs, transparent=True)
     free_mem_counter += 1
