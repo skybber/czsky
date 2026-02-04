@@ -100,6 +100,9 @@ class Config:
     CHART_AVIF_THRESHOLD_WIDTH = os.environ.get('CHART_AVIF_THRESHOLD_WIDTH', 768)
     STAR_CATALOG = os.environ.get('STAR_CATALOG', 'nomad')
 
+    TURNSTILE_SITE_KEY = os.environ.get('TURNSTILE_SITE_KEY', '')
+    TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '')
+
     @staticmethod
     def init_app(app):
         pass
