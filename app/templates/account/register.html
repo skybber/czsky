@@ -27,6 +27,11 @@
                 {{ f.render_form_field(form.password2) }}
             </div>
 
+            <div class="field">
+                <div class="cf-turnstile" data-sitekey="{{ config.TURNSTILE_SITE_KEY }}" data-callback="onTurnstileCallback"></div>
+                {{ form.cf_turnstile_response() }}
+            </div>
+
             {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
             {{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
             {{ f.form_message(flashes['info'], header='Information', class='info') }}
@@ -37,6 +42,13 @@
             {% endfor %}
 
             {{ f.end_form(form) }}
+
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+            <script>
+                function onTurnstileCallback(token) {
+                    document.getElementById('cf_turnstile_response').value = token;
+                }
+            </script>
         </div>
     </div>
     {{ check.password_check('password', 0) }}

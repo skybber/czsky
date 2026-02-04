@@ -1,10 +1,11 @@
 import re
 
-from flask import url_for
+from flask import url_for, current_app
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
     BooleanField,
+    HiddenField,
     PasswordField,
     StringField,
     SubmitField,
@@ -12,6 +13,7 @@ from wtforms.fields import (
 )
 from wtforms.fields import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
+import requests
 
 from app.models import User
 
@@ -60,6 +62,7 @@ class RegistrationForm(FlaskForm):
             EqualTo('password2', 'Passwords must match')
         ])
     password2 = PasswordField('Confirm password', validators=[InputRequired()])
+    cf_turnstile_response = HiddenField('Turnstile Token')
     submit = SubmitField('Register')
 
     def validate_user_name(self, field):
@@ -67,11 +70,33 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('User name already registered. (Did you mean to '
                                   '<a href="{}">log in</a> instead?)'.format(
                                     url_for('account.login')))
+
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered. (Did you mean to '
                                   '<a href="{}">log in</a> instead?)'.format(
                                     url_for('account.login')))
+
+    def validate_cf_turnstile_response(self, field):
+        """Validate Turnstile captcha token"""
+        secret_key = current_app.config.get('TURNSTILE_SECRET_KEY')
+        if not secret_key:
+            return  # Skip validation if Turnstile is not configured
+
+        if not field.data:
+            raise ValidationError('Please complete the captcha verification.')
+
+        response = requests.post(
+            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+            data={
+                'secret': secret_key,
+                'response': field.data
+            }
+        )
+
+        result = response.json()
+        if not result.get('success'):
+            raise ValidationError('Captcha verification failed. Please try again.')
 
 
 class RequestResetPasswordForm(FlaskForm):
