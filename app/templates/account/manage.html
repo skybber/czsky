@@ -41,7 +41,57 @@
             </div>
             <div class="eight wide column">
                 {% if form %}
-                    {{ f.render_form(form, extra_classes='fluid') }}
+                    {% if form.cf_turnstile is defined %}
+                        {# Form with Turnstile (ChangeEmailForm) #}
+                        {% set flashes = {
+                            'error':   get_flashed_messages(category_filter=['form-error']),
+                            'warning': get_flashed_messages(category_filter=['form-warning']),
+                            'info':    get_flashed_messages(category_filter=['form-info']),
+                            'success': get_flashed_messages(category_filter=['form-success'])
+                        } %}
+
+                        {{ f.begin_form(form, flashes, extra_classes='fluid') }}
+
+                        {% for field in form if field.type not in ['SubmitField', 'CSRFTokenField', 'HiddenField'] %}
+                            {{ f.render_form_field(field) }}
+                        {% endfor %}
+
+                        <div class="field">
+                            <div class="cf-turnstile"
+                                 data-sitekey="{{ config.TURNSTILE_SITE_KEY }}"
+                                 data-theme="auto"
+                                 data-action="change-email">
+                            </div>
+
+                            {{ form.cf_turnstile() }}
+                            {% if form.cf_turnstile.errors %}
+                                <div class="ui error message">
+                                    <div class="header">Captcha verification</div>
+                                    <ul class="list">
+                                        {% for err in form.cf_turnstile.errors %}
+                                            <li>{{ err }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
+                        {{ f.form_message(flashes['warning'], header='Check your email.', class='warning') }}
+                        {{ f.form_message(flashes['info'], header='Information', class='info') }}
+                        {{ f.form_message(flashes['success'], header='Success!', class='success') }}
+
+                        {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
+                            {{ f.render_form_field(field) }}
+                        {% endfor %}
+
+                        {{ f.end_form(form) }}
+
+                        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+                    {% else %}
+                        {# Regular form without Turnstile (ChangePasswordForm) #}
+                        {{ f.render_form(form, extra_classes='fluid') }}
+                    {% endif %}
                 {% else %}
                     {{ user_info(user) }}
                 {% endif %}

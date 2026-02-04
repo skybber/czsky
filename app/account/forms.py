@@ -64,6 +64,47 @@ def verify_turnstile_token(token: str, remoteip: str | None = None) -> dict:
 
 
 # -----------------------------
+# Turnstile validation mixin
+# -----------------------------
+
+
+class TurnstileMixin:
+    """Mixin to add Turnstile validation to any FlaskForm."""
+
+    def validate_turnstile(self):
+        """
+        Validate Turnstile token from request.
+        Returns True if valid, False otherwise (with errors attached to cf_turnstile field).
+        """
+        if not _turnstile_enabled():
+            if current_app.debug:
+                return True
+            self.cf_turnstile.errors.append("Captcha is not configured on the server.")
+            return False
+
+        token = (request.form.get("cf-turnstile-response") or "").strip()
+
+        if not token:
+            self.cf_turnstile.errors.append("Please complete the captcha verification.")
+            return False
+
+        try:
+            result = verify_turnstile_token(token, remoteip=request.remote_addr)
+        except requests.RequestException:
+            self.cf_turnstile.errors.append(
+                "Captcha verification is temporarily unavailable. Please try again."
+            )
+            return False
+
+        if not result.get("success"):
+            self.cf_turnstile.errors.append("Captcha verification failed. Please try again.")
+            return False
+
+        self.cf_turnstile.data = token
+        return True
+
+
+# -----------------------------
 # Existing forms
 # -----------------------------
 
@@ -91,7 +132,7 @@ class UserCheck:
             raise ValidationError(self.message)
 
 
-class RegistrationForm(FlaskForm):
+class RegistrationForm(TurnstileMixin, FlaskForm):
     user_name = StringField(
         "User Name",
         validators=[
@@ -138,50 +179,24 @@ class RegistrationForm(FlaskForm):
             )
 
     def validate(self, extra_validators=None):
-        """
-        Extend base validation with Turnstile verification.
-
-        We read Turnstile token from request.form["cf-turnstile-response"] and
-        attach any validation errors to cf_turnstile.
-        """
+        """Extend base validation with Turnstile verification."""
         if not super().validate(extra_validators=extra_validators):
             return False
-
-        # Fail-closed when configured is missing in non-debug.
-        if not _turnstile_enabled():
-            if current_app.debug:
-                return True
-            self.cf_turnstile.errors.append("Captcha is not configured on the server.")
-            return False
-
-        token = (request.form.get("cf-turnstile-response") or "").strip()
-
-        if not token:
-            self.cf_turnstile.errors.append("Please complete the captcha verification.")
-            return False
-
-        try:
-            result = verify_turnstile_token(token, remoteip=request.remote_addr)
-        except requests.RequestException:
-            self.cf_turnstile.errors.append(
-                "Captcha verification is temporarily unavailable. Please try again."
-            )
-            return False
-
-        if not result.get("success"):
-            self.cf_turnstile.errors.append("Captcha verification failed. Please try again.")
-            return False
-
-        # Store token if you want for debugging/auditing (optional)
-        self.cf_turnstile.data = token
-        return True
+        return self.validate_turnstile()
 
 
-class RequestResetPasswordForm(FlaskForm):
+class RequestResetPasswordForm(TurnstileMixin, FlaskForm):
     email = EmailField("Email", validators=[InputRequired(), Length(1, 64), Email()])
+    cf_turnstile = HiddenField("Turnstile")
     submit = SubmitField("Reset password")
     # We don't validate the email address so we don't confirm to attackers
     # that an account with the given email exists.
+
+    def validate(self, extra_validators=None):
+        """Extend base validation with Turnstile verification."""
+        if not super().validate(extra_validators=extra_validators):
+            return False
+        return self.validate_turnstile()
 
 
 class ResetPasswordForm(FlaskForm):
@@ -213,7 +228,7 @@ class CreatePasswordForm(FlaskForm):
     submit = SubmitField("Set password")
 
 
-class ChangePasswordForm(FlaskForm):
+class ChangePasswordForm(TurnstileMixin, FlaskForm):
     old_password = PasswordField("Old password", validators=[InputRequired()])
     new_password = PasswordField(
         "New password",
@@ -223,14 +238,28 @@ class ChangePasswordForm(FlaskForm):
         ],
     )
     new_password2 = PasswordField("Confirm new password", validators=[InputRequired()])
+    cf_turnstile = HiddenField("Turnstile")
     submit = SubmitField("Update password")
 
+    def validate(self, extra_validators=None):
+        """Extend base validation with Turnstile verification."""
+        if not super().validate(extra_validators=extra_validators):
+            return False
+        return self.validate_turnstile()
 
-class ChangeEmailForm(FlaskForm):
+
+class ChangeEmailForm(TurnstileMixin, FlaskForm):
     email = EmailField("New email", validators=[InputRequired(), Length(1, 64), Email()])
     password = PasswordField("Password", validators=[InputRequired()])
+    cf_turnstile = HiddenField("Turnstile")
     submit = SubmitField("Update email")
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError("Email already registered.")
+
+    def validate(self, extra_validators=None):
+        """Extend base validation with Turnstile verification."""
+        if not super().validate(extra_validators=extra_validators):
+            return False
+        return self.validate_turnstile()
