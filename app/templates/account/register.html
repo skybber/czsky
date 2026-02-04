@@ -17,9 +17,7 @@
             {{ f.begin_form(form, flashes) }}
 
             {{ f.render_form_field(form.user_name) }}
-
             {{ f.render_form_field(form.full_name) }}
-
             {{ f.render_form_field(form.email) }}
 
             <div class="two fields">
@@ -27,9 +25,26 @@
                 {{ f.render_form_field(form.password2) }}
             </div>
 
+            {# Turnstile widget: token is automatically posted as "cf-turnstile-response" #}
             <div class="field">
-                <div class="cf-turnstile" data-sitekey="{{ config.TURNSTILE_SITE_KEY }}" data-callback="onTurnstileCallback"></div>
-                {{ form.cf_turnstile_response() }}
+                <div class="cf-turnstile"
+                     data-sitekey="{{ config.TURNSTILE_SITE_KEY }}"
+                     data-theme="auto"
+                     data-action="register">
+                </div>
+
+                {# We keep a hidden WTForms field only to attach / display validation errors cleanly #}
+                {{ form.cf_turnstile() }}
+                {% if form.cf_turnstile.errors %}
+                    <div class="ui error message">
+                        <div class="header">Captcha verification</div>
+                        <ul class="list">
+                            {% for err in form.cf_turnstile.errors %}
+                                <li>{{ err }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             </div>
 
             {{ f.form_message(flashes['error'], header='Something went wrong.', class='error') }}
@@ -43,12 +58,8 @@
 
             {{ f.end_form(form) }}
 
+            {# Turnstile API script #}
             <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-            <script>
-                function onTurnstileCallback(token) {
-                    document.getElementById('cf_turnstile_response').value = token;
-                }
-            </script>
         </div>
     </div>
     {{ check.password_check('password', 0) }}

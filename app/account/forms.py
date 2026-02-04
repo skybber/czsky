@@ -1,6 +1,7 @@
 import re
+import requests
 
-from flask import url_for, current_app
+from flask import current_app, request, url_for
 from flask_wtf import FlaskForm
 from wtforms import ValidationError
 from wtforms.fields import (
@@ -13,17 +14,65 @@ from wtforms.fields import (
 )
 from wtforms.fields import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
-import requests
 
 from app.models import User
 
 
+# -----------------------------
+# Turnstile verification (top of file)
+# -----------------------------
+
+TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+
+
+def _turnstile_enabled() -> bool:
+    """Return True if Turnstile is configured."""
+    return bool(current_app.config.get("TURNSTILE_SECRET_KEY"))
+
+
+def verify_turnstile_token(token: str, remoteip: str | None = None) -> dict:
+    """
+    Verify a Turnstile token via Cloudflare siteverify API.
+
+    Returns JSON dict (including 'success').
+    Raises requests.RequestException for network/HTTP errors.
+    """
+    secret = current_app.config.get("TURNSTILE_SECRET_KEY")
+    data = {"secret": secret, "response": token}
+    if remoteip:
+        data["remoteip"] = remoteip
+
+    resp = requests.post(TURNSTILE_VERIFY_URL, data=data, timeout=5)
+    resp.raise_for_status()
+    result = resp.json()
+
+    # Optional hardening checks
+    expected_hosts = current_app.config.get("TURNSTILE_EXPECTED_HOSTNAMES")
+    if expected_hosts:
+        actual = result.get("hostname")
+        if actual not in expected_hosts:
+            result["success"] = False
+            result.setdefault("error-codes", []).append("bad-hostname")
+
+    # expected_action = current_app.config.get("TURNSTILE_EXPECTED_ACTION")
+    # # Only useful if you use data-action on the widget
+    # if expected_action and result.get("action") != expected_action:
+    #     result["success"] = False
+    #     result.setdefault("error-codes", []).append("bad-action")
+
+    return result
+
+
+# -----------------------------
+# Existing forms
+# -----------------------------
+
 class LoginForm(FlaskForm):
-    email = StringField(
-        'User name or email', validators=[InputRequired(), Length(1, 64)])
-    password = PasswordField('Password', validators=[InputRequired()])
-    remember_me = BooleanField('Keep me logged in')
-    submit = SubmitField('Log in')
+    email = StringField("User name or email", validators=[InputRequired(), Length(1, 64)])
+    password = PasswordField("Password", validators=[InputRequired()])
+    remember_me = BooleanField("Keep me logged in")
+    submit = SubmitField("Log in")
+
 
 class UserCheck:
     def __init__(self, banned, regex, message=None):
@@ -31,7 +80,7 @@ class UserCheck:
         self.regex = regex
 
         if not message:
-            message = 'Please choose another username'
+            message = "Please choose another username"
         self.message = message
 
     def __call__(self, form, field):
@@ -41,128 +90,147 @@ class UserCheck:
         if re.search(p, field.data.lower()):
             raise ValidationError(self.message)
 
+
 class RegistrationForm(FlaskForm):
     user_name = StringField(
-        'User Name', validators=[InputRequired(),
-                                 UserCheck(message="Username or special characters not allowed",
-                                           banned=['root', 'admin', 'sys', 'administrator'],
-                                           regex="^(?=.*[-+!#$%^&*, ?])"),
-                                 Length(3, 40)])
-    full_name = StringField(
-        'Full Name', validators=[InputRequired(),
-                                 Length(1, 256)])
-    email = EmailField(
-        'Email', validators=[InputRequired(),
-                             Length(1, 64),
-                             Email()])
-    password = PasswordField(
-        'Password',
+        "User Name",
         validators=[
             InputRequired(),
-            EqualTo('password2', 'Passwords must match')
-        ])
-    password2 = PasswordField('Confirm password', validators=[InputRequired()])
-    cf_turnstile_response = HiddenField('Turnstile Token')
-    submit = SubmitField('Register')
+            UserCheck(
+                message="Username or special characters not allowed",
+                banned=["root", "admin", "sys", "administrator"],
+                regex=r"^(?=.*[-+!#$%^&*, ?])",
+            ),
+            Length(3, 40),
+        ],
+    )
+    full_name = StringField("Full Name", validators=[InputRequired(), Length(1, 256)])
+    email = EmailField("Email", validators=[InputRequired(), Length(1, 64), Email()])
+    password = PasswordField(
+        "Password",
+        validators=[
+            InputRequired(),
+            EqualTo("password2", "Passwords must match"),
+        ],
+    )
+    password2 = PasswordField("Confirm password", validators=[InputRequired()])
+
+    # NOTE: Turnstile posts token as "cf-turnstile-response".
+    # We keep this field only to store/show errors in WTForms cleanly.
+    cf_turnstile = HiddenField("Turnstile")
+
+    submit = SubmitField("Register")
 
     def validate_user_name(self, field):
         if User.query.filter_by(user_name=field.data).first():
-            raise ValidationError('User name already registered. (Did you mean to '
-                                  '<a href="{}">log in</a> instead?)'.format(
-                                    url_for('account.login')))
+            raise ValidationError(
+                'User name already registered. (Did you mean to <a href="{}">log in</a> instead?)'.format(
+                    url_for("account.login")
+                )
+            )
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered. (Did you mean to '
-                                  '<a href="{}">log in</a> instead?)'.format(
-                                    url_for('account.login')))
+            raise ValidationError(
+                'Email already registered. (Did you mean to <a href="{}">log in</a> instead?)'.format(
+                    url_for("account.login")
+                )
+            )
 
-    def validate_cf_turnstile_response(self, field):
-        """Validate Turnstile captcha token"""
-        secret_key = current_app.config.get('TURNSTILE_SECRET_KEY')
-        if not secret_key:
-            return  # Skip validation if Turnstile is not configured
+    def validate(self, extra_validators=None):
+        """
+        Extend base validation with Turnstile verification.
 
-        if not field.data:
-            raise ValidationError('Please complete the captcha verification.')
+        We read Turnstile token from request.form["cf-turnstile-response"] and
+        attach any validation errors to cf_turnstile.
+        """
+        if not super().validate(extra_validators=extra_validators):
+            return False
 
-        response = requests.post(
-            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-            data={
-                'secret': secret_key,
-                'response': field.data
-            }
-        )
+        # Fail-closed when configured is missing in non-debug.
+        if not _turnstile_enabled():
+            if current_app.debug:
+                return True
+            self.cf_turnstile.errors.append("Captcha is not configured on the server.")
+            return False
 
-        result = response.json()
-        if not result.get('success'):
-            raise ValidationError('Captcha verification failed. Please try again.')
+        token = (request.form.get("cf-turnstile-response") or "").strip()
+
+        if not token:
+            self.cf_turnstile.errors.append("Please complete the captcha verification.")
+            return False
+
+        try:
+            result = verify_turnstile_token(token, remoteip=request.remote_addr)
+        except requests.RequestException:
+            self.cf_turnstile.errors.append(
+                "Captcha verification is temporarily unavailable. Please try again."
+            )
+            return False
+
+        if not result.get("success"):
+            self.cf_turnstile.errors.append("Captcha verification failed. Please try again.")
+            return False
+
+        # Store token if you want for debugging/auditing (optional)
+        self.cf_turnstile.data = token
+        return True
 
 
 class RequestResetPasswordForm(FlaskForm):
-    email = EmailField(
-        'Email', validators=[InputRequired(),
-                             Length(1, 64),
-                             Email()])
-    submit = SubmitField('Reset password')
-
+    email = EmailField("Email", validators=[InputRequired(), Length(1, 64), Email()])
+    submit = SubmitField("Reset password")
     # We don't validate the email address so we don't confirm to attackers
     # that an account with the given email exists.
 
 
 class ResetPasswordForm(FlaskForm):
-    email = EmailField(
-        'Email', validators=[InputRequired(),
-                             Length(1, 64),
-                             Email()])
+    email = EmailField("Email", validators=[InputRequired(), Length(1, 64), Email()])
     new_password = PasswordField(
-        'New password',
+        "New password",
         validators=[
             InputRequired(),
-            EqualTo('new_password2', 'Passwords must match.')
-        ])
-    new_password2 = PasswordField(
-        'Confirm new password', validators=[InputRequired()])
-    submit = SubmitField('Reset password')
+            EqualTo("new_password2", "Passwords must match."),
+        ],
+    )
+    new_password2 = PasswordField("Confirm new password", validators=[InputRequired()])
+    submit = SubmitField("Reset password")
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first() is None:
-            raise ValidationError('Unknown email address.')
+            raise ValidationError("Unknown email address.")
 
 
 class CreatePasswordForm(FlaskForm):
     password = PasswordField(
-        'Password',
+        "Password",
         validators=[
             InputRequired(),
-            EqualTo('password2', 'Passwords must match.')
-        ])
-    password2 = PasswordField(
-        'Confirm new password', validators=[InputRequired()])
-    submit = SubmitField('Set password')
+            EqualTo("password2", "Passwords must match."),
+        ],
+    )
+    password2 = PasswordField("Confirm new password", validators=[InputRequired()])
+    submit = SubmitField("Set password")
 
 
 class ChangePasswordForm(FlaskForm):
-    old_password = PasswordField('Old password', validators=[InputRequired()])
+    old_password = PasswordField("Old password", validators=[InputRequired()])
     new_password = PasswordField(
-        'New password',
+        "New password",
         validators=[
             InputRequired(),
-            EqualTo('new_password2', 'Passwords must match.')
-        ])
-    new_password2 = PasswordField(
-        'Confirm new password', validators=[InputRequired()])
-    submit = SubmitField('Update password')
+            EqualTo("new_password2", "Passwords must match."),
+        ],
+    )
+    new_password2 = PasswordField("Confirm new password", validators=[InputRequired()])
+    submit = SubmitField("Update password")
 
 
 class ChangeEmailForm(FlaskForm):
-    email = EmailField(
-        'New email', validators=[InputRequired(),
-                                 Length(1, 64),
-                                 Email()])
-    password = PasswordField('Password', validators=[InputRequired()])
-    submit = SubmitField('Update email')
+    email = EmailField("New email", validators=[InputRequired(), Length(1, 64), Email()])
+    password = PasswordField("Password", validators=[InputRequired()])
+    submit = SubmitField("Update email")
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
-            raise ValidationError('Email already registered.')
+            raise ValidationError("Email already registered.")

@@ -103,6 +103,12 @@ class Config:
     TURNSTILE_SITE_KEY = os.environ.get('TURNSTILE_SITE_KEY', '')
     TURNSTILE_SECRET_KEY = os.environ.get('TURNSTILE_SECRET_KEY', '')
 
+    def _csv_set(value: str) -> set[str]:
+        return {part.strip() for part in value.split(",") if part.strip()}
+
+    TURNSTILE_EXPECTED_HOSTNAMES = _csv_set(os.environ.get("TURNSTILE_EXPECTED_HOSTNAMES", ""))
+    TURNSTILE_EXPECTED_ACTION = os.environ.get("TURNSTILE_EXPECTED_ACTION", "")
+
     @staticmethod
     def init_app(app):
         pass
