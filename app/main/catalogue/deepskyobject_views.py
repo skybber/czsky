@@ -297,8 +297,6 @@ def deepskyobject_seltab(dso_id):
     if seltab:
         if seltab == 'chart':
             return _do_redirect('main_deepskyobject.deepskyobject_chart', dso)
-        if seltab == 'surveys':
-            return _do_redirect('main_deepskyobject.deepskyobject_surveys', dso)
         if seltab == 'observations':
             return _do_redirect('main_deepskyobject.deepskyobject_observations', dso)
         if seltab == 'catalogue_data':
@@ -393,31 +391,6 @@ def _has_dso_observations(dso, orig_dso):
         has_observations = (back != 'running_plan') and \
             db.session.query(literal(True)).filter(_get_observations_query(dso, orig_dso).exists()).scalar()
     return has_observations
-
-
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/surveys', methods=['GET', 'POST'])
-def deepskyobject_surveys(dso_id):
-    """Digital surveys view a deepsky object."""
-    dso, orig_dso = _find_dso(dso_id)
-    if dso is None:
-        abort(404)
-
-    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='surveys')
-    exact_ang_size = (3.0*dso.major_axis/60.0/60.0) if dso.major_axis else 1.0
-
-    field_size = _get_survey_field_size(ALADIN_ANG_SIZES, exact_ang_size, 10.0)
-    embed = request.args.get('embed', None)
-
-    if embed:
-        session['dso_embed_seltab'] = 'surveys'
-
-    has_observations = _has_dso_observations(dso, orig_dso)
-    show_obs_log = show_observation_log()
-
-    return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
-                           field_size=field_size, embed=embed, has_observations=has_observations,
-                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
-                           )
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/visibility', methods=['GET', 'POST'])

@@ -20,13 +20,11 @@
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
         ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'chart'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
         ('main_deepskyobject.deepskyobject_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
-        ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
         ('main_deepskyobject.deepskyobject_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
@@ -219,21 +217,6 @@
                      obj_ra=dso.ra, obj_dec=dso.dec,
                      back=back, back_id=back_id, default_back='deepskyobjects', back_anchor='#dso{}'.format(dso.id))
     }}
-{% endmacro %}
-
-{# --- Surveys --- #}
-{% macro deepskyobject_surveys() %}
-    <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
-    <div id="aladin-lite-div" style="width:100%;height:75vh;"></div>
-    <script type="text/javascript" src="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>
-    <script type="text/javascript">
-        var aladin = A.aladin('#aladin-lite-div', {
-                survey: "P/DSS2/color",
-                fov:{{ field_size }},
-                target: "{{ dso.ra_str_short().replace(':',' ')}} {{dso.dec_str_short().replace(':',' ')}}"
-                {% if embed %} ,fullScreen: true {% endif %}
-        });
-    </script>
 {% endmacro %}
 
 {# --- Visibility --- #}
@@ -538,8 +521,6 @@
                 {% endif %}
             {% elif type == 'chart' %}
                 {{ deepskyobject_chart() }}
-            {% elif type == 'surveys' %}
-                {{ deepskyobject_surveys() }}
             {% elif type == 'visibility' %}
                 {{ deepskyobject_visibility() }}
             {% elif type == 'catalogue_data' %}

@@ -61,24 +61,6 @@ def star_info(star_id):
                            editable=False, embed=embed, )
 
 
-@main_star.route('/star/<string:star_id>/surveys', methods=['GET', 'POST'])
-def star_surveys(star_id):
-    """Digital surveys view a star."""
-    star = Star.query.filter_by(id=star_id).first()
-    if star is None:
-        abort(404)
-
-    embed = request.args.get('embed')
-    if embed:
-        session['star_embed_seltab'] = 'surveys'
-
-    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star)
-
-    return render_template('main/catalogue/star_info.html', type='surveys', star=star, user_descr=None,
-                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
-                           editable=False, embed=embed, field_size=40.0)
-
-
 @main_star.route('/star/<int:star_id>/visibility', methods=['GET', 'POST'])
 def star_visibility(star_id):
     """View visibility chart for a star."""
@@ -127,30 +109,6 @@ def star_descr_info(star_descr_id):
     return render_template('main/catalogue/star_info.html', type='info', user_descr=user_descr,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=editable, embed=embed, )
-
-
-@main_star.route('/star/<string:star_descr_id>/descr-surveys', methods=['GET', 'POST'])
-def star_descr_surveys(star_descr_id):
-    """View a star description info."""
-    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
-    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
-    if user_descr is None:
-        abort(404)
-
-    embed = request.args.get('embed')
-    if embed:
-        session['star_embed_seltab'] = 'surveys'
-
-    editable = current_user.is_editor()
-
-    if user_descr.star is not None:
-        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star)
-    else:
-        prev_wrap, cur_wrap, next_wrap = None, None, None
-
-    return render_template('main/catalogue/star_info.html', type='surveys', user_descr=user_descr,
-                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
-                           editable=editable, embed=embed, field_size=40.0)
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-visibility', methods=['GET', 'POST'])

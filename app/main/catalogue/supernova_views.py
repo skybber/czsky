@@ -175,23 +175,6 @@ def supernova_info(designation):
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,)
 
 
-@main_supernova.route('/supernova/<string:designation>/surveys')
-def supernova_surveys(designation):
-    """View a supernova catalogue data."""
-    supernova = Supernova.query.filter_by(designation=designation).first()
-    if supernova is None:
-        abort(404)
-
-    embed = request.args.get('embed')
-    if embed:
-        session['supernova_embed_seltab'] = 'surveys'
-
-    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova)
-
-    return render_template('main/catalogue/supernova_info.html', type='surveys', supernova=supernova,
-                           embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, field_size=40.0)
-
-
 @main_supernova.route('/supernova/<string:designation>/visibility', methods=['GET', 'POST'])
 def supernova_visibility(designation):
     """View visibility chart for a supernova."""
@@ -235,8 +218,6 @@ def supernova_seltab(designation):
     if seltab:
         if seltab == 'chart':
             return _do_redirect('main_supernova.supernova_chart', supernova)
-        if seltab == 'surveys':
-            return _do_redirect('main_supernova.supernova_surveys', supernova)
         if seltab == 'visibility':
             return _do_redirect('main_supernova.supernova_visibility', supernova)
 

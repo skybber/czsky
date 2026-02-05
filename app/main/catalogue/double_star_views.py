@@ -205,28 +205,6 @@ def _has_double_star_observations(double_star):
     return has_observations
 
 
-@main_double_star.route('/double-star/<int:double_star_id>/surveys')
-def double_star_surveys(double_star_id):
-    """View a double star catalogue data."""
-    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-    if double_star is None:
-        abort(404)
-
-    embed = request.args.get('embed')
-    if embed:
-        session['double_star_embed_seltab'] = 'surveys'
-
-    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star)
-
-    user_descr = _get_user_descr(double_star_id)
-    has_observations = _has_double_star_observations(double_star)
-    show_obs_log = show_observation_log()
-
-    return render_template('main/catalogue/double_star_info.html', type='surveys', double_star=double_star, embed=embed,
-                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
-                           user_descr=user_descr, has_observations=has_observations, show_obs_log=show_obs_log, field_size=40.0)
-
-
 @main_double_star.route('/double-star/<int:double_star_id>/observations')
 def double_star_observations(double_star_id):
     """View a double star object observations."""
@@ -399,8 +377,6 @@ def double_star_seltab(double_star_id):
     if seltab:
         if seltab == 'chart':
             return _do_redirect('main_double_star.double_star_chart', double_star)
-        if seltab == 'surveys':
-            return _do_redirect('main_double_star.double_star_surveys', double_star)
         if seltab == 'observations':
             return _do_redirect('main_double_star.double_star_observations', double_star)
         if seltab == 'visibility':
