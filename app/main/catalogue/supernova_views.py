@@ -66,6 +66,7 @@ from app.commons.highlights_list_utils import create_hightlights_lists
 from .supernova_forms import SearchSupernovaForm
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 from app.commons.utils import is_splitview_supported
+from app.commons.visibility_utils import get_rise_transit_set_utc
 
 main_supernova = Blueprint('main_supernova', __name__)
 
@@ -195,11 +196,24 @@ def supernova_visibility(designation):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=supernova.ra,
+        dec=supernova.dec,
+        object_label=supernova.designation
+    )
+
     return render_template('main/catalogue/supernova_info.html', type='visibility', supernova=supernova,
                            embed=embed,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

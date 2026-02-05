@@ -65,6 +65,7 @@ from app.commons.comet_utils import (
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.visibility_utils import get_rise_transit_set_utc
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
 from app.models import (
@@ -353,8 +354,6 @@ def comet_cobs_observations(comet_id):
 @main_comet.route('/comet/<string:comet_id>/visibility', methods=['GET', 'POST'])
 def comet_visibility(comet_id):
     """View visibility chart for a comet."""
-    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
-
     comet = Comet.query.filter_by(comet_id=comet_id).first()
     if comet is None:
         abort(404)
@@ -368,12 +367,25 @@ def comet_visibility(comet_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=comet.cur_ra,
+        dec=comet.cur_dec,
+        object_label=comet.designation
+    )
+
     show_obs_log = show_observation_log()
 
     return render_template('main/solarsystem/comet_info.html', type='visibility', comet=comet,
                            embed=embed, show_obs_log=show_obs_log,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

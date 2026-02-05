@@ -32,6 +32,7 @@ from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.visibility_utils import get_rise_transit_set_utc
 
 main_star = Blueprint('main_star', __name__)
 
@@ -79,11 +80,24 @@ def star_visibility(star_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=star.ra,
+        dec=star.dec,
+        object_label=star.bayer_flamsteed
+    )
+
     return render_template('main/catalogue/star_info.html', type='visibility', star=star, user_descr=None,
                            embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=False,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 
@@ -114,8 +128,6 @@ def star_descr_info(star_descr_id):
 @main_star.route('/star/<int:star_descr_id>/descr-visibility', methods=['GET', 'POST'])
 def star_descr_visibility(star_descr_id):
     """View visibility chart for a star description."""
-    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
-
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
     if user_descr is None:
@@ -137,11 +149,27 @@ def star_descr_visibility(star_descr_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    if user_descr.star:
+        rise_transit_set = get_rise_transit_set_utc(
+            location_name=city_name,
+            latitude=lat,
+            longitude=lon,
+            elevation=0,
+            date_str=chart_date,
+            ra=user_descr.star.ra,
+            dec=user_descr.star.dec,
+            object_label=user_descr.star.bayer_flamsteed
+        )
+    else:
+        rise_transit_set = None
+
     return render_template('main/catalogue/star_info.html', type='visibility', user_descr=user_descr,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=editable, embed=embed,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

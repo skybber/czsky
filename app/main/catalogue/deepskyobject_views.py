@@ -47,6 +47,8 @@ from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_an
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
+from app.commons.visibility_utils import get_rise_transit_set_utc
+
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
     SearchDsoForm,
@@ -396,8 +398,6 @@ def _has_dso_observations(dso, orig_dso):
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/visibility', methods=['GET', 'POST'])
 def deepskyobject_visibility(dso_id):
     """View visibility chart for a deepsky object."""
-    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
-
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:
         abort(404)
@@ -413,6 +413,18 @@ def deepskyobject_visibility(dso_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=dso.ra,
+        dec=dso.dec,
+        object_label=dso.denormalized_name()
+    )
+
     has_observations = _has_dso_observations(dso, orig_dso)
     show_obs_log = show_observation_log()
 
@@ -421,6 +433,7 @@ def deepskyobject_visibility(dso_id):
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

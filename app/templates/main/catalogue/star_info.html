@@ -109,6 +109,15 @@
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ star.bayer_flamsteed }}"/>
     </div>
+    {% if rise_transit_set %}
+    <div style="margin-top:20px;">
+        <table class="ui compact definition unstackable table">
+            <tr><td class="three wide">{{ _('Rise') }}</td><td>{{ rise_transit_set.rise_utc if rise_transit_set.rise_utc else '-' }} UTC</td></tr>
+            <tr><td class="three wide">{{ _('Transit') }}</td><td>{{ rise_transit_set.transit_utc if rise_transit_set.transit_utc else '-' }} UTC</td></tr>
+            <tr><td class="three wide">{{ _('Set') }}</td><td>{{ rise_transit_set.set_utc if rise_transit_set.set_utc else '-' }} UTC</td></tr>
+        </table>
+    </div>
+    {% endif %}
     {% endif %}
 {% endmacro %}
 

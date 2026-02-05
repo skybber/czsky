@@ -49,6 +49,8 @@ from app.commons.chart_generator import (
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.visibility_utils import get_rise_transit_set_utc
 
 from ... import csrf
 from app.commons.coordinates import ra_to_str, dec_to_str
@@ -256,8 +258,6 @@ def planet_catalogue_data(planet_iau_code):
 @main_planet.route('/planet/<string:planet_iau_code>/visibility', methods=['GET', 'POST'])
 def planet_visibility(planet_iau_code):
     """View visibility chart for a planet."""
-    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
-
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
@@ -281,6 +281,18 @@ def planet_visibility(planet_iau_code):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=planet_ra,
+        dec=planet_dec,
+        object_label=planet.get_localized_name()
+    )
+
     show_obs_log = show_observation_log()
 
     return render_template('main/solarsystem/planet_info.html', type='visibility', planet=planet,
@@ -288,6 +300,7 @@ def planet_visibility(planet_iau_code):
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
                            planet_ra=planet_ra, planet_dec=planet_dec,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

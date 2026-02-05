@@ -346,3 +346,149 @@ def create_visibility_chart(
         plt.savefig(output_file, format='svg', dpi=dpi, bbox_inches='tight')
         plt.close(fig)
         return None
+
+
+def get_rise_transit_set_utc(
+        location_name,
+        latitude, longitude, elevation,
+        date_str,
+        ra, dec,
+        object_label=None,  # optional label
+        horizon_deg=0.0,  # altitude threshold for rise/set
+        which_midnight='next',  # keep consistent with chart ('next' midnight)
+        return_datetimes=False  # False -> ISO strings; True -> datetime objects (UTC)
+):
+    """
+    Compute rise, transit and set times of an astronomical target for given date/location in UTC.
+
+    Parameters mirror create_visibility_chart() inputs (location/date/RA/Dec), plus:
+      - horizon_deg: altitude threshold used to define rise/set (default 0°)
+      - which_midnight: 'next' (default) matches create_visibility_chart() time base
+      - return_datetimes: if True returns datetime objects (UTC); else returns ISO strings
+
+    Returns dict:
+      {
+        "location_name": ...,
+        "date_str": ...,
+        "object_label": ...,
+        "horizon_deg": ...,
+        "rise_utc": "YYYY-mm-ddTHH:MM:SSZ" or datetime or None,
+        "transit_utc": ...,
+        "set_utc": ...,
+        "status": "ok" | "never_rises" | "never_sets" | "circumpolar" | "error",
+        "notes": "..."
+      }
+
+    Notes:
+    - If the object is always above horizon (circumpolar), rise/set are None, transit is returned.
+    - If the object never gets above horizon, all are None.
+    """
+    if not ASTRO_AVAILABLE:
+        raise ImportError("astropy/astroplan not available (ASTRO_AVAILABLE=False)")
+
+    # Create observer (UTC)
+    location = EarthLocation(lat=latitude * u.deg, lon=longitude * u.deg, height=elevation * u.m)
+    observer = Observer(location=location, name=location_name, timezone='UTC')
+
+    # Observation date
+    obs_date = datetime.strptime(date_str, '%Y-%m-%d')
+    obs_time = Time(obs_date)
+
+    # Match chart logic: define a reference midnight then compute events around it
+    midnight = observer.midnight(obs_time, which=which_midnight)
+
+    # Target from coordinates (NO name resolution)
+    coord = _make_target_from_coords(ra, dec)
+    target = FixedTarget(coord=coord, name='target')
+
+    # Auto label if not provided
+    if object_label is None:
+        ra_fmt = coord.ra.to_string(unit=u.hourangle, sep=':', precision=1, pad=True)
+        dec_fmt = coord.dec.to_string(unit=u.deg, sep=':', precision=1, alwayssign=True, pad=True)
+        object_label = f"RA {ra_fmt}  Dec {dec_fmt}"
+
+    horizon = float(horizon_deg) * u.deg
+
+    def _to_out(t):
+        if t is None:
+            return None
+        dt = t.to_datetime(timezone=None)  # naive datetime in UTC
+        if return_datetimes:
+            return dt
+        # Human-readable format
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    result = {
+        "location_name": location_name,
+        "date_str": date_str,
+        "object_label": object_label,
+        "horizon_deg": float(horizon_deg),
+        "rise_utc": None,
+        "transit_utc": None,
+        "set_utc": None,
+        "status": "error",
+        "notes": ""
+    }
+
+    # Transit is usually well-defined even if circumpolar / never rises, but can fail in edge cases
+    try:
+        t_transit = observer.target_meridian_transit_time(midnight, target, which='nearest')
+        result["transit_utc"] = _to_out(t_transit)
+    except Exception as e:
+        result["notes"] += f"Transit computation failed: {e}. "
+
+    # Rise / set can raise errors if target never rises/sets (or always above)
+    t_rise = None
+    t_set = None
+
+    try:
+        t_rise = observer.target_rise_time(midnight, target, which='nearest', horizon=horizon)
+    except Exception as e:
+        result["notes"] += f"Rise computation failed: {e}. "
+
+    try:
+        t_set = observer.target_set_time(midnight, target, which='nearest', horizon=horizon)
+    except Exception as e:
+        result["notes"] += f"Set computation failed: {e}. "
+
+    # Determine status robustly via altitudes around +/- 12h like chart
+    # (avoids relying on exception types differing across versions)
+    try:
+        time_range = midnight + np.linspace(-12, 12, 73) * u.hour
+        altitudes = observer.altaz(time_range, target).alt
+        above = altitudes > horizon
+        ever_above = bool(np.any(above))
+        ever_below = bool(np.any(~above))
+
+        if ever_above and ever_below:
+            # Normal case: rises and sets
+            result["status"] = "ok"
+            result["rise_utc"] = _to_out(t_rise)
+            result["set_utc"] = _to_out(t_set)
+        elif ever_above and not ever_below:
+            # Always above horizon
+            result["status"] = "circumpolar"
+            result["rise_utc"] = None
+            result["set_utc"] = None
+            if not result["notes"]:
+                result["notes"] = "Target stays above the horizon for the sampled 24h interval."
+        else:
+            # Never above horizon
+            result["status"] = "never_rises"
+            result["rise_utc"] = None
+            result["set_utc"] = None
+            result["transit_utc"] = None  # optional: usually not useful if never rises
+            if not result["notes"]:
+                result["notes"] = "Target does not rise above the horizon for the sampled 24h interval."
+    except Exception as e:
+        # Fallback: just return what we managed to compute
+        result["rise_utc"] = _to_out(t_rise)
+        result["set_utc"] = _to_out(t_set)
+        if result["status"] == "error":
+            result["notes"] += f"Visibility classification failed: {e}. "
+
+        # Try to infer something basic
+        if result["rise_utc"] is not None and result["set_utc"] is not None:
+            result["status"] = "ok"
+
+    return result

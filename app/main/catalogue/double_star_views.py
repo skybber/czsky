@@ -61,6 +61,7 @@ from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.visibility_utils import get_rise_transit_set_utc
 
 from .double_star_forms import SearchDoubleStarForm, DoubleStarEditForm
 
@@ -274,6 +275,18 @@ def double_star_visibility(double_star_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=double_star.ra_first,
+        dec=double_star.dec_first,
+        object_label=double_star.get_common_name()
+    )
+
     has_observations = _has_double_star_observations(double_star)
     show_obs_log = show_observation_log()
 
@@ -282,6 +295,7 @@ def double_star_visibility(double_star_id):
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 

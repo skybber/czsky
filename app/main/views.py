@@ -26,7 +26,7 @@ from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_ot
 
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
-from app.commons.visibility_chart import create_visibility_chart
+from app.commons.visibility_utils import create_visibility_chart
 
 from app.commons.search_sky_object_utils import (
     search_constellation,

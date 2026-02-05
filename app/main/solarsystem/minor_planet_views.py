@@ -60,7 +60,6 @@ from app.main.chart.chart_forms import ChartForm
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
@@ -72,6 +71,8 @@ from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.visibility_utils import get_rise_transit_set_utc
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 from app.commons.coordinates import ra_to_str, dec_to_str
@@ -435,8 +436,6 @@ def minor_planet_catalogue_data(minor_planet_id):
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/visibility', methods=['GET', 'POST'])
 def minor_planet_visibility(minor_planet_id):
     """View visibility chart for a minor planet."""
-    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
-
     minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
     if minor_planet is None:
         abort(404)
@@ -450,12 +449,25 @@ def minor_planet_visibility(minor_planet_id):
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
+    # Calculate rise/transit/set times
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=minor_planet.cur_ra,
+        dec=minor_planet.cur_dec,
+        object_label=minor_planet.designation
+    )
+
     show_obs_log = show_observation_log()
 
     return render_template('main/solarsystem/minor_planet_info.html', type='visibility', minor_planet=minor_planet,
                            embed=embed, show_obs_log=show_obs_log,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
+                           rise_transit_set=rise_transit_set,
                            )
 
 
