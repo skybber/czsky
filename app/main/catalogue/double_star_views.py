@@ -293,7 +293,7 @@ def double_star_visibility(double_star_id):
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
-    chart_theme = session.get('theme', 'light')
+    chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
     has_observations = _has_double_star_observations(double_star)

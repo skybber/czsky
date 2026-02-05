@@ -94,7 +94,7 @@ def star_visibility(star_id):
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
-    chart_theme = session.get('theme', 'light')
+    chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
     return render_template('main/catalogue/star_info.html', type='visibility', star=star, user_descr=None,
@@ -176,7 +176,7 @@ def star_descr_visibility(star_descr_id):
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
-    chart_theme = session.get('theme', 'light')
+    chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
     return render_template('main/catalogue/star_info.html', type='visibility', user_descr=user_descr,

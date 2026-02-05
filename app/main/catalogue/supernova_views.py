@@ -209,7 +209,7 @@ def supernova_visibility(designation):
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
-    chart_theme = session.get('theme', 'light')
+    chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
     return render_template('main/catalogue/supernova_info.html', type='visibility', supernova=supernova,

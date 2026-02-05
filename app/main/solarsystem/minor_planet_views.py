@@ -447,7 +447,7 @@ def minor_planet_visibility(minor_planet_id):
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
-    chart_theme = session.get('theme', 'light')
+    chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
     show_obs_log = show_observation_log()
