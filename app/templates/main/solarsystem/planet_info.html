@@ -16,11 +16,13 @@
 {% if not embed %}
     {% set endpoints = [
         ('main_planet.planet_info', _('Chart'), 'info'),
-        ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
+        ('main_planet.planet_catalogue_data', _('Catalog'), 'table'),
+        ('main_planet.planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
-        ('main_planet.planet_catalogue_data', _('Catalog'), 'table')
+        ('main_planet.planet_catalogue_data', _('Catalog'), 'table'),
+        ('main_planet.planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -67,6 +69,15 @@
         <tr><td class="three wide">{{ _('Orbital Period') }}</td><td>{{ "%.2f" | format(planet_data.orbital_period) }} {{ _('days') }} ({{ "%.2f" | format(planet_data.orbital_period_year) }} a)</td></tr>
         <tr><td class="three wide">{{ _('Synodic Period') }}</td><td>{{ "%.2f" | format(planet_data.synodic_period) }} {{ _('days') }} ({{ "%.2f" | format(planet_data.synodic_period_year) }} a)</td></tr>
     </table>
+{% endmacro %}
+
+{# --- Visibility --- #}
+{% macro planet_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=planet_ra, dec=planet_dec, theme=chart_theme, label=planet.get_localized_name()) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ planet.get_localized_name() }}"/>
+    </div>
 {% endmacro %}
 
 {% macro planet_observation_log() %}
@@ -195,6 +206,8 @@
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
                 {{ planet_info() }}
+            {% elif type == 'visibility' %}
+                {{ planet_visibility() }}
             {% elif type == 'observation_log' %}
                 {{ planet_observation_log() }}
             {% else %}

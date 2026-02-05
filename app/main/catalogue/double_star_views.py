@@ -60,6 +60,7 @@ from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
 from .double_star_forms import SearchDoubleStarForm, DoubleStarEditForm
 
@@ -277,6 +278,35 @@ def double_star_catalogue_data(double_star_id):
                            user_descr=user_descr, has_observations=has_observations, show_obs_log=show_obs_log, )
 
 
+@main_double_star.route('/double-star/<int:double_star_id>/visibility', methods=['GET', 'POST'])
+def double_star_visibility(double_star_id):
+    """View visibility chart for a double star."""
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star, tab='visibility')
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['double_star_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    has_observations = _has_double_star_observations(double_star)
+    show_obs_log = show_observation_log()
+
+    return render_template('main/catalogue/double_star_info.html', type='visibility', double_star=double_star,
+                           embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
+
+
 @main_double_star.route('/double-star/switch-wish-list', methods=['GET'])
 @login_required
 def double_star_switch_wish_list():
@@ -373,6 +403,8 @@ def double_star_seltab(double_star_id):
             return _do_redirect('main_double_star.double_star_surveys', double_star)
         if seltab == 'observations':
             return _do_redirect('main_double_star.double_star_observations', double_star)
+        if seltab == 'visibility':
+            return _do_redirect('main_double_star.double_star_visibility', double_star)
 
     if show_observation_log():
         return _do_redirect('main_double_star.double_star_observation_log', double_star)

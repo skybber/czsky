@@ -17,11 +17,13 @@
 {% if not embed %}
     {% set endpoints = [
         ('main_comet.comet_info', _('Chart'), 'info'),
-        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
+        ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
+        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
-        ('main_comet.comet_cobs_observations', 'COBS', 'cobs')
+        ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
+        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -91,6 +93,15 @@
 
 {# --- Catalogue Data --- #}
 {% macro comet_catalogue_data() %}
+{% endmacro %}
+
+{# --- Visibility --- #}
+{% macro comet_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=comet.cur_ra, dec=comet.cur_dec, theme=chart_theme, label=comet.designation) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ comet.designation }}"/>
+    </div>
 {% endmacro %}
 
 {% macro comet_observation_log() %}
@@ -220,6 +231,8 @@
                 {{ comet_info() }}
             {% elif type == 'cobs_observations' %}
                 {{ comet_cobs_observations() }}
+            {% elif type == 'visibility' %}
+                {{ comet_visibility() }}
             {% elif type == 'observation_log' %}
                 {{ comet_observation_log() }}
             {% else %}

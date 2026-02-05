@@ -111,6 +111,9 @@ def planet_seltab(planet_iau_code):
     if seltab == 'catalogue_data':
         return _do_redirect('main_planet.planet_catalogue_data', planet)
 
+    if seltab == 'visibility':
+        return _do_redirect('main_planet.planet_visibility', planet)
+
     if show_observation_log():
         return _do_redirect('main_planet.planet_observation_log', planet)
 
@@ -248,6 +251,44 @@ def planet_catalogue_data(planet_iau_code):
 
     return render_template('main/solarsystem/planet_info.html', type='catalogue_data', planet=planet,
                            planet_data=planet_data, show_obs_log=show_obs_log, embed=embed)
+
+
+@main_planet.route('/planet/<string:planet_iau_code>/visibility', methods=['GET', 'POST'])
+def planet_visibility(planet_iau_code):
+    """View visibility chart for a planet."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    planet = Planet.get_by_iau_code(planet_iau_code)
+    if planet is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['planet_embed_seltab'] = 'visibility'
+
+    # Calculate current planet position
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    earth = eph['earth']
+    t = ts.now()
+
+    planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
+    planet_ra = planet_ra_ang.radians
+    planet_dec = planet_dec_ang.radians
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    show_obs_log = show_observation_log()
+
+    return render_template('main/solarsystem/planet_info.html', type='visibility', planet=planet,
+                           embed=embed, show_obs_log=show_obs_log,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           planet_ra=planet_ra, planet_dec=planet_dec,
+                           )
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/observation-log', methods=['GET', 'POST'])

@@ -16,11 +16,13 @@
 {% if not embed %}
     {% set endpoints = [
         ('main_minor_planet.minor_planet_info', _('Chart'), 'info'),
-        ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table')
+        ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table'),
+        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_minor_planet.minor_planet_info', _('Catalog'), 'table'),
+        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -62,6 +64,15 @@
         <tr><td class="three wide">Dec</td><td>{{ minor_planet_data.dec_str() }}</td></tr>
         <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(minor_planet_data.mag) }}mag</td></tr>
     </table>
+{% endmacro %}
+
+{# --- Visibility --- #}
+{% macro minor_planet_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=minor_planet.cur_ra, dec=minor_planet.cur_dec, theme=chart_theme, label=minor_planet.designation) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ minor_planet.designation }}"/>
+    </div>
 {% endmacro %}
 
 {% macro minor_planet_observation_log() %}
@@ -186,6 +197,8 @@
             {{ navigation(endpoints) }}
             {% if type == 'info' %}
                 {{ minor_planet_info() }}
+            {% elif type == 'visibility' %}
+                {{ minor_planet_visibility() }}
             {% elif type == 'observation_log' %}
                 {{ minor_planet_observation_log() }}
             {% else %}

@@ -31,6 +31,7 @@ from app.commons.chart_generator import (
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
 main_star = Blueprint('main_star', __name__)
 
@@ -76,6 +77,32 @@ def star_surveys(star_id):
     return render_template('main/catalogue/star_info.html', type='surveys', star=star, user_descr=None,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=False, embed=embed, field_size=40.0)
+
+
+@main_star.route('/star/<int:star_id>/visibility', methods=['GET', 'POST'])
+def star_visibility(star_id):
+    """View visibility chart for a star."""
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(star, tab='visibility')
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['star_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    return render_template('main/catalogue/star_info.html', type='visibility', star=star, user_descr=None,
+                           embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           editable=False,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
 
 
 @main_star.route('/star/<int:star_descr_id>/descr-info')
@@ -124,6 +151,40 @@ def star_descr_surveys(star_descr_id):
     return render_template('main/catalogue/star_info.html', type='surveys', user_descr=user_descr,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            editable=editable, embed=embed, field_size=40.0)
+
+
+@main_star.route('/star/<int:star_descr_id>/descr-visibility', methods=['GET', 'POST'])
+def star_descr_visibility(star_descr_id):
+    """View visibility chart for a star description."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
+    user_descr = UserStarDescription.query.filter_by(id=star_descr_id, user_id=editor_user.id, lang_code=lang).first()
+    if user_descr is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['star_embed_seltab'] = 'visibility'
+
+    editable = current_user.is_editor()
+
+    if user_descr.star is not None:
+        prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(user_descr.star, tab='visibility')
+    else:
+        prev_wrap, cur_wrap, next_wrap = None, None, None
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    return render_template('main/catalogue/star_info.html', type='visibility', user_descr=user_descr,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           editable=editable, embed=embed,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
 
 
 @main_star.route('/star/<int:star_id>/catalogue-data')

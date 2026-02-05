@@ -279,6 +279,8 @@ def minor_planet_seltab(minor_planet_id):
 
     if seltab == 'catalogue_data' or not seltab and embed == 'minor_planets':
         return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
+    if seltab == 'visibility':
+        return _do_redirect('main_minor_planet.minor_planet_visibility', minor_planet)
 
     if show_observation_log():
         return _do_redirect('main_minor_planet.minor_planet_observation_log', minor_planet)
@@ -428,6 +430,33 @@ def minor_planet_catalogue_data(minor_planet_id):
 
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet,
                            minor_planet_data=minor_planet_data, embed=embed, show_obs_log=show_obs_log)
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/visibility', methods=['GET', 'POST'])
+def minor_planet_visibility(minor_planet_id):
+    """View visibility chart for a minor planet."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    if minor_planet is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['minor_planet_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    show_obs_log = show_observation_log()
+
+    return render_template('main/solarsystem/minor_planet_info.html', type='visibility', minor_planet=minor_planet,
+                           embed=embed, show_obs_log=show_obs_log,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
 
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log', methods=['GET', 'POST'])

@@ -42,7 +42,6 @@ from app.main.forms import ObservationLogForm
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
@@ -66,6 +65,7 @@ from app.commons.comet_utils import (
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
 from app.models import (
     Comet,
@@ -220,6 +220,8 @@ def comet_seltab(comet_id):
 
     if seltab == 'cobs' or not seltab and embed == 'comets':
         return _do_redirect('main_comet.comet_cobs_observations', comet)
+    if seltab == 'visibility':
+        return _do_redirect('main_comet.comet_visibility', comet)
 
     kwargs = {}
     if is_splitview_supported():
@@ -346,6 +348,33 @@ def comet_cobs_observations(comet_id):
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
                            page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed,
                            show_obs_log=show_obs_log)
+
+
+@main_comet.route('/comet/<string:comet_id>/visibility', methods=['GET', 'POST'])
+def comet_visibility(comet_id):
+    """View visibility chart for a comet."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['comet_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    show_obs_log = show_observation_log()
+
+    return render_template('main/solarsystem/comet_info.html', type='visibility', comet=comet,
+                           embed=embed, show_obs_log=show_obs_log,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img', methods=['GET'])

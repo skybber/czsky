@@ -45,6 +45,7 @@ from app.commons.dso_utils import normalize_dso_name, denormalize_dso_name
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, create_table_sort, get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request, is_splitview_supported
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 
 from .deepskyobject_forms import (
     DeepskyObjectEditForm,
@@ -302,6 +303,8 @@ def deepskyobject_seltab(dso_id):
             return _do_redirect('main_deepskyobject.deepskyobject_observations', dso)
         if seltab == 'catalogue_data':
             return _do_redirect('main_deepskyobject.deepskyobject_catalogue_data', dso)
+        if seltab == 'visibility':
+            return _do_redirect('main_deepskyobject.deepskyobject_visibility', dso)
 
     if show_observation_log():
         return _do_redirect('main_deepskyobject.deepskyobject_observation_log', dso)
@@ -414,6 +417,37 @@ def deepskyobject_surveys(dso_id):
     return render_template('main/catalogue/deepskyobject_info.html', type='surveys', dso=dso,
                            field_size=field_size, embed=embed, has_observations=has_observations,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
+                           )
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/visibility', methods=['GET', 'POST'])
+def deepskyobject_visibility(dso_id):
+    """View visibility chart for a deepsky object."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    dso, orig_dso = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='visibility')
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['dso_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    has_observations = _has_dso_observations(dso, orig_dso)
+    show_obs_log = show_observation_log()
+
+    return render_template('main/catalogue/deepskyobject_info.html', type='visibility', dso=dso,
+                           embed=embed, has_observations=has_observations,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, show_obs_log=show_obs_log,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
                            )
 
 

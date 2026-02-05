@@ -17,11 +17,13 @@
         ('main_supernova.supernova_info', _('Info'), 'info'),
         ('main_supernova.supernova_chart', _('Chart'), 'chart'),
         ('main_supernova.supernova_surveys', _('Aladin'), 'aladin'),
+        ('main_supernova.supernova_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_supernova.supernova_info', _('Info'), 'info'),
         ('main_supernova.supernova_surveys', _('Aladin'), 'aladin'),
+        ('main_supernova.supernova_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -117,6 +119,15 @@
     }}
 {% endmacro %}
 
+{# --- Visibility --- #}
+{% macro supernova_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=supernova.ra, dec=supernova.dec, theme=chart_theme, label=supernova.designation) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ supernova.designation }}"/>
+    </div>
+{% endmacro %}
+
 {# --- Surveys --- #}
 {% macro supernova_surveys(supernova) %}
     <link rel="stylesheet" href="https://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
@@ -163,6 +174,8 @@
                 {{ supernova_info(user_descr) }}
             {% elif type == 'chart' %}
                 {{ supernova_chart(supernova) }}
+            {% elif type == 'visibility' %}
+                {{ supernova_visibility() }}
             {% else %}
                 {{ supernova_surveys(supernova) }}
             {% endif %}

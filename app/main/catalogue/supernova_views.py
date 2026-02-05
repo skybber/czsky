@@ -192,6 +192,34 @@ def supernova_surveys(designation):
                            embed=embed, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, field_size=40.0)
 
 
+@main_supernova.route('/supernova/<string:designation>/visibility', methods=['GET', 'POST'])
+def supernova_visibility(designation):
+    """View visibility chart for a supernova."""
+    from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+
+    supernova = Supernova.query.filter_by(designation=designation).first()
+    if supernova is None:
+        abort(404)
+
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova, tab='visibility')
+    embed = request.args.get('embed', None)
+
+    if embed:
+        session['supernova_embed_seltab'] = 'visibility'
+
+    # Resolve location and prepare visibility parameters
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'light')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    return render_template('main/catalogue/supernova_info.html', type='visibility', supernova=supernova,
+                           embed=embed,
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           location_city_name=city_name, location_lat=lat, location_lon=lon,
+                           chart_theme=chart_theme, chart_date=chart_date,
+                           )
+
+
 @main_supernova.route('/supernova/<string:designation>/seltab')
 def supernova_seltab(designation):
     """View a supernova seltab."""
@@ -209,6 +237,8 @@ def supernova_seltab(designation):
             return _do_redirect('main_supernova.supernova_chart', supernova)
         if seltab == 'surveys':
             return _do_redirect('main_supernova.supernova_surveys', supernova)
+        if seltab == 'visibility':
+            return _do_redirect('main_supernova.supernova_visibility', supernova)
 
     if is_splitview_supported():
         return _do_redirect('main_supernova.supernova_chart', supernova, splitview=True)

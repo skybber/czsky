@@ -580,7 +580,7 @@ def _get_location_from_ip(ip):
     return DEFAULT_CITY_NAME, DEFAULT_LAT_DEG, DEFAULT_LONG_DEG
 
 
-def _resolve_city_lat_lon():
+def resolve_chart_city_lat_lon():
     city_name, lat, lon = None, None, None
     if session.get('use_auto_location', 'false') == 'true':
         city_name, lat, lon = _get_location_from_ip(request.remote_addr)
@@ -597,7 +597,7 @@ def _resolve_city_lat_lon():
     return city_name, lat, lon
 
 
-def _get_datetime():
+def get_chart_datetime():
     request_dt = request.args.get('dt', None)
     if not request_dt:
         return datetime.now(timezone.utc)
@@ -620,7 +620,7 @@ def _get_lst_lat_lot():
         tm = Time(request_dt) if request_dt else Time.now()
     except ValueError:
         tm = Time.now()
-    city_name, lat, lon = _resolve_city_lat_lon()
+    city_name, lat, lon = resolve_chart_city_lat_lon()
     return tm.sidereal_time('apparent', longitude=lon).radian, deg2rad(lat), deg2rad(lon)
 
 
@@ -1014,7 +1014,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     else:
         config.widget_mode = fchart3.WidgetMode.ALLOC_SPACE_ONLY
 
-    _, lat, lon = _resolve_city_lat_lon()
+    _, lat, lon = resolve_chart_city_lat_lon()
     config.coord_system = CoordSystem.EQUATORIAL if is_equatorial else CoordSystem.HORIZONTAL
     config.observer_lat_deg = lat
     config.observer_lon_deg = lon
@@ -1107,7 +1107,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     trajectories = [trajectory] if trajectory else None
 
     engine.make_map(used_catalogs,
-                    dt=_get_datetime(),
+                    dt=get_chart_datetime(),
                     jd=None,  # jd=skyfield_ts.now().tdb,
                     solsys_bodies=sl_bodies,
                     planet_moons=pl_moons,
@@ -1170,7 +1170,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
         config.show_map_scale_legend = True
         config.show_field_border = True
 
-    _, lat, lon = _resolve_city_lat_lon()
+    _, lat, lon = resolve_chart_city_lat_lon()
     config.coord_system = CoordSystem.EQUATORIAL if is_equatorial else CoordSystem.HORIZONTAL
     config.observer_lat_deg = lat
     config.observer_lon_deg = lon
@@ -1220,7 +1220,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     trajectories = [trajectory] if trajectory else None
 
     engine.make_map(used_catalogs,
-                    dt=_get_datetime(),
+                    dt=get_chart_datetime(),
                     solsys_bodies=sl_bodies,
                     planet_moons=pl_moons,
                     showing_dsos=showing_dsos,
@@ -1467,7 +1467,7 @@ def common_set_initial_celestial_position(form):
 def set_chart_session_param(key, value):
     if key == 'use_auto_location':
         session['use_auto_location'] = value
-        city_name, lat, lon = _resolve_city_lat_lon()
+        city_name, lat, lon = resolve_chart_city_lat_lon()
         return {'location_city_name': city_name, 'latitude': deg2rad(lat), 'longitude': deg2rad(lon)}
     elif key in ['user_location_city_name', 'user_location_longitude', 'user_location_latitude']:
         session['use_auto_location'] = 'false'

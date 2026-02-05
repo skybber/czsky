@@ -21,11 +21,13 @@
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
         ('main_deepskyobject.deepskyobject_chart', _('Chart'), 'chart'),
         ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
+        ('main_deepskyobject.deepskyobject_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_deepskyobject.deepskyobject_info', _('Info'), 'info'),
         ('main_deepskyobject.deepskyobject_surveys', _('Aladin'), 'aladin'),
+        ('main_deepskyobject.deepskyobject_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -232,6 +234,15 @@
                 {% if embed %} ,fullScreen: true {% endif %}
         });
     </script>
+{% endmacro %}
+
+{# --- Visibility --- #}
+{% macro deepskyobject_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=dso.ra, dec=dso.dec, theme=chart_theme, label=dso.denormalized_name()) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ dso.denormalized_name() }}"/>
+    </div>
 {% endmacro %}
 
 {# --- Observations --- #}
@@ -529,6 +540,8 @@
                 {{ deepskyobject_chart() }}
             {% elif type == 'surveys' %}
                 {{ deepskyobject_surveys() }}
+            {% elif type == 'visibility' %}
+                {{ deepskyobject_visibility() }}
             {% elif type == 'catalogue_data' %}
                 {{ deepskyobject_catalogue_data(False) }}
             {% elif type == 'observations' %}

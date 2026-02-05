@@ -7,6 +7,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    Response,
     session,
     url_for,
 )
@@ -25,6 +26,7 @@ from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_ot
 
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
+from app.commons.visibility_chart import create_visibility_chart
 
 from app.commons.search_sky_object_utils import (
     search_constellation,
@@ -335,3 +337,39 @@ def _get_constell(costell_code):
         constell = Constellation.get_constellation_by_iau_code(constell_iau_code)
         return constell
     return None
+
+
+@main.route('/visibility')
+def visibility():
+    """Generate visibility chart for given coordinates."""
+    lat = request.args.get('lat', type=float)
+    lon = request.args.get('lon', type=float)
+    elev = request.args.get('elev', type=float, default=0)
+    date = request.args.get('date', type=str)
+    ra = request.args.get('ra', type=str)
+    dec = request.args.get('dec', type=str)
+    theme = request.args.get('theme', type=str, default='light')
+    label = request.args.get('label', type=str, default=None)
+
+    if not all([lat, lon, date, ra, dec]):
+        abort(400)
+
+    try:
+        svg = create_visibility_chart(
+            location_name='Location',
+            latitude=lat,
+            longitude=lon,
+            elevation=elev,
+            date_str=date,
+            ra=ra,
+            dec=dec,
+            object_label=label,
+            output_file=None,
+            theme=theme,
+            return_svg_string=True,
+            num_points=40,
+            scale=1.2
+        )
+        return Response(svg, mimetype='image/svg+xml')
+    except Exception as e:
+        abort(500)

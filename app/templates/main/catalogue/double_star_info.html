@@ -21,11 +21,13 @@
         ('main_double_star.double_star_info', _('Info'), 'info'),
         ('main_double_star.double_star_chart', _('Chart'), 'chart'),
         ('main_double_star.double_star_surveys', _('Aladin'), 'aladin'),
+        ('main_double_star.double_star_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_double_star.double_star_info', _('Info'), 'info'),
         ('main_double_star.double_star_surveys', _('Aladin'), 'aladin'),
+        ('main_double_star.double_star_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 
@@ -198,6 +200,15 @@
                 {% if embed %} ,fullScreen: true {% endif %}
         });
     </script>
+{% endmacro %}
+
+{# --- Visibility --- #}
+{% macro double_star_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=double_star.ra_first, dec=double_star.dec_first, theme=chart_theme, label=double_star.get_common_name()) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ double_star.get_common_name() }}"/>
+    </div>
 {% endmacro %}
 
 {# --- Observations --- #}
@@ -384,6 +395,8 @@
                 {{ double_star_info(user_descr) }}
             {% elif type == 'chart' %}
                 {{ double_star_chart(double_star) }}
+            {% elif type == 'visibility' %}
+                {{ double_star_visibility() }}
             {% elif type == 'observations' %}
                 {{ double_star_observations() }}
             {% elif type == 'observation_log' %}
