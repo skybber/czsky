@@ -125,7 +125,7 @@
 {% macro star_visibility(star) %}
     {% if star is not none %}
     <div style="width:100%; text-align:center;">
-        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=star.ra, dec=star.dec, theme=chart_theme, label=star.bayer_flamsteed) }}"
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=star.ra, dec=star.dec, theme=chart_theme, label=star.bayer_flamsteed, location_name=location_city_name) }}"
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ star.bayer_flamsteed }}"/>
     </div>

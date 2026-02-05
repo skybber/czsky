@@ -69,7 +69,7 @@
 {# --- Visibility --- #}
 {% macro minor_planet_visibility() %}
     <div style="width:100%; text-align:center;">
-        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=minor_planet.cur_ra, dec=minor_planet.cur_dec, theme=chart_theme, label=minor_planet.designation) }}"
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=minor_planet.cur_ra, dec=minor_planet.cur_dec, theme=chart_theme, label=minor_planet.designation, location_name=location_city_name) }}"
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ minor_planet.designation }}"/>
     </div>

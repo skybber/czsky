@@ -205,7 +205,7 @@
 {# --- Visibility --- #}
 {% macro double_star_visibility() %}
     <div style="width:100%; text-align:center;">
-        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=double_star.ra_first, dec=double_star.dec_first, theme=chart_theme, label=double_star.get_common_name()) }}"
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=double_star.ra_first, dec=double_star.dec_first, theme=chart_theme, label=double_star.get_common_name(), location_name=location_city_name) }}"
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ double_star.get_common_name() }}"/>
     </div>

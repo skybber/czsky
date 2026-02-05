@@ -122,7 +122,7 @@
 {# --- Visibility --- #}
 {% macro supernova_visibility() %}
     <div style="width:100%; text-align:center;">
-        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=supernova.ra, dec=supernova.dec, theme=chart_theme, label=supernova.designation) }}"
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=supernova.ra, dec=supernova.dec, theme=chart_theme, label=supernova.designation, location_name=location_city_name) }}"
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ supernova.designation }}"/>
     </div>

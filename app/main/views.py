@@ -350,13 +350,14 @@ def visibility():
     dec = request.args.get('dec', type=str)
     theme = request.args.get('theme', type=str, default='light')
     label = request.args.get('label', type=str, default=None)
+    location_name = request.args.get('location_name', type=str, default='Location')
 
     if not all([lat, lon, date, ra, dec]):
         abort(400)
 
     try:
         svg = create_visibility_chart(
-            location_name='Location',
+            location_name=location_name,
             latitude=lat,
             longitude=lon,
             elevation=elev,

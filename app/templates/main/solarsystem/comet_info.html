@@ -98,7 +98,7 @@
 {# --- Visibility --- #}
 {% macro comet_visibility() %}
     <div style="width:100%; text-align:center;">
-        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=comet.cur_ra, dec=comet.cur_dec, theme=chart_theme, label=comet.designation) }}"
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=comet.cur_ra, dec=comet.cur_dec, theme=chart_theme, label=comet.designation, location_name=location_city_name) }}"
              style="max-width:100%; height:auto;"
              alt="{{ _('Visibility chart for') }} {{ comet.designation }}"/>
     </div>
