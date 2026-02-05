@@ -31,7 +31,7 @@
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
-            {% set href = url_for(route, minor_planet_id=minor_planet.id, back=back, back_id=back_id) %}
+            {% set href = url_for(route, minor_planet_id=minor_planet.id, back=back, back_id=back_id, embed=embed) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
             </a>
