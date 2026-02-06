@@ -22,6 +22,7 @@ from astropy.time import Time
 import pillow_avif
 
 import fchart3
+from fchart3.trajectory import build_trajectory, TrajectoryPoint
 from fchart3 import CoordSystem
 
 from flask import (
@@ -827,43 +828,58 @@ def _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body):
     return result
 
 
-def get_trajectory_b64(d1, d2, ts, earth, body):
-    if d1 < d2:
-        time_delta = d2 - d1
-        if time_delta.days > 365:
-            d2 = d1 + timedelta(days=365)
-        dt, hr_step = _get_trajectory_time_delta(d1, d2)
-        trajectory = []
-        hr_count = 0
-        prev_date = None
+def _trajectory_point_to_dict(pt):
+    return {
+        'ra': pt.ra,
+        'dec': pt.dec,
+        'label': pt.label,
+        'sun_ra': pt.sun_ra,
+        'sun_dec': pt.sun_dec,
+    }
 
-        trajectory_time = []
 
-        while d1 <= d2:
-            t = ts.utc(d1.year, d1.month, d1.day, d1.hour)
-            ra, dec, _ = earth.at(t).observe(body).radec()
+def _trajectory_point_from_dict(data):
+    return TrajectoryPoint(
+        ra=data.get('ra'),
+        dec=data.get('dec'),
+        label=data.get('label'),
+        sun_ra=data.get('sun_ra'),
+        sun_dec=data.get('sun_dec'),
+    )
 
-            if d1 == d2 or prev_date is None or prev_date.month != d1.month:
-                fmt = '%d.%-m.' if (hr_count % 24) == 0 else '%H:00'
-            else:
-                fmt = '%d' if (hr_count % 24) == 0 else '%H:00'
 
-            trajectory.append((ra.radians, dec.radians, d1.strftime(fmt)))
-            trajectory_time.append(t)
+def decode_trajectory_b64(trajectory_b64):
+    if not trajectory_b64:
+        return None
+    trajectory_json = base64.b64decode(trajectory_b64)
+    data = json.loads(trajectory_json)
+    if not data:
+        return None
+    return [_trajectory_point_from_dict(item) for item in data]
 
-            prev_date = d1
-            d1 += dt
-            hr_count += hr_step
 
-        interpolated_trajectory = _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body)
+def get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False, sun=None):
+    if d1 >= d2:
+        return None
+    if d1.tzinfo is None:
+        d1 = d1.replace(tzinfo=timezone.utc)
+    if d2.tzinfo is None:
+        d2 = d2.replace(tzinfo=timezone.utc)
 
-        trajectory_json = json.dumps(interpolated_trajectory)
-        trajectory_b64 = base64.b64encode(trajectory_json.encode('utf-8'))
+    trajectory = build_trajectory(
+        dt_from=d1,
+        dt_to=d2,
+        ts=ts,
+        earth=earth,
+        body=body,
+        is_comet=is_comet,
+        sun=sun,
+    )
+    if not trajectory:
+        return None
 
-    else:
-        trajectory_b64 = None
-
-    return trajectory_b64
+    trajectory_json = json.dumps([_trajectory_point_to_dict(pt) for pt in trajectory])
+    return base64.b64encode(trajectory_json.encode('utf-8'))
 
 
 def _actualize_stars_pref_maglims(cur_maglim, magscale_index):

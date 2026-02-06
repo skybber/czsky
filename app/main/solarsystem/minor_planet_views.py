@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import math
-import json
 import base64
 import requests
 import gzip
@@ -65,6 +64,7 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
     get_trajectory_b64,
+    decode_trajectory_b64,
 )
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
@@ -329,7 +329,7 @@ def minor_planet_info(minor_planet_id):
             t = ts.from_datetime(d1.replace(tzinfo=utc))
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body)
+        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False)
 
     minor_planet_ra_ang, minor_planet_dec_ang, distance = earth.at(t).observe(body).radec()
     minor_planet_ra = minor_planet_ra_ang.radians
@@ -365,12 +365,7 @@ def minor_planet_chart_pos_img(minor_planet_id):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
@@ -386,12 +381,7 @@ def minor_planet_chart_pdf(minor_planet_id):
     # minor_planet_ra = to_float(request.args.get('obj_ra'), None)
     # minor_planet_dec = to_float(request.args.get('obj_dec'), None)
 
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 

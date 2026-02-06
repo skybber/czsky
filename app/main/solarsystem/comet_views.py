@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import json
 import base64
 
 from datetime import date, datetime, timedelta
@@ -46,6 +45,7 @@ from app.commons.chart_generator import (
     common_prepare_date_from_to,
     common_chart_pdf_img,
     get_trajectory_b64,
+    decode_trajectory_b64,
     common_ra_dec_dt_fsz_from_request,
     get_fld_size_mags_from_request,
 )
@@ -266,7 +266,7 @@ def comet_info(comet_id):
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
 
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body)
+        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body, is_comet=True, sun=sun)
 
     comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(body).radec()
     comet_ra = comet_ra_ang.radians
@@ -408,12 +408,7 @@ def comet_chart_pos_img(comet_id):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes, img_format = common_chart_pos_img(comet_ra, comet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
@@ -429,12 +424,7 @@ def comet_chart_pdf(comet_id):
     # comet_ra = to_float(request.args.get('obj_ra'), None)
     # comet_dec = to_float(request.args.get('obj_dec'), None)
 
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 

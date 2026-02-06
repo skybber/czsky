@@ -1,6 +1,5 @@
-import json
-import base64
 import math
+import base64
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -42,8 +41,8 @@ from app.commons.chart_generator import (
     common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
-    get_trajectory_b64,
     common_ra_dec_dt_fsz_from_request,
+    decode_trajectory_b64,
 )
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
@@ -195,12 +194,7 @@ def planet_chart_pos_img(planet_iau_code):
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes, img_format = common_chart_pos_img(planet_ra, planet_dec, visible_objects=visible_objects,
                                                  trajectory=trajectory)
@@ -217,12 +211,7 @@ def planet_chart_pdf(planet_iau_code):
     # planet_ra = to_float(request.args.get('obj_ra'), None)
     # planet_dec = to_float(request.args.get('obj_dec'), None)
 
-    trajectory_b64 = request.args.get('trajectory')
-    if trajectory_b64:
-        trajectory_json = base64.b64decode(trajectory_b64)
-        trajectory = json.loads(trajectory_json)
-    else:
-        trajectory = None
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 
