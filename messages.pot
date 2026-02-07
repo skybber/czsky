@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-07 10:48+0100\n"
+"POT-Creation-Date: 2026-02-07 11:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1616,11 +1616,11 @@ msgid "Sol. system"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:351
-msgid "Show solar system"
+msgid "SS bodies"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:357
-msgid "Show comet tail"
+msgid "Comet tail"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:365

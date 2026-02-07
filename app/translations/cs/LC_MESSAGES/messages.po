@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-07 10:48+0100\n"
+"POT-Creation-Date: 2026-02-07 11:04+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -1666,12 +1666,12 @@ msgid "Sol. system"
 msgstr "Sl. soustava"
 
 #: app/templates/macros/fchart_macros.html:351
-msgid "Show solar system"
-msgstr "Zobrazit objekty SS"
+msgid "SS bodies"
+msgstr "Objekty SS"
 
 #: app/templates/macros/fchart_macros.html:357
-msgid "Show comet tail"
-msgstr "Zobrazit ohony komet"
+msgid "Comet tail"
+msgstr "Ohony komet"
 
 #: app/templates/macros/fchart_macros.html:365
 msgid "DSO mag"
