@@ -87,6 +87,7 @@
             <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
             <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
             <input type="hidden" id="show_solar_system" name="{{ fchart_form.show_solar_system.name }}" value="{{ fchart_form.show_solar_system.data }}">
+            <input type="hidden" id="show_comet_tail" name="{{ fchart_form.show_comet_tail.name }}" value="{{ fchart_form.show_comet_tail.data }}">
             <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
             <input type="hidden" id="show_star_lbl" name="{{ fchart_form.show_star_labels.name }}" value="{{ fchart_form.show_star_labels.data }}">
             <input type="hidden" id="show_egrid" name="{{ fchart_form.show_equatorial_grid.name }}" value="{{ fchart_form.show_equatorial_grid.data }}">
@@ -339,10 +340,24 @@
                             </button>
                         </div>
                         <div class="item">
-                            <button id="bslsystem" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}}" style="text-align:left">
+                            <button class="ui tiny labeled icon button" style="text-align:left">
                                 <i class="sun icon"></i>
-                                {{ _('Solar system')}}
+                                <span class="text">{{ _('Solar system') }}<i class="dropdown icon"></i></span>
                             </button>
+                            <div class="right menu">
+                                <div class="item">
+                                    <button id="bslsystem" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_solar_system.data=='true' else ''}}" style="text-align:left">
+                                        <i class="sun icon"></i>
+                                        {{ _('Show solar system')}}
+                                    </button>
+                                </div>
+                                <div class="item">
+                                    <button id="bcomettail" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_comet_tail.data=='true' else ''}}" style="text-align:left">
+                                        <i class="star icon"></i>
+                                        {{ _('Show comet tail')}}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="item">
                             <button id="bdsomag" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}}" style="text-align:left">
@@ -1033,7 +1048,17 @@
         var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
         $('#show_solar_system').val(value);
         chart_param_ajax('chart_show_solar_system', value);
-        setChartUrlFlag('O', value);
+        setChartUrlFlag('S', value);
+        fchart.reloadImage();
+    });
+
+    $('#bcomettail').click(function(event){
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        var value = $('#show_comet_tail').val() == 'true' ? 'false' : 'true';
+        $('#show_comet_tail').val(value);
+        chart_param_ajax('chart_show_comet_tail', value);
+        setChartUrlFlag('K', value);
         fchart.reloadImage();
     });
 
