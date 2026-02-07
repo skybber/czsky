@@ -18,6 +18,7 @@ from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.api import position_from_radec, load_constellation_map
 
+from fchart3.astro.astrocalc import pos_angle
 
 from flask import (
     current_app,
@@ -391,6 +392,9 @@ def update_comets_positions(all_mpc_comets=None, show_progress=False, reload_com
 
     sun, earth = eph['sun'], eph['earth']
     constellation_at = load_constellation_map()
+    sun_ra_ang, sun_dec_ang, _ = earth.at(t).observe(sun).radec()
+    sun_ra = sun_ra_ang.radians
+    sun_dec = sun_dec_ang.radians
 
     comets = []
 
@@ -402,6 +406,7 @@ def update_comets_positions(all_mpc_comets=None, show_progress=False, reload_com
             ra_ang, dec_ang, distance = earth.at(t).observe(skf_comet).radec()
             db_comet.cur_ra = ra_ang.radians
             db_comet.cur_dec = dec_ang.radians
+            db_comet.cur_tail_pa = pos_angle(db_comet.cur_ra, db_comet.cur_dec, sun_ra, sun_dec)
             const_code = constellation_at(position_from_radec(ra_ang.radians / np.pi * 12.0, dec_ang.radians / np.pi * 180.0))
             db_comet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id if const_code else None
 

@@ -33,6 +33,7 @@ class Comet(db.Model):
     real_coma_diameter = db.Column(db.Float)
     cur_ra = db.Column(db.Float)
     cur_dec = db.Column(db.Float)
+    cur_tail_pa = db.Column(db.Float)
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
     is_disintegrated = db.Column(db.Boolean, default=False)
 

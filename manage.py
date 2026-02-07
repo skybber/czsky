@@ -698,6 +698,11 @@ def tmp_update_minor_planets_positions():
     from app.commons.minor_planet_utils import update_minor_planets_positions
     update_minor_planets_positions(True)
 
+@app.cli.command("tmp_update_comets")
+def tmp_update_comets():
+    from app.commons.comet_utils import update_comets_positions
+    update_comets_positions(show_progress=True)
+
 
 @app.cli.command("tmp_update_hnsky")
 def tmp_update_hnsky():

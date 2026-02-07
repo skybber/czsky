@@ -188,7 +188,11 @@ def comets_chart_pos_img():
     if dso_maglim < 16.0:
         dso_maglim = 16.0
     comets = [c for c in comets if c.real_mag is not None and c.real_mag <= dso_maglim]
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation, x.real_mag) for x in comets if comets]
+    highlights_pos_list = [
+        (x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation,
+         {'mag': x.real_mag, 'tail_pa': x.cur_tail_pa})
+        for x in comets if comets
+    ]
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
@@ -200,7 +204,11 @@ def comets_chart_pos_img():
 @main_comet.route('/comets/chart-pdf', methods=['GET'])
 def comets_chart_pdf():
     comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation, x.real_mag) for x in comets if comets]
+    highlights_pos_list = [
+        (x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation,
+         {'mag': x.real_mag, 'tail_pa': x.cur_tail_pa})
+        for x in comets if comets
+    ]
 
     img_bytes = common_chart_pdf_img(None, None, highlights_pos_list=highlights_pos_list)
 

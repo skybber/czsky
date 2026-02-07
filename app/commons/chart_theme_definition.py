@@ -16,6 +16,7 @@ class ChartThemeDefinition:
         self.bayer_label_font_scale = None
         self.cardinal_directions_color = None
         self.cardinal_directions_font_scale = None
+        self.comet_highlight_color = None
         self.comet_tail_color = None
         self.comet_tail_length = None
         self.comet_tail_half_angle_deg = None
@@ -79,6 +80,7 @@ class ChartThemeDefinition:
         self.bayer_label_font_scale = self._parse_font_scale(defs, 'bayer_label_font_scale', self.bayer_label_font_scale, errors)
         self.cardinal_directions_color = self._parse_color(defs, 'cardinal_directions_color', self.cardinal_directions_color, errors)
         self.cardinal_directions_font_scale = self._parse_font_scale(defs, 'cardinal_directions_font_scale', self.cardinal_directions_font_scale, errors)
+        self.comet_highlight_color = self._parse_color(defs, 'comet_highlight_color', self.comet_highlight_color, errors)
         self.comet_tail_color = self._parse_color(defs, 'comet_tail_color', self.comet_tail_color, errors)
         self.comet_tail_length = self._parse_float(defs, 'comet_tail_length', self.comet_tail_length, errors)
         self.comet_tail_half_angle_deg = self._parse_float(defs, 'comet_tail_half_angle_deg', self.comet_tail_half_angle_deg, errors)
@@ -142,6 +144,8 @@ class ChartThemeDefinition:
         config.bayer_label_font_scale = self.bayer_label_font_scale
         config.cardinal_directions_color = self.cardinal_directions_color
         config.cardinal_directions_font_scale = self.cardinal_directions_font_scale
+        if hasattr(config, 'comet_highlight_color'):
+            config.comet_highlight_color = self.comet_highlight_color
         if hasattr(config, 'comet_tail_color'):
             config.comet_tail_color = self.comet_tail_color
         if hasattr(config, 'comet_tail_length'):
@@ -358,6 +362,7 @@ constellation_border_linewidth=0.2
 constellation_linespace=2.0
 constellation_linewidth=0.4
 dso_linewidth=0.4
+comet_highlight_color=(0.2, 0.5, 0.0)
 comet_tail_color=(0.5, 0.5, 0.5)
 comet_tail_length=6.0
 comet_tail_half_angle_deg=15.0
@@ -406,6 +411,7 @@ constellation_hl_border_color=(0.6, 0.5, 0.14)
 constellation_lines_color=(0.12, 0.27, 0.3)
 draw_color=(1.0, 1.0, 1.0)
 dso_color=(0.6, 0.6, 0.6)
+comet_highlight_color=(0.2, 0.4, 0.2)
 comet_tail_color=(0.6, 0.6, 0.6)
 dso_dynamic_brightness=True
 eyepiece_color=(0.5, 0.3, 0.0)
@@ -442,6 +448,7 @@ constellation_hl_border_color=(0.6, 0.26, 0.06)
 constellation_lines_color=(0.37, 0.12, 0.0)
 draw_color=(1.0, 0.5, 0.5)
 dso_color=(0.6, 0.15, 0.0)
+comet_highlight_color=(0.6, 0.15, 0.0)
 comet_tail_color=(0.6, 0.15, 0.0)
 dso_dynamic_brightness=False
 earth_color=(0.54, 0.0, 0.0)
@@ -480,6 +487,7 @@ constellation_hl_border_color=(0.4, 0.4, 0.4)
 constellation_lines_color=(0.4, 0.56, 0.64)
 draw_color=(0.0, 0.0, 0.0)
 dso_color=(0.3, 0.3, 0.3)
+comet_highlight_color=(0.3, 0.6, 0.3)
 comet_tail_color=(0.3, 0.3, 0.3)
 dso_dynamic_brightness=False
 eyepiece_color=(0.5, 0.0, 0.0)

@@ -47,6 +47,7 @@ from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES, ChartThemeDefinition
+from .dso_utils import CHART_COMET_PREFIX
 
 MOBILE_WIDTH = 768
 
@@ -1087,7 +1088,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
-        highlights = _create_highlights_from_pos_list(highlights_pos_list, config.highlight_color, config.highlight_linewidth)
+        highlights = _create_highlights_from_pos_list(highlights_pos_list, config)
         if (obj_ra is not None) and (obj_dec is not None):
             highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
@@ -1215,7 +1216,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
     elif highlights_pos_list:
-        highlights = _create_highlights_from_pos_list(highlights_pos_list, config.highlight_color, config.highlight_linewidth)
+        highlights = _create_highlights_from_pos_list(highlights_pos_list, config)
         if (obj_ra is not None) and (obj_dec is not None):
             highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
@@ -1344,13 +1345,27 @@ def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mo
     return [hl1, hl2]
 
 
-def _create_highlights_from_pos_list(highlights_pos_list, color, line_width):
+def _create_highlights_from_pos_list(highlights_pos_list, config):
+    if not highlights_pos_list:
+        return None
+
     highlight_def_items = []
+    comet_def_items = []
     for hlpos in highlights_pos_list:
         hlpos_mag = hlpos[4] if len(hlpos) > 4 else None
-        highlight_def_items.append((hlpos[0], hlpos[1], hlpos[2], hlpos[3], hlpos_mag))
-    hl = fchart3.HighlightDefinition('circle', line_width, color, highlight_def_items)
-    return [hl]
+        item = (hlpos[0], hlpos[1], hlpos[2], hlpos[3], hlpos_mag)
+        if hlpos[2] and str(hlpos[2]).startswith(CHART_COMET_PREFIX):
+            comet_def_items.append(item)
+        else:
+            highlight_def_items.append(item)
+
+    highlights = []
+    if highlight_def_items:
+        highlights.append(fchart3.HighlightDefinition('circle', config.highlight_linewidth, config.highlight_color, highlight_def_items))
+    if comet_def_items:
+        highlights.append(fchart3.HighlightDefinition('comet', config.highlight_linewidth, config.comet_highlight_color, comet_def_items))
+
+    return highlights if highlights else None
 
 
 def _find_dso_by_name(dso_name):

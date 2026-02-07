@@ -73,7 +73,9 @@ def common_highlights_from_observing_session(observing_session):
             elif observation.target_type == ObservationTargetType.DBL_STAR:
                 highlights_pos_list.append([observation.double_star.ra_first, observation.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(observation.double_star_id), observation.double_star.get_catalog_name()])
             elif observation.target_type == ObservationTargetType.COMET:
-                highlights_pos_list.append([observation.ra, observation.dec, CHART_COMET_PREFIX + str(observation.comet_id), observation.comet.designation])
+                comet = observation.comet
+                payload = {'mag': comet.real_mag if comet else None, 'tail_pa': comet.cur_tail_pa if comet else None}
+                highlights_pos_list.append([observation.ra, observation.dec, CHART_COMET_PREFIX + str(observation.comet_id), comet.designation if comet else '', payload])
             elif observation.target_type == ObservationTargetType.M_PLANET:
                 highlights_pos_list.append([observation.ra, observation.dec, CHART_MINOR_PLANET_PREFIX + str(observation.minor_planet_id), observation.minor_planet.designation])
             elif observation.target_type == ObservationTargetType.PLANET:
@@ -93,7 +95,9 @@ def common_highlights_from_session_plan(session_plan):
             elif item.item_type == SessionPlanItemType.DBL_STAR:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
             elif item.item_type == SessionPlanItemType.COMET:
-                highlights_pos_list.append([item.ra, item.dec, CHART_COMET_PREFIX + str(item.comet_id), item.comet.designation])
+                comet = item.comet
+                payload = {'mag': comet.real_mag if comet else None, 'tail_pa': comet.cur_tail_pa if comet else None}
+                highlights_pos_list.append([item.ra, item.dec, CHART_COMET_PREFIX + str(item.comet_id), comet.designation if comet else '', payload])
             elif item.item_type == SessionPlanItemType.MINOR_PLANET:
                 highlights_pos_list.append([item.ra, item.dec, CHART_MINOR_PLANET_PREFIX + str(item.minor_planet_id), item.minor_planet.designation])
             elif item.item_type == SessionPlanItemType.PLANET:
