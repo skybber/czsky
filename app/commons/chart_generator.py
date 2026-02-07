@@ -128,7 +128,7 @@ class FlagValue(Enum):
     CONSTELL_BORDERS = 'B'
     CONSTELL_SHAPES = 'C'
     SHOW_DEEPSKY = 'D'
-    SHOW_SOLAR_SYSTEM = 'S'
+    SHOW_SOLAR_SYSTEM = 'O'
     SHOW_COMET_TAIL = 'K'
     SHOW_EQUATORIAL_GRID = 'E'
     SHOW_HORIZONTAL_GRID = 'H'
@@ -1019,8 +1019,7 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     config.show_picker = False  # do not show picker, only activate it
     config.show_horizon = True
     config.use_optimized_mw = (high_quality != '1')
-    if hasattr(config, 'show_comet_tail'):
-        config.show_comet_tail = FlagValue.SHOW_COMET_TAIL.value in flags
+    config.show_comet_tail = FlagValue.SHOW_COMET_TAIL.value in flags
 
     if FlagValue.SHOW_PICKER.value in flags:
         config.picker_radius = PICKER_RADIUS
@@ -1186,8 +1185,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     config.eyepiece_fov = eyepiece_fov
     config.star_mag_shift = 1.5  # increase radius of star by 1.5 magnitude
     config.show_horizon = True
-    if hasattr(config, 'show_comet_tail'):
-        config.show_comet_tail = FlagValue.SHOW_COMET_TAIL.value in flags
+    config.show_comet_tail = FlagValue.SHOW_COMET_TAIL.value in flags
 
     if show_legend:
         config.show_mag_scale_legend = True
