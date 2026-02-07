@@ -37,6 +37,7 @@ class ChartForm(FlaskForm):
     show_horizontal_grid = HiddenField('show_horizontal_grid', default='false')
     show_dso = HiddenField('show_dso', default='true')
     show_solar_system = HiddenField('show_solar_system', default='true')
+    show_comet_tail = HiddenField('show_comet_tail', default='true')
     show_dso_mag = HiddenField('show_dso_mag', default='false')
     show_star_labels = HiddenField('show_star_labels', default='true')
     eyepiece_fov = HiddenField('eyepiece_fov')
