@@ -6,6 +6,7 @@ from flask_login import current_user
 
 from app.models import (
     Constellation,
+    Comet,
     DeepskyObject,
     DoubleStar,
     DoubleStarList,
@@ -46,6 +47,8 @@ class SkyObjectWrapper:
             return url_for('main_star.star_chart', star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, embed=embed)
         if isinstance(self._sky_obj, DoubleStar):
             return url_for('main_double_star.double_star_seltab', double_star_id=self._sky_obj.id, seltab=self._tab, back=back, back_id=back_id, season=season, embed=embed)
+        if isinstance(self._sky_obj, Comet):
+            return url_for('main_comet.comet_seltab', comet_id=self._sky_obj.comet_id, back=back, back_id=back_id, embed=embed)
         return ''
 
     def top_url(self):
@@ -76,6 +79,9 @@ class SkyObjectWrapper:
         if isinstance(self._sky_obj, DoubleStar):
             return url_for('main_double_star.double_star_chart', double_star_id=self._sky_obj.id, back=back, back_id=back_id, season=season, splitview='true')
 
+        if isinstance(self._sky_obj, Comet):
+            return url_for('main_comet.comet_info', comet_id=self._sky_obj.comet_id, back=back, back_id=back_id, splitview='true')
+
         return ''
 
     def label(self):
@@ -91,6 +97,8 @@ class SkyObjectWrapper:
             return ''
         if isinstance(self._sky_obj, DoubleStar):
             return self._sky_obj.common_cat_id
+        if isinstance(self._sky_obj, Comet):
+            return self._sky_obj.designation
         return None
 
 

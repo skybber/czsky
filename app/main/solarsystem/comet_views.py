@@ -67,6 +67,7 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.visibility_utils import get_rise_transit_set_utc
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.prevnext_utils import create_navigation_wrappers
 
 from app.models import (
     Comet,
@@ -239,6 +240,7 @@ def comet_info(comet_id):
     comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
+    comet_db = Comet.query.filter_by(comet_id=comet.comet_id).first()
 
     form = CometFindChartForm()
 
@@ -286,9 +288,11 @@ def comet_info(comet_id):
 
     show_obs_log = show_observation_log()
 
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet_db) if comet_db else (None, None, None)
+
     return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
-                           show_obs_log=show_obs_log)
+                           show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
 @main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
@@ -297,9 +301,6 @@ def comet_cobs_observations(comet_id):
     comet = Comet.query.filter_by(comet_id=comet_id).first()
     if comet is None:
         abort(404)
-
-    back = request.args.get('back')
-    back_id = request.args.get('back_id')
 
     search_form = SearchCobsForm()
 
@@ -345,10 +346,14 @@ def comet_cobs_observations(comet_id):
 
     show_obs_log = show_observation_log()
 
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet)
+
+    print(f'cur_wrap: {cur_wrap._sky_obj.designation}', flush=True)
+
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
                            page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed,
-                           show_obs_log=show_obs_log)
+                           show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
 @main_comet.route('/comet/<string:comet_id>/visibility', methods=['GET', 'POST'])
@@ -381,8 +386,10 @@ def comet_visibility(comet_id):
 
     show_obs_log = show_observation_log()
 
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet)
+
     return render_template('main/solarsystem/comet_info.html', type='visibility', comet=comet,
-                           embed=embed, show_obs_log=show_obs_log,
+                           embed=embed, show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            location_city_name=city_name, location_lat=lat, location_lon=lon,
                            chart_theme=chart_theme, chart_date=chart_date,
                            rise_transit_set=rise_transit_set,
@@ -506,10 +513,12 @@ def comet_observation_log(comet_id):
     if embed:
         session['comet_embed_seltab'] = 'obs_log'
 
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet)
+
     return render_template('main/solarsystem/comet_info.html', type='observation_log', comet=comet, form=form,
                            embed=embed, is_new_observation_log=is_new_observation_log, observing_session=observing_session,
                            back=back, back_id=back_id, has_observations=False, show_obs_log=True,
-                           )
+                           prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
 @main_comet.route('/comet/<string:comet_id>/observation-log-delete', methods=['GET', 'POST'])

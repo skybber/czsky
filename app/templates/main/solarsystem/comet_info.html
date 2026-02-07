@@ -232,6 +232,11 @@
                     <div class="active section">
                         {{ comet.designation }}
                     </div>
+                    {% if embed == 'comets' %}
+                        <a id="bpin" class="ui basic icon compact button" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                            <i class="crosshairs icon"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -251,6 +256,14 @@
         </div>
     </div>
     <script type="text/javascript">
+        {% if embed == 'comets' %}
+            {% if cur_wrap %}
+                $('#bpin' ).click(function() {
+                    parent.window.location.href = appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}');
+                    return true;
+                });
+            {% endif %}
+        {% endif %}
         {% if not is_new_observation_log %}
             $('.ui.modal.deleteObservationLogModal').modal({
                 onApprove: function() {
