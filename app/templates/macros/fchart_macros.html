@@ -1032,7 +1032,7 @@
         $(this).toggleClass('active');
         var value = $('#show_solar_system').val() == 'true' ? 'false' : 'true';
         $('#show_solar_system').val(value);
-        chart_param_ajax('chart_solar_system', value);
+        chart_param_ajax('chart_show_solar_system', value);
         setChartUrlFlag('O', value);
         fchart.reloadImage();
     });
