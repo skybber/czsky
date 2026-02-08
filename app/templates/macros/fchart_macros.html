@@ -178,6 +178,12 @@
                                 </button>
                             </div>
                         {% endif %}
+                        <div class="item">
+                            <button id="bhelp" type="button" class="ui labeled tiny icon button" style="text-align:left">
+                                <i class="question circle icon"></i>
+                                {{ _('Help') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -564,6 +570,39 @@
 </div>
 
 <div id="fchart-aladin-div" style="position:fixed;left:-9999px; top:-9999px; z-index:0;">
+</div>
+
+<div class="ui tiny modal fchartHelpModal" style="z-index:10000;">
+    <div class="header">{{ _('Help') }}</div>
+    <div class="content">
+        <h4 class="ui dividing header">{{ _('Map controls') }}</h4>
+        <div class="ui relaxed list">
+            <div class="item"><strong>{{ _('Arrows / drag with left mouse button') }}</strong> - {{ _('move sky view') }}</div>
+            <div class="item"><strong>{{ _('PgUp / PgDown') }}</strong> - {{ _('zoom out / zoom in') }}</div>
+            <div class="item"><strong>{{ _('Left click') }}</strong> - {{ _('select object') }}</div>
+            <div class="item"><strong>{{ _('Double click') }}</strong> - {{ _('center view') }}</div>
+        </div>
+        <h4 class="ui dividing header">{{ _('Keyboard shortcuts') }}</h4>
+        <div class="ui relaxed list">
+            <div class="item"><strong>e</strong> - {{ _('toggle equatorial grid') }}</div>
+            <div class="item"><strong>z</strong> - {{ _('toggle horizontal grid') }}</div>
+            <div class="item"><strong>b</strong> - {{ _('toggle constellation borders') }}</div>
+            <div class="item"><strong>c</strong> - {{ _('toggle constellation lines') }}</div>
+            <div class="item"><strong>d, n</strong> - {{ _('toggle deep-sky objects') }}</div>
+            <div class="item"><strong>i</strong> - {{ _('toggle Aladin background') }}</div>
+            <div class="item"><strong>p</strong> - {{ _('toggle solar system objects') }}</div>
+            <div class="item"><strong>s</strong> - {{ _('toggle star labels') }}</div>
+            <div class="item"><strong>{{ _('Space') }}</strong> - {{ _('center object') }}</div>
+            <div class="item"><strong>t</strong> - {{ _('toggle Telrad') }}</div>
+            <div class="item"><strong>F1</strong> - {{ _('open help') }}</div>
+        </div>
+    </div>
+    <div class="actions">
+        <button type="button" class="ui right labeled icon approve button">
+            {{ _('Close') }}
+            <i class="checkmark icon"></i>
+        </button>
+    </div>
 </div>
 
 {% if chart_control.show_not_found %}
@@ -1258,6 +1297,10 @@
         fchart.toggleSplitView();
     });
 
+    $('#bhelp').click(function(){
+        openFchartHelpModal();
+    });
+
     $('.ui.dropdown').dropdown();
 
     $('#maglim').change(function() {
@@ -1668,6 +1711,18 @@
         applyThemeUrl(THEME_URLS[themeName]);
     }
 
+    function openFchartHelpModal() {
+        const modalContext = (fchart && fchart.isInRealFullScreen && fchart.isInRealFullScreen())
+            ? '#' + fullScreenWrapperId
+            : 'body';
+        $('.ui.modal.fchartHelpModal')
+            .modal({
+                context: modalContext,
+                detachable: false
+            })
+            .modal('show');
+    }
+
     function setCustomTheme(themeId) {
         var customThemeUrl = "{{ url_for('main.theme_custom', chart_theme_id=123) }}";
         customThemeUrl = customThemeUrl.replace('123', themeId)
@@ -1715,6 +1770,19 @@
     }
 
     $('.chart-popup').popup({ on: 'click' });
+
+    $(document).on('keydown.fchartHelp', function(event) {
+        const isF1 = event.key === 'F1' || event.which === 112 || event.keyCode === 112;
+        if (!isF1 || event.repeat) {
+            return;
+        }
+        const $target = $(event.target);
+        if ($target.is('input, textarea, select') || $target.is('[contenteditable=true]') || $target.prop('isContentEditable')) {
+            return;
+        }
+        event.preventDefault();
+        openFchartHelpModal();
+    });
 </script>
 
 {% endmacro %}
