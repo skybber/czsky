@@ -134,7 +134,7 @@
             {% endif %}
 
             <div class="ui right horizontally fitted small monitor item" style="z-index:100">
-                <div class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('View center settings') }}" data-position="left center" data-variation="tiny basic">
+                <div id="viewcenter_dropdown" class="ui small icon dropdown icon button" data-inverted="" data-tooltip="{{ _('View center settings') }}" data-position="left center" data-variation="tiny basic">
                     <i class="crosshairs icon"></i>
                     <div class="ui vertical buttons menu">
                         <div class="item">
@@ -157,8 +157,8 @@
                         </div>
                         {% if chart_control.equipment_telescopes %}
                             {% for telescope in chart_control.equipment_telescopes %}
-                                <div class="item">
-                                    <button class="ui tiny labeled icon button"  style="text-align:left">
+                                <div class="item submenu-parent-item">
+                                    <button class="ui tiny labeled icon button submenu-parent-trigger"  style="text-align:left">
                                         <i class="binoculars icon"></i>
                                         <span class="text">{{ telescope.name }} <i class="dropdown icon"></i></span>
                                     </button>
@@ -345,8 +345,8 @@
                                 {{ _('Deepsky objects')}}
                             </button>
                         </div>
-                        <div class="item">
-                            <button class="ui tiny labeled icon button" style="text-align:left">
+                        <div class="item submenu-parent-item">
+                            <button class="ui tiny labeled icon button submenu-parent-trigger" style="text-align:left">
                                     <i class="sun icon"></i>
                                 <span class="text">{{ _('Sol. system') }}<i class="dropdown icon"></i></span>
                             </button>
@@ -377,8 +377,8 @@
                                   {{ _('Star labels')}}
                             </button>
                         </div>
-                        <div class="item div_aladin">
-                            <button class="ui tiny labeled icon button"  style="text-align:left">
+                        <div class="item div_aladin submenu-parent-item">
+                            <button class="ui tiny labeled icon button submenu-parent-trigger"  style="text-align:left">
                                 <i class="image outline icon"></i>
                                 <span class="text">Aladin<i class="dropdown icon"></i></span>
                             </button>
@@ -405,8 +405,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="item">
-                            <button class="ui tiny labeled icon button"  style="text-align:left">
+                        <div class="item submenu-parent-item">
+                            <button class="ui tiny labeled icon button submenu-parent-trigger"  style="text-align:left">
                                 <i class="map palette icon"></i>
                                 <span class="text">{{ _('Chart Themes') }}<i class="dropdown icon"></i></span>
                             </button>
@@ -1302,6 +1302,18 @@
     });
 
     $('.ui.dropdown').dropdown();
+
+    // Keep Settings dropdown open when clicking submenu parent triggers.
+    $('#layers_dropdown').on('click', '.submenu-parent-trigger', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
+
+    // Keep View center dropdown open when clicking telescope submenu parent triggers.
+    $('#viewcenter_dropdown').on('click', '.submenu-parent-trigger', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    });
 
     $('#maglim').change(function() {
         var fldSize = fieldSizes[$('#radius').val()];
