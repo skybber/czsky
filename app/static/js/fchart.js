@@ -216,6 +216,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.onFieldChangeCallback = undefined;
     this.onScreenModeChangeCallback = undefined;
     this.onChartTimeChangedCallback = undefined;
+    this.onShortcutKeyCallback = undefined;
     this.splitview = splitview;
     this.multPhi = mirror_x ? -1 : 1;
     this.multTheta = mirror_y ? -1 : 1;
@@ -1076,6 +1077,12 @@ FChart.prototype.onKeyDown = function (e) {
         if (e.shiftKey) {
             this.kbdShiftMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1]);
         } else if (this.kbdMove(e.keyCode, keyMoveMap[e.keyCode][0], keyMoveMap[e.keyCode][1])) {
+            e.preventDefault();
+        }
+    } else if (this.onShortcutKeyCallback != undefined && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        const key = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
+        const handled = this.onShortcutKeyCallback.call(this, key, e);
+        if (handled) {
             e.preventDefault();
         }
     }
@@ -2224,6 +2231,10 @@ FChart.prototype.onScreenModeChange = function(callback) {
 
 FChart.prototype.onChartTimeChanged = function(callback) {
     this.onChartTimeChangedCallback = callback;
+};
+
+FChart.prototype.onShortcutKey = function(callback) {
+    this.onShortcutKeyCallback = callback;
 };
 
 FChart.prototype.callScreenModeChangeCallback = function() {

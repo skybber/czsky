@@ -736,6 +736,65 @@
             syncDateTimeComponentsInputs(true);
         });
 
+        fchart.onShortcutKey(function(key, event) {
+            const keyActionMap = {
+                e: 'toggle_egrid',
+                z: 'toggle_hgrid',
+                b: 'toggle_constell_borders',
+                c: 'toggle_constell_shapes',
+                d: 'toggle_dso',
+                n: 'toggle_dso',
+                i: 'toggle_aladin',
+                p: 'toggle_solar_system',
+                s: 'toggle_star_labels',
+                t: 'toggle_telrad',
+            };
+            const actionButtonMap = {
+                toggle_egrid: '#begrid',
+                toggle_hgrid: '#bhgrid',
+                toggle_constell_borders: '#bconstellborders',
+                toggle_constell_shapes: '#bconstellshapes',
+                toggle_dso: '#bdso',
+                toggle_solar_system: '#bslsystem',
+                toggle_star_labels: '#bstarlbl',
+                center_object: '#bcenterobj',
+                toggle_telrad: '#btelrad',
+            };
+            const dssButtonMap = {
+                colored: '#bdsscolored',
+                blue: '#bdssblue',
+                fram: '#bdssfram',
+            };
+            let action = keyActionMap[key];
+            if (!action && (key === ' ' || key === 'spacebar' || event.keyCode === 32)) {
+                action = 'center_object';
+            }
+            if (!action) {
+                return false;
+            }
+
+            if (action === 'toggle_aladin') {
+                if (!isEquatorial || !isWebGL2Supported()) {
+                    return false;
+                }
+                const currentLayer = $('#dss_layer').val();
+                if (currentLayer !== '' && dssButtonMap[currentLayer]) {
+                    $(dssButtonMap[currentLayer]).trigger('click');
+                    return true;
+                }
+                const layerToEnable = ['colored', 'blue', 'fram'].includes(lastAladinLayer) ? lastAladinLayer : 'colored';
+                $(dssButtonMap[layerToEnable]).trigger('click');
+                return true;
+            }
+
+            const buttonSelector = actionButtonMap[action];
+            if (!buttonSelector) {
+                return false;
+            }
+            $(buttonSelector).trigger('click');
+            return true;
+        });
+
         return fchart;
     }
 
@@ -854,6 +913,10 @@
     var projection = new Projection();
     var aladin = null;
     var fchart;
+    var lastAladinLayer = '{{ fchart_form.dss_layer.data }}';
+    if (!['colored', 'blue', 'fram'].includes(lastAladinLayer)) {
+        lastAladinLayer = 'colored';
+    }
 
     projection.setProjection(Projection.PROJ_TAN2);
 
@@ -1088,6 +1151,9 @@
         var value = $('#dss_layer').val() != 'colored' ? 'colored' : '';
         $('#dss_layer').val(value);
         if (value !== '') {
+            lastAladinLayer = value;
+        }
+        if (value !== '') {
             $('#bdssblue').removeClass('active');
             $('#bdssfram').removeClass('active');
         }
@@ -1102,6 +1168,9 @@
         var value = $('#dss_layer').val() != 'blue' ? 'blue' : '';
         $('#dss_layer').val(value);
         if (value !== '') {
+            lastAladinLayer = value;
+        }
+        if (value !== '') {
             $('#bdsscolored').removeClass('active');
             $('#bdssfram').removeClass('active');
         }
@@ -1115,6 +1184,9 @@
         $(this).toggleClass('active');
         var value = $('#dss_layer').val() != 'fram' ? 'fram' : '';
         $('#dss_layer').val(value);
+        if (value !== '') {
+            lastAladinLayer = value;
+        }
         if (value !== '') {
             $('#bdsscolored').removeClass('active');
             $('#bdssblue').removeClass('active');
