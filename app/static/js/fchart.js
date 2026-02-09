@@ -180,6 +180,12 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.legendImgBuf = [new Image(), new Image()];
     this.legendImg = { active: 0, background: 1 };
     this.imgLoadRequestId = 0;
+    this.MAX_RELOAD_RETRIES = 3;
+    this.RELOAD_RETRY_BASE_MS = 1000;
+    this.legendReloadRetryCount = 0;
+    this.chartReloadRetryCount = 0;
+    this.legendReloadRetryTimeout = undefined;
+    this.chartReloadRetryTimeout = undefined;
 
     this.imgFldSizeIndex = fldSizeIndex;
     this.fldSizeIndex = fldSizeIndex;
@@ -671,10 +677,24 @@ FChart.prototype.reloadLegendImage = function () {
 
     this.legendImgBuf[this.legendImg.background].onload = (function() {
         this.legendImgBuf[this.legendImg.background].onload = null;
+        this.legendImgBuf[this.legendImg.background].onerror = null;
+        this.legendReloadRetryCount = 0;
         const old = this.legendImg.active;
         this.legendImg.active = this.legendImg.background;
         this.legendImg.background = old;
         this.redrawAll();
+    }).bind(this);
+    this.legendImgBuf[this.legendImg.background].onerror = (function() {
+        this.legendImgBuf[this.legendImg.background].onload = null;
+        this.legendImgBuf[this.legendImg.background].onerror = null;
+        if (this.legendReloadRetryCount < this.MAX_RELOAD_RETRIES) {
+            const retryDelay = this.RELOAD_RETRY_BASE_MS * Math.pow(2, this.legendReloadRetryCount);
+            this.legendReloadRetryCount += 1;
+            clearTimeout(this.legendReloadRetryTimeout);
+            this.legendReloadRetryTimeout = setTimeout(function() {
+                this.reloadLegendImage();
+            }.bind(this), retryDelay);
+        }
     }).bind(this);
     this.legendImgBuf[this.legendImg.background].src = url;
 }
@@ -717,7 +737,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
 
     $.getJSON(url, {
         json : true
-    }, function(data) {
+    }).done(function(data) {
         try {
             this.disableReloadImg = true;
             if (currRequestId == this.imgLoadRequestId) {
@@ -733,9 +753,22 @@ FChart.prototype.doReloadImage = function(forceReload) {
                 if (this.useCurrentTime && this.onChartTimeChangedCallback) {
                     this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
                 }
+                this.chartReloadRetryCount = 0;
             }
         } finally {
             this.disableReloadImg = false;
+        }
+    }.bind(this)).fail(function() {
+        this.disableReloadImg = false;
+        this.isReloadingImage = false;
+        if (this.chartReloadRetryCount < this.MAX_RELOAD_RETRIES) {
+            const retryDelay = this.RELOAD_RETRY_BASE_MS * Math.pow(2, this.chartReloadRetryCount);
+            this.chartReloadRetryCount += 1;
+            clearTimeout(this.chartReloadRetryTimeout);
+            this.chartReloadRetryTimeout = setTimeout(function() {
+                this.isReloadingImage = true;
+                this.doReloadImage(forceReload);
+            }.bind(this), retryDelay);
         }
     }.bind(this));
 }
@@ -769,6 +802,7 @@ FChart.prototype.formatUrl = function(inpUrl) {
 FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSizeIndex, forceReload) {
     this.skyImgBuf[this.skyImg.background].onload = function() {
         this.skyImgBuf[this.skyImg.background].onload = undefined;
+        this.skyImgBuf[this.skyImg.background].onerror = undefined;
         let old = this.skyImg.active;
         this.skyImg.active = this.skyImg.background;
         this.skyImg.background = old;
@@ -812,6 +846,20 @@ FChart.prototype.activateImageOnLoad = function(centerPhi, centerTheta, reqFldSi
             } else {
                 this.reloadImage();
             }
+        }
+    }.bind(this);
+    this.skyImgBuf[this.skyImg.background].onerror = function() {
+        this.skyImgBuf[this.skyImg.background].onload = undefined;
+        this.skyImgBuf[this.skyImg.background].onerror = undefined;
+        this.isReloadingImage = false;
+        if (this.chartReloadRetryCount < this.MAX_RELOAD_RETRIES) {
+            const retryDelay = this.RELOAD_RETRY_BASE_MS * Math.pow(2, this.chartReloadRetryCount);
+            this.chartReloadRetryCount += 1;
+            clearTimeout(this.chartReloadRetryTimeout);
+            this.chartReloadRetryTimeout = setTimeout(function() {
+                this.isReloadingImage = true;
+                this.doReloadImage(forceReload);
+            }.bind(this), retryDelay);
         }
     }.bind(this);
 }
