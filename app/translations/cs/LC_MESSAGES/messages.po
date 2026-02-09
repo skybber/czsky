@@ -1834,7 +1834,7 @@ msgstr "přepnout Telrad"
 
 #: app/templates/macros/fchart_macros.html:596
 msgid "open help"
-msgstr ""
+msgstr "otevřít nápovědu"
 
 #: app/templates/macros/nav_macros.html:57
 msgid "Your Account"
