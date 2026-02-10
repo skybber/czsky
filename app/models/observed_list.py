@@ -19,7 +19,7 @@ class ObservedTargetType(Enum):
 class ObservedList(db.Model):
     __tablename__ = 'observed_lists'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
     observed_list_items = db.relationship('ObservedListItem', backref='observed_list', lazy=True)

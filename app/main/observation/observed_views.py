@@ -6,7 +6,7 @@ import base64
 
 from werkzeug.utils import secure_filename
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, load_only
 
 from flask import (
     abort,
@@ -30,7 +30,7 @@ from .observed_forms import (
     SearchObservedForm,
 )
 
-from app.models import ObservedList, ObservedListItem, DeepskyObject
+from app.models import ObservedList, ObservedListItem, DeepskyObject, DoubleStar
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.chart_generator import (
@@ -54,11 +54,6 @@ from app.commons.highlights_list_utils import common_highlights_from_observed_li
 from app.main.chart.chart_forms import ChartForm
 
 main_observed = Blueprint('main_observed', __name__)
-
-from cachetools import TTLCache
-
-observed_items_cache = TTLCache(maxsize=10, ttl=30)
-
 
 @main_observed.route('/observed-list', methods=['GET'])
 @main_observed.route('/observed-list/info', methods=['GET', 'POST'])
@@ -264,15 +259,16 @@ def observed_list_chart_pos_img():
 
 
 def _get_observed_list_items(user_id):
-    observed_list = ObservedList.query.filter_by(user_id=user_id).first()
+    observed_list = ObservedList.query.options(load_only(ObservedList.id)).filter_by(user_id=user_id).first()
     if observed_list:
-        try:
-            ret = observed_items_cache[observed_list.id]
-        except KeyError:
-            ret = db.session.query(ObservedListItem).options(joinedload(ObservedListItem.deepsky_object)) \
-                    .filter(ObservedListItem.observed_list_id == observed_list.id) \
-                    .all()
-            db.session.expunge_all()
-            observed_items_cache[observed_list.id] = ret
+        ret = db.session.query(ObservedListItem).options(
+                load_only(ObservedListItem.id, ObservedListItem.observed_list_id, ObservedListItem.dso_id, ObservedListItem.double_star_id),
+                joinedload(ObservedListItem.deepsky_object).load_only(DeepskyObject.id, DeepskyObject.name),
+                joinedload(ObservedListItem.double_star).load_only(
+                    DoubleStar.id, DoubleStar.ra_first, DoubleStar.dec_first, DoubleStar.common_cat_id, DoubleStar.wds_number
+                ),
+                ) \
+                .filter(ObservedListItem.observed_list_id == observed_list.id) \
+                .all()
         return ret
     return []
