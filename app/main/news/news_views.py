@@ -1,24 +1,20 @@
 from datetime import datetime
-import base64
 
 from flask import (
     abort,
     Blueprint,
     flash,
-    jsonify,
     redirect,
     render_template,
     request,
-    send_file,
     url_for,
 )
 from flask_login import current_user, login_required
-from sqlalchemy import or_, and_
 
-from app import db, csrf
+from app import db
 
 from app.models import News
-from app.commons.pagination import Pagination, get_page_parameter, get_page_args
+from app.commons.pagination import Pagination
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec, radec_to_string_short
@@ -29,17 +25,7 @@ from .news_forms import (
     SearchNewsForm,
 )
 
-from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
-    common_chart_pdf_img,
-    common_prepare_chart_data,
-    common_ra_dec_dt_fsz_from_request,
-)
-
-from app.main.chart.chart_forms import ChartForm
 from app.commons.countries import countries
-from app.commons.utils import to_float
 
 main_news = Blueprint('main_news', __name__)
 
@@ -72,72 +58,6 @@ def news_list():
     pagination = Pagination(page=page, per_page=per_page, total=news.count(), search=False, record_name='news', css_framework='semantic', not_passed_args='back')
 
     return render_template('main/news/news_list.html', news=news_for_render, pagination=pagination, search_form=search_form)
-
-
-@main_news.route('/news/<int:news_id>', methods=['GET'])
-@main_news.route('/news/<int:news_id>/info', methods=['GET'])
-def news_info(news_id):
-    news = News.query.filter_by(id=news_id).first()
-    if news is None:
-        abort(404)
-    if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
-        abort(404)
-
-    editable = current_user.is_editor
-
-    return render_template('main/news/news_info.html', news=news, type='info', editable=editable, )
-
-
-@main_news.route('/news/<int:news_id>', methods=['GET', 'POST'])
-@main_news.route('/news/<int:news_id>/chart', methods=['GET', 'POST'])
-@csrf.exempt
-def news_chart(news_id):
-    """View a comet info."""
-    news = News.query.filter_by(id=news_id).first()
-    if news is None:
-        abort(404)
-    if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
-        abort(404)
-
-    form = ChartForm()
-
-    common_ra_dec_dt_fsz_from_request(form, news.ra, news.dec)
-
-    chart_control = common_prepare_chart_data(form)
-
-    return render_template('main/news/news_info.html', fchart_form=form, type='chart', news=news, user_descr=None, chart_control=chart_control, )
-
-
-@main_news.route('/news/<int:news_id>/chart-pos-img', methods=['GET'])
-def news_chart_pos_img(news_id):
-    news = News.query.filter_by(id=news_id).first()
-    if news is None:
-        abort(404)
-    if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
-        abort(404)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(news.ra, news.dec, visible_objects=visible_objects)
-
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
-@main_news.route('/news/<int:news_id>/chart-pdf', methods=['GET'])
-def news_chart_pdf(news_id):
-    news = News.query.filter_by(id=news_id).first()
-    if news is None:
-        abort(404)
-    if not news.is_released and (current_user.is_anonymous or not current_user.is_editor):
-        abort(404)
-
-    news_ra = to_float(request.args.get('obj_ra'), None)
-    news_dec = to_float(request.args.get('obj_dec'), None)
-
-    img_bytes = common_chart_pdf_img(news_ra, news_dec)
-
-    return send_file(img_bytes, mimetype='application/pdf')
 
 
 @main_news.route('/new-news', methods=['GET', 'POST'])

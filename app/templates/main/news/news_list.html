@@ -47,7 +47,7 @@
                         </thead>
                         <tbody>
                         {% for l in news %}
-                            <tr onclick="window.location.href = '{{ url_for('main_news.news_info', news_id=l.id) }}';">
+                            <tr onclick="window.location.href = '{{ url_for('main_news.news_edit', news_id=l.id) }}';">
                                 <td>{{ l.title }}</td>
                                 <td><div class="ui rating" data-icon="star" data-rating="{{ l.rating_to_int(5) }}" data-max-rating="5"></div></td>
                             </tr>

@@ -13,9 +13,9 @@
                     {{ _('News') }}
                 </a>
             {% else %}
-              <a class="ui basic compact button" href="{{ url_for('main_news.news_info', news_id=news.id) }}">
+              <a class="ui basic compact button" href="{{ url_for('main_news.news_list') }}">
                   <i class="caret left icon"></i>
-                {{ _('News Info') }}
+                {{ _('News') }}
               </a>
             {% endif %}
 
