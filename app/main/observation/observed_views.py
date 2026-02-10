@@ -256,7 +256,9 @@ def observed_list_chart_pos_img():
     flags = request.args.get('json')
     visible_objects = [] if flags else None
     img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
+                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
+                                                 highlights_style='cross', highlights_size=0.75,
+                                                 dso_highlights_style='cross', dso_highlights_size=0.75)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
