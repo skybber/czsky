@@ -24,6 +24,12 @@ from app.commons.chart_generator import (
     set_chart_session_param,
     set_horiz_from_equatorial,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_stars_zones_v1,
+    build_milkyway_catalog_v1,
+    build_milkyway_select_v1,
+)
 from ... import csrf
 
 main_chart = Blueprint('main_chart', __name__)
@@ -99,6 +105,26 @@ def chart_pos_img():
 def chart_legend_img():
     img_bytes = common_chart_legend_img()
     return send_file(img_bytes, mimetype='image/png')
+
+
+@main_chart.route('/chart/scene-v1', methods=['GET'])
+def chart_scene_v1():
+    return jsonify(build_scene_v1())
+
+
+@main_chart.route('/chart/stars-v1/zones', methods=['GET'])
+def chart_stars_zones_v1():
+    return jsonify(build_stars_zones_v1())
+
+
+@main_chart.route('/chart/milkyway-v1/catalog', methods=['GET'])
+def chart_milkyway_catalog_v1():
+    return jsonify(build_milkyway_catalog_v1())
+
+
+@main_chart.route('/chart/milkyway-v1/select', methods=['GET'])
+def chart_milkyway_select_v1():
+    return jsonify(build_milkyway_select_v1())
 
 
 @main_chart.route('/chart/chart-pdf', methods=['GET'])

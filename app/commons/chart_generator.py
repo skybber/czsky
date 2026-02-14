@@ -251,25 +251,30 @@ def _setup_light_theme(config, width):
     COMMON_THEMES['light_theme'].fill_config(config)
 
 
-def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
+def resolve_active_chart_theme_definition(force_light_mode=False):
     cur_theme_name = session.get('theme', '')
     custom_theme = None
+    custom_theme_id = None
     if session.get('cur_custom_theme_id'):
         try:
-            chart_theme_id = int(session.get('cur_custom_theme_id'))
-            custom_theme = ChartTheme.query.filter_by(id=chart_theme_id).first()
+            custom_theme_id = int(session.get('cur_custom_theme_id'))
+            custom_theme = ChartTheme.query.filter_by(id=custom_theme_id).first()
         except ValueError:
-            pass
+            custom_theme_id = None
     if custom_theme and (not force_light_mode or cur_theme_name == 'light'):
         chart_def = ChartThemeDefinition.create_from_template(custom_theme.definition)
-        chart_def.fill_config(config)
-    else:
-        if force_light_mode or cur_theme_name == 'light':
-            _setup_light_theme(config, width)
-        elif cur_theme_name == 'night':
-            _setup_night_theme(config, width)
-        else:
-            _setup_dark_theme(config, width)
+        return chart_def, cur_theme_name or 'custom', custom_theme_id
+
+    if force_light_mode or cur_theme_name == 'light':
+        return COMMON_THEMES['light_theme'], 'light', None
+    if cur_theme_name == 'night':
+        return COMMON_THEMES['night_theme'], 'night', None
+    return COMMON_THEMES['dark_theme'], 'dark', None
+
+
+def _setup_skymap_graphics(config, fld_size, width, font_size, force_light_mode=False, is_pdf=False):
+    chart_def, _, _ = resolve_active_chart_theme_definition(force_light_mode=force_light_mode)
+    chart_def.fill_config(config)
 
     if is_pdf:
         font = _get_pdf_font_face()

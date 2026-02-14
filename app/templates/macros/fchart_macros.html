@@ -1,7 +1,7 @@
 {% import 'macros/back_fchart_navig_macros.html' as back_fchart_navig %}
 
 {% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_items_url, fchart_form, default_chart_iframe_url='', embed='', search_url_params='', obj_ra='',
-                obj_dec='', back=none, back_id=none, default_back=none, back_anchor=none, disable_to_detail=False) %}
+                obj_dec='', back=none, back_id=none, default_back=none, back_anchor=none, disable_to_detail=False, fchart_scene_url=none) %}
 
 <style>
     .ui.button.custom-nav {
@@ -654,6 +654,12 @@
 {% assets 'astro_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/fchart.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_stars_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_dso_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_planet_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_constell_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_milkyway_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene.js') }}"></script>
 
 <script type="text/javascript">
     const fullScreenWrapperId = 'fullscreen-wrapper';
@@ -682,37 +688,70 @@
 
     function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
-                          theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId) {
+                          theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
-        var fchart = new FChart(
-            '#fchart-div',
-            {{ fchart_form.radius.data }},
-            fieldSizes,
-            isEquatorial,
-            phi,
-            theta,
-            obj_ra,
-            obj_dec,
-            longitude,
-            latitude,
-            useCurrentTime,
-            chartDateTimeISO,
-            theme,
-            legendUrl,
-            chartUrl,
-            "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}",
-            {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
-            {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
-            '{{ default_chart_iframe_url }}',
-            '{{ embed }}',
-            aladin,
-            showAladin,
-            projection
-        );
+        var searchUrl = "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}";
+        var fchart = null;
+        if (useDataMode && sceneUrl) {
+            fchart = new FChartScene(
+                '#fchart-div',
+                {{ fchart_form.radius.data }},
+                fieldSizes,
+                isEquatorial,
+                phi,
+                theta,
+                obj_ra,
+                obj_dec,
+                longitude,
+                latitude,
+                useCurrentTime,
+                chartDateTimeISO,
+                theme,
+                legendUrl,
+                chartUrl,
+                sceneUrl,
+                searchUrl,
+                {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
+                '{{ default_chart_iframe_url }}',
+                '{{ embed }}',
+                aladin,
+                showAladin,
+                projection
+            );
+        } else {
+            fchart = new FChart(
+                '#fchart-div',
+                {{ fchart_form.radius.data }},
+                fieldSizes,
+                isEquatorial,
+                phi,
+                theta,
+                obj_ra,
+                obj_dec,
+                longitude,
+                latitude,
+                useCurrentTime,
+                chartDateTimeISO,
+                theme,
+                legendUrl,
+                chartUrl,
+                searchUrl,
+                {{ 'true' if fchart_form.fullscreen.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.splitview.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_x.data == 'true' else 'false' }},
+                {{ 'true' if fchart_form.mirror_y.data == 'true' else 'false' }},
+                '{{ default_chart_iframe_url }}',
+                '{{ embed }}',
+                aladin,
+                showAladin,
+                projection
+            );
+        }
 
         fchart.onFieldChange(function(fldSizeIndex) {
             submitDisabled = true;
@@ -936,9 +975,43 @@
     var legendUrlEq = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsEq);
     var chartUrlHoriz = addCommonChartUrlParams("{{ fchart_img_url | safe }}", chartUrlParamsHoriz);
     var legendUrlHoriz = addCommonChartUrlParams("{{ fchart_legend_url | safe }}", chartUrlParamsHoriz);
+    var sceneUrlEq = null;
+    var sceneUrlHoriz = null;
+    {% if fchart_scene_url is not none %}
+    sceneUrlEq = addCommonChartUrlParams("{{ fchart_scene_url | safe }}", chartUrlParamsEq);
+    sceneUrlHoriz = addCommonChartUrlParams("{{ fchart_scene_url | safe }}", chartUrlParamsHoriz);
+    {% endif %}
+
+    function addOrReplaceQueryParamLocal(url, key, value) {
+        try {
+            const parsed = new URL(url, window.location.origin);
+            parsed.searchParams.set(key, value);
+            return parsed.pathname + parsed.search + parsed.hash;
+        } catch (e) {
+            const k = encodeURIComponent(key);
+            const v = encodeURIComponent(value);
+            if (url.indexOf('?') === -1) {
+                return url + '?' + k + '=' + v;
+            }
+            const re = new RegExp('([?&])' + k + '=[^&]*');
+            if (re.test(url)) {
+                return url.replace(re, '$1' + k + '=' + v);
+            }
+            return url + '&' + k + '=' + v;
+        }
+    }
 
     var chartUrl = isEquatorial ? chartUrlEq : chartUrlHoriz;
     var legendUrl = isEquatorial ? legendUrlEq : legendUrlHoriz;
+    var sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
+    var debugStarsMode = new URLSearchParams(window.location.search).get('debug_stars');
+    if (sceneUrl && ['preview_only', 'all'].includes(debugStarsMode)) {
+        sceneUrlEq = addOrReplaceQueryParamLocal(sceneUrlEq, 'debug_stars', debugStarsMode);
+        sceneUrlHoriz = addOrReplaceQueryParamLocal(sceneUrlHoriz, 'debug_stars', debugStarsMode);
+        sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
+    }
+    var chartMode = "{{ request.args.get('mode', 'image') }}";
+    var useDataMode = (chartMode === 'data') && !!sceneUrl && isWebGL2Supported();
 
     {% if fchart_items_url is not none %}
     var chartItemsUrl;
@@ -991,14 +1064,16 @@
             }
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                   longitude, latitude, useCurrentTime, chartDateTimeISO,
-                                  theme, legendUrl, chartUrl, aladin, projection, fullScreenWrapperId);
+                                  theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId);
             fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
             fchart.onWindowLoad();
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                               longitude, latitude, useCurrentTime, chartDateTimeISO,
-                              theme, legendUrl, chartUrl, null, projection, fullScreenWrapperId);
+                              theme, legendUrl, chartUrl, sceneUrl, null, projection, fullScreenWrapperId);
+        fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
+        fchart.onWindowLoad();
     }
 
     adjustAladinVisibility();
@@ -1495,9 +1570,9 @@
 
     function updateChartUrls() {
         if (isEquatorial) {
-            fchart.updateUrls(isEquatorial, legendUrlEq, chartUrlEq);
+            fchart.updateUrls(isEquatorial, legendUrlEq, chartUrlEq, sceneUrlEq);
         } else {
-            fchart.updateUrls(isEquatorial, legendUrlHoriz, chartUrlHoriz);
+            fchart.updateUrls(isEquatorial, legendUrlHoriz, chartUrlHoriz, sceneUrlHoriz);
         }
     }
 

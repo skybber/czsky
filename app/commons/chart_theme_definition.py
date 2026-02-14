@@ -1,4 +1,6 @@
 from collections import OrderedDict
+import hashlib
+import json
 
 from flask import (
     current_app,
@@ -54,6 +56,7 @@ class ChartThemeDefinition:
         self.mars_color = None
         self.mercury_color = None
         self.milky_way_color = None
+        self.milky_way_linewidth = None
         self.moon_color = None
         self.nebula_color = None
         self.nebula_linewidth = None
@@ -118,6 +121,7 @@ class ChartThemeDefinition:
         self.mars_color = self._parse_color(defs, 'mars_color', self.mars_color, errors)
         self.mercury_color = self._parse_color(defs, 'mercury_color', self.mercury_color, errors)
         self.milky_way_color = self._parse_color(defs, 'milky_way_color', self.milky_way_color, errors)
+        self.milky_way_linewidth = self._parse_linewidth(defs, 'milky_way_linewidth', self.milky_way_linewidth, errors)
         self.moon_color = self._parse_color(defs, 'moon_color', self.moon_color, errors)
         self.nebula_color = self._parse_color(defs, 'nebula_color', self.nebula_color, errors)
         self.nebula_linewidth = self._parse_linewidth(defs, 'nebula_linewidth', self.nebula_linewidth, errors)
@@ -187,6 +191,8 @@ class ChartThemeDefinition:
         config.mars_color = self.mars_color
         config.mercury_color = self.mercury_color
         config.milky_way_color = self.milky_way_color
+        if self.milky_way_linewidth is not None:
+            config.milky_way_linewidth = self.milky_way_linewidth
         config.moon_color = self.moon_color
         config.nebula_color = self.nebula_color
         config.nebula_linewidth = self.nebula_linewidth
@@ -279,6 +285,87 @@ class ChartThemeDefinition:
 
     def _parse_font_scale(self, defs, field_name, default_value, errors):
         return self._parse_float_with_min_max(defs, field_name, default_value, 0, MAX_FONT_SCALE, errors)
+
+    def to_scene_theme_dict(self):
+        # Stable data contract for JS renderer.
+        return {
+            'schema': 'scene_theme_v1',
+            'colors': {
+                'background': self.background_color,
+                'draw': self.draw_color,
+                'label': self.label_color,
+                'grid': self.grid_color,
+                'constellation_lines': self.constellation_lines_color,
+                'constellation_borders': self.constellation_border_color,
+                'constellation_hl_borders': self.constellation_hl_border_color,
+                'dso': self.dso_color,
+                'galaxy': self.galaxy_color,
+                'milky_way': self.milky_way_color,
+                'nebula': self.nebula_color,
+                'star_cluster': self.star_cluster_color,
+                'highlight': self.highlight_color,
+                'horizon': self.horizon_color,
+                'sun': self.sun_color,
+                'moon': self.moon_color,
+                'mercury': self.mercury_color,
+                'venus': self.venus_color,
+                'mars': self.mars_color,
+                'jupiter': self.jupiter_color,
+                'saturn': self.saturn_color,
+                'uranus': self.uranus_color,
+                'neptune': self.neptune_color,
+                'picker': self.picker_color,
+                'telrad': self.telrad_color,
+                'eyepiece': self.eyepiece_color,
+            },
+            'line_widths': {
+                'grid': self.grid_linewidth,
+                'constellation': self.constellation_linewidth,
+                'constellation_border': self.constellation_border_linewidth,
+                'dso': self.dso_linewidth,
+                'nebula': self.nebula_linewidth,
+                'highlight': self.highlight_linewidth,
+                'horizon': self.horizon_linewidth,
+                'legend': self.legend_linewidth,
+                'picker': self.picker_linewidth,
+                'telrad': self.telrad_linewidth,
+                'eyepiece': self.eyepiece_linewidth,
+                'open_cluster': self.open_cluster_linewidth,
+                'galaxy_cluster': self.galaxy_cluster_linewidth,
+                'milky_way': self.milky_way_linewidth,
+            },
+            'font_scales': {
+                'font_size': self.font_size,
+                'legend_font_scale': self.legend_font_scale,
+                'bayer_label_font_scale': self.bayer_label_font_scale,
+                'flamsteed_label_font_scale': self.flamsteed_label_font_scale,
+                'ext_label_font_scale': self.ext_label_font_scale,
+                'outlined_dso_label_font_scale': self.outlined_dso_label_font_scale,
+                'cardinal_directions_font_scale': self.cardinal_directions_font_scale,
+                'highlight_label_font_scale': self.highlight_label_font_scale,
+            },
+            'sizes': {
+                'picker_radius': self.picker_radius,
+                'star_mag_shift': self.star_mag_shift,
+                'constellation_linespace': self.constellation_linespace,
+            },
+            'flags': {
+                'light_mode': self.light_mode,
+                'star_colors': self.star_colors,
+                'dso_dynamic_brightness': self.dso_dynamic_brightness,
+                'show_nebula_outlines': self.show_nebula_outlines,
+            },
+            'units': {
+                'color': 'rgb_0_1',
+                'line': 'mm',
+                'angles': 'rad',
+                'font': 'scale',
+            },
+        }
+
+    def scene_theme_hash(self):
+        serialized = json.dumps(self.to_scene_theme_dict(), sort_keys=True, separators=(',', ':'))
+        return hashlib.sha1(serialized.encode('utf-8')).hexdigest()
 
     @classmethod
     def create_from_template(cls, t, errors=None):
