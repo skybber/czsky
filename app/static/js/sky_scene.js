@@ -449,16 +449,65 @@
         history.replaceState(null, null, '?' + queryParams.toString());
     };
 
+    FChartScene.prototype._getChartLst = function (dateTimeISO) {
+        if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') {
+            return null;
+        }
+        const lon = Number(this.longitude);
+        if (!Number.isFinite(lon)) return null;
+
+        let dt;
+        if (dateTimeISO) {
+            dt = new Date(dateTimeISO);
+        } else if (this.useCurrentTime) {
+            dt = new Date();
+        } else {
+            dt = new Date(this.dateTimeISO || Date.now());
+        }
+        if (!Number.isFinite(dt.getTime())) {
+            dt = new Date();
+        }
+        return window.AstroMath.localSiderealTime(dt, lon);
+    };
+
+    FChartScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
+        const lat = Number(this.latitude);
+        const ra = Number(this.viewCenter.phi);
+        const dec = Number(this.viewCenter.theta);
+        if (window.AstroMath
+            && typeof window.AstroMath.equatorialToHorizontal === 'function'
+            && Number.isFinite(lat)
+            && Number.isFinite(ra)
+            && Number.isFinite(dec)) {
+            const lst = this._getChartLst(dateTimeISO);
+            if (typeof lst === 'number' && Number.isFinite(lst)) {
+                const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
+                if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
+                    return { az: normalizeRa(hor.az), alt: hor.alt };
+                }
+            }
+        }
+
+        const center = this.sceneData && this.sceneData.meta && this.sceneData.meta.center
+            ? this.sceneData.meta.center
+            : null;
+        if (center && typeof center.phi === 'number' && typeof center.theta === 'number') {
+            return { az: center.phi, alt: center.theta };
+        }
+        return { az: this.viewCenter.phi, alt: this.viewCenter.theta };
+    };
+
     FChartScene.prototype.formatUrl = function (inpUrl) {
         let url = inpUrl;
+        this.lastChartTimeISO = this.useCurrentTime ? new Date().toISOString() : this.dateTimeISO;
         if (this.isEquatorial) {
             url = url.replace('_RA_', this.viewCenter.phi.toFixed(9));
             url = url.replace('_DEC_', this.viewCenter.theta.toFixed(9));
         } else {
-            url = url.replace('_AZ_', this.viewCenter.phi.toFixed(9));
-            url = url.replace('_ALT_', this.viewCenter.theta.toFixed(9));
+            const centerHor = this._getRequestCenterHorizontal(this.lastChartTimeISO);
+            url = url.replace('_AZ_', centerHor.az.toFixed(9));
+            url = url.replace('_ALT_', centerHor.alt.toFixed(9));
         }
-        this.lastChartTimeISO = this.useCurrentTime ? new Date().toISOString() : this.dateTimeISO;
         url = url.replace('_DATE_TIME_', this.lastChartTimeISO);
         url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
         url = url.replace('_WIDTH_', this.canvas.width);
@@ -704,8 +753,9 @@
             url = addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
             url = addOrReplaceQueryParam(url, 'dec', this.viewCenter.theta);
         } else {
-            url = addOrReplaceQueryParam(url, 'az', this.viewCenter.phi);
-            url = addOrReplaceQueryParam(url, 'alt', this.viewCenter.theta);
+            const centerHor = this._getRequestCenterHorizontal(this.lastChartTimeISO || this.dateTimeISO);
+            url = addOrReplaceQueryParam(url, 'az', centerHor.az);
+            url = addOrReplaceQueryParam(url, 'alt', centerHor.alt);
         }
         const fovDeg = (typeof this.renderFovDeg === 'number') ? this.renderFovDeg : this.fieldSizes[this.fldSizeIndex];
         url = addOrReplaceQueryParam(url, 'fsz', fovDeg);
