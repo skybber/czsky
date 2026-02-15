@@ -323,13 +323,7 @@
         };
         this.URL_ANG_PRECISION = 9;
 
-        if (fullScreen) {
-            $(this.fchartDiv).addClass('fchart-fullscreen');
-        } else if (splitview) {
-            $(this.fchartDiv).addClass('fchart-splitview');
-            $('.fchart-iframe').show();
-            $('.fchart-separator').show();
-        }
+        this.applyScreenMode();
 
         window.addEventListener('resize', () => this.onResize());
 
@@ -381,6 +375,11 @@
     };
 
     FChartScene.prototype.onResize = function () {
+        if (this.splitview) {
+            this.setSplitViewPosition();
+        } else {
+            this.resetSplitViewPosition();
+        }
         this.adjustCanvasSize();
         this.reloadLegendImage();
         this.forceReloadImage();
@@ -398,8 +397,14 @@
 
     FChartScene.prototype.isMirrorX = function () { return this.multPhi < 0; };
     FChartScene.prototype.isMirrorY = function () { return this.multTheta < 0; };
-    FChartScene.prototype.setMirrorX = function (v) { this.multPhi = v ? -1 : 1; };
-    FChartScene.prototype.setMirrorY = function (v) { this.multTheta = v ? -1 : 1; };
+    FChartScene.prototype.setMirrorX = function (v) {
+        const on = (typeof v === 'string') ? (v.toLowerCase() === 'true') : !!v;
+        this.multPhi = on ? -1 : 1;
+    };
+    FChartScene.prototype.setMirrorY = function (v) {
+        const on = (typeof v === 'string') ? (v.toLowerCase() === 'true') : !!v;
+        this.multTheta = on ? -1 : 1;
+    };
 
     FChartScene.prototype.setCenterToHiddenInputs = function () {
         if (this.isEquatorial) {
@@ -456,18 +461,29 @@
         this.legendLayer.src = url;
     };
 
+    FChartScene.prototype._setUrlFlag = function (urlValue, flag, newValue) {
+        const url = new URL(urlValue, window.location.origin);
+        let flags = url.searchParams.get('flags') || '';
+        if (flags.includes(flag)) {
+            if (!newValue) {
+                flags = flags.split(flag).join('');
+            }
+        } else if (newValue) {
+            flags += flag;
+        }
+        if (flags) {
+            url.searchParams.set('flags', flags);
+        } else {
+            url.searchParams.delete('flags');
+        }
+        return url.pathname + url.search + url.hash;
+    };
+
     FChartScene.prototype.setChartUrlFlag = function (flag, value) {
-        const op = value ? 'add' : 'remove';
-        const update = (url) => {
-            const match = url.match(/flags=([^&]*)/);
-            if (!match) return url;
-            let flags = match[1];
-            if (op === 'add' && !flags.includes(flag)) flags += flag;
-            if (op === 'remove') flags = flags.split(flag).join('');
-            return url.replace(/flags=[^&]*/, 'flags=' + flags);
-        };
-        this.chartUrl = update(this.chartUrl);
-        this.sceneUrl = update(this.sceneUrl);
+        const on = (typeof value === 'string') ? (value.toLowerCase() === 'true') : !!value;
+        this.chartUrl = this._setUrlFlag(this.chartUrl, flag, on);
+        this.sceneUrl = this._setUrlFlag(this.sceneUrl, flag, on);
+        this.legendUrl = this._setUrlFlag(this.legendUrl, flag, on);
     };
 
     FChartScene.prototype.setLegendUrlParam = function (key, value) {
@@ -489,7 +505,40 @@
         this.showAladin = !!surveyCustomName;
     };
 
-    FChartScene.prototype.setSplitViewPosition = function () {};
+    FChartScene.prototype.resetSplitViewPosition = function () {
+        $(this.fchartDiv).css('left', '');
+        $(this.fchartDiv).css('width', '');
+        $(this.iframe).css('width', '');
+        $(this.separator).hide();
+    };
+
+    FChartScene.prototype.setSplitViewPosition = function () {
+        const $iframe = $(this.iframe);
+        const $separator = $(this.separator);
+        const minWindow = 458 + 36;
+        if ($(window).width() < minWindow) {
+            $iframe.width(Math.max($(window).width() - 36, 120));
+            $separator.hide();
+        } else {
+            $iframe.width(458);
+            $separator.show();
+        }
+        const leftWidth = $iframe.width() + 6;
+        $(this.fchartDiv).css('left', leftWidth);
+        $(this.fchartDiv).css('width', 'calc(100% - ' + leftWidth + 'px)');
+    };
+
+    FChartScene.prototype.applyScreenMode = function () {
+        $(this.fchartDiv).toggleClass('fchart-fullscreen', this.fullScreen);
+        $(this.fchartDiv).toggleClass('fchart-splitview', this.splitview);
+        $(this.iframe).toggle(this.splitview);
+        $(this.separator).toggle(this.splitview);
+        if (this.splitview) {
+            this.setSplitViewPosition();
+        } else {
+            this.resetSplitViewPosition();
+        }
+    };
     FChartScene.prototype.centerObjectInFov = function () {
         this.viewCenter.phi = this.obj_ra;
         this.viewCenter.theta = this.obj_dec;
@@ -501,18 +550,28 @@
     FChartScene.prototype.isInFullScreen = function () { return this.fullScreen; };
 
     FChartScene.prototype.toggleSplitView = function () {
-        this.splitview = !this.splitview;
-        $(this.fchartDiv).toggleClass('fchart-splitview', this.splitview);
-        $('.fchart-iframe').toggle(this.splitview);
-        $('.fchart-separator').toggle(this.splitview);
+        if (this.splitview) {
+            this.splitview = false;
+            this.fullScreen = true;
+        } else {
+            this.splitview = true;
+            this.fullScreen = false;
+        }
+        this.applyScreenMode();
         if (this.onScreenModeChangeCallback) {
             this.onScreenModeChangeCallback.call(this, this.fullScreen, this.splitview, false);
         }
+        this.onResize();
     };
 
     FChartScene.prototype.toggleFullscreen = function () {
-        this.fullScreen = !this.fullScreen;
-        $(this.fchartDiv).toggleClass('fchart-fullscreen', this.fullScreen);
+        if (this.splitview) {
+            this.splitview = false;
+            this.fullScreen = true;
+        } else {
+            this.fullScreen = !this.fullScreen;
+        }
+        this.applyScreenMode();
         if (this.onScreenModeChangeCallback) {
             this.onScreenModeChangeCallback.call(this, this.fullScreen, this.splitview, false);
         }
@@ -812,10 +871,10 @@
         if (!selected) return;
         if (this.isInSplitView()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
-            $('.fchart-iframe').attr('src', url);
+            $(this.iframe).attr('src', url);
         } else if (this.isInFullScreen()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=fc';
-            $('.fchart-iframe').attr('src', url);
+            $(this.iframe).attr('src', url);
             this.toggleSplitView();
         } else {
             window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
