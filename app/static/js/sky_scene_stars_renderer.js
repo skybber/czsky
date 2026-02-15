@@ -97,7 +97,7 @@
     };
 
     FChartSceneStarsRenderer.prototype._drawStar = function (ctx, star) {
-        const radius = Math.max(0.75, (star.size || 1.0) * 0.5);
+        const radius = Math.max(0.01, (star.size || 1.0) * 0.5);
         ctx.fillStyle = rgba(star.color, 1.0);
         ctx.beginPath();
         ctx.arc(star.x, star.y, radius, 0.0, TWO_PI);
