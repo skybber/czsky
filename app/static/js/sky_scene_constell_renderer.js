@@ -114,6 +114,10 @@
         if (!lines.length) return;
 
         const stroke = this._themeLinesStroke(sceneCtx);
+        const sizes = sceneCtx.themeConfig && sceneCtx.themeConfig.sizes ? sceneCtx.themeConfig.sizes : null;
+        const lineSpaceMm = sizes && typeof sizes.constellation_linespace === 'number'
+            ? sizes.constellation_linespace : 0.0;
+        const lineSpacePx = lineSpaceMm > 0 ? mmToPx(lineSpaceMm) : 0.0;
         ctx.strokeStyle = rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
         ctx.lineCap = 'round';
@@ -126,8 +130,19 @@
             const a = this._project(sceneCtx, seg.ra1, seg.dec1);
             const b = this._project(sceneCtx, seg.ra2, seg.dec2);
             if (!a || !b) continue;
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
+            if (lineSpacePx > 0) {
+                const dx = b.x - a.x;
+                const dy = b.y - a.y;
+                const dr = Math.hypot(dx, dy);
+                if (dr <= 1e-9) continue;
+                const ddx = (dx * lineSpacePx) / dr;
+                const ddy = (dy * lineSpacePx) / dr;
+                ctx.moveTo(a.x + ddx, a.y + ddy);
+                ctx.lineTo(b.x - ddx, b.y - ddy);
+            } else {
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+            }
         }
         ctx.stroke();
     };
