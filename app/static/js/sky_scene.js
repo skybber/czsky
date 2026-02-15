@@ -405,6 +405,7 @@
         this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(iframeUrl) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
         this.separator = $('<div class="fchart-separator fchart-separator-theme" style="display:none"></div>').appendTo(this.fchartDiv)[0];
         this.canvas = $('<canvas id="fcCanvasScene" class="fchart-canvas" tabindex="0" style="outline:0"></canvas>').appendTo(this.fchartDiv)[0];
+        this.canvas.style.touchAction = 'none';
         this.overlayCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:10"></canvas>').appendTo(this.fchartDiv)[0];
         this.legendLayer = $('<img class="fchart-legend-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20;"/>').appendTo(this.fchartDiv)[0];
         this.overlayCtx = this.overlayCanvas.getContext('2d');
@@ -425,16 +426,52 @@
             lastY: 0,
             moved: false,
         };
+        this.input = {
+            activePointers: new Map(),
+            primaryId: null,
+            gesture: 'none',
+            pointerType: 'mouse',
+            lastX: 0,
+            lastY: 0,
+            lastMoveTs: 0,
+            velocityX: 0,
+            velocityY: 0,
+            pinchStartDist: 0,
+            pinchStartFov: 0,
+            tapCandidate: false,
+            tapStartTs: 0,
+            tapStartX: 0,
+            tapStartY: 0,
+            lastTapTs: 0,
+            lastTapX: 0,
+            lastTapY: 0,
+            suppressClickUntilTs: 0,
+            inertiaRaf: null,
+        };
+        this.doubleTapWindowMs = 280;
+        this.doubleTapRadiusPx = 24;
+        this.tapMoveThresholdPx = 8;
+        this.inertiaStartThreshold = 0.02; // px/ms
+        this.inertiaStopThreshold = 0.004; // px/ms
+        this.lastInputWasTouch = false;
         this.URL_ANG_PRECISION = 9;
 
         this.applyScreenMode();
 
         window.addEventListener('resize', () => this.onResize());
 
-        $(this.canvas).on('mousedown', (e) => this.onMouseDown(e));
-        $(this.canvas).on('mousemove', (e) => this.onMouseMove(e));
-        $(this.canvas).on('mouseup', (e) => this.onMouseUp(e));
-        $(this.canvas).on('mouseleave', (e) => this.onMouseUp(e));
+        if (window.PointerEvent) {
+            $(this.canvas).on('pointerdown', (e) => this.onPointerDown(e));
+            $(this.canvas).on('pointermove', (e) => this.onPointerMove(e));
+            $(this.canvas).on('pointerup', (e) => this.onPointerUp(e));
+            $(this.canvas).on('pointercancel', (e) => this.onPointerCancel(e));
+            $(this.canvas).on('pointerleave', (e) => this.onPointerUp(e));
+        } else {
+            $(this.canvas).on('mousedown', (e) => this.onMouseDown(e));
+            $(this.canvas).on('mousemove', (e) => this.onMouseMove(e));
+            $(this.canvas).on('mouseup', (e) => this.onMouseUp(e));
+            $(this.canvas).on('mouseleave', (e) => this.onMouseUp(e));
+        }
         $(this.canvas).on('click', (e) => this.onClick(e));
         $(this.canvas).on('wheel', (e) => this.onWheel(e));
         $(this.canvas).on('keydown', (e) => this.onKeyDown(e));
@@ -1232,12 +1269,20 @@
         this.canvas.style.cursor = selected ? 'pointer' : '';
     };
 
-    FChartScene.prototype.onClick = function (e) {
-        if (this.move.moved) {
-            this.move.moved = false;
-            return;
-        }
-        const selected = this.findSelectableObject(e);
+    FChartScene.prototype._eventClientXY = function (e) {
+        const oe = e.originalEvent || e;
+        return {
+            x: Number.isFinite(oe.clientX) ? oe.clientX : 0,
+            y: Number.isFinite(oe.clientY) ? oe.clientY : 0,
+        };
+    };
+
+    FChartScene.prototype._clientToCanvasXY = function (clientX, clientY) {
+        const rect = this.canvas.getBoundingClientRect();
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    };
+
+    FChartScene.prototype._openSelected = function (selected) {
         if (!selected) return;
         if (this.isInSplitView()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
@@ -1249,6 +1294,111 @@
         } else {
             window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
         }
+    };
+
+    FChartScene.prototype._applyPanDelta = function (dx, dy) {
+        const fovDeg = (typeof this.renderFovDeg === 'number')
+            ? this.renderFovDeg
+            : this.fieldSizes[this.fldSizeIndex];
+        const fovRad = deg2rad(fovDeg);
+        const wh = Math.max(this.canvas.width, this.canvas.height);
+        const dirX = this.isMirrorX() ? -1 : 1;
+        const dirY = this.isMirrorY() ? -1 : 1;
+        const cosDec = Math.max(0.2, Math.cos(this.viewCenter.theta));
+
+        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
+        this.viewCenter.theta += dirY * dy * fovRad / wh;
+        const lim = Math.PI / 2 - 1e-5;
+        if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
+        if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+        this.setCenterToHiddenInputs();
+        this._requestMilkyWaySelection({ optimized: true, immediate: false });
+        this.draw();
+    };
+
+    FChartScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
+        let best = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < this.fieldSizes.length; i++) {
+            const d = Math.abs(this.fieldSizes[i] - fovDeg);
+            if (d < bestDist) {
+                bestDist = d;
+                best = i;
+            }
+        }
+        return best;
+    };
+
+    FChartScene.prototype._stopInertia = function () {
+        if (this.input.inertiaRaf) {
+            cancelAnimationFrame(this.input.inertiaRaf);
+            this.input.inertiaRaf = null;
+        }
+    };
+
+    FChartScene.prototype._startInertia = function (vx, vy) {
+        this._stopInertia();
+        const speed = Math.hypot(vx, vy);
+        if (!Number.isFinite(speed) || speed < this.inertiaStartThreshold) return false;
+
+        this._setMilkywayInteractionActive(true);
+        let cvx = vx;
+        let cvy = vy;
+        let lastTs = performance.now();
+
+        const tick = (ts) => {
+            const dt = Math.min(40, Math.max(8, ts - lastTs));
+            lastTs = ts;
+            const damp = Math.pow(0.92, dt / 16.67);
+            cvx *= damp;
+            cvy *= damp;
+            const curSpeed = Math.hypot(cvx, cvy);
+            if (curSpeed < this.inertiaStopThreshold) {
+                this._stopInertia();
+                this._setMilkywayInteractionActive(false);
+                this._requestMilkyWaySelection({ optimized: false, immediate: true });
+                this.forceReloadImage();
+                return;
+            }
+            this._applyPanDelta(cvx * dt, cvy * dt);
+            this.input.inertiaRaf = requestAnimationFrame(tick);
+        };
+        this.input.inertiaRaf = requestAnimationFrame(tick);
+        return true;
+    };
+
+    FChartScene.prototype.onClick = function (e) {
+        if (Date.now() < this.input.suppressClickUntilTs) return;
+        if (this.lastInputWasTouch) return;
+        if (this.move.moved) {
+            this.move.moved = false;
+            return;
+        }
+        const selected = this.findSelectableObject(e);
+        this._openSelected(selected);
+    };
+
+    FChartScene.prototype._handleTapRelease = function (clientX, clientY) {
+        const now = Date.now();
+        const dtTap = now - this.input.lastTapTs;
+        const distTap = Math.hypot(clientX - this.input.lastTapX, clientY - this.input.lastTapY);
+        this.input.suppressClickUntilTs = now + 320;
+
+        if (dtTap <= this.doubleTapWindowMs && distTap <= this.doubleTapRadiusPx) {
+            const curIdx = this.targetFldSizeIndex;
+            const next = Math.max(0, curIdx - 1);
+            if (next !== curIdx) this.startZoomToIndex(next);
+            this.input.lastTapTs = 0;
+            return;
+        }
+
+        this.input.lastTapTs = now;
+        this.input.lastTapX = clientX;
+        this.input.lastTapY = clientY;
+
+        const pt = this._clientToCanvasXY(clientX, clientY);
+        const selected = this.findSelectableObjectAt(pt.x, pt.y);
+        this._openSelected(selected);
     };
 
     FChartScene.prototype.onMouseDown = function (e) {
@@ -1273,23 +1423,7 @@
             this.move.moved = true;
         }
 
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
-        const fovRad = deg2rad(fovDeg);
-        const wh = Math.max(this.canvas.width, this.canvas.height);
-        const dirX = this.isMirrorX() ? -1 : 1;
-        const dirY = this.isMirrorY() ? -1 : 1;
-        const cosDec = Math.max(0.2, Math.cos(this.viewCenter.theta));
-
-        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
-        this.viewCenter.theta += dirY * dy * fovRad / wh;
-        const lim = Math.PI / 2 - 1e-5;
-        if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
-        if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
-        this.setCenterToHiddenInputs();
-        this._requestMilkyWaySelection({ optimized: true, immediate: false });
-        this.draw();
+        this._applyPanDelta(dx, dy);
     };
 
     FChartScene.prototype.onMouseUp = function () {
@@ -1303,6 +1437,157 @@
             this._requestMilkyWaySelection({ optimized: false, immediate: true });
             this.forceReloadImage();
         }
+    };
+
+    FChartScene.prototype.onPointerDown = function (e) {
+        e.preventDefault();
+        const oe = e.originalEvent || e;
+        this.lastInputWasTouch = oe.pointerType === 'touch';
+        this._stopInertia();
+        if (this.canvas.setPointerCapture && oe.pointerId != null) {
+            try { this.canvas.setPointerCapture(oe.pointerId); } catch (err) {}
+        }
+        const p = this._eventClientXY(e);
+        this.input.activePointers.set(oe.pointerId, p);
+        this.input.pointerType = oe.pointerType || 'mouse';
+        const cnt = this.input.activePointers.size;
+        if (cnt === 1) {
+            this.input.primaryId = oe.pointerId;
+            this.input.gesture = 'pan';
+            this.input.lastX = p.x;
+            this.input.lastY = p.y;
+            this.input.lastMoveTs = performance.now();
+            this.input.velocityX = 0;
+            this.input.velocityY = 0;
+            this.input.tapCandidate = true;
+            this.input.tapStartTs = Date.now();
+            this.input.tapStartX = p.x;
+            this.input.tapStartY = p.y;
+            this.move.moved = false;
+            this._setMilkywayInteractionActive(true);
+            this._requestMilkyWaySelection({ optimized: true, immediate: true });
+            return;
+        }
+        if (cnt === 2) {
+            const pts = Array.from(this.input.activePointers.values());
+            this.input.gesture = 'pinch';
+            this.input.pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+            this.input.pinchStartFov = (typeof this.renderFovDeg === 'number')
+                ? this.renderFovDeg
+                : this.fieldSizes[this.fldSizeIndex];
+            this.input.tapCandidate = false;
+            this.move.moved = true;
+            this.input.suppressClickUntilTs = Date.now() + 300;
+        }
+    };
+
+    FChartScene.prototype.onPointerMove = function (e) {
+        const oe = e.originalEvent || e;
+        if (!this.input.activePointers.has(oe.pointerId)) {
+            if (oe.pointerType === 'mouse') this.updateHoverCursor(e);
+            return;
+        }
+        e.preventDefault();
+        const p = this._eventClientXY(e);
+        this.input.activePointers.set(oe.pointerId, p);
+
+        if (this.input.gesture === 'pinch' && this.input.activePointers.size >= 2) {
+            const pts = Array.from(this.input.activePointers.values());
+            const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+            if (this.input.pinchStartDist > 5 && dist > 5) {
+                const scale = dist / this.input.pinchStartDist;
+                const minFov = this.fieldSizes[0];
+                const maxFov = this.fieldSizes[this.fieldSizes.length - 1];
+                this.renderFovDeg = clamp(this.input.pinchStartFov / scale, minFov, maxFov);
+                this._requestMilkyWaySelection({ optimized: true, immediate: false });
+                this.draw();
+            }
+            return;
+        }
+
+        if (oe.pointerId !== this.input.primaryId || this.input.gesture !== 'pan') return;
+        const dx = p.x - this.input.lastX;
+        const dy = p.y - this.input.lastY;
+        this.input.lastX = p.x;
+        this.input.lastY = p.y;
+        if (Math.abs(dx) + Math.abs(dy) > 1) this.move.moved = true;
+        if (this.input.tapCandidate && Math.hypot(p.x - this.input.tapStartX, p.y - this.input.tapStartY) > this.tapMoveThresholdPx) {
+            this.input.tapCandidate = false;
+        }
+
+        const now = performance.now();
+        const dt = Math.max(1, now - this.input.lastMoveTs);
+        this.input.lastMoveTs = now;
+        const alpha = 0.25;
+        this.input.velocityX = (1 - alpha) * this.input.velocityX + alpha * (dx / dt);
+        this.input.velocityY = (1 - alpha) * this.input.velocityY + alpha * (dy / dt);
+        this._applyPanDelta(dx, dy);
+    };
+
+    FChartScene.prototype.onPointerUp = function (e) {
+        const oe = e.originalEvent || e;
+        if (!this.input.activePointers.has(oe.pointerId)) return;
+        e.preventDefault();
+        const p = this._eventClientXY(e);
+        this.input.activePointers.delete(oe.pointerId);
+        const now = Date.now();
+
+        if (this.input.gesture === 'pinch') {
+            if (this.input.activePointers.size < 2) {
+                const idx = this._nearestFieldSizeIndex(this.renderFovDeg || this.fieldSizes[this.fldSizeIndex]);
+                this.targetFldSizeIndex = idx;
+                this.fldSizeIndex = idx;
+                this.renderFovDeg = this.fieldSizes[idx];
+                if (this.onFieldChangeCallback) this.onFieldChangeCallback.call(this, this.fldSizeIndex);
+                this.input.gesture = 'none';
+                this.input.primaryId = null;
+                this._setMilkywayInteractionActive(false);
+                this._requestMilkyWaySelection({ optimized: false, immediate: true });
+                this.forceReloadImage();
+                this.input.suppressClickUntilTs = now + 300;
+            }
+            return;
+        }
+
+        if (oe.pointerId !== this.input.primaryId) return;
+        this.input.primaryId = null;
+        this.input.gesture = 'none';
+        this._setMilkywayInteractionActive(false);
+
+        if (this.move.moved) {
+            const started = (this.input.pointerType === 'touch')
+                ? this._startInertia(this.input.velocityX, this.input.velocityY)
+                : false;
+            if (!started) {
+                this._requestMilkyWaySelection({ optimized: false, immediate: true });
+                this.forceReloadImage();
+            }
+            this.input.suppressClickUntilTs = now + 220;
+            this.move.moved = false;
+            return;
+        }
+
+        if (this.input.pointerType === 'touch' && this.input.tapCandidate) {
+            this._handleTapRelease(p.x, p.y);
+        } else {
+            this._requestMilkyWaySelection({ optimized: false, immediate: true });
+        }
+        this.move.moved = false;
+    };
+
+    FChartScene.prototype.onPointerCancel = function (e) {
+        const oe = e.originalEvent || e;
+        this.input.activePointers.delete(oe.pointerId);
+        if (oe.pointerId === this.input.primaryId) {
+            this.input.primaryId = null;
+        }
+        if (this.input.activePointers.size < 2 && this.input.gesture === 'pinch') {
+            this.input.gesture = 'none';
+            this._setMilkywayInteractionActive(false);
+            this._requestMilkyWaySelection({ optimized: false, immediate: true });
+            this.forceReloadImage();
+        }
+        this.move.moved = false;
     };
 
     FChartScene.prototype.onWheel = function (e) {
