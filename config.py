@@ -109,6 +109,22 @@ class Config:
     TURNSTILE_EXPECTED_HOSTNAMES = _csv_set(os.environ.get("TURNSTILE_EXPECTED_HOSTNAMES", ""))
     TURNSTILE_EXPECTED_ACTION = os.environ.get("TURNSTILE_EXPECTED_ACTION", "")
 
+    # Response compression (Flask-Compress).
+    # Tune for larger JSON payloads from scene data endpoints.
+    COMPRESS_REGISTER = True
+    COMPRESS_LEVEL = int(os.environ.get('COMPRESS_LEVEL', 6))
+    COMPRESS_MIN_SIZE = int(os.environ.get('COMPRESS_MIN_SIZE', 1024))
+    COMPRESS_MIMETYPES = [
+        'application/json',
+        'text/html',
+        'text/css',
+        'text/xml',
+        'application/javascript',
+        'text/javascript',
+        'application/x-javascript',
+        'image/svg+xml',
+    ]
+
     @staticmethod
     def init_app(app):
         pass
