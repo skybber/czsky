@@ -249,6 +249,90 @@
         return sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
     }
 
+    function SelectionIndex() {
+        this.width = 0;
+        this.height = 0;
+        this.items = [];
+    }
+
+    SelectionIndex.prototype.beginFrame = function (width, height) {
+        this.width = Math.max(1, width | 0);
+        this.height = Math.max(1, height | 0);
+        this.items = [];
+    };
+
+    SelectionIndex.prototype._clampRect = function (x1, y1, x2, y2) {
+        if (![x1, y1, x2, y2].every(Number.isFinite)) return null;
+        let ax1 = Math.min(x1, x2);
+        let ay1 = Math.min(y1, y2);
+        let ax2 = Math.max(x1, x2);
+        let ay2 = Math.max(y1, y2);
+        ax1 = Math.max(0, Math.min(this.width - 1, ax1));
+        ay1 = Math.max(0, Math.min(this.height - 1, ay1));
+        ax2 = Math.max(0, Math.min(this.width - 1, ax2));
+        ay2 = Math.max(0, Math.min(this.height - 1, ay2));
+        if (ax2 < ax1 || ay2 < ay1) return null;
+        return { x1: ax1, y1: ay1, x2: ax2, y2: ay2 };
+    };
+
+    SelectionIndex.prototype.addRect = function (id, x1, y1, x2, y2, priority) {
+        if (!id) return;
+        const box = this._clampRect(x1, y1, x2, y2);
+        if (!box) return;
+        this.items.push({
+            id: id,
+            priority: Number.isFinite(priority) ? priority : 10,
+            x1: box.x1,
+            y1: box.y1,
+            x2: box.x2,
+            y2: box.y2,
+        });
+    };
+
+    SelectionIndex.prototype.addCircle = function (id, cx, cy, r, priority) {
+        if (!Number.isFinite(cx) || !Number.isFinite(cy) || !(r > 0)) return;
+        this.addRect(id, cx - r, cy - r, cx + r, cy + r, priority);
+    };
+
+    SelectionIndex.prototype.addPolylineBounds = function (id, points, padPx, priority) {
+        if (!Array.isArray(points) || points.length < 2) return;
+        let x1 = Infinity;
+        let y1 = Infinity;
+        let x2 = -Infinity;
+        let y2 = -Infinity;
+        for (let i = 0; i < points.length; i++) {
+            const p = points[i];
+            if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
+            x1 = Math.min(x1, p.x);
+            y1 = Math.min(y1, p.y);
+            x2 = Math.max(x2, p.x);
+            y2 = Math.max(y2, p.y);
+        }
+        if (!Number.isFinite(x1) || !Number.isFinite(y1) || !Number.isFinite(x2) || !Number.isFinite(y2)) return;
+        const pad = Number.isFinite(padPx) ? Math.max(0, padPx) : 0;
+        this.addRect(id, x1 - pad, y1 - pad, x2 + pad, y2 + pad, priority);
+    };
+
+    SelectionIndex.prototype.finalize = function () {
+        this.items.sort((a, b) => {
+            if (a.priority !== b.priority) return a.priority - b.priority;
+            const areaA = (a.x2 - a.x1) * (a.y2 - a.y1);
+            const areaB = (b.x2 - b.x1) * (b.y2 - b.y1);
+            return areaA - areaB;
+        });
+    };
+
+    SelectionIndex.prototype.hitTest = function (x, y) {
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+        for (let i = 0; i < this.items.length; i++) {
+            const it = this.items[i];
+            if (x >= it.x1 && x <= it.x2 && y >= it.y1 && y <= it.y2) {
+                return it.id;
+            }
+        }
+        return null;
+    };
+
     window.FChartScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
@@ -287,6 +371,7 @@
         this.multPhi = mirror_x ? -1 : 1;
         this.multTheta = mirror_y ? -1 : 1;
         this.selectableRegions = [];
+        this.selectionIndex = new SelectionIndex();
         this.sceneData = null;
         this.isReloadingImage = false;
         this.zoneStars = [];
@@ -987,8 +1072,25 @@
         );
     };
 
+    FChartScene.prototype._registerSelectable = function (shape) {
+        if (!this.selectionIndex || !shape || !shape.id) return;
+        const priority = Number.isFinite(shape.priority) ? shape.priority : 10;
+        if (shape.shape === 'circle') {
+            this.selectionIndex.addCircle(shape.id, shape.cx, shape.cy, shape.r, priority);
+            return;
+        }
+        if (shape.shape === 'polyline') {
+            this.selectionIndex.addPolylineBounds(shape.id, shape.points, shape.padPx || 0, priority);
+            return;
+        }
+        if (shape.shape === 'rect') {
+            this.selectionIndex.addRect(shape.id, shape.x1, shape.y1, shape.x2, shape.y2, priority);
+        }
+    };
+
     FChartScene.prototype.draw = function () {
         if (!this.sceneData) {
+            this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
             this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12]));
             this.clearOverlay();
             return;
@@ -998,6 +1100,7 @@
         const drawColor = this.getThemeColor('draw', [0.8, 0.8, 0.8]);
         this.renderer.clear(bg);
         this.clearOverlay();
+        this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
 
         this.milkyWayRenderer.draw({
             sceneData: this.sceneData,
@@ -1058,6 +1161,7 @@
             height: this.canvas.height,
             ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
             getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
+            registerSelectable: this._registerSelectable.bind(this),
         });
 
         this.planetRenderer.draw({
@@ -1069,6 +1173,7 @@
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
             height: this.canvas.height,
+            registerSelectable: this._registerSelectable.bind(this),
         });
 
         this.starsRenderer.draw({
@@ -1094,13 +1199,21 @@
             width: this.canvas.width,
             height: this.canvas.height,
         });
+        this.selectionIndex.finalize();
     };
 
     FChartScene.prototype.findSelectableObject = function (e) {
-        if (!this.selectableRegions) return null;
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+        return this.findSelectableObjectAt(x, y);
+    };
+
+    FChartScene.prototype.findSelectableObjectAt = function (x, y) {
+        const localHit = this.selectionIndex ? this.selectionIndex.hitTest(x, y) : null;
+        if (localHit) return localHit;
+
+        if (!this.selectableRegions) return null;
         for (let i = 0; i < this.selectableRegions.length; i += 5) {
             if (x >= this.selectableRegions[i + 1] && x <= this.selectableRegions[i + 3]
                 && y >= this.selectableRegions[i + 2] && y <= this.selectableRegions[i + 4]) {
@@ -1108,6 +1221,15 @@
             }
         }
         return null;
+    };
+
+    FChartScene.prototype.updateHoverCursor = function (e) {
+        if (!this.canvas) return;
+        const rect = this.canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const selected = this.findSelectableObjectAt(x, y);
+        this.canvas.style.cursor = selected ? 'pointer' : '';
     };
 
     FChartScene.prototype.onClick = function (e) {
@@ -1139,7 +1261,10 @@
     };
 
     FChartScene.prototype.onMouseMove = function (e) {
-        if (!this.move.isDragging) return;
+        if (!this.move.isDragging) {
+            this.updateHoverCursor(e);
+            return;
+        }
         const dx = e.clientX - this.move.lastX;
         const dy = e.clientY - this.move.lastY;
         this.move.lastX = e.clientX;
@@ -1170,6 +1295,9 @@
     FChartScene.prototype.onMouseUp = function () {
         if (!this.move.isDragging) return;
         this.move.isDragging = false;
+        if (this.canvas) {
+            this.canvas.style.cursor = '';
+        }
         this._setMilkywayInteractionActive(false);
         if (this.move.moved) {
             this._requestMilkyWaySelection({ optimized: false, immediate: true });

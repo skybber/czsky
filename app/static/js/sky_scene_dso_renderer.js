@@ -411,6 +411,70 @@
         return drawn;
     };
 
+    FChartSceneDsoRenderer.prototype._outlineBounds = function (sceneCtx, outlinesItem) {
+        if (!outlinesItem || !Array.isArray(outlinesItem.outlines)) {
+            return null;
+        }
+        let x1 = Infinity;
+        let y1 = Infinity;
+        let x2 = -Infinity;
+        let y2 = -Infinity;
+        let hasPoint = false;
+        for (let level = 0; level < 3; level++) {
+            const outlines = outlinesItem.outlines[level];
+            if (!Array.isArray(outlines)) continue;
+            for (let i = 0; i < outlines.length; i++) {
+                const points = this._traceOutline(sceneCtx, outlines[i]);
+                for (let j = 0; j < points.length; j++) {
+                    const p = points[j];
+                    x1 = Math.min(x1, p.x);
+                    y1 = Math.min(y1, p.y);
+                    x2 = Math.max(x2, p.x);
+                    y2 = Math.max(y2, p.y);
+                    hasPoint = true;
+                }
+            }
+        }
+        if (!hasPoint) return null;
+        return { x1: x1, y1: y1, x2: x2, y2: y2 };
+    };
+
+    FChartSceneDsoRenderer.prototype._registerSelectable = function (sceneCtx, dso, centerPx, radii, outlinesItem) {
+        if (!sceneCtx || typeof sceneCtx.registerSelectable !== 'function' || !dso || !dso.id) {
+            return;
+        }
+        const priority = 10;
+        if ((dso.type === 'N' || dso.type === 'OC') && outlinesItem) {
+            const bounds = this._outlineBounds(sceneCtx, outlinesItem);
+            if (bounds) {
+                sceneCtx.registerSelectable({
+                    shape: 'rect',
+                    id: dso.id,
+                    x1: bounds.x1 - 3.0,
+                    y1: bounds.y1 - 3.0,
+                    x2: bounds.x2 + 3.0,
+                    y2: bounds.y2 + 3.0,
+                    priority: priority,
+                });
+                return;
+            }
+        }
+
+        const hitR = Math.max(
+            MIN_DSO_RADIUS_PX,
+            radii && Number.isFinite(radii.rLongPx) ? radii.rLongPx : MIN_DSO_RADIUS_PX,
+            radii && Number.isFinite(radii.rShortPx) ? radii.rShortPx : MIN_DSO_RADIUS_PX
+        );
+        sceneCtx.registerSelectable({
+            shape: 'circle',
+            id: dso.id,
+            cx: centerPx.x,
+            cy: centerPx.y,
+            r: hitR,
+            priority: priority,
+        });
+    };
+
     FChartSceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
@@ -700,6 +764,7 @@
                     this._drawUnknown(sceneCtx, centerPx, dso);
                     break;
             }
+            this._registerSelectable(sceneCtx, dso, centerPx, radii, outlinesItem);
             this._drawLabel(sceneCtx, sceneCtx.overlayCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
         }
     };

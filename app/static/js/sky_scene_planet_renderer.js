@@ -105,6 +105,16 @@
             ctx.arc(px.x, px.y, r, 0.0, TWO_PI);
             ctx.fill();
             occupied.push({ x1: px.x - r, y1: px.y - r, x2: px.x + r, y2: px.y + r });
+            if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {
+                sceneCtx.registerSelectable({
+                    shape: 'circle',
+                    id: p.id,
+                    cx: px.x,
+                    cy: px.y,
+                    r: Math.max(r, 4.0),
+                    priority: 10,
+                });
+            }
 
             const label = p.label || '';
             if (!label) continue;
