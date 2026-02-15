@@ -325,6 +325,7 @@
         this.constellRenderer = new window.FChartSceneConstellationRenderer();
         this.milkyWayRenderer = new window.FChartSceneMilkyWayRenderer();
         this.gridRenderer = new window.FChartSceneGridRenderer();
+        this.horizonRenderer = new window.FChartSceneHorizonRenderer();
 
         this.move = {
             isDragging: false,
@@ -973,6 +974,17 @@
             sceneData: this.sceneData,
             zoneStars: this.zoneStars,
             renderer: this.renderer,
+            overlayCtx: this.overlayCtx,
+            projectToNdc: this._projectToNdc.bind(this),
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        });
+
+        this.horizonRenderer.draw({
+            sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
             themeConfig: this.getThemeConfig(),
