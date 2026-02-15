@@ -314,6 +314,7 @@
         this.planetRenderer = new window.FChartScenePlanetRenderer();
         this.constellRenderer = new window.FChartSceneConstellationRenderer();
         this.milkyWayRenderer = new window.FChartSceneMilkyWayRenderer();
+        this.gridRenderer = new window.FChartSceneGridRenderer();
 
         this.move = {
             isDragging: false,
@@ -799,6 +800,21 @@
             height: this.canvas.height,
             ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
             getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
+        });
+
+        this.gridRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projectToNdc: this._projectToNdc.bind(this),
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            meta: this.sceneData.meta || {},
+            latitude: this.latitude,
+            longitude: this.longitude,
+            useCurrentTime: this.useCurrentTime,
+            dateTimeISO: this.lastChartTimeISO || this.dateTimeISO,
         });
 
         this.constellRenderer.draw({
