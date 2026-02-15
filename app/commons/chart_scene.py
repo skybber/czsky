@@ -575,6 +575,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "flags": req.flags,
             "show_equatorial_grid": FlagValue.SHOW_EQUATORIAL_GRID.value in req.flags,
             "show_horizontal_grid": FlagValue.SHOW_HORIZONTAL_GRID.value in req.flags,
+            "show_dso_mag": FlagValue.SHOW_DSO_MAG.value in req.flags,
             "theme_name": active_theme_name,
             "theme_id": active_theme_id,
             "theme_version": active_theme.scene_theme_hash(),

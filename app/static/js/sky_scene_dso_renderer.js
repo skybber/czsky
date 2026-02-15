@@ -321,6 +321,21 @@
         return fontPx;
     };
 
+    FChartSceneDsoRenderer.prototype._showDsoMag = function (sceneCtx) {
+        const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
+        if (meta && typeof meta.show_dso_mag === 'boolean') {
+            return meta.show_dso_mag;
+        }
+        const flags = (meta && typeof meta.flags === 'string') ? meta.flags : '';
+        return flags.indexOf('M') !== -1;
+    };
+
+    FChartSceneDsoRenderer.prototype._formatDsoMag = function (dso) {
+        if (!dso || typeof dso.mag !== 'number') return null;
+        if (!Number.isFinite(dso.mag) || dso.mag === -100 || dso.mag >= 30) return null;
+        return dso.mag.toFixed(1);
+    };
+
     FChartSceneDsoRenderer.prototype._circularLabelCandidates = function (x, y, r, fh, labelLength) {
         const arg = 1.0 - 2.0 * fh / (3.0 * Math.max(r, 1e-6));
         const a = (arg < 1.0 && arg > -1.0) ? Math.acos(arg) : 0.5 * Math.PI;
@@ -436,10 +451,31 @@
     FChartSceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential) {
         const label = dso && dso.label ? String(dso.label) : '';
         if (!label) return;
+        const showMag = this._showDsoMag(sceneCtx);
+        const magLabel = showMag ? this._formatDsoMag(dso) : null;
 
         const fh = this._applyLabelStyle(sceneCtx, ctx);
         const labelLength = measureTextWidth(ctx, label);
         if (!(labelLength > 0)) return;
+        const magFontPx = fh * 0.8;
+        const magDy = 0.9 * fh;
+        let magLength = 0;
+        const resolveMagX = (labelX, labelLen) => {
+            const labelCenterX = labelX + labelLen * 0.5;
+            if (labelCenterX < centerPx.x - 1.0) {
+                return labelX + (labelLen - magLength);
+            }
+            if (Math.abs(labelCenterX - centerPx.x) <= 1.0) {
+                return labelX + (labelLen - magLength) * 0.5;
+            }
+            return labelX;
+        };
+        if (magLabel) {
+            ctx.save();
+            ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
+            magLength = measureTextWidth(ctx, magLabel);
+            ctx.restore();
+        }
 
         let candidates;
         if (dso.type === 'G') {
@@ -460,7 +496,12 @@
 
         let best = candidates[0];
         let bestRect = makeRect(best.x, best.y - fh, labelLength, fh);
+        let bestMagRect = null;
         let bestScore = this._labelScore(sceneCtx, bestRect, placedRects);
+        if (magLabel && magLength > 0) {
+            bestMagRect = makeRect(resolveMagX(best.x, labelLength), best.y + magDy - magFontPx, magLength, magFontPx);
+            bestScore += this._labelScore(sceneCtx, bestMagRect, placedRects);
+        }
         const bestLocal0 = this._toLocalCoords(sceneCtx, { x: best.x + labelLength * 0.5, y: best.y });
         bestScore += labelPotential.computePotential(bestLocal0.x, bestLocal0.y);
 
@@ -468,16 +509,34 @@
             const c = candidates[i];
             const rect = makeRect(c.x, c.y - fh, labelLength, fh);
             const local = this._toLocalCoords(sceneCtx, { x: c.x + labelLength * 0.5, y: c.y });
-            const score = this._labelScore(sceneCtx, rect, placedRects) + labelPotential.computePotential(local.x, local.y);
+            let score = this._labelScore(sceneCtx, rect, placedRects);
+            if (magLabel && magLength > 0) {
+                const magRect = makeRect(resolveMagX(c.x, labelLength), c.y + magDy - magFontPx, magLength, magFontPx);
+                score += this._labelScore(sceneCtx, magRect, placedRects);
+            }
+            score += labelPotential.computePotential(local.x, local.y);
             if (score < bestScore) {
                 best = c;
                 bestRect = rect;
+                bestMagRect = (magLabel && magLength > 0)
+                    ? makeRect(resolveMagX(c.x, labelLength), c.y + magDy - magFontPx, magLength, magFontPx)
+                    : null;
                 bestScore = score;
             }
         }
 
         ctx.fillText(label, best.x, best.y);
         placedRects.push(bestRect);
+        if (magLabel && magLength > 0) {
+            const magX = resolveMagX(best.x, labelLength);
+            ctx.save();
+            ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
+            ctx.fillText(magLabel, magX, best.y + magDy);
+            ctx.restore();
+            if (bestMagRect) {
+                placedRects.push(bestMagRect);
+            }
+        }
         const bestLocal = this._toLocalCoords(sceneCtx, { x: best.x + labelLength * 0.5, y: best.y });
         labelPotential.addPosition(bestLocal.x, bestLocal.y, labelLength);
     };
