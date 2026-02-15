@@ -237,6 +237,10 @@
         return sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
     }
 
+    function sceneMilkySelectUrl(sceneUrl) {
+        return sceneUrl.replace('/scene-v1', '/milkyway-v1/select');
+    }
+
     function sceneStarsZonesUrl(sceneUrl) {
         return sceneUrl.replace('/scene-v1', '/stars-v1/zones');
     }
@@ -289,6 +293,12 @@
         this.starZoneCacheMax = 240;
         this.mwCatalogById = {};
         this.mwCatalogLoadingById = {};
+        this.mwSelectRequestEpoch = 0;
+        this.mwInteractionActive = false;
+        this.mwSelectThrottleMs = 100;
+        this.mwSelectLastTs = 0;
+        this.mwSelectTimer = null;
+        this.mwPendingSelectOptimized = null;
         this.zoomAnim = null;
         this.zoomAnimRaf = null;
         this.zoomDurationMs = 160;
@@ -607,6 +617,13 @@
 
     FChartScene.prototype._loadScene = function (force) {
         const epoch = ++this.sceneRequestEpoch;
+        this.mwSelectRequestEpoch += 1;
+        if (this.mwSelectTimer) {
+            clearTimeout(this.mwSelectTimer);
+            this.mwSelectTimer = null;
+        }
+        this.mwPendingSelectOptimized = null;
+        this.mwInteractionActive = false;
         let url = this.formatUrl(this.sceneUrl);
         if (force) {
             url += '&hqual=1';
@@ -628,6 +645,108 @@
             this.isReloadingImage = false;
         }).fail(() => {
             this.isReloadingImage = false;
+        });
+    };
+
+    FChartScene.prototype._setMilkywayInteractionActive = function (active) {
+        this.mwInteractionActive = !!active;
+        if (!this.mwInteractionActive && this.mwSelectTimer) {
+            clearTimeout(this.mwSelectTimer);
+            this.mwSelectTimer = null;
+        }
+    };
+
+    FChartScene.prototype._requestMilkyWaySelection = function (opts) {
+        if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
+        const mwMeta = this.sceneData.meta.milky_way || {};
+        if (!mwMeta || mwMeta.mode === 'off') return;
+
+        const optimized = !!(opts && opts.optimized);
+        const immediate = !!(opts && opts.immediate);
+        this.mwPendingSelectOptimized = optimized;
+
+        const run = () => {
+            this.mwSelectTimer = null;
+            const pendingOptimized = !!this.mwPendingSelectOptimized;
+            this.mwPendingSelectOptimized = null;
+            this._requestMilkyWaySelectionNow(pendingOptimized);
+        };
+
+        if (immediate) {
+            if (this.mwSelectTimer) {
+                clearTimeout(this.mwSelectTimer);
+                this.mwSelectTimer = null;
+            }
+            run();
+            return;
+        }
+        if (this.mwSelectTimer) return;
+
+        const now = Date.now();
+        const dt = now - this.mwSelectLastTs;
+        const wait = Math.max(0, this.mwSelectThrottleMs - dt);
+        this.mwSelectTimer = setTimeout(run, wait);
+    };
+
+    FChartScene.prototype._requestMilkyWaySelectionNow = function (optimized) {
+        if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
+        const mwMeta = this.sceneData.meta.milky_way || {};
+        if (!mwMeta || mwMeta.mode === 'off') return;
+
+        const reqEpoch = ++this.mwSelectRequestEpoch;
+        const sceneEpoch = this.sceneRequestEpoch;
+        this.mwSelectLastTs = Date.now();
+
+        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl));
+        const coordSystem = this.sceneData.meta.coord_system || 'equatorial';
+        if (coordSystem === 'equatorial') {
+            url = addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
+            url = addOrReplaceQueryParam(url, 'dec', this.viewCenter.theta);
+        } else {
+            url = addOrReplaceQueryParam(url, 'az', this.viewCenter.phi);
+            url = addOrReplaceQueryParam(url, 'alt', this.viewCenter.theta);
+        }
+        const fovDeg = (typeof this.renderFovDeg === 'number') ? this.renderFovDeg : this.fieldSizes[this.fldSizeIndex];
+        url = addOrReplaceQueryParam(url, 'fsz', fovDeg);
+        if (mwMeta.quality) {
+            url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
+        }
+        url = addOrReplaceQueryParam(url, 'optimized', optimized ? '1' : '0');
+        url += '&mode=data&t=' + Date.now();
+
+        $.getJSON(url).done((resp) => {
+            if (reqEpoch !== this.mwSelectRequestEpoch) return;
+            if (sceneEpoch !== this.sceneRequestEpoch) return;
+            if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
+            if (optimized && !this.mwInteractionActive) return;
+            if (!optimized && this.mwInteractionActive) return;
+
+            const newMeta = this.sceneData.meta.milky_way || {};
+            if (!resp || resp.mode === 'off' || !resp.dataset_id) {
+                newMeta.mode = 'off';
+                newMeta.dataset_id = null;
+                newMeta.fade = null;
+                newMeta.optimized = false;
+                this.sceneData.meta.milky_way = newMeta;
+                this.sceneData.objects.milky_way_selection = [];
+                this.draw();
+                return;
+            }
+
+            newMeta.mode = resp.mode || newMeta.mode;
+            newMeta.quality = resp.quality || newMeta.quality;
+            newMeta.optimized = !!resp.optimized;
+            newMeta.dataset_id = resp.dataset_id;
+            newMeta.fade = Array.isArray(resp.fade) ? resp.fade : newMeta.fade;
+            this.sceneData.meta.milky_way = newMeta;
+            this.sceneData.objects.milky_way_selection = Array.isArray(resp.selection) ? resp.selection : [];
+
+            const catalog = this.getMilkyWayCatalog(resp.dataset_id);
+            if (!catalog) {
+                this.ensureMilkyWayCatalog(newMeta);
+                return;
+            }
+            this.draw();
         });
     };
 
@@ -902,6 +1021,8 @@
         this.move.lastX = e.clientX;
         this.move.lastY = e.clientY;
         this.move.moved = false;
+        this._setMilkywayInteractionActive(true);
+        this._requestMilkyWaySelection({ optimized: true, immediate: true });
     };
 
     FChartScene.prototype.onMouseMove = function (e) {
@@ -929,13 +1050,16 @@
         if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
         if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
         this.setCenterToHiddenInputs();
+        this._requestMilkyWaySelection({ optimized: true, immediate: false });
         this.draw();
     };
 
     FChartScene.prototype.onMouseUp = function () {
         if (!this.move.isDragging) return;
         this.move.isDragging = false;
+        this._setMilkywayInteractionActive(false);
         if (this.move.moved) {
+            this._requestMilkyWaySelection({ optimized: false, immediate: true });
             this.forceReloadImage();
         }
     };
@@ -973,6 +1097,8 @@
             toFov: toFov,
             durationMs: this.zoomDurationMs,
         };
+        this._setMilkywayInteractionActive(true);
+        this._requestMilkyWaySelection({ optimized: true, immediate: true });
 
         if (this.zoomAnimRaf) {
             cancelAnimationFrame(this.zoomAnimRaf);
@@ -985,6 +1111,7 @@
             const t = clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
             const eased = easeOutCubic(t);
             this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
+            this._requestMilkyWaySelection({ optimized: true, immediate: false });
             this.draw();
             if (t < 1.0) {
                 this.zoomAnimRaf = requestAnimationFrame(tick);
@@ -993,6 +1120,8 @@
             this.zoomAnim = null;
             this.zoomAnimRaf = null;
             this.renderFovDeg = toFov;
+            this._setMilkywayInteractionActive(false);
+            this._requestMilkyWaySelection({ optimized: false, immediate: true });
             this.scheduleSceneReloadDebounced();
         };
 
