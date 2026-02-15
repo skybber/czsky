@@ -28,6 +28,23 @@
         return mm * (100.0 / 25.4);
     }
 
+    function levelColor(base, lightMode, level) {
+        const outlLev = Math.max(0, Math.min(2, level | 0));
+        const frac = 4.0 - 1.5 * outlLev;
+        if (lightMode) {
+            return [
+                1.0 - ((1.0 - base[0]) / frac),
+                1.0 - ((1.0 - base[1]) / frac),
+                1.0 - ((1.0 - base[2]) / frac),
+            ];
+        }
+        return [
+            base[0] / frac,
+            base[1] / frac,
+            base[2] / frac,
+        ];
+    }
+
     function measureTextWidth(ctx, text) {
         if (!text) return 0;
         return ctx.measureText(text).width;
@@ -304,6 +321,96 @@
         ctx.stroke();
     };
 
+    FChartSceneDsoRenderer.prototype._traceOutline = function (sceneCtx, outline) {
+        const points = [];
+        if (!outline || !Array.isArray(outline) || outline.length < 2) {
+            return points;
+        }
+
+        const raList = outline[0];
+        const decList = outline[1];
+        if (!Array.isArray(raList) || !Array.isArray(decList)) {
+            return points;
+        }
+        const n = Math.min(raList.length, decList.length);
+        for (let i = 0; i < n; i++) {
+            const p = this._projectPx(sceneCtx, raList[i], decList[i]);
+            if (p) {
+                points.push(p);
+            }
+        }
+        return points;
+    };
+
+    FChartSceneDsoRenderer.prototype._drawOutlinePolyline = function (ctx, points) {
+        if (!points || points.length < 2) {
+            return false;
+        }
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.lineTo(points[0].x, points[0].y);
+        ctx.stroke();
+        return true;
+    };
+
+    FChartSceneDsoRenderer.prototype._getDsoOutlinesItem = function (sceneCtx, dso) {
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.sceneData.meta || !dso || !dso.id) {
+            return null;
+        }
+        const meta = sceneCtx.sceneData.meta.dso_outlines || {};
+        if (!meta.dataset_id) {
+            return null;
+        }
+        const getCatalog = sceneCtx.getDsoOutlinesCatalog;
+        const catalog = getCatalog ? getCatalog(meta.dataset_id) : null;
+        if (!catalog) {
+            if (sceneCtx.ensureDsoOutlinesCatalog) {
+                sceneCtx.ensureDsoOutlinesCatalog(meta);
+            }
+            return null;
+        }
+        const byId = catalog.by_id || {};
+        return byId[dso.id] || null;
+    };
+
+    FChartSceneDsoRenderer.prototype._drawDsoOutlines = function (sceneCtx, outlinesItem) {
+        if (!outlinesItem || !Array.isArray(outlinesItem.outlines)) {
+            return false;
+        }
+
+        const ctx = sceneCtx.overlayCtx;
+        const theme = sceneCtx.themeConfig || {};
+        const flags = theme.flags || {};
+        const lightMode = !!flags.light_mode;
+        const baseNebColor = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
+        const lwMm = theme.line_widths && typeof theme.line_widths.nebula === 'number'
+            ? theme.line_widths.nebula : 0.2;
+
+        let drawn = false;
+        ctx.save();
+        ctx.lineWidth = Math.max(0.75, mmToPx(lwMm));
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.setLineDash([]);
+
+        for (let level = 0; level < 3; level++) {
+            const col = levelColor(baseNebColor, lightMode, level);
+            ctx.strokeStyle = rgba(col, 1.0);
+            const outlines = outlinesItem.outlines[level];
+            if (!Array.isArray(outlines)) continue;
+            for (let i = 0; i < outlines.length; i++) {
+                const points = this._traceOutline(sceneCtx, outlines[i]);
+                drawn = this._drawOutlinePolyline(ctx, points) || drawn;
+            }
+        }
+
+        ctx.restore();
+        return drawn;
+    };
+
     FChartSceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
@@ -557,18 +664,24 @@
             }
             const centerPx = ndcToPx(p, sceneCtx.width, sceneCtx.height);
             const radii = this._dsoRadii(sceneCtx, dso);
+            const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
 
             switch (dso.type) {
                 case 'G':
                     this._drawGalaxy(sceneCtx, centerPx, dso);
                     break;
                 case 'N':
-                    this._drawNebula(sceneCtx, centerPx, dso);
+                    if (!(outlinesItem && radii.rLongPx > MIN_DSO_RADIUS_PX && this._drawDsoOutlines(sceneCtx, outlinesItem))) {
+                        this._drawNebula(sceneCtx, centerPx, dso);
+                    }
                     break;
                 case 'PN':
                     this._drawPlanetaryNebula(sceneCtx, centerPx, dso);
                     break;
                 case 'OC':
+                    if (outlinesItem) {
+                        this._drawDsoOutlines(sceneCtx, outlinesItem);
+                    }
                     this._drawOpenCluster(sceneCtx, centerPx, dso);
                     break;
                 case 'GC':

@@ -245,6 +245,10 @@
         return sceneUrl.replace('/scene-v1', '/stars-v1/zones');
     }
 
+    function sceneDsoOutlinesCatalogUrl(sceneUrl) {
+        return sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
+    }
+
     window.FChartScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
@@ -293,6 +297,8 @@
         this.starZoneCacheMax = 240;
         this.mwCatalogById = {};
         this.mwCatalogLoadingById = {};
+        this.dsoOutlinesCatalogById = {};
+        this.dsoOutlinesCatalogLoadingById = {};
         this.mwSelectRequestEpoch = 0;
         this.mwInteractionActive = false;
         this.mwSelectThrottleMs = 100;
@@ -325,6 +331,7 @@
         this.constellRenderer = new window.FChartSceneConstellationRenderer();
         this.milkyWayRenderer = new window.FChartSceneMilkyWayRenderer();
         this.gridRenderer = new window.FChartSceneGridRenderer();
+        this.nebulaeOutlinesRenderer = new window.FChartSceneNebulaeOutlinesRenderer();
         this.horizonRenderer = new window.FChartSceneHorizonRenderer();
 
         this.move = {
@@ -688,6 +695,7 @@
             this.syncQueryString();
             this.setCenterToHiddenInputs();
             this.draw();
+            this.ensureDsoOutlinesCatalog(this.sceneData.meta ? this.sceneData.meta.dso_outlines : null);
             this._loadZoneStars(data, epoch);
             if (this.useCurrentTime && this.onChartTimeChangedCallback) {
                 this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
@@ -908,6 +916,10 @@
         return datasetId ? (this.mwCatalogById[datasetId] || null) : null;
     };
 
+    FChartScene.prototype.getDsoOutlinesCatalog = function (datasetId) {
+        return datasetId ? (this.dsoOutlinesCatalogById[datasetId] || null) : null;
+    };
+
     FChartScene.prototype.ensureMilkyWayCatalog = function (mwMeta) {
         if (!mwMeta || !mwMeta.dataset_id) return;
         const datasetId = mwMeta.dataset_id;
@@ -928,6 +940,33 @@
             this.draw();
         }).fail(() => {
             delete this.mwCatalogLoadingById[datasetId];
+        });
+    };
+
+    FChartScene.prototype.ensureDsoOutlinesCatalog = function (dsoOutlinesMeta) {
+        if (!dsoOutlinesMeta || !dsoOutlinesMeta.dataset_id) return;
+        const datasetId = dsoOutlinesMeta.dataset_id;
+        if (this.dsoOutlinesCatalogById[datasetId] || this.dsoOutlinesCatalogLoadingById[datasetId]) return;
+
+        this.dsoOutlinesCatalogLoadingById[datasetId] = true;
+        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl));
+        url += '&mode=data&t=' + Date.now();
+
+        $.getJSON(url).done((data) => {
+            delete this.dsoOutlinesCatalogLoadingById[datasetId];
+            if (!data || !data.dataset_id) return;
+            const byId = {};
+            const items = Array.isArray(data.items) ? data.items : [];
+            for (let i = 0; i < items.length; i++) {
+                const it = items[i];
+                if (!it || !it.id) continue;
+                byId[it.id] = it;
+            }
+            data.by_id = byId;
+            this.dsoOutlinesCatalogById[data.dataset_id] = data;
+            this.draw();
+        }).fail(() => {
+            delete this.dsoOutlinesCatalogLoadingById[datasetId];
         });
     };
 
@@ -997,6 +1036,16 @@
             height: this.canvas.height,
         });
 
+        this.nebulaeOutlinesRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projectToNdc: this._projectToNdc.bind(this),
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        });
+
         this.dsoRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
@@ -1007,6 +1056,8 @@
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
             height: this.canvas.height,
+            ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
+            getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
         });
 
         this.planetRenderer.draw({

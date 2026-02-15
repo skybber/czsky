@@ -34,12 +34,15 @@ from .solar_system_chart_utils import get_planet_moons, get_solsys_bodies
 SCENE_VERSION = "scene-v1"
 MW_VERSION = "milkyway-v1"
 STARS_VERSION = "stars-v1"
+DSO_OUTLINES_VERSION = "dso-outlines-v1"
 STAR_ZONE_BATCH_MAX = 64
 
 _mw_cache_lock = threading.Lock()
 _mw_dataset_cache: Dict[Tuple[str, bool], Dict[str, Any]] = {}
 _stars_catalog_id_lock = threading.Lock()
 _stars_catalog_id_cache: Dict[str, str] = {}
+_dso_outlines_cache_lock = threading.Lock()
+_dso_outlines_dataset_cache: Optional[Dict[str, Any]] = None
 
 
 def _field_size_index(fld_size_deg: float) -> int:
@@ -226,6 +229,106 @@ def _serialize_star_selection(star_sel, star_catalog) -> List[dict]:
     return stars_out
 
 
+def _serialize_unknown_nebulae(unknown_nebulae) -> List[dict]:
+    nebulae_out: List[dict] = []
+    if not unknown_nebulae:
+        return nebulae_out
+
+    for neb in unknown_nebulae:
+        levels_out: List[List[list]] = [[], [], []]
+        outlines = getattr(neb, "outlines", None) or []
+        for lev in range(3):
+            outlines_lev = outlines[lev] if lev < len(outlines) and outlines[lev] else []
+            for outline in outlines_lev:
+                if not outline or len(outline) < 2:
+                    continue
+                ra_ar, dec_ar = outline[0], outline[1]
+                npts = min(len(ra_ar), len(dec_ar))
+                if npts < 2:
+                    continue
+                levels_out[lev].append([
+                    [float(ra_ar[i]) for i in range(npts)],
+                    [float(dec_ar[i]) for i in range(npts)],
+                ])
+
+        if not (levels_out[0] or levels_out[1] or levels_out[2]):
+            continue
+
+        nebulae_out.append(
+            {
+                "ra_min": float(neb.ra_min) if neb.ra_min is not None else None,
+                "ra_max": float(neb.ra_max) if neb.ra_max is not None else None,
+                "dec_min": float(neb.dec_min) if neb.dec_min is not None else None,
+                "dec_max": float(neb.dec_max) if neb.dec_max is not None else None,
+                "outlines": levels_out,
+            }
+        )
+
+    return nebulae_out
+
+
+def _serialize_dso_outlines_dataset(used_catalogs) -> Dict[str, Any]:
+    dsos = getattr(used_catalogs, "reduced_deeplist", None) or []
+    items_out: List[dict] = []
+    sig_parts: List[str] = []
+
+    for dso in dsos:
+        outlines = getattr(dso, "outlines", None)
+        if not outlines:
+            continue
+
+        levels_out: List[List[list]] = [[], [], []]
+        points_total = 0
+        for lev in range(3):
+            outlines_lev = outlines[lev] if lev < len(outlines) and outlines[lev] else []
+            for outline in outlines_lev:
+                if not outline or len(outline) < 2:
+                    continue
+                ra_ar, dec_ar = outline[0], outline[1]
+                npts = min(len(ra_ar), len(dec_ar))
+                if npts < 2:
+                    continue
+                levels_out[lev].append([
+                    [float(ra_ar[i]) for i in range(npts)],
+                    [float(dec_ar[i]) for i in range(npts)],
+                ])
+                points_total += npts
+
+        if not (levels_out[0] or levels_out[1] or levels_out[2]):
+            continue
+
+        dso_id = dso.primary_label().replace(" ", "")
+        items_out.append(
+            {
+                "id": dso_id,
+                "outlines": levels_out,
+            }
+        )
+        sig_parts.append(f"{dso_id}:{points_total}:{len(levels_out[0])}:{len(levels_out[1])}:{len(levels_out[2])}")
+
+    sig_text = "|".join(sig_parts) if sig_parts else "empty"
+    sig = hashlib.sha1(sig_text.encode("utf-8")).hexdigest()[:16]
+    return {
+        "version": DSO_OUTLINES_VERSION,
+        "dataset_id": f"dso-outlines-{sig}",
+        "items": items_out,
+        "stats": {"objects_count": len(items_out)},
+    }
+
+
+def _get_dso_outlines_dataset() -> Dict[str, Any]:
+    global _dso_outlines_dataset_cache
+    with _dso_outlines_cache_lock:
+        if _dso_outlines_dataset_cache is not None:
+            return _dso_outlines_dataset_cache
+
+    used_catalogs = _load_used_catalogs()
+    dataset = _serialize_dso_outlines_dataset(used_catalogs)
+    with _dso_outlines_cache_lock:
+        _dso_outlines_dataset_cache = dataset
+    return dataset
+
+
 def _parse_zone_refs_arg(raw: str) -> List[Tuple[int, int]]:
     refs: List[Tuple[int, int]] = []
     if not raw:
@@ -408,6 +511,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
     star_sel = None
     stars_preview: List[dict] = []
     stars_zone_selection: List[dict] = []
+    nebulae_outlines: List[dict] = []
     stars_catalog_id = None
     stars_max_level = 0
     if used_catalogs.star_catalog is not None:
@@ -419,6 +523,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             # bright preview stars for initial render
             if st["mag"] <= min(4.0, req.maglim - 3.0):
                 stars_preview.append(st)
+
+    nebulae_outlines = _serialize_unknown_nebulae(getattr(used_catalogs, "unknown_nebulae", None))
 
     dso_items: List[dict] = []
     if FlagValue.SHOW_DEEPSKY.value in req.flags and used_catalogs.deepsky_catalog is not None:
@@ -559,6 +665,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             mw_dataset = _get_mw_dataset(mw["quality"], mw["optimized"])
             mw_dataset_id = mw_dataset["dataset_id"]
             mw_selection = _select_mw_polygons(used_catalogs, mw["quality"], mw["optimized"], center_ra, center_dec, field_size)
+    dso_outlines_dataset = _get_dso_outlines_dataset()
+    dso_outlines_dataset_id = dso_outlines_dataset.get("dataset_id")
 
     return {
         "version": SCENE_VERSION,
@@ -594,6 +702,11 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 "dataset_id": mw_dataset_id,
                 "fade": mw_fade,
             },
+            "dso_outlines": {
+                "version": DSO_OUTLINES_VERSION,
+                "dataset_id": dso_outlines_dataset_id,
+                "objects_count": dso_outlines_dataset.get("stats", {}).get("objects_count", 0),
+            },
         },
         "layers": [
             "milky_way",
@@ -614,6 +727,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "constellation_boundaries": const_bounds,
             "planets": planets,
             "milky_way_selection": mw_selection,
+            "nebulae_outlines": nebulae_outlines,
             "grid_eq": [],
             "grid_hor": [],
             "highlights": [],
@@ -746,3 +860,7 @@ def build_milkyway_select_v1() -> Dict:
         "selection": selection,
         "fade": fade,
     }
+
+
+def build_dso_outlines_catalog_v1() -> Dict:
+    return _get_dso_outlines_dataset()

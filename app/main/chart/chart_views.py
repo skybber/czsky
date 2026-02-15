@@ -29,6 +29,7 @@ from app.commons.chart_scene import (
     build_stars_zones_v1,
     build_milkyway_catalog_v1,
     build_milkyway_select_v1,
+    build_dso_outlines_catalog_v1,
 )
 from ... import csrf
 
@@ -125,6 +126,11 @@ def chart_milkyway_catalog_v1():
 @main_chart.route('/chart/milkyway-v1/select', methods=['GET'])
 def chart_milkyway_select_v1():
     return jsonify(build_milkyway_select_v1())
+
+
+@main_chart.route('/chart/dso-outlines-v1/catalog', methods=['GET'])
+def chart_dso_outlines_catalog_v1():
+    return jsonify(build_dso_outlines_catalog_v1())
 
 
 @main_chart.route('/chart/chart-pdf', methods=['GET'])
