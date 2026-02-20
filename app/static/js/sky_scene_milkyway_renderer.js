@@ -86,7 +86,7 @@
             if (hasVisible) {
                 ctx.closePath();
                 ctx.fill();
-                // Seal anti-aliased seams between adjacent polygons without visible outlines.
+                // Seal anti-aliased seams between adjacent polygons.
                 ctx.strokeStyle = ctx.fillStyle;
                 ctx.lineWidth = 1.0;
                 ctx.stroke();

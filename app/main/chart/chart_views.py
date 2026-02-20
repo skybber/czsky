@@ -30,6 +30,8 @@ from app.commons.chart_scene import (
     build_milkyway_catalog_v1,
     build_milkyway_select_v1,
     build_dso_outlines_catalog_v1,
+    build_constellation_lines_catalog_v1,
+    build_constellation_boundaries_catalog_v1,
 )
 from ... import csrf
 
@@ -131,6 +133,16 @@ def chart_milkyway_select_v1():
 @main_chart.route('/chart/dso-outlines-v1/catalog', methods=['GET'])
 def chart_dso_outlines_catalog_v1():
     return jsonify(build_dso_outlines_catalog_v1())
+
+
+@main_chart.route('/chart/constellation-lines-v1/catalog', methods=['GET'])
+def chart_constellation_lines_catalog_v1():
+    return jsonify(build_constellation_lines_catalog_v1())
+
+
+@main_chart.route('/chart/constellation-boundaries-v1/catalog', methods=['GET'])
+def chart_constellation_boundaries_catalog_v1():
+    return jsonify(build_constellation_boundaries_catalog_v1())
 
 
 @main_chart.route('/chart/chart-pdf', methods=['GET'])

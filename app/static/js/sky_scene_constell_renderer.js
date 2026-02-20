@@ -110,7 +110,19 @@
     };
 
     window.FChartSceneConstellationRenderer.prototype._drawLines = function (sceneCtx, ctx) {
-        const lines = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.constellation_lines) || [];
+        const meta = sceneCtx.sceneData.meta || {};
+        const linesMeta = meta.constellation_lines || {};
+        if (!linesMeta.dataset_id) return;
+
+        const getCatalog = sceneCtx.getConstellationLinesCatalog;
+        const catalog = getCatalog ? getCatalog(linesMeta.dataset_id) : null;
+        if (!catalog) {
+            if (sceneCtx.ensureConstellationLinesCatalog) {
+                sceneCtx.ensureConstellationLinesCatalog(linesMeta);
+            }
+            return;
+        }
+        const lines = Array.isArray(catalog.items) ? catalog.items : [];
         if (!lines.length) return;
 
         const stroke = this._themeLinesStroke(sceneCtx);
@@ -148,7 +160,19 @@
     };
 
     window.FChartSceneConstellationRenderer.prototype._drawBoundaries = function (sceneCtx, ctx) {
-        const bounds = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.constellation_boundaries) || [];
+        const meta = sceneCtx.sceneData.meta || {};
+        const boundsMeta = meta.constellation_boundaries || {};
+        if (!boundsMeta.dataset_id) return;
+
+        const getCatalog = sceneCtx.getConstellationBoundariesCatalog;
+        const catalog = getCatalog ? getCatalog(boundsMeta.dataset_id) : null;
+        if (!catalog) {
+            if (sceneCtx.ensureConstellationBoundariesCatalog) {
+                sceneCtx.ensureConstellationBoundariesCatalog(boundsMeta);
+            }
+            return;
+        }
+        const bounds = Array.isArray(catalog.items) ? catalog.items : [];
         if (!bounds.length) return;
 
         const stroke = this._themeBoundariesStroke(sceneCtx);

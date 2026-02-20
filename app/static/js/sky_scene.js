@@ -249,6 +249,14 @@
         return sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
     }
 
+    function sceneConstellationLinesCatalogUrl(sceneUrl) {
+        return sceneUrl.replace('/scene-v1', '/constellation-lines-v1/catalog');
+    }
+
+    function sceneConstellationBoundariesCatalogUrl(sceneUrl) {
+        return sceneUrl.replace('/scene-v1', '/constellation-boundaries-v1/catalog');
+    }
+
     function SelectionIndex() {
         this.width = 0;
         this.height = 0;
@@ -384,6 +392,10 @@
         this.mwCatalogLoadingById = {};
         this.dsoOutlinesCatalogById = {};
         this.dsoOutlinesCatalogLoadingById = {};
+        this.constellLinesCatalogById = {};
+        this.constellLinesCatalogLoadingById = {};
+        this.constellBoundariesCatalogById = {};
+        this.constellBoundariesCatalogLoadingById = {};
         this.mwSelectRequestEpoch = 0;
         this.mwInteractionActive = false;
         this.mwSelectThrottleMs = 100;
@@ -856,6 +868,8 @@
             this.setCenterToHiddenInputs();
             this.draw();
             this.ensureDsoOutlinesCatalog(this.sceneData.meta ? this.sceneData.meta.dso_outlines : null);
+            this.ensureConstellationLinesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_lines : null);
+            this.ensureConstellationBoundariesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_boundaries : null);
             this._loadZoneStars(data, epoch);
             if (this.useCurrentTime && this.onChartTimeChangedCallback) {
                 this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
@@ -1080,6 +1094,14 @@
         return datasetId ? (this.dsoOutlinesCatalogById[datasetId] || null) : null;
     };
 
+    FChartScene.prototype.getConstellationLinesCatalog = function (datasetId) {
+        return datasetId ? (this.constellLinesCatalogById[datasetId] || null) : null;
+    };
+
+    FChartScene.prototype.getConstellationBoundariesCatalog = function (datasetId) {
+        return datasetId ? (this.constellBoundariesCatalogById[datasetId] || null) : null;
+    };
+
     FChartScene.prototype.ensureMilkyWayCatalog = function (mwMeta) {
         if (!mwMeta || !mwMeta.dataset_id) return;
         const datasetId = mwMeta.dataset_id;
@@ -1127,6 +1149,44 @@
             this.draw();
         }).fail(() => {
             delete this.dsoOutlinesCatalogLoadingById[datasetId];
+        });
+    };
+
+    FChartScene.prototype.ensureConstellationLinesCatalog = function (constellLinesMeta) {
+        if (!constellLinesMeta || !constellLinesMeta.dataset_id) return;
+        const datasetId = constellLinesMeta.dataset_id;
+        if (this.constellLinesCatalogById[datasetId] || this.constellLinesCatalogLoadingById[datasetId]) return;
+
+        this.constellLinesCatalogLoadingById[datasetId] = true;
+        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl));
+        url += '&mode=data&t=' + Date.now();
+
+        $.getJSON(url).done((data) => {
+            delete this.constellLinesCatalogLoadingById[datasetId];
+            if (!data || !data.dataset_id) return;
+            this.constellLinesCatalogById[data.dataset_id] = data;
+            this.draw();
+        }).fail(() => {
+            delete this.constellLinesCatalogLoadingById[datasetId];
+        });
+    };
+
+    FChartScene.prototype.ensureConstellationBoundariesCatalog = function (constellBoundariesMeta) {
+        if (!constellBoundariesMeta || !constellBoundariesMeta.dataset_id) return;
+        const datasetId = constellBoundariesMeta.dataset_id;
+        if (this.constellBoundariesCatalogById[datasetId] || this.constellBoundariesCatalogLoadingById[datasetId]) return;
+
+        this.constellBoundariesCatalogLoadingById[datasetId] = true;
+        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl));
+        url += '&mode=data&t=' + Date.now();
+
+        $.getJSON(url).done((data) => {
+            delete this.constellBoundariesCatalogLoadingById[datasetId];
+            if (!data || !data.dataset_id) return;
+            this.constellBoundariesCatalogById[data.dataset_id] = data;
+            this.draw();
+        }).fail(() => {
+            delete this.constellBoundariesCatalogLoadingById[datasetId];
         });
     };
 
@@ -1279,6 +1339,10 @@
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
+                ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
+                getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
+                ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
+                getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
             });
 
             this.nebulaeOutlinesRenderer.draw({

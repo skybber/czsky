@@ -35,6 +35,8 @@ SCENE_VERSION = "scene-v1"
 MW_VERSION = "milkyway-v1"
 STARS_VERSION = "stars-v1"
 DSO_OUTLINES_VERSION = "dso-outlines-v1"
+CONSTELL_LINES_VERSION = "constellation-lines-v1"
+CONSTELL_BOUNDARIES_VERSION = "constellation-boundaries-v1"
 STAR_ZONE_BATCH_MAX = 64
 
 _mw_cache_lock = threading.Lock()
@@ -43,6 +45,10 @@ _stars_catalog_id_lock = threading.Lock()
 _stars_catalog_id_cache: Dict[str, str] = {}
 _dso_outlines_cache_lock = threading.Lock()
 _dso_outlines_dataset_cache: Optional[Dict[str, Any]] = None
+_constell_lines_cache_lock = threading.Lock()
+_constell_lines_dataset_cache: Optional[Dict[str, Any]] = None
+_constell_boundaries_cache_lock = threading.Lock()
+_constell_boundaries_dataset_cache: Optional[Dict[str, Any]] = None
 
 
 def _field_size_index(fld_size_deg: float) -> int:
@@ -329,6 +335,96 @@ def _get_dso_outlines_dataset() -> Dict[str, Any]:
     return dataset
 
 
+def _serialize_constellation_lines_dataset(used_catalogs) -> Dict[str, Any]:
+    const_catalog = getattr(used_catalogs, "constell_catalog", None)
+    lines = getattr(const_catalog, "all_constell_lines", None) if const_catalog is not None else None
+    items_out: List[dict] = []
+    sig_parts: List[str] = []
+
+    if lines is not None:
+        for i, line in enumerate(lines):
+            if line is None or len(line) < 4:
+                continue
+            ra1, dec1, ra2, dec2 = float(line[0]), float(line[1]), float(line[2]), float(line[3])
+            item_id = f"cl{i}"
+            items_out.append({"id": item_id, "ra1": ra1, "dec1": dec1, "ra2": ra2, "dec2": dec2})
+            sig_parts.append(f"{item_id}:{ra1:.8f}:{dec1:.8f}:{ra2:.8f}:{dec2:.8f}")
+
+    sig_text = "|".join(sig_parts) if sig_parts else "empty"
+    sig = hashlib.sha1(sig_text.encode("utf-8")).hexdigest()[:16]
+    return {
+        "version": CONSTELL_LINES_VERSION,
+        "dataset_id": f"constellation-lines-{sig}",
+        "items": items_out,
+        "stats": {"lines_count": len(items_out)},
+    }
+
+
+def _get_constellation_lines_dataset() -> Dict[str, Any]:
+    global _constell_lines_dataset_cache
+    with _constell_lines_cache_lock:
+        if _constell_lines_dataset_cache is not None:
+            return _constell_lines_dataset_cache
+
+    used_catalogs = _load_used_catalogs()
+    dataset = _serialize_constellation_lines_dataset(used_catalogs)
+    with _constell_lines_cache_lock:
+        _constell_lines_dataset_cache = dataset
+    return dataset
+
+
+def _serialize_constellation_boundaries_dataset(used_catalogs) -> Dict[str, Any]:
+    const_catalog = getattr(used_catalogs, "constell_catalog", None)
+    points = getattr(const_catalog, "boundaries_points", None) if const_catalog is not None else None
+    lines = getattr(const_catalog, "boundaries_lines", None) if const_catalog is not None else None
+    items_out: List[dict] = []
+    sig_parts: List[str] = []
+
+    if points is not None and lines is not None:
+        for i, line in enumerate(lines):
+            if line is None or len(line) < 4:
+                continue
+            idx1, idx2, cons1, cons2 = int(line[0]), int(line[1]), line[2], line[3]
+            if idx1 < 0 or idx2 < 0 or idx1 >= len(points) or idx2 >= len(points):
+                continue
+            ra1, dec1 = float(points[idx1][0]), float(points[idx1][1])
+            ra2, dec2 = float(points[idx2][0]), float(points[idx2][1])
+            item_id = f"cb{i}"
+            item = {
+                "id": item_id,
+                "cons1": cons1,
+                "cons2": cons2,
+                "ra1": ra1,
+                "dec1": dec1,
+                "ra2": ra2,
+                "dec2": dec2,
+            }
+            items_out.append(item)
+            sig_parts.append(f"{item_id}:{cons1}:{cons2}:{ra1:.8f}:{dec1:.8f}:{ra2:.8f}:{dec2:.8f}")
+
+    sig_text = "|".join(sig_parts) if sig_parts else "empty"
+    sig = hashlib.sha1(sig_text.encode("utf-8")).hexdigest()[:16]
+    return {
+        "version": CONSTELL_BOUNDARIES_VERSION,
+        "dataset_id": f"constellation-boundaries-{sig}",
+        "items": items_out,
+        "stats": {"boundaries_count": len(items_out)},
+    }
+
+
+def _get_constellation_boundaries_dataset() -> Dict[str, Any]:
+    global _constell_boundaries_dataset_cache
+    with _constell_boundaries_cache_lock:
+        if _constell_boundaries_dataset_cache is not None:
+            return _constell_boundaries_dataset_cache
+
+    used_catalogs = _load_used_catalogs()
+    dataset = _serialize_constellation_boundaries_dataset(used_catalogs)
+    with _constell_boundaries_cache_lock:
+        _constell_boundaries_dataset_cache = dataset
+    return dataset
+
+
 def _parse_zone_refs_arg(raw: str) -> List[Tuple[int, int]]:
     refs: List[Tuple[int, int]] = []
     if not raw:
@@ -547,39 +643,6 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 }
             )
 
-    const_lines: List[dict] = []
-    const_bounds: List[dict] = []
-    const_catalog = used_catalogs.constell_catalog
-    if const_catalog is not None:
-        if FlagValue.CONSTELL_SHAPES.value in req.flags:
-            lines = const_catalog.all_constell_lines
-            for i, line in enumerate(lines):
-                ra1, dec1, ra2, dec2 = float(line[0]), float(line[1]), float(line[2]), float(line[3])
-                d1 = _ang_sep(ra1, dec1, center_ra, center_dec)
-                d2 = _ang_sep(ra2, dec2, center_ra, center_dec)
-                if min(d1, d2) <= field_size * 1.2:
-                    const_lines.append({"id": f"cl{i}", "ra1": ra1, "dec1": dec1, "ra2": ra2, "dec2": dec2})
-
-        if FlagValue.CONSTELL_BORDERS.value in req.flags:
-            bp = const_catalog.boundaries_points
-            for i, (idx1, idx2, cons1, cons2) in enumerate(const_catalog.boundaries_lines):
-                ra1, dec1 = float(bp[idx1][0]), float(bp[idx1][1])
-                ra2, dec2 = float(bp[idx2][0]), float(bp[idx2][1])
-                d1 = _ang_sep(ra1, dec1, center_ra, center_dec)
-                d2 = _ang_sep(ra2, dec2, center_ra, center_dec)
-                if min(d1, d2) <= field_size * 1.2:
-                    const_bounds.append(
-                        {
-                            "id": f"cb{i}",
-                            "cons1": cons1,
-                            "cons2": cons2,
-                            "ra1": ra1,
-                            "dec1": dec1,
-                            "ra2": ra2,
-                            "dec2": dec2,
-                        }
-                    )
-
     planets: List[dict] = []
     if FlagValue.SHOW_SOLAR_SYSTEM.value in req.flags:
         sl_bodies = get_solsys_bodies(get_utc_time(), rad2deg(lat), rad2deg(lon))
@@ -667,6 +730,10 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             mw_selection = _select_mw_polygons(used_catalogs, mw["quality"], mw["optimized"], center_ra, center_dec, field_size)
     dso_outlines_dataset = _get_dso_outlines_dataset()
     dso_outlines_dataset_id = dso_outlines_dataset.get("dataset_id")
+    constell_lines_dataset = _get_constellation_lines_dataset()
+    constell_lines_dataset_id = constell_lines_dataset.get("dataset_id")
+    constell_boundaries_dataset = _get_constellation_boundaries_dataset()
+    constell_boundaries_dataset_id = constell_boundaries_dataset.get("dataset_id")
 
     return {
         "version": SCENE_VERSION,
@@ -707,6 +774,16 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 "dataset_id": dso_outlines_dataset_id,
                 "objects_count": dso_outlines_dataset.get("stats", {}).get("objects_count", 0),
             },
+            "constellation_lines": {
+                "version": CONSTELL_LINES_VERSION,
+                "dataset_id": constell_lines_dataset_id,
+                "lines_count": constell_lines_dataset.get("stats", {}).get("lines_count", 0),
+            },
+            "constellation_boundaries": {
+                "version": CONSTELL_BOUNDARIES_VERSION,
+                "dataset_id": constell_boundaries_dataset_id,
+                "boundaries_count": constell_boundaries_dataset.get("stats", {}).get("boundaries_count", 0),
+            },
         },
         "layers": [
             "milky_way",
@@ -723,8 +800,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "stars_preview": stars_preview,
             "stars_zone_selection": stars_zone_selection,
             "dso": dso_items,
-            "constellation_lines": const_lines,
-            "constellation_boundaries": const_bounds,
+            "constellation_lines": [],
+            "constellation_boundaries": [],
             "planets": planets,
             "milky_way_selection": mw_selection,
             "nebulae_outlines": nebulae_outlines,
@@ -864,3 +941,11 @@ def build_milkyway_select_v1() -> Dict:
 
 def build_dso_outlines_catalog_v1() -> Dict:
     return _get_dso_outlines_dataset()
+
+
+def build_constellation_lines_catalog_v1() -> Dict:
+    return _get_constellation_lines_dataset()
+
+
+def build_constellation_boundaries_catalog_v1() -> Dict:
+    return _get_constellation_boundaries_dataset()
