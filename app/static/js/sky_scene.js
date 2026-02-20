@@ -681,7 +681,45 @@
     };
 
     FChartScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
+        const coordSwitched = this.isEquatorial !== isEquatorial;
         this.isEquatorial = isEquatorial;
+
+        if (coordSwitched) {
+            const lat = Number(this.latitude);
+            const phi = Number(this.viewCenter.phi);
+            const theta = Number(this.viewCenter.theta);
+            const lst = this._getChartLst(this.lastChartTimeISO || this.dateTimeISO);
+
+            if (window.AstroMath
+                && Number.isFinite(lat)
+                && Number.isFinite(phi)
+                && Number.isFinite(theta)
+                && Number.isFinite(lst)) {
+                if (this.isEquatorial && typeof window.AstroMath.horizontalToEquatorial === 'function') {
+                    const eq = window.AstroMath.horizontalToEquatorial(lst, lat, phi, theta);
+                    if (eq && Number.isFinite(eq.ra) && Number.isFinite(eq.dec)) {
+                        this.viewCenter.phi = normalizeRa(eq.ra);
+                        this.viewCenter.theta = eq.dec;
+                    }
+                } else if (!this.isEquatorial && typeof window.AstroMath.equatorialToHorizontal === 'function') {
+                    const hor = window.AstroMath.equatorialToHorizontal(lst, lat, phi, theta);
+                    if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
+                        this.viewCenter.phi = normalizeRa(hor.az);
+                        this.viewCenter.theta = hor.alt;
+                    }
+                }
+            }
+
+            const lim = Math.PI / 2 - 1e-5;
+            if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
+            if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+
+            const queryParams = new URLSearchParams(window.location.search);
+            this.setViewCenterToQueryParams(queryParams, this.viewCenter);
+            history.replaceState(null, null, '?' + queryParams.toString());
+            this.setCenterToHiddenInputs();
+        }
+
         this.legendUrl = legendUrl;
         this.chartUrl = chartUrl;
         if (sceneUrl) {
