@@ -86,6 +86,11 @@
         return new Date();
     }
 
+    function toValidDate(d) {
+        if (d instanceof Date && Number.isFinite(d.getTime())) return d;
+        return new Date();
+    }
+
     window.FChartSceneViewState = function (opts) {
         const options = opts || {};
         this.sceneMeta = options.sceneMeta || {};
@@ -102,6 +107,8 @@
 
         this.effectiveDate = inferDate(options);
         this.effectiveTimeISO = this.effectiveDate.toISOString();
+        this._lstCacheTs = null;
+        this._lstCacheValue = null;
     };
 
     FChartSceneViewState.prototype.getFieldRadiusRad = function () {
@@ -167,5 +174,47 @@
 
     FChartSceneViewState.prototype.getEffectiveDate = function () {
         return this.effectiveDate;
+    };
+
+    FChartSceneViewState.prototype._getLst = function () {
+        if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') return null;
+        if (!isFiniteNumber(this.longitude)) return null;
+        const dt = toValidDate(this.effectiveDate);
+        const ts = dt.getTime();
+        if (this._lstCacheTs === ts && isFiniteNumber(this._lstCacheValue)) {
+            return this._lstCacheValue;
+        }
+        const lst = window.AstroMath.localSiderealTime(dt, this.longitude);
+        if (!isFiniteNumber(lst)) return null;
+        this._lstCacheTs = ts;
+        this._lstCacheValue = lst;
+        return lst;
+    };
+
+    FChartSceneViewState.prototype.getProjectionCenter = function () {
+        if (this.coordSystem === 'horizontal') {
+            const hor = this.getHorizontalCenter();
+            return { phi: normalizeRa(hor.az), theta: clampTheta(hor.alt) };
+        }
+        const eq = this.getEquatorialCenter();
+        return { phi: normalizeRa(eq.ra), theta: clampTheta(eq.dec) };
+    };
+
+    FChartSceneViewState.prototype.projectEquatorial = function (ra, dec) {
+        if (!isFiniteNumber(ra) || !isFiniteNumber(dec)) return null;
+        if (this.coordSystem === 'equatorial') {
+            return { phi: normalizeRa(ra), theta: clampTheta(dec) };
+        }
+
+        if (!window.AstroMath || typeof window.AstroMath.equatorialToHorizontal !== 'function') {
+            return null;
+        }
+        if (!isFiniteNumber(this.latitude)) return null;
+        const lst = this._getLst();
+        if (!isFiniteNumber(lst)) return null;
+
+        const hor = window.AstroMath.equatorialToHorizontal(lst, this.latitude, ra, dec);
+        if (!hor || !isFiniteNumber(hor.az) || !isFiniteNumber(hor.alt)) return null;
+        return { phi: normalizeRa(hor.az), theta: clampTheta(hor.alt) };
     };
 })();

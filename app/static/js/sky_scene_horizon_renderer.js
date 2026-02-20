@@ -28,7 +28,8 @@
     }
 
     FChartSceneHorizonRenderer.prototype._projectPx = function (sceneCtx, phi, theta) {
-        const p = sceneCtx.projectToNdc(phi, theta);
+        const projectFn = sceneCtx.projectToNdcInViewFrame || sceneCtx.projectToNdc;
+        const p = projectFn(phi, theta);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
