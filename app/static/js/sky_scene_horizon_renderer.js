@@ -66,11 +66,9 @@
 
     FChartSceneHorizonRenderer.prototype._drawSimpleHorizon = function (sceneCtx) {
         const ctx = sceneCtx.overlayCtx;
-        const meta = sceneCtx.meta || {};
-        const center = meta.center || {};
-        const centerAz = (typeof center.phi === 'number') ? center.phi : 0.0;
-        const fovDeg = (typeof meta.fov_deg === 'number') ? meta.fov_deg : 60.0;
-        const fieldRadius = Math.PI * fovDeg / 360.0;
+        const centerHor = sceneCtx.viewState.getHorizontalCenter();
+        const centerAz = centerHor.az;
+        const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const daz = Math.max(fieldRadius / 10.0, Math.PI / 720.0);
 
         const points = [];
@@ -92,8 +90,9 @@
 
     FChartSceneHorizonRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx.viewState) return;
         const meta = sceneCtx.meta || {};
-        if ((meta.coord_system || 'equatorial') !== 'horizontal') return;
+        if (sceneCtx.viewState.coordSystem !== 'horizontal') return;
         if (typeof meta.show_horizon === 'boolean' && !meta.show_horizon) return;
 
         const ctx = sceneCtx.overlayCtx;

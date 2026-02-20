@@ -1109,6 +1109,23 @@
         );
     };
 
+    FChartScene.prototype.buildViewState = function () {
+        const sceneMeta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : {};
+        return new window.FChartSceneViewState({
+            isEquatorial: this.isEquatorial,
+            viewCenter: this.viewCenter,
+            renderFovDeg: this.renderFovDeg,
+            fieldSizes: this.fieldSizes,
+            fldSizeIndex: this.fldSizeIndex,
+            latitude: this.latitude,
+            longitude: this.longitude,
+            useCurrentTime: this.useCurrentTime,
+            dateTimeISO: this.dateTimeISO,
+            lastChartTimeISO: this.lastChartTimeISO,
+            sceneMeta: sceneMeta,
+        });
+    };
+
     FChartScene.prototype._registerSelectable = function (shape) {
         if (!this.selectionIndex || !shape || !shape.id) return;
         const priority = Number.isFinite(shape.priority) ? shape.priority : 10;
@@ -1138,11 +1155,13 @@
         this.renderer.clear(bg);
         this.clearOverlay();
         this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
+        const viewState = this.buildViewState();
 
         this.milkyWayRenderer.draw({
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
@@ -1155,6 +1174,7 @@
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
@@ -1170,6 +1190,7 @@
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
@@ -1180,6 +1201,7 @@
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
@@ -1191,6 +1213,7 @@
             renderer: this.renderer,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
             getThemeColor: this.getThemeColor.bind(this),
@@ -1205,6 +1228,7 @@
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
             getThemeColor: this.getThemeColor.bind(this),
@@ -1219,6 +1243,7 @@
             renderer: this.renderer,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
             getThemeColor: this.getThemeColor.bind(this),
@@ -1230,6 +1255,7 @@
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projectToNdc: this._projectToNdc.bind(this),
+            viewState: viewState,
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
             getThemeColor: this.getThemeColor.bind(this),

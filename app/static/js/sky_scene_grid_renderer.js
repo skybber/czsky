@@ -165,7 +165,7 @@
     };
 
     FChartSceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge) {
-        const fieldRadius = deg2rad(sceneCtx.meta.fov_deg || 1.0) / 2.0;
+        const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const du = Math.max(fieldRadius / 20.0, deg2rad(0.2));
         const points = [];
 
@@ -208,7 +208,7 @@
     };
 
     FChartSceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV) {
-        const fieldRadius = deg2rad(sceneCtx.meta.fov_deg || 1.0) / 2.0;
+        const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const dv = Math.max(fieldRadius / 20.0, deg2rad(0.2));
         const points = [];
 
@@ -253,7 +253,7 @@
 
     FChartSceneGridRenderer.prototype._drawGridGeneric = function (sceneCtx, cfg) {
         const ctx = sceneCtx.overlayCtx;
-        const fieldRadius = deg2rad(sceneCtx.meta.fov_deg || 1.0) / 2.0;
+        const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const centerU = cfg.centerU;
         const centerV = cfg.centerV;
 
@@ -307,15 +307,12 @@
     };
 
     FChartSceneGridRenderer.prototype._buildEqConfig = function (sceneCtx) {
-        const center = (sceneCtx.meta && sceneCtx.meta.center) || {};
-        const ra = typeof center.equatorial_ra === 'number' ? center.equatorial_ra : center.phi;
-        const dec = typeof center.equatorial_dec === 'number' ? center.equatorial_dec : center.theta;
-        if (typeof ra !== 'number' || typeof dec !== 'number') return null;
+        const eqCenter = sceneCtx.viewState.getEquatorialCenter();
 
         return {
             toRaDec: function (u, v) { return { ra: normalizeRa(u), dec: v }; },
-            centerU: normalizeRa(ra),
-            centerV: dec,
+            centerU: normalizeRa(eqCenter.ra),
+            centerV: eqCenter.dec,
             uScaleList: RA_GRID_SCALE,
             vScaleList: DEC_GRID_SCALE,
             uLabelFmt: this._gridRaLabel.bind(this),
@@ -336,24 +333,12 @@
         if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') return null;
         if (typeof sceneCtx.latitude !== 'number' || typeof sceneCtx.longitude !== 'number') return null;
 
-        const date = sceneCtx.useCurrentTime
-            ? new Date()
-            : new Date(sceneCtx.dateTimeISO || Date.now());
+        const date = sceneCtx.viewState.getEffectiveDate();
         const lst = window.AstroMath.localSiderealTime(date, sceneCtx.longitude);
 
-        const center = (sceneCtx.meta && sceneCtx.meta.center) || {};
-        let az = null;
-        let alt = null;
-        if ((sceneCtx.meta && sceneCtx.meta.coord_system) === 'horizontal') {
-            az = center.phi;
-            alt = center.theta;
-        } else if (typeof center.equatorial_ra === 'number' && typeof center.equatorial_dec === 'number') {
-            const hor = window.AstroMath.equatorialToHorizontal(lst, sceneCtx.latitude, center.equatorial_ra, center.equatorial_dec);
-            az = hor.az;
-            alt = hor.alt;
-        }
-
-        if (typeof az !== 'number' || typeof alt !== 'number') return null;
+        const horCenter = sceneCtx.viewState.getHorizontalCenter();
+        const az = horCenter.az;
+        const alt = horCenter.alt;
 
         return {
             toRaDec: function (u, v) {
@@ -380,6 +365,7 @@
 
     FChartSceneGridRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx.viewState) return;
 
         const meta = sceneCtx.meta || {};
         const showEq = hasFlag(meta, 'E') || !!meta.show_equatorial_grid;
