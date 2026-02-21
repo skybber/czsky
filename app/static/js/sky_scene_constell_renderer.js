@@ -91,7 +91,7 @@
         const mobileLikeViewport = shortEdge > 0 && shortEdge <= 900;
         const wideField = Number.isFinite(fovDeg) && fovDeg >= 70;
 
-        if (mobileLikeViewport || wideField) {
+        if (false/*mobileLikeViewport || wideField*/) {
             return { maxDepth: 4, bendTolerancePx: 2.4, useDashedStroke: false };
         }
         return { maxDepth: 7, bendTolerancePx: 1.2, useDashedStroke: true };
@@ -198,8 +198,9 @@
         const params = this._getBoundaryRenderParams(sceneCtx);
         ctx.strokeStyle = rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        // Dashed strokes are significantly cheaper with non-round caps/joins on mobile browsers.
+        ctx.lineCap = 'butt';
+        ctx.lineJoin = 'miter';
         const useDash = params.useDashedStroke && !sceneCtx.liteMode;
         if (useDash) {
             ctx.setLineDash([mmToPx(0.6), mmToPx(1.2)]);
