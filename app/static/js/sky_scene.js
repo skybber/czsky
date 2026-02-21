@@ -573,6 +573,15 @@
     };
 
     SkyScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
+        if (!this.isEquatorial) {
+            const lim = Math.PI / 2 - 1e-5;
+            const az = normalizeRa(Number(this.viewCenter.phi));
+            const alt = Number(this.viewCenter.theta);
+            if (Number.isFinite(az) && Number.isFinite(alt)) {
+                return { az: az, alt: Math.max(-lim, Math.min(lim, alt)) };
+            }
+        }
+
         const lat = Number(this.latitude);
         const ra = Number(this.viewCenter.phi);
         const dec = Number(this.viewCenter.theta);
