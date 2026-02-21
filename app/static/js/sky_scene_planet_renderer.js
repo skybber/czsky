@@ -88,7 +88,7 @@
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales ? sceneCtx.themeConfig.font_scales : null;
         const fontMm = fs && typeof fs.font_size === 'number' ? fs.font_size : 3.0;
         const fontPx = Math.max(10, mmToPx(fontMm));
-        ctx.font = Math.round(fontPx) + 'px serif';
+        ctx.font = Math.round(fontPx) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
         const occupied = [];
 
