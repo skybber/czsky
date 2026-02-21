@@ -91,11 +91,12 @@
 
     SkySceneStarsRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData) {
-            return;
+            return 0;
         }
         const renderer = sceneCtx.renderer;
-        if (!renderer || typeof renderer.drawStarPoints !== 'function') return;
+        if (!renderer || typeof renderer.drawStarPoints !== 'function') return 0;
         const webgl = this._collectStars(sceneCtx);
         renderer.drawStarPoints(webgl.positions, webgl.sizes, [1.0, 1.0, 1.0], webgl.colors);
+        return (webgl.positions.length / 2) | 0;
     };
 })();

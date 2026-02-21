@@ -381,14 +381,17 @@
         this.perfFrameIndex = 0;
         this.perfGpuFinishEveryN = 12;
         this.perfGpuFinishEnabled = true;
-        this.perfPointerMoveHz = 0.0;
-        this.perfPointerMoveCount = 0;
-        this.perfPointerMoveWindowTs = 0.0;
+        this.perfStarsLoaded = 0;
         const ua = (window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : '';
         const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
         const isSlowBrowser = /(firefox|fxios|opera|opr)/i.test(ua);
         this.liteRenderDuringInteraction = !!(isMobile && isSlowBrowser);
         this.debugPerfOverlay = true;
+        this.perfDetail = false;
+        try {
+            const perfMode = new URLSearchParams(window.location.search).get('perf');
+            this.perfDetail = (typeof perfMode === 'string') && perfMode.toLowerCase() === 'detail';
+        } catch (err) {}
 
         this.aladin = aladin;
         this.showAladin = showAladin;
@@ -638,24 +641,7 @@
         this.perfStats[key] = Number.isFinite(prev) ? (prev * 0.75 + v * 0.25) : v;
     };
 
-    SkyScene.prototype._trackPointerMove = function () {
-        const now = this._perfNow();
-        if (!(this.perfPointerMoveWindowTs > 0)) {
-            this.perfPointerMoveWindowTs = now;
-        }
-        this.perfPointerMoveCount += 1;
-        const dt = now - this.perfPointerMoveWindowTs;
-        if (dt >= 500) {
-            const hzInst = (this.perfPointerMoveCount * 1000.0) / Math.max(dt, 1e-3);
-            this.perfPointerMoveHz = this.perfPointerMoveHz > 0
-                ? (this.perfPointerMoveHz * 0.75 + hzInst * 0.25)
-                : hzInst;
-            this.perfPointerMoveCount = 0;
-            this.perfPointerMoveWindowTs = now;
-        }
-    };
-
-    SkyScene.prototype._commitPerfFrame = function (framePerf, frameStartTs, liteMode) {
+    SkyScene.prototype._commitPerfFrame = function (framePerf, frameStartTs, liteMode, starsLoaded) {
         if (!this.debugPerfOverlay || !framePerf) return;
         const now = this._perfNow();
         const cpuDraw = now - frameStartTs;
@@ -674,29 +660,50 @@
 
         const ctx = this.overlayCtx;
         if (!ctx) return;
-        const gpuLine = (this.perfStats.gpu_finish || 0) > 0
-            ? (this.perfStats.gpu_finish || 0).toFixed(2)
-            : '--';
+        const loaded = Number.isFinite(starsLoaded) ? (starsLoaded | 0) : (this.perfStarsLoaded | 0);
         const lines = [
-            'perf meter' + (liteMode ? ' [lite]' : ''),
-            'cpu_draw_ms=' + ((this.perfStats.cpu_draw || 0).toFixed(2)),
-            'draw_hz=' + (this.perfDrawHz > 0 ? this.perfDrawHz.toFixed(1) : '--')
-                + '  ptr_hz=' + (this.perfPointerMoveHz > 0 ? this.perfPointerMoveHz.toFixed(1) : '--'),
-            'gl_clear=' + ((this.perfStats.gl_clear || 0).toFixed(2)) + '  ov_clear=' + ((this.perfStats.overlay_clear || 0).toFixed(2)),
-            'gpu_finish_ms=' + gpuLine + ' (1/' + this.perfGpuFinishEveryN + ')',
-            'mw=' + ((this.perfStats.milky_way || 0).toFixed(2)) + '  stars=' + ((this.perfStats.stars || 0).toFixed(2)),
-            'grid=' + ((this.perfStats.grid || 0).toFixed(2)) + '  const=' + ((this.perfStats.constell || 0).toFixed(2)),
-            'neb=' + ((this.perfStats.nebulae || 0).toFixed(2)) + '  dso=' + ((this.perfStats.dso || 0).toFixed(2)),
-            'planet=' + ((this.perfStats.planet || 0).toFixed(2)) + '  hor=' + ((this.perfStats.horizon || 0).toFixed(2)),
-            'sel=' + ((this.perfStats.selection_finalize || 0).toFixed(2)),
+            '⏱ Perf Meter' + (this.perfDetail ? ' [detail]' : ''),
+            'FPS=' + (this.perfDrawHz > 0 ? this.perfDrawHz.toFixed(1) : '--')
+                + '  frame_ms=' + ((this.perfStats.cpu_draw || 0).toFixed(2)),
+            'mode=' + (liteMode ? 'lite' : 'normal') + '  stars_loaded=' + loaded,
         ];
+        if (this.perfDetail) {
+            const renderMs = (this.perfStats.milky_way || 0)
+                + (this.perfStats.grid || 0)
+                + (this.perfStats.constell || 0)
+                + (this.perfStats.nebulae || 0)
+                + (this.perfStats.dso || 0)
+                + (this.perfStats.planet || 0)
+                + (this.perfStats.stars || 0)
+                + (this.perfStats.horizon || 0)
+                + (this.perfStats.info_panel || 0);
+            lines.push('render_ms=' + renderMs.toFixed(2));
+            lines.push(
+                'mw=' + ((this.perfStats.milky_way || 0).toFixed(2))
+                + ' stars=' + ((this.perfStats.stars || 0).toFixed(2))
+                + ' grid=' + ((this.perfStats.grid || 0).toFixed(2))
+                + ' const=' + ((this.perfStats.constell || 0).toFixed(2))
+            );
+            lines.push(
+                'neb=' + ((this.perfStats.nebulae || 0).toFixed(2))
+                + ' dso=' + ((this.perfStats.dso || 0).toFixed(2))
+                + ' planet=' + ((this.perfStats.planet || 0).toFixed(2))
+                + ' hor=' + ((this.perfStats.horizon || 0).toFixed(2))
+            );
+            lines.push(
+                'star_stream req=' + this.starStreamDebug.reqBatches
+                + ' resp=' + this.starStreamDebug.respBatches
+                + ' drop=' + this.starStreamDebug.droppedEpoch
+                + ' draw_req=' + this.starStreamDebug.drawRequests
+            );
+        }
 
         const pad = 6;
         const lineH = 13;
         const boxW = 250;
         const boxH = pad * 2 + lineH * lines.length;
         const boxX = 8;
-        const boxY = 50;
+        const boxY = 60;
         ctx.save();
         ctx.fillStyle = 'rgba(0,0,0,0.62)';
         ctx.fillRect(boxX, boxY, boxW, boxH);
@@ -1531,7 +1538,7 @@
             measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
             measure('gl_clear', () => this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12])));
             measure('overlay_clear', () => this.clearOverlay());
-            this._commitPerfFrame(perfFrame, frameStartTs, false);
+            this._commitPerfFrame(perfFrame, frameStartTs, false, 0);
             return;
         }
 
@@ -1638,8 +1645,10 @@
             }));
         }
 
+        let starsLoaded = 0;
         if (!aladinActive) {
-            measure('stars', () => this.starsRenderer.draw({
+            measure('stars', () => {
+                starsLoaded = this.starsRenderer.draw({
                 sceneData: this.sceneData,
                 zoneStars: this.zoneStars,
                 renderer: this.renderer,
@@ -1651,8 +1660,10 @@
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
-            }));
+                }) || 0;
+            });
         }
+        this.perfStarsLoaded = starsLoaded | 0;
 
         if (!liteMode) {
             measure('horizon', () => this.horizonRenderer.draw({
@@ -1688,7 +1699,7 @@
             measure('gpu_finish', () => this.renderer.gl.finish());
         }
         measure('selection_finalize', () => this.selectionIndex.finalize());
-        this._commitPerfFrame(perfFrame, frameStartTs, liteMode);
+        this._commitPerfFrame(perfFrame, frameStartTs, liteMode, this.perfStarsLoaded);
     };
 
     SkyScene.prototype.findSelectableObject = function (e) {
@@ -1863,7 +1874,6 @@
     };
 
     SkyScene.prototype.onMouseMove = function (e) {
-        this._trackPointerMove();
         if (!this.move.isDragging) {
             this.updateHoverCursor(e);
             return;
@@ -1935,7 +1945,6 @@
     };
 
     SkyScene.prototype.onPointerMove = function (e) {
-        this._trackPointerMove();
         const oe = e.originalEvent || e;
         if (!this.input.activePointers.has(oe.pointerId)) {
             if (oe.pointerType === 'mouse') this.updateHoverCursor(e);
