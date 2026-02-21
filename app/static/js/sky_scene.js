@@ -441,11 +441,6 @@
             lastTapY: 0,
             suppressClickUntilTs: 0,
             inertiaRaf: null,
-            panRenderRaf: null,
-            panRenderX: 0,
-            panRenderY: 0,
-            panTargetX: 0,
-            panTargetY: 0,
         };
         this.doubleTapWindowMs = 280;
         this.doubleTapRadiusPx = 24;
@@ -1602,10 +1597,7 @@
         }
     };
 
-    SkyScene.prototype._applyPanDelta = function (dx, dy, opts) {
-        const cfg = opts || {};
-        const scheduleDraw = cfg.scheduleDraw !== false;
-        const requestMilkySelection = cfg.requestMilkySelection !== false;
+    SkyScene.prototype._applyPanDelta = function (dx, dy) {
         const fovDeg = (typeof this.renderFovDeg === 'number')
             ? this.renderFovDeg
             : this.fieldSizes[this.fldSizeIndex];
@@ -1621,12 +1613,8 @@
         if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
         if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
         this.setCenterToHiddenInputs();
-        if (requestMilkySelection) {
-            this._requestMilkyWaySelection({ optimized: true, immediate: false });
-        }
-        if (scheduleDraw) {
-            this.requestDraw();
-        }
+        this._requestMilkyWaySelection({ optimized: true, immediate: false });
+        this.requestDraw();
     };
 
     SkyScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
@@ -1647,54 +1635,6 @@
             cancelAnimationFrame(this.input.inertiaRaf);
             this.input.inertiaRaf = null;
         }
-    };
-
-    SkyScene.prototype._stopTouchPanLoop = function () {
-        if (this.input.panRenderRaf) {
-            cancelAnimationFrame(this.input.panRenderRaf);
-            this.input.panRenderRaf = null;
-        }
-    };
-
-    SkyScene.prototype._flushTouchPanToTarget = function () {
-        const dx = this.input.panTargetX - this.input.panRenderX;
-        const dy = this.input.panTargetY - this.input.panRenderY;
-        if (Math.abs(dx) > 1e-4 || Math.abs(dy) > 1e-4) {
-            this._applyPanDelta(dx, dy, { scheduleDraw: false, requestMilkySelection: false });
-            this.input.panRenderX = this.input.panTargetX;
-            this.input.panRenderY = this.input.panTargetY;
-            this.requestDraw();
-        }
-    };
-
-    SkyScene.prototype._startTouchPanLoop = function () {
-        if (this.input.panRenderRaf) return;
-        const tick = () => {
-            this.input.panRenderRaf = null;
-            if (this.input.gesture !== 'pan' || this.input.pointerType !== 'touch' || this.input.primaryId == null) {
-                return;
-            }
-            const current = this.input.activePointers.get(this.input.primaryId);
-            if (current) {
-                this.input.panTargetX = current.x;
-                this.input.panTargetY = current.y;
-            }
-            const dx = this.input.panTargetX - this.input.panRenderX;
-            const dy = this.input.panTargetY - this.input.panRenderY;
-            let stepX = dx * 0.5;
-            let stepY = dy * 0.5;
-            if (Math.abs(dx) <= 0.5) stepX = dx;
-            if (Math.abs(dy) <= 0.5) stepY = dy;
-
-            if (Math.abs(stepX) > 1e-4 || Math.abs(stepY) > 1e-4) {
-                this._applyPanDelta(stepX, stepY, { scheduleDraw: false, requestMilkySelection: false });
-                this.input.panRenderX += stepX;
-                this.input.panRenderY += stepY;
-                this.requestDraw();
-            }
-            this.input.panRenderRaf = requestAnimationFrame(tick);
-        };
-        this.input.panRenderRaf = requestAnimationFrame(tick);
     };
 
     SkyScene.prototype._startInertia = function (vx, vy) {
@@ -1763,7 +1703,6 @@
     };
 
     SkyScene.prototype.onMouseDown = function (e) {
-        this._stopTouchPanLoop();
         this.move.isDragging = true;
         this.move.lastX = e.clientX;
         this.move.lastY = e.clientY;
@@ -1791,7 +1730,6 @@
 
     SkyScene.prototype.onMouseUp = function () {
         if (!this.move.isDragging) return;
-        this._stopTouchPanLoop();
         this.move.isDragging = false;
         if (this.canvas) {
             this.canvas.style.cursor = '';
@@ -1827,16 +1765,9 @@
             this.input.tapStartTs = Date.now();
             this.input.tapStartX = p.x;
             this.input.tapStartY = p.y;
-            this.input.panRenderX = p.x;
-            this.input.panRenderY = p.y;
-            this.input.panTargetX = p.x;
-            this.input.panTargetY = p.y;
             this.move.moved = false;
             this._setMilkywayInteractionActive(true);
             this._requestMilkyWaySelection({ optimized: true, immediate: true });
-            if (this.input.pointerType === 'touch') {
-                this._startTouchPanLoop();
-            }
             return;
         }
         if (cnt === 2) {
@@ -1893,14 +1824,7 @@
         const alpha = 0.25;
         this.input.velocityX = (1 - alpha) * this.input.velocityX + alpha * (dx / dt);
         this.input.velocityY = (1 - alpha) * this.input.velocityY + alpha * (dy / dt);
-        if (this.input.pointerType === 'touch') {
-            this.input.panTargetX = p.x;
-            this.input.panTargetY = p.y;
-            this._requestMilkyWaySelection({ optimized: true, immediate: false });
-            this._startTouchPanLoop();
-        } else {
-            this._applyPanDelta(dx, dy);
-        }
+        this._applyPanDelta(dx, dy);
     };
 
     SkyScene.prototype.onPointerUp = function (e) {
@@ -1931,8 +1855,6 @@
         if (oe.pointerId !== this.input.primaryId) return;
         this.input.primaryId = null;
         this.input.gesture = 'none';
-        this._stopTouchPanLoop();
-        this._flushTouchPanToTarget();
         this._setMilkywayInteractionActive(false);
 
         if (this.move.moved) {
@@ -1958,7 +1880,6 @@
 
     SkyScene.prototype.onPointerCancel = function (e) {
         const oe = e.originalEvent || e;
-        this._stopTouchPanLoop();
         this.input.activePointers.delete(oe.pointerId);
         if (oe.pointerId === this.input.primaryId) {
             this.input.primaryId = null;
