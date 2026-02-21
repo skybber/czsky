@@ -413,6 +413,7 @@
         this.gridRenderer = new window.SkySceneGridRenderer();
         this.nebulaeOutlinesRenderer = new window.SkySceneNebulaeOutlinesRenderer();
         this.horizonRenderer = new window.SkySceneHorizonRenderer();
+        this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
 
         this.move = {
             isDragging: false,
@@ -1530,6 +1531,19 @@
                 height: this.canvas.height,
             }));
         }
+
+        measure('info_panel', () => this.infoPanelRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        }));
+
         if (perfEnabled && this.perfGpuFinishEnabled
             && this.renderer && this.renderer.gl
             && typeof this.renderer.gl.finish === 'function'
