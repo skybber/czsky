@@ -216,7 +216,7 @@
                      search_url_params=search_url_params,
                      obj_ra=dso.ra, obj_dec=dso.dec,
                      back=back, back_id=back_id, default_back='deepskyobjects', back_anchor='#dso{}'.format(dso.id),
-                     fchart_scene_url=url_for('main_deepskyobject.deepskyobject_chart_scene_v1', dso_id=dso.name, flags=chart_control.chart_flags))
+                     fchart_scene_url=url_for('main_deepskyobject.deepskyobject_chart_scene_v1', dso_id=dso.name, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 

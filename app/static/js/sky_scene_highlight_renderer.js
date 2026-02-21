@@ -163,8 +163,17 @@
         const centerPx = this._projectPx(sceneCtx, hl.ra, hl.dec);
         if (!centerPx) return;
         let r = Number.isFinite(hl.radius_px) ? Math.max(2.0, hl.radius_px) : 8.0;
-        if (hl.shape === 'dso_circle' && dsoById && hl.id && dsoById[hl.id]) {
-            r = this._dsoRadiusPx(sceneCtx, dsoById[hl.id]);
+        if (hl.shape === 'dso_circle') {
+            // Match legacy fchart3 behavior: highlight circle radius follows font size.
+            const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
+                ? sceneCtx.themeConfig.font_scales.font_size : null;
+            const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
+            const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
+            r = mmToPx(fontMm) * size;
+            if (dsoById && hl.id && dsoById[hl.id]) {
+                // Keep big objects highlighted with at least their apparent radius.
+                r = Math.max(r, this._dsoRadiusPx(sceneCtx, dsoById[hl.id]));
+            }
         }
         const ctx = sceneCtx.overlayCtx;
         ctx.save();
