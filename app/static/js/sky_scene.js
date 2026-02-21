@@ -392,6 +392,20 @@
 
         this.aladin = aladin;
         this.showAladin = showAladin;
+        this.aladinLastSync = {
+            width: 0,
+            height: 0,
+            fovDeg: null,
+            raDeg: null,
+            decDeg: null,
+        };
+        if (this.aladin && typeof this.aladin.on === 'function') {
+            this.aladin.on('redrawFinished', () => {
+                if (this.showAladin && !this.isReloadingImage) {
+                    this.requestDraw();
+                }
+            });
+        }
 
         let iframeUrl = default_chart_iframe_url || searchUrl.replace('__SEARCH__', 'M1') + '&embed=' + (embed || 'fc');
         this.embed = embed || 'fc';
@@ -545,6 +559,68 @@
         if (!this.overlayCtx) return;
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         this.overlayCtx.imageSmoothingEnabled = true;
+    };
+
+    SkyScene.prototype._drawAladinBackground = function () {
+        if (!this.overlayCtx || !this.aladin || !this.showAladin || !this.aladin.view || !this.aladin.view.imageCanvas) {
+            return;
+        }
+        const src = this.aladin.view.imageCanvas;
+        if (!(src.width > 0 && src.height > 0)) return;
+        this.overlayCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, this.canvas.width, this.canvas.height);
+    };
+
+    SkyScene.prototype._syncAladinDivSize = function () {
+        if (!this.aladin || !this.showAladin || !this.aladin.aladinDiv || !this.aladin.view) return false;
+        const w = Math.max($(this.fchartDiv).width(), 1);
+        const h = Math.max($(this.fchartDiv).height(), 1);
+        const sizeChanged = (this.aladinLastSync.width !== w) || (this.aladinLastSync.height !== h);
+        if (!sizeChanged) return false;
+        $(this.aladin.aladinDiv).width(w);
+        $(this.aladin.aladinDiv).height(h);
+        if (typeof this.aladin.view.fixLayoutDimensions === 'function') {
+            this.aladin.view.fixLayoutDimensions();
+        }
+        this.aladinLastSync.width = w;
+        this.aladinLastSync.height = h;
+        return true;
+    };
+
+    SkyScene.prototype._syncAladinState = function (viewState, forceRedraw) {
+        if (!this.aladin || !this.showAladin || !this.aladin.view) return;
+        const eq = viewState && typeof viewState.getEquatorialCenter === 'function'
+            ? viewState.getEquatorialCenter()
+            : null;
+        const ra = eq && Number.isFinite(eq.ra) ? eq.ra : this.viewCenter.phi;
+        const dec = eq && Number.isFinite(eq.dec) ? eq.dec : this.viewCenter.theta;
+        const raDeg = ra * 180.0 / Math.PI;
+        const decDeg = dec * 180.0 / Math.PI;
+        const fovDeg = (typeof this.renderFovDeg === 'number')
+            ? this.renderFovDeg
+            : this.fieldSizes[this.fldSizeIndex];
+
+        const sizeChanged = this._syncAladinDivSize();
+        const fovChanged = !(Number.isFinite(this.aladinLastSync.fovDeg))
+            || Math.abs(this.aladinLastSync.fovDeg - fovDeg) > 1e-6;
+        const centerChanged = !(Number.isFinite(this.aladinLastSync.raDeg) && Number.isFinite(this.aladinLastSync.decDeg))
+            || Math.abs(this.aladinLastSync.raDeg - raDeg) > 1e-6
+            || Math.abs(this.aladinLastSync.decDeg - decDeg) > 1e-6;
+
+        if (fovChanged && typeof this.aladin.setFoV === 'function') {
+            this.aladin.setFoV(fovDeg);
+            this.aladinLastSync.fovDeg = fovDeg;
+        }
+
+        if ((centerChanged || forceRedraw) && typeof this.aladin.view.pointToAndRedraw === 'function') {
+            this.aladin.view.pointToAndRedraw(raDeg, decDeg);
+            this.aladinLastSync.raDeg = raDeg;
+            this.aladinLastSync.decDeg = decDeg;
+            return;
+        }
+
+        if ((sizeChanged || fovChanged || forceRedraw) && typeof this.aladin.view.requestRedraw === 'function') {
+            this.aladin.view.requestRedraw();
+        }
     };
 
     SkyScene.prototype._perfNow = function () {
@@ -885,6 +961,13 @@
 
     SkyScene.prototype.setAladinLayer = function (surveyCustomName) {
         this.showAladin = !!surveyCustomName;
+        if (this.showAladin) {
+            this.aladinLastSync.fovDeg = null;
+            this.aladinLastSync.raDeg = null;
+            this.aladinLastSync.decDeg = null;
+            this._syncAladinState(this.buildViewState(), true);
+        }
+        this.requestDraw();
     };
 
     SkyScene.prototype.resetSplitViewPosition = function () {
@@ -1455,24 +1538,31 @@
         const bg = this.getThemeColor('background', [0.06, 0.07, 0.12]);
         measure('gl_clear', () => this.renderer.clear(bg));
         measure('overlay_clear', () => this.clearOverlay());
-        measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const liteMode = this.liteRenderDuringInteraction && this.mwInteractionActive;
+        const aladinActive = !!(this.aladin && this.showAladin);
         const viewState = this.buildViewState();
+        if (aladinActive) {
+            measure('aladin_sync', () => this._syncAladinState(viewState, false));
+            measure('aladin_bg', () => this._drawAladinBackground());
+        }
+        measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const projection = this.createProjection(viewState);
-        measure('milky_way', () => this.milkyWayRenderer.draw({
-            sceneData: this.sceneData,
-            renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
-            getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
-            getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
-        }));
+        if (!aladinActive) {
+            measure('milky_way', () => this.milkyWayRenderer.draw({
+                sceneData: this.sceneData,
+                renderer: this.renderer,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+                ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
+                getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
+                getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
+            }));
+        }
 
         if (!liteMode) {
             measure('grid', () => this.gridRenderer.draw({
@@ -1548,19 +1638,21 @@
             }));
         }
 
-        measure('stars', () => this.starsRenderer.draw({
-            sceneData: this.sceneData,
-            zoneStars: this.zoneStars,
-            renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        }));
+        if (!aladinActive) {
+            measure('stars', () => this.starsRenderer.draw({
+                sceneData: this.sceneData,
+                zoneStars: this.zoneStars,
+                renderer: this.renderer,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                meta: this.sceneData.meta || {},
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+            }));
+        }
 
         if (!liteMode) {
             measure('horizon', () => this.horizonRenderer.draw({
