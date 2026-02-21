@@ -92,9 +92,9 @@
         const wideField = Number.isFinite(fovDeg) && fovDeg >= 70;
 
         if (mobileLikeViewport || wideField) {
-            return { maxDepth: 4, bendTolerancePx: 2.4 };
+            return { maxDepth: 4, bendTolerancePx: 2.4, useDashedStroke: false };
         }
-        return { maxDepth: 7, bendTolerancePx: 1.2 };
+        return { maxDepth: 7, bendTolerancePx: 1.2, useDashedStroke: true };
     };
 
     window.SkySceneConstellationRenderer.prototype._subdivide = function (sceneCtx, out, ra1, dec1, ra2, dec2, depth, params, p1In, p2In) {
@@ -200,7 +200,12 @@
         ctx.lineWidth = stroke.widthPx;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.setLineDash([mmToPx(0.6), mmToPx(1.2)]);
+        const useDash = params.useDashedStroke && !sceneCtx.liteMode;
+        if (useDash) {
+            ctx.setLineDash([mmToPx(0.6), mmToPx(1.2)]);
+        } else {
+            ctx.setLineDash([]);
+        }
 
         ctx.beginPath();
         for (let i = 0; i < bounds.length; i++) {

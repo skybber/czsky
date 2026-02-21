@@ -1453,6 +1453,7 @@
                 overlayCtx: this.overlayCtx,
                 projection: projection,
                 viewState: viewState,
+                liteMode: liteMode,
                 themeConfig: this.getThemeConfig(),
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
