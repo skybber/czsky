@@ -322,6 +322,7 @@
         this.useCurrentTime = useCurrentTime;
         this.dateTimeISO = dateTimeISO;
         this.lastChartTimeISO = null;
+        this.sceneFrameTimeISO = null;
         this.theme = theme;
 
         this.legendUrl = legendUrl;
@@ -598,18 +599,25 @@
         return { az: this.viewCenter.phi, alt: this.viewCenter.theta };
     };
 
-    SkyScene.prototype.formatUrl = function (inpUrl) {
+    SkyScene.prototype._resolveRequestTimeISO = function () {
+        if (this.sceneFrameTimeISO) return this.sceneFrameTimeISO;
+        if (this.useCurrentTime) return new Date().toISOString();
+        return this.dateTimeISO;
+    };
+
+    SkyScene.prototype.formatUrl = function (inpUrl, opts) {
+        const options = opts || {};
         let url = inpUrl;
-        this.lastChartTimeISO = this.useCurrentTime ? new Date().toISOString() : this.dateTimeISO;
+        const timeISO = options.timeISO || this._resolveRequestTimeISO();
         if (this.isEquatorial) {
             url = url.replace('_RA_', this.viewCenter.phi.toFixed(9));
             url = url.replace('_DEC_', this.viewCenter.theta.toFixed(9));
         } else {
-            const centerHor = this._getRequestCenterHorizontal(this.lastChartTimeISO);
+            const centerHor = this._getRequestCenterHorizontal(timeISO);
             url = url.replace('_AZ_', centerHor.az.toFixed(9));
             url = url.replace('_ALT_', centerHor.alt.toFixed(9));
         }
-        url = url.replace('_DATE_TIME_', this.lastChartTimeISO);
+        url = url.replace('_DATE_TIME_', timeISO);
         url = url.replace('_FSZ_', this.fieldSizes[this.fldSizeIndex]);
         url = url.replace('_WIDTH_', this.canvas.width);
         url = url.replace('_HEIGHT_', this.canvas.height);
@@ -619,7 +627,7 @@
     };
 
     SkyScene.prototype.reloadLegendImage = function () {
-        const url = this.formatUrl(this.legendUrl) + '&t=' + Date.now();
+        const url = this.formatUrl(this.legendUrl, { timeISO: this._resolveRequestTimeISO() }) + '&t=' + Date.now();
         this.legendLayer.src = url;
     };
 
@@ -660,7 +668,7 @@
             const lat = Number(this.latitude);
             const phi = Number(this.viewCenter.phi);
             const theta = Number(this.viewCenter.theta);
-            const lst = this._getChartLst(this.lastChartTimeISO || this.dateTimeISO);
+            const lst = this._getChartLst(this._resolveRequestTimeISO());
 
             if (window.AstroMath
                 && Number.isFinite(lat)
@@ -806,6 +814,9 @@
 
     SkyScene.prototype._loadScene = function (force) {
         const epoch = ++this.sceneRequestEpoch;
+        const sceneTimeISO = this.useCurrentTime ? new Date().toISOString() : this.dateTimeISO;
+        this.sceneFrameTimeISO = sceneTimeISO;
+        this.lastChartTimeISO = sceneTimeISO;
         this.mwSelectRequestEpoch += 1;
         if (this.mwSelectTimer) {
             clearTimeout(this.mwSelectTimer);
@@ -813,7 +824,7 @@
         }
         this.mwPendingSelectOptimized = null;
         this.mwInteractionActive = false;
-        let url = this.formatUrl(this.sceneUrl);
+        let url = this.formatUrl(this.sceneUrl, { timeISO: sceneTimeISO });
         if (force) {
             url += '&hqual=1';
         }
@@ -832,7 +843,7 @@
             this.ensureConstellationBoundariesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_boundaries : null);
             this._loadZoneStars(data, epoch);
             if (this.useCurrentTime && this.onChartTimeChangedCallback) {
-                this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
+                this.onChartTimeChangedCallback.call(this, this.sceneFrameTimeISO);
             }
             this.isReloadingImage = false;
         }).fail(() => {
@@ -889,13 +900,14 @@
         const sceneEpoch = this.sceneRequestEpoch;
         this.mwSelectLastTs = Date.now();
 
-        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl));
+        const frameTimeISO = this._resolveRequestTimeISO();
+        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl), { timeISO: frameTimeISO });
         const coordSystem = this.sceneData.meta.coord_system || 'equatorial';
         if (coordSystem === 'equatorial') {
             url = addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
             url = addOrReplaceQueryParam(url, 'dec', this.viewCenter.theta);
         } else {
-            const centerHor = this._getRequestCenterHorizontal(this.lastChartTimeISO || this.dateTimeISO);
+            const centerHor = this._getRequestCenterHorizontal(frameTimeISO);
             url = addOrReplaceQueryParam(url, 'az', centerHor.az);
             url = addOrReplaceQueryParam(url, 'alt', centerHor.alt);
         }
@@ -999,7 +1011,8 @@
             batch.forEach((r) => this.starZoneInFlight.add(r.key));
 
             const tokens = batch.map((r) => 'L' + r.level + 'Z' + r.zone).join(',');
-            let url = this.formatUrl(sceneStarsZonesUrl(this.sceneUrl));
+            const frameTimeISO = this._resolveRequestTimeISO();
+            let url = this.formatUrl(sceneStarsZonesUrl(this.sceneUrl), { timeISO: frameTimeISO });
             const sceneMeta = scene.meta || {};
             const centerMeta = sceneMeta.center || {};
             const coordSystem = sceneMeta.coord_system || 'equatorial';
@@ -1068,7 +1081,7 @@
         if (this.mwCatalogById[datasetId] || this.mwCatalogLoadingById[datasetId]) return;
 
         this.mwCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneMilkyCatalogUrl(this.sceneUrl));
+        let url = this.formatUrl(sceneMilkyCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
         if (mwMeta.quality) {
             url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
@@ -1091,7 +1104,7 @@
         if (this.dsoOutlinesCatalogById[datasetId] || this.dsoOutlinesCatalogLoadingById[datasetId]) return;
 
         this.dsoOutlinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl));
+        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1118,7 +1131,7 @@
         if (this.constellLinesCatalogById[datasetId] || this.constellLinesCatalogLoadingById[datasetId]) return;
 
         this.constellLinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl));
+        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1137,7 +1150,7 @@
         if (this.constellBoundariesCatalogById[datasetId] || this.constellBoundariesCatalogLoadingById[datasetId]) return;
 
         this.constellBoundariesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl));
+        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1162,7 +1175,7 @@
             longitude: this.longitude,
             useCurrentTime: this.useCurrentTime,
             dateTimeISO: this.dateTimeISO,
-            lastChartTimeISO: this.lastChartTimeISO,
+            lastChartTimeISO: this.sceneFrameTimeISO,
             sceneMeta: sceneMeta,
         });
     };
@@ -1237,7 +1250,7 @@
             latitude: this.latitude,
             longitude: this.longitude,
             useCurrentTime: this.useCurrentTime,
-            dateTimeISO: this.lastChartTimeISO || this.dateTimeISO,
+            dateTimeISO: this._resolveRequestTimeISO(),
         });
 
         this.constellRenderer.draw({
