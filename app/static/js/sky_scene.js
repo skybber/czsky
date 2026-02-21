@@ -1394,6 +1394,7 @@
         if (!liteMode) {
             this.horizonRenderer.draw({
                 sceneData: this.sceneData,
+                renderer: this.renderer,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
                 viewState: viewState,
