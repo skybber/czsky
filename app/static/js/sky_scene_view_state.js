@@ -91,7 +91,7 @@
         return new Date();
     }
 
-    window.FChartSceneViewState = function (opts) {
+    window.SkySceneViewState = function (opts) {
         const options = opts || {};
         this.sceneMeta = options.sceneMeta || {};
         this.coordSystem = inferCoordSystem(options);
@@ -111,11 +111,11 @@
         this._lstCacheValue = null;
     };
 
-    FChartSceneViewState.prototype.getFieldRadiusRad = function () {
+    SkySceneViewState.prototype.getFieldRadiusRad = function () {
         return Math.PI * this.fovDeg / 360.0;
     };
 
-    FChartSceneViewState.prototype.getEquatorialCenter = function () {
+    SkySceneViewState.prototype.getEquatorialCenter = function () {
         if (this.coordSystem === 'equatorial') {
             return { ra: normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
         }
@@ -144,7 +144,7 @@
         return { ra: normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
     };
 
-    FChartSceneViewState.prototype.getHorizontalCenter = function () {
+    SkySceneViewState.prototype.getHorizontalCenter = function () {
         if (this.coordSystem === 'horizontal') {
             return { az: normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
         }
@@ -172,11 +172,11 @@
         return { az: normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
     };
 
-    FChartSceneViewState.prototype.getEffectiveDate = function () {
+    SkySceneViewState.prototype.getEffectiveDate = function () {
         return this.effectiveDate;
     };
 
-    FChartSceneViewState.prototype._getLst = function () {
+    SkySceneViewState.prototype._getLst = function () {
         if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') return null;
         if (!isFiniteNumber(this.longitude)) return null;
         const dt = toValidDate(this.effectiveDate);
@@ -191,7 +191,7 @@
         return lst;
     };
 
-    FChartSceneViewState.prototype.getProjectionCenter = function () {
+    SkySceneViewState.prototype.getProjectionCenter = function () {
         if (this.coordSystem === 'horizontal') {
             const hor = this.getHorizontalCenter();
             return { phi: normalizeRa(hor.az), theta: clampTheta(hor.alt) };
@@ -200,7 +200,7 @@
         return { phi: normalizeRa(eq.ra), theta: clampTheta(eq.dec) };
     };
 
-    FChartSceneViewState.prototype.projectEquatorial = function (ra, dec) {
+    SkySceneViewState.prototype.projectEquatorial = function (ra, dec) {
         if (!isFiniteNumber(ra) || !isFiniteNumber(dec)) return null;
         if (this.coordSystem === 'equatorial') {
             return { phi: normalizeRa(ra), theta: clampTheta(dec) };

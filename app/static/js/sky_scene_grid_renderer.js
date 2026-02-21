@@ -74,9 +74,9 @@
         return flags.indexOf(flag) !== -1;
     }
 
-    window.FChartSceneGridRenderer = function () {};
+    window.SkySceneGridRenderer = function () {};
 
-    FChartSceneGridRenderer.prototype._setupStyles = function (sceneCtx) {
+    SkySceneGridRenderer.prototype._setupStyles = function (sceneCtx) {
         const theme = sceneCtx.themeConfig || {};
         const lwMm = theme.line_widths && typeof theme.line_widths.grid === 'number'
             ? theme.line_widths.grid : 0.2;
@@ -90,13 +90,13 @@
         };
     };
 
-    FChartSceneGridRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
+    SkySceneGridRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
         const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
 
-    FChartSceneGridRenderer.prototype._gridRaLabel = function (raMinutes, fmtToken) {
+    SkySceneGridRenderer.prototype._gridRaLabel = function (raMinutes, fmtToken) {
         let hrs = Math.floor(raMinutes / 60);
         let mins = Math.floor(raMinutes % 60);
         let secs = Math.round((raMinutes - Math.floor(raMinutes)) * 60);
@@ -115,14 +115,14 @@
         return hrs + 'h' + String(mins).padStart(2, '0') + 'm' + String(secs).padStart(2, '0') + 's';
     };
 
-    FChartSceneGridRenderer.prototype._gridSignedDegLabel = function (minutes, labelFmt) {
+    SkySceneGridRenderer.prototype._gridSignedDegLabel = function (minutes, labelFmt) {
         const deg = Math.abs(Math.trunc(minutes / 60));
         const mins = Math.abs(minutes) - deg * 60;
         const sign = minutes > 0 ? '+' : (minutes < 0 ? '-' : '');
         return sign + labelFmt(deg, mins);
     };
 
-    FChartSceneGridRenderer.prototype._gridAzLabel = function (azMinutes, labelFmt) {
+    SkySceneGridRenderer.prototype._gridAzLabel = function (azMinutes, labelFmt) {
         let azDeg = (-(azMinutes / 60)) % 360;
         if (azDeg < 0) azDeg += 360;
         let deg = Math.trunc(azDeg);
@@ -134,7 +134,7 @@
         return labelFmt(deg, mins);
     };
 
-    FChartSceneGridRenderer.prototype._drawCurve = function (ctx, points) {
+    SkySceneGridRenderer.prototype._drawCurve = function (ctx, points) {
         if (!points.length) return;
         let open = false;
         for (let i = 0; i < points.length; i++) {
@@ -152,7 +152,7 @@
         }
     };
 
-    FChartSceneGridRenderer.prototype._drawLabel = function (ctx, text, x, y, align, baseline, angle) {
+    SkySceneGridRenderer.prototype._drawLabel = function (ctx, text, x, y, align, baseline, angle) {
         ctx.save();
         ctx.translate(x, y);
         if (typeof angle === 'number' && Number.isFinite(angle)) {
@@ -164,7 +164,7 @@
         ctx.restore();
     };
 
-    FChartSceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge) {
+    SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const du = Math.max(fieldRadius / 20.0, deg2rad(0.2));
         const points = [];
@@ -207,7 +207,7 @@
         this._drawLabel(ctx, labelText, x, y, edge === 'right' ? 'right' : 'left', 'middle', angle);
     };
 
-    FChartSceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV) {
+    SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const dv = Math.max(fieldRadius / 20.0, deg2rad(0.2));
         const points = [];
@@ -251,7 +251,7 @@
         this._drawLabel(ctx, labelText, x, y, 'center', useTop ? 'top' : 'bottom', angle);
     };
 
-    FChartSceneGridRenderer.prototype._drawGridGeneric = function (sceneCtx, cfg) {
+    SkySceneGridRenderer.prototype._drawGridGeneric = function (sceneCtx, cfg) {
         const ctx = sceneCtx.overlayCtx;
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const centerU = cfg.centerU;
@@ -306,7 +306,7 @@
         }
     };
 
-    FChartSceneGridRenderer.prototype._buildEqConfig = function (sceneCtx) {
+    SkySceneGridRenderer.prototype._buildEqConfig = function (sceneCtx) {
         const eqCenter = sceneCtx.viewState.getEquatorialCenter();
 
         return {
@@ -329,7 +329,7 @@
         };
     };
 
-    FChartSceneGridRenderer.prototype._buildHorConfig = function (sceneCtx) {
+    SkySceneGridRenderer.prototype._buildHorConfig = function (sceneCtx) {
         if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') return null;
         if (typeof sceneCtx.latitude !== 'number' || typeof sceneCtx.longitude !== 'number') return null;
 
@@ -363,7 +363,7 @@
         };
     };
 
-    FChartSceneGridRenderer.prototype.draw = function (sceneCtx) {
+    SkySceneGridRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
         if (!sceneCtx.viewState) return;
 

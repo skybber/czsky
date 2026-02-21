@@ -1,5 +1,5 @@
 (function () {
-    window.FChartScenePlanetRenderer = function () {};
+    window.SkyScenePlanetRenderer = function () {};
 
     const TWO_PI = Math.PI * 2.0;
 
@@ -78,7 +78,7 @@
         return cand;
     }
 
-    window.FChartScenePlanetRenderer.prototype.draw = function (sceneCtx) {
+    window.SkyScenePlanetRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
         const objects = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.planets) || [];
         if (!objects.length) return;

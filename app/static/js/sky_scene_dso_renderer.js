@@ -1,5 +1,5 @@
 (function () {
-    window.FChartSceneDsoRenderer = function () {};
+    window.SkySceneDsoRenderer = function () {};
 
     const MIN_DSO_RADIUS_PX = 3.0;
     const TWO_PI = Math.PI * 2.0;
@@ -63,8 +63,7 @@
         return (x2 - x1) * (y2 - y1);
     }
 
-    function LabelPotential(fieldRadius) {
-        this.fieldRadius = fieldRadius || 0.0;
+    function LabelPotential() {
         this.positions = [];
         this.sizes = [];
     }
@@ -95,7 +94,7 @@
         return v;
     };
 
-    FChartSceneDsoRenderer.prototype._radiusPxFromRad = function (sceneCtx, ra, dec, radiusRad) {
+    SkySceneDsoRenderer.prototype._radiusPxFromRad = function (sceneCtx, ra, dec, radiusRad) {
         if (!(radiusRad > 0)) {
             return MIN_DSO_RADIUS_PX;
         }
@@ -116,7 +115,7 @@
         return Math.max(MIN_DSO_RADIUS_PX, rp);
     };
 
-    FChartSceneDsoRenderer.prototype._dsoRadii = function (sceneCtx, dso) {
+    SkySceneDsoRenderer.prototype._dsoRadii = function (sceneCtx, dso) {
         let rLongPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rlong_rad || -1.0);
         let rShortPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rshort_rad || -1.0);
 
@@ -136,14 +135,14 @@
         return { rLongPx, rShortPx };
     };
 
-    FChartSceneDsoRenderer.prototype._setupStroke = function (ctx, col) {
+    SkySceneDsoRenderer.prototype._setupStroke = function (ctx, col) {
         ctx.strokeStyle = rgba(col, 0.95);
         ctx.lineWidth = 1.35;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
     };
 
-    FChartSceneDsoRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
+    SkySceneDsoRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
         const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths : null;
         const lwMm = lws && typeof lws[key] === 'number' ? lws[key] : null;
@@ -151,7 +150,7 @@
         return Math.max(0.75, mmToPx(lwMm));
     };
 
-    FChartSceneDsoRenderer.prototype._drawEllipse = function (ctx, cx, cy, rx, ry, angle, dash) {
+    SkySceneDsoRenderer.prototype._drawEllipse = function (ctx, cx, cy, rx, ry, angle, dash) {
         ctx.save();
         if (dash && dash.length) {
             ctx.setLineDash(dash);
@@ -166,13 +165,13 @@
         ctx.restore();
     };
 
-    FChartSceneDsoRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
+    SkySceneDsoRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
         const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
 
-    FChartSceneDsoRenderer.prototype._galaxyScreenAngle = function (sceneCtx, dso, centerPx) {
+    SkySceneDsoRenderer.prototype._galaxyScreenAngle = function (sceneCtx, dso, centerPx) {
         const pa = (dso.position_angle_rad || 0.0);
         const eps = Math.PI / 10800.0; // 1 arcmin
         const decN = Math.max(-Math.PI / 2 + 1e-5, Math.min(Math.PI / 2 - 1e-5, dso.dec + eps));
@@ -205,7 +204,7 @@
         return Math.atan2(vy, vx);
     };
 
-    FChartSceneDsoRenderer.prototype._drawGalaxy = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawGalaxy = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('galaxy', [0.4, 0.8, 1.0]);
         const r = this._dsoRadii(sceneCtx, dso);
@@ -214,7 +213,7 @@
         this._drawEllipse(ctx, centerPx.x, centerPx.y, r.rLongPx, r.rShortPx, pa, null);
     };
 
-    FChartSceneDsoRenderer.prototype._drawNebula = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawNebula = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso);
@@ -225,7 +224,7 @@
         ctx.stroke();
     };
 
-    FChartSceneDsoRenderer.prototype._drawPlanetaryNebula = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawPlanetaryNebula = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
@@ -245,7 +244,7 @@
         ctx.stroke();
     };
 
-    FChartSceneDsoRenderer.prototype._drawOpenCluster = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawOpenCluster = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
@@ -260,7 +259,7 @@
         ctx.restore();
     };
 
-    FChartSceneDsoRenderer.prototype._drawGlobularCluster = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawGlobularCluster = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
@@ -274,7 +273,7 @@
         ctx.stroke();
     };
 
-    FChartSceneDsoRenderer.prototype._drawAsterism = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawAsterism = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx / Math.SQRT2;
@@ -288,7 +287,7 @@
         ctx.stroke();
     };
 
-    FChartSceneDsoRenderer.prototype._drawSNR = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawSNR = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
@@ -296,7 +295,7 @@
         this._drawEllipse(ctx, centerPx.x, centerPx.y, r, r, 0.0, null);
     };
 
-    FChartSceneDsoRenderer.prototype._drawGalaxyCluster = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawGalaxyCluster = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('galaxy_cluster', [0.4, 0.8, 1.0]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
@@ -307,7 +306,7 @@
         ctx.restore();
     };
 
-    FChartSceneDsoRenderer.prototype._drawUnknown = function (sceneCtx, centerPx, dso) {
+    SkySceneDsoRenderer.prototype._drawUnknown = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('dso', [0.8, 0.8, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx / Math.SQRT2;
@@ -321,7 +320,7 @@
         ctx.stroke();
     };
 
-    FChartSceneDsoRenderer.prototype._traceOutline = function (sceneCtx, outline) {
+    SkySceneDsoRenderer.prototype._traceOutline = function (sceneCtx, outline) {
         const points = [];
         if (!outline || !Array.isArray(outline) || outline.length < 2) {
             return points;
@@ -342,7 +341,7 @@
         return points;
     };
 
-    FChartSceneDsoRenderer.prototype._drawOutlinePolyline = function (ctx, points) {
+    SkySceneDsoRenderer.prototype._drawOutlinePolyline = function (ctx, points) {
         if (!points || points.length < 2) {
             return false;
         }
@@ -356,7 +355,7 @@
         return true;
     };
 
-    FChartSceneDsoRenderer.prototype._getDsoOutlinesItem = function (sceneCtx, dso) {
+    SkySceneDsoRenderer.prototype._getDsoOutlinesItem = function (sceneCtx, dso) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.sceneData.meta || !dso || !dso.id) {
             return null;
         }
@@ -376,7 +375,7 @@
         return byId[dso.id] || null;
     };
 
-    FChartSceneDsoRenderer.prototype._drawDsoOutlines = function (sceneCtx, outlinesItem) {
+    SkySceneDsoRenderer.prototype._drawDsoOutlines = function (sceneCtx, outlinesItem) {
         if (!outlinesItem || !Array.isArray(outlinesItem.outlines)) {
             return false;
         }
@@ -411,7 +410,7 @@
         return drawn;
     };
 
-    FChartSceneDsoRenderer.prototype._outlineBounds = function (sceneCtx, outlinesItem) {
+    SkySceneDsoRenderer.prototype._outlineBounds = function (sceneCtx, outlinesItem) {
         if (!outlinesItem || !Array.isArray(outlinesItem.outlines)) {
             return null;
         }
@@ -439,7 +438,7 @@
         return { x1: x1, y1: y1, x2: x2, y2: y2 };
     };
 
-    FChartSceneDsoRenderer.prototype._registerSelectable = function (sceneCtx, dso, centerPx, radii, outlinesItem) {
+    SkySceneDsoRenderer.prototype._registerSelectable = function (sceneCtx, dso, centerPx, radii, outlinesItem) {
         if (!sceneCtx || typeof sceneCtx.registerSelectable !== 'function' || !dso || !dso.id) {
             return;
         }
@@ -475,7 +474,7 @@
         });
     };
 
-    FChartSceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
+    SkySceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
         // Legacy renderer uses default font size in chart units; JS keeps a practical px fallback.
@@ -483,7 +482,7 @@
         return Math.max(10.0, Math.min(20.0, px));
     };
 
-    FChartSceneDsoRenderer.prototype._applyLabelStyle = function (sceneCtx, ctx) {
+    SkySceneDsoRenderer.prototype._applyLabelStyle = function (sceneCtx, ctx) {
         const labelColor = sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]);
         const fontPx = this._labelFontPx(sceneCtx);
         ctx.fillStyle = rgba(labelColor, 0.95);
@@ -492,7 +491,7 @@
         return fontPx;
     };
 
-    FChartSceneDsoRenderer.prototype._showDsoMag = function (sceneCtx) {
+    SkySceneDsoRenderer.prototype._showDsoMag = function (sceneCtx) {
         const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
         if (meta && typeof meta.show_dso_mag === 'boolean') {
             return meta.show_dso_mag;
@@ -501,13 +500,13 @@
         return flags.indexOf('M') !== -1;
     };
 
-    FChartSceneDsoRenderer.prototype._formatDsoMag = function (dso) {
+    SkySceneDsoRenderer.prototype._formatDsoMag = function (dso) {
         if (!dso || typeof dso.mag !== 'number') return null;
         if (!Number.isFinite(dso.mag) || dso.mag === -100 || dso.mag >= 30) return null;
         return dso.mag.toFixed(1);
     };
 
-    FChartSceneDsoRenderer.prototype._circularLabelCandidates = function (x, y, r, fh, labelLength) {
+    SkySceneDsoRenderer.prototype._circularLabelCandidates = function (x, y, r, fh, labelLength) {
         const arg = 1.0 - 2.0 * fh / (3.0 * Math.max(r, 1e-6));
         const a = (arg < 1.0 && arg > -1.0) ? Math.acos(arg) : 0.5 * Math.PI;
         const x1 = x + Math.sin(a) * r + fh / 6.0;
@@ -522,7 +521,7 @@
         ];
     };
 
-    FChartSceneDsoRenderer.prototype._diffuseLabelCandidates = function (x, y, d, fh, labelLength) {
+    SkySceneDsoRenderer.prototype._diffuseLabelCandidates = function (x, y, d, fh, labelLength) {
         const xsCenter = x - labelLength / 2.0;
         return [
             { x: xsCenter, y: y - d - fh / 2.0 },
@@ -532,7 +531,7 @@
         ];
     };
 
-    FChartSceneDsoRenderer.prototype._asterismLabelCandidates = function (x, y, d, fh, labelLength) {
+    SkySceneDsoRenderer.prototype._asterismLabelCandidates = function (x, y, d, fh, labelLength) {
         return [
             { x: x - labelLength / 2.0, y: y - d - 2.0 * fh / 3.0 },
             { x: x - labelLength / 2.0, y: y + d + 2.0 * fh / 3.0 },
@@ -541,7 +540,7 @@
         ];
     };
 
-    FChartSceneDsoRenderer.prototype._unknownLabelCandidates = function (x, y, r, fh, labelLength) {
+    SkySceneDsoRenderer.prototype._unknownLabelCandidates = function (x, y, r, fh, labelLength) {
         const d = r / Math.SQRT2;
         return [
             { x: x + d + fh / 6.0, y: y },
@@ -551,7 +550,7 @@
         ];
     };
 
-    FChartSceneDsoRenderer.prototype._galaxyLabelCandidates = function (x, y, rLong, rShort, p, fh, labelLength) {
+    SkySceneDsoRenderer.prototype._galaxyLabelCandidates = function (x, y, rLong, rShort, p, fh, labelLength) {
         const hl = labelLength / 2.0;
         const sp = Math.sin(p);
         const cp = Math.cos(p);
@@ -578,7 +577,7 @@
         return out;
     };
 
-    FChartSceneDsoRenderer.prototype._labelScore = function (sceneCtx, rect, placedRects) {
+    SkySceneDsoRenderer.prototype._labelScore = function (sceneCtx, rect, placedRects) {
         let score = 0.0;
         for (let i = 0; i < placedRects.length; i++) {
             score += rectIntersectionArea(rect, placedRects[i]) * 10.0;
@@ -591,16 +590,15 @@
         return score;
     };
 
-    FChartSceneDsoRenderer.prototype._toLocalCoords = function (sceneCtx, px) {
+    SkySceneDsoRenderer.prototype._toLocalCoords = function (sceneCtx, px) {
         return {
             x: px.x - sceneCtx.width * 0.5,
             y: sceneCtx.height * 0.5 - px.y,
         };
     };
 
-    FChartSceneDsoRenderer.prototype._buildLabelPotential = function (sceneCtx, dsoList) {
-        const fieldRadius = 0.5 * Math.hypot(sceneCtx.width, sceneCtx.height);
-        const pot = new LabelPotential(fieldRadius);
+    SkySceneDsoRenderer.prototype._buildLabelPotential = function (sceneCtx, dsoList) {
+        const pot = new LabelPotential();
         const ds = [];
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
@@ -619,7 +617,7 @@
         return pot;
     };
 
-    FChartSceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential) {
+    SkySceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential) {
         const label = dso && dso.label ? String(dso.label) : '';
         if (!label) return;
         const showMag = this._showDsoMag(sceneCtx);
@@ -712,7 +710,7 @@
         labelPotential.addPosition(bestLocal.x, bestLocal.y, labelLength);
     };
 
-    FChartSceneDsoRenderer.prototype.draw = function (sceneCtx) {
+    SkySceneDsoRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
             return;
         }

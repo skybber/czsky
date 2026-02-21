@@ -1,5 +1,5 @@
 (function () {
-    window.FChartSceneConstellationRenderer = function () {};
+    window.SkySceneConstellationRenderer = function () {};
 
     const TWO_PI = Math.PI * 2.0;
 
@@ -53,7 +53,7 @@
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    window.FChartSceneConstellationRenderer.prototype._themeLinesStroke = function (sceneCtx) {
+    window.SkySceneConstellationRenderer.prototype._themeLinesStroke = function (sceneCtx) {
         const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths.constellation : null;
         const widthPx = (typeof lwMm === 'number') ? mmToPx(lwMm) : 1.0;
@@ -61,7 +61,7 @@
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
 
-    window.FChartSceneConstellationRenderer.prototype._themeBoundariesStroke = function (sceneCtx) {
+    window.SkySceneConstellationRenderer.prototype._themeBoundariesStroke = function (sceneCtx) {
         const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths.constellation_border : null;
         const widthPx = (typeof lwMm === 'number') ? mmToPx(lwMm) : 1.0;
@@ -69,7 +69,7 @@
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
 
-    window.FChartSceneConstellationRenderer.prototype._project = function (sceneCtx, ra, dec) {
+    window.SkySceneConstellationRenderer.prototype._project = function (sceneCtx, ra, dec) {
         const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return {
@@ -78,7 +78,7 @@
         };
     };
 
-    window.FChartSceneConstellationRenderer.prototype._subdivide = function (sceneCtx, out, ra1, dec1, ra2, dec2, depth) {
+    window.SkySceneConstellationRenderer.prototype._subdivide = function (sceneCtx, out, ra1, dec1, ra2, dec2, depth) {
         const p1 = this._project(sceneCtx, ra1, dec1);
         const p2 = this._project(sceneCtx, ra2, dec2);
         if (!p1 || !p2) {
@@ -109,7 +109,7 @@
         this._subdivide(sceneCtx, out, midRa, midDec, ra2, dec2, depth + 1);
     };
 
-    window.FChartSceneConstellationRenderer.prototype._drawLines = function (sceneCtx, ctx) {
+    window.SkySceneConstellationRenderer.prototype._drawLines = function (sceneCtx, ctx) {
         const meta = sceneCtx.sceneData.meta || {};
         const linesMeta = meta.constellation_lines || {};
         if (!linesMeta.dataset_id) return;
@@ -159,7 +159,7 @@
         ctx.stroke();
     };
 
-    window.FChartSceneConstellationRenderer.prototype._drawBoundaries = function (sceneCtx, ctx) {
+    window.SkySceneConstellationRenderer.prototype._drawBoundaries = function (sceneCtx, ctx) {
         const meta = sceneCtx.sceneData.meta || {};
         const boundsMeta = meta.constellation_boundaries || {};
         if (!boundsMeta.dataset_id) return;
@@ -199,7 +199,7 @@
         ctx.setLineDash([]);
     };
 
-    window.FChartSceneConstellationRenderer.prototype.draw = function (sceneCtx) {
+    window.SkySceneConstellationRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
             return;
         }

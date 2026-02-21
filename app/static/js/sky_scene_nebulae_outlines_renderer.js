@@ -1,5 +1,5 @@
 (function () {
-    window.FChartSceneNebulaeOutlinesRenderer = function () {};
+    window.SkySceneNebulaeOutlinesRenderer = function () {};
 
     function clamp01(v) {
         if (v < 0) return 0;
@@ -42,13 +42,13 @@
         ];
     }
 
-    window.FChartSceneNebulaeOutlinesRenderer.prototype._project = function (sceneCtx, ra, dec) {
+    window.SkySceneNebulaeOutlinesRenderer.prototype._project = function (sceneCtx, ra, dec) {
         const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
 
-    window.FChartSceneNebulaeOutlinesRenderer.prototype._extractOutlinesAtLevel = function (nebula, level) {
+    window.SkySceneNebulaeOutlinesRenderer.prototype._extractOutlinesAtLevel = function (nebula, level) {
         if (!nebula) return [];
         const outlines = nebula.outlines;
         if (!Array.isArray(outlines)) return [];
@@ -56,7 +56,7 @@
         return Array.isArray(lev) ? lev : [];
     };
 
-    window.FChartSceneNebulaeOutlinesRenderer.prototype._traceOutline = function (sceneCtx, outline) {
+    window.SkySceneNebulaeOutlinesRenderer.prototype._traceOutline = function (sceneCtx, outline) {
         const points = [];
         if (!outline) return points;
 
@@ -95,7 +95,7 @@
         return points;
     };
 
-    window.FChartSceneNebulaeOutlinesRenderer.prototype._drawOutline = function (ctx, points) {
+    window.SkySceneNebulaeOutlinesRenderer.prototype._drawOutline = function (ctx, points) {
         if (!points || points.length < 2) return;
         ctx.beginPath();
         ctx.moveTo(points[0].x, points[0].y);
@@ -106,7 +106,7 @@
         ctx.stroke();
     };
 
-    window.FChartSceneNebulaeOutlinesRenderer.prototype.draw = function (sceneCtx) {
+    window.SkySceneNebulaeOutlinesRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
 
         const objects = sceneCtx.sceneData.objects || {};

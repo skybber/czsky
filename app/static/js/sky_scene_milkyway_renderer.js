@@ -19,9 +19,9 @@
         };
     }
 
-    window.FChartSceneMilkyWayRenderer = function () {};
+    window.SkySceneMilkyWayRenderer = function () {};
 
-    FChartSceneMilkyWayRenderer.prototype._colorFromFade = function (fade, rgb, fallbackColor) {
+    SkySceneMilkyWayRenderer.prototype._colorFromFade = function (fade, rgb, fallbackColor) {
         if (!Array.isArray(fade) || fade.length !== 6) {
             return fallbackColor;
         }
@@ -32,7 +32,7 @@
         ];
     };
 
-    FChartSceneMilkyWayRenderer.prototype.draw = function (sceneCtx) {
+    SkySceneMilkyWayRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
 
         const meta = sceneCtx.sceneData.meta || {};

@@ -301,7 +301,7 @@
         return null;
     };
 
-    window.FChartScene = function (
+    window.SkyScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
         fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection
@@ -336,8 +336,8 @@
 
         this.splitview = splitview;
         this.fullScreen = fullScreen;
-        this.multPhi = mirror_x ? -1 : 1;
-        this.multTheta = mirror_y ? -1 : 1;
+        this.mirrorX = !!mirror_x;
+        this.mirrorY = !!mirror_y;
         this.selectableRegions = [];
         this.selectionIndex = new SelectionIndex();
         this.sceneData = null;
@@ -383,14 +383,14 @@
         this.overlayCtx = this.overlayCanvas.getContext('2d');
 
         this.renderer = new FChartWebGLRenderer(this.canvas);
-        this.dsoRenderer = new window.FChartSceneDsoRenderer();
-        this.starsRenderer = new window.FChartSceneStarsRenderer();
-        this.planetRenderer = new window.FChartScenePlanetRenderer();
-        this.constellRenderer = new window.FChartSceneConstellationRenderer();
-        this.milkyWayRenderer = new window.FChartSceneMilkyWayRenderer();
-        this.gridRenderer = new window.FChartSceneGridRenderer();
-        this.nebulaeOutlinesRenderer = new window.FChartSceneNebulaeOutlinesRenderer();
-        this.horizonRenderer = new window.FChartSceneHorizonRenderer();
+        this.dsoRenderer = new window.SkySceneDsoRenderer();
+        this.starsRenderer = new window.SkySceneStarsRenderer();
+        this.planetRenderer = new window.SkyScenePlanetRenderer();
+        this.constellRenderer = new window.SkySceneConstellationRenderer();
+        this.milkyWayRenderer = new window.SkySceneMilkyWayRenderer();
+        this.gridRenderer = new window.SkySceneGridRenderer();
+        this.nebulaeOutlinesRenderer = new window.SkySceneNebulaeOutlinesRenderer();
+        this.horizonRenderer = new window.SkySceneHorizonRenderer();
 
         this.move = {
             isDragging: false,
@@ -449,14 +449,14 @@
         $(this.canvas).on('keydown', (e) => this.onKeyDown(e));
     };
 
-    FChartScene.prototype.getThemeConfig = function () {
+    SkyScene.prototype.getThemeConfig = function () {
         if (this.sceneData && this.sceneData.meta && this.sceneData.meta.theme) {
             return this.sceneData.meta.theme;
         }
         return null;
     };
 
-    FChartScene.prototype.getThemeColor = function (name, fallback) {
+    SkyScene.prototype.getThemeColor = function (name, fallback) {
         const cfg = this.getThemeConfig();
         const colors = cfg && cfg.colors ? cfg.colors : null;
         if (colors && colors[name]) {
@@ -465,7 +465,7 @@
         return fallback;
     };
 
-    FChartScene.prototype.adjustCanvasSize = function () {
+    SkyScene.prototype.adjustCanvasSize = function () {
         const w = Math.max($(this.fchartDiv).width(), 1);
         const h = Math.max($(this.fchartDiv).height(), 1);
         this.canvas.width = w;
@@ -474,20 +474,20 @@
         this.overlayCanvas.height = h;
     };
 
-    FChartScene.prototype.clearOverlay = function () {
+    SkyScene.prototype.clearOverlay = function () {
         if (!this.overlayCtx) return;
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         this.overlayCtx.imageSmoothingEnabled = true;
     };
 
-    FChartScene.prototype.onWindowLoad = function () {
+    SkyScene.prototype.onWindowLoad = function () {
         this.adjustCanvasSize();
         $(this.canvas).focus();
         this.reloadLegendImage();
         this.forceReloadImage();
     };
 
-    FChartScene.prototype.onResize = function () {
+    SkyScene.prototype.onResize = function () {
         if (this.splitview) {
             this.setSplitViewPosition();
         } else {
@@ -498,28 +498,28 @@
         this.forceReloadImage();
     };
 
-    FChartScene.prototype.onFieldChange = function (cb) { this.onFieldChangeCallback = cb; };
-    FChartScene.prototype.onScreenModeChange = function (cb) { this.onScreenModeChangeCallback = cb; };
-    FChartScene.prototype.onChartTimeChanged = function (cb) { this.onChartTimeChangedCallback = cb; };
-    FChartScene.prototype.onShortcutKey = function (cb) { this.onShortcutKeyCallback = cb; };
+    SkyScene.prototype.onFieldChange = function (cb) { this.onFieldChangeCallback = cb; };
+    SkyScene.prototype.onScreenModeChange = function (cb) { this.onScreenModeChangeCallback = cb; };
+    SkyScene.prototype.onChartTimeChanged = function (cb) { this.onChartTimeChangedCallback = cb; };
+    SkyScene.prototype.onShortcutKey = function (cb) { this.onShortcutKeyCallback = cb; };
 
-    FChartScene.prototype.setUseCurrentTime = function (v) { this.useCurrentTime = v; };
-    FChartScene.prototype.setDateTimeISO = function (v) { this.dateTimeISO = v; };
-    FChartScene.prototype.setLongitude = function (v) { this.longitude = v; };
-    FChartScene.prototype.setLatitude = function (v) { this.latitude = v; };
+    SkyScene.prototype.setUseCurrentTime = function (v) { this.useCurrentTime = v; };
+    SkyScene.prototype.setDateTimeISO = function (v) { this.dateTimeISO = v; };
+    SkyScene.prototype.setLongitude = function (v) { this.longitude = v; };
+    SkyScene.prototype.setLatitude = function (v) { this.latitude = v; };
 
-    FChartScene.prototype.isMirrorX = function () { return this.multPhi < 0; };
-    FChartScene.prototype.isMirrorY = function () { return this.multTheta < 0; };
-    FChartScene.prototype.setMirrorX = function (v) {
+    SkyScene.prototype.isMirrorX = function () { return !!this.mirrorX; };
+    SkyScene.prototype.isMirrorY = function () { return !!this.mirrorY; };
+    SkyScene.prototype.setMirrorX = function (v) {
         const on = (typeof v === 'string') ? (v.toLowerCase() === 'true') : !!v;
-        this.multPhi = on ? -1 : 1;
+        this.mirrorX = on;
     };
-    FChartScene.prototype.setMirrorY = function (v) {
+    SkyScene.prototype.setMirrorY = function (v) {
         const on = (typeof v === 'string') ? (v.toLowerCase() === 'true') : !!v;
-        this.multTheta = on ? -1 : 1;
+        this.mirrorY = on;
     };
 
-    FChartScene.prototype.setCenterToHiddenInputs = function () {
+    SkyScene.prototype.setCenterToHiddenInputs = function () {
         if (this.isEquatorial) {
             $('#ra').val(this.viewCenter.phi);
             $('#dec').val(this.viewCenter.theta);
@@ -529,7 +529,7 @@
         }
     };
 
-    FChartScene.prototype.setViewCenterToQueryParams = function (queryParams, center) {
+    SkyScene.prototype.setViewCenterToQueryParams = function (queryParams, center) {
         if (this.isEquatorial) {
             queryParams.delete('az');
             queryParams.delete('alt');
@@ -543,14 +543,14 @@
         }
     };
 
-    FChartScene.prototype.syncQueryString = function () {
+    SkyScene.prototype.syncQueryString = function () {
         const queryParams = new URLSearchParams(window.location.search);
         this.setViewCenterToQueryParams(queryParams, this.viewCenter);
         queryParams.set('fsz', this.fieldSizes[this.fldSizeIndex]);
         history.replaceState(null, null, '?' + queryParams.toString());
     };
 
-    FChartScene.prototype._getChartLst = function (dateTimeISO) {
+    SkyScene.prototype._getChartLst = function (dateTimeISO) {
         if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') {
             return null;
         }
@@ -571,7 +571,7 @@
         return window.AstroMath.localSiderealTime(dt, lon);
     };
 
-    FChartScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
+    SkyScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
         const lat = Number(this.latitude);
         const ra = Number(this.viewCenter.phi);
         const dec = Number(this.viewCenter.theta);
@@ -598,7 +598,7 @@
         return { az: this.viewCenter.phi, alt: this.viewCenter.theta };
     };
 
-    FChartScene.prototype.formatUrl = function (inpUrl) {
+    SkyScene.prototype.formatUrl = function (inpUrl) {
         let url = inpUrl;
         this.lastChartTimeISO = this.useCurrentTime ? new Date().toISOString() : this.dateTimeISO;
         if (this.isEquatorial) {
@@ -618,12 +618,12 @@
         return url;
     };
 
-    FChartScene.prototype.reloadLegendImage = function () {
+    SkyScene.prototype.reloadLegendImage = function () {
         const url = this.formatUrl(this.legendUrl) + '&t=' + Date.now();
         this.legendLayer.src = url;
     };
 
-    FChartScene.prototype._setUrlFlag = function (urlValue, flag, newValue) {
+    SkyScene.prototype._setUrlFlag = function (urlValue, flag, newValue) {
         const url = new URL(urlValue, window.location.origin);
         let flags = url.searchParams.get('flags') || '';
         if (flags.includes(flag)) {
@@ -641,18 +641,18 @@
         return url.pathname + url.search + url.hash;
     };
 
-    FChartScene.prototype.setChartUrlFlag = function (flag, value) {
+    SkyScene.prototype.setChartUrlFlag = function (flag, value) {
         const on = (typeof value === 'string') ? (value.toLowerCase() === 'true') : !!value;
         this.chartUrl = this._setUrlFlag(this.chartUrl, flag, on);
         this.sceneUrl = this._setUrlFlag(this.sceneUrl, flag, on);
         this.legendUrl = this._setUrlFlag(this.legendUrl, flag, on);
     };
 
-    FChartScene.prototype.setLegendUrlParam = function (key, value) {
+    SkyScene.prototype.setLegendUrlParam = function (key, value) {
         this.legendUrl = addOrReplaceQueryParam(this.legendUrl, key, value);
     };
 
-    FChartScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
+    SkyScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
         const coordSwitched = this.isEquatorial !== isEquatorial;
         this.isEquatorial = isEquatorial;
 
@@ -701,18 +701,18 @@
         this.forceReloadImage();
     };
 
-    FChartScene.prototype.setAladinLayer = function (surveyCustomName) {
+    SkyScene.prototype.setAladinLayer = function (surveyCustomName) {
         this.showAladin = !!surveyCustomName;
     };
 
-    FChartScene.prototype.resetSplitViewPosition = function () {
+    SkyScene.prototype.resetSplitViewPosition = function () {
         $(this.fchartDiv).css('left', '');
         $(this.fchartDiv).css('width', '');
         $(this.iframe).css('width', '');
         $(this.separator).hide();
     };
 
-    FChartScene.prototype.setSplitViewPosition = function () {
+    SkyScene.prototype.setSplitViewPosition = function () {
         const $iframe = $(this.iframe);
         const $separator = $(this.separator);
         const minWindow = 458 + 36;
@@ -728,7 +728,7 @@
         $(this.fchartDiv).css('width', 'calc(100% - ' + leftWidth + 'px)');
     };
 
-    FChartScene.prototype.applyScreenMode = function () {
+    SkyScene.prototype.applyScreenMode = function () {
         $(this.fchartDiv).toggleClass('fchart-fullscreen', this.fullScreen);
         $(this.fchartDiv).toggleClass('fchart-splitview', this.splitview);
         $(this.iframe).toggle(this.splitview);
@@ -739,17 +739,17 @@
             this.resetSplitViewPosition();
         }
     };
-    FChartScene.prototype.centerObjectInFov = function () {
+    SkyScene.prototype.centerObjectInFov = function () {
         this.viewCenter.phi = this.obj_ra;
         this.viewCenter.theta = this.obj_dec;
         this.setCenterToHiddenInputs();
         this.forceReloadImage();
     };
 
-    FChartScene.prototype.isInSplitView = function () { return this.splitview; };
-    FChartScene.prototype.isInFullScreen = function () { return this.fullScreen; };
+    SkyScene.prototype.isInSplitView = function () { return this.splitview; };
+    SkyScene.prototype.isInFullScreen = function () { return this.fullScreen; };
 
-    FChartScene.prototype.toggleSplitView = function () {
+    SkyScene.prototype.toggleSplitView = function () {
         if (this.splitview) {
             this.splitview = false;
             this.fullScreen = true;
@@ -764,7 +764,7 @@
         this.onResize();
     };
 
-    FChartScene.prototype.toggleFullscreen = function () {
+    SkyScene.prototype.toggleFullscreen = function () {
         if (this.splitview) {
             this.splitview = false;
             this.fullScreen = true;
@@ -778,14 +778,14 @@
         this.onResize();
     };
 
-    FChartScene.prototype.reloadImage = function () {
+    SkyScene.prototype.reloadImage = function () {
         if (this.isReloadingImage) return false;
         this.isReloadingImage = true;
         this._loadScene(false);
         return true;
     };
 
-    FChartScene.prototype.forceReloadImage = function () {
+    SkyScene.prototype.forceReloadImage = function () {
         if (this.reloadDebounceTimer) {
             clearTimeout(this.reloadDebounceTimer);
             this.reloadDebounceTimer = null;
@@ -794,7 +794,7 @@
         this._loadScene(true);
     };
 
-    FChartScene.prototype.scheduleSceneReloadDebounced = function () {
+    SkyScene.prototype.scheduleSceneReloadDebounced = function () {
         if (this.reloadDebounceTimer) {
             clearTimeout(this.reloadDebounceTimer);
         }
@@ -804,7 +804,7 @@
         }, this.reloadDebounceMs);
     };
 
-    FChartScene.prototype._loadScene = function (force) {
+    SkyScene.prototype._loadScene = function (force) {
         const epoch = ++this.sceneRequestEpoch;
         this.mwSelectRequestEpoch += 1;
         if (this.mwSelectTimer) {
@@ -840,7 +840,7 @@
         });
     };
 
-    FChartScene.prototype._setMilkywayInteractionActive = function (active) {
+    SkyScene.prototype._setMilkywayInteractionActive = function (active) {
         this.mwInteractionActive = !!active;
         if (!this.mwInteractionActive && this.mwSelectTimer) {
             clearTimeout(this.mwSelectTimer);
@@ -848,7 +848,7 @@
         }
     };
 
-    FChartScene.prototype._requestMilkyWaySelection = function (opts) {
+    SkyScene.prototype._requestMilkyWaySelection = function (opts) {
         if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
         const mwMeta = this.sceneData.meta.milky_way || {};
         if (!mwMeta || mwMeta.mode === 'off') return;
@@ -880,7 +880,7 @@
         this.mwSelectTimer = setTimeout(run, wait);
     };
 
-    FChartScene.prototype._requestMilkyWaySelectionNow = function (optimized) {
+    SkyScene.prototype._requestMilkyWaySelectionNow = function (optimized) {
         if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
         const mwMeta = this.sceneData.meta.milky_way || {};
         if (!mwMeta || mwMeta.mode === 'off') return;
@@ -943,16 +943,16 @@
         });
     };
 
-    FChartScene.prototype._starMagBucket = function (meta) {
+    SkyScene.prototype._starMagBucket = function (meta) {
         const m = meta && typeof meta.maglim === 'number' ? meta.maglim : 10.0;
         return Math.round(m * 2.0) / 2.0;
     };
 
-    FChartScene.prototype._zoneCacheKey = function (catalogId, magBucket, level, zone) {
+    SkyScene.prototype._zoneCacheKey = function (catalogId, magBucket, level, zone) {
         return catalogId + '|m' + magBucket.toFixed(1) + '|L' + level + 'Z' + zone;
     };
 
-    FChartScene.prototype._evictZoneCache = function () {
+    SkyScene.prototype._evictZoneCache = function () {
         while (this.starZoneCache.size > this.starZoneCacheMax) {
             const oldest = this.starZoneCache.keys().next();
             if (oldest.done) break;
@@ -960,7 +960,7 @@
         }
     };
 
-    FChartScene.prototype._collectCachedZoneStars = function (scene, catalogId, magBucket) {
+    SkyScene.prototype._collectCachedZoneStars = function (scene, catalogId, magBucket) {
         const out = [];
         const selection = (scene.objects && scene.objects.stars_zone_selection) || [];
         selection.forEach((ref) => {
@@ -972,7 +972,7 @@
         return out;
     };
 
-    FChartScene.prototype._loadZoneStars = function (scene, epoch) {
+    SkyScene.prototype._loadZoneStars = function (scene, epoch) {
         if (!scene || !scene.meta || !scene.objects) return;
         const streamMeta = scene.meta.stars_stream || {};
         if (!streamMeta.enabled || !streamMeta.catalog_id) return;
@@ -1046,23 +1046,23 @@
         }
     };
 
-    FChartScene.prototype.getMilkyWayCatalog = function (datasetId) {
+    SkyScene.prototype.getMilkyWayCatalog = function (datasetId) {
         return datasetId ? (this.mwCatalogById[datasetId] || null) : null;
     };
 
-    FChartScene.prototype.getDsoOutlinesCatalog = function (datasetId) {
+    SkyScene.prototype.getDsoOutlinesCatalog = function (datasetId) {
         return datasetId ? (this.dsoOutlinesCatalogById[datasetId] || null) : null;
     };
 
-    FChartScene.prototype.getConstellationLinesCatalog = function (datasetId) {
+    SkyScene.prototype.getConstellationLinesCatalog = function (datasetId) {
         return datasetId ? (this.constellLinesCatalogById[datasetId] || null) : null;
     };
 
-    FChartScene.prototype.getConstellationBoundariesCatalog = function (datasetId) {
+    SkyScene.prototype.getConstellationBoundariesCatalog = function (datasetId) {
         return datasetId ? (this.constellBoundariesCatalogById[datasetId] || null) : null;
     };
 
-    FChartScene.prototype.ensureMilkyWayCatalog = function (mwMeta) {
+    SkyScene.prototype.ensureMilkyWayCatalog = function (mwMeta) {
         if (!mwMeta || !mwMeta.dataset_id) return;
         const datasetId = mwMeta.dataset_id;
         if (this.mwCatalogById[datasetId] || this.mwCatalogLoadingById[datasetId]) return;
@@ -1085,7 +1085,7 @@
         });
     };
 
-    FChartScene.prototype.ensureDsoOutlinesCatalog = function (dsoOutlinesMeta) {
+    SkyScene.prototype.ensureDsoOutlinesCatalog = function (dsoOutlinesMeta) {
         if (!dsoOutlinesMeta || !dsoOutlinesMeta.dataset_id) return;
         const datasetId = dsoOutlinesMeta.dataset_id;
         if (this.dsoOutlinesCatalogById[datasetId] || this.dsoOutlinesCatalogLoadingById[datasetId]) return;
@@ -1112,7 +1112,7 @@
         });
     };
 
-    FChartScene.prototype.ensureConstellationLinesCatalog = function (constellLinesMeta) {
+    SkyScene.prototype.ensureConstellationLinesCatalog = function (constellLinesMeta) {
         if (!constellLinesMeta || !constellLinesMeta.dataset_id) return;
         const datasetId = constellLinesMeta.dataset_id;
         if (this.constellLinesCatalogById[datasetId] || this.constellLinesCatalogLoadingById[datasetId]) return;
@@ -1131,7 +1131,7 @@
         });
     };
 
-    FChartScene.prototype.ensureConstellationBoundariesCatalog = function (constellBoundariesMeta) {
+    SkyScene.prototype.ensureConstellationBoundariesCatalog = function (constellBoundariesMeta) {
         if (!constellBoundariesMeta || !constellBoundariesMeta.dataset_id) return;
         const datasetId = constellBoundariesMeta.dataset_id;
         if (this.constellBoundariesCatalogById[datasetId] || this.constellBoundariesCatalogLoadingById[datasetId]) return;
@@ -1150,9 +1150,9 @@
         });
     };
 
-    FChartScene.prototype.buildViewState = function () {
+    SkyScene.prototype.buildViewState = function () {
         const sceneMeta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : {};
-        return new window.FChartSceneViewState({
+        return new window.SkySceneViewState({
             isEquatorial: this.isEquatorial,
             viewCenter: this.viewCenter,
             renderFovDeg: this.renderFovDeg,
@@ -1167,7 +1167,7 @@
         });
     };
 
-    FChartScene.prototype.createProjection = function (viewState) {
+    SkyScene.prototype.createProjection = function (viewState) {
         return new window.SceneProjection({
             viewState: viewState,
             viewCenter: this.viewCenter,
@@ -1181,7 +1181,7 @@
         });
     };
 
-    FChartScene.prototype._registerSelectable = function (shape) {
+    SkyScene.prototype._registerSelectable = function (shape) {
         if (!this.selectionIndex || !shape || !shape.id) return;
         const priority = Number.isFinite(shape.priority) ? shape.priority : 10;
         if (shape.shape === 'circle') {
@@ -1197,7 +1197,7 @@
         }
     };
 
-    FChartScene.prototype.draw = function () {
+    SkyScene.prototype.draw = function () {
         if (!this.sceneData) {
             this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
             this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12]));
@@ -1206,135 +1206,131 @@
         }
 
         const bg = this.getThemeColor('background', [0.06, 0.07, 0.12]);
-        const drawColor = this.getThemeColor('draw', [0.8, 0.8, 0.8]);
         this.renderer.clear(bg);
         this.clearOverlay();
         this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
         const viewState = this.buildViewState();
         const projection = this.createProjection(viewState);
-        try {
-            this.milkyWayRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-                ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
-                getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
-            });
+        this.milkyWayRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
+            getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
+        });
 
-            this.gridRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-                meta: this.sceneData.meta || {},
-                latitude: this.latitude,
-                longitude: this.longitude,
-                useCurrentTime: this.useCurrentTime,
-                dateTimeISO: this.lastChartTimeISO || this.dateTimeISO,
-            });
+        this.gridRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            meta: this.sceneData.meta || {},
+            latitude: this.latitude,
+            longitude: this.longitude,
+            useCurrentTime: this.useCurrentTime,
+            dateTimeISO: this.lastChartTimeISO || this.dateTimeISO,
+        });
 
-            this.constellRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-                ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
-                getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
-                ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
-                getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
-            });
+        this.constellRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
+            getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
+            ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
+            getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
+        });
 
-            this.nebulaeOutlinesRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-            });
+        this.nebulaeOutlinesRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        });
 
-            this.dsoRenderer.draw({
-                sceneData: this.sceneData,
-                renderer: this.renderer,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                meta: this.sceneData.meta || {},
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-                ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
-                getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
-                registerSelectable: this._registerSelectable.bind(this),
-            });
+        this.dsoRenderer.draw({
+            sceneData: this.sceneData,
+            renderer: this.renderer,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
+            getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
+            registerSelectable: this._registerSelectable.bind(this),
+        });
 
-            this.planetRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                meta: this.sceneData.meta || {},
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-                registerSelectable: this._registerSelectable.bind(this),
-            });
+        this.planetRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            registerSelectable: this._registerSelectable.bind(this),
+        });
 
-            this.starsRenderer.draw({
-                sceneData: this.sceneData,
-                zoneStars: this.zoneStars,
-                renderer: this.renderer,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                meta: this.sceneData.meta || {},
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-            });
+        this.starsRenderer.draw({
+            sceneData: this.sceneData,
+            zoneStars: this.zoneStars,
+            renderer: this.renderer,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        });
 
-            this.horizonRenderer.draw({
-                sceneData: this.sceneData,
-                overlayCtx: this.overlayCtx,
-                projection: projection,
-                viewState: viewState,
-                themeConfig: this.getThemeConfig(),
-                meta: this.sceneData.meta || {},
-                getThemeColor: this.getThemeColor.bind(this),
-                width: this.canvas.width,
-                height: this.canvas.height,
-            });
-        } finally {
-        }
+        this.horizonRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+        });
         this.selectionIndex.finalize();
     };
 
-    FChartScene.prototype.findSelectableObject = function (e) {
+    SkyScene.prototype.findSelectableObject = function (e) {
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         return this.findSelectableObjectAt(x, y);
     };
 
-    FChartScene.prototype.findSelectableObjectAt = function (x, y) {
+    SkyScene.prototype.findSelectableObjectAt = function (x, y) {
         const localHit = this.selectionIndex ? this.selectionIndex.hitTest(x, y) : null;
         if (localHit) return localHit;
 
@@ -1348,7 +1344,7 @@
         return null;
     };
 
-    FChartScene.prototype.updateHoverCursor = function (e) {
+    SkyScene.prototype.updateHoverCursor = function (e) {
         if (!this.canvas) return;
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -1357,7 +1353,7 @@
         this.canvas.style.cursor = selected ? 'pointer' : '';
     };
 
-    FChartScene.prototype._eventClientXY = function (e) {
+    SkyScene.prototype._eventClientXY = function (e) {
         const oe = e.originalEvent || e;
         return {
             x: Number.isFinite(oe.clientX) ? oe.clientX : 0,
@@ -1365,12 +1361,12 @@
         };
     };
 
-    FChartScene.prototype._clientToCanvasXY = function (clientX, clientY) {
+    SkyScene.prototype._clientToCanvasXY = function (clientX, clientY) {
         const rect = this.canvas.getBoundingClientRect();
         return { x: clientX - rect.left, y: clientY - rect.top };
     };
 
-    FChartScene.prototype._openSelected = function (selected) {
+    SkyScene.prototype._openSelected = function (selected) {
         if (!selected) return;
         if (this.isInSplitView()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
@@ -1384,7 +1380,7 @@
         }
     };
 
-    FChartScene.prototype._applyPanDelta = function (dx, dy) {
+    SkyScene.prototype._applyPanDelta = function (dx, dy) {
         const fovDeg = (typeof this.renderFovDeg === 'number')
             ? this.renderFovDeg
             : this.fieldSizes[this.fldSizeIndex];
@@ -1404,7 +1400,7 @@
         this.draw();
     };
 
-    FChartScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
+    SkyScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
         let best = 0;
         let bestDist = Infinity;
         for (let i = 0; i < this.fieldSizes.length; i++) {
@@ -1417,14 +1413,14 @@
         return best;
     };
 
-    FChartScene.prototype._stopInertia = function () {
+    SkyScene.prototype._stopInertia = function () {
         if (this.input.inertiaRaf) {
             cancelAnimationFrame(this.input.inertiaRaf);
             this.input.inertiaRaf = null;
         }
     };
 
-    FChartScene.prototype._startInertia = function (vx, vy) {
+    SkyScene.prototype._startInertia = function (vx, vy) {
         this._stopInertia();
         const speed = Math.hypot(vx, vy);
         if (!Number.isFinite(speed) || speed < this.inertiaStartThreshold) return false;
@@ -1455,7 +1451,7 @@
         return true;
     };
 
-    FChartScene.prototype.onClick = function (e) {
+    SkyScene.prototype.onClick = function (e) {
         if (Date.now() < this.input.suppressClickUntilTs) return;
         if (this.lastInputWasTouch) return;
         if (this.move.moved) {
@@ -1466,7 +1462,7 @@
         this._openSelected(selected);
     };
 
-    FChartScene.prototype._handleTapRelease = function (clientX, clientY) {
+    SkyScene.prototype._handleTapRelease = function (clientX, clientY) {
         const now = Date.now();
         const dtTap = now - this.input.lastTapTs;
         const distTap = Math.hypot(clientX - this.input.lastTapX, clientY - this.input.lastTapY);
@@ -1489,7 +1485,7 @@
         this._openSelected(selected);
     };
 
-    FChartScene.prototype.onMouseDown = function (e) {
+    SkyScene.prototype.onMouseDown = function (e) {
         this.move.isDragging = true;
         this.move.lastX = e.clientX;
         this.move.lastY = e.clientY;
@@ -1498,7 +1494,7 @@
         this._requestMilkyWaySelection({ optimized: true, immediate: true });
     };
 
-    FChartScene.prototype.onMouseMove = function (e) {
+    SkyScene.prototype.onMouseMove = function (e) {
         if (!this.move.isDragging) {
             this.updateHoverCursor(e);
             return;
@@ -1514,7 +1510,7 @@
         this._applyPanDelta(dx, dy);
     };
 
-    FChartScene.prototype.onMouseUp = function () {
+    SkyScene.prototype.onMouseUp = function () {
         if (!this.move.isDragging) return;
         this.move.isDragging = false;
         if (this.canvas) {
@@ -1527,7 +1523,7 @@
         }
     };
 
-    FChartScene.prototype.onPointerDown = function (e) {
+    SkyScene.prototype.onPointerDown = function (e) {
         e.preventDefault();
         const oe = e.originalEvent || e;
         this.lastInputWasTouch = oe.pointerType === 'touch';
@@ -1569,7 +1565,7 @@
         }
     };
 
-    FChartScene.prototype.onPointerMove = function (e) {
+    SkyScene.prototype.onPointerMove = function (e) {
         const oe = e.originalEvent || e;
         if (!this.input.activePointers.has(oe.pointerId)) {
             if (oe.pointerType === 'mouse') this.updateHoverCursor(e);
@@ -1612,7 +1608,7 @@
         this._applyPanDelta(dx, dy);
     };
 
-    FChartScene.prototype.onPointerUp = function (e) {
+    SkyScene.prototype.onPointerUp = function (e) {
         const oe = e.originalEvent || e;
         if (!this.input.activePointers.has(oe.pointerId)) return;
         e.preventDefault();
@@ -1663,7 +1659,7 @@
         this.move.moved = false;
     };
 
-    FChartScene.prototype.onPointerCancel = function (e) {
+    SkyScene.prototype.onPointerCancel = function (e) {
         const oe = e.originalEvent || e;
         this.input.activePointers.delete(oe.pointerId);
         if (oe.pointerId === this.input.primaryId) {
@@ -1678,7 +1674,7 @@
         this.move.moved = false;
     };
 
-    FChartScene.prototype.onWheel = function (e) {
+    SkyScene.prototype.onWheel = function (e) {
         e.preventDefault();
         const delta = normalizeDelta(e);
         if (delta === 0) return;
@@ -1688,7 +1684,7 @@
         this.startZoomToIndex(newIndex);
     };
 
-    FChartScene.prototype.startZoomToIndex = function (newIndex) {
+    SkyScene.prototype.startZoomToIndex = function (newIndex) {
         const clampedIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
         if (clampedIndex === this.targetFldSizeIndex && !this.zoomAnim) {
             return;
@@ -1742,7 +1738,7 @@
         this.zoomAnimRaf = requestAnimationFrame(tick);
     };
 
-    FChartScene.prototype.onKeyDown = function (e) {
+    SkyScene.prototype.onKeyDown = function (e) {
         if (e.keyCode === 33 || e.keyCode === 34) {
             const dir = (e.keyCode === 33) ? 1 : -1;
             let newIndex = this.targetFldSizeIndex + (dir > 0 ? 1 : -1);

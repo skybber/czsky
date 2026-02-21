@@ -700,7 +700,7 @@
         var searchUrl = "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}";
         var fchart = null;
         if (useDataMode && sceneUrl) {
-            fchart = new FChartScene(
+            fchart = new SkyScene(
                 '#fchart-div',
                 {{ fchart_form.radius.data }},
                 fieldSizes,

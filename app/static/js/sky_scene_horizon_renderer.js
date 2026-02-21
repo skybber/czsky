@@ -1,5 +1,5 @@
 (function () {
-    window.FChartSceneHorizonRenderer = function () {};
+    window.SkySceneHorizonRenderer = function () {};
 
     const EPS = 1e-9;
 
@@ -27,13 +27,13 @@
         };
     }
 
-    FChartSceneHorizonRenderer.prototype._projectPx = function (sceneCtx, phi, theta) {
+    SkySceneHorizonRenderer.prototype._projectPx = function (sceneCtx, phi, theta) {
         const p = sceneCtx.projection.projectFrameToNdc(phi, theta);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
 
-    FChartSceneHorizonRenderer.prototype._drawPolyline = function (ctx, points, closePath) {
+    SkySceneHorizonRenderer.prototype._drawPolyline = function (ctx, points, closePath) {
         if (!points || !points.length) return;
         let open = false;
         let first = null;
@@ -64,7 +64,7 @@
         ctx.stroke();
     };
 
-    FChartSceneHorizonRenderer.prototype._drawSimpleHorizon = function (sceneCtx) {
+    SkySceneHorizonRenderer.prototype._drawSimpleHorizon = function (sceneCtx) {
         const ctx = sceneCtx.overlayCtx;
         const centerHor = sceneCtx.viewState.getHorizontalCenter();
         const centerAz = centerHor.az;
@@ -78,7 +78,7 @@
         this._drawPolyline(ctx, points, false);
     };
 
-    FChartSceneHorizonRenderer.prototype._drawPolygonalHorizon = function (sceneCtx, polygonPoints) {
+    SkySceneHorizonRenderer.prototype._drawPolygonalHorizon = function (sceneCtx, polygonPoints) {
         const points = [];
         for (let i = 0; i < polygonPoints.length; i++) {
             const p = polygonPoints[i];
@@ -88,7 +88,7 @@
         this._drawPolyline(sceneCtx.overlayCtx, points, true);
     };
 
-    FChartSceneHorizonRenderer.prototype.draw = function (sceneCtx) {
+    SkySceneHorizonRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
         if (!sceneCtx.viewState) return;
         const meta = sceneCtx.meta || {};

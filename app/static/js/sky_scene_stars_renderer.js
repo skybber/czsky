@@ -1,5 +1,5 @@
 (function () {
-    window.FChartSceneStarsRenderer = function () {};
+    window.SkySceneStarsRenderer = function () {};
     const TWO_PI = Math.PI * 2.0;
 
     function clamp01(v) {
@@ -22,7 +22,7 @@
         return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
 
-    FChartSceneStarsRenderer.prototype._interp = function (x, xp, yp) {
+    SkySceneStarsRenderer.prototype._interp = function (x, xp, yp) {
         if (x <= xp[0]) {
             return yp[0];
         }
@@ -35,7 +35,7 @@
         return yp[yp.length - 1];
     };
 
-    FChartSceneStarsRenderer.prototype._starRadiusMm = function (limMag, mag, starMagRShift) {
+    SkySceneStarsRenderer.prototype._starRadiusMm = function (limMag, mag, starMagRShift) {
         const magScaleX = [0, 1, 2, 3, 4, 5, 25];
         const magScaleY = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
         const magD = limMag - Math.min(mag, limMag);
@@ -43,7 +43,7 @@
         return 0.1 * Math.pow(1.33, magS) + starMagRShift;
     };
 
-    FChartSceneStarsRenderer.prototype._starSizePx = function (sceneMeta, themeConfig, mag) {
+    SkySceneStarsRenderer.prototype._starSizePx = function (sceneMeta, themeConfig, mag) {
         const lm = sceneMeta ? (sceneMeta.maglim || 10.0) : 10.0;
         const starMagShift = themeConfig && themeConfig.sizes && typeof themeConfig.sizes.star_mag_shift === 'number'
             ? themeConfig.sizes.star_mag_shift : 0.0;
@@ -58,7 +58,7 @@
         return radiusMm * pxPerMm * 2.0;
     };
 
-    FChartSceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
+    SkySceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
         const starsOut = [];
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
         const starColorsEnabled = !!(
@@ -96,7 +96,7 @@
         return starsOut;
     };
 
-    FChartSceneStarsRenderer.prototype._drawStar = function (ctx, star) {
+    SkySceneStarsRenderer.prototype._drawStar = function (ctx, star) {
         const radius = Math.max(0.01, (star.size || 1.0) * 0.5);
         ctx.fillStyle = rgba(star.color, 1.0);
         ctx.beginPath();
@@ -104,7 +104,7 @@
         ctx.fill();
     };
 
-    FChartSceneStarsRenderer.prototype.draw = function (sceneCtx) {
+    SkySceneStarsRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
             return;
         }
