@@ -2,44 +2,23 @@
     window.SkySceneHorizonRenderer = function () {};
 
     const EPS = 1e-9;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
+    const PX_PER_MM = 100.0 / 25.4;
 
     function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
+        return mm * PX_PER_MM;
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
-    SkySceneHorizonRenderer.prototype._projectPx = function (sceneCtx, phi, theta) {
+    SkySceneHorizonRenderer.prototype._projectNdc = function (sceneCtx, phi, theta) {
         const p = sceneCtx.projection.projectFrameToNdc(phi, theta);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
+        return p ? { x: p.ndcX, y: p.ndcY } : null;
     };
 
-    SkySceneHorizonRenderer.prototype._drawPolyline = function (ctx, points, closePath) {
+    SkySceneHorizonRenderer.prototype._appendPolylineSegments = function (out, points, closePath) {
         if (!points || !points.length) return;
         let open = false;
         let first = null;
         let last = null;
 
-        ctx.beginPath();
         for (let i = 0; i < points.length; i++) {
             const p = points[i];
             if (!p) {
@@ -49,23 +28,20 @@
                 continue;
             }
             if (!open) {
-                ctx.moveTo(p.x, p.y);
                 open = true;
                 first = p;
-            } else {
-                ctx.lineTo(p.x, p.y);
+            } else if (last) {
+                out.push(last.x, last.y, p.x, p.y);
             }
             last = p;
         }
 
-        if (closePath && open && first && last && (Math.hypot(first.x - last.x, first.y - last.y) > 1.0)) {
-            ctx.lineTo(first.x, first.y);
+        if (closePath && open && first && last && (Math.hypot(first.x - last.x, first.y - last.y) > 1e-5)) {
+            out.push(last.x, last.y, first.x, first.y);
         }
-        ctx.stroke();
     };
 
-    SkySceneHorizonRenderer.prototype._drawSimpleHorizon = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+    SkySceneHorizonRenderer.prototype._appendSimpleHorizon = function (sceneCtx, lineSegments) {
         const centerHor = sceneCtx.viewState.getHorizontalCenter();
         const centerAz = centerHor.az;
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
@@ -73,49 +49,48 @@
 
         const points = [];
         for (let aggAz = -Math.PI; aggAz <= Math.PI + EPS; aggAz += daz) {
-            points.push(this._projectPx(sceneCtx, centerAz + aggAz, 0.0));
+            points.push(this._projectNdc(sceneCtx, centerAz + aggAz, 0.0));
         }
-        this._drawPolyline(ctx, points, false);
+        this._appendPolylineSegments(lineSegments, points, false);
     };
 
-    SkySceneHorizonRenderer.prototype._drawPolygonalHorizon = function (sceneCtx, polygonPoints) {
+    SkySceneHorizonRenderer.prototype._appendPolygonalHorizon = function (sceneCtx, polygonPoints, lineSegments) {
         const points = [];
         for (let i = 0; i < polygonPoints.length; i++) {
             const p = polygonPoints[i];
             if (!Array.isArray(p) || p.length < 2) continue;
-            points.push(this._projectPx(sceneCtx, p[0], p[1]));
+            points.push(this._projectNdc(sceneCtx, p[0], p[1]));
         }
-        this._drawPolyline(sceneCtx.overlayCtx, points, true);
+        this._appendPolylineSegments(lineSegments, points, true);
     };
 
     SkySceneHorizonRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.renderer) return;
         if (!sceneCtx.viewState) return;
         const meta = sceneCtx.meta || {};
         if (sceneCtx.viewState.coordSystem !== 'horizontal') return;
         if (typeof meta.show_horizon === 'boolean' && !meta.show_horizon) return;
+        if (typeof sceneCtx.renderer.drawTriangles !== 'function') return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const color = sceneCtx.getThemeColor('horizon', [0.6, 0.6, 0.3]);
         const theme = sceneCtx.themeConfig || {};
         const lws = theme.line_widths || {};
         const lwMm = (typeof lws.horizon === 'number') ? lws.horizon : 1.0;
-        const color = sceneCtx.getThemeColor('horizon', [0.6, 0.6, 0.3]);
-
-        ctx.save();
-        ctx.strokeStyle = rgba(color, 1.0);
-        ctx.lineWidth = Math.max(0.75, mmToPx(lwMm));
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.setLineDash([]);
+        const lineWidthPx = Math.max(0.75, mmToPx(lwMm));
+        const lineSegments = [];
+        const triangles = [];
 
         const objects = sceneCtx.sceneData.objects || {};
         const polygon = Array.isArray(objects.horizon_polygon) ? objects.horizon_polygon : null;
         if (polygon && polygon.length >= 2) {
-            this._drawPolygonalHorizon(sceneCtx, polygon);
+            this._appendPolygonalHorizon(sceneCtx, polygon, lineSegments);
         } else {
-            this._drawSimpleHorizon(sceneCtx);
+            this._appendSimpleHorizon(sceneCtx, lineSegments);
         }
+        if (!lineSegments.length) return;
 
-        ctx.restore();
+        sceneCtx.renderer.buildThickLineTriangles(lineSegments, sceneCtx.width, sceneCtx.height, lineWidthPx, triangles);
+        if (!triangles.length) return;
+        sceneCtx.renderer.drawTriangles(triangles, color);
     };
 })();
