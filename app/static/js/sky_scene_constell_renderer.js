@@ -20,6 +20,11 @@
         return mm * (100.0 / 25.4);
     }
 
+    function hasFlag(meta, flag) {
+        const flags = (meta && typeof meta.flags === 'string') ? meta.flags : '';
+        return flags.indexOf(flag) !== -1;
+    }
+
     function normalizeRa(rad) {
         let r = rad % TWO_PI;
         if (r < 0) r += TWO_PI;
@@ -204,8 +209,21 @@
             return;
         }
 
+        const meta = sceneCtx.sceneData.meta || {};
+        const showShapes = (typeof meta.show_constellation_shapes === 'boolean')
+            ? meta.show_constellation_shapes
+            : hasFlag(meta, 'C');
+        const showBorders = (typeof meta.show_constellation_borders === 'boolean')
+            ? meta.show_constellation_borders
+            : hasFlag(meta, 'B');
+        if (!showShapes && !showBorders) return;
+
         const ctx = sceneCtx.overlayCtx;
-        this._drawLines(sceneCtx, ctx);
-        this._drawBoundaries(sceneCtx, ctx);
+        if (showShapes) {
+            this._drawLines(sceneCtx, ctx);
+        }
+        if (showBorders) {
+            this._drawBoundaries(sceneCtx, ctx);
+        }
     };
 })();
