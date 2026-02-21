@@ -67,6 +67,11 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.auto_img_utils import get_dso_image_info, get_dso_image_info_with_imgdir
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+)
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists, create_observed_dso_ids_list
 
@@ -539,6 +544,43 @@ def deepskyobject_chart(dso_id):
                            embed=embed, has_observations=has_observations, show_obs_log=show_obs_log,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            )
+
+
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart/scene-v1', methods=['GET'])
+def deepskyobject_chart_scene_v1(dso_id):
+    dso, _ = _find_dso(dso_id)
+    if dso is None:
+        abort(404)
+
+    highlights_dso_list, _ = create_hightlights_lists()
+    observed_dso_ids = create_observed_dso_ids_list()
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+    highlights.append(
+        build_cross_highlight(highlight_id=dso.name, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
+    )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            hl_id = str(hl_dso.name).replace(' ', '')
+            dashed = observed_dso_ids and hl_dso.id in observed_dso_ids
+            highlights.append(
+                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=dashed, theme_name=cur_theme,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'deepskyobject',
+        'id': dso.name,
+        'ra': float(dso.ra),
+        'dec': float(dso.dec),
+    }
+    return jsonify(scene)
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pos-img', methods=['GET'])

@@ -204,28 +204,35 @@
         return v;
     }
 
-    function sceneMilkyCatalogUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
+    function sceneSharedUrl(sceneData, key) {
+        const meta = sceneData && sceneData.meta ? sceneData.meta : null;
+        const shared = meta && meta.shared_urls ? meta.shared_urls : null;
+        const value = shared && typeof shared[key] === 'string' ? shared[key] : null;
+        return value && value.length ? value : null;
     }
 
-    function sceneMilkySelectUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/milkyway-v1/select');
+    function sceneMilkyCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'milkyway_catalog') || sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
     }
 
-    function sceneStarsZonesUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/stars-v1/zones');
+    function sceneMilkySelectUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'milkyway_select') || sceneUrl.replace('/scene-v1', '/milkyway-v1/select');
     }
 
-    function sceneDsoOutlinesCatalogUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
+    function sceneStarsZonesUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'stars_zones') || sceneUrl.replace('/scene-v1', '/stars-v1/zones');
     }
 
-    function sceneConstellationLinesCatalogUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/constellation-lines-v1/catalog');
+    function sceneDsoOutlinesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'dso_outlines_catalog') || sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
     }
 
-    function sceneConstellationBoundariesCatalogUrl(sceneUrl) {
-        return sceneUrl.replace('/scene-v1', '/constellation-boundaries-v1/catalog');
+    function sceneConstellationLinesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'constellation_lines_catalog') || sceneUrl.replace('/scene-v1', '/constellation-lines-v1/catalog');
+    }
+
+    function sceneConstellationBoundariesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'constellation_boundaries_catalog') || sceneUrl.replace('/scene-v1', '/constellation-boundaries-v1/catalog');
     }
 
     function SelectionIndex() {
@@ -437,6 +444,7 @@
         this.gridRenderer = new window.SkySceneGridRenderer();
         this.nebulaeOutlinesRenderer = new window.SkySceneNebulaeOutlinesRenderer();
         this.horizonRenderer = new window.SkySceneHorizonRenderer();
+        this.highlightRenderer = new window.SkySceneHighlightRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
 
         this.move = {
@@ -1183,7 +1191,7 @@
         this.mwSelectLastTs = Date.now();
 
         const frameTimeISO = this._resolveRequestTimeISO();
-        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl), { timeISO: frameTimeISO });
+        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl, this.sceneData), { timeISO: frameTimeISO });
         const coordSystem = this.sceneData.meta.coord_system || 'equatorial';
         if (coordSystem === 'equatorial') {
             url = addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
@@ -1303,7 +1311,7 @@
 
             const tokens = batch.map((r) => 'L' + r.level + 'Z' + r.zone).join(',');
             const frameTimeISO = this._resolveRequestTimeISO();
-            let url = this.formatUrl(sceneStarsZonesUrl(this.sceneUrl), { timeISO: frameTimeISO });
+            let url = this.formatUrl(sceneStarsZonesUrl(this.sceneUrl, scene), { timeISO: frameTimeISO });
             const sceneMeta = scene.meta || {};
             const centerMeta = sceneMeta.center || {};
             const coordSystem = sceneMeta.coord_system || 'equatorial';
@@ -1400,7 +1408,7 @@
         if (this.mwCatalogById[datasetId] || this.mwCatalogLoadingById[datasetId]) return;
 
         this.mwCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneMilkyCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(sceneMilkyCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         if (mwMeta.quality) {
             url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
@@ -1424,7 +1432,7 @@
         if (this.dsoOutlinesCatalogById[datasetId] || this.dsoOutlinesCatalogLoadingById[datasetId]) return;
 
         this.dsoOutlinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1451,7 +1459,7 @@
         if (this.constellLinesCatalogById[datasetId] || this.constellLinesCatalogLoadingById[datasetId]) return;
 
         this.constellLinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1470,7 +1478,7 @@
         if (this.constellBoundariesCatalogById[datasetId] || this.constellBoundariesCatalogLoadingById[datasetId]) return;
 
         this.constellBoundariesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&mode=data&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -1690,6 +1698,19 @@
                 height: this.canvas.height,
             }));
         }
+
+        measure('highlights', () => this.highlightRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            registerSelectable: this._registerSelectable.bind(this),
+        }));
 
         measure('info_panel', () => this.infoPanelRenderer.draw({
             sceneData: this.sceneData,

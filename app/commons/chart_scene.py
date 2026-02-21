@@ -3,10 +3,10 @@ import math
 import os
 import threading
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import numpy as np
-from flask import abort, current_app, request
+from flask import abort, current_app, request, url_for
 
 import fchart3
 
@@ -88,6 +88,75 @@ class SceneRequest:
     debug_stars: str
 
 
+class SceneHighlight(TypedDict, total=False):
+    shape: str
+    id: str
+    label: str
+    ra: float
+    dec: float
+    size: float
+    line_width: float
+    color: List[float]
+    dashed: bool
+    dash: Optional[List[float]]
+
+
+def _normalized_theme_name(theme_name: Optional[str]) -> str:
+    return (theme_name or "").strip().lower()
+
+
+def build_cross_highlight(
+    highlight_id: str,
+    label: str,
+    ra: float,
+    dec: float,
+    theme_name: Optional[str],
+    size: float = 1.0,
+) -> SceneHighlight:
+    theme = _normalized_theme_name(theme_name)
+    return {
+        "shape": "cross",
+        "id": highlight_id,
+        "label": label,
+        "ra": float(ra),
+        "dec": float(dec),
+        "size": float(size),
+        # Keep legacy fchart3 width: highlight_linewidth * 1.3 = 0.39
+        "line_width": 0.39,
+        "color": [0.5, 0.2, 0.0] if theme == "night" else [0.0, 0.5, 0.0],
+    }
+
+
+def build_circle_highlight(
+    highlight_id: str,
+    label: str,
+    ra: float,
+    dec: float,
+    dashed: bool,
+    theme_name: Optional[str],
+) -> SceneHighlight:
+    theme = _normalized_theme_name(theme_name)
+    if theme == "light":
+        dso_hl_color = [0.1, 0.2, 0.4]
+    elif theme == "night":
+        dso_hl_color = [0.4, 0.2, 0.1]
+    else:
+        dso_hl_color = [0.15, 0.3, 0.6]
+
+    is_dashed = bool(dashed)
+    return {
+        "shape": "dso_circle",
+        "id": highlight_id,
+        "label": label,
+        "ra": float(ra),
+        "dec": float(dec),
+        "dashed": is_dashed,
+        "dash": [0.6, 1.2] if is_dashed else None,
+        "line_width": 0.4 if is_dashed else 0.3,
+        "color": dso_hl_color,
+    }
+
+
 def _normalize_ra(ra: float) -> float:
     return ra % (2.0 * math.pi)
 
@@ -165,6 +234,33 @@ def _resolve_scene_request() -> SceneRequest:
         flags=flags,
         debug_stars=debug_stars,
     )
+
+
+def _scene_common_params(req: SceneRequest) -> Dict[str, str]:
+    params = {
+        "fsz": "_FSZ_",
+        "width": "_WIDTH_",
+        "height": "_HEIGHT_",
+        "dt": "_DATE_TIME_",
+        "flags": req.flags,
+    }
+    if req.is_equatorial:
+        params.update({"ra": "_RA_", "dec": "_DEC_"})
+    else:
+        params.update({"az": "_AZ_", "alt": "_ALT_"})
+    return params
+
+
+def build_shared_scene_urls(req: SceneRequest) -> Dict[str, str]:
+    params = _scene_common_params(req)
+    return {
+        "stars_zones": url_for("main_chart.chart_stars_zones_v1", **params),
+        "milkyway_catalog": url_for("main_chart.chart_milkyway_catalog_v1", **params),
+        "milkyway_select": url_for("main_chart.chart_milkyway_select_v1", **params),
+        "dso_outlines_catalog": url_for("main_chart.chart_dso_outlines_catalog_v1", **params),
+        "constellation_lines_catalog": url_for("main_chart.chart_constellation_lines_catalog_v1", **params),
+        "constellation_boundaries_catalog": url_for("main_chart.chart_constellation_boundaries_catalog_v1", **params),
+    }
 
 
 def _resolve_center_equatorial(req: SceneRequest, lat: float, lon: float) -> Tuple[float, float]:
@@ -835,6 +931,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 "dataset_id": constell_boundaries_dataset_id,
                 "boundaries_count": constell_boundaries_dataset.get("stats", {}).get("boundaries_count", 0),
             },
+            "shared_urls": build_shared_scene_urls(req),
         },
         "layers": [
             "milky_way",
