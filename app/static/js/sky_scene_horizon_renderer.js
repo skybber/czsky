@@ -2,6 +2,16 @@
     window.SkySceneHorizonRenderer = function () {};
 
     const EPS = 1e-9;
+    const CARDINAL_DIRECTIONS = [
+        ['N', 0.0],
+        ['NW', Math.PI / 4.0],
+        ['W', Math.PI / 2.0],
+        ['SW', Math.PI * 3.0 / 4.0],
+        ['S', Math.PI],
+        ['SE', Math.PI * 5.0 / 4.0],
+        ['E', Math.PI * 3.0 / 2.0],
+        ['NE', Math.PI * 7.0 / 4.0],
+    ];
 
     function clamp01(v) {
         if (v < 0) return 0;
@@ -88,6 +98,50 @@
         this._drawPolyline(sceneCtx.overlayCtx, points, true);
     };
 
+    SkySceneHorizonRenderer.prototype._drawCardinalLabels = function (sceneCtx) {
+        const ctx = sceneCtx.overlayCtx;
+        const theme = sceneCtx.themeConfig || {};
+        const fs = theme.font_scales || {};
+        const baseFontMm = (typeof fs.font_size === 'number') ? fs.font_size : 3.0;
+        const scale = (typeof fs.cardinal_directions_font_scale === 'number') ? fs.cardinal_directions_font_scale : 1.3;
+        const fontPx = Math.max(10, mmToPx(baseFontMm * scale));
+        const color = sceneCtx.getThemeColor(
+            'cardinal_directions',
+            sceneCtx.getThemeColor('label', [0.8, 0.2, 0.102])
+        );
+
+        ctx.save();
+        ctx.fillStyle = rgba(color, 1.0);
+        ctx.font = Math.round(fontPx) + 'px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+
+        for (let i = 0; i < CARDINAL_DIRECTIONS.length; i++) {
+            const dir = CARDINAL_DIRECTIONS[i];
+            const label = dir[0];
+            const az = dir[1];
+            const p = this._projectPx(sceneCtx, az, 0.0);
+            if (!p) continue;
+
+            const pUp = this._projectPx(sceneCtx, az, Math.PI / 20.0);
+            let textAng = 0.0;
+            if (pUp) {
+                textAng = Math.atan2(pUp.x - p.x, pUp.y - p.y);
+                // Keep labels upright in canvas Y-down coordinates.
+                if (textAng > Math.PI / 2.0) textAng -= Math.PI;
+                if (textAng < -Math.PI / 2.0) textAng += Math.PI;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(-textAng);
+            ctx.fillText(label, 0, -2);
+            ctx.restore();
+        }
+
+        ctx.restore();
+    };
+
     SkySceneHorizonRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
         if (!sceneCtx.viewState) return;
@@ -115,6 +169,7 @@
         } else {
             this._drawSimpleHorizon(sceneCtx);
         }
+        this._drawCardinalLabels(sceneCtx);
 
         ctx.restore();
     };

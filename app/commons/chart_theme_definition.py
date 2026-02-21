@@ -305,6 +305,7 @@ class ChartThemeDefinition:
                 'star_cluster': self.star_cluster_color,
                 'highlight': self.highlight_color,
                 'horizon': self.horizon_color,
+                'cardinal_directions': self.cardinal_directions_color,
                 'sun': self.sun_color,
                 'moon': self.moon_color,
                 'mercury': self.mercury_color,
