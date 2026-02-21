@@ -80,6 +80,7 @@
         if (!sceneCtx || !sceneCtx.sceneData) return;
 
         const meta = sceneCtx.sceneData.meta || {};
+        if (typeof meta.show_milky_way === 'boolean' && !meta.show_milky_way) return;
         const mwMeta = meta.milky_way || {};
         if (!mwMeta || mwMeta.mode === 'off' || !mwMeta.dataset_id) return;
 

@@ -129,6 +129,7 @@ class FlagValue(Enum):
     CONSTELL_BORDERS = 'B'
     CONSTELL_SHAPES = 'C'
     SHOW_DEEPSKY = 'D'
+    SHOW_MILKY_WAY = 'W'
     SHOW_SOLAR_SYSTEM = 'O'
     SHOW_COMET_TAIL = 'K'
     SHOW_EQUATORIAL_GRID = 'E'
@@ -668,6 +669,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.show_constell_shapes.data = session.get('chart_show_constell_shapes', form.show_constell_shapes.data)
         form.show_constell_borders.data = session.get('chart_show_constell_borders', form.show_constell_borders.data)
         form.show_solar_system.data = session.get('chart_show_solar_system', form.show_solar_system.data)
+        form.show_milky_way.data = session.get('chart_show_milky_way', form.show_milky_way.data)
         form.show_comet_tail.data = session.get('chart_show_comet_tail', form.show_comet_tail.data)
         form.dss_layer.data = session.get('chart_dss_layer', form.dss_layer.data)
         form.show_equatorial_grid.data = session.get('chart_show_equatorial_grid', form.show_equatorial_grid.data)
@@ -687,6 +689,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_constell_shapes'] = form.show_constell_shapes.data
         session['chart_show_constell_borders'] = form.show_constell_borders.data
         session['chart_show_dso'] = form.show_dso.data
+        session['chart_show_milky_way'] = form.show_milky_way.data
         session['chart_show_solar_system'] = form.show_solar_system.data
         session['chart_show_comet_tail'] = form.show_comet_tail.data
         session['chart_dss_layer'] = form.dss_layer.data
@@ -1409,6 +1412,9 @@ def _get_chart_legend_flags(form):
     if form.show_dso.data == 'true':
         chart_flags += FlagValue.SHOW_DEEPSKY.value
 
+    if form.show_milky_way.data == 'true':
+        chart_flags += FlagValue.SHOW_MILKY_WAY.value
+
     if form.show_solar_system.data == 'true':
         chart_flags += FlagValue.SHOW_SOLAR_SYSTEM.value
 
@@ -1528,7 +1534,7 @@ def set_chart_session_param(key, value):
             session['location_city_name'] = value
             session['user_location'] = value
     elif key in ['chart_show_telrad', 'chart_show_picker', 'chart_show_constell_shapes',
-                 'chart_show_constell_borders', 'chart_show_dso', 'chart_show_solar_system', 'chart_show_comet_tail',
+                 'chart_show_constell_borders', 'chart_show_dso', 'chart_show_milky_way', 'chart_show_solar_system', 'chart_show_comet_tail',
                  'chart_dss_layer',
                  'chart_show_equatorial_grid', 'chart_show_horizontal_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
                  'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:

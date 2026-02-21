@@ -445,6 +445,8 @@ def _parse_zone_refs_arg(raw: str) -> List[Tuple[int, int]]:
 
 
 def _mw_mode(req: SceneRequest) -> Dict[str, Any]:
+    if FlagValue.SHOW_MILKY_WAY.value not in req.flags:
+        return {"mode": "off", "quality": None, "optimized": False}
     if req.fld_size_deg <= 10.0:
         return {"mode": "off", "quality": None, "optimized": False}
     quality = "10k" if (req.width and req.width <= MOBILE_WIDTH) else "30k"
@@ -751,6 +753,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "show_equatorial_grid": FlagValue.SHOW_EQUATORIAL_GRID.value in req.flags,
             "show_horizontal_grid": FlagValue.SHOW_HORIZONTAL_GRID.value in req.flags,
             "show_dso_mag": FlagValue.SHOW_DSO_MAG.value in req.flags,
+            "show_milky_way": mw["mode"] != "off",
             "theme_name": active_theme_name,
             "theme_id": active_theme_id,
             "theme_version": active_theme.scene_theme_hash(),

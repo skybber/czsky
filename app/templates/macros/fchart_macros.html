@@ -86,6 +86,7 @@
             <input type="hidden" id="show_constell_shapes" name="{{ fchart_form.show_constell_shapes.name }}" value="{{ fchart_form.show_constell_shapes.data }}">
             <input type="hidden" id="show_constell_borders" name="{{ fchart_form.show_constell_borders.name }}" value="{{ fchart_form.show_constell_borders.data }}">
             <input type="hidden" id="show_dso" name="{{ fchart_form.show_dso.name }}" value="{{ fchart_form.show_dso.data }}">
+            <input type="hidden" id="show_milky_way" name="{{ fchart_form.show_milky_way.name }}" value="{{ fchart_form.show_milky_way.data }}">
             <input type="hidden" id="show_solar_system" name="{{ fchart_form.show_solar_system.name }}" value="{{ fchart_form.show_solar_system.data }}">
             <input type="hidden" id="show_comet_tail" name="{{ fchart_form.show_comet_tail.name }}" value="{{ fchart_form.show_comet_tail.data }}">
             <input type="hidden" id="show_dso_mag" name="{{ fchart_form.show_dso_mag.name }}" value="{{ fchart_form.show_dso_mag.data }}">
@@ -339,12 +340,6 @@
                                 {{ _('Horizontal grid')}}
                             </button>
                         </div>
-                        <div class="item">
-                            <button id="bdso" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}}" style="text-align:left">
-                                <i class="superpowers icon"></i>
-                                {{ _('Deepsky objects')}}
-                            </button>
-                        </div>
                         <div class="item submenu-parent-item">
                             <button class="ui tiny labeled icon button submenu-parent-trigger" style="text-align:left">
                                     <i class="sun icon"></i>
@@ -365,17 +360,37 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="item">
-                            <button id="bdsomag" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}}" style="text-align:left">
-                                <i class="star of life icon"></i>
-                                {{ _('DSO mag')}}
+                        <div class="item submenu-parent-item">
+                            <button class="ui tiny labeled icon button submenu-parent-trigger" style="text-align:left">
+                                <i class="globe icon"></i>
+                                <span class="text">{{ _('Distant universe') }}<i class="dropdown icon"></i></span>
                             </button>
-                        </div>
-                        <div class="item">
-                            <button id="bstarlbl" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}}" style="text-align:left">
-                                  <i class="star outline icon"></i>
-                                  {{ _('Star labels')}}
-                            </button>
+                            <div class="right menu">
+                                <div class="item">
+                                    <button id="bdso" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso.data=='true' else ''}}" style="text-align:left">
+                                        <i class="superpowers icon"></i>
+                                        {{ _('Deepsky objects')}}
+                                    </button>
+                                </div>
+                                <div class="item">
+                                    <button id="bmilkyway" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_milky_way.data=='true' else ''}}" style="text-align:left">
+                                        <i class="globe icon"></i>
+                                        {{ _('Milky way') }}
+                                    </button>
+                                </div>
+                                <div class="item">
+                                    <button id="bdsomag" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_dso_mag.data=='true' else ''}}" style="text-align:left">
+                                        <i class="star of life icon"></i>
+                                        {{ _('DSO mag')}}
+                                    </button>
+                                </div>
+                                <div class="item">
+                                    <button id="bstarlbl" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.show_star_labels.data=='true' else ''}}" style="text-align:left">
+                                          <i class="star outline icon"></i>
+                                          {{ _('Star labels')}}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="item div_aladin submenu-parent-item">
                             <button class="ui tiny labeled icon button submenu-parent-trigger"  style="text-align:left">
@@ -1221,6 +1236,16 @@
         $('#show_dso').val(value);
         chart_param_ajax('chart_show_dso', value);
         setChartUrlFlag('D', value);
+        fchart.reloadImage();
+    });
+
+    $('#bmilkyway').click(function(event){
+        event.stopPropagation();
+        $(this).toggleClass('active');
+        var value = $('#show_milky_way').val() == 'true' ? 'false' : 'true';
+        $('#show_milky_way').val(value);
+        chart_param_ajax('chart_show_milky_way', value);
+        setChartUrlFlag('W', value);
         fchart.reloadImage();
     });
 

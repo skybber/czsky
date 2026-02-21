@@ -896,6 +896,7 @@
 
     SkyScene.prototype._requestMilkyWaySelection = function (opts) {
         if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
+        if (typeof this.sceneData.meta.show_milky_way === 'boolean' && !this.sceneData.meta.show_milky_way) return;
         const mwMeta = this.sceneData.meta.milky_way || {};
         if (!mwMeta || mwMeta.mode === 'off') return;
 
@@ -928,6 +929,7 @@
 
     SkyScene.prototype._requestMilkyWaySelectionNow = function (optimized) {
         if (!this.sceneData || !this.sceneData.meta || !this.sceneData.objects) return;
+        if (typeof this.sceneData.meta.show_milky_way === 'boolean' && !this.sceneData.meta.show_milky_way) return;
         const mwMeta = this.sceneData.meta.milky_way || {};
         if (!mwMeta || mwMeta.mode === 'off') return;
 
@@ -988,6 +990,15 @@
             }
             this.requestDraw();
         });
+    };
+
+    SkyScene.prototype.setMilkyWayVisible = function (visible) {
+        if (!this.sceneData || !this.sceneData.meta) return;
+        this.sceneData.meta.show_milky_way = !!visible;
+        if (!this.sceneData.meta.show_milky_way) {
+            this._setMilkywayInteractionActive(false);
+        }
+        this.requestDraw();
     };
 
     SkyScene.prototype._starMagBucket = function (meta) {
