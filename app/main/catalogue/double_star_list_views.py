@@ -34,10 +34,14 @@ from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
+)
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
 )
 
 from .double_star_list_forms import (
@@ -262,6 +266,48 @@ def double_star_list_chart_pos_img(double_star_list_id):
     img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart/scene-v1', methods=['GET'])
+def double_star_list_chart_scene_v1(double_star_list_id):
+    double_star_list = _find_double_star_list(double_star_list_id)
+    if double_star_list is None:
+        abort(404)
+
+    star_id = request.args.get('star_id')
+    double_star_list_item = None
+    if star_id and star_id.isdigit():
+        istar_id = int(star_id)
+        double_star_list_item = next((x for x in double_star_list.double_star_list_items if x.double_star.id == istar_id), None)
+    if not double_star_list_item:
+        double_star_list_item = DoubleStarListItem.query.filter_by(double_star_list_id=double_star_list.id, item_id=1).first()
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if double_star_list_item and double_star_list_item.double_star:
+        ds = double_star_list_item.double_star
+        highlights.append(
+            build_cross_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, theme_name=cur_theme,)
+        )
+
+    for item in double_star_list.double_star_list_items:
+        if item is None or item.double_star is None:
+            continue
+        ds = item.double_star
+        highlights.append(
+            build_circle_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, dashed=False, theme_name=cur_theme,)
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'double_star_list',
+        'id': str(double_star_list.id),
+        'list_name': double_star_list.name,
+    }
+    return jsonify(scene)
 
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pdf', methods=['GET'])

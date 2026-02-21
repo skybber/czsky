@@ -42,6 +42,11 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+)
 
 from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported, \
     get_lang_and_all_editor_users_from_request
@@ -57,7 +62,7 @@ from app.commons.dso_utils import normalize_double_star_name
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.prevnext_utils import create_navigation_wrappers
-from app.commons.highlights_list_utils import create_hightlights_lists
+from app.commons.highlights_list_utils import create_hightlights_lists, create_observed_dso_ids_list
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
@@ -459,6 +464,44 @@ def double_star_chart_pos_img(double_star_id):
 
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_double_star.route('/double-star/<int:double_star_id>/chart/scene-v1', methods=['GET'])
+def double_star_chart_scene_v1(double_star_id):
+    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
+    if double_star is None:
+        abort(404)
+
+    highlights_dso_list, _ = create_hightlights_lists()
+    observed_dso_ids = create_observed_dso_ids_list()
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    highlights.append(
+        build_cross_highlight(highlight_id='DOUBLE_STAR_' + str(double_star.id), label=double_star.get_common_name(), ra=double_star.ra_first, dec=double_star.dec_first, theme_name=cur_theme,)
+    )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            hl_id = str(hl_dso.name).replace(' ', '')
+            observed = observed_dso_ids and hl_dso.id in observed_dso_ids
+            highlights.append(
+                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'double_star',
+        'id': str(double_star.id),
+        'ra': float(double_star.ra_first),
+        'dec': float(double_star.dec_first),
+    }
+    return jsonify(scene)
 
 
 @main_double_star.route('/double-star/<string:double_star_id>/chart-pdf', methods=['GET'])

@@ -180,7 +180,9 @@
                      default_chart_iframe_url=default_chart_iframe_url,
                      embed=(embed if embed else ''),
                      search_url_params=search_url_params,
-                     back=back, back_id=back_id, default_back='double_stars'
+                     back=back, back_id=back_id, default_back='double_stars',
+                     fchart_scene_url=url_for('main_double_star.double_star_chart_scene_v1',
+                                              double_star_id=double_star.id, flags=chart_control.chart_flags)
                      )
     }}
 {% endmacro %}

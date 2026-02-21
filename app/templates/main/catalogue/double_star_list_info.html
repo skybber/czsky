@@ -351,7 +351,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dbl_star_list&back_id={}'.format(double_star_list.id),
-                     back=back, back_id=back_id)
+                     back=back, back_id=back_id,
+                     fchart_scene_url=url_for('main_double_star_list.double_star_list_chart_scene_v1',
+                                              double_star_list_id=double_star_list.id, flags=chart_control.chart_flags))
     }}
 {% endmacro %}
 
