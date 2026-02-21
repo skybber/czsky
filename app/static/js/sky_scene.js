@@ -375,10 +375,14 @@
         this.reloadDebounceMs = 120;
         this.drawScheduled = false;
         this.drawRaf = null;
+        this.perfStats = {};
+        this.perfFps = 0.0;
+        this.perfLastFrameTs = 0.0;
         const ua = (window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : '';
         const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
         const isSlowBrowser = /(firefox|fxios|opera|opr)/i.test(ua);
         this.liteRenderDuringInteraction = !!(isMobile && isSlowBrowser);
+        this.debugPerfOverlay = true;
 
         this.aladin = aladin;
         this.showAladin = showAladin;
@@ -490,6 +494,71 @@
         if (!this.overlayCtx) return;
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         this.overlayCtx.imageSmoothingEnabled = true;
+    };
+
+    SkyScene.prototype._perfNow = function () {
+        if (window.performance && typeof window.performance.now === 'function') {
+            return window.performance.now();
+        }
+        return Date.now();
+    };
+
+    SkyScene.prototype._updatePerfStat = function (key, value) {
+        const v = Number(value);
+        if (!Number.isFinite(v)) return;
+        if (!this.perfStats || typeof this.perfStats !== 'object') this.perfStats = {};
+        const prev = this.perfStats[key];
+        this.perfStats[key] = Number.isFinite(prev) ? (prev * 0.75 + v * 0.25) : v;
+    };
+
+    SkyScene.prototype._commitPerfFrame = function (framePerf, frameStartTs, liteMode) {
+        if (!this.debugPerfOverlay || !framePerf) return;
+        const now = this._perfNow();
+        const total = now - frameStartTs;
+        this._updatePerfStat('total', total);
+        Object.keys(framePerf).forEach((k) => this._updatePerfStat(k, framePerf[k]));
+
+        if (this.perfLastFrameTs > 0) {
+            const dt = now - this.perfLastFrameTs;
+            if (dt > 1e-3) {
+                const fpsInst = 1000.0 / dt;
+                this.perfFps = this.perfFps > 0 ? (this.perfFps * 0.75 + fpsInst * 0.25) : fpsInst;
+            }
+        }
+        this.perfLastFrameTs = now;
+
+        const ctx = this.overlayCtx;
+        if (!ctx) return;
+        const lines = [
+            'perf(ms) fps=' + (this.perfFps > 0 ? this.perfFps.toFixed(1) : '--') + (liteMode ? ' [lite]' : ''),
+            'total=' + (this.perfStats.total || 0).toFixed(2),
+            'gl_clear=' + ((this.perfStats.gl_clear || 0).toFixed(2)) + '  ov_clear=' + ((this.perfStats.overlay_clear || 0).toFixed(2)),
+            'mw=' + ((this.perfStats.milky_way || 0).toFixed(2)) + '  stars=' + ((this.perfStats.stars || 0).toFixed(2)),
+            'grid=' + ((this.perfStats.grid || 0).toFixed(2)) + '  const=' + ((this.perfStats.constell || 0).toFixed(2)),
+            'neb=' + ((this.perfStats.nebulae || 0).toFixed(2)) + '  dso=' + ((this.perfStats.dso || 0).toFixed(2)),
+            'planet=' + ((this.perfStats.planet || 0).toFixed(2)) + '  hor=' + ((this.perfStats.horizon || 0).toFixed(2)),
+            'sel=' + ((this.perfStats.selection_finalize || 0).toFixed(2)),
+        ];
+
+        const pad = 6;
+        const lineH = 13;
+        const boxW = 250;
+        const boxH = pad * 2 + lineH * lines.length;
+        const boxX = 8;
+        const boxY = 50;
+        ctx.save();
+        ctx.fillStyle = 'rgba(0,0,0,0.62)';
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.strokeStyle = 'rgba(120,255,180,0.65)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+        ctx.fillStyle = 'rgba(190,255,220,0.96)';
+        ctx.font = '11px monospace';
+        ctx.textBaseline = 'top';
+        for (let i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], boxX + pad, boxY + pad + i * lineH);
+        }
+        ctx.restore();
     };
 
     SkyScene.prototype.requestDraw = function () {
@@ -1286,21 +1355,35 @@
     };
 
     SkyScene.prototype.draw = function () {
+        const perfEnabled = !!this.debugPerfOverlay;
+        const perfFrame = perfEnabled ? {} : null;
+        const frameStartTs = perfEnabled ? this._perfNow() : 0;
+        const measure = (key, fn) => {
+            if (!perfEnabled) {
+                fn();
+                return;
+            }
+            const ts = this._perfNow();
+            fn();
+            perfFrame[key] = (perfFrame[key] || 0) + (this._perfNow() - ts);
+        };
+
         if (!this.sceneData) {
-            this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
-            this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12]));
-            this.clearOverlay();
+            measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
+            measure('gl_clear', () => this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12])));
+            measure('overlay_clear', () => this.clearOverlay());
+            this._commitPerfFrame(perfFrame, frameStartTs, false);
             return;
         }
 
         const bg = this.getThemeColor('background', [0.06, 0.07, 0.12]);
-        this.renderer.clear(bg);
-        this.clearOverlay();
-        this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
+        measure('gl_clear', () => this.renderer.clear(bg));
+        measure('overlay_clear', () => this.clearOverlay());
+        measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const liteMode = this.liteRenderDuringInteraction && this.mwInteractionActive;
         const viewState = this.buildViewState();
         const projection = this.createProjection(viewState);
-        this.milkyWayRenderer.draw({
+        measure('milky_way', () => this.milkyWayRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
             overlayCtx: this.overlayCtx,
@@ -1313,10 +1396,10 @@
             ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
             getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
             getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
-        });
+        }));
 
         if (!liteMode) {
-            this.gridRenderer.draw({
+            measure('grid', () => this.gridRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
@@ -1330,9 +1413,9 @@
                 longitude: this.longitude,
                 useCurrentTime: this.useCurrentTime,
                 dateTimeISO: this._resolveRequestTimeISO(),
-            });
+            }));
 
-            this.constellRenderer.draw({
+            measure('constell', () => this.constellRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
@@ -1345,9 +1428,9 @@
                 getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
                 ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
                 getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
-            });
+            }));
 
-            this.nebulaeOutlinesRenderer.draw({
+            measure('nebulae', () => this.nebulaeOutlinesRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
@@ -1356,9 +1439,9 @@
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
-            });
+            }));
 
-            this.dsoRenderer.draw({
+            measure('dso', () => this.dsoRenderer.draw({
                 sceneData: this.sceneData,
                 renderer: this.renderer,
                 overlayCtx: this.overlayCtx,
@@ -1372,9 +1455,9 @@
                 ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
                 getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
                 registerSelectable: this._registerSelectable.bind(this),
-            });
+            }));
 
-            this.planetRenderer.draw({
+            measure('planet', () => this.planetRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
@@ -1385,10 +1468,10 @@
                 width: this.canvas.width,
                 height: this.canvas.height,
                 registerSelectable: this._registerSelectable.bind(this),
-            });
+            }));
         }
 
-        this.starsRenderer.draw({
+        measure('stars', () => this.starsRenderer.draw({
             sceneData: this.sceneData,
             zoneStars: this.zoneStars,
             renderer: this.renderer,
@@ -1400,10 +1483,10 @@
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
             height: this.canvas.height,
-        });
+        }));
 
         if (!liteMode) {
-            this.horizonRenderer.draw({
+            measure('horizon', () => this.horizonRenderer.draw({
                 sceneData: this.sceneData,
                 renderer: this.renderer,
                 overlayCtx: this.overlayCtx,
@@ -1414,9 +1497,10 @@
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
-            });
+            }));
         }
-        this.selectionIndex.finalize();
+        measure('selection_finalize', () => this.selectionIndex.finalize());
+        this._commitPerfFrame(perfFrame, frameStartTs, liteMode);
     };
 
     SkyScene.prototype.findSelectableObject = function (e) {

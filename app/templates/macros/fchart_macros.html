@@ -453,6 +453,12 @@
                                 {{ _('Optimize traffic')}}
                             </button>
                         </div>
+                        <div class="item">
+                            <button id="bperfmeter" type="button" class="ui toggle labeled tiny icon button active" style="text-align:left">
+                                <i class="chart line icon"></i>
+                                {{ _('Perf. meter')}}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -706,6 +712,37 @@
         }
     }
 
+    const PERF_METER_STORAGE_KEY = 'sky_scene_perf_meter_enabled';
+
+    function isPerfMeterEnabled() {
+        try {
+            const raw = window.localStorage.getItem(PERF_METER_STORAGE_KEY);
+            if (raw === null) return true;
+            return raw === '1';
+        } catch (e) {
+            return true;
+        }
+    }
+
+    function persistPerfMeterEnabled(enabled) {
+        try {
+            window.localStorage.setItem(PERF_METER_STORAGE_KEY, enabled ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function applyPerfMeterStateToChart(chartObj) {
+        if (!chartObj) return;
+        chartObj.debugPerfOverlay = isPerfMeterEnabled();
+        if (typeof chartObj.requestDraw === 'function') {
+            chartObj.requestDraw();
+        }
+    }
+
+    function syncPerfMeterButton() {
+        const enabled = isPerfMeterEnabled();
+        $('#bperfmeter').toggleClass('active', enabled);
+    }
+
     function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
                           theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId) {
@@ -892,6 +929,8 @@
             $(buttonSelector).trigger('click');
             return true;
         });
+
+        applyPerfMeterStateToChart(fchart);
 
         return fchart;
     }
@@ -1227,6 +1266,14 @@
             setChartUrlFlag('E', 'false');
         }
         fchart.reloadImage();
+    });
+
+    $('#bperfmeter').click(function(event){
+        event.stopPropagation();
+        const enabled = !isPerfMeterEnabled();
+        persistPerfMeterEnabled(enabled);
+        syncPerfMeterButton();
+        applyPerfMeterStateToChart(fchart);
     });
 
     $('#bdso').click(function(event){
@@ -1855,6 +1902,8 @@
         {% endif %}
 
         $('#layers_dropdown').dropdown({ displayType : 'block' });
+        syncPerfMeterButton();
+        applyPerfMeterStateToChart(fchart);
 
         updateDateTimeControls({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
         syncDateTimeComponentsInputs(true);
