@@ -83,14 +83,28 @@
         };
     };
 
-    window.SkySceneConstellationRenderer.prototype._subdivide = function (sceneCtx, out, ra1, dec1, ra2, dec2, depth) {
-        const p1 = this._project(sceneCtx, ra1, dec1);
-        const p2 = this._project(sceneCtx, ra2, dec2);
+    window.SkySceneConstellationRenderer.prototype._getBoundaryRenderParams = function (sceneCtx) {
+        const width = Number(sceneCtx && sceneCtx.width) || 0;
+        const height = Number(sceneCtx && sceneCtx.height) || 0;
+        const fovDeg = sceneCtx && sceneCtx.viewState && Number(sceneCtx.viewState.renderFovDeg);
+        const shortEdge = Math.min(width, height);
+        const mobileLikeViewport = shortEdge > 0 && shortEdge <= 900;
+        const wideField = Number.isFinite(fovDeg) && fovDeg >= 70;
+
+        if (mobileLikeViewport || wideField) {
+            return { maxDepth: 4, bendTolerancePx: 2.4 };
+        }
+        return { maxDepth: 7, bendTolerancePx: 1.2 };
+    };
+
+    window.SkySceneConstellationRenderer.prototype._subdivide = function (sceneCtx, out, ra1, dec1, ra2, dec2, depth, params, p1In, p2In) {
+        const p1 = p1In || this._project(sceneCtx, ra1, dec1);
+        const p2 = p2In || this._project(sceneCtx, ra2, dec2);
         if (!p1 || !p2) {
             return;
         }
 
-        if (depth >= 8) {
+        if (depth >= params.maxDepth) {
             out.push(p1, p2);
             return;
         }
@@ -105,13 +119,13 @@
         }
 
         const bend = pointLineDistance(pm.x, pm.y, p1.x, p1.y, p2.x, p2.y);
-        if (bend <= 1.0) {
+        if (bend <= params.bendTolerancePx) {
             out.push(p1, p2);
             return;
         }
 
-        this._subdivide(sceneCtx, out, ra1, dec1, midRa, midDec, depth + 1);
-        this._subdivide(sceneCtx, out, midRa, midDec, ra2, dec2, depth + 1);
+        this._subdivide(sceneCtx, out, ra1, dec1, midRa, midDec, depth + 1, params, p1, pm);
+        this._subdivide(sceneCtx, out, midRa, midDec, ra2, dec2, depth + 1, params, pm, p2);
     };
 
     window.SkySceneConstellationRenderer.prototype._drawLines = function (sceneCtx, ctx) {
@@ -181,6 +195,7 @@
         if (!bounds.length) return;
 
         const stroke = this._themeBoundariesStroke(sceneCtx);
+        const params = this._getBoundaryRenderParams(sceneCtx);
         ctx.strokeStyle = rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
         ctx.lineCap = 'round';
@@ -191,7 +206,9 @@
         for (let i = 0; i < bounds.length; i++) {
             const seg = bounds[i];
             const pieces = [];
-            this._subdivide(sceneCtx, pieces, seg.ra1, seg.dec1, seg.ra2, seg.dec2, 0);
+            const a = this._project(sceneCtx, seg.ra1, seg.dec1);
+            const b = this._project(sceneCtx, seg.ra2, seg.dec2);
+            this._subdivide(sceneCtx, pieces, seg.ra1, seg.dec1, seg.ra2, seg.dec2, 0, params, a, b);
             for (let j = 0; j < pieces.length; j += 2) {
                 const a = pieces[j];
                 const b = pieces[j + 1];
