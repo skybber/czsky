@@ -99,13 +99,13 @@
         if (!(radiusRad > 0)) {
             return MIN_DSO_RADIUS_PX;
         }
-        const p0 = sceneCtx.projectToNdc(ra, dec);
+        const p0 = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p0) {
             return MIN_DSO_RADIUS_PX;
         }
 
         const cosDec = Math.max(0.2, Math.cos(dec));
-        const p1 = sceneCtx.projectToNdc(ra + radiusRad / cosDec, dec) || sceneCtx.projectToNdc(ra, dec + radiusRad);
+        const p1 = sceneCtx.projection.projectEquatorialToNdc(ra + radiusRad / cosDec, dec) || sceneCtx.projection.projectEquatorialToNdc(ra, dec + radiusRad);
         if (!p1) {
             return MIN_DSO_RADIUS_PX;
         }
@@ -167,7 +167,7 @@
     };
 
     FChartSceneDsoRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projectToNdc(ra, dec);
+        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
@@ -604,7 +604,7 @@
         const ds = [];
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
-            const p = sceneCtx.projectToNdc(dso.ra, dso.dec);
+            const p = sceneCtx.projection.projectEquatorialToNdc(dso.ra, dso.dec);
             if (!p) continue;
             const centerPx = ndcToPx(p, sceneCtx.width, sceneCtx.height);
             const radii = this._dsoRadii(sceneCtx, dso);
@@ -722,7 +722,7 @@
         const labelPotential = this._buildLabelPotential(sceneCtx, dsoList);
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
-            const p = sceneCtx.projectToNdc(dso.ra, dso.dec);
+            const p = sceneCtx.projection.projectEquatorialToNdc(dso.ra, dso.dec);
             if (!p) {
                 continue;
             }

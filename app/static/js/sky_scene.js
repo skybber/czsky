@@ -5,13 +5,6 @@
         return r;
     }
 
-    function wrapDeltaRa(rad) {
-        let d = rad;
-        while (d > Math.PI) d -= 2 * Math.PI;
-        while (d < -Math.PI) d += 2 * Math.PI;
-        return d;
-    }
-
     class FChartWebGLRenderer {
         constructor(canvas) {
             this.canvas = canvas;
@@ -166,39 +159,6 @@
         drawStarPoints(arr, sizes, color, colors) {
             this._draw(this.gl.POINTS, arr, color, 1.0, { circle: true, sizes: sizes, colors: colors });
         }
-    }
-
-    function projectStereographic(ra, dec, centerRa, centerDec, fovDeg, width, height, mirrorX, mirrorY) {
-        const dra = wrapDeltaRa(ra - centerRa);
-        const sinDec = Math.sin(dec);
-        const cosDec = Math.cos(dec);
-        const sinC = Math.sin(centerDec);
-        const cosC = Math.cos(centerDec);
-
-        const denom = 1.0 + sinC * sinDec + cosC * cosDec * Math.cos(dra);
-        if (denom <= 1e-9) {
-            return null;
-        }
-
-        let x = -(2.0 * cosDec * Math.sin(dra)) / denom;
-        let y = (2.0 * (cosC * sinDec - sinC * cosDec * Math.cos(dra))) / denom;
-        if (mirrorX) x = -x;
-        if (mirrorY) y = -y;
-
-        const fovRad = deg2rad(fovDeg);
-        const fieldRadius = fovRad / 2.0;
-        const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
-        if (planeRadius <= 1e-9) {
-            return null;
-        }
-
-        const scale = (Math.max(width, height) / 2.0) / planeRadius;
-        const px = width / 2.0 + x * scale;
-        const py = height / 2.0 - y * scale;
-
-        const ndcX = (px / width) * 2.0 - 1.0;
-        const ndcY = 1.0 - (py / height) * 2.0;
-        return { ndcX, ndcY };
     }
 
     function addOrReplaceQueryParam(url, key, value) {
@@ -1190,65 +1150,6 @@
         });
     };
 
-    FChartScene.prototype._projectToNdc = function (ra, dec) {
-        const viewState = this._activeViewState || this.buildViewState();
-        let projPoint = null;
-        if (viewState && typeof viewState.projectEquatorial === 'function') {
-            projPoint = viewState.projectEquatorial(ra, dec);
-        }
-        if (!projPoint) return null;
-
-        let centerPhi = this.viewCenter.phi;
-        let centerTheta = this.viewCenter.theta;
-        if (viewState && typeof viewState.getProjectionCenter === 'function') {
-            const center = viewState.getProjectionCenter();
-            if (center && Number.isFinite(center.phi) && Number.isFinite(center.theta)) {
-                centerPhi = center.phi;
-                centerTheta = center.theta;
-            }
-        }
-
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
-        return projectStereographic(
-            projPoint.phi,
-            projPoint.theta,
-            centerPhi,
-            centerTheta,
-            fovDeg,
-            this.canvas.width,
-            this.canvas.height,
-            this.isMirrorX(),
-            this.isMirrorY()
-        );
-    };
-
-    FChartScene.prototype._projectCurrentFrameToNdc = function (phi, theta) {
-        const viewState = this._activeViewState || this.buildViewState();
-        if (!viewState || typeof viewState.getProjectionCenter !== 'function') {
-            return null;
-        }
-        const center = viewState.getProjectionCenter();
-        if (!center || !Number.isFinite(center.phi) || !Number.isFinite(center.theta)) {
-            return null;
-        }
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
-        return projectStereographic(
-            phi,
-            theta,
-            center.phi,
-            center.theta,
-            fovDeg,
-            this.canvas.width,
-            this.canvas.height,
-            this.isMirrorX(),
-            this.isMirrorY()
-        );
-    };
-
     FChartScene.prototype.buildViewState = function () {
         const sceneMeta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : {};
         return new window.FChartSceneViewState({
@@ -1263,6 +1164,20 @@
             dateTimeISO: this.dateTimeISO,
             lastChartTimeISO: this.lastChartTimeISO,
             sceneMeta: sceneMeta,
+        });
+    };
+
+    FChartScene.prototype.createProjection = function (viewState) {
+        return new window.SceneProjection({
+            viewState: viewState,
+            viewCenter: this.viewCenter,
+            renderFovDeg: this.renderFovDeg,
+            fieldSizes: this.fieldSizes,
+            fldSizeIndex: this.fldSizeIndex,
+            width: this.canvas.width,
+            height: this.canvas.height,
+            mirrorX: this.isMirrorX(),
+            mirrorY: this.isMirrorY(),
         });
     };
 
@@ -1296,13 +1211,12 @@
         this.clearOverlay();
         this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
         const viewState = this.buildViewState();
-        this._activeViewState = viewState;
+        const projection = this.createProjection(viewState);
         try {
             this.milkyWayRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 getThemeColor: this.getThemeColor.bind(this),
@@ -1315,8 +1229,7 @@
             this.gridRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 getThemeColor: this.getThemeColor.bind(this),
@@ -1332,8 +1245,7 @@
             this.constellRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 getThemeColor: this.getThemeColor.bind(this),
@@ -1348,8 +1260,7 @@
             this.nebulaeOutlinesRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 getThemeColor: this.getThemeColor.bind(this),
@@ -1361,8 +1272,7 @@
                 sceneData: this.sceneData,
                 renderer: this.renderer,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
@@ -1377,8 +1287,7 @@
             this.planetRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
@@ -1393,8 +1302,7 @@
                 zoneStars: this.zoneStars,
                 renderer: this.renderer,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
@@ -1406,8 +1314,7 @@
             this.horizonRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
-                projectToNdc: this._projectToNdc.bind(this),
-                projectToNdcInViewFrame: this._projectCurrentFrameToNdc.bind(this),
+                projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
@@ -1416,7 +1323,6 @@
                 height: this.canvas.height,
             });
         } finally {
-            this._activeViewState = null;
         }
         this.selectionIndex.finalize();
     };

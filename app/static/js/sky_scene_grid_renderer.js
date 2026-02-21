@@ -91,7 +91,7 @@
     };
 
     FChartSceneGridRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projectToNdc(ra, dec);
+        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };

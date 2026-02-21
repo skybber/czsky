@@ -73,7 +73,7 @@
                 const pointIndex = polygon.indices[j];
                 const point = points[pointIndex];
                 if (!point || point.length < 2) continue;
-                const p = sceneCtx.projectToNdc(point[0], point[1]);
+                const p = sceneCtx.projection.projectEquatorialToNdc(point[0], point[1]);
                 if (!p) continue;
                 const px = ndcToPx(p, sceneCtx.width, sceneCtx.height);
                 if (!hasVisible) {

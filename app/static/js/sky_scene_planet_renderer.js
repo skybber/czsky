@@ -94,7 +94,7 @@
 
         for (let i = 0; i < objects.length; i++) {
             const p = objects[i];
-            const ndc = sceneCtx.projectToNdc(p.ra, p.dec);
+            const ndc = sceneCtx.projection.projectEquatorialToNdc(p.ra, p.dec);
             if (!ndc) continue;
             const px = ndcToPx(ndc, sceneCtx.width, sceneCtx.height);
             const r = planetRadiusPx(p);

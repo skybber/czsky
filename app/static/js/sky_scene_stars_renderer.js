@@ -78,7 +78,7 @@
             const key = (s.id || '') + '|' + (s.ra || 0).toFixed(9) + '|' + (s.dec || 0).toFixed(9);
             if (seen.has(key)) return;
             seen.add(key);
-            const p = sceneCtx.projectToNdc(s.ra, s.dec);
+            const p = sceneCtx.projection.projectEquatorialToNdc(s.ra, s.dec);
             if (!p) return;
             const px = ndcToPx(p, sceneCtx.width, sceneCtx.height);
             const sz = this._starSizePx(sceneCtx.meta, sceneCtx.themeConfig, s.mag || 7);

@@ -43,7 +43,7 @@
     }
 
     window.FChartSceneNebulaeOutlinesRenderer.prototype._project = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projectToNdc(ra, dec);
+        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
@@ -135,7 +135,7 @@
                 && typeof neb.dec_min === 'number' && typeof neb.dec_max === 'number') {
                 const raCenter = 0.5 * (neb.ra_min + neb.ra_max);
                 const decCenter = 0.5 * (neb.dec_min + neb.dec_max);
-                if (!sceneCtx.projectToNdc(raCenter, decCenter)) {
+                if (!sceneCtx.projection.projectEquatorialToNdc(raCenter, decCenter)) {
                     continue;
                 }
             }

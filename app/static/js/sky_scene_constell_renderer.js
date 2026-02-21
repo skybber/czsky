@@ -70,7 +70,7 @@
     };
 
     window.FChartSceneConstellationRenderer.prototype._project = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projectToNdc(ra, dec);
+        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
         if (!p) return null;
         return {
             x: (p.ndcX + 1.0) * 0.5 * sceneCtx.width,
