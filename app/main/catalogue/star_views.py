@@ -31,6 +31,12 @@ from app.commons.chart_generator import (
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
+from app.commons.dso_utils import CHART_STAR_PREFIX
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+)
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.visibility_utils import get_rise_transit_set_utc
 
@@ -289,6 +295,72 @@ def star_chart_pos_img(star_id):
                                                  highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_star.route('/star/<int:star_id>/chart/scene-v1', methods=['GET'])
+def star_chart_scene_v1(star_id):
+    star = Star.query.filter_by(id=star_id).first()
+    if star is None:
+        abort(404)
+
+    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    highlights.append(
+        build_cross_highlight(
+            highlight_id=CHART_STAR_PREFIX + str(star.id),
+            label=star.get_name(),
+            ra=star.ra,
+            dec=star.dec,
+            theme_name=cur_theme,
+        )
+    )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            highlights.append(
+                build_circle_highlight(
+                    highlight_id=str(hl_dso.name).replace(' ', ''),
+                    label=hl_dso.denormalized_name(),
+                    ra=hl_dso.ra,
+                    dec=hl_dso.dec,
+                    dashed=False,
+                    theme_name=cur_theme,
+                )
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_circle_highlight(
+                    highlight_id=str(hl_id),
+                    label=str(hl_label or hl_id),
+                    ra=hl_ra,
+                    dec=hl_dec,
+                    dashed=False,
+                    theme_name=cur_theme,
+                )
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'star',
+        'id': str(star.id),
+        'ra': float(star.ra),
+        'dec': float(star.dec),
+    }
+    return jsonify(scene)
 
 
 @main_star.route('/star/<string:star_id>/chart-pdf', methods=['GET'])

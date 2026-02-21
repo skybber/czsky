@@ -112,7 +112,9 @@
                      default_chart_iframe_url=default_chart_iframe_url,
                      embed=(embed if embed else ''),
                      search_url_params=search_url_params,
-                     back=back, back_id=back_id, default_back='supernovae'
+                     back=back, back_id=back_id, default_back='supernovae',
+                     fchart_scene_url=url_for('main_supernova.supernova_chart_scene_v1', designation=supernova.designation,
+                                              flags=chart_control.chart_flags, back=back, back_id=back_id)
                      )
     }}
 {% endmacro %}

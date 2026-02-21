@@ -90,7 +90,9 @@
                               epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=star_list&back_id={}'.format(star_list.id) )
+                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=star_list&back_id={}'.format(star_list.id),
+                     fchart_scene_url=url_for('main_star_list.star_list_chart_scene_v1',
+                                              star_list_id=star_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id) )
     }}
 {% endmacro %}
 

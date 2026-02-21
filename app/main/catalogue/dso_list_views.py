@@ -11,6 +11,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
 
     send_file,
     url_for,
@@ -39,10 +40,14 @@ from app.commons.search_utils import process_paginated_session_search, create_ta
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
+)
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
 )
 
 from .dso_list_forms import (
@@ -227,6 +232,67 @@ def dso_list_chart_pos_img(dso_list_id):
                                                  highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_dso_list.route('/dso-list/<string:dso_list_id>/chart/scene-v1', methods=['GET'])
+def dso_list_chart_scene_v1(dso_list_id):
+    dso_list = _find_dso_list(dso_list_id)
+    if dso_list is None:
+        abort(404)
+
+    dso_list_dsos = _find_dso_list_dsos(dso_list_id)
+    if dso_list_dsos is None:
+        abort(404)
+
+    observed_dso_ids = find_dso_list_observed(dso_list_id)
+
+    selected_dso = None
+    dso_id = request.args.get('dso_id')
+    if dso_id and dso_id.isdigit():
+        idso_id = int(dso_id)
+        selected_dso = next((dso for dso in dso_list_dsos if dso.id == idso_id), None)
+    if selected_dso is None and dso_list_dsos:
+        selected_dso = dso_list_dsos[0]
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if selected_dso is not None:
+        highlights.append(
+            build_cross_highlight(
+                highlight_id=selected_dso.name,
+                label=selected_dso.denormalized_name(),
+                ra=selected_dso.ra,
+                dec=selected_dso.dec,
+                theme_name=cur_theme,
+            )
+        )
+
+    for dso in dso_list_dsos:
+        if dso is None:
+            continue
+        hl_id = str(dso.name).replace(' ', '')
+        observed = bool(observed_dso_ids and dso.id in observed_dso_ids)
+        highlights.append(
+            build_circle_highlight(
+                highlight_id=hl_id,
+                label=dso.denormalized_name(),
+                ra=dso.ra,
+                dec=dso.dec,
+                dashed=observed,
+                theme_name=cur_theme,
+            )
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'dso_list',
+        'id': str(dso_list.id),
+        'list_name': dso_list.name,
+    }
+    return jsonify(scene)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pdf', methods=['GET'])

@@ -96,7 +96,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url,
-                     search_url_params=search_url_params
+                     search_url_params=search_url_params,
+                     fchart_scene_url=url_for('main_star.star_chart_scene_v1', star_id=star.id,
+                                              flags=chart_control.chart_flags, back=back, back_id=back_id)
                      )
     }}
 {% endmacro %}

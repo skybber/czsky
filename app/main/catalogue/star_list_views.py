@@ -8,6 +8,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     send_file,
     url_for,
 )
@@ -18,10 +19,14 @@ from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
+)
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
 )
 
 from .star_list_forms import (
@@ -132,6 +137,61 @@ def star_list_chart_pos_img(star_list_id):
     img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_star_list.route('/star-list/<string:star_list_id>/chart/scene-v1', methods=['GET'])
+def star_list_chart_scene_v1(star_list_id):
+    star_list = _find_star_list(star_list_id)
+    if star_list is None:
+        abort(404)
+
+    star_id = request.args.get('star_id')
+    star_list_item = None
+    if star_id and star_id.isdigit():
+        istar_id = int(star_id)
+        star_list_item = next((x for x in star_list.star_list_items if x.star.id == istar_id), None)
+    if not star_list_item:
+        star_list_item = StarListItem.query.filter_by(star_list_id=star_list.id, item_id=1).first()
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if star_list_item and star_list_item.star:
+        star = star_list_item.star
+        highlights.append(
+            build_cross_highlight(
+                highlight_id=CHART_STAR_PREFIX + str(star.id),
+                label=star.get_name(),
+                ra=star.ra,
+                dec=star.dec,
+                theme_name=cur_theme,
+            )
+        )
+
+    for item in star_list.star_list_items:
+        if item is None or item.star is None:
+            continue
+        star = item.star
+        highlights.append(
+            build_circle_highlight(
+                highlight_id=CHART_STAR_PREFIX + str(star.id),
+                label=star.get_name(),
+                ra=star.ra,
+                dec=star.dec,
+                dashed=False,
+                theme_name=cur_theme,
+            )
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'star_list',
+        'id': str(star_list.id),
+        'list_name': star_list.name,
+    }
+    return jsonify(scene)
 
 
 @main_star_list.route('/star-list/<string:star_list_id>/chart-pdf', methods=['GET'])

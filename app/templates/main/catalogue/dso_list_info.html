@@ -234,7 +234,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id),
-                     back=back, back_id=back_id)
+                     back=back, back_id=back_id,
+                     fchart_scene_url=url_for('main_dso_list.dso_list_chart_scene_v1',
+                                              dso_list_id=dso_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 
