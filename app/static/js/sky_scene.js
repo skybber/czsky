@@ -448,6 +448,7 @@
         this.tapMoveThresholdPx = 8;
         this.inertiaStartThreshold = 0.02; // px/ms
         this.inertiaStopThreshold = 0.004; // px/ms
+        this.inertiaMaxStepMs = 250; // avoid multi-second catch-up on slow mobile frames
         this.lastInputWasTouch = false;
         this.URL_ANG_PRECISION = 9;
 
@@ -1662,7 +1663,7 @@
         let lastTs = performance.now();
 
         const tick = (ts) => {
-            const dt = Math.min(40, Math.max(8, ts - lastTs));
+            const dt = Math.min(this.inertiaMaxStepMs, Math.max(1, ts - lastTs));
             lastTs = ts;
             const damp = Math.pow(0.92, dt / 16.67);
             cvx *= damp;
