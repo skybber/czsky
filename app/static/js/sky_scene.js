@@ -130,7 +130,7 @@
                 gl.uniform1f(this.uUseAttrSize, 0.0);
             }
 
-            if (mode === gl.POINTS && cfg.colors && cfg.colors.length === (arr.length / 2) * 3) {
+            if (cfg.colors && cfg.colors.length === (arr.length / 2) * 3) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuf);
                 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cfg.colors), gl.STREAM_DRAW);
                 gl.enableVertexAttribArray(this.aColor);
@@ -158,6 +158,10 @@
 
         drawStarPoints(arr, sizes, color, colors) {
             this._draw(this.gl.POINTS, arr, color, 1.0, { circle: true, sizes: sizes, colors: colors });
+        }
+
+        drawTriangles(arr, color, colors) {
+            this._draw(this.gl.TRIANGLES, arr, color, 1.0, { circle: false, colors: colors });
         }
     }
 
@@ -350,6 +354,7 @@
         this.starZoneBatchSize = 32;
         this.starZoneCacheMax = 240;
         this.mwCatalogById = {};
+        this.mwTriangulatedById = {};
         this.mwCatalogLoadingById = {};
         this.dsoOutlinesCatalogById = {};
         this.dsoOutlinesCatalogLoadingById = {};
@@ -1072,6 +1077,34 @@
         return datasetId ? (this.mwCatalogById[datasetId] || null) : null;
     };
 
+    SkyScene.prototype.getMilkyWayTriangulated = function (datasetId) {
+        return datasetId ? (this.mwTriangulatedById[datasetId] || null) : null;
+    };
+
+    SkyScene.prototype._buildMilkyWayTriangulation = function (catalog) {
+        const polygons = (catalog && Array.isArray(catalog.polygons)) ? catalog.polygons : [];
+        const trianglesByPolygon = new Array(polygons.length);
+
+        for (let i = 0; i < polygons.length; i++) {
+            const poly = polygons[i];
+            const indices = poly && Array.isArray(poly.indices) ? poly.indices : null;
+            if (!indices || indices.length < 3) {
+                trianglesByPolygon[i] = [];
+                continue;
+            }
+            const tris = [];
+            const i0 = indices[0] | 0;
+            for (let j = 1; j + 1 < indices.length; j++) {
+                tris.push(i0, indices[j] | 0, indices[j + 1] | 0);
+            }
+            trianglesByPolygon[i] = tris;
+        }
+
+        return {
+            trianglesByPolygon: trianglesByPolygon,
+        };
+    };
+
     SkyScene.prototype.getDsoOutlinesCatalog = function (datasetId) {
         return datasetId ? (this.dsoOutlinesCatalogById[datasetId] || null) : null;
     };
@@ -1101,6 +1134,7 @@
             delete this.mwCatalogLoadingById[datasetId];
             if (!data || !data.dataset_id) return;
             this.mwCatalogById[data.dataset_id] = data;
+            this.mwTriangulatedById[data.dataset_id] = this._buildMilkyWayTriangulation(data);
             this.draw();
         }).fail(() => {
             delete this.mwCatalogLoadingById[datasetId];
@@ -1235,6 +1269,7 @@
         const projection = this.createProjection(viewState);
         this.milkyWayRenderer.draw({
             sceneData: this.sceneData,
+            renderer: this.renderer,
             overlayCtx: this.overlayCtx,
             projection: projection,
             viewState: viewState,
@@ -1244,6 +1279,7 @@
             height: this.canvas.height,
             ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
             getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
+            getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
         });
 
         this.gridRenderer.draw({

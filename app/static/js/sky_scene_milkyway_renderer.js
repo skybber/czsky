@@ -5,20 +5,6 @@
         return v;
     }
 
-    function rgbCss(rgb) {
-        const r = Math.round(clamp01(rgb[0]) * 255);
-        const g = Math.round(clamp01(rgb[1]) * 255);
-        const b = Math.round(clamp01(rgb[2]) * 255);
-        return 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     window.SkySceneMilkyWayRenderer = function () {};
 
     SkySceneMilkyWayRenderer.prototype._colorFromFade = function (fade, rgb, fallbackColor) {
@@ -32,8 +18,62 @@
         ];
     };
 
+    SkySceneMilkyWayRenderer.prototype._drawWebGl = function (sceneCtx, catalog, triangulated, selection, fallbackMwColor, fade) {
+        const renderer = sceneCtx.renderer;
+        if (!renderer || typeof renderer.drawTriangles !== 'function') return false;
+
+        const points = catalog.points || [];
+        const polygons = catalog.polygons || [];
+        const trianglesByPolygon = triangulated && triangulated.trianglesByPolygon ? triangulated.trianglesByPolygon : [];
+        if (!points.length || !polygons.length || !trianglesByPolygon.length) return false;
+
+        const projectedByPoint = new Array(points.length);
+        const positions = [];
+        const colors = [];
+
+        const projectPoint = (pointIndex) => {
+            if (pointIndex < 0 || pointIndex >= points.length) return null;
+            if (projectedByPoint[pointIndex] !== undefined) return projectedByPoint[pointIndex];
+            const point = points[pointIndex];
+            if (!point || point.length < 2) {
+                projectedByPoint[pointIndex] = null;
+                return null;
+            }
+            const p = sceneCtx.projection.projectEquatorialToNdc(point[0], point[1]);
+            projectedByPoint[pointIndex] = p || null;
+            return projectedByPoint[pointIndex];
+        };
+
+        for (let i = 0; i < selection.length; i++) {
+            const polygonIndex = selection[i];
+            const polygon = polygons[polygonIndex];
+            const tris = trianglesByPolygon[polygonIndex];
+            if (!polygon || !Array.isArray(tris) || tris.length < 3) continue;
+
+            const rgb = Array.isArray(polygon.rgb) ? polygon.rgb : fallbackMwColor;
+            const col = this._colorFromFade(fade, rgb, fallbackMwColor);
+            const cr = clamp01(col[0]);
+            const cg = clamp01(col[1]);
+            const cb = clamp01(col[2]);
+
+            for (let j = 0; j + 2 < tris.length; j += 3) {
+                const p0 = projectPoint(tris[j]);
+                const p1 = projectPoint(tris[j + 1]);
+                const p2 = projectPoint(tris[j + 2]);
+                if (!p0 || !p1 || !p2) continue;
+
+                positions.push(p0.ndcX, p0.ndcY, p1.ndcX, p1.ndcY, p2.ndcX, p2.ndcY);
+                colors.push(cr, cg, cb, cr, cg, cb, cr, cg, cb);
+            }
+        }
+
+        if (!positions.length) return true;
+        renderer.drawTriangles(positions, fallbackMwColor, colors);
+        return true;
+    };
+
     SkySceneMilkyWayRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData) return;
 
         const meta = sceneCtx.sceneData.meta || {};
         const mwMeta = meta.milky_way || {};
@@ -49,49 +89,10 @@
         const selection = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.milky_way_selection) || [];
         if (!selection.length) return;
 
-        const points = catalog.points || [];
-        const polygons = catalog.polygons || [];
         const fallbackMwColor = sceneCtx.getThemeColor('milky_way', [0.2, 0.3, 0.4]);
         const fade = mwMeta.fade || null;
+        const triangulated = sceneCtx.getMilkyWayTriangulated ? sceneCtx.getMilkyWayTriangulated(mwMeta.dataset_id) : null;
 
-        const ctx = sceneCtx.overlayCtx;
-        ctx.save();
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        for (let i = 0; i < selection.length; i++) {
-            const polygonIndex = selection[i];
-            const polygon = polygons[polygonIndex];
-            if (!polygon || !Array.isArray(polygon.indices) || polygon.indices.length < 3) continue;
-
-            const rgb = Array.isArray(polygon.rgb) ? polygon.rgb : fallbackMwColor;
-            const col = this._colorFromFade(fade, rgb, fallbackMwColor);
-            ctx.fillStyle = rgbCss(col);
-
-            let hasVisible = false;
-            ctx.beginPath();
-            for (let j = 0; j < polygon.indices.length; j++) {
-                const pointIndex = polygon.indices[j];
-                const point = points[pointIndex];
-                if (!point || point.length < 2) continue;
-                const p = sceneCtx.projection.projectEquatorialToNdc(point[0], point[1]);
-                if (!p) continue;
-                const px = ndcToPx(p, sceneCtx.width, sceneCtx.height);
-                if (!hasVisible) {
-                    ctx.moveTo(px.x, px.y);
-                    hasVisible = true;
-                } else {
-                    ctx.lineTo(px.x, px.y);
-                }
-            }
-            if (hasVisible) {
-                ctx.closePath();
-                ctx.fill();
-                // Seal anti-aliased seams between adjacent polygons.
-                ctx.strokeStyle = ctx.fillStyle;
-                ctx.lineWidth = 1.0;
-                ctx.stroke();
-            }
-        }
-        ctx.restore();
+        this._drawWebGl(sceneCtx, catalog, triangulated, selection, fallbackMwColor, fade);
     };
 })();

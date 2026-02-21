@@ -1,25 +1,10 @@
 (function () {
     window.SkySceneStarsRenderer = function () {};
-    const TWO_PI = Math.PI * 2.0;
 
     function clamp01(v) {
         if (v < 0) return 0;
         if (v > 1) return 1;
         return v;
-    }
-
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
 
     SkySceneStarsRenderer.prototype._interp = function (x, xp, yp) {
@@ -59,7 +44,9 @@
     };
 
     SkySceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
-        const starsOut = [];
+        const positions = [];
+        const sizes = [];
+        const colors = [];
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
         const starColorsEnabled = !!(
             sceneCtx.themeConfig &&
@@ -80,38 +67,29 @@
             seen.add(key);
             const p = sceneCtx.projection.projectEquatorialToNdc(s.ra, s.dec);
             if (!p) return;
-            const px = ndcToPx(p, sceneCtx.width, sceneCtx.height);
             const sz = this._starSizePx(sceneCtx.meta, sceneCtx.themeConfig, s.mag || 7);
             const hasStarColor = Array.isArray(s.color) && s.color.length === 3;
             const starColor = (starColorsEnabled && hasStarColor) ? s.color : drawColor;
-            starsOut.push({
-                x: px.x,
-                y: px.y,
-                size: sz,
-                color: starColor,
-                mag: s.mag || 99,
-            });
+            positions.push((p.ndcX != null) ? p.ndcX : 0.0, (p.ndcY != null) ? p.ndcY : 0.0);
+            sizes.push(Math.max(0.01, sz || 1.0));
+            const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
+            colors.push(clamp01(c[0]), clamp01(c[1]), clamp01(c[2]));
         });
 
-        return starsOut;
-    };
-
-    SkySceneStarsRenderer.prototype._drawStar = function (ctx, star) {
-        const radius = Math.max(0.01, (star.size || 1.0) * 0.5);
-        ctx.fillStyle = rgba(star.color, 1.0);
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, radius, 0.0, TWO_PI);
-        ctx.fill();
+        return {
+            positions: positions,
+            sizes: sizes,
+            colors: colors,
+        };
     };
 
     SkySceneStarsRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
+        if (!sceneCtx || !sceneCtx.sceneData) {
             return;
         }
-        const ctx = sceneCtx.overlayCtx;
-        const stars = this._collectStars(sceneCtx);
-        for (let i = 0; i < stars.length; i++) {
-            this._drawStar(ctx, stars[i]);
-        }
+        const renderer = sceneCtx.renderer;
+        if (!renderer || typeof renderer.drawStarPoints !== 'function') return;
+        const webgl = this._collectStars(sceneCtx);
+        renderer.drawStarPoints(webgl.positions, webgl.sizes, [1.0, 1.0, 1.0], webgl.colors);
     };
 })();
