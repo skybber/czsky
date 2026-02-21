@@ -449,6 +449,18 @@
         this.inertiaStartThreshold = 0.02; // px/ms
         this.inertiaStopThreshold = 0.004; // px/ms
         this.inertiaMaxStepMs = 250; // avoid multi-second catch-up on slow mobile frames
+        this.keyboardMoveSecPerScreen = 2.0;
+        this.kbdMove = {
+            active: false,
+            keyCode: 0,
+            dx: 0,
+            dy: 0,
+            raf: null,
+            lastTs: 0,
+        };
+        this.keyboardZoomStepMinMs = 110;
+        this.keyboardZoomLastTs = 0;
+        this.keyboardCaptureActive = true;
         this.lastInputWasTouch = false;
         this.URL_ANG_PRECISION = 9;
 
@@ -457,20 +469,51 @@
         window.addEventListener('resize', () => this.onResize());
 
         if (window.PointerEvent) {
-            $(this.canvas).on('pointerdown', (e) => this.onPointerDown(e));
+            $(this.canvas).on('pointerdown', (e) => {
+                this.keyboardCaptureActive = true;
+                this.onPointerDown(e);
+            });
             $(this.canvas).on('pointermove', (e) => this.onPointerMove(e));
             $(this.canvas).on('pointerup', (e) => this.onPointerUp(e));
             $(this.canvas).on('pointercancel', (e) => this.onPointerCancel(e));
             $(this.canvas).on('pointerleave', (e) => this.onPointerUp(e));
         } else {
-            $(this.canvas).on('mousedown', (e) => this.onMouseDown(e));
+            $(this.canvas).on('mousedown', (e) => {
+                this.keyboardCaptureActive = true;
+                this.onMouseDown(e);
+            });
             $(this.canvas).on('mousemove', (e) => this.onMouseMove(e));
             $(this.canvas).on('mouseup', (e) => this.onMouseUp(e));
             $(this.canvas).on('mouseleave', (e) => this.onMouseUp(e));
         }
-        $(this.canvas).on('click', (e) => this.onClick(e));
+        $(this.canvas).on('click', (e) => {
+            this.keyboardCaptureActive = true;
+            this.onClick(e);
+        });
         $(this.canvas).on('wheel', (e) => this.onWheel(e));
-        $(this.canvas).on('keydown', (e) => this.onKeyDown(e));
+        $(this.canvas).on('blur', () => {
+            this.keyboardCaptureActive = false;
+            this._stopKeyboardMove(true);
+        });
+
+        $(document).on('keydown.skyScene', (e) => {
+            if (!this._shouldHandleKeyboardEvent(e)) return;
+            this.onKeyDown(e);
+        });
+        $(document).on('keyup.skyScene', (e) => {
+            if (!this._shouldHandleKeyboardEvent(e)) return;
+            this.onKeyUp(e);
+        });
+    };
+
+    SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
+        if (!this.keyboardCaptureActive) return false;
+        const target = e.target;
+        const $target = $(target);
+        if ($target.closest('input, textarea, select, [contenteditable=true], .calendar, .ui.dropdown, .ui.popup').length > 0) {
+            return false;
+        }
+        return true;
     };
 
     SkyScene.prototype.getThemeConfig = function () {
@@ -1973,26 +2016,108 @@
         this.zoomAnimRaf = requestAnimationFrame(tick);
     };
 
+    SkyScene.prototype._applyKeyboardPanDelta = function (dx, dy, dtMs) {
+        const fovDeg = (typeof this.renderFovDeg === 'number')
+            ? this.renderFovDeg
+            : this.fieldSizes[this.fldSizeIndex];
+        const dtSec = Math.max(1, dtMs) / 1000.0;
+        let dAng = deg2rad(fovDeg) * dtSec / this.keyboardMoveSecPerScreen;
+        if (dx !== 0) {
+            dAng = dAng / Math.max(0.2, Math.cos(0.9 * this.viewCenter.theta));
+        }
+        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dx * dAng);
+        this.viewCenter.theta += dy * dAng;
+        const lim = Math.PI / 2 - 1e-5;
+        if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
+        if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+        this.setCenterToHiddenInputs();
+        this._requestMilkyWaySelection({ optimized: true, immediate: false });
+        this.requestDraw();
+    };
+
+    SkyScene.prototype._startKeyboardMove = function (keyCode, dx, dy) {
+        this.kbdMove.keyCode = keyCode;
+        this.kbdMove.dx = dx;
+        this.kbdMove.dy = dy;
+        if (this.kbdMove.active) return;
+
+        this.kbdMove.active = true;
+        this.kbdMove.lastTs = this._perfNow();
+        this._stopInertia();
+        this._setMilkywayInteractionActive(true);
+        this._requestMilkyWaySelection({ optimized: true, immediate: true });
+
+        const tick = (ts) => {
+            if (!this.kbdMove.active) return;
+            let dt = ts - this.kbdMove.lastTs;
+            if (!Number.isFinite(dt) || dt < 1) dt = 16.67;
+            if (dt > 80) dt = 80;
+            this.kbdMove.lastTs = ts;
+            this._applyKeyboardPanDelta(this.kbdMove.dx, this.kbdMove.dy, dt);
+            this.kbdMove.raf = requestAnimationFrame(tick);
+        };
+        this.kbdMove.raf = requestAnimationFrame(tick);
+    };
+
+    SkyScene.prototype._stopKeyboardMove = function (commitReload) {
+        if (!this.kbdMove.active && !this.kbdMove.raf) return;
+        this.kbdMove.active = false;
+        this.kbdMove.keyCode = 0;
+        this.kbdMove.dx = 0;
+        this.kbdMove.dy = 0;
+        if (this.kbdMove.raf) {
+            cancelAnimationFrame(this.kbdMove.raf);
+            this.kbdMove.raf = null;
+        }
+        this._setMilkywayInteractionActive(false);
+        this._requestMilkyWaySelection({ optimized: false, immediate: true });
+        if (commitReload) {
+            this.forceReloadImage();
+        } else {
+            this.requestDraw();
+        }
+    };
+
+    SkyScene.prototype._keyboardShiftNudge = function (dx, dy) {
+        const stepMs = 220;
+        this._applyKeyboardPanDelta(dx, dy, stepMs);
+        this._setMilkywayInteractionActive(false);
+        this._requestMilkyWaySelection({ optimized: false, immediate: true });
+        this.forceReloadImage();
+    };
+
     SkyScene.prototype.onKeyDown = function (e) {
+        const keyMoveMap = {
+            37: [-1, 0],
+            38: [0, 1],
+            39: [1, 0],
+            40: [0, -1],
+        };
         if (e.keyCode === 33 || e.keyCode === 34) {
+            const now = this._perfNow();
+            if ((now - this.keyboardZoomLastTs) < this.keyboardZoomStepMinMs) {
+                e.preventDefault();
+                return;
+            }
             const dir = (e.keyCode === 33) ? 1 : -1;
             let newIndex = this.targetFldSizeIndex + (dir > 0 ? 1 : -1);
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
             if (newIndex !== this.targetFldSizeIndex) {
                 this.startZoomToIndex(newIndex);
+                this.keyboardZoomLastTs = now;
             }
             e.preventDefault();
             return;
         }
 
-        const panStep = deg2rad(this.fieldSizes[this.fldSizeIndex]) / 12.0;
-        if (e.keyCode === 37) this.viewCenter.phi = normalizeRa(this.viewCenter.phi - panStep);
-        if (e.keyCode === 39) this.viewCenter.phi = normalizeRa(this.viewCenter.phi + panStep);
-        if (e.keyCode === 38) this.viewCenter.theta = Math.min(Math.PI / 2 - 1e-5, this.viewCenter.theta + panStep);
-        if (e.keyCode === 40) this.viewCenter.theta = Math.max(-Math.PI / 2 + 1e-5, this.viewCenter.theta - panStep);
-        if ([37, 38, 39, 40].includes(e.keyCode)) {
-            this.setCenterToHiddenInputs();
-            this.forceReloadImage();
+        if (e.keyCode in keyMoveMap) {
+            const v = keyMoveMap[e.keyCode];
+            if (e.shiftKey) {
+                this._stopKeyboardMove(false);
+                this._keyboardShiftNudge(v[0], v[1]);
+            } else {
+                this._startKeyboardMove(e.keyCode, v[0], v[1]);
+            }
             e.preventDefault();
             return;
         }
@@ -2002,6 +2127,13 @@
             if (this.onShortcutKeyCallback.call(this, key, e)) {
                 e.preventDefault();
             }
+        }
+    };
+
+    SkyScene.prototype.onKeyUp = function (e) {
+        if (e.keyCode === this.kbdMove.keyCode) {
+            this._stopKeyboardMove(true);
+            e.preventDefault();
         }
     };
 })();
