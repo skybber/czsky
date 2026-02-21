@@ -442,10 +442,6 @@
             lastTapY: 0,
             suppressClickUntilTs: 0,
             inertiaRaf: null,
-            panRaf: null,
-            pendingPanDx: 0,
-            pendingPanDy: 0,
-            lastPanApplyTs: 0,
         };
         this.doubleTapWindowMs = 280;
         this.doubleTapRadiusPx = 24;
@@ -1635,44 +1631,6 @@
         this.requestDraw();
     };
 
-    SkyScene.prototype._cancelPendingPan = function () {
-        if (this.input.panRaf) {
-            cancelAnimationFrame(this.input.panRaf);
-            this.input.panRaf = null;
-        }
-        this.input.pendingPanDx = 0;
-        this.input.pendingPanDy = 0;
-    };
-
-    SkyScene.prototype._flushPendingPan = function () {
-        if (this.input.panRaf) {
-            cancelAnimationFrame(this.input.panRaf);
-            this.input.panRaf = null;
-        }
-        const dx = this.input.pendingPanDx;
-        const dy = this.input.pendingPanDy;
-        if (!dx && !dy) return;
-
-        this.input.pendingPanDx = 0;
-        this.input.pendingPanDy = 0;
-        const now = this._perfNow();
-        const dt = Math.max(1, now - (this.input.lastPanApplyTs || now));
-        this.input.lastPanApplyTs = now;
-
-        const alpha = 0.25;
-        this.input.velocityX = (1 - alpha) * this.input.velocityX + alpha * (dx / dt);
-        this.input.velocityY = (1 - alpha) * this.input.velocityY + alpha * (dy / dt);
-        this._applyPanDelta(dx, dy);
-    };
-
-    SkyScene.prototype._enqueuePanDelta = function (dx, dy) {
-        if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
-        this.input.pendingPanDx += dx;
-        this.input.pendingPanDy += dy;
-        if (this.input.panRaf) return;
-        this.input.panRaf = requestAnimationFrame(() => this._flushPendingPan());
-    };
-
     SkyScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
         let best = 0;
         let bestDist = Infinity;
@@ -1815,10 +1773,8 @@
             this.input.lastX = p.x;
             this.input.lastY = p.y;
             this.input.lastMoveTs = performance.now();
-            this.input.lastPanApplyTs = this.input.lastMoveTs;
             this.input.velocityX = 0;
             this.input.velocityY = 0;
-            this._cancelPendingPan();
             this.input.tapCandidate = true;
             this.input.tapStartTs = Date.now();
             this.input.tapStartX = p.x;
@@ -1829,7 +1785,6 @@
             return;
         }
         if (cnt === 2) {
-            this._cancelPendingPan();
             const pts = Array.from(this.input.activePointers.values());
             this.input.gesture = 'pinch';
             this.input.pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
@@ -1877,8 +1832,13 @@
             this.input.tapCandidate = false;
         }
 
-        this.input.lastMoveTs = this._perfNow();
-        this._enqueuePanDelta(dx, dy);
+        const now = performance.now();
+        const dt = Math.max(1, now - this.input.lastMoveTs);
+        this.input.lastMoveTs = now;
+        const alpha = 0.25;
+        this.input.velocityX = (1 - alpha) * this.input.velocityX + alpha * (dx / dt);
+        this.input.velocityY = (1 - alpha) * this.input.velocityY + alpha * (dy / dt);
+        this._applyPanDelta(dx, dy);
     };
 
     SkyScene.prototype.onPointerUp = function (e) {
@@ -1909,7 +1869,6 @@
         if (oe.pointerId !== this.input.primaryId) return;
         this.input.primaryId = null;
         this.input.gesture = 'none';
-        this._flushPendingPan();
         this._setMilkywayInteractionActive(false);
 
         if (this.move.moved) {
@@ -1936,7 +1895,6 @@
     SkyScene.prototype.onPointerCancel = function (e) {
         const oe = e.originalEvent || e;
         this.input.activePointers.delete(oe.pointerId);
-        this._cancelPendingPan();
         if (oe.pointerId === this.input.primaryId) {
             this.input.primaryId = null;
         }
