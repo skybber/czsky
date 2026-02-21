@@ -203,7 +203,7 @@
         ctx.lineJoin = 'miter';
         const useDash = params.useDashedStroke && !sceneCtx.liteMode;
         if (useDash) {
-            ctx.setLineDash([mmToPx(1.2), mmToPx(2.4)]);
+            ctx.setLineDash([mmToPx(0.6), mmToPx(1.2)]);
         } else {
             ctx.setLineDash([]);
         }
