@@ -44,9 +44,15 @@
     };
 
     SkySceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
-        const positions = [];
-        const sizes = [];
-        const colors = [];
+        if (!this._positions) this._positions = [];
+        if (!this._sizes) this._sizes = [];
+        if (!this._colors) this._colors = [];
+        const positions = this._positions;
+        const sizes = this._sizes;
+        const colors = this._colors;
+        positions.length = 0;
+        sizes.length = 0;
+        colors.length = 0;
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
         const starColorsEnabled = !!(
             sceneCtx.themeConfig &&

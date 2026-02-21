@@ -373,6 +373,12 @@
         this.zoomDurationMs = 160;
         this.reloadDebounceTimer = null;
         this.reloadDebounceMs = 120;
+        this.drawScheduled = false;
+        this.drawRaf = null;
+        const ua = (window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : '';
+        const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
+        const isSlowBrowser = /(firefox|fxios|opera|opr)/i.test(ua);
+        this.liteRenderDuringInteraction = !!(isMobile && isSlowBrowser);
 
         this.aladin = aladin;
         this.showAladin = showAladin;
@@ -484,6 +490,16 @@
         if (!this.overlayCtx) return;
         this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         this.overlayCtx.imageSmoothingEnabled = true;
+    };
+
+    SkyScene.prototype.requestDraw = function () {
+        if (this.drawScheduled) return;
+        this.drawScheduled = true;
+        this.drawRaf = requestAnimationFrame(() => {
+            this.drawScheduled = false;
+            this.drawRaf = null;
+            this.draw();
+        });
     };
 
     SkyScene.prototype.onWindowLoad = function () {
@@ -812,6 +828,11 @@
             clearTimeout(this.reloadDebounceTimer);
             this.reloadDebounceTimer = null;
         }
+        if (this.drawRaf) {
+            cancelAnimationFrame(this.drawRaf);
+            this.drawRaf = null;
+            this.drawScheduled = false;
+        }
         this.isReloadingImage = true;
         this._loadScene(true);
     };
@@ -851,7 +872,7 @@
             this.selectableRegions = data.img_map || [];
             this.syncQueryString();
             this.setCenterToHiddenInputs();
-            this.draw();
+            this.requestDraw();
             this.ensureDsoOutlinesCatalog(this.sceneData.meta ? this.sceneData.meta.dso_outlines : null);
             this.ensureConstellationLinesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_lines : null);
             this.ensureConstellationBoundariesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_boundaries : null);
@@ -948,7 +969,7 @@
                 newMeta.optimized = false;
                 this.sceneData.meta.milky_way = newMeta;
                 this.sceneData.objects.milky_way_selection = [];
-                this.draw();
+                this.requestDraw();
                 return;
             }
 
@@ -965,7 +986,7 @@
                 this.ensureMilkyWayCatalog(newMeta);
                 return;
             }
-            this.draw();
+            this.requestDraw();
         });
     };
 
@@ -1009,7 +1030,7 @@
         const catalogId = streamMeta.catalog_id;
         const magBucket = this._starMagBucket(scene.meta);
         this.zoneStars = this._collectCachedZoneStars(scene, catalogId, magBucket);
-        this.draw();
+        this.requestDraw();
 
         const missing = [];
         selection.forEach((ref) => {
@@ -1066,7 +1087,7 @@
                 this._evictZoneCache();
                 if (epoch !== this.sceneRequestEpoch || !this.sceneData) return;
                 this.zoneStars = this._collectCachedZoneStars(this.sceneData, catalogId, magBucket);
-                this.draw();
+                this.requestDraw();
             }).fail(() => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
             });
@@ -1135,7 +1156,7 @@
             if (!data || !data.dataset_id) return;
             this.mwCatalogById[data.dataset_id] = data;
             this.mwTriangulatedById[data.dataset_id] = this._buildMilkyWayTriangulation(data);
-            this.draw();
+            this.requestDraw();
         }).fail(() => {
             delete this.mwCatalogLoadingById[datasetId];
         });
@@ -1162,7 +1183,7 @@
             }
             data.by_id = byId;
             this.dsoOutlinesCatalogById[data.dataset_id] = data;
-            this.draw();
+            this.requestDraw();
         }).fail(() => {
             delete this.dsoOutlinesCatalogLoadingById[datasetId];
         });
@@ -1181,7 +1202,7 @@
             delete this.constellLinesCatalogLoadingById[datasetId];
             if (!data || !data.dataset_id) return;
             this.constellLinesCatalogById[data.dataset_id] = data;
-            this.draw();
+            this.requestDraw();
         }).fail(() => {
             delete this.constellLinesCatalogLoadingById[datasetId];
         });
@@ -1200,7 +1221,7 @@
             delete this.constellBoundariesCatalogLoadingById[datasetId];
             if (!data || !data.dataset_id) return;
             this.constellBoundariesCatalogById[data.dataset_id] = data;
-            this.draw();
+            this.requestDraw();
         }).fail(() => {
             delete this.constellBoundariesCatalogLoadingById[datasetId];
         });
@@ -1265,6 +1286,7 @@
         this.renderer.clear(bg);
         this.clearOverlay();
         this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height);
+        const liteMode = this.liteRenderDuringInteraction && this.mwInteractionActive;
         const viewState = this.buildViewState();
         const projection = this.createProjection(viewState);
         this.milkyWayRenderer.draw({
@@ -1282,76 +1304,78 @@
             getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
         });
 
-        this.gridRenderer.draw({
-            sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            meta: this.sceneData.meta || {},
-            latitude: this.latitude,
-            longitude: this.longitude,
-            useCurrentTime: this.useCurrentTime,
-            dateTimeISO: this._resolveRequestTimeISO(),
-        });
+        if (!liteMode) {
+            this.gridRenderer.draw({
+                sceneData: this.sceneData,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+                meta: this.sceneData.meta || {},
+                latitude: this.latitude,
+                longitude: this.longitude,
+                useCurrentTime: this.useCurrentTime,
+                dateTimeISO: this._resolveRequestTimeISO(),
+            });
 
-        this.constellRenderer.draw({
-            sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
-            getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
-            ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
-            getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
-        });
+            this.constellRenderer.draw({
+                sceneData: this.sceneData,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+                ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
+                getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
+                ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
+                getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
+            });
 
-        this.nebulaeOutlinesRenderer.draw({
-            sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        });
+            this.nebulaeOutlinesRenderer.draw({
+                sceneData: this.sceneData,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+            });
 
-        this.dsoRenderer.draw({
-            sceneData: this.sceneData,
-            renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
-            getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
-            registerSelectable: this._registerSelectable.bind(this),
-        });
+            this.dsoRenderer.draw({
+                sceneData: this.sceneData,
+                renderer: this.renderer,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                meta: this.sceneData.meta || {},
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+                ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
+                getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
+                registerSelectable: this._registerSelectable.bind(this),
+            });
 
-        this.planetRenderer.draw({
-            sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            registerSelectable: this._registerSelectable.bind(this),
-        });
+            this.planetRenderer.draw({
+                sceneData: this.sceneData,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                meta: this.sceneData.meta || {},
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+                registerSelectable: this._registerSelectable.bind(this),
+            });
+        }
 
         this.starsRenderer.draw({
             sceneData: this.sceneData,
@@ -1367,17 +1391,19 @@
             height: this.canvas.height,
         });
 
-        this.horizonRenderer.draw({
-            sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        });
+        if (!liteMode) {
+            this.horizonRenderer.draw({
+                sceneData: this.sceneData,
+                overlayCtx: this.overlayCtx,
+                projection: projection,
+                viewState: viewState,
+                themeConfig: this.getThemeConfig(),
+                meta: this.sceneData.meta || {},
+                getThemeColor: this.getThemeColor.bind(this),
+                width: this.canvas.width,
+                height: this.canvas.height,
+            });
+        }
         this.selectionIndex.finalize();
     };
 
@@ -1455,7 +1481,7 @@
         if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
         this.setCenterToHiddenInputs();
         this._requestMilkyWaySelection({ optimized: true, immediate: false });
-        this.draw();
+        this.requestDraw();
     };
 
     SkyScene.prototype._nearestFieldSizeIndex = function (fovDeg) {
@@ -1642,7 +1668,7 @@
                 const maxFov = this.fieldSizes[this.fieldSizes.length - 1];
                 this.renderFovDeg = clamp(this.input.pinchStartFov / scale, minFov, maxFov);
                 this._requestMilkyWaySelection({ optimized: true, immediate: false });
-                this.draw();
+                this.requestDraw();
             }
             return;
         }
@@ -1780,7 +1806,7 @@
             const eased = easeOutCubic(t);
             this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
             this._requestMilkyWaySelection({ optimized: true, immediate: false });
-            this.draw();
+            this.requestDraw();
             if (t < 1.0) {
                 this.zoomAnimRaf = requestAnimationFrame(tick);
                 return;

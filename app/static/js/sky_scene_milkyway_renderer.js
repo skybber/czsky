@@ -28,8 +28,12 @@
         if (!points.length || !polygons.length || !trianglesByPolygon.length) return false;
 
         const projectedByPoint = new Array(points.length);
-        const positions = [];
-        const colors = [];
+        if (!this._positions) this._positions = [];
+        if (!this._colors) this._colors = [];
+        const positions = this._positions;
+        const colors = this._colors;
+        positions.length = 0;
+        colors.length = 0;
 
         const projectPoint = (pointIndex) => {
             if (pointIndex < 0 || pointIndex >= points.length) return null;
