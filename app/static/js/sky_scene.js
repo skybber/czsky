@@ -2263,11 +2263,13 @@
             : this.fieldSizes[this.fldSizeIndex];
         const dtSec = Math.max(1, dtMs) / 1000.0;
         let dAng = deg2rad(fovDeg) * dtSec / this.keyboardMoveSecPerScreen;
+        const dirX = this.isMirrorX() ? -1 : 1;
+        const dirY = this.isMirrorY() ? -1 : 1;
         if (dx !== 0) {
             dAng = dAng / Math.max(0.2, Math.cos(0.9 * this.viewCenter.theta));
         }
-        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dx * dAng);
-        this.viewCenter.theta += dy * dAng;
+        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dirX * dx * dAng);
+        this.viewCenter.theta += dirY * dy * dAng;
         const lim = Math.PI / 2 - 1e-5;
         if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
         if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
@@ -2328,10 +2330,11 @@
     };
 
     SkyScene.prototype.onKeyDown = function (e) {
+        // Visual map movement vectors; mirror inversion is handled in _applyKeyboardPanDelta.
         const keyMoveMap = {
-            37: [-1, 0],
+            37: [1, 0],
             38: [0, 1],
-            39: [1, 0],
+            39: [-1, 0],
             40: [0, -1],
         };
         if (e.keyCode === 33 || e.keyCode === 34) {
