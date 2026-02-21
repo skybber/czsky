@@ -197,6 +197,13 @@
         return 1.0 - u * u * u;
     }
 
+    function wrapPi(rad) {
+        let v = rad;
+        while (v > Math.PI) v -= 2.0 * Math.PI;
+        while (v < -Math.PI) v += 2.0 * Math.PI;
+        return v;
+    }
+
     function sceneMilkyCatalogUrl(sceneUrl) {
         return sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
     }
@@ -506,6 +513,10 @@
         $(this.canvas).on('click', (e) => {
             this.keyboardCaptureActive = true;
             this.onClick(e);
+        });
+        $(this.canvas).on('dblclick', (e) => {
+            this.keyboardCaptureActive = true;
+            this.onDblClick(e);
         });
         $(this.canvas).on('wheel', (e) => this.onWheel(e));
         $(this.canvas).on('blur', () => {
@@ -1841,6 +1852,26 @@
         this._openSelected(selected);
     };
 
+    SkyScene.prototype.onDblClick = function (e) {
+        if (!this.canvas) return;
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        this.input.suppressClickUntilTs = Date.now() + 320;
+        this._stopInertia();
+
+        const p = this._eventClientXY(e);
+        const pt = this._clientToCanvasXY(p.x, p.y);
+        const dx = (this.canvas.width * 0.5) - pt.x;
+        const dy = (this.canvas.height * 0.5) - pt.y;
+        if (Math.abs(dx) + Math.abs(dy) < 1.0) return;
+
+        this._setMilkywayInteractionActive(true);
+        this._requestMilkyWaySelection({ optimized: true, immediate: true });
+        this._applyPanDelta(dx, dy);
+        this._setMilkywayInteractionActive(false);
+        this._requestMilkyWaySelection({ optimized: false, immediate: true });
+        this.forceReloadImage();
+    };
+
     SkyScene.prototype._handleTapRelease = function (clientX, clientY) {
         const now = Date.now();
         const dtTap = now - this.input.lastTapTs;
@@ -2060,15 +2091,75 @@
         let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
         newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
         if (newIndex === this.targetFldSizeIndex) return;
-        this.startZoomToIndex(newIndex);
+        const p = this._eventClientXY(e);
+        this.startZoomToIndex(newIndex, p);
     };
 
-    SkyScene.prototype.startZoomToIndex = function (newIndex) {
+    SkyScene.prototype._stereoScaleForFovDeg = function (fovDeg) {
+        if (!Number.isFinite(fovDeg) || fovDeg <= 0.0) return 0.0;
+        const fovRad = deg2rad(fovDeg);
+        const planeRadius = 2.0 * Math.tan(fovRad / 4.0);
+        if (!(planeRadius > 0.0)) return 0.0;
+        return (Math.max(this.canvas.width, this.canvas.height) * 0.5) / planeRadius;
+    };
+
+    SkyScene.prototype._unprojectCanvasToFrame = function (canvasX, canvasY, centerPhi, centerTheta, fovDeg) {
+        const scale = this._stereoScaleForFovDeg(fovDeg);
+        if (!(scale > 0.0)) return null;
+
+        let x = -(canvasX - this.canvas.width * 0.5) / scale;
+        let y = -(canvasY - this.canvas.height * 0.5) / scale;
+        if (this.isMirrorX()) x = -x;
+        if (this.isMirrorY()) y = -y;
+
+        const rho = Math.hypot(x, y);
+        if (rho < 1e-12) {
+            return { phi: normalizeRa(centerPhi), theta: centerTheta };
+        }
+
+        const c = 2.0 * Math.atan(rho * 0.5);
+        const sinC = Math.sin(c);
+        const cosC = Math.cos(c);
+        const sinCt = Math.sin(centerTheta);
+        const cosCt = Math.cos(centerTheta);
+
+        const theta = Math.asin(clamp(cosC * sinCt + (y * sinC * cosCt) / rho, -1.0, 1.0));
+        const phi = centerPhi + Math.atan2(
+            x * sinC,
+            rho * cosCt * cosC - y * sinCt * sinC
+        );
+        return { phi: normalizeRa(phi), theta: theta };
+    };
+
+    SkyScene.prototype._zoomCenterFromAnchor = function (baseCenter, anchor, pivotCanvas, fovDeg) {
+        if (!baseCenter || !anchor || !pivotCanvas) return baseCenter;
+        const underCursor = this._unprojectCanvasToFrame(
+            pivotCanvas.x,
+            pivotCanvas.y,
+            baseCenter.phi,
+            baseCenter.theta,
+            fovDeg
+        );
+        if (!underCursor) return baseCenter;
+        const dPhi = wrapPi(anchor.phi - underCursor.phi);
+        const dTheta = anchor.theta - underCursor.theta;
+        let theta = baseCenter.theta + dTheta;
+        const lim = Math.PI / 2 - 1e-5;
+        if (theta > lim) theta = lim;
+        if (theta < -lim) theta = -lim;
+        return {
+            phi: normalizeRa(baseCenter.phi + dPhi),
+            theta: theta,
+        };
+    };
+
+    SkyScene.prototype.startZoomToIndex = function (newIndex, pivotClient) {
         const clampedIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
         if (clampedIndex === this.targetFldSizeIndex && !this.zoomAnim) {
             return;
         }
 
+        const prevTargetIndex = this.targetFldSizeIndex;
         this.targetFldSizeIndex = clampedIndex;
         this.fldSizeIndex = clampedIndex;
         if (this.onFieldChangeCallback) {
@@ -2077,14 +2168,30 @@
 
         const fromFov = (typeof this.renderFovDeg === 'number')
             ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
+            : this.fieldSizes[prevTargetIndex];
         const toFov = this.fieldSizes[clampedIndex];
+
+        let pivotCanvas = { x: this.canvas.width * 0.5, y: this.canvas.height * 0.5 };
+        if (pivotClient && Number.isFinite(pivotClient.x) && Number.isFinite(pivotClient.y)) {
+            pivotCanvas = this._clientToCanvasXY(pivotClient.x, pivotClient.y);
+        }
+        const baseCenter = { phi: this.viewCenter.phi, theta: this.viewCenter.theta };
+        const anchor = this._unprojectCanvasToFrame(
+            pivotCanvas.x,
+            pivotCanvas.y,
+            baseCenter.phi,
+            baseCenter.theta,
+            fromFov
+        );
 
         this.zoomAnim = {
             startTs: performance.now(),
             fromFov: fromFov,
             toFov: toFov,
             durationMs: this.zoomDurationMs,
+            pivotCanvas: pivotCanvas,
+            baseCenter: baseCenter,
+            anchor: anchor,
         };
         this._setMilkywayInteractionActive(true);
         this._requestMilkyWaySelection({ optimized: true, immediate: true });
@@ -2100,6 +2207,17 @@
             const t = clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
             const eased = easeOutCubic(t);
             this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
+            if (this.zoomAnim.anchor) {
+                const center = this._zoomCenterFromAnchor(
+                    this.zoomAnim.baseCenter,
+                    this.zoomAnim.anchor,
+                    this.zoomAnim.pivotCanvas,
+                    this.renderFovDeg
+                );
+                this.viewCenter.phi = center.phi;
+                this.viewCenter.theta = center.theta;
+                this.setCenterToHiddenInputs();
+            }
             this._requestMilkyWaySelection({ optimized: true, immediate: false });
             this.requestDraw();
             if (t < 1.0) {
@@ -2109,6 +2227,7 @@
             this.zoomAnim = null;
             this.zoomAnimRaf = null;
             this.renderFovDeg = toFov;
+            this.setCenterToHiddenInputs();
             this._setMilkywayInteractionActive(false);
             this._requestMilkyWaySelection({ optimized: false, immediate: true });
             this.scheduleSceneReloadDebounced();

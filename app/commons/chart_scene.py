@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from flask import abort, request
+from flask import abort, current_app, request
 
 import fchart3
 
@@ -24,7 +24,6 @@ from .chart_generator import (
     resolve_active_chart_theme_definition,
     deg2rad,
     get_chart_datetime,
-    get_utc_time,
     rad2deg,
     resolve_chart_city_lat_lon,
     to_float,
@@ -64,6 +63,15 @@ def _clamp_mag_interval(value: float, interval: Tuple[float, float]) -> float:
     if value > interval[1]:
         return float(interval[1])
     return float(value)
+
+
+def _float_or_none(value: Any) -> Optional[float]:
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 @dataclass(frozen=True)
@@ -647,33 +655,73 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
 
     planets: List[dict] = []
     if FlagValue.SHOW_SOLAR_SYSTEM.value in req.flags:
-        sl_bodies = get_solsys_bodies(get_utc_time(), rad2deg(lat), rad2deg(lon))
+        scene_dt = get_chart_datetime()
+        sl_bodies = get_solsys_bodies(scene_dt, rad2deg(lat), rad2deg(lon))
         if sl_bodies:
             for body in sl_bodies:
                 label = body.solar_system_body.label.lower().replace(" ", "")
+                body_key = body.solar_system_body.name.lower()
                 planets.append(
                     {
                         "id": label,
                         "label": body.solar_system_body.label,
+                        "body": body_key,
                         "ra": float(body.ra),
                         "dec": float(body.dec),
                         "type": "planet",
+                        "mag": _float_or_none(getattr(body, "mag", None)),
+                        "distance_km": _float_or_none(getattr(body, "distance", None)),
+                        "angular_radius_rad": _float_or_none(getattr(body, "angular_radius", None)),
+                        "phase_angle_rad": _float_or_none(getattr(body, "phase", None)),
+                        "north_pole_pa_rad": _float_or_none(getattr(body, "north_pole_pa", None)),
+                        "ring_tilt_rad": _float_or_none(getattr(body, "ring_tilt", None)),
+                        "has_phase": body_key in {"moon", "mercury", "venus", "mars"},
+                        "has_ring": body_key == "saturn",
+                        "texture_key": body_key,
+                        "render_order_bias": 0,
                     }
                 )
 
         if req.fld_size_deg <= 12:
-            pl_moons = get_planet_moons(get_utc_time(), req.maglim)
+            pl_moons = get_planet_moons(scene_dt, req.maglim)
             if pl_moons:
                 for moon in pl_moons:
+                    moon_key = moon.moon_name.lower().replace(" ", "")
+                    parent_key = moon.planet.name.lower()
                     planets.append(
                         {
-                            "id": moon.moon_name.lower().replace(" ", ""),
+                            "id": moon_key,
                             "label": moon.moon_name,
+                            "body": moon_key,
+                            "parent_body": parent_key,
                             "ra": float(moon.ra),
                             "dec": float(moon.dec),
                             "type": "moon",
+                            "mag": _float_or_none(getattr(moon, "mag", None)),
+                            "distance_km": _float_or_none(getattr(moon, "distance", None)),
+                            "angular_radius_rad": None,
+                            "phase_angle_rad": None,
+                            "north_pole_pa_rad": None,
+                            "ring_tilt_rad": None,
+                            "has_phase": False,
+                            "has_ring": False,
+                            "texture_key": moon_key,
+                            "render_order_bias": 0,
                         }
                     )
+
+        debug_planets = (request.args.get("debug_planets") or "").strip().lower() in {"1", "true", "yes", "on"}
+        if debug_planets and planets:
+            moon_obj = next((p for p in planets if p.get("body") == "moon"), None)
+            if moon_obj is not None:
+                current_app.logger.info(
+                    "scene planets debug: dt=%s moon_phase=%s moon_ra=%s moon_dec=%s moon_ang_r=%s",
+                    scene_dt.isoformat() if hasattr(scene_dt, "isoformat") else scene_dt,
+                    moon_obj.get("phase_angle_rad"),
+                    moon_obj.get("ra"),
+                    moon_obj.get("dec"),
+                    moon_obj.get("angular_radius_rad"),
+                )
 
     mirror_x = FlagValue.MIRROR_X.value in req.flags
     mirror_y = FlagValue.MIRROR_Y.value in req.flags
