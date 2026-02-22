@@ -1071,17 +1071,13 @@ def build_stars_zones_v1() -> Dict:
         }
 
     _, lat_deg, lon_deg = resolve_chart_city_lat_lon()
-    lat = deg2rad(lat_deg)
-    lon = deg2rad(lon_deg)
-    center_ra, center_dec = _resolve_center_equatorial(req, lat, lon)
-    center_ra = _normalize_ra(center_ra)
     _, field_size = _field_size_rad(req.fld_size_deg, req.width, req.height)
 
     zones_out: List[dict] = []
     missing: List[str] = []
     stars_total = 0
     for level, zone in zone_refs:
-        zone_sel = star_catalog.select_zone_stars((center_ra, center_dec), field_size, req.maglim, level, zone, None)
+        zone_sel = star_catalog.select_zone_stars(level, zone, None)
         stars = _serialize_star_selection(zone_sel, star_catalog)
         if zone_sel is None:
             missing.append(f"L{level}Z{zone}")
