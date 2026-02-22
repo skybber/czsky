@@ -1,6 +1,5 @@
 import hashlib
 import math
-import os
 import threading
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, TypedDict
@@ -41,8 +40,6 @@ STAR_ZONE_BATCH_MAX = 64
 
 _mw_cache_lock = threading.Lock()
 _mw_dataset_cache: Dict[Tuple[str, bool], Dict[str, Any]] = {}
-_stars_catalog_id_lock = threading.Lock()
-_stars_catalog_id_cache: Dict[str, str] = {}
 _dso_outlines_cache_lock = threading.Lock()
 _dso_outlines_dataset_cache: Optional[Dict[str, Any]] = None
 _constell_lines_cache_lock = threading.Lock()
@@ -375,36 +372,6 @@ def _stars_lod(req: SceneRequest) -> int:
     if req.fld_size_deg <= 30.0:
         return 1
     return 0
-
-
-def _stars_catalog_id(star_catalog) -> str:
-    comp_paths = []
-    for comp in getattr(star_catalog, "_cat_components", []):
-        path = getattr(comp, "file_name", "")
-        if path:
-            comp_paths.append(path)
-    sig_parts = []
-    for path in sorted(comp_paths):
-        st = None
-        try:
-            st = os.stat(path)
-        except OSError:
-            st = None
-        if st is None:
-            sig_parts.append(f"{path}|missing")
-        else:
-            sig_parts.append(f"{path}|{int(st.st_size)}|{int(st.st_mtime)}")
-    signature = "||".join(sig_parts)
-    if not signature:
-        signature = "empty"
-    with _stars_catalog_id_lock:
-        cached = _stars_catalog_id_cache.get(signature)
-        if cached is not None:
-            return cached
-        value = hashlib.sha1(signature.encode("utf-8")).hexdigest()[:16]
-        catalog_id = f"stars-{value}"
-        _stars_catalog_id_cache[signature] = catalog_id
-        return catalog_id
 
 
 def _serialize_star_selection(star_sel, star_catalog) -> List[dict]:
@@ -804,10 +771,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
     stars_preview: List[dict] = []
     stars_zone_selection: List[dict] = []
     nebulae_outlines: List[dict] = []
-    stars_catalog_id = None
     stars_max_level = 0
     if used_catalogs.star_catalog is not None:
-        stars_catalog_id = _stars_catalog_id(used_catalogs.star_catalog)
         stars_max_level = int(getattr(used_catalogs.star_catalog, "max_geodesic_grid_level", 0))
         star_sel = used_catalogs.star_catalog.select_stars((center_ra, center_dec), field_size, req.maglim, None)
         star_objects = _serialize_star_selection(star_sel, used_catalogs.star_catalog)
@@ -1013,7 +978,6 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "stars_lod": lod_level,
             "stars_stream": {
                 "enabled": used_catalogs.star_catalog is not None and req.debug_stars != "preview_only",
-                "catalog_id": stars_catalog_id,
                 "max_level": stars_max_level,
                 "batch_max": STAR_ZONE_BATCH_MAX,
             },
@@ -1100,15 +1064,11 @@ def build_stars_zones_v1() -> Dict:
     if star_catalog is None:
         return {
             "version": STARS_VERSION,
-            "catalog_id": None,
             "maglim": req.maglim,
             "zones": [],
             "missing": [],
             "stats": {"zones_count": 0, "stars_count": 0},
         }
-
-    expected_catalog_id = request.args.get("catalog_id")
-    catalog_id = _stars_catalog_id(star_catalog)
 
     _, lat_deg, lon_deg = resolve_chart_city_lat_lon()
     lat = deg2rad(lat_deg)
@@ -1130,8 +1090,6 @@ def build_stars_zones_v1() -> Dict:
 
     return {
         "version": STARS_VERSION,
-        "catalog_id": catalog_id,
-        "catalog_mismatch": bool(expected_catalog_id and expected_catalog_id != catalog_id),
         "maglim": req.maglim,
         "zones": zones_out,
         "missing": missing,

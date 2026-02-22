@@ -385,7 +385,7 @@
         this.zoneStars = [];
         this.sceneRequestEpoch = 0;
         this.starZoneCache = new Map();
-        this.starZoneInFlight = new Set();
+        this.starZoneInFlight = new Map();
         this.starZoneBatchSize = 32;
         this.starZoneCacheMax = 240;
         this.mwCatalogById = {};
@@ -1332,8 +1332,8 @@
         return Math.round(m * 2.0) / 2.0;
     };
 
-    SkyScene.prototype._zoneCacheKey = function (catalogId, magBucket, level, zone) {
-        return catalogId + '|m' + magBucket.toFixed(1) + '|L' + level + 'Z' + zone;
+    SkyScene.prototype._zoneCacheKey = function (magBucket, level, zone) {
+        return 'L' + level + 'Z' + zone;
     };
 
     SkyScene.prototype._evictZoneCache = function () {
@@ -1344,11 +1344,11 @@
         }
     };
 
-    SkyScene.prototype._collectCachedZoneStars = function (scene, catalogId, magBucket) {
+    SkyScene.prototype._collectCachedZoneStars = function (scene, magBucket) {
         const out = [];
         const selection = (scene.objects && scene.objects.stars_zone_selection) || [];
         selection.forEach((ref) => {
-            const key = this._zoneCacheKey(catalogId, magBucket, ref.level, ref.zone);
+            const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
             const stars = this.starZoneCache.get(key);
             if (!stars) return;
             for (let i = 0; i < stars.length; i++) out.push(stars[i]);
@@ -1359,7 +1359,7 @@
     SkyScene.prototype._loadZoneStars = function (scene, epoch) {
         if (!scene || !scene.meta || !scene.objects) return;
         const streamMeta = scene.meta.stars_stream || {};
-        if (!streamMeta.enabled || !streamMeta.catalog_id) {
+        if (!streamMeta.enabled) {
             this.zoneStars = [];
             this.requestDraw();
             return;
@@ -1372,16 +1372,16 @@
             return;
         }
 
-        const catalogId = streamMeta.catalog_id;
         const magBucket = this._starMagBucket(scene.meta);
         const missing = [];
         selection.forEach((ref) => {
-            const key = this._zoneCacheKey(catalogId, magBucket, ref.level, ref.zone);
-            if (this.starZoneCache.has(key) || this.starZoneInFlight.has(key)) return;
+            const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
+            const inFlightEpoch = this.starZoneInFlight.get(key);
+            if (this.starZoneCache.has(key) || inFlightEpoch === epoch) return;
             missing.push({ key: key, level: ref.level, zone: ref.zone });
         });
 
-        const cached = this._collectCachedZoneStars(scene, catalogId, magBucket);
+        const cached = this._collectCachedZoneStars(scene, magBucket);
         if (cached.length > 0 || missing.length === 0) {
             this.zoneStars = cached;
             this.requestDraw();
@@ -1391,7 +1391,7 @@
         const batchSize = Math.max(1, this.starZoneBatchSize);
         for (let i = 0; i < missing.length; i += batchSize) {
             const batch = missing.slice(i, i + batchSize);
-            batch.forEach((r) => this.starZoneInFlight.add(r.key));
+            batch.forEach((r) => this.starZoneInFlight.set(r.key, epoch));
 
             const tokens = batch.map((r) => 'L' + r.level + 'Z' + r.zone).join(',');
             const frameTimeISO = this._resolveRequestTimeISO();
@@ -1421,20 +1421,19 @@
                 url = addOrReplaceQueryParam(url, 'maglim', sceneMeta.maglim);
             }
             url = addOrReplaceQueryParam(url, 'zones', tokens);
-            url = addOrReplaceQueryParam(url, 'catalog_id', catalogId);
             url += '&mode=data&t=' + Date.now();
 
             $.getJSON(url).done((zoneData) => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
                 if (!zoneData || !Array.isArray(zoneData.zones)) return;
                 zoneData.zones.forEach((z) => {
-                    const key = this._zoneCacheKey(catalogId, magBucket, z.level, z.zone);
+                    const key = this._zoneCacheKey(magBucket, z.level, z.zone);
                     const stars = Array.isArray(z.stars) ? z.stars : [];
                     this.starZoneCache.set(key, stars);
                 });
                 this._evictZoneCache();
                 if (epoch !== this.sceneRequestEpoch || !this.sceneData) return;
-                this.zoneStars = this._collectCachedZoneStars(this.sceneData, catalogId, magBucket);
+                this.zoneStars = this._collectCachedZoneStars(this.sceneData, magBucket);
                 this.requestDraw();
             }).fail(() => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
