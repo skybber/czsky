@@ -21,6 +21,7 @@
             this.uUseAttrSize = null;
             this.uUseAttrColor = null;
             this.uCircle = null;
+            this.pointSizeRange = null;
             this.ready = false;
             this._init();
         }
@@ -40,6 +41,13 @@
             if (!gl) {
                 return;
             }
+            this.pointSizeRange = null;
+            try {
+                const rng = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+                if (rng && rng.length >= 2 && Number.isFinite(rng[0]) && Number.isFinite(rng[1])) {
+                    this.pointSizeRange = [Number(rng[0]), Number(rng[1])];
+                }
+            } catch (err) {}
             const vs = `
                 attribute vec2 a_pos;
                 attribute float a_size;
@@ -162,6 +170,11 @@
 
         drawTriangles(arr, color, colors) {
             this._draw(this.gl.TRIANGLES, arr, color, 1.0, { circle: false, colors: colors });
+        }
+
+        getPointSizeRange() {
+            if (!this.pointSizeRange || this.pointSizeRange.length < 2) return null;
+            return [this.pointSizeRange[0], this.pointSizeRange[1]];
         }
     }
 
@@ -396,6 +409,13 @@
         this.perfGpuFinishEveryN = 12;
         this.perfGpuFinishEnabled = true;
         this.perfStarsLoaded = 0;
+        this.perfStarsDiag = null;
+        this.starStreamDebug = {
+            reqBatches: 0,
+            respBatches: 0,
+            droppedEpoch: 0,
+            drawRequests: 0,
+        };
         const ua = (window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : '';
         const isMobile = /android|iphone|ipad|ipod|mobile/i.test(ua);
         const isSlowBrowser = /(firefox|fxios|opera|opr)/i.test(ua);
@@ -687,6 +707,21 @@
             'mode=' + (liteMode ? 'lite' : 'normal') + '  stars_loaded=' + loaded,
         ];
         if (this.perfDetail) {
+            const sceneMeta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : {};
+            const fov = Number.isFinite(this.renderFovDeg)
+                ? this.renderFovDeg
+                : (Number.isFinite(sceneMeta.fov_deg) ? sceneMeta.fov_deg : null);
+            const maglim = Number.isFinite(sceneMeta.maglim) ? sceneMeta.maglim : null;
+            const diag = this.perfStarsDiag || {};
+            const starStreamDebug = this.starStreamDebug || {};
+            const glRange = (this.renderer && typeof this.renderer.getPointSizeRange === 'function')
+                ? this.renderer.getPointSizeRange() : null;
+            const fmt2 = (v) => Number.isFinite(v) ? Number(v).toFixed(2) : '--';
+            const fmt0 = (v) => Number.isFinite(v) ? String(v | 0) : '--';
+            const glRangeText = (glRange && glRange.length >= 2)
+                ? (fmt2(glRange[0]) + ',' + fmt2(glRange[1]))
+                : '--';
+
             const renderMs = (this.perfStats.milky_way || 0)
                 + (this.perfStats.grid || 0)
                 + (this.perfStats.constell || 0)
@@ -710,11 +745,25 @@
                 + ' hor=' + ((this.perfStats.horizon || 0).toFixed(2))
             );
             lines.push(
-                'star_stream req=' + this.starStreamDebug.reqBatches
-                + ' resp=' + this.starStreamDebug.respBatches
-                + ' drop=' + this.starStreamDebug.droppedEpoch
-                + ' draw_req=' + this.starStreamDebug.drawRequests
+                'star_stream req=' + fmt0(starStreamDebug.reqBatches)
+                + ' resp=' + fmt0(starStreamDebug.respBatches)
+                + ' drop=' + fmt0(starStreamDebug.droppedEpoch)
+                + ' draw_req=' + fmt0(starStreamDebug.drawRequests)
             );
+            lines.push('stars_diag fov=' + fmt2(fov) + ' mag=' + fmt2(maglim));
+            lines.push(
+                'src p=' + fmt0(diag.preview_input_count)
+                + ' z=' + fmt0(diag.zone_input_count)
+                + ' u=' + fmt0(diag.unique_count)
+                + ' drop=' + fmt0(diag.project_drop_count)
+            );
+            lines.push(
+                'size min=' + fmt2(diag.size_min_px)
+                + ' avg=' + fmt2(diag.size_avg_px)
+                + ' max=' + fmt2(diag.size_max_px)
+                + ' <1=' + fmt0(diag.size_lt_1_px_count)
+            );
+            lines.push('gl_ps=' + glRangeText + ' proj=' + fmt0(diag.projected_count));
         }
 
         const pad = 6;
@@ -1665,6 +1714,7 @@
         }
 
         let starsLoaded = 0;
+        this.perfStarsDiag = null;
         if (!aladinActive) {
             measure('stars', () => {
                 starsLoaded = this.starsRenderer.draw({
@@ -1681,6 +1731,9 @@
                 height: this.canvas.height,
                 }) || 0;
             });
+            if (this.starsRenderer && typeof this.starsRenderer.getLastDiag === 'function') {
+                this.perfStarsDiag = this.starsRenderer.getLastDiag();
+            }
         }
         this.perfStarsLoaded = starsLoaded | 0;
 
