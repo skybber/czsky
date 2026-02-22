@@ -67,6 +67,11 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.visibility_utils import get_rise_transit_set_utc
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
+from app.commons.chart_scene import (
+    build_cross_highlight,
+    build_scene_trajectory_item,
+    build_scene_v1,
+)
 from app.commons.prevnext_utils import create_navigation_wrappers
 
 from app.models import (
@@ -428,6 +433,55 @@ def comet_chart_pos_img(comet_id):
     img_bytes, img_format = common_chart_pos_img(comet_ra, comet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_comet.route('/comet/<string:comet_id>/chart/scene-v1', methods=['GET'])
+def comet_chart_scene_v1(comet_id):
+    comet = find_mpc_comet(comet_id)
+    if comet is None:
+        abort(404)
+
+    comet_ra = to_float(request.args.get('obj_ra'), None)
+    comet_dec = to_float(request.args.get('obj_dec'), None)
+    request_dt = request.args.get('dt', None)
+    if request_dt is not None:
+        try:
+            dt = datetime.fromisoformat(request_dt)
+            comet_ra, comet_dec = get_comet_radec(comet_id, dt)
+        except ValueError:
+            pass
+
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    trajectories = scene_objects.setdefault('trajectories', [])
+    cur_theme = session.get('theme')
+
+    if comet_ra is not None and comet_dec is not None:
+        highlights.append(
+            build_cross_highlight(highlight_id=CHART_COMET_PREFIX + str(comet_id), label=comet.designation, ra=comet_ra, dec=comet_dec, theme_name=cur_theme,)
+        )
+
+    if trajectory:
+        trajectories.append(
+            build_scene_trajectory_item(
+                trajectory_id='COMET_TRAJ_' + str(comet_id),
+                label=comet.designation,
+                points=trajectory,
+                trajectory_type='comet',
+            )
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'comet',
+        'id': str(comet_id),
+        'ra': float(comet_ra) if comet_ra is not None else None,
+        'dec': float(comet_dec) if comet_dec is not None else None,
+    }
+    return jsonify(scene)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pdf', methods=['GET'])

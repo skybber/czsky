@@ -73,6 +73,11 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.visibility_utils import get_rise_transit_set_utc
+from app.commons.chart_scene import (
+    build_cross_highlight,
+    build_scene_trajectory_item,
+    build_scene_v1,
+)
 
 from app.commons.dbupdate_utils import ask_dbupdate_permit
 from app.commons.coordinates import ra_to_str, dec_to_str
@@ -370,6 +375,42 @@ def minor_planet_chart_pos_img(minor_planet_id):
     img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, visible_objects=visible_objects, trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart/scene-v1', methods=['GET'])
+def minor_planet_chart_scene_v1(minor_planet_id):
+    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    if minor_planet is None:
+        abort(404)
+
+    minor_planet_ra = to_float(request.args.get('obj_ra'), None)
+    minor_planet_dec = to_float(request.args.get('obj_dec'), None)
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    trajectories = scene_objects.setdefault('trajectories', [])
+    cur_theme = session.get('theme')
+
+    if minor_planet_ra is not None and minor_planet_dec is not None:
+        highlights.append(
+            build_cross_highlight(highlight_id=CHART_MINOR_PLANET_PREFIX + str(minor_planet.id), label=minor_planet.designation, ra=minor_planet_ra, dec=minor_planet_dec, theme_name=cur_theme,)
+        )
+
+    if trajectory:
+        trajectories.append(
+            build_scene_trajectory_item(trajectory_id='MINOR_PLANET_TRAJ_' + str(minor_planet.id), label=minor_planet.designation, points=trajectory, trajectory_type='minor_planet',)
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'minor_planet',
+        'id': str(minor_planet.id),
+        'ra': float(minor_planet_ra) if minor_planet_ra is not None else None,
+        'dec': float(minor_planet_dec) if minor_planet_dec is not None else None,
+    }
+    return jsonify(scene)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET'])

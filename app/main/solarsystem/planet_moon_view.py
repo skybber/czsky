@@ -35,7 +35,6 @@ from app.models import (
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -44,6 +43,10 @@ from app.commons.chart_generator import (
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
+from app.commons.chart_scene import (
+    build_cross_highlight,
+    build_scene_v1,
+)
 
 from ... import csrf
 from app.commons.coordinates import ra_to_str, dec_to_str
@@ -150,6 +153,38 @@ def planet_moon_chart_pos_img(planet_moon_name):
     img_bytes, img_format = common_chart_pos_img(plm_ra, plm_dec, visible_objects=visible_objects,)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart/scene-v1', methods=['GET'])
+def planet_moon_chart_scene_v1(planet_moon_name):
+    planet_moon = PlanetMoon.get_by_name(planet_moon_name)
+    if planet_moon is None:
+        abort(404)
+
+    plm_ra = to_float(request.args.get('obj_ra'), None)
+    plm_dec = to_float(request.args.get('obj_dec'), None)
+    if plm_ra is None or plm_dec is None:
+        plm_obj = create_planet_moon_obj(planet_moon.name)
+        plm_ra = plm_obj.ra
+        plm_dec = plm_obj.dec
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    highlights.append(
+        build_cross_highlight(highlight_id='PLANET_MOON_' + str(planet_moon.id), label=planet_moon.name, ra=plm_ra, dec=plm_dec, theme_name=cur_theme,)
+    )
+
+    scene_meta['object_context'] = {
+        'kind': 'planet_moon',
+        'id': str(planet_moon.id),
+        'ra': float(plm_ra),
+        'dec': float(plm_dec),
+    }
+    return jsonify(scene)
 
 
 @main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf', methods=['GET'])

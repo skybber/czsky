@@ -349,12 +349,19 @@ class ChartThemeDefinition:
                 'picker_radius': self.picker_radius,
                 'star_mag_shift': self.star_mag_shift,
                 'constellation_linespace': self.constellation_linespace,
+                'comet_tail_length': self.comet_tail_length,
+                'comet_tail_half_angle_deg': self.comet_tail_half_angle_deg,
+                'comet_tail_side_scale': self.comet_tail_side_scale,
             },
             'flags': {
                 'light_mode': self.light_mode,
                 'star_colors': self.star_colors,
                 'dso_dynamic_brightness': self.dso_dynamic_brightness,
                 'show_nebula_outlines': self.show_nebula_outlines,
+            },
+            'comet': {
+                'tail_color': self.comet_tail_color,
+                'highlight_color': self.comet_highlight_color,
             },
             'units': {
                 'color': 'rgb_0_1',

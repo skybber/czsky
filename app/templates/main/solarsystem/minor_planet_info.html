@@ -50,7 +50,10 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,
-                     back=back, back_id=back_id, default_back='minor_planets'
+                     back=back, back_id=back_id, default_back='minor_planets',
+                     fchart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.id,
+                                              flags=chart_control.chart_flags, back=back, back_id=back_id,
+                                              trajectory=trajectory)
                      )
     }}
 {% endmacro %}

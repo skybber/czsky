@@ -113,6 +113,21 @@ class SceneDsoItem(TypedDict, total=False):
     position_angle_rad: float
 
 
+class SceneTrajectoryPoint(TypedDict, total=False):
+    ra: float
+    dec: float
+    label: str
+    sun_ra: Optional[float]
+    sun_dec: Optional[float]
+
+
+class SceneTrajectoryItem(TypedDict, total=False):
+    id: str
+    label: str
+    type: str
+    points: List[SceneTrajectoryPoint]
+
+
 def normalized_theme_name(theme_name: Optional[str]) -> str:
     return (theme_name or "").strip().lower()
 
@@ -199,6 +214,36 @@ def ensure_scene_dso_item(scene: Dict[str, Any], dso: Any) -> None:
         if item and item.get("id") == dso_id:
             return
     dso_items.append(build_scene_dso_item_from_model(dso))
+
+
+def build_scene_trajectory_item(
+    trajectory_id: str,
+    label: str,
+    points: Any,
+    trajectory_type: str = "comet",
+) -> SceneTrajectoryItem:
+    trajectory_points: List[SceneTrajectoryPoint] = []
+    for pt in points or []:
+        ra = getattr(pt, "ra", None)
+        dec = getattr(pt, "dec", None)
+        if ra is None or dec is None:
+            continue
+        trajectory_points.append(
+            {
+                "ra": float(ra),
+                "dec": float(dec),
+                "label": str(getattr(pt, "label", "") or ""),
+                "sun_ra": _float_or_none(getattr(pt, "sun_ra", None)),
+                "sun_dec": _float_or_none(getattr(pt, "sun_dec", None)),
+            }
+        )
+
+    return {
+        "id": str(trajectory_id),
+        "label": str(label or trajectory_id),
+        "type": str(trajectory_type or "comet"),
+        "points": trajectory_points,
+    }
 
 
 def _normalize_ra(ra: float) -> float:
@@ -941,6 +986,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "show_equatorial_grid": FlagValue.SHOW_EQUATORIAL_GRID.value in req.flags,
             "show_horizontal_grid": FlagValue.SHOW_HORIZONTAL_GRID.value in req.flags,
             "show_dso_mag": FlagValue.SHOW_DSO_MAG.value in req.flags,
+            "show_comet_tail": FlagValue.SHOW_COMET_TAIL.value in req.flags,
             "show_milky_way": mw["mode"] != "off",
             "theme_name": active_theme_name,
             "theme_id": active_theme_id,
@@ -986,6 +1032,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "planets",
             "grid_eq",
             "grid_hor",
+            "trajectories",
             "highlights",
         ],
         "objects": {
@@ -999,6 +1046,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             "nebulae_outlines": nebulae_outlines,
             "grid_eq": [],
             "grid_hor": [],
+            "trajectories": [],
             "highlights": [],
         },
         "selection_index": selection_index,

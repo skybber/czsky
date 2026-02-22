@@ -50,6 +50,12 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.visibility_utils import get_rise_transit_set_utc
+from app.commons.chart_scene import (
+    build_cross_highlight,
+    build_scene_trajectory_item,
+    build_scene_v1,
+)
+from app.commons.dso_utils import CHART_PLANET_PREFIX
 
 from ... import csrf
 from app.commons.coordinates import ra_to_str, dec_to_str
@@ -200,6 +206,42 @@ def planet_chart_pos_img(planet_iau_code):
                                                  trajectory=trajectory)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_planet.route('/planet/<string:planet_iau_code>/chart/scene-v1', methods=['GET'])
+def planet_chart_scene_v1(planet_iau_code):
+    planet = Planet.get_by_iau_code(planet_iau_code)
+    if planet is None:
+        abort(404)
+
+    planet_ra = to_float(request.args.get('obj_ra'), None)
+    planet_dec = to_float(request.args.get('obj_dec'), None)
+    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    trajectories = scene_objects.setdefault('trajectories', [])
+    cur_theme = session.get('theme')
+
+    if planet_ra is not None and planet_dec is not None:
+        highlights.append(
+            build_cross_highlight(highlight_id=CHART_PLANET_PREFIX + str(planet.id), label=planet.get_localized_name(), ra=planet_ra, dec=planet_dec, theme_name=cur_theme,)
+        )
+
+    if trajectory:
+        trajectories.append(
+            build_scene_trajectory_item(trajectory_id='PLANET_TRAJ_' + str(planet.id), label=planet.get_localized_name(), points=trajectory, trajectory_type='planet',)
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'planet',
+        'id': str(planet.id),
+        'ra': float(planet_ra) if planet_ra is not None else None,
+        'dec': float(planet_dec) if planet_dec is not None else None,
+    }
+    return jsonify(scene)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/chart-pdf', methods=['GET'])

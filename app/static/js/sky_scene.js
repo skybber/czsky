@@ -465,6 +465,7 @@
         this.nebulaeOutlinesRenderer = new window.SkySceneNebulaeOutlinesRenderer();
         this.horizonRenderer = new window.SkySceneHorizonRenderer();
         this.highlightRenderer = new window.SkySceneHighlightRenderer();
+        this.trajectoryRenderer = new window.SkySceneTrajectoryRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
 
         this.move = {
@@ -1751,6 +1752,19 @@
                 height: this.canvas.height,
             }));
         }
+
+        measure('trajectory', () => this.trajectoryRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            registerSelectable: this._registerSelectable.bind(this),
+        }));
 
         measure('highlights', () => this.highlightRenderer.draw({
             sceneData: this.sceneData,
