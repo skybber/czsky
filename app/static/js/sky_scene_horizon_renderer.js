@@ -30,19 +30,6 @@
         return mm * (100.0 / 25.4);
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
-    SkySceneHorizonRenderer.prototype._projectPx = function (sceneCtx, phi, theta) {
-        const p = sceneCtx.projection.projectFrameToNdc(phi, theta);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
-    };
-
     SkySceneHorizonRenderer.prototype._drawPolyline = function (ctx, points, closePath) {
         if (!points || !points.length) return;
         let open = false;
@@ -83,7 +70,7 @@
 
         const points = [];
         for (let aggAz = -Math.PI; aggAz <= Math.PI + EPS; aggAz += daz) {
-            points.push(this._projectPx(sceneCtx, centerAz + aggAz, 0.0));
+            points.push(sceneCtx.projection.projectFrameToPx(centerAz + aggAz, 0.0));
         }
         this._drawPolyline(ctx, points, false);
     };
@@ -93,7 +80,7 @@
         for (let i = 0; i < polygonPoints.length; i++) {
             const p = polygonPoints[i];
             if (!Array.isArray(p) || p.length < 2) continue;
-            points.push(this._projectPx(sceneCtx, p[0], p[1]));
+            points.push(sceneCtx.projection.projectFrameToPx(p[0], p[1]));
         }
         this._drawPolyline(sceneCtx.overlayCtx, points, true);
     };
@@ -120,10 +107,10 @@
             const dir = CARDINAL_DIRECTIONS[i];
             const label = dir[0];
             const az = dir[1];
-            const p = this._projectPx(sceneCtx, az, 0.0);
+            const p = sceneCtx.projection.projectFrameToPx(az, 0.0);
             if (!p) continue;
 
-            const pUp = this._projectPx(sceneCtx, az, Math.PI / 20.0);
+            const pUp = sceneCtx.projection.projectFrameToPx(az, Math.PI / 20.0);
             let textAng = 0.0;
             if (pUp) {
                 textAng = Math.atan2(pUp.x - p.x, pUp.y - p.y);

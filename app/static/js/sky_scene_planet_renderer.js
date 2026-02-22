@@ -16,13 +16,6 @@
         return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     function pxToNdc(px, py, width, height) {
         return {
             x: (px / width) * 2.0 - 1.0,
@@ -298,9 +291,8 @@
             const ctx = sceneCtx.overlayCtx;
             for (let i = 0; i < objects.length; i++) {
                 const p = objects[i];
-                const ndc = sceneCtx.projection.projectEquatorialToNdc(p.ra, p.dec);
-                if (!ndc) continue;
-                const px = ndcToPx(ndc, sceneCtx.width, sceneCtx.height);
+                const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
+                if (!px) continue;
                 const r = planetRadiusPx(sceneCtx, p, pxPerRad);
                 const col = planetColor(sceneCtx, p);
                 ctx.fillStyle = rgba(col, 1.0);
@@ -326,9 +318,8 @@
         for (let i = 0; i < objects.length; i++) {
             const p = objects[i];
             if (!p) continue;
-            const ndc = sceneCtx.projection.projectEquatorialToNdc(p.ra, p.dec);
-            if (!ndc) continue;
-            const px = ndcToPx(ndc, sceneCtx.width, sceneCtx.height);
+            const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
+            if (!px) continue;
             const col = planetColor(sceneCtx, p);
             const darkCol = darkenColor(col, 0.1);
             const r = planetRadiusPx(sceneCtx, p, pxPerRad);
@@ -377,9 +368,8 @@
                 let sunDirX = 1.0;
                 let sunDirY = 0.0;
                 if (sunObj) {
-                    const sunNdc = sceneCtx.projection.projectEquatorialToNdc(sunObj.ra, sunObj.dec);
-                    if (sunNdc) {
-                        const sunPx = ndcToPx(sunNdc, sceneCtx.width, sceneCtx.height);
+                    const sunPx = sceneCtx.projection.projectEquatorialToPx(sunObj.ra, sunObj.dec);
+                    if (sunPx) {
                         const dx = sunPx.x - px.x;
                         const dy = sunPx.y - px.y;
                         const dn = Math.hypot(dx, dy);

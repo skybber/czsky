@@ -18,13 +18,6 @@
         return mm * (100.0 / 25.4);
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     function levelColor(base, lightMode, level) {
         const outlLev = Math.max(0, Math.min(2, level | 0));
         const frac = 4.0 - 1.5 * outlLev;
@@ -43,9 +36,7 @@
     }
 
     window.SkySceneNebulaeOutlinesRenderer.prototype._project = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
+        return sceneCtx.projection.projectEquatorialToPx(ra, dec);
     };
 
     window.SkySceneNebulaeOutlinesRenderer.prototype._extractOutlinesAtLevel = function (nebula, level) {

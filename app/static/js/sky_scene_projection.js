@@ -106,4 +106,23 @@
         const center = this.getProjectionCenter();
         return this._projectStereographic(phi, theta, center.phi, center.theta);
     };
+
+    SceneProjection.prototype.ndcToPx = function (p) {
+        if (!p || !Number.isFinite(p.ndcX) || !Number.isFinite(p.ndcY)) return null;
+        if (!Number.isFinite(this.width) || !Number.isFinite(this.height) || this.width <= 0 || this.height <= 0) {
+            return null;
+        }
+        return {
+            x: (p.ndcX + 1.0) * 0.5 * this.width,
+            y: (1.0 - p.ndcY) * 0.5 * this.height,
+        };
+    };
+
+    SceneProjection.prototype.projectEquatorialToPx = function (ra, dec) {
+        return this.ndcToPx(this.projectEquatorialToNdc(ra, dec));
+    };
+
+    SceneProjection.prototype.projectFrameToPx = function (phi, theta) {
+        return this.ndcToPx(this.projectFrameToNdc(phi, theta));
+    };
 })();

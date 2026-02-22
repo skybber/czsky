@@ -21,24 +21,10 @@
         return mm * (100.0 / 25.4);
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     function finiteColor(c) {
         return Array.isArray(c) && c.length >= 3
             && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
     }
-
-    window.SkySceneHighlightRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
-        if (!Number.isFinite(ra) || !Number.isFinite(dec)) return null;
-        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
-    };
 
     window.SkySceneHighlightRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
         const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
@@ -134,7 +120,7 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._drawCross = function (sceneCtx, hl) {
-        const centerPx = this._projectPx(sceneCtx, hl.ra, hl.dec);
+        const centerPx = (Number.isFinite(hl.ra) && Number.isFinite(hl.dec) ? sceneCtx.projection.projectEquatorialToPx(hl.ra, hl.dec) : null);
         if (!centerPx) return;
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
@@ -160,7 +146,7 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._drawCircle = function (sceneCtx, hl, dsoById) {
-        const centerPx = this._projectPx(sceneCtx, hl.ra, hl.dec);
+        const centerPx = (Number.isFinite(hl.ra) && Number.isFinite(hl.dec) ? sceneCtx.projection.projectEquatorialToPx(hl.ra, hl.dec) : null);
         if (!centerPx) return;
         let r = Number.isFinite(hl.radius_px) ? Math.max(2.0, hl.radius_px) : 8.0;
         if (hl.shape === 'dso_circle') {
@@ -186,7 +172,7 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._drawComet = function (sceneCtx, hl) {
-        const centerPx = this._projectPx(sceneCtx, hl.ra, hl.dec);
+        const centerPx = (Number.isFinite(hl.ra) && Number.isFinite(hl.dec) ? sceneCtx.projection.projectEquatorialToPx(hl.ra, hl.dec) : null);
         if (!centerPx) return;
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
@@ -227,7 +213,7 @@
                 ra = p.ra;
                 dec = p.dec;
             }
-            const px = this._projectPx(sceneCtx, ra, dec);
+            const px = (Number.isFinite(ra) && Number.isFinite(dec) ? sceneCtx.projection.projectEquatorialToPx(ra, dec) : null);
             if (!px) continue;
             pointsPx.push(px);
         }

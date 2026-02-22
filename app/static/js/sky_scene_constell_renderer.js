@@ -145,12 +145,7 @@
     };
 
     window.SkySceneConstellationRenderer.prototype._project = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p) return null;
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * sceneCtx.width,
-            y: (1.0 - p.ndcY) * 0.5 * sceneCtx.height,
-        };
+        return sceneCtx.projection.projectEquatorialToPx(ra, dec);
     };
 
     window.SkySceneConstellationRenderer.prototype._getBoundaryRenderParams = function (sceneCtx) {

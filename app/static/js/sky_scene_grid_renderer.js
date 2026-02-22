@@ -40,13 +40,6 @@
         return mm * (100.0 / 25.4);
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     function pickGridStep(scaleList, fieldRadius, centerV, cosOfV, arcminPerUnit) {
         let prevSteps = null;
         let prevScale = null;
@@ -88,12 +81,6 @@
             fontPx: Math.max(10, Math.round(mmToPx(fontMm * 0.72))),
             color: sceneCtx.getThemeColor('grid', [0.45, 0.5, 0.55]),
         };
-    };
-
-    SkySceneGridRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
     };
 
     SkySceneGridRenderer.prototype._gridRaLabel = function (raMinutes, fmtToken) {
@@ -171,7 +158,7 @@
 
         for (let aggU = -Math.PI; aggU <= Math.PI + 1e-9; aggU += du) {
             const uv = toRaDec(centerU + aggU, v);
-            const p = uv ? this._projectPx(sceneCtx, uv.ra, uv.dec) : null;
+            const p = uv ? sceneCtx.projection.projectEquatorialToPx(uv.ra, uv.dec) : null;
             points.push(p);
         }
 
@@ -214,7 +201,7 @@
 
         for (let v = -Math.PI / 2; v <= Math.PI / 2 + 1e-9; v += dv) {
             const uv = toRaDec(u, v);
-            const p = uv ? this._projectPx(sceneCtx, uv.ra, uv.dec) : null;
+            const p = uv ? sceneCtx.projection.projectEquatorialToPx(uv.ra, uv.dec) : null;
             points.push(p);
         }
 

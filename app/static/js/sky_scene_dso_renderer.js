@@ -10,13 +10,6 @@
         return v;
     }
 
-    function ndcToPx(p, width, height) {
-        return {
-            x: (p.ndcX + 1.0) * 0.5 * width,
-            y: (1.0 - p.ndcY) * 0.5 * height,
-        };
-    }
-
     function rgba(color, alpha) {
         const r = Math.round(clamp01(color[0]) * 255);
         const g = Math.round(clamp01(color[1]) * 255);
@@ -165,20 +158,14 @@
         ctx.restore();
     };
 
-    SkySceneDsoRenderer.prototype._projectPx = function (sceneCtx, ra, dec) {
-        const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p) return null;
-        return ndcToPx(p, sceneCtx.width, sceneCtx.height);
-    };
-
     SkySceneDsoRenderer.prototype._galaxyScreenAngle = function (sceneCtx, dso, centerPx) {
         const pa = (dso.position_angle_rad || 0.0);
         const eps = Math.PI / 10800.0; // 1 arcmin
         const decN = Math.max(-Math.PI / 2 + 1e-5, Math.min(Math.PI / 2 - 1e-5, dso.dec + eps));
-        const pNorth = this._projectPx(sceneCtx, dso.ra, decN);
+        const pNorth = sceneCtx.projection.projectEquatorialToPx(dso.ra, decN);
 
         const cosDec = Math.max(0.05, Math.cos(dso.dec));
-        const pEast = this._projectPx(sceneCtx, dso.ra + eps / cosDec, dso.dec);
+        const pEast = sceneCtx.projection.projectEquatorialToPx(dso.ra + eps / cosDec, dso.dec);
 
         if (!pNorth || !pEast) {
             return pa + Math.PI * 0.5;
@@ -333,7 +320,7 @@
         }
         const n = Math.min(raList.length, decList.length);
         for (let i = 0; i < n; i++) {
-            const p = this._projectPx(sceneCtx, raList[i], decList[i]);
+            const p = sceneCtx.projection.projectEquatorialToPx(raList[i], decList[i]);
             if (p) {
                 points.push(p);
             }
@@ -602,9 +589,8 @@
         const ds = [];
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
-            const p = sceneCtx.projection.projectEquatorialToNdc(dso.ra, dso.dec);
-            if (!p) continue;
-            const centerPx = ndcToPx(p, sceneCtx.width, sceneCtx.height);
+            const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
+            if (!centerPx) continue;
             const radii = this._dsoRadii(sceneCtx, dso);
             const local = this._toLocalCoords(sceneCtx, centerPx);
             ds.push({
@@ -720,11 +706,10 @@
         const labelPotential = this._buildLabelPotential(sceneCtx, dsoList);
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
-            const p = sceneCtx.projection.projectEquatorialToNdc(dso.ra, dso.dec);
-            if (!p) {
+            const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
+            if (!centerPx) {
                 continue;
             }
-            const centerPx = ndcToPx(p, sceneCtx.width, sceneCtx.height);
             const radii = this._dsoRadii(sceneCtx, dso);
             const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
 
