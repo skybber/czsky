@@ -61,6 +61,17 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+    ensure_scene_dso_item,
+)
+from app.commons.dso_utils import (
+    CHART_DOUBLE_STAR_PREFIX,
+    CHART_COMET_PREFIX,
+    CHART_MINOR_PLANET_PREFIX,
+)
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.coordinates import *
@@ -545,6 +556,85 @@ def observing_session_chart_pos_img(observing_session_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
+@main_observing_session.route('/observing-session/<int:observing_session_id>/chart/scene-v1', methods=['GET'])
+def observing_session_chart_scene_v1(observing_session_id):
+    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
+    _check_observing_session(observing_session, allow_public=True)
+
+    prefix, obj_id = parse_prefix_obj_id(request.args.get('obj_id'))
+    observing_session_item = None
+
+    for oitem in observing_session.observations:
+        if oitem.target_type == ObservationTargetType.DSO:
+            for oitem_dso in oitem.deepsky_objects:
+                if obj_id is None or oitem_dso.id == obj_id:
+                    observing_session_item = oitem
+                    break
+        elif oitem.target_type == ObservationTargetType.DBL_STAR:
+            if obj_id is None or oitem.double_star_id == obj_id:
+                observing_session_item = oitem
+        if observing_session_item is not None:
+            break
+
+    highlights_dso_list, highlights_pos_list = common_highlights_from_observing_session(observing_session)
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if observing_session_item:
+        if observing_session_item.target_type == ObservationTargetType.DSO and observing_session_item.deepsky_objects:
+            dso = observing_session_item.deepsky_objects[0]
+            ensure_scene_dso_item(scene, dso)
+            highlights.append(
+                build_cross_highlight(highlight_id=str(dso.name).replace(' ', ''), label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
+            )
+        elif observing_session_item.target_type == ObservationTargetType.DBL_STAR and observing_session_item.double_star:
+            ds = observing_session_item.double_star
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, theme_name=cur_theme,)
+            )
+        elif observing_session_item.target_type == ObservationTargetType.COMET and observing_session_item.comet:
+            comet = observing_session_item.comet
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_COMET_PREFIX + str(comet.id), label=comet.designation, ra=comet.cur_ra, dec=comet.cur_dec, theme_name=cur_theme,)
+            )
+        elif observing_session_item.target_type == ObservationTargetType.M_PLANET and observing_session_item.minor_planet:
+            mp = observing_session_item.minor_planet
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_MINOR_PLANET_PREFIX + str(mp.id), label=mp.designation, ra=mp.cur_ra, dec=mp.cur_dec, theme_name=cur_theme,)
+            )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            ensure_scene_dso_item(scene, hl_dso)
+            highlights.append(
+                build_circle_highlight(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=False, theme_name=cur_theme,)
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'observing_session',
+        'id': str(observing_session.id),
+        'selected_prefix': prefix,
+    }
+    return jsonify(scene)
+
+
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pdf', methods=['GET'])
 def observing_session_chart_pdf(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
@@ -663,4 +753,3 @@ def _deactivate_all_user_observing_sessions():
     for act_obs_session in ObservingSession.query.filter_by(user_id=current_user.id, is_active=True).all():
         act_obs_session.is_active = False
         db.session.add(act_obs_session)
-

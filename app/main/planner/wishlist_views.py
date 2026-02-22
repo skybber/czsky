@@ -42,6 +42,12 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+    ensure_scene_dso_item,
+)
 from .wishlist_forms import (
     AddToWishListForm,
     SearchWishListForm,
@@ -290,6 +296,69 @@ def wish_list_chart_pos_img():
                                                  observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_wishlist.route('/wish-list/chart/scene-v1', methods=['GET'])
+@login_required
+def wish_list_chart_scene_v1():
+    wish_list = WishList.create_get_wishlist_by_user_id(current_user.id)
+    if wish_list is None:
+        abort(404)
+
+    wish_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), wish_list.wish_list_items)
+    if not wish_list_item:
+        wish_list_item = wish_list.wish_list_items[0] if wish_list.wish_list_items else None
+
+    wish_list_items = _get_wish_list_items(wish_list)
+    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
+    observed_dso_ids = find_wish_list_observed(wish_list)
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if wish_list_item:
+        if wish_list_item.dso_id is not None and wish_list_item.deepsky_object is not None:
+            dso = wish_list_item.deepsky_object
+            ensure_scene_dso_item(scene, dso)
+            highlights.append(
+                build_cross_highlight(highlight_id=str(dso.name).replace(' ', ''), label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
+            )
+        elif wish_list_item.double_star_id is not None and wish_list_item.double_star is not None:
+            ds = wish_list_item.double_star
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_common_name(), ra=ds.ra_first, dec=ds.dec_first, theme_name=cur_theme,)
+            )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            ensure_scene_dso_item(scene, hl_dso)
+            hl_id = str(hl_dso.name).replace(' ', '')
+            observed = bool(observed_dso_ids and hl_dso.id in observed_dso_ids)
+            highlights.append(
+                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'wish_list',
+        'id': str(wish_list.id),
+    }
+    return jsonify(scene)
 
 
 @main_wishlist.route('/wish-list/chart-pdf', methods=['GET'])

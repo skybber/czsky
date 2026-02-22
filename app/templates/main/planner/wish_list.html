@@ -208,7 +208,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=wishlist',
-                     default_back='wishlist')
+                     default_back='wishlist',
+                     fchart_scene_url=url_for('main_wishlist.wish_list_chart_scene_v1',
+                                              flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 

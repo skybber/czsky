@@ -65,6 +65,12 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+    ensure_scene_dso_item,
+)
 
 from .sessionplan_forms import (
     SCHEDULE_TIME_FORMAT,
@@ -77,7 +83,15 @@ from .sessionplan_forms import (
 
 from app.main.chart.chart_forms import ChartForm
 
-from app.commons.dso_utils import normalize_dso_name, get_norm_visible_objects_set, chart_items_to_file
+from app.commons.dso_utils import (
+    normalize_dso_name,
+    get_norm_visible_objects_set,
+    chart_items_to_file,
+    CHART_DOUBLE_STAR_PREFIX,
+    CHART_COMET_PREFIX,
+    CHART_MINOR_PLANET_PREFIX,
+    CHART_PLANET_PREFIX,
+)
 from app.commons.utils import get_anonymous_user
 from app.commons.coordinates import parse_latlon
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
@@ -716,6 +730,81 @@ def session_plan_chart_pos_img(session_plan_id):
                                                  observed_dso_ids=observed_dso_ids)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart/scene-v1', methods=['GET'])
+def session_plan_chart_scene_v1(session_plan_id):
+    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
+    _check_session_plan(session_plan, allow_public=True)
+
+    session_plan_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), session_plan.session_plan_items)
+    if not session_plan_item:
+        session_plan_item = SessionPlanItem.query.filter_by(session_plan_id=session_plan.id).first()
+
+    highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
+    observed_dso_ids = find_session_plan_observed(session_plan)
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if session_plan_item:
+        if session_plan_item.dso_id is not None and session_plan_item.deepsky_object is not None:
+            dso = session_plan_item.deepsky_object
+            ensure_scene_dso_item(scene, dso)
+            highlights.append(
+                build_cross_highlight(highlight_id=str(dso.name).replace(' ', ''), label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
+            )
+        elif session_plan_item.double_star_id is not None and session_plan_item.double_star is not None:
+            ds = session_plan_item.double_star
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, theme_name=cur_theme,)
+            )
+        elif session_plan_item.comet_id is not None and session_plan_item.comet is not None:
+            comet = session_plan_item.comet
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_COMET_PREFIX + str(comet.id), label=comet.designation, ra=session_plan_item.ra, dec=session_plan_item.dec, theme_name=cur_theme,)
+            )
+        elif session_plan_item.minor_planet_id is not None and session_plan_item.minor_planet is not None:
+            mp = session_plan_item.minor_planet
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_MINOR_PLANET_PREFIX + str(mp.id), label=mp.designation, ra=session_plan_item.ra, dec=session_plan_item.dec, theme_name=cur_theme,)
+            )
+        elif session_plan_item.planet_id is not None and session_plan_item.planet is not None:
+            planet = session_plan_item.planet
+            highlights.append(
+                build_cross_highlight(highlight_id=CHART_PLANET_PREFIX + str(planet.id), label=planet.iau_code, ra=session_plan_item.ra, dec=session_plan_item.dec, theme_name=cur_theme,)
+            )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            ensure_scene_dso_item(scene, hl_dso)
+            hl_id = str(hl_dso.name).replace(' ', '')
+            observed = bool(observed_dso_ids and hl_dso.id in observed_dso_ids)
+            highlights.append(
+                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'session_plan',
+        'id': str(session_plan.id),
+    }
+    return jsonify(scene)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf', methods=['GET'])

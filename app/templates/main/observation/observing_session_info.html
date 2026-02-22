@@ -124,7 +124,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id),
-                     back=back, back_id=back_id, back_anchor=''
+                     back=back, back_id=back_id, back_anchor='',
+                     fchart_scene_url=url_for('main_observing_session.observing_session_chart_scene_v1',
+                                              observing_session_id=observing_session.id, flags=chart_control.chart_flags, back=back, back_id=back_id)
                      )
     }}
 {% endmacro %}

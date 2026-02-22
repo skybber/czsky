@@ -164,7 +164,9 @@
                      url_for('main_sessionplan.session_plan_chart_items', session_plan_id=session_plan.id, flags=chart_control.chart_flags, ),
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=session_plan&back_id={}'.format(session_plan.id),
-                     back=back, back_id=back_id, back_anchor=''
+                     back=back, back_id=back_id, back_anchor='',
+                     fchart_scene_url=url_for('main_sessionplan.session_plan_chart_scene_v1',
+                                              session_plan_id=session_plan.id, flags=chart_control.chart_flags, back=back, back_id=back_id)
                      )
     }}
 {% endmacro %}
