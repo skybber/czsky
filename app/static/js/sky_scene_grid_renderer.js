@@ -1,5 +1,6 @@
 (function () {
     const MIN_GRID_DENSITY = 4.0;
+    const MIN_CURVE_SAMPLE_DEG = 0.02;
     const RA_GRID_SCALE = [0.25, 0.5, 1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180];
     const DEC_GRID_SCALE = [1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 300, 600, 900, 1200, 1800, 2700, 3600];
     const AZ_GRID_SCALE = [1, 2, 3, 5, 10, 15, 20, 30, 45, 60, 120, 300, 600, 900, 1800, 2700, 3600];
@@ -43,13 +44,15 @@
     function pickGridStep(scaleList, fieldRadius, centerV, cosOfV, arcminPerUnit) {
         let prevSteps = null;
         let prevScale = null;
-        let chosen = scaleList[scaleList.length - 1];
+        let chosen = scaleList[0];
 
         for (let i = 0; i < scaleList.length; i++) {
             const scale = scaleList[i];
             const duRad = Math.PI * (scale * arcminPerUnit) / (180.0 * 60.0);
             const steps = fieldRadius / Math.max(EPS, cosOfV(centerV) * duRad);
             if (steps < MIN_GRID_DENSITY) {
+                // For very small FoV, keep the finest scale instead of falling back
+                // to the coarsest one.
                 if (prevSteps !== null && (prevSteps - MIN_GRID_DENSITY) < (MIN_GRID_DENSITY - steps)) {
                     chosen = prevScale;
                 }
@@ -153,7 +156,7 @@
 
     SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const du = Math.max(fieldRadius / 20.0, deg2rad(0.2));
+        const du = Math.max(fieldRadius / 20.0, deg2rad(MIN_CURVE_SAMPLE_DEG));
         const points = [];
 
         for (let aggU = -Math.PI; aggU <= Math.PI + 1e-9; aggU += du) {
@@ -196,7 +199,7 @@
 
     SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const dv = Math.max(fieldRadius / 20.0, deg2rad(0.2));
+        const dv = Math.max(fieldRadius / 20.0, deg2rad(MIN_CURVE_SAMPLE_DEG));
         const points = [];
 
         for (let v = -Math.PI / 2; v <= Math.PI / 2 + 1e-9; v += dv) {
