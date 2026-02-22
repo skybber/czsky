@@ -12,6 +12,7 @@ import fchart3
 
 from .chart_generator import (
     DSO_MAG_SCALES,
+    FIELD_LABELS,
     FIELD_SIZES,
     FlagValue,
     MAG_SCALES,
@@ -969,6 +970,23 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
     constell_lines_dataset_id = constell_lines_dataset.get("dataset_id")
     constell_boundaries_dataset = _get_constellation_boundaries_dataset()
     constell_boundaries_dataset_id = constell_boundaries_dataset.get("dataset_id")
+    eyepiece_fov = to_float(request.args.get("epfov"), None)
+    if eyepiece_fov is not None and eyepiece_fov <= 0:
+        eyepiece_fov = None
+    fld_size_idx = _field_size_index(req.fld_size_deg)
+    widgets_meta = {
+        "show_mag_scale": True,
+        "show_numeric_fov": True,
+        "show_telrad": FlagValue.FOV_TELRAD.value in req.flags,
+        "show_eyepiece": eyepiece_fov is not None,
+        "show_picker": FlagValue.SHOW_PICKER.value in req.flags,
+        "eyepiece_fov_deg": float(eyepiece_fov) if eyepiece_fov is not None else None,
+        "numeric_fov_label": "FoV: " + FIELD_LABELS[fld_size_idx],
+        "mag_scale": {
+            "stars_in_scale": 10,
+            "limiting_mag": int(req.maglim),
+        },
+    }
 
     return {
         "version": SCENE_VERSION,
@@ -1021,6 +1039,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 "dataset_id": constell_boundaries_dataset_id,
                 "boundaries_count": constell_boundaries_dataset.get("stats", {}).get("boundaries_count", 0),
             },
+            "widgets": widgets_meta,
             "shared_urls": build_shared_scene_urls(req),
         },
         "layers": [

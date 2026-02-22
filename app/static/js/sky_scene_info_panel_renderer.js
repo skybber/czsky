@@ -35,45 +35,64 @@
         if (!center) return;
 
         const dt = viewState.getEffectiveDate();
-        const dateTimeText = '📅 ' + formatDate(dt) + ' ' + formatTime(dt);
         const leftText = isEquatorial
             ? ('RA ' + formatRA(center.ra))
             : ('AZ ' + formatAZ(center.az));
         const rightText = isEquatorial
             ? ('DEC ' + formatDEC(center.dec))
             : ('ALT ' + formatALT(center.alt));
+        const themeName = (sceneCtx.meta && typeof sceneCtx.meta.theme_name === 'string')
+            ? sceneCtx.meta.theme_name.toLowerCase()
+            : '';
+        const timeIcon = (themeName === 'night') ? '⏱' : '📅';
+        const dateTimeText = timeIcon + ' ' + formatDate(dt) + ' ' + formatTime(dt);
 
-        const pad = 6;
-        const lineH = 16;
-        const margin = 8;
+        const panelStyle = window.SkySceneWidgetUtils
+            ? window.SkySceneWidgetUtils.panelStyle(sceneCtx)
+            : { pad: 6, lineH: 16, margin: 8, font: '12px monospace', bg: 'rgb(0,0,0)', text: 'rgb(217,217,217)' };
+        const pad = panelStyle.pad;
+        const lineH = panelStyle.lineH;
+        const margin = panelStyle.margin;
         const coordText = '⌖ ' + leftText + '  ' + rightText;
         const gap = 16;
         const isMobile = canvasW <= 768;
         const aladinShift = (sceneCtx.aladinActive && !isMobile) ? 90 : 0;
 
         ctx.save();
-        ctx.font = '12px monospace';
+        ctx.font = panelStyle.font;
         ctx.textBaseline = 'top';
+        ctx.fillStyle = panelStyle.text;
+
+        if (isMobile) {
+            const w = Math.max(
+                ctx.measureText(dateTimeText).width,
+                ctx.measureText(leftText).width,
+                ctx.measureText(rightText).width
+            ) + pad * 2;
+            const h = lineH * 3 + pad * 2;
+            const x0 = 0;
+            const y0 = 0;
+
+            ctx.fillStyle = panelStyle.bg;
+            ctx.fillRect(x0, y0, w, h);
+            ctx.fillStyle = panelStyle.text;
+            ctx.textAlign = 'left';
+            ctx.fillText(dateTimeText, x0 + pad, y0 + pad);
+            ctx.fillText(leftText, x0 + pad, y0 + pad + lineH);
+            ctx.fillText(rightText, x0 + pad, y0 + pad + 2 * lineH);
+            ctx.restore();
+            return;
+        }
 
         const w = ctx.measureText(coordText).width + gap + ctx.measureText(dateTimeText).width + pad * 2;
         const h = lineH + pad * 2;
         const x0 = canvasW - w - margin - aladinShift;
         const y0 = canvasH - h - margin;
 
-        const textColor = sceneCtx.getThemeColor
-            ? sceneCtx.getThemeColor('draw', [0.85, 0.85, 0.85])
-            : [0.85, 0.85, 0.85];
-        const bgColor = sceneCtx.getThemeColor
-            ? sceneCtx.getThemeColor('background', [0.06, 0.07, 0.12])
-            : [0.06, 0.07, 0.12];
-
-        ctx.fillStyle = 'rgb(0,0,0)';
+        ctx.fillStyle = panelStyle.bg;
         ctx.fillRect(x0, y0, w, h);
 
-        ctx.fillStyle = 'rgb('
-            + Math.round((textColor[0] || 0) * 255) + ','
-            + Math.round((textColor[1] || 0) * 255) + ','
-            + Math.round((textColor[2] || 0) * 255) + ')';
+        ctx.fillStyle = panelStyle.text;
         ctx.textAlign = 'left';
         ctx.fillText(coordText, x0 + pad, y0 + pad + 4);
         ctx.textAlign = 'right';

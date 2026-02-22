@@ -452,7 +452,6 @@
         this.canvas = $('<canvas id="fcCanvasScene" class="fchart-canvas" tabindex="0" style="outline:0"></canvas>').appendTo(this.fchartDiv)[0];
         this.canvas.style.touchAction = 'none';
         this.overlayCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:10"></canvas>').appendTo(this.fchartDiv)[0];
-        this.legendLayer = $('<img class="fchart-legend-layer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20;"/>').appendTo(this.fchartDiv)[0];
         this.overlayCtx = this.overlayCanvas.getContext('2d');
 
         this.renderer = new FChartWebGLRenderer(this.canvas);
@@ -467,6 +466,7 @@
         this.highlightRenderer = new window.SkySceneHighlightRenderer();
         this.trajectoryRenderer = new window.SkySceneTrajectoryRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
+        this.widgetLayer = new window.SkySceneWidgetLayer();
 
         this.move = {
             isDragging: false,
@@ -801,7 +801,6 @@
     SkyScene.prototype.onWindowLoad = function () {
         this.adjustCanvasSize();
         $(this.canvas).focus();
-        this.reloadLegendImage();
         this.forceReloadImage();
     };
 
@@ -812,7 +811,6 @@
             this.resetSplitViewPosition();
         }
         this.adjustCanvasSize();
-        this.reloadLegendImage();
         this.forceReloadImage();
     };
 
@@ -953,8 +951,7 @@
     };
 
     SkyScene.prototype.reloadLegendImage = function () {
-        const url = this.formatUrl(this.legendUrl, { timeISO: this._resolveRequestTimeISO() }) + '&t=' + Date.now();
-        this.legendLayer.src = url;
+        // No-op in scene/data mode: legend widgets are rendered directly in sky_scene overlay.
     };
 
     SkyScene.prototype._setUrlFlag = function (urlValue, flag, newValue) {
@@ -984,6 +981,7 @@
 
     SkyScene.prototype.setLegendUrlParam = function (key, value) {
         this.legendUrl = addOrReplaceQueryParam(this.legendUrl, key, value);
+        this.sceneUrl = addOrReplaceQueryParam(this.sceneUrl, key, value);
     };
 
     SkyScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
@@ -1031,7 +1029,6 @@
         if (sceneUrl) {
             this.sceneUrl = sceneUrl;
         }
-        this.reloadLegendImage();
         this.forceReloadImage();
     };
 
@@ -1780,6 +1777,19 @@
         }));
 
         measure('info_panel', () => this.infoPanelRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            aladinActive: aladinActive,
+        }));
+
+        measure('widgets', () => this.widgetLayer.draw({
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
             projection: projection,

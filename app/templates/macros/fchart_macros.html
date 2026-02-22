@@ -684,9 +684,16 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_grid_renderer.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_nebulae_outlines_renderer.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_horizon_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_widget_utils.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_info_panel_renderer.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_highlight_renderer.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_trajectory_renderer.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_mag_scale_widget.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_numeric_map_scale_widget.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_telrad_widget.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_eyepiece_widget.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_picker_widget.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_widget_layer.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_projection.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene.js') }}"></script>
 
@@ -1063,6 +1070,18 @@
         }
     }
 
+    const initialEyepieceFov = ($('#eyepiece_fov').val() || '').trim();
+    if (initialEyepieceFov !== '') {
+        legendUrlEq = addOrReplaceQueryParamLocal(legendUrlEq, 'epfov', initialEyepieceFov);
+        legendUrlHoriz = addOrReplaceQueryParamLocal(legendUrlHoriz, 'epfov', initialEyepieceFov);
+        if (sceneUrlEq) {
+            sceneUrlEq = addOrReplaceQueryParamLocal(sceneUrlEq, 'epfov', initialEyepieceFov);
+        }
+        if (sceneUrlHoriz) {
+            sceneUrlHoriz = addOrReplaceQueryParamLocal(sceneUrlHoriz, 'epfov', initialEyepieceFov);
+        }
+    }
+
     var chartUrl = isEquatorial ? chartUrlEq : chartUrlHoriz;
     var legendUrl = isEquatorial ? legendUrlEq : legendUrlHoriz;
     var sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
@@ -1207,7 +1226,7 @@
         $('#eyepiece_fov').val('');
         chart_param_ajax('chart_show_telrad', value);
         setChartUrlFlag('T', value);
-        fchart.reloadLegendImage();
+        reloadLegendOrSceneWidgets();
     });
 
     $('#bpicker').click(function(){
@@ -1216,7 +1235,7 @@
         $('#show_picker').val(value);
         chart_param_ajax('chart_show_picker', value);
         setChartUrlFlag('P', value);
-        fchart.reloadLegendImage();
+        reloadLegendOrSceneWidgets();
     });
 
     $('#bconstellshapes').click(function(event){
@@ -1656,10 +1675,18 @@
         }
     }
 
+    function reloadLegendOrSceneWidgets() {
+        if (useDataMode) {
+            fchart.reloadImage();
+        } else {
+            fchart.reloadLegendImage();
+        }
+    }
+
     function setEyepieceFov(eyepieceFov) {
         $('#eyepiece_fov').val(eyepieceFov);
         fchart.setLegendUrlParam('epfov', eyepieceFov);
-        fchart.reloadLegendImage();
+        reloadLegendOrSceneWidgets();
     }
 
     function unselectFov() {
@@ -1669,7 +1696,7 @@
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
         setChartUrlFlag('T', 'false');
         fchart.setLegendUrlParam('epfov', '');
-        fchart.reloadLegendImage();
+        reloadLegendOrSceneWidgets();
     }
 
     function removeParamFromRelativeUrl(relativeUrl, param) {
