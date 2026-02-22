@@ -1195,7 +1195,6 @@
             } else if (!this.zoomAnim && !Number.isFinite(this.renderMaglim)) {
                 this.renderMaglim = this._maglimForFieldIndex(this.fldSizeIndex);
             }
-            this.zoneStars = [];
             this.selectableRegions = data.img_map || [];
             this.syncQueryString();
             this.setCenterToHiddenInputs();
@@ -1360,22 +1359,33 @@
     SkyScene.prototype._loadZoneStars = function (scene, epoch) {
         if (!scene || !scene.meta || !scene.objects) return;
         const streamMeta = scene.meta.stars_stream || {};
-        if (!streamMeta.enabled || !streamMeta.catalog_id) return;
+        if (!streamMeta.enabled || !streamMeta.catalog_id) {
+            this.zoneStars = [];
+            this.requestDraw();
+            return;
+        }
 
         const selection = scene.objects.stars_zone_selection || [];
-        if (!Array.isArray(selection) || selection.length === 0) return;
+        if (!Array.isArray(selection) || selection.length === 0) {
+            this.zoneStars = [];
+            this.requestDraw();
+            return;
+        }
 
         const catalogId = streamMeta.catalog_id;
         const magBucket = this._starMagBucket(scene.meta);
-        this.zoneStars = this._collectCachedZoneStars(scene, catalogId, magBucket);
-        this.requestDraw();
-
         const missing = [];
         selection.forEach((ref) => {
             const key = this._zoneCacheKey(catalogId, magBucket, ref.level, ref.zone);
             if (this.starZoneCache.has(key) || this.starZoneInFlight.has(key)) return;
             missing.push({ key: key, level: ref.level, zone: ref.zone });
         });
+
+        const cached = this._collectCachedZoneStars(scene, catalogId, magBucket);
+        if (cached.length > 0 || missing.length === 0) {
+            this.zoneStars = cached;
+            this.requestDraw();
+        }
         if (missing.length === 0) return;
 
         const batchSize = Math.max(1, this.starZoneBatchSize);
