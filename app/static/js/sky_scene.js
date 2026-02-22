@@ -335,7 +335,8 @@
     window.SkyScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
-        fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection
+        fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
+        magRangeValues
     ) {
         this.fchartDiv = fchartDiv;
         $(fchartDiv).addClass('fchart-container');
@@ -343,7 +344,14 @@
         this.fldSizeIndex = fldSizeIndex;
         this.targetFldSizeIndex = fldSizeIndex;
         this.fieldSizes = fieldSizes;
+        this.magRangeValues = Array.isArray(magRangeValues)
+            ? magRangeValues.map((v) => Number(v))
+            : [];
+        if (this.magRangeValues.length !== this.fieldSizes.length || this.magRangeValues.some((v) => !Number.isFinite(v))) {
+            this.magRangeValues = [];
+        }
         this.renderFovDeg = fieldSizes[fldSizeIndex];
+        this.renderMaglim = Number.isFinite(this.magRangeValues[fldSizeIndex]) ? this.magRangeValues[fldSizeIndex] : null;
         this.isEquatorial = isEquatorial;
         this.viewCenter = { phi: phi, theta: theta };
         this.obj_ra = obj_ra != null ? obj_ra : phi;
@@ -984,6 +992,20 @@
         this.sceneUrl = addOrReplaceQueryParam(this.sceneUrl, key, value);
     };
 
+    SkyScene.prototype._maglimForFieldIndex = function (idx) {
+        if (Number.isInteger(idx) && idx >= 0 && idx < this.magRangeValues.length) {
+            const v = Number(this.magRangeValues[idx]);
+            if (Number.isFinite(v)) return v;
+        }
+        if (this.sceneData && this.sceneData.meta && Number.isFinite(this.sceneData.meta.maglim)) {
+            return this.sceneData.meta.maglim;
+        }
+        if (Number.isFinite(this.renderMaglim)) {
+            return this.renderMaglim;
+        }
+        return 10.0;
+    };
+
     SkyScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
         const coordSwitched = this.isEquatorial !== isEquatorial;
         this.isEquatorial = isEquatorial;
@@ -1168,6 +1190,11 @@
         $.getJSON(url).done((data) => {
             if (epoch !== this.sceneRequestEpoch) return;
             this.sceneData = data;
+            if (!this.zoomAnim && data && data.meta && Number.isFinite(data.meta.maglim)) {
+                this.renderMaglim = data.meta.maglim;
+            } else if (!this.zoomAnim && !Number.isFinite(this.renderMaglim)) {
+                this.renderMaglim = this._maglimForFieldIndex(this.fldSizeIndex);
+            }
             this.zoneStars = [];
             this.selectableRegions = data.img_map || [];
             this.syncQueryString();
@@ -1724,6 +1751,7 @@
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
+                renderMaglim: this.renderMaglim,
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
@@ -2131,6 +2159,7 @@
                 this.targetFldSizeIndex = idx;
                 this.fldSizeIndex = idx;
                 this.renderFovDeg = this.fieldSizes[idx];
+                this.renderMaglim = this._maglimForFieldIndex(idx);
                 if (this.onFieldChangeCallback) this.onFieldChangeCallback.call(this, this.fldSizeIndex);
                 this.input.gesture = 'none';
                 this.input.primaryId = null;
@@ -2269,6 +2298,10 @@
             ? this.renderFovDeg
             : this.fieldSizes[prevTargetIndex];
         const toFov = this.fieldSizes[clampedIndex];
+        const fromMaglim = Number.isFinite(this.renderMaglim)
+            ? this.renderMaglim
+            : this._maglimForFieldIndex(prevTargetIndex);
+        const toMaglim = this._maglimForFieldIndex(clampedIndex);
 
         let pivotCanvas = { x: this.canvas.width * 0.5, y: this.canvas.height * 0.5 };
         if (pivotClient && Number.isFinite(pivotClient.x) && Number.isFinite(pivotClient.y)) {
@@ -2287,6 +2320,8 @@
             startTs: performance.now(),
             fromFov: fromFov,
             toFov: toFov,
+            fromMaglim: fromMaglim,
+            toMaglim: toMaglim,
             durationMs: this.zoomDurationMs,
             pivotCanvas: pivotCanvas,
             baseCenter: baseCenter,
@@ -2306,6 +2341,7 @@
             const t = clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
             const eased = easeOutCubic(t);
             this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
+            this.renderMaglim = lerp(this.zoomAnim.fromMaglim, this.zoomAnim.toMaglim, eased);
             if (this.zoomAnim.anchor) {
                 const center = this._zoomCenterFromAnchor(
                     this.zoomAnim.baseCenter,
@@ -2326,6 +2362,7 @@
             this.zoomAnim = null;
             this.zoomAnimRaf = null;
             this.renderFovDeg = toFov;
+            this.renderMaglim = toMaglim;
             this.setCenterToHiddenInputs();
             this._setMilkywayInteractionActive(false);
             this._requestMilkyWaySelection({ optimized: false, immediate: true });

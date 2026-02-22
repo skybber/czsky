@@ -30,8 +30,15 @@
         return 0.1 * Math.pow(1.33, magS) + starMagRShift;
     };
 
-    SkySceneStarsRenderer.prototype._starSizePx = function (sceneMeta, themeConfig, mag) {
-        const lm = sceneMeta ? (sceneMeta.maglim || 10.0) : 10.0;
+    SkySceneStarsRenderer.prototype._effectiveMaglim = function (sceneCtx) {
+        if (sceneCtx && Number.isFinite(sceneCtx.renderMaglim)) return sceneCtx.renderMaglim;
+        if (sceneCtx && sceneCtx.meta && Number.isFinite(sceneCtx.meta.maglim)) return sceneCtx.meta.maglim;
+        return 10.0;
+    };
+
+    SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag) {
+        const lm = this._effectiveMaglim(sceneCtx);
+        const themeConfig = sceneCtx ? sceneCtx.themeConfig : null;
         const starMagShift = themeConfig && themeConfig.sizes && typeof themeConfig.sizes.star_mag_shift === 'number'
             ? themeConfig.sizes.star_mag_shift : 0.0;
 
@@ -56,18 +63,26 @@
         sizes.length = 0;
         colors.length = 0;
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
+        const bgColorRaw = sceneCtx.getThemeColor('background', [0.0, 0.0, 0.0]);
+        const bgColor = (Array.isArray(bgColorRaw) && bgColorRaw.length === 3) ? bgColorRaw : [0.0, 0.0, 0.0];
         const starColorsEnabled = !!(
             sceneCtx.themeConfig &&
             sceneCtx.themeConfig.flags &&
             sceneCtx.themeConfig.flags.star_colors
         );
+        const fadeWidthMag = 0.75;
+        const lm = this._effectiveMaglim(sceneCtx);
 
         const previewStars = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.stars_preview) || [];
         const zoneStars = sceneCtx.zoneStars || [];
         const stars = []
             .concat(previewStars)
             .concat(zoneStars)
-            .sort((a, b) => (a.mag || 99) - (b.mag || 99));
+            .sort((a, b) => {
+                const am = Number.isFinite(a.mag) ? a.mag : 99;
+                const bm = Number.isFinite(b.mag) ? b.mag : 99;
+                return am - bm;
+            });
 
         const diag = {
             preview_input_count: previewStars.length | 0,
@@ -83,6 +98,7 @@
             size_avg_px: null,
             size_lt_1_px_count: 0,
             star_colors_enabled: starColorsEnabled,
+            render_maglim: lm,
             _size_sum_px: 0.0,
         };
 
@@ -98,15 +114,24 @@
                 diag.project_drop_count += 1;
                 return;
             }
-            const magForSize = s.mag || 7;
-            const sz = this._starSizePx(sceneCtx.meta, sceneCtx.themeConfig, magForSize);
+            const magForSize = Number.isFinite(s.mag) ? s.mag : 7;
+            const magDelta = lm - magForSize;
+            if (magDelta <= -fadeWidthMag) return;
+            const alpha = magDelta >= 0.0 ? 1.0 : clamp01((magDelta + fadeWidthMag) / fadeWidthMag);
+            if (alpha <= 0.0) return;
+
+            const sz = this._starSizePx(sceneCtx, magForSize);
             const hasStarColor = Array.isArray(s.color) && s.color.length === 3;
             const starColor = (starColorsEnabled && hasStarColor) ? s.color : drawColor;
             const sizePx = Math.max(0.01, sz || 1.0);
             positions.push((p.ndcX != null) ? p.ndcX : 0.0, (p.ndcY != null) ? p.ndcY : 0.0);
             sizes.push(sizePx);
             const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
-            colors.push(clamp01(c[0]), clamp01(c[1]), clamp01(c[2]));
+            colors.push(
+                clamp01(bgColor[0] + (c[0] - bgColor[0]) * alpha),
+                clamp01(bgColor[1] + (c[1] - bgColor[1]) * alpha),
+                clamp01(bgColor[2] + (c[2] - bgColor[2]) * alpha)
+            );
 
             diag.projected_count += 1;
             if (!Number.isFinite(diag.mag_min) || magForSize < diag.mag_min) diag.mag_min = magForSize;

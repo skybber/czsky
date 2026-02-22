@@ -755,7 +755,7 @@
 
     function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
-                          theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId) {
+                          theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
@@ -788,7 +788,8 @@
                 '{{ embed }}',
                 aladin,
                 showAladin,
-                projection
+                projection,
+                magRangeValues
             );
         } else {
             fchart = new FChart(
@@ -1145,14 +1146,14 @@
             }
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                   longitude, latitude, useCurrentTime, chartDateTimeISO,
-                                  theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId);
+                                  theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues);
             fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
             fchart.onWindowLoad();
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                               longitude, latitude, useCurrentTime, chartDateTimeISO,
-                              theme, legendUrl, chartUrl, sceneUrl, null, projection, fullScreenWrapperId);
+                              theme, legendUrl, chartUrl, sceneUrl, null, projection, fullScreenWrapperId, magRangeValues);
         fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
         fchart.onWindowLoad();
     }
