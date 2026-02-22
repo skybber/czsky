@@ -219,13 +219,20 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);
+        const pad = Math.max(2.0, stroke.widthPx * 1.5);
+        const nzopt = !sceneCtx.projection.isZOptim();
 
         ctx.beginPath();
         for (let i = 0; i < lines.length; i++) {
             const seg = lines[i];
-            const a = this._project(sceneCtx, seg.ra1, seg.dec1);
-            const b = this._project(sceneCtx, seg.ra2, seg.dec2);
+            const a = sceneCtx.projection.projectEquatorialToPxWithDepth(seg.ra1, seg.dec1);
+            const b = sceneCtx.projection.projectEquatorialToPxWithDepth(seg.ra2, seg.dec2);
             if (!a || !b) continue;
+
+            if (nzopt && a.z < 0 && b.z < 0) {
+                continue;
+            }
+
             if (lineSpacePx > 0) {
                 const dx = b.x - a.x;
                 const dy = b.y - a.y;

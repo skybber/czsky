@@ -94,6 +94,44 @@
         };
     };
 
+    SceneProjection.prototype._projectStereographicWithDepth = function (phi, theta, centerPhi, centerTheta) {
+        if (!Number.isFinite(phi) || !Number.isFinite(theta)
+            || !Number.isFinite(centerPhi) || !Number.isFinite(centerTheta)) {
+            return null;
+        }
+        if (!Number.isFinite(this.width) || !Number.isFinite(this.height) || this.width <= 0 || this.height <= 0) {
+            return null;
+        }
+
+        const dra = wrapDeltaRa(phi - centerPhi);
+        const sinDec = Math.sin(theta);
+        const cosDec = Math.cos(theta);
+        const sinC = Math.sin(centerTheta);
+        const cosC = Math.cos(centerTheta);
+        const dot = sinC * sinDec + cosC * cosDec * Math.cos(dra);
+
+        const denom = 1.0 + dot;
+        if (denom <= EPS) return null;
+
+        let x = -(2.0 * cosDec * Math.sin(dra)) / denom;
+        let y = (2.0 * (cosC * sinDec - sinC * cosDec * Math.cos(dra))) / denom;
+        if (this.mirrorX) x = -x;
+        if (this.mirrorY) y = -y;
+
+        const fieldRadius = deg2rad(this.getFovDeg()) / 2.0;
+        const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
+        if (planeRadius <= EPS) return null;
+
+        const scale = (Math.max(this.width, this.height) / 2.0) / planeRadius;
+        const px = this.width / 2.0 + x * scale;
+        const py = this.height / 2.0 - y * scale;
+        return {
+            ndcX: (px / this.width) * 2.0 - 1.0,
+            ndcY: 1.0 - (py / this.height) * 2.0,
+            z: dot / denom,
+        };
+    };
+
     SceneProjection.prototype.projectEquatorialToNdc = function (ra, dec) {
         if (!this.viewState || typeof this.viewState.projectEquatorial !== 'function') return null;
         const framePoint = this.viewState.projectEquatorial(ra, dec);
@@ -105,6 +143,19 @@
     SceneProjection.prototype.projectFrameToNdc = function (phi, theta) {
         const center = this.getProjectionCenter();
         return this._projectStereographic(phi, theta, center.phi, center.theta);
+    };
+
+    SceneProjection.prototype.projectEquatorialToNdcWithDepth = function (ra, dec) {
+        if (!this.viewState || typeof this.viewState.projectEquatorial !== 'function') return null;
+        const framePoint = this.viewState.projectEquatorial(ra, dec);
+        if (!framePoint || !Number.isFinite(framePoint.phi) || !Number.isFinite(framePoint.theta)) return null;
+        const center = this.getProjectionCenter();
+        return this._projectStereographicWithDepth(framePoint.phi, framePoint.theta, center.phi, center.theta);
+    };
+
+    SceneProjection.prototype.projectFrameToNdcWithDepth = function (phi, theta) {
+        const center = this.getProjectionCenter();
+        return this._projectStereographicWithDepth(phi, theta, center.phi, center.theta);
     };
 
     SceneProjection.prototype.ndcToPx = function (p) {
@@ -124,5 +175,23 @@
 
     SceneProjection.prototype.projectFrameToPx = function (phi, theta) {
         return this.ndcToPx(this.projectFrameToNdc(phi, theta));
+    };
+
+    SceneProjection.prototype.projectEquatorialToPxWithDepth = function (ra, dec) {
+        const p = this.projectEquatorialToNdcWithDepth(ra, dec);
+        const px = this.ndcToPx(p);
+        if (!px) return null;
+        return { x: px.x, y: px.y, z: p.z };
+    };
+
+    SceneProjection.prototype.projectFrameToPxWithDepth = function (phi, theta) {
+        const p = this.projectFrameToNdcWithDepth(phi, theta);
+        const px = this.ndcToPx(p);
+        if (!px) return null;
+        return { x: px.x, y: px.y, z: p.z };
+    };
+
+    SceneProjection.prototype.isZOptim = function () {
+        return false;
     };
 })();
