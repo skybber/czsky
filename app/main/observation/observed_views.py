@@ -3,6 +3,7 @@ import csv
 from datetime import datetime
 from io import StringIO, BytesIO
 import base64
+from typing import Optional
 
 from werkzeug.utils import secure_filename
 
@@ -17,6 +18,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     send_file,
     url_for,
 )
@@ -35,9 +37,18 @@ from app.commons.search_utils import process_paginated_session_search, get_items
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
+)
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    SceneHighlight, normalized_theme_name,
+)
+from app.commons.dso_utils import (
+    CHART_DOUBLE_STAR_PREFIX,
+    CHART_COMET_PREFIX,
+    CHART_MINOR_PLANET_PREFIX,
 )
 
 from app.commons.search_sky_object_utils import (
@@ -256,6 +267,99 @@ def observed_list_chart_pos_img():
                                                  dso_highlights_style='cross', dso_highlights_size=0.75)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+def build_obs_highlight_cross(
+        highlight_id: str,
+        label: str,
+        ra: float,
+        dec: float,
+        theme_name: Optional[str],
+        size: float = 1.0,
+) -> SceneHighlight:
+    theme = normalized_theme_name(theme_name)
+    if theme == "light":
+        hl_color = [0.1, 0.2, 0.4]
+    elif theme == "night":
+        hl_color = [0.4, 0.2, 0.1]
+    else:
+        hl_color = [0.15, 0.3, 0.6]
+    return {
+        "shape": "cross",
+        "id": highlight_id,
+        "label": label,
+        "ra": float(ra),
+        "dec": float(dec),
+        "size": float(size),
+        "line_width": 0.3,
+        "color": hl_color,
+    }
+
+@main_observed.route('/observed-list/chart/scene-v1', methods=['GET'])
+@login_required
+def observed_list_chart_scene_v1():
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    if observed_list is None:
+        abort(404)
+
+    observed_list_item = find_by_url_obj_id_in_list(request.args.get('obj_id'), observed_list.observed_list_items)
+    if not observed_list_item:
+        observed_list_item = observed_list.observed_list_items[0] if observed_list.observed_list_items else None
+
+    highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list.observed_list_items)
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if observed_list_item:
+        if observed_list_item.dso_id is not None and observed_list_item.deepsky_object is not None:
+            dso = observed_list_item.deepsky_object
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=str(dso.name).replace(' ', ''), label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
+            )
+        elif observed_list_item.double_star_id is not None and observed_list_item.double_star is not None:
+            double_star = observed_list_item.double_star
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(double_star.id), label=double_star.get_catalog_name(), ra=double_star.ra_first, dec=double_star.dec_first, theme_name=cur_theme,)
+            )
+        elif observed_list_item.comet_id is not None and observed_list_item.comet is not None:
+            comet = observed_list_item.comet
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=CHART_COMET_PREFIX + str(comet.id), label=comet.designation, ra=comet.cur_ra, dec=comet.cur_dec, theme_name=cur_theme,)
+            )
+        elif observed_list_item.minor_planet_id is not None and observed_list_item.minor_planet is not None:
+            minor_planet = observed_list_item.minor_planet
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=CHART_MINOR_PLANET_PREFIX + str(minor_planet.id), label=minor_planet.designation, ra=minor_planet.cur_ra, dec=minor_planet.cur_dec, theme_name=cur_theme,)
+            )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, theme_name=cur_theme, size=0.75,)
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_obs_highlight_cross(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, theme_name=cur_theme, size=0.75,)
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'observed_list',
+        'id': str(observed_list.id),
+    }
+    return jsonify(scene)
 
 
 def _get_observed_list_items(user_id):

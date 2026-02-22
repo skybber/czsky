@@ -262,13 +262,7 @@ def dso_list_chart_scene_v1(dso_list_id):
 
     if selected_dso is not None:
         highlights.append(
-            build_cross_highlight(
-                highlight_id=selected_dso.name,
-                label=selected_dso.denormalized_name(),
-                ra=selected_dso.ra,
-                dec=selected_dso.dec,
-                theme_name=cur_theme,
-            )
+            build_cross_highlight(highlight_id=selected_dso.name, label=selected_dso.denormalized_name(), ra=selected_dso.ra, dec=selected_dso.dec, theme_name=cur_theme,)
         )
 
     for dso in dso_list_dsos:
@@ -277,14 +271,7 @@ def dso_list_chart_scene_v1(dso_list_id):
         hl_id = str(dso.name).replace(' ', '')
         observed = bool(observed_dso_ids and dso.id in observed_dso_ids)
         highlights.append(
-            build_circle_highlight(
-                highlight_id=hl_id,
-                label=dso.denormalized_name(),
-                ra=dso.ra,
-                dec=dso.dec,
-                dashed=observed,
-                theme_name=cur_theme,
-            )
+            build_circle_highlight(highlight_id=hl_id, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, dashed=observed, theme_name=cur_theme,)
         )
 
     scene_meta['object_context'] = {

@@ -101,7 +101,7 @@ class SceneHighlight(TypedDict, total=False):
     dash: Optional[List[float]]
 
 
-def _normalized_theme_name(theme_name: Optional[str]) -> str:
+def normalized_theme_name(theme_name: Optional[str]) -> str:
     return (theme_name or "").strip().lower()
 
 
@@ -113,7 +113,7 @@ def build_cross_highlight(
     theme_name: Optional[str],
     size: float = 1.0,
 ) -> SceneHighlight:
-    theme = _normalized_theme_name(theme_name)
+    theme = normalized_theme_name(theme_name)
     return {
         "shape": "cross",
         "id": highlight_id,
@@ -135,7 +135,7 @@ def build_circle_highlight(
     dashed: bool,
     theme_name: Optional[str],
 ) -> SceneHighlight:
-    theme = _normalized_theme_name(theme_name)
+    theme = normalized_theme_name(theme_name)
     if theme == "light":
         dso_hl_color = [0.1, 0.2, 0.4]
     elif theme == "night":

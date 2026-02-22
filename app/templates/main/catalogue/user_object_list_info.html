@@ -69,7 +69,8 @@
                      url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      None,
                      None,
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list')
+                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list',
+                     fchart_scene_url=url_for('main_user_object_list.user_object_list_chart_scene_v1', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 

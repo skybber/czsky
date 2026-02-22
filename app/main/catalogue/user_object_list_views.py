@@ -9,6 +9,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     send_file,
     url_for,
 )
@@ -41,6 +42,12 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
 )
+from app.commons.chart_scene import (
+    build_scene_v1,
+    build_cross_highlight,
+    build_circle_highlight,
+)
+from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.prevnext_utils import get_default_chart_iframe_url, parse_prefix_obj_id
@@ -295,6 +302,89 @@ def user_object_list_chart_pos_img(user_object_list_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
+@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart/scene-v1', methods=['GET'])
+def user_object_list_chart_scene_v1(user_object_list_id):
+    user_object_list = UserObjectList.query.filter_by(id=user_object_list_id).first()
+    _check_user_object_list(user_object_list, allow_public=True)
+
+    prefix, obj_id = parse_prefix_obj_id(request.args.get('obj_id'))
+    selected_dso = None
+    selected_ds = None
+    selected_hl_id = None
+    selected_label = None
+    selected_ra = None
+    selected_dec = None
+
+    for oitem in user_object_list.list_items:
+        if oitem.item_type == UserObjectListItemType.DSO:
+            for dso in oitem.deepsky_objects:
+                if obj_id is None or dso.id == obj_id:
+                    selected_dso = dso
+                    break
+        elif oitem.item_type == UserObjectListItemType.DBL_STAR:
+            if obj_id is None or oitem.double_star_id == obj_id:
+                selected_ds = oitem.double_star
+        if selected_dso is not None or selected_ds is not None:
+            break
+
+    if selected_dso is not None:
+        selected_hl_id = str(selected_dso.name).replace(' ', '')
+        selected_label = selected_dso.denormalized_name()
+        selected_ra = selected_dso.ra
+        selected_dec = selected_dso.dec
+    elif selected_ds is not None:
+        selected_hl_id = CHART_DOUBLE_STAR_PREFIX + str(selected_ds.id)
+        selected_label = selected_ds.get_catalog_name()
+        selected_ra = selected_ds.ra_first
+        selected_dec = selected_ds.dec_first
+
+    highlights_dso_list, highlights_pos_list = common_highlights_from_user_object_list(user_object_list)
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    if selected_hl_id and selected_ra is not None and selected_dec is not None:
+        highlights.append(
+            build_cross_highlight(highlight_id=selected_hl_id, label=selected_label or selected_hl_id, ra=selected_ra, dec=selected_dec, theme_name=cur_theme,)
+        )
+
+    if highlights_dso_list:
+        for hl_dso in highlights_dso_list:
+            if hl_dso is None:
+                continue
+            highlights.append(
+                build_circle_highlight(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=False, theme_name=cur_theme,)
+            )
+
+    if highlights_pos_list:
+        for hl_pos in highlights_pos_list:
+            if hl_pos is None or len(hl_pos) < 4:
+                continue
+            hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            if hl_ra is None or hl_dec is None:
+                continue
+            highlights.append(
+                build_circle_highlight(
+                    highlight_id=str(hl_id),
+                    label=str(hl_label or hl_id),
+                    ra=hl_ra,
+                    dec=hl_dec,
+                    dashed=False,
+                    theme_name=cur_theme,
+                )
+            )
+
+    scene_meta['object_context'] = {
+        'kind': 'user_object_list',
+        'id': str(user_object_list.id),
+        'list_title': user_object_list.title,
+        'selected_prefix': prefix,
+    }
+    return jsonify(scene)
+
+
 @main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-pdf', methods=['GET'])
 def user_object_list_chart_pdf(user_object_list_id):
     user_object_list = UserObjectList.query.filter_by(id=user_object_list_id).first()
@@ -305,4 +395,3 @@ def user_object_list_chart_pdf(user_object_list_id):
     img_bytes = common_chart_pdf_img(None, None, highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
 
     return send_file(img_bytes, mimetype='application/pdf')
-
