@@ -37,7 +37,6 @@ from app.commons.pagination import Pagination, get_page_parameter
 
 from app.commons.chart_generator import (
     common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
@@ -46,6 +45,7 @@ from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
     build_circle_highlight,
+    ensure_scene_dso_item,
 )
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 
@@ -327,7 +327,15 @@ def user_object_list_chart_scene_v1(user_object_list_id):
         if selected_dso is not None or selected_ds is not None:
             break
 
+    highlights_dso_list, highlights_pos_list = common_highlights_from_user_object_list(user_object_list)
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
     if selected_dso is not None:
+        ensure_scene_dso_item(scene, selected_dso)
         selected_hl_id = str(selected_dso.name).replace(' ', '')
         selected_label = selected_dso.denormalized_name()
         selected_ra = selected_dso.ra
@@ -338,13 +346,6 @@ def user_object_list_chart_scene_v1(user_object_list_id):
         selected_ra = selected_ds.ra_first
         selected_dec = selected_ds.dec_first
 
-    highlights_dso_list, highlights_pos_list = common_highlights_from_user_object_list(user_object_list)
-    scene = build_scene_v1()
-    scene_meta = scene.setdefault('meta', {})
-    scene_objects = scene.setdefault('objects', {})
-    highlights = scene_objects.setdefault('highlights', [])
-    cur_theme = session.get('theme')
-
     if selected_hl_id and selected_ra is not None and selected_dec is not None:
         highlights.append(
             build_cross_highlight(highlight_id=selected_hl_id, label=selected_label or selected_hl_id, ra=selected_ra, dec=selected_dec, theme_name=cur_theme,)
@@ -354,6 +355,7 @@ def user_object_list_chart_scene_v1(user_object_list_id):
         for hl_dso in highlights_dso_list:
             if hl_dso is None:
                 continue
+            ensure_scene_dso_item(scene, hl_dso)
             highlights.append(
                 build_circle_highlight(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=False, theme_name=cur_theme,)
             )
@@ -366,14 +368,7 @@ def user_object_list_chart_scene_v1(user_object_list_id):
             if hl_ra is None or hl_dec is None:
                 continue
             highlights.append(
-                build_circle_highlight(
-                    highlight_id=str(hl_id),
-                    label=str(hl_label or hl_id),
-                    ra=hl_ra,
-                    dec=hl_dec,
-                    dashed=False,
-                    theme_name=cur_theme,
-                )
+                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
             )
 
     scene_meta['object_context'] = {

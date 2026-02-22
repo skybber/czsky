@@ -48,6 +48,7 @@ from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
     build_circle_highlight,
+    ensure_scene_dso_item,
 )
 
 from .dso_list_forms import (
@@ -261,6 +262,7 @@ def dso_list_chart_scene_v1(dso_list_id):
     cur_theme = session.get('theme')
 
     if selected_dso is not None:
+        ensure_scene_dso_item(scene, selected_dso)
         highlights.append(
             build_cross_highlight(highlight_id=selected_dso.name, label=selected_dso.denormalized_name(), ra=selected_dso.ra, dec=selected_dso.dec, theme_name=cur_theme,)
         )
@@ -270,6 +272,7 @@ def dso_list_chart_scene_v1(dso_list_id):
             continue
         hl_id = str(dso.name).replace(' ', '')
         observed = bool(observed_dso_ids and dso.id in observed_dso_ids)
+        ensure_scene_dso_item(scene, dso)
         highlights.append(
             build_circle_highlight(highlight_id=hl_id, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, dashed=observed, theme_name=cur_theme,)
         )

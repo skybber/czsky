@@ -71,6 +71,7 @@ from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
     build_circle_highlight,
+    ensure_scene_dso_item,
 )
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists, create_observed_dso_ids_list
@@ -560,6 +561,7 @@ def deepskyobject_chart_scene_v1(dso_id):
     scene_objects = scene.setdefault('objects', {})
     highlights = scene_objects.setdefault('highlights', [])
     cur_theme = session.get('theme')
+    ensure_scene_dso_item(scene, dso)
     highlights.append(
         build_cross_highlight(highlight_id=dso.name, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
     )
@@ -570,6 +572,7 @@ def deepskyobject_chart_scene_v1(dso_id):
                 continue
             hl_id = str(hl_dso.name).replace(' ', '')
             dashed = observed_dso_ids and hl_dso.id in observed_dso_ids
+            ensure_scene_dso_item(scene, hl_dso)
             highlights.append(
                 build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=dashed, theme_name=cur_theme,)
             )

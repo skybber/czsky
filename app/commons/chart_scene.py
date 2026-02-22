@@ -101,6 +101,18 @@ class SceneHighlight(TypedDict, total=False):
     dash: Optional[List[float]]
 
 
+class SceneDsoItem(TypedDict, total=False):
+    id: str
+    label: str
+    ra: float
+    dec: float
+    mag: float
+    type: str
+    rlong_rad: float
+    rshort_rad: float
+    position_angle_rad: float
+
+
 def normalized_theme_name(theme_name: Optional[str]) -> str:
     return (theme_name or "").strip().lower()
 
@@ -155,6 +167,38 @@ def build_circle_highlight(
         "line_width": 0.4 if is_dashed else 0.3,
         "color": dso_hl_color,
     }
+
+
+def scene_dso_id_from_name(name: str) -> str:
+    return str(name).replace(" ", "")
+
+
+def build_scene_dso_item_from_model(dso: Any) -> SceneDsoItem:
+    return {
+        "id": scene_dso_id_from_name(getattr(dso, "name", "")),
+        "label": dso.denormalized_name() if hasattr(dso, "denormalized_name") else str(getattr(dso, "name", "")),
+        "ra": float(getattr(dso, "ra")),
+        "dec": float(getattr(dso, "dec")),
+        "mag": float(getattr(dso, "mag")) if getattr(dso, "mag", None) is not None else 99.0,
+        "type": str(getattr(dso, "type", "")),
+        "rlong_rad": -1.0,
+        "rshort_rad": -1.0,
+        "position_angle_rad": math.pi * 0.5,
+    }
+
+
+def ensure_scene_dso_item(scene: Dict[str, Any], dso: Any) -> None:
+    if scene is None or dso is None:
+        return
+    dso_id = scene_dso_id_from_name(getattr(dso, "name", ""))
+    if not dso_id:
+        return
+    scene_objects = scene.setdefault("objects", {})
+    dso_items = scene_objects.setdefault("dso", [])
+    for item in dso_items:
+        if item and item.get("id") == dso_id:
+            return
+    dso_items.append(build_scene_dso_item_from_model(dso))
 
 
 def _normalize_ra(ra: float) -> float:

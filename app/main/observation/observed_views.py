@@ -42,7 +42,7 @@ from app.commons.chart_generator import (
 )
 from app.commons.chart_scene import (
     build_scene_v1,
-    build_cross_highlight,
+    ensure_scene_dso_item,
     SceneHighlight, normalized_theme_name,
 )
 from app.commons.dso_utils import (
@@ -317,6 +317,7 @@ def observed_list_chart_scene_v1():
     if observed_list_item:
         if observed_list_item.dso_id is not None and observed_list_item.deepsky_object is not None:
             dso = observed_list_item.deepsky_object
+            ensure_scene_dso_item(scene, dso)
             highlights.append(
                 build_obs_highlight_cross(highlight_id=str(dso.name).replace(' ', ''), label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, theme_name=cur_theme,)
             )
@@ -340,6 +341,7 @@ def observed_list_chart_scene_v1():
         for hl_dso in highlights_dso_list:
             if hl_dso is None:
                 continue
+            ensure_scene_dso_item(scene, hl_dso)
             highlights.append(
                 build_obs_highlight_cross(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, theme_name=cur_theme, size=0.75,)
             )
