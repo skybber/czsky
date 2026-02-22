@@ -1789,6 +1789,7 @@
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
             height: this.canvas.height,
+            aladinActive: aladinActive,
         }));
 
         if (perfEnabled && this.perfGpuFinishEnabled

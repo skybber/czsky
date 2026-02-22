@@ -48,6 +48,8 @@
         const margin = 8;
         const coordText = '⌖ ' + leftText + '  ' + rightText;
         const gap = 16;
+        const isMobile = canvasW <= 768;
+        const aladinShift = (sceneCtx.aladinActive && !isMobile) ? 90 : 0;
 
         ctx.save();
         ctx.font = '12px monospace';
@@ -55,7 +57,7 @@
 
         const w = ctx.measureText(coordText).width + gap + ctx.measureText(dateTimeText).width + pad * 2;
         const h = lineH + pad * 2;
-        const x0 = canvasW - w - margin;
+        const x0 = canvasW - w - margin - aladinShift;
         const y0 = canvasH - h - margin;
 
         const textColor = sceneCtx.getThemeColor
