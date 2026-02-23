@@ -584,6 +584,16 @@
         };
     };
 
+    SkySceneDsoRenderer.prototype._resolveDsoLabel = function (dso) {
+        const raw = dso && dso.label ? String(dso.label).trim() : '';
+        if (!raw) return '';
+        const ngcMatch = /^NGC\s*(\d+)$/i.exec(raw);
+        if (ngcMatch) {
+            return ngcMatch[1];
+        }
+        return raw;
+    };
+
     SkySceneDsoRenderer.prototype._buildLabelPotential = function (sceneCtx, dsoList) {
         const pot = new LabelPotential();
         const ds = [];
@@ -604,7 +614,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential) {
-        const label = dso && dso.label ? String(dso.label) : '';
+        const label = this._resolveDsoLabel(dso);
         if (!label) return;
         const showMag = this._showDsoMag(sceneCtx);
         const magLabel = showMag ? this._formatDsoMag(dso) : null;
