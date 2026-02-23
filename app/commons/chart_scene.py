@@ -820,19 +820,11 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
     bg_color = active_theme.background_color
     mw_color = active_theme.milky_way_color
 
-    star_sel = None
     stars_preview: List[dict] = []
     stars_zone_selection: List[dict] = []
-    nebulae_outlines: List[dict] = []
     stars_max_level = 0
     if used_catalogs.star_catalog is not None:
         stars_max_level = int(getattr(used_catalogs.star_catalog, "max_geodesic_grid_level", 0))
-        star_sel = used_catalogs.star_catalog.select_stars((center_ra, center_dec), field_size, req.maglim, None)
-        star_objects = _serialize_star_selection(star_sel, used_catalogs.star_catalog)
-        for st in star_objects:
-            # bright preview stars for initial render
-            if st["mag"] <= min(4.0, req.maglim - 3.0):
-                stars_preview.append(st)
 
     nebulae_outlines = _serialize_unknown_nebulae(getattr(used_catalogs, "unknown_nebulae", None))
 

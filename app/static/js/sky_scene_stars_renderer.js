@@ -127,10 +127,8 @@
         const fadeWidthMag = 0.75;
         const lm = this._effectiveMaglim(sceneCtx);
 
-        const previewStars = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.stars_preview) || [];
         const zoneStars = sceneCtx.zoneStars || [];
         const stars = []
-            .concat(previewStars)
             .concat(zoneStars)
             .sort((a, b) => {
                 const am = Number.isFinite(a.mag) ? a.mag : 99;
@@ -139,7 +137,7 @@
             });
 
         const diag = {
-            preview_input_count: previewStars.length | 0,
+            preview_input_count: 0,
             zone_input_count: zoneStars.length | 0,
             input_total_count: stars.length | 0,
             unique_count: 0,
