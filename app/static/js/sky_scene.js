@@ -23,6 +23,7 @@
             this.uUseAttrColor = null;
             this.uCircle = null;
             this.pointSizeRange = null;
+            this.starCircleEnabled = true;
             this.ready = false;
             this._init();
         }
@@ -166,7 +167,11 @@
         }
 
         drawStarPoints(arr, sizes, color, colors) {
-            this._draw(this.gl.POINTS, arr, color, 1.0, { circle: true, sizes: sizes, colors: colors });
+            this._draw(this.gl.POINTS, arr, color, 1.0, {
+                circle: this.starCircleEnabled,
+                sizes: sizes,
+                colors: colors
+            });
         }
 
         drawTriangles(arr, color, colors) {
@@ -176,6 +181,10 @@
         getPointSizeRange() {
             if (!this.pointSizeRange || this.pointSizeRange.length < 2) return null;
             return [this.pointSizeRange[0], this.pointSizeRange[1]];
+        }
+
+        setStarCircleEnabled(enabled) {
+            this.starCircleEnabled = !!enabled;
         }
     }
 
@@ -464,6 +473,8 @@
         this.overlayCtx = this.overlayCanvas.getContext('2d');
 
         this.renderer = new FChartWebGLRenderer(this.canvas);
+        this.starShapeMode = this._readStarShapeModeFromUrl();
+        this.isIntelRenderer = this._detectIntelRenderer();
         this.dsoRenderer = new window.SkySceneDsoRenderer();
         this.starsRenderer = new window.SkySceneStarsRenderer();
         this.planetRenderer = new window.SkyScenePlanetRenderer();
@@ -594,6 +605,51 @@
         if (this.canvas && typeof this.canvas.focus === 'function') {
             this.canvas.focus();
         }
+    };
+
+    SkyScene.prototype._readStarShapeModeFromUrl = function () {
+        try {
+            const raw = new URLSearchParams(window.location.search).get('stars_shape');
+            const v = (raw || '').toLowerCase();
+            if (v === 'circle' || v === 'square' || v === 'auto') return v;
+        } catch (err) {}
+        return 'auto';
+    };
+
+    SkyScene.prototype._detectIntelRenderer = function () {
+        if (!this.renderer || !this.renderer.gl) return false;
+        const gl = this.renderer.gl;
+        let vendor = '';
+        let renderer = '';
+        try {
+            const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+            if (dbg) {
+                vendor = String(gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL) || '');
+                renderer = String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '');
+            }
+        } catch (err) {}
+        if (!vendor) {
+            try { vendor = String(gl.getParameter(gl.VENDOR) || ''); } catch (err) {}
+        }
+        if (!renderer) {
+            try { renderer = String(gl.getParameter(gl.RENDERER) || ''); } catch (err) {}
+        }
+        const text = (vendor + ' ' + renderer).toLowerCase();
+        return text.indexOf('intel') !== -1
+            || text.indexOf('iris') !== -1
+            || text.indexOf('uhd') !== -1
+            || text.indexOf('hd graphics') !== -1;
+    };
+
+    SkyScene.prototype._shouldUseCircleStars = function (aladinActive) {
+        if (this.starShapeMode === 'circle') return true;
+        if (this.starShapeMode === 'square') return false;
+        if (aladinActive) return true;
+        const meta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : null;
+        const mwMeta = meta && meta.milky_way ? meta.milky_way : null;
+        const mwEnabled = !!(meta && meta.show_milky_way !== false && mwMeta && mwMeta.mode !== 'off');
+        if (!mwEnabled) return true;
+        return !this.isIntelRenderer;
     };
 
     SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
@@ -1703,6 +1759,9 @@
         measure('overlay_clear', () => this.clearOverlay());
         const liteMode = this.liteRenderDuringInteraction && this.mwInteractionActive;
         const aladinActive = !!(this.aladin && this.showAladin);
+        if (this.renderer && typeof this.renderer.setStarCircleEnabled === 'function') {
+            this.renderer.setStarCircleEnabled(this._shouldUseCircleStars(aladinActive));
+        }
         const viewState = this.buildViewState();
         if (aladinActive) {
             measure('aladin_sync', () => this._syncAladinState(viewState, false));
