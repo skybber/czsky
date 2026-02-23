@@ -1,4 +1,52 @@
 (function () {
+    // B-V index to RGB color lookup table (128 entries, index 0-127)
+    // Source: fchart3 geodesic_star_catalog_gaia.py
+    var BV_COLOR_TABLE = [
+        [0.602745,0.713725,1.000000],[0.604902,0.715294,1.000000],[0.607059,0.716863,1.000000],
+        [0.609215,0.718431,1.000000],[0.611372,0.720000,1.000000],[0.613529,0.721569,1.000000],
+        [0.635490,0.737255,1.000000],[0.651059,0.749673,1.000000],[0.666627,0.762092,1.000000],
+        [0.682196,0.774510,1.000000],[0.697764,0.786929,1.000000],[0.713333,0.799347,1.000000],
+        [0.730306,0.811242,1.000000],[0.747278,0.823138,1.000000],[0.764251,0.835033,1.000000],
+        [0.781223,0.846929,1.000000],[0.798196,0.858824,1.000000],[0.812282,0.868236,1.000000],
+        [0.826368,0.877647,1.000000],[0.840455,0.887059,1.000000],[0.854541,0.896470,1.000000],
+        [0.868627,0.905882,1.000000],[0.884627,0.916862,1.000000],[0.900627,0.927843,1.000000],
+        [0.916627,0.938823,1.000000],[0.932627,0.949804,1.000000],[0.948627,0.960784,1.000000],
+        [0.964444,0.972549,1.000000],[0.980261,0.984313,1.000000],[0.996078,0.996078,1.000000],
+        [1.000000,1.000000,1.000000],[1.000000,0.999643,0.999287],[1.000000,0.999287,0.998574],
+        [1.000000,0.998930,0.997861],[1.000000,0.998574,0.997148],[1.000000,0.998217,0.996435],
+        [1.000000,0.997861,0.995722],[1.000000,0.997504,0.995009],[1.000000,0.997148,0.994296],
+        [1.000000,0.996791,0.993583],[1.000000,0.996435,0.992870],[1.000000,0.996078,0.992157],
+        [1.000000,0.991140,0.981554],[1.000000,0.986201,0.970951],[1.000000,0.981263,0.960349],
+        [1.000000,0.976325,0.949746],[1.000000,0.971387,0.939143],[1.000000,0.966448,0.928540],
+        [1.000000,0.961510,0.917938],[1.000000,0.956572,0.907335],[1.000000,0.951634,0.896732],
+        [1.000000,0.946695,0.886129],[1.000000,0.941757,0.875526],[1.000000,0.936819,0.864924],
+        [1.000000,0.931881,0.854321],[1.000000,0.926942,0.843718],[1.000000,0.922004,0.833115],
+        [1.000000,0.917066,0.822513],[1.000000,0.912128,0.811910],[1.000000,0.907189,0.801307],
+        [1.000000,0.902251,0.790704],[1.000000,0.897313,0.780101],[1.000000,0.892375,0.769499],
+        [1.000000,0.887436,0.758896],[1.000000,0.882498,0.748293],[1.000000,0.877560,0.737690],
+        [1.000000,0.872622,0.727088],[1.000000,0.867683,0.716485],[1.000000,0.862745,0.705882],
+        [1.000000,0.858617,0.695975],[1.000000,0.854490,0.686068],[1.000000,0.850362,0.676161],
+        [1.000000,0.846234,0.666254],[1.000000,0.842107,0.656346],[1.000000,0.837979,0.646439],
+        [1.000000,0.833851,0.636532],[1.000000,0.829724,0.626625],[1.000000,0.825596,0.616718],
+        [1.000000,0.821468,0.606811],[1.000000,0.817340,0.596904],[1.000000,0.813213,0.586997],
+        [1.000000,0.809085,0.577090],[1.000000,0.804957,0.567183],[1.000000,0.800830,0.557275],
+        [1.000000,0.796702,0.547368],[1.000000,0.792574,0.537461],[1.000000,0.788447,0.527554],
+        [1.000000,0.784319,0.517647],[1.000000,0.784025,0.520882],[1.000000,0.783731,0.524118],
+        [1.000000,0.783436,0.527353],[1.000000,0.783142,0.530588],[1.000000,0.782848,0.533824],
+        [1.000000,0.782554,0.537059],[1.000000,0.782259,0.540294],[1.000000,0.781965,0.543529],
+        [1.000000,0.781671,0.546765],[1.000000,0.781377,0.550000],[1.000000,0.781082,0.553235],
+        [1.000000,0.780788,0.556471],[1.000000,0.780494,0.559706],[1.000000,0.780200,0.562941],
+        [1.000000,0.779905,0.566177],[1.000000,0.779611,0.569412],[1.000000,0.779317,0.572647],
+        [1.000000,0.779023,0.575882],[1.000000,0.778728,0.579118],[1.000000,0.778434,0.582353],
+        [1.000000,0.778140,0.585588],[1.000000,0.777846,0.588824],[1.000000,0.777551,0.592059],
+        [1.000000,0.777257,0.595294],[1.000000,0.776963,0.598530],[1.000000,0.776669,0.601765],
+        [1.000000,0.776374,0.605000],[1.000000,0.776080,0.608235],[1.000000,0.775786,0.611471],
+        [1.000000,0.775492,0.614706],[1.000000,0.775197,0.617941],[1.000000,0.774903,0.621177],
+        [1.000000,0.774609,0.624412],[1.000000,0.774315,0.627647],[1.000000,0.774020,0.630883],
+        [1.000000,0.773726,0.634118],[1.000000,0.773432,0.637353],[1.000000,0.773138,0.640588],
+        [1.000000,0.772843,0.643824],[1.000000,0.772549,0.647059]
+    ];
+
     function normalizeRa(rad) {
         let r = rad % (2 * Math.PI);
         if (r < 0) r += 2 * Math.PI;
@@ -757,7 +805,7 @@
                 'star_stream req=' + fmt0(starStreamDebug.reqBatches)
                 + ' resp=' + fmt0(starStreamDebug.respBatches)
                 + ' drop=' + fmt0(starStreamDebug.droppedEpoch)
-                + ' draw_req=' + fmt0(starStreamDebug.drawRequests)
+                + ' cache=' + this.starZoneCache.size + '/' + this.starZoneCacheMax
             );
             lines.push('stars_diag fov=' + fmt2(fov) + ' mag=' + fmt2(maglim));
             lines.push(
@@ -1336,6 +1384,14 @@
         return 'L' + level + 'Z' + zone;
     };
 
+    SkyScene.prototype._touchZoneCache = function (key) {
+        const value = this.starZoneCache.get(key);
+        if (value !== undefined) {
+            this.starZoneCache.delete(key);
+            this.starZoneCache.set(key, value);
+        }
+    };
+
     SkyScene.prototype._evictZoneCache = function () {
         while (this.starZoneCache.size > this.starZoneCacheMax) {
             const oldest = this.starZoneCache.keys().next();
@@ -1351,8 +1407,32 @@
             const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
             const stars = this.starZoneCache.get(key);
             if (!stars) return;
+            this._touchZoneCache(key);
             for (let i = 0; i < stars.length; i++) out.push(stars[i]);
         });
+        return out;
+    };
+
+    SkyScene.prototype._expandCompactStars = function (compact) {
+        if (!compact || !Array.isArray(compact.ra)) return [];
+        const n = compact.ra.length;
+        const out = new Array(n);
+        const bvArr = compact.bv;
+        // Delta compression: d > 0 means ra/dec are scaled int offsets from ra0/dec0
+        const deltaScale = compact.d || 0;
+        const ra0 = deltaScale ? (compact.ra0 || 0) : 0;
+        const dec0 = deltaScale ? (compact.dec0 || 0) : 0;
+        const invScale = deltaScale ? (1.0 / deltaScale) : 1;
+        for (let i = 0; i < n; i++) {
+            const bv = bvArr ? bvArr[i] : -1;
+            const color = (bv >= 0 && bv < BV_COLOR_TABLE.length) ? BV_COLOR_TABLE[bv] : null;
+            out[i] = {
+                ra: compact.ra[i] * invScale + ra0,
+                dec: compact.dec[i] * invScale + dec0,
+                mag: compact.mag[i],
+                color: color
+            };
+        }
         return out;
     };
 
@@ -1376,16 +1456,13 @@
         const missing = [];
         selection.forEach((ref) => {
             const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
-            const inFlightEpoch = this.starZoneInFlight.get(key);
-            if (this.starZoneCache.has(key) || inFlightEpoch === epoch) return;
+            if (this.starZoneCache.has(key) || this.starZoneInFlight.has(key)) return;
             missing.push({ key: key, level: ref.level, zone: ref.zone });
         });
 
         const cached = this._collectCachedZoneStars(scene, magBucket);
-        if (cached.length > 0 || missing.length === 0) {
-            this.zoneStars = cached;
-            this.requestDraw();
-        }
+        this.zoneStars = cached;
+        this.requestDraw();
         if (missing.length === 0) return;
 
         const batchSize = Math.max(1, this.starZoneBatchSize);
@@ -1428,12 +1505,16 @@
                 if (!zoneData || !Array.isArray(zoneData.zones)) return;
                 zoneData.zones.forEach((z) => {
                     const key = this._zoneCacheKey(magBucket, z.level, z.zone);
-                    const stars = Array.isArray(z.stars) ? z.stars : [];
+                    const stars = z.stars ? this._expandCompactStars(z.stars) : [];
                     this.starZoneCache.set(key, stars);
                 });
+                if (epoch !== this.sceneRequestEpoch || !this.sceneData) {
+                    this._evictZoneCache();
+                    return;
+                }
+                const currentMagBucket = this._starMagBucket(this.sceneData.meta);
                 this._evictZoneCache();
-                if (epoch !== this.sceneRequestEpoch || !this.sceneData) return;
-                this.zoneStars = this._collectCachedZoneStars(this.sceneData, magBucket);
+                this.zoneStars = this._collectCachedZoneStars(this.sceneData, currentMagBucket);
                 this.requestDraw();
             }).fail(() => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));

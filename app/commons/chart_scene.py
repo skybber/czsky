@@ -396,6 +396,51 @@ def _serialize_star_selection(star_sel, star_catalog) -> List[dict]:
     return stars_out
 
 
+def _serialize_star_selection_compact(star_sel, star_catalog) -> dict:
+    """Compact columnar format for stars with optional delta compression."""
+    if star_sel is None or len(star_sel) == 0:
+        return {"ra": [], "dec": [], "mag": [], "bv": []}
+
+    sel_names = star_sel.dtype.names if getattr(star_sel, "dtype", None) is not None else ()
+    has_bvind = bool(sel_names) and "bvind" in sel_names
+    ra_ar, dec_ar = _cart_to_radec(star_sel["x"], star_sel["y"], star_sel["z"])
+
+    n = len(ra_ar)
+    mag_out = [round(float(star_sel["mag"][i]), 2) for i in range(n)]
+    bv_out = [int(star_sel["bvind"][i]) for i in range(n)] if has_bvind else [-1] * n
+
+    # Check if delta compression makes sense
+    ra_min, ra_max = float(np.min(ra_ar)), float(np.max(ra_ar))
+    dec_min, dec_max = float(np.min(dec_ar)), float(np.max(dec_ar))
+    ra_range = ra_max - ra_min
+    dec_range = dec_max - dec_min
+
+    # Delta compression: range < 0.2 rad (~12째), no RA wraparound, min 10 stars
+    # Scale factor 1000000 gives precision ~0.2 arcsec (sufficient for 6' FoV)
+    # Max int value: 0.2 * 1000000 = 200000 (6 digits vs 8 chars for float)
+    delta_scale = 1000000
+    use_delta = ra_range < 0.2 and dec_range < 0.2 and ra_range < 3.0 and n >= 10
+
+    if use_delta:
+        # Delta format - integers scaled by 10000
+        ra_out = [int(round((float(ra_ar[i]) - ra_min) * delta_scale)) for i in range(n)]
+        dec_out = [int(round((float(dec_ar[i]) - dec_min) * delta_scale)) for i in range(n)]
+        return {
+            "d": delta_scale,
+            "ra0": round(ra_min, 6),
+            "dec0": round(dec_min, 6),
+            "ra": ra_out,
+            "dec": dec_out,
+            "mag": mag_out,
+            "bv": bv_out,
+        }
+    else:
+        # Absolute format
+        ra_out = [round(float(ra_ar[i]), 6) for i in range(n)]
+        dec_out = [round(float(dec_ar[i]), 6) for i in range(n)]
+        return {"ra": ra_out, "dec": dec_out, "mag": mag_out, "bv": bv_out}
+
+
 def _serialize_unknown_nebulae(unknown_nebulae) -> List[dict]:
     nebulae_out: List[dict] = []
     if not unknown_nebulae:
@@ -1078,11 +1123,11 @@ def build_stars_zones_v1() -> Dict:
     stars_total = 0
     for level, zone in zone_refs:
         zone_sel = star_catalog.select_zone_stars(level, zone, None)
-        stars = _serialize_star_selection(zone_sel, star_catalog)
+        stars_compact = _serialize_star_selection_compact(zone_sel, star_catalog)
         if zone_sel is None:
             missing.append(f"L{level}Z{zone}")
-        stars_total += len(stars)
-        zones_out.append({"level": level, "zone": zone, "stars": stars})
+        stars_total += len(stars_compact["ra"])
+        zones_out.append({"level": level, "zone": zone, "stars": stars_compact})
 
     return {
         "version": STARS_VERSION,
