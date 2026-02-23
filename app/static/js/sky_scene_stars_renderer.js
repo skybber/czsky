@@ -154,12 +154,7 @@
             _size_sum_px: 0.0,
         };
 
-        const seen = new Set();
-
         stars.forEach((s) => {
-            const key = (s.id || '') + '|' + (s.ra || 0).toFixed(9) + '|' + (s.dec || 0).toFixed(9);
-            if (seen.has(key)) return;
-            seen.add(key);
             diag.unique_count += 1;
             const p = sceneCtx.projection.projectEquatorialToNdc(s.ra, s.dec);
             if (!p) {
