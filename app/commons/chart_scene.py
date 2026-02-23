@@ -72,6 +72,14 @@ def _float_or_none(value: Any) -> Optional[float]:
         return None
 
 
+def _round_coord(value: Any) -> float:
+    return round(float(value), 6)
+
+
+def _sig4(value: Any) -> float:
+    return float(f"{float(value):.4g}")
+
+
 @dataclass(frozen=True)
 class SceneRequest:
     is_equatorial: bool
@@ -143,8 +151,8 @@ def build_cross_highlight(
         "shape": "cross",
         "id": highlight_id,
         "label": label,
-        "ra": float(ra),
-        "dec": float(dec),
+        "ra": _round_coord(ra),
+        "dec": _round_coord(dec),
         "size": float(size),
         # Keep legacy fchart3 width: highlight_linewidth * 1.3 = 0.39
         "line_width": 0.39,
@@ -173,8 +181,8 @@ def build_circle_highlight(
         "shape": "dso_circle",
         "id": highlight_id,
         "label": label,
-        "ra": float(ra),
-        "dec": float(dec),
+        "ra": _round_coord(ra),
+        "dec": _round_coord(dec),
         "dashed": is_dashed,
         "dash": [0.6, 1.2] if is_dashed else None,
         "line_width": 0.4 if is_dashed else 0.3,
@@ -190,13 +198,13 @@ def build_scene_dso_item_from_model(dso: Any) -> SceneDsoItem:
     return {
         "id": scene_dso_id_from_name(getattr(dso, "name", "")),
         "label": dso.denormalized_name() if hasattr(dso, "denormalized_name") else str(getattr(dso, "name", "")),
-        "ra": float(getattr(dso, "ra")),
-        "dec": float(getattr(dso, "dec")),
+        "ra": _round_coord(getattr(dso, "ra")),
+        "dec": _round_coord(getattr(dso, "dec")),
         "mag": float(getattr(dso, "mag")) if getattr(dso, "mag", None) is not None else 99.0,
         "type": str(getattr(dso, "type", "")),
-        "rlong_rad": -1.0,
-        "rshort_rad": -1.0,
-        "position_angle_rad": math.pi * 0.5,
+        "rlong_rad": _round_coord(getattr(dso, "rlong")) if getattr(dso, "rlong", None) is not None else -1.0,
+        "rshort_rad": _round_coord(getattr(dso, "rshort")) if getattr(dso, "rshort", None) is not None else -1.0,
+        "position_angle_rad": _sig4(getattr(dso, "position_angle")) if getattr(dso, "position_angle", None) is not None else (math.pi * 0.5),
     }
 
 
@@ -228,11 +236,11 @@ def build_scene_trajectory_item(
             continue
         trajectory_points.append(
             {
-                "ra": float(ra),
-                "dec": float(dec),
+                "ra": _round_coord(ra),
+                "dec": _round_coord(dec),
                 "label": str(getattr(pt, "label", "") or ""),
-                "sun_ra": _float_or_none(getattr(pt, "sun_ra", None)),
-                "sun_dec": _float_or_none(getattr(pt, "sun_dec", None)),
+                "sun_ra": _round_coord(getattr(pt, "sun_ra")) if getattr(pt, "sun_ra", None) is not None else None,
+                "sun_dec": _round_coord(getattr(pt, "sun_dec")) if getattr(pt, "sun_dec", None) is not None else None,
             }
         )
 
@@ -386,8 +394,8 @@ def _serialize_star_selection(star_sel, star_catalog) -> List[dict]:
         stars_out.append(
             {
                 "id": f"HIP{int(star_sel['hip'][i])}" if int(star_sel["hip"][i]) > 0 else f"STAR{i}",
-                "ra": float(ra_ar[i]),
-                "dec": float(dec_ar[i]),
+                "ra": _round_coord(ra_ar[i]),
+                "dec": _round_coord(dec_ar[i]),
                 "mag": float(star_sel["mag"][i]),
                 "bvind": int(star_sel["bvind"][i]) if has_bvind else None,
                 "color": [float(star_color[0]), float(star_color[1]), float(star_color[2])] if star_color else None,
@@ -459,8 +467,8 @@ def _serialize_unknown_nebulae(unknown_nebulae) -> List[dict]:
                 if npts < 2:
                     continue
                 levels_out[lev].append([
-                    [float(ra_ar[i]) for i in range(npts)],
-                    [float(dec_ar[i]) for i in range(npts)],
+                    [_round_coord(ra_ar[i]) for i in range(npts)],
+                    [_round_coord(dec_ar[i]) for i in range(npts)],
                 ])
 
         if not (levels_out[0] or levels_out[1] or levels_out[2]):
@@ -468,10 +476,10 @@ def _serialize_unknown_nebulae(unknown_nebulae) -> List[dict]:
 
         nebulae_out.append(
             {
-                "ra_min": float(neb.ra_min) if neb.ra_min is not None else None,
-                "ra_max": float(neb.ra_max) if neb.ra_max is not None else None,
-                "dec_min": float(neb.dec_min) if neb.dec_min is not None else None,
-                "dec_max": float(neb.dec_max) if neb.dec_max is not None else None,
+                "ra_min": _round_coord(neb.ra_min) if neb.ra_min is not None else None,
+                "ra_max": _round_coord(neb.ra_max) if neb.ra_max is not None else None,
+                "dec_min": _round_coord(neb.dec_min) if neb.dec_min is not None else None,
+                "dec_max": _round_coord(neb.dec_max) if neb.dec_max is not None else None,
                 "outlines": levels_out,
             }
         )
@@ -501,8 +509,8 @@ def _serialize_dso_outlines_dataset(used_catalogs) -> Dict[str, Any]:
                 if npts < 2:
                     continue
                 levels_out[lev].append([
-                    [float(ra_ar[i]) for i in range(npts)],
-                    [float(dec_ar[i]) for i in range(npts)],
+                    [_round_coord(ra_ar[i]) for i in range(npts)],
+                    [_round_coord(dec_ar[i]) for i in range(npts)],
                 ])
                 points_total += npts
 
@@ -551,7 +559,7 @@ def _serialize_constellation_lines_dataset(used_catalogs) -> Dict[str, Any]:
         for i, line in enumerate(lines):
             if line is None or len(line) < 4:
                 continue
-            ra1, dec1, ra2, dec2 = float(line[0]), float(line[1]), float(line[2]), float(line[3])
+            ra1, dec1, ra2, dec2 = _round_coord(line[0]), _round_coord(line[1]), _round_coord(line[2]), _round_coord(line[3])
             item_id = f"cl{i}"
             items_out.append({"id": item_id, "ra1": ra1, "dec1": dec1, "ra2": ra2, "dec2": dec2})
             sig_parts.append(f"{item_id}:{ra1:.8f}:{dec1:.8f}:{ra2:.8f}:{dec2:.8f}")
@@ -593,8 +601,8 @@ def _serialize_constellation_boundaries_dataset(used_catalogs) -> Dict[str, Any]
             idx1, idx2, cons1, cons2 = int(line[0]), int(line[1]), line[2], line[3]
             if idx1 < 0 or idx2 < 0 or idx1 >= len(points) or idx2 >= len(points):
                 continue
-            ra1, dec1 = float(points[idx1][0]), float(points[idx1][1])
-            ra2, dec2 = float(points[idx2][0]), float(points[idx2][1])
+            ra1, dec1 = _round_coord(points[idx1][0]), _round_coord(points[idx1][1])
+            ra2, dec2 = _round_coord(points[idx2][0]), _round_coord(points[idx2][1])
             item_id = f"cb{i}"
             item = {
                 "id": item_id,
@@ -698,7 +706,7 @@ def _mw_dataset_from_catalog(used_catalogs, quality: str, optimized: bool) -> Di
     points = enhanced.mw_points
     polygons = enhanced.mw_opti_polygons if optimized and enhanced.mw_opti_polygons is not None else enhanced.mw_polygons
 
-    points_out = [[float(p[0]), float(p[1])] for p in points]
+    points_out = [[_round_coord(p[0]), _round_coord(p[1])] for p in points]
     polygons_out = [
         {
             "indices": [int(i) for i in polygon],
@@ -839,13 +847,13 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 {
                     "id": dso.primary_label().replace(" ", ""),
                     "label": dso.primary_label(),
-                    "ra": float(dso.ra),
-                    "dec": float(dso.dec),
+                    "ra": _round_coord(dso.ra),
+                    "dec": _round_coord(dso.dec),
                     "mag": float(dso.mag),
                     "type": dso.type.name,
-                    "rlong_rad": float(dso.rlong) if dso.rlong is not None else -1.0,
-                    "rshort_rad": float(dso.rshort) if dso.rshort is not None else -1.0,
-                    "position_angle_rad": float(dso.position_angle) if dso.position_angle is not None else (math.pi * 0.5),
+                    "rlong_rad": _round_coord(dso.rlong) if dso.rlong is not None else -1.0,
+                    "rshort_rad": _round_coord(dso.rshort) if dso.rshort is not None else -1.0,
+                    "position_angle_rad": _sig4(dso.position_angle) if dso.position_angle is not None else (math.pi * 0.5),
                 }
             )
 
@@ -862,8 +870,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                         "id": label,
                         "label": body.solar_system_body.label,
                         "body": body_key,
-                        "ra": float(body.ra),
-                        "dec": float(body.dec),
+                        "ra": _round_coord(body.ra),
+                        "dec": _round_coord(body.dec),
                         "type": "planet",
                         "mag": _float_or_none(getattr(body, "mag", None)),
                         "distance_km": _float_or_none(getattr(body, "distance", None)),
@@ -890,8 +898,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                             "label": moon.moon_name,
                             "body": moon_key,
                             "parent_body": parent_key,
-                            "ra": float(moon.ra),
-                            "dec": float(moon.dec),
+                            "ra": _round_coord(moon.ra),
+                            "dec": _round_coord(moon.dec),
                             "type": "moon",
                             "mag": _float_or_none(getattr(moon, "mag", None)),
                             "distance_km": _float_or_none(getattr(moon, "distance", None)),
