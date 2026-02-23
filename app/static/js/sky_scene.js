@@ -529,6 +529,12 @@
         this.applyScreenMode();
 
         window.addEventListener('resize', () => this.onResize());
+        window.addEventListener('focus', () => this._restoreKeyboardCapture());
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this._restoreKeyboardCapture();
+            }
+        });
 
         if (window.PointerEvent) {
             $(this.canvas).on('pointerdown', (e) => {
@@ -570,13 +576,29 @@
             if (!this._shouldHandleKeyboardEvent(e)) return;
             this.onKeyUp(e);
         });
+        $(document).on('click.skySceneFocus', (e) => {
+            if (this._isUiInteractiveTarget(e.target)) return;
+            this._restoreKeyboardCapture();
+        });
+    };
+
+    SkyScene.prototype._isUiInteractiveTarget = function (target) {
+        if (!target) return false;
+        const $target = $(target);
+        return $target.closest('input, textarea, select, [contenteditable=true], .calendar, .ui.dropdown, .ui.popup').length > 0;
+    };
+
+    SkyScene.prototype._restoreKeyboardCapture = function () {
+        if (this._isUiInteractiveTarget(document.activeElement)) return;
+        this.keyboardCaptureActive = true;
+        if (this.canvas && typeof this.canvas.focus === 'function') {
+            this.canvas.focus();
+        }
     };
 
     SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
         if (!this.keyboardCaptureActive) return false;
-        const target = e.target;
-        const $target = $(target);
-        if ($target.closest('input, textarea, select, [contenteditable=true], .calendar, .ui.dropdown, .ui.popup').length > 0) {
+        if (this._isUiInteractiveTarget(e.target)) {
             return false;
         }
         return true;
