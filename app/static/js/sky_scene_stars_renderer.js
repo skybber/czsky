@@ -57,10 +57,20 @@
         return v;
     }
 
-    function colorFromBvIndex(star) {
-        const bv = Number.isFinite(star && star.bv) ? star.bv : (Number.isFinite(star && star.bvindex) ? star.bvindex : -1);
-        if (bv < 0 || bv >= BV_COLOR_TABLE.length) return null;
-        return BV_COLOR_TABLE[bv];
+    function colorFromBvValue(bv) {
+        if (!Number.isFinite(bv)) return null;
+        const idx = bv | 0;
+        if (idx < 0 || idx >= BV_COLOR_TABLE.length) return null;
+        return BV_COLOR_TABLE[idx];
+    }
+
+    function isZoneStarsSoA(zoneStars) {
+        return !!(zoneStars
+            && zoneStars.ra instanceof Float64Array
+            && zoneStars.dec instanceof Float64Array
+            && zoneStars.mag instanceof Float32Array
+            && zoneStars.bv instanceof Int16Array
+            && Number.isInteger(zoneStars.count));
     }
 
     SkySceneStarsRenderer.prototype._interp = function (x, xp, yp) {
@@ -127,19 +137,15 @@
         const fadeWidthMag = 0.75;
         const lm = this._effectiveMaglim(sceneCtx);
 
-        const zoneStars = sceneCtx.zoneStars || [];
-        const stars = []
-            .concat(zoneStars)
-            .sort((a, b) => {
-                const am = Number.isFinite(a.mag) ? a.mag : 99;
-                const bm = Number.isFinite(b.mag) ? b.mag : 99;
-                return am - bm;
-            });
+        const zoneStars = sceneCtx.zoneStars || null;
+        const zoneCount = isZoneStarsSoA(zoneStars)
+            ? Math.max(0, Math.min(zoneStars.count, zoneStars.ra.length, zoneStars.dec.length, zoneStars.mag.length, zoneStars.bv.length))
+            : 0;
 
         const diag = {
             preview_input_count: 0,
-            zone_input_count: zoneStars.length | 0,
-            input_total_count: stars.length | 0,
+            zone_input_count: zoneCount | 0,
+            input_total_count: zoneCount | 0,
             unique_count: 0,
             projected_count: 0,
             project_drop_count: 0,
@@ -154,22 +160,21 @@
             _size_sum_px: 0.0,
         };
 
-        stars.forEach((s) => {
+        const pushStar = (ra, dec, magRaw, bvRaw, explicitColor) => {
             diag.unique_count += 1;
-            const p = sceneCtx.projection.projectEquatorialToNdc(s.ra, s.dec);
+            const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
             if (!p) {
                 diag.project_drop_count += 1;
                 return;
             }
-            const magForSize = Number.isFinite(s.mag) ? s.mag : 7;
+            const magForSize = Number.isFinite(magRaw) ? magRaw : 7;
             const magDelta = lm - magForSize;
             if (magDelta <= -fadeWidthMag) return;
             const alpha = magDelta >= 0.0 ? 1.0 : clamp01((magDelta + fadeWidthMag) / fadeWidthMag);
             if (alpha <= 0.0) return;
 
             const sz = this._starSizePx(sceneCtx, magForSize);
-            const explicitColor = Array.isArray(s.color) && s.color.length === 3 ? s.color : null;
-            const bvColor = colorFromBvIndex(s);
+            const bvColor = colorFromBvValue(bvRaw);
             const starColor = (starColorsEnabled && (explicitColor || bvColor)) ? (explicitColor || bvColor) : drawColor;
             const sizePx = Math.max(0.01, sz || 1.0);
             positions.push((p.ndcX != null) ? p.ndcX : 0.0, (p.ndcY != null) ? p.ndcY : 0.0);
@@ -188,7 +193,13 @@
             if (!Number.isFinite(diag.size_max_px) || sizePx > diag.size_max_px) diag.size_max_px = sizePx;
             if (sizePx < 1.0) diag.size_lt_1_px_count += 1;
             diag._size_sum_px += sizePx;
-        });
+        };
+
+        if (isZoneStarsSoA(zoneStars)) {
+            for (let i = 0; i < zoneCount; i++) {
+                pushStar(zoneStars.ra[i], zoneStars.dec[i], zoneStars.mag[i], zoneStars.bv[i], null);
+            }
+        }
 
         if (diag.projected_count > 0) {
             diag.size_avg_px = diag._size_sum_px / diag.projected_count;

@@ -392,12 +392,18 @@
         this.selectionIndex = new SelectionIndex();
         this.sceneData = null;
         this.isReloadingImage = false;
-        this.zoneStars = [];
+        this.zoneStars = {
+            ra: new Float64Array(0),
+            dec: new Float64Array(0),
+            mag: new Float32Array(0),
+            bv: new Int16Array(0),
+            count: 0,
+        };
         this.sceneRequestEpoch = 0;
         this.starZoneCache = new Map();
         this.starZoneInFlight = new Map();
         this.starZoneBatchSize = 32;
-        this.starZoneCacheMax = 240;
+        this.starZoneCacheMax = 384;
         this.mwCatalogById = {};
         this.mwTriangulatedById = {};
         this.mwCatalogLoadingById = {};
@@ -1406,12 +1412,7 @@
         this.requestDraw();
     };
 
-    SkyScene.prototype._starMagBucket = function (meta) {
-        const m = meta && typeof meta.maglim === 'number' ? meta.maglim : 10.0;
-        return Math.round(m * 2.0) / 2.0;
-    };
-
-    SkyScene.prototype._zoneCacheKey = function (magBucket, level, zone) {
+    SkyScene.prototype._zoneCacheKey = function (level, zone) {
         return 'L' + level + 'Z' + zone;
     };
 
@@ -1431,23 +1432,82 @@
         }
     };
 
-    SkyScene.prototype._collectCachedZoneStars = function (scene, magBucket) {
+    SkyScene.prototype._emptyZoneStarsSoA = function () {
+        return {
+            ra: new Float64Array(0),
+            dec: new Float64Array(0),
+            mag: new Float32Array(0),
+            bv: new Int16Array(0),
+            count: 0,
+        };
+    };
+
+    SkyScene.prototype._isZoneStarsSoA = function (stars) {
+        return !!(stars
+            && stars.ra instanceof Float64Array
+            && stars.dec instanceof Float64Array
+            && stars.mag instanceof Float32Array
+            && stars.bv instanceof Int16Array
+            && Number.isInteger(stars.count));
+    };
+
+    SkyScene.prototype._zoneStarsCount = function (stars) {
+        if (!this._isZoneStarsSoA(stars)) return 0;
+        return Math.max(0, Math.min(stars.count, stars.ra.length, stars.dec.length, stars.mag.length, stars.bv.length));
+    };
+
+    SkyScene.prototype._concatZoneStars = function (zones) {
+        if (!Array.isArray(zones) || zones.length === 0) {
+            return this._emptyZoneStarsSoA();
+        }
+        let total = 0;
+        for (let i = 0; i < zones.length; i++) {
+            const z = zones[i];
+            total += this._zoneStarsCount(z);
+        }
+        if (total <= 0) return this._emptyZoneStarsSoA();
+
+        const ra = new Float64Array(total);
+        const dec = new Float64Array(total);
+        const mag = new Float32Array(total);
+        const bv = new Int16Array(total);
+        let pos = 0;
+        for (let i = 0; i < zones.length; i++) {
+            const z = zones[i];
+            const count = this._zoneStarsCount(z);
+            if (count <= 0) continue;
+            ra.set(z.ra.subarray(0, count), pos);
+            dec.set(z.dec.subarray(0, count), pos);
+            mag.set(z.mag.subarray(0, count), pos);
+            bv.set(z.bv.subarray(0, count), pos);
+            pos += count;
+        }
+        return { ra: ra, dec: dec, mag: mag, bv: bv, count: total };
+    };
+
+    SkyScene.prototype._collectCachedZoneStars = function (scene) {
         const out = [];
         const selection = (scene.objects && scene.objects.stars_zone_selection) || [];
         selection.forEach((ref) => {
-            const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
+            const key = this._zoneCacheKey(ref.level, ref.zone);
             const stars = this.starZoneCache.get(key);
             if (!stars) return;
             this._touchZoneCache(key);
-            for (let i = 0; i < stars.length; i++) out.push(stars[i]);
+            if (this._isZoneStarsSoA(stars)) {
+                out.push(stars);
+            }
         });
-        return out;
+        return this._concatZoneStars(out);
     };
 
-    SkyScene.prototype._expandCompactStars = function (compact) {
-        if (!compact || !Array.isArray(compact.ra)) return [];
+    SkyScene.prototype._expandCompactStarsSoA = function (compact) {
+        if (!compact || !Array.isArray(compact.ra)) return this._emptyZoneStarsSoA();
         const n = compact.ra.length;
-        const out = new Array(n);
+        if (n <= 0) return this._emptyZoneStarsSoA();
+        const ra = new Float64Array(n);
+        const dec = new Float64Array(n);
+        const mag = new Float32Array(n);
+        const bv = new Int16Array(n);
         const bvArr = compact.bv;
         // Delta compression: d > 0 means ra/dec are scaled int offsets from ra0/dec0
         const deltaScale = compact.d || 0;
@@ -1455,41 +1515,67 @@
         const dec0 = deltaScale ? (compact.dec0 || 0) : 0;
         const invScale = deltaScale ? (1.0 / deltaScale) : 1;
         for (let i = 0; i < n; i++) {
-            out[i] = {
-                ra: compact.ra[i] * invScale + ra0,
-                dec: compact.dec[i] * invScale + dec0,
-                mag: compact.mag[i],
-                bv: bvArr ? bvArr[i] : -1
-            };
+            ra[i] = Number(compact.ra[i]) * invScale + ra0;
+            dec[i] = Number(compact.dec[i]) * invScale + dec0;
+            mag[i] = Number(compact.mag[i]);
+            bv[i] = bvArr ? (Number(bvArr[i]) | 0) : -1;
         }
-        return out;
+        return { ra: ra, dec: dec, mag: mag, bv: bv, count: n };
+    };
+
+    SkyScene.prototype._sortZoneStarsByMag = function (zoneStars) {
+        const n = this._zoneStarsCount(zoneStars);
+        if (n <= 1) {
+            if (this._isZoneStarsSoA(zoneStars)) zoneStars.count = n;
+            return zoneStars;
+        }
+        const idx = new Array(n);
+        for (let i = 0; i < n; i++) idx[i] = i;
+        idx.sort((a, b) => zoneStars.mag[a] - zoneStars.mag[b]);
+
+        const ra = new Float64Array(n);
+        const dec = new Float64Array(n);
+        const mag = new Float32Array(n);
+        const bv = new Int16Array(n);
+        for (let i = 0; i < n; i++) {
+            const src = idx[i];
+            ra[i] = zoneStars.ra[src];
+            dec[i] = zoneStars.dec[src];
+            mag[i] = zoneStars.mag[src];
+            bv[i] = zoneStars.bv[src];
+        }
+        zoneStars.ra = ra;
+        zoneStars.dec = dec;
+        zoneStars.mag = mag;
+        zoneStars.bv = bv;
+        zoneStars.count = n;
+        return zoneStars;
     };
 
     SkyScene.prototype._loadZoneStars = function (scene, epoch) {
         if (!scene || !scene.meta || !scene.objects) return;
         const streamMeta = scene.meta.stars_stream || {};
         if (!streamMeta.enabled) {
-            this.zoneStars = [];
+            this.zoneStars = this._emptyZoneStarsSoA();
             this.requestDraw();
             return;
         }
 
         const selection = scene.objects.stars_zone_selection || [];
         if (!Array.isArray(selection) || selection.length === 0) {
-            this.zoneStars = [];
+            this.zoneStars = this._emptyZoneStarsSoA();
             this.requestDraw();
             return;
         }
 
-        const magBucket = this._starMagBucket(scene.meta);
         const missing = [];
         selection.forEach((ref) => {
-            const key = this._zoneCacheKey(magBucket, ref.level, ref.zone);
+            const key = this._zoneCacheKey(ref.level, ref.zone);
             if (this.starZoneCache.has(key) || this.starZoneInFlight.has(key)) return;
             missing.push({ key: key, level: ref.level, zone: ref.zone });
         });
 
-        const cached = this._collectCachedZoneStars(scene, magBucket);
+        const cached = this._collectCachedZoneStars(scene);
         this.zoneStars = cached;
         this.requestDraw();
         if (missing.length === 0) return;
@@ -1533,17 +1619,17 @@
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
                 if (!zoneData || !Array.isArray(zoneData.zones)) return;
                 zoneData.zones.forEach((z) => {
-                    const key = this._zoneCacheKey(magBucket, z.level, z.zone);
-                    const stars = z.stars ? this._expandCompactStars(z.stars) : [];
+                    const key = this._zoneCacheKey(z.level, z.zone);
+                    const stars = z.stars ? this._expandCompactStarsSoA(z.stars) : this._emptyZoneStarsSoA();
+                    this._sortZoneStarsByMag(stars);
                     this.starZoneCache.set(key, stars);
                 });
                 if (epoch !== this.sceneRequestEpoch || !this.sceneData) {
                     this._evictZoneCache();
                     return;
                 }
-                const currentMagBucket = this._starMagBucket(this.sceneData.meta);
                 this._evictZoneCache();
-                this.zoneStars = this._collectCachedZoneStars(this.sceneData, currentMagBucket);
+                this.zoneStars = this._collectCachedZoneStars(this.sceneData);
                 this.requestDraw();
             }).fail(() => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
