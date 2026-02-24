@@ -390,6 +390,7 @@
         this.mirrorY = !!mirror_y;
         this.selectableRegions = [];
         this.selectionIndex = new SelectionIndex();
+        this.centerPick = null;
         this.sceneData = null;
         this.isReloadingImage = false;
         this.zoneStars = {
@@ -1817,6 +1818,118 @@
         }
     };
 
+    SkyScene.prototype._isPickerEnabled = function () {
+        return !!(this.sceneData
+            && this.sceneData.meta
+            && this.sceneData.meta.widgets
+            && this.sceneData.meta.widgets.show_picker);
+    };
+
+    SkyScene.prototype._pickerRadiusPx = function () {
+        const themeConfig = this.getThemeConfig() || {};
+        const sizeMm = themeConfig.sizes && typeof themeConfig.sizes.picker_radius === 'number'
+            ? themeConfig.sizes.picker_radius : 4.0;
+        const mmToPx = (window.SkySceneWidgetUtils && typeof window.SkySceneWidgetUtils.mmToPx === 'function')
+            ? window.SkySceneWidgetUtils.mmToPx
+            : function (mm) { return mm * (100.0 / 25.4); };
+        return Math.max(6.0, mmToPx(sizeMm));
+    };
+
+    SkyScene.prototype._findDsoById = function (id) {
+        if (!id || !this.sceneData || !this.sceneData.objects) return null;
+        const dsoList = Array.isArray(this.sceneData.objects.dso) ? this.sceneData.objects.dso : [];
+        for (let i = 0; i < dsoList.length; i++) {
+            const dso = dsoList[i];
+            if (dso && dso.id === id) return dso;
+        }
+        return null;
+    };
+
+    SkyScene.prototype._findPlanetById = function (id) {
+        if (!id || !this.sceneData || !this.sceneData.objects) return null;
+        const planets = Array.isArray(this.sceneData.objects.planets) ? this.sceneData.objects.planets : [];
+        for (let i = 0; i < planets.length; i++) {
+            const p = planets[i];
+            if (p && p.id === id) return p;
+        }
+        return null;
+    };
+
+    SkyScene.prototype._findObjectAtCenter = function () {
+        if (!this.selectionIndex || !this.canvas) return null;
+        const cx = this.canvas.width * 0.5;
+        const cy = this.canvas.height * 0.5;
+        const id = this.selectionIndex.hitTest(cx, cy);
+        if (!id) return null;
+
+        const dso = this._findDsoById(id);
+        if (dso) {
+            return {
+                kind: 'dso',
+                id: dso.id,
+                label: dso.label || dso.cat || dso.id || '',
+                mag: Number.isFinite(dso.mag) ? dso.mag : null,
+            };
+        }
+
+        const planet = this._findPlanetById(id);
+        if (planet) {
+            return {
+                kind: planet.type === 'moon' ? 'moon' : 'planet',
+                id: planet.id,
+                label: planet.label || planet.body || planet.id || '',
+                mag: Number.isFinite(planet.mag) ? planet.mag : null,
+            };
+        }
+        return null;
+    };
+
+    SkyScene.prototype._findNearestStarAtCenter = function () {
+        if (!this.starsRenderer || typeof this.starsRenderer.getNearestProjectedStarForPick !== 'function') {
+            return null;
+        }
+        const picked = this.starsRenderer.getNearestProjectedStarForPick();
+        if (!picked) return null;
+        return {
+            kind: 'star',
+            mag: Number.isFinite(picked.mag) ? picked.mag : null,
+            xPx: Number.isFinite(picked.xPx) ? picked.xPx : null,
+            yPx: Number.isFinite(picked.yPx) ? picked.yPx : null,
+            rPx: Number.isFinite(picked.rPx) ? picked.rPx : null,
+        };
+    };
+
+    SkyScene.prototype._findNearestMoonInPicker = function () {
+        if (!this.planetRenderer || typeof this.planetRenderer.getNearestMoonForPick !== 'function') {
+            return null;
+        }
+        const picked = this.planetRenderer.getNearestMoonForPick();
+        if (!picked || !picked.id) return null;
+        return {
+            kind: 'moon',
+            id: picked.id,
+            mag: Number.isFinite(picked.mag) ? picked.mag : null,
+        };
+    };
+
+    SkyScene.prototype._updateCenterPick = function () {
+        if (!this._isPickerEnabled()) {
+            this.centerPick = null;
+            return;
+        }
+        const pickedObject = this._findObjectAtCenter();
+        if (pickedObject) {
+            this.centerPick = pickedObject;
+            return;
+        }
+        const pickedMoon = this._findNearestMoonInPicker();
+        if (pickedMoon) {
+            this.centerPick = pickedMoon;
+            return;
+        }
+        this.centerPick = this._findNearestStarAtCenter();
+    };
+
     SkyScene.prototype.draw = function () {
         this.perfFrameIndex += 1;
         const perfEnabled = !!this.debugPerfOverlay;
@@ -1833,6 +1946,7 @@
         };
 
         if (!this.sceneData) {
+            this.centerPick = null;
             measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
             measure('gl_clear', () => this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12])));
             measure('overlay_clear', () => this.clearOverlay());
@@ -1875,6 +1989,8 @@
 
         let starsLoaded = 0;
         this.perfStarsDiag = null;
+        const pickerEnabled = this._isPickerEnabled();
+        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
         if (!aladinActive) {
             measure('stars', () => {
                 starsLoaded = this.starsRenderer.draw({
@@ -1887,6 +2003,7 @@
                     themeConfig: this.getThemeConfig(),
                     meta: this.sceneData.meta || {},
                     renderMaglim: this.renderMaglim,
+                    pickRadiusPx: pickRadiusPx,
                     getThemeColor: this.getThemeColor.bind(this),
                     width: this.canvas.width,
                     height: this.canvas.height,
@@ -1965,6 +2082,7 @@
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
                 meta: this.sceneData.meta || {},
+                pickRadiusPx: pickRadiusPx,
                 getThemeColor: this.getThemeColor.bind(this),
                 width: this.canvas.width,
                 height: this.canvas.height,
@@ -2013,6 +2131,43 @@
             registerSelectable: this._registerSelectable.bind(this),
         }));
 
+        measure('selection_finalize', () => this.selectionIndex.finalize());
+        measure('center_pick', () => this._updateCenterPick());
+        measure('picked_annotations', () => {
+            if (!this.centerPick) return;
+            if (this.centerPick.kind === 'star'
+                && this.starsRenderer
+                && typeof this.starsRenderer.drawPickedStarMagnitude === 'function') {
+                this.starsRenderer.drawPickedStarMagnitude({
+                    overlayCtx: this.overlayCtx,
+                    themeConfig: this.getThemeConfig(),
+                    getThemeColor: this.getThemeColor.bind(this),
+                }, this.centerPick);
+                return;
+            }
+            if (this.centerPick.kind === 'dso'
+                && this.dsoRenderer
+                && typeof this.dsoRenderer.drawPickedDsoMagnitude === 'function') {
+                this.dsoRenderer.drawPickedDsoMagnitude({
+                    sceneData: this.sceneData,
+                    overlayCtx: this.overlayCtx,
+                    themeConfig: this.getThemeConfig(),
+                    getThemeColor: this.getThemeColor.bind(this),
+                }, this.centerPick.id);
+                return;
+            }
+            if (this.centerPick.kind === 'moon'
+                && this.planetRenderer
+                && typeof this.planetRenderer.drawPickedMoonMagnitude === 'function') {
+                this.planetRenderer.drawPickedMoonMagnitude({
+                    sceneData: this.sceneData,
+                    overlayCtx: this.overlayCtx,
+                    themeConfig: this.getThemeConfig(),
+                    getThemeColor: this.getThemeColor.bind(this),
+                }, this.centerPick.id, this.centerPick.mag);
+            }
+        });
+
         measure('info_panel', () => this.infoPanelRenderer.draw({
             sceneData: this.sceneData,
             overlayCtx: this.overlayCtx,
@@ -2024,6 +2179,7 @@
             width: this.canvas.width,
             height: this.canvas.height,
             aladinActive: aladinActive,
+            centerPick: this.centerPick,
         }));
 
         measure('widgets', () => this.widgetLayer.draw({
@@ -2037,6 +2193,7 @@
             width: this.canvas.width,
             height: this.canvas.height,
             aladinActive: aladinActive,
+            centerPick: this.centerPick,
         }));
 
         if (perfEnabled && this.perfGpuFinishEnabled
@@ -2045,7 +2202,6 @@
             && (this.perfFrameIndex % this.perfGpuFinishEveryN === 0)) {
             measure('gpu_finish', () => this.renderer.gl.finish());
         }
-        measure('selection_finalize', () => this.selectionIndex.finalize());
         this._commitPerfFrame(perfFrame, frameStartTs, liteMode, this.perfStarsLoaded);
     };
 

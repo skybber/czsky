@@ -1,5 +1,8 @@
 (function () {
-    window.SkyScenePlanetRenderer = function () {};
+    window.SkyScenePlanetRenderer = function () {
+        this._lastLabelPlacementById = new Map();
+        this._pickMoon = null;
+    };
 
     const TWO_PI = Math.PI * 2.0;
 
@@ -222,7 +225,7 @@
         return cand;
     }
 
-    function drawLabels(sceneCtx, labelEntries) {
+    function drawLabels(sceneCtx, labelEntries, placementById) {
         if (!sceneCtx || !sceneCtx.overlayCtx || !Array.isArray(labelEntries) || labelEntries.length === 0) return;
         const ctx = sceneCtx.overlayCtx;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
@@ -262,13 +265,104 @@
             occupied.push({ x1: chosen.x, y1: chosen.y - fontPx, x2: chosen.x + labelWidth, y2: chosen.y });
             ctx.fillStyle = rgba(labelColor, 1.0);
             ctx.fillText(label, chosen.x, chosen.y);
+            if (placementById && item.id) {
+                const labelCx = chosen.x + labelWidth * 0.5;
+                const labelCy = chosen.y - fontPx * 0.5;
+                const dx = labelCx - item.x;
+                const dy = labelCy - item.y;
+                let side = 'above';
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    side = dx < 0 ? 'left' : 'right';
+                } else {
+                    side = dy < 0 ? 'above' : 'below';
+                }
+                placementById.set(item.id, {
+                    x: chosen.x,
+                    y: chosen.y,
+                    width: labelWidth,
+                    fontPx: fontPx,
+                    color: labelColor,
+                    type: item.type || 'planet',
+                    cx: item.x,
+                    cy: item.y,
+                    r: Math.max(item.r || 0.8, 0.8),
+                    side: side,
+                    verticalHalf: chosen.y < item.y ? 'upper' : 'lower',
+                });
+            }
         }
     }
+
+    window.SkyScenePlanetRenderer.prototype.getNearestMoonForPick = function () {
+        if (!this._pickMoon) return null;
+        return {
+            id: this._pickMoon.id || null,
+            mag: Number.isFinite(this._pickMoon.mag) ? this._pickMoon.mag : null,
+            dist2: Number.isFinite(this._pickMoon.dist2) ? this._pickMoon.dist2 : null,
+        };
+    };
+
+    function oppositeSide(side) {
+        if (side === 'above') return 'below';
+        if (side === 'below') return 'above';
+        if (side === 'left') return 'right';
+        if (side === 'right') return 'left';
+        return 'below';
+    }
+
+    function moonMagAnchor(pl, textW, fontPx) {
+        const r = Math.max(0.8, Number.isFinite(pl.r) ? pl.r : 0.8);
+        const cx = pl.cx;
+        const cy = pl.cy;
+        const upperY = cy - r + fontPx / 3.0;
+        const lowerY = cy + r - 2.0 * fontPx / 3.0;
+        const centerX = cx - textW * 0.5;
+        const centerYTop = cy - r - 0.75 * fontPx;
+        const centerYBottom = cy + r + 0.75 * fontPx;
+
+        const arg = Math.max(-1.0, Math.min(1.0, 1.0 - 2.0 * fontPx / (3.0 * Math.max(r, 1e-6))));
+        const a = Math.acos(arg);
+        const rightX = cx + Math.sin(a) * r + fontPx / 6.0;
+        const leftX = cx - Math.sin(a) * r - fontPx / 6.0 - textW;
+        const yByHalf = pl.verticalHalf === 'lower' ? lowerY : upperY;
+        const side = oppositeSide(pl.side);
+
+        if (side === 'above') return { x: centerX, y: centerYTop };
+        if (side === 'below') return { x: centerX, y: centerYBottom };
+        if (side === 'left') return { x: leftX, y: yByHalf };
+        return { x: rightX, y: yByHalf };
+    }
+
+    window.SkyScenePlanetRenderer.prototype.drawPickedMoonMagnitude = function (sceneCtx, moonId, moonMag) {
+        if (!sceneCtx || !sceneCtx.overlayCtx || !moonId || !Number.isFinite(moonMag)) return;
+        if (!this._lastLabelPlacementById) return;
+        const pl = this._lastLabelPlacementById.get(moonId);
+        if (!pl || pl.type !== 'moon') return;
+        if (!Number.isFinite(pl.x) || !Number.isFinite(pl.y) || !Number.isFinite(pl.cx) || !Number.isFinite(pl.cy)) return;
+        const ctx = sceneCtx.overlayCtx;
+        const fontPx = Number.isFinite(pl.fontPx) ? pl.fontPx * 0.8 : 10.0;
+        const text = Number(moonMag).toFixed(1) + ' mag';
+        ctx.save();
+        ctx.fillStyle = rgba(pl.color || [0.85, 0.85, 0.85], 0.95);
+        ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+        ctx.textBaseline = 'alphabetic';
+        const textW = ctx.measureText(text).width || 0.0;
+        const anchor = moonMagAnchor(pl, textW, fontPx);
+        ctx.fillText(text, anchor.x, anchor.y);
+        ctx.restore();
+    };
 
     window.SkyScenePlanetRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData) return;
         const objects = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.planets) || [];
         if (!objects.length) return;
+        this._lastLabelPlacementById = new Map();
+        this._pickMoon = null;
+        const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
+        const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
+        const pickCx = 0.5 * sceneCtx.width;
+        const pickCy = 0.5 * sceneCtx.height;
+        let bestPickMoonDist2 = Infinity;
 
         const renderer = sceneCtx.renderer;
         const canWebGl = !!(renderer && typeof renderer.drawTriangles === 'function');
@@ -293,13 +387,26 @@
                 const p = objects[i];
                 const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
                 if (!px) continue;
+                if (pickRadius2 > 0.0 && p.type === 'moon' && p.id) {
+                    const dxPick = px.x - pickCx;
+                    const dyPick = px.y - pickCy;
+                    const d2Pick = dxPick * dxPick + dyPick * dyPick;
+                    if (d2Pick <= pickRadius2 && d2Pick < bestPickMoonDist2) {
+                        bestPickMoonDist2 = d2Pick;
+                        this._pickMoon = {
+                            id: p.id,
+                            mag: Number.isFinite(p.mag) ? p.mag : null,
+                            dist2: d2Pick,
+                        };
+                    }
+                }
                 const r = planetRadiusPx(sceneCtx, p, pxPerRad);
                 const col = planetColor(sceneCtx, p);
                 ctx.fillStyle = rgba(col, 1.0);
                 ctx.beginPath();
                 ctx.arc(px.x, px.y, r, 0.0, TWO_PI);
                 ctx.fill();
-                labels.push({ x: px.x, y: px.y, r: r, label: p.label || '', type: p.type || 'planet' });
+                labels.push({ x: px.x, y: px.y, r: r, id: p.id, label: p.label || '', type: p.type || 'planet' });
                 if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {
                     sceneCtx.registerSelectable({
                         shape: 'circle',
@@ -311,7 +418,7 @@
                     });
                 }
             }
-            drawLabels(sceneCtx, labels);
+            drawLabels(sceneCtx, labels, this._lastLabelPlacementById);
             return;
         }
 
@@ -320,6 +427,19 @@
             if (!p) continue;
             const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
             if (!px) continue;
+            if (pickRadius2 > 0.0 && p.type === 'moon' && p.id) {
+                const dxPick = px.x - pickCx;
+                const dyPick = px.y - pickCy;
+                const d2Pick = dxPick * dxPick + dyPick * dyPick;
+                if (d2Pick <= pickRadius2 && d2Pick < bestPickMoonDist2) {
+                    bestPickMoonDist2 = d2Pick;
+                    this._pickMoon = {
+                        id: p.id,
+                        mag: Number.isFinite(p.mag) ? p.mag : null,
+                        dist2: d2Pick,
+                    };
+                }
+            }
             const col = planetColor(sceneCtx, p);
             const darkCol = darkenColor(col, 0.1);
             const r = planetRadiusPx(sceneCtx, p, pxPerRad);
@@ -405,6 +525,7 @@
                 x: px.x,
                 y: px.y,
                 r: r,
+                id: p.id,
                 label: p.label || '',
                 type: p.type || 'planet',
             });
@@ -414,6 +535,6 @@
             renderer.drawTriangles(item.triangles, item.color);
         }
 
-        drawLabels(sceneCtx, labels);
+        drawLabels(sceneCtx, labels, this._lastLabelPlacementById);
     };
 })();

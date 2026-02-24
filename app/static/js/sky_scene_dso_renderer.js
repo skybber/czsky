@@ -1,5 +1,7 @@
 (function () {
-    window.SkySceneDsoRenderer = function () {};
+    window.SkySceneDsoRenderer = function () {
+        this._lastDsoLabelPlacementById = new Map();
+    };
 
     const MIN_DSO_RADIUS_PX = 3.0;
     const TWO_PI = Math.PI * 2.0;
@@ -617,7 +619,8 @@
         const label = this._resolveDsoLabel(dso);
         if (!label) return;
         const showMag = this._showDsoMag(sceneCtx);
-        const magLabel = showMag ? this._formatDsoMag(dso) : null;
+        const layoutMagLabel = this._formatDsoMag(dso);
+        const magLabel = showMag ? layoutMagLabel : null;
 
         const fh = this._applyLabelStyle(sceneCtx, ctx);
         const labelLength = measureTextWidth(ctx, label);
@@ -625,21 +628,25 @@
         const magFontPx = fh * 0.8;
         const magDy = 0.9 * fh;
         let magLength = 0;
-        const resolveMagX = (labelX, labelLen) => {
+        let layoutMagLength = 0;
+        const resolveMagX = (labelX, labelLen, magLen) => {
             const labelCenterX = labelX + labelLen * 0.5;
             if (labelCenterX < centerPx.x - 1.0) {
-                return labelX + (labelLen - magLength);
+                return labelX + (labelLen - magLen);
             }
             if (Math.abs(labelCenterX - centerPx.x) <= 1.0) {
-                return labelX + (labelLen - magLength) * 0.5;
+                return labelX + (labelLen - magLen) * 0.5;
             }
             return labelX;
         };
-        if (magLabel) {
+        if (layoutMagLabel) {
             ctx.save();
             ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
-            magLength = measureTextWidth(ctx, magLabel);
+            layoutMagLength = measureTextWidth(ctx, layoutMagLabel);
             ctx.restore();
+        }
+        if (magLabel) {
+            magLength = layoutMagLength;
         }
 
         let candidates;
@@ -664,7 +671,7 @@
         let bestMagRect = null;
         let bestScore = this._labelScore(sceneCtx, bestRect, placedRects);
         if (magLabel && magLength > 0) {
-            bestMagRect = makeRect(resolveMagX(best.x, labelLength), best.y + magDy - magFontPx, magLength, magFontPx);
+            bestMagRect = makeRect(resolveMagX(best.x, labelLength, magLength), best.y + magDy - magFontPx, magLength, magFontPx);
             bestScore += this._labelScore(sceneCtx, bestMagRect, placedRects);
         }
         const bestLocal0 = this._toLocalCoords(sceneCtx, { x: best.x + labelLength * 0.5, y: best.y });
@@ -676,7 +683,7 @@
             const local = this._toLocalCoords(sceneCtx, { x: c.x + labelLength * 0.5, y: c.y });
             let score = this._labelScore(sceneCtx, rect, placedRects);
             if (magLabel && magLength > 0) {
-                const magRect = makeRect(resolveMagX(c.x, labelLength), c.y + magDy - magFontPx, magLength, magFontPx);
+                const magRect = makeRect(resolveMagX(c.x, labelLength, magLength), c.y + magDy - magFontPx, magLength, magFontPx);
                 score += this._labelScore(sceneCtx, magRect, placedRects);
             }
             score += labelPotential.computePotential(local.x, local.y);
@@ -684,16 +691,25 @@
                 best = c;
                 bestRect = rect;
                 bestMagRect = (magLabel && magLength > 0)
-                    ? makeRect(resolveMagX(c.x, labelLength), c.y + magDy - magFontPx, magLength, magFontPx)
+                    ? makeRect(resolveMagX(c.x, labelLength, magLength), c.y + magDy - magFontPx, magLength, magFontPx)
                     : null;
                 bestScore = score;
             }
         }
 
+        if (dso && dso.id && layoutMagLength > 0 && this._lastDsoLabelPlacementById) {
+            this._lastDsoLabelPlacementById.set(dso.id, {
+                x: resolveMagX(best.x, labelLength, layoutMagLength),
+                y: best.y + magDy,
+                fontPx: magFontPx,
+                color: sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]),
+            });
+        }
+
         ctx.fillText(label, best.x, best.y);
         placedRects.push(bestRect);
         if (magLabel && magLength > 0) {
-            const magX = resolveMagX(best.x, labelLength);
+            const magX = resolveMagX(best.x, labelLength, magLength);
             ctx.save();
             ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
             ctx.fillText(magLabel, magX, best.y + magDy);
@@ -706,11 +722,42 @@
         labelPotential.addPosition(bestLocal.x, bestLocal.y, labelLength);
     };
 
+    SkySceneDsoRenderer.prototype.drawPickedDsoMagnitude = function (sceneCtx, dsoId) {
+        if (!sceneCtx || !sceneCtx.overlayCtx || !dsoId || !this._lastDsoLabelPlacementById) return;
+        const placement = this._lastDsoLabelPlacementById.get(dsoId);
+        if (!placement) return;
+        const objects = sceneCtx.sceneData && sceneCtx.sceneData.objects ? sceneCtx.sceneData.objects : null;
+        const dsoList = objects && Array.isArray(objects.dso) ? objects.dso : [];
+        let dso = null;
+        for (let i = 0; i < dsoList.length; i++) {
+            if (dsoList[i] && dsoList[i].id === dsoId) {
+                dso = dsoList[i];
+                break;
+            }
+        }
+        const mag = this._formatDsoMag(dso);
+        if (!mag) return;
+        if (!Number.isFinite(placement.x) || !Number.isFinite(placement.y)) return;
+        const ctx = sceneCtx.overlayCtx;
+        const fullText = mag + ' mag';
+        ctx.save();
+        ctx.fillStyle = rgba(placement.color || [0.8, 0.8, 0.8], 0.95);
+        const fontPx = Number.isFinite(placement.fontPx) ? placement.fontPx : (this._labelFontPx(sceneCtx) * 0.8);
+        ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+        ctx.textBaseline = 'alphabetic';
+        const baseWidth = measureTextWidth(ctx, mag);
+        const fullWidth = measureTextWidth(ctx, fullText);
+        const rightAlignedX = placement.x + baseWidth - fullWidth;
+        ctx.fillText(fullText, rightAlignedX, placement.y);
+        ctx.restore();
+    };
+
     SkySceneDsoRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
             return;
         }
 
+        this._lastDsoLabelPlacementById = new Map();
         const dsoList = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.dso) || [];
         const placedLabelRects = [];
         const labelPotential = this._buildLabelPotential(sceneCtx, dsoList);

@@ -1,6 +1,7 @@
 (function () {
     window.SkySceneStarsRenderer = function () {
         this._lastDiag = null;
+        this._pickStar = null;
     };
 
     // B-V index to RGB color lookup table (128 entries, index 0-127)
@@ -55,6 +56,18 @@
         if (v < 0) return 0;
         if (v > 1) return 1;
         return v;
+    }
+
+    function mmToPx(mm) {
+        return mm * (100.0 / 25.4);
+    }
+
+    function rgba(color, alpha) {
+        const c = Array.isArray(color) ? color : [0.85, 0.85, 0.85];
+        const r = Math.round(clamp01(c[0] || 0) * 255);
+        const g = Math.round(clamp01(c[1] || 0) * 255);
+        const b = Math.round(clamp01(c[2] || 0) * 255);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
     }
 
     function colorFromBvValue(bv) {
@@ -126,6 +139,7 @@
         positions.length = 0;
         sizes.length = 0;
         colors.length = 0;
+        this._pickStar = null;
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
         const bgColorRaw = sceneCtx.getThemeColor('background', [0.0, 0.0, 0.0]);
         const bgColor = (Array.isArray(bgColorRaw) && bgColorRaw.length === 3) ? bgColorRaw : [0.0, 0.0, 0.0];
@@ -136,6 +150,15 @@
         );
         const fadeWidthMag = 0.75;
         const lm = this._effectiveMaglim(sceneCtx);
+        const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
+        const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
+        const pickScaleX = 0.5 * sceneCtx.width;
+        const pickScaleY = 0.5 * sceneCtx.height;
+        let bestPickDist2 = Infinity;
+        let bestPickMag = null;
+        let bestPickXPx = null;
+        let bestPickYPx = null;
+        let bestPickRPx = null;
 
         const zoneStars = sceneCtx.zoneStars || null;
         const zoneCount = isZoneStarsSoA(zoneStars)
@@ -177,7 +200,9 @@
             const bvColor = colorFromBvValue(bvRaw);
             const starColor = (starColorsEnabled && (explicitColor || bvColor)) ? (explicitColor || bvColor) : drawColor;
             const sizePx = Math.max(0.01, sz || 1.0);
-            positions.push((p.ndcX != null) ? p.ndcX : 0.0, (p.ndcY != null) ? p.ndcY : 0.0);
+            const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
+            const ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
+            positions.push(ndcX, ndcY);
             sizes.push(sizePx);
             const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
             colors.push(
@@ -185,6 +210,18 @@
                 clamp01(bgColor[1] + (c[1] - bgColor[1]) * alpha),
                 clamp01(bgColor[2] + (c[2] - bgColor[2]) * alpha)
             );
+            if (pickRadius2 > 0.0) {
+                const dx = ndcX * pickScaleX;
+                const dy = ndcY * pickScaleY;
+                const d2 = dx * dx + dy * dy;
+                if (d2 <= pickRadius2 && d2 < bestPickDist2) {
+                    bestPickDist2 = d2;
+                    bestPickMag = magForSize;
+                    bestPickXPx = dx + pickScaleX;
+                    bestPickYPx = pickScaleY - dy;
+                    bestPickRPx = Math.max(0.8, sizePx * 0.5);
+                }
+            }
 
             diag.projected_count += 1;
             if (!Number.isFinite(diag.mag_min) || magForSize < diag.mag_min) diag.mag_min = magForSize;
@@ -204,6 +241,15 @@
         if (diag.projected_count > 0) {
             diag.size_avg_px = diag._size_sum_px / diag.projected_count;
         }
+        if (Number.isFinite(bestPickDist2)) {
+            this._pickStar = {
+                mag: bestPickMag,
+                dist2: bestPickDist2,
+                xPx: bestPickXPx,
+                yPx: bestPickYPx,
+                rPx: bestPickRPx,
+            };
+        }
         delete diag._size_sum_px;
         this._lastDiag = diag;
 
@@ -219,14 +265,47 @@
         return Object.assign({}, this._lastDiag);
     };
 
+    SkySceneStarsRenderer.prototype.getNearestProjectedStarForPick = function () {
+        if (!this._pickStar) return null;
+        return {
+            mag: Number.isFinite(this._pickStar.mag) ? this._pickStar.mag : null,
+            dist2: Number.isFinite(this._pickStar.dist2) ? this._pickStar.dist2 : null,
+            xPx: Number.isFinite(this._pickStar.xPx) ? this._pickStar.xPx : null,
+            yPx: Number.isFinite(this._pickStar.yPx) ? this._pickStar.yPx : null,
+            rPx: Number.isFinite(this._pickStar.rPx) ? this._pickStar.rPx : null,
+        };
+    };
+
+    SkySceneStarsRenderer.prototype.drawPickedStarMagnitude = function (sceneCtx, pickStar) {
+        if (!sceneCtx || !sceneCtx.overlayCtx || !pickStar) return;
+        if (!Number.isFinite(pickStar.xPx) || !Number.isFinite(pickStar.yPx) || !Number.isFinite(pickStar.mag)) return;
+        const ctx = sceneCtx.overlayCtx;
+        const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
+        const themeConfig = sceneCtx.themeConfig || {};
+        const fontMm = themeConfig.font_scales && typeof themeConfig.font_scales.font_size === 'number'
+            ? themeConfig.font_scales.font_size : 3.0;
+        const fontPx = Math.max(10.0, mmToPx(fontMm));
+        const rPx = Number.isFinite(pickStar.rPx) ? Math.max(0.8, pickStar.rPx) : 0.8;
+        const text = Number(pickStar.mag).toFixed(1);
+        ctx.save();
+        ctx.fillStyle = rgba(labelColor, 0.95);
+        ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(text, pickStar.xPx + rPx + fontPx / 6.0, pickStar.yPx);
+        ctx.restore();
+    };
+
     SkySceneStarsRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData) {
             this._lastDiag = null;
+            this._pickStar = null;
             return 0;
         }
         const renderer = sceneCtx.renderer;
         if (!renderer || typeof renderer.drawStarPoints !== 'function') {
             this._lastDiag = null;
+            this._pickStar = null;
             return 0;
         }
         const webgl = this._collectStars(sceneCtx);
