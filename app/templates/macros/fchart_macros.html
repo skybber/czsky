@@ -753,7 +753,7 @@
         $('#bperfmeter').toggleClass('active', enabled);
     }
 
-    function createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+    function createFChart(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
                           theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
@@ -766,7 +766,7 @@
                 '#fchart-div',
                 {{ fchart_form.radius.data }},
                 fieldSizes,
-                isEquatorial,
+                initialIsEquatorial,
                 phi,
                 theta,
                 obj_ra,
@@ -796,7 +796,7 @@
                 '#fchart-div',
                 {{ fchart_form.radius.data }},
                 fieldSizes,
-                isEquatorial,
+                initialIsEquatorial,
                 phi,
                 theta,
                 obj_ra,
@@ -921,7 +921,7 @@
 
             if (action === 'toggle_aladin') {
                 if (!isEquatorial || !isWebGL2Supported()) {
-                    return false;
+                    return true;
                 }
                 const currentLayer = $('#dss_layer').val();
                 if (currentLayer !== '' && dssButtonMap[currentLayer]) {
