@@ -2004,6 +2004,7 @@
                     overlayCtx: this.overlayCtx,
                     projection: projection,
                     viewState: viewState,
+                    isZooming: !!this.zoomAnim,
                     themeConfig: this.getThemeConfig(),
                     meta: this.sceneData.meta || {},
                     renderMaglim: this.renderMaglim,

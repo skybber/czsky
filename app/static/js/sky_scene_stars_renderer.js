@@ -107,14 +107,8 @@
         return 0.1 * Math.pow(1.33, magS) + starMagRShift;
     };
 
-    SkySceneStarsRenderer.prototype._effectiveMaglim = function (sceneCtx) {
-        if (sceneCtx && Number.isFinite(sceneCtx.renderMaglim)) return sceneCtx.renderMaglim;
-        if (sceneCtx && sceneCtx.meta && Number.isFinite(sceneCtx.meta.maglim)) return sceneCtx.meta.maglim;
-        return 10.0;
-    };
-
     SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag) {
-        const lm = this._effectiveMaglim(sceneCtx);
+        const lm = sceneCtx.renderMaglim;
         const themeConfig = sceneCtx ? sceneCtx.themeConfig : null;
         const starMagShift = themeConfig && themeConfig.sizes && typeof themeConfig.sizes.star_mag_shift === 'number'
             ? themeConfig.sizes.star_mag_shift : 0.0;
@@ -148,8 +142,8 @@
             sceneCtx.themeConfig.flags &&
             sceneCtx.themeConfig.flags.star_colors
         );
-        const fadeWidthMag = 0.75;
-        const lm = this._effectiveMaglim(sceneCtx);
+        const fadeWidthMag = sceneCtx.isZooming ? 0.75 : 0.0;
+        const lm = sceneCtx.renderMaglim;
         const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
         const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
         const pickScaleX = 0.5 * sceneCtx.width;
@@ -180,6 +174,7 @@
             size_lt_1_px_count: 0,
             star_colors_enabled: starColorsEnabled,
             render_maglim: lm,
+            fade_width_mag: fadeWidthMag,
             _size_sum_px: 0.0,
         };
 
@@ -192,8 +187,14 @@
             }
             const magForSize = Number.isFinite(magRaw) ? magRaw : 7;
             const magDelta = lm - magForSize;
-            if (magDelta <= -fadeWidthMag) return;
-            const alpha = magDelta >= 0.0 ? 1.0 : clamp01((magDelta + fadeWidthMag) / fadeWidthMag);
+            if (fadeWidthMag <= 0.0) {
+                if (magForSize > lm) return;
+            } else if (magDelta <= -fadeWidthMag) {
+                return;
+            }
+            const alpha = fadeWidthMag <= 0.0
+                ? 1.0
+                : (magDelta >= 0.0 ? 1.0 : clamp01((magDelta + fadeWidthMag) / fadeWidthMag));
             if (alpha <= 0.0) return;
 
             const sz = this._starSizePx(sceneCtx, magForSize);
