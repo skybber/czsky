@@ -144,6 +144,7 @@
         );
         const fadeWidthMag = sceneCtx.isZooming ? 0.75 : 0.0;
         const lm = sceneCtx.renderMaglim;
+        const minStarPx = 1.5;
         const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
         const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
         const pickScaleX = 0.5 * sceneCtx.width;
@@ -198,18 +199,28 @@
             if (alpha <= 0.0) return;
 
             const sz = this._starSizePx(sceneCtx, magForSize);
+            const rawSizePx = Number.isFinite(sz) ? Math.max(0.0, sz) : 0.0;
+            let smallStarDim = 1.0;
+            if (rawSizePx < minStarPx) {
+                const t = clamp01(rawSizePx / minStarPx);
+                smallStarDim = t * t;
+                diag.small_star_dimmed_count += 1;
+                diag._small_star_dim_sum += smallStarDim;
+            }
+            const finalAlpha = alpha * smallStarDim;
+            if (finalAlpha <= 0.0) return;
             const bvColor = colorFromBvValue(bvRaw);
             const starColor = (starColorsEnabled && (explicitColor || bvColor)) ? (explicitColor || bvColor) : drawColor;
-            const sizePx = Math.max(0.01, sz || 1.0);
+            const sizePx = Math.max(minStarPx, rawSizePx);
             const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
             const ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
             positions.push(ndcX, ndcY);
             sizes.push(sizePx);
             const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
             colors.push(
-                clamp01(bgColor[0] + (c[0] - bgColor[0]) * alpha),
-                clamp01(bgColor[1] + (c[1] - bgColor[1]) * alpha),
-                clamp01(bgColor[2] + (c[2] - bgColor[2]) * alpha)
+                clamp01(bgColor[0] + (c[0] - bgColor[0]) * finalAlpha),
+                clamp01(bgColor[1] + (c[1] - bgColor[1]) * finalAlpha),
+                clamp01(bgColor[2] + (c[2] - bgColor[2]) * finalAlpha)
             );
             if (pickRadius2 > 0.0) {
                 const dx = ndcX * pickScaleX;
@@ -242,6 +253,9 @@
         if (diag.projected_count > 0) {
             diag.size_avg_px = diag._size_sum_px / diag.projected_count;
         }
+        if (diag.small_star_dimmed_count > 0) {
+            diag.small_star_dim_factor_avg = diag._small_star_dim_sum / diag.small_star_dimmed_count;
+        }
         if (Number.isFinite(bestPickDist2)) {
             this._pickStar = {
                 mag: bestPickMag,
@@ -252,6 +266,7 @@
             };
         }
         delete diag._size_sum_px;
+        delete diag._small_star_dim_sum;
         this._lastDiag = diag;
 
         return {
