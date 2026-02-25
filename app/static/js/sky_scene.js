@@ -1991,35 +1991,6 @@
             }));
         }
 
-        let starsLoaded = 0;
-        this.perfStarsDiag = null;
-        const pickerEnabled = this._isPickerEnabled();
-        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
-        if (!aladinActive) {
-            measure('stars', () => {
-                starsLoaded = this.starsRenderer.draw({
-                    sceneData: this.sceneData,
-                    zoneStars: this.zoneStars,
-                    renderer: this.renderer,
-                    overlayCtx: this.overlayCtx,
-                    projection: projection,
-                    viewState: viewState,
-                    isZooming: !!this.zoomAnim,
-                    themeConfig: this.getThemeConfig(),
-                    meta: this.sceneData.meta || {},
-                    renderMaglim: this.renderMaglim,
-                    pickRadiusPx: pickRadiusPx,
-                    getThemeColor: this.getThemeColor.bind(this),
-                    width: this.canvas.width,
-                    height: this.canvas.height,
-                }) || 0;
-            });
-            if (this.starsRenderer && typeof this.starsRenderer.getLastDiag === 'function') {
-                this.perfStarsDiag = this.starsRenderer.getLastDiag();
-            }
-        }
-
-        this.perfStarsLoaded = starsLoaded | 0;
         if (!liteMode) {
             measure('grid', () => this.gridRenderer.draw({
                 sceneData: this.sceneData,
@@ -2080,6 +2051,35 @@
                 registerSelectable: this._registerSelectable.bind(this),
             }));
 
+            let starsLoaded = 0;
+            this.perfStarsDiag = null;
+            const pickerEnabled = this._isPickerEnabled();
+            const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
+            if (!aladinActive) {
+                measure('stars', () => {
+                    starsLoaded = this.starsRenderer.draw({
+                        sceneData: this.sceneData,
+                        zoneStars: this.zoneStars,
+                        renderer: this.renderer,
+                        overlayCtx: this.overlayCtx,
+                        projection: projection,
+                        viewState: viewState,
+                        isZooming: !!this.zoomAnim,
+                        themeConfig: this.getThemeConfig(),
+                        meta: this.sceneData.meta || {},
+                        renderMaglim: this.renderMaglim,
+                        pickRadiusPx: pickRadiusPx,
+                        getThemeColor: this.getThemeColor.bind(this),
+                        width: this.canvas.width,
+                        height: this.canvas.height,
+                    }) || 0;
+                });
+                if (this.starsRenderer && typeof this.starsRenderer.getLastDiag === 'function') {
+                    this.perfStarsDiag = this.starsRenderer.getLastDiag();
+                }
+            }
+
+            this.perfStarsLoaded = starsLoaded | 0;
             measure('planet', () => this.planetRenderer.draw({
                 sceneData: this.sceneData,
                 overlayCtx: this.overlayCtx,
