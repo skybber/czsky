@@ -6,7 +6,7 @@
         return r;
     }
 
-    class FChartWebGLRenderer {
+    class ChartWebGLRenderer {
         constructor(canvas) {
             this.canvas = canvas;
             this.gl = canvas.getContext('webgl', { antialias: true, alpha: true });
@@ -23,7 +23,6 @@
             this.uUseAttrColor = null;
             this.uCircle = null;
             this.pointSizeRange = null;
-            this.starCircleEnabled = true;
             this.ready = false;
             this._init();
         }
@@ -107,11 +106,13 @@
             }
         }
 
-        clear(bgColor) {
+        clear(bgColor, alpha) {
             const gl = this.gl;
             if (!gl || !this.ready) return;
+            const c = Array.isArray(bgColor) ? bgColor : [0.0, 0.0, 0.0];
+            const a = Number.isFinite(alpha) ? alpha : 1.0;
             gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-            gl.clearColor(bgColor[0], bgColor[1], bgColor[2], 1.0);
+            gl.clearColor(c[0], c[1], c[2], a);
             gl.clear(gl.COLOR_BUFFER_BIT);
             gl.useProgram(this.program);
             gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
@@ -168,7 +169,7 @@
 
         drawStarPoints(arr, sizes, color, colors) {
             this._draw(this.gl.POINTS, arr, color, 1.0, {
-                circle: this.starCircleEnabled,
+                circle: true,
                 sizes: sizes,
                 colors: colors
             });
@@ -181,10 +182,6 @@
         getPointSizeRange() {
             if (!this.pointSizeRange || this.pointSizeRange.length < 2) return null;
             return [this.pointSizeRange[0], this.pointSizeRange[1]];
-        }
-
-        setStarCircleEnabled(enabled) {
-            this.starCircleEnabled = !!enabled;
         }
     }
 
@@ -474,13 +471,14 @@
 
         this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(iframeUrl) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
         this.separator = $('<div class="fchart-separator fchart-separator-theme" style="display:none"></div>').appendTo(this.fchartDiv)[0];
-        this.canvas = $('<canvas id="fcCanvasScene" class="fchart-canvas" tabindex="0" style="outline:0"></canvas>').appendTo(this.fchartDiv)[0];
+        this.canvasMw = $('<canvas id="fcCanvasSceneMw" class="fchart-canvas" style="outline:0;pointer-events:none;z-index:0"></canvas>').appendTo(this.fchartDiv)[0];
+        this.canvas = $('<canvas id="fcCanvasScene" class="fchart-canvas" tabindex="0" style="outline:0;z-index:1"></canvas>').appendTo(this.fchartDiv)[0];
         this.canvas.style.touchAction = 'none';
         this.overlayCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:10"></canvas>').appendTo(this.fchartDiv)[0];
         this.overlayCtx = this.overlayCanvas.getContext('2d');
 
-        this.renderer = new FChartWebGLRenderer(this.canvas);
-        this.starShapeMode = this._readStarShapeModeFromUrl();
+        this.mwRendererGl = new ChartWebGLRenderer(this.canvasMw);
+        this.renderer = new ChartWebGLRenderer(this.canvas);
         this.isIntelRenderer = this._detectIntelRenderer();
         this.dsoRenderer = new window.SkySceneDsoRenderer();
         this.starsRenderer = new window.SkySceneStarsRenderer();
@@ -614,15 +612,6 @@
         }
     };
 
-    SkyScene.prototype._readStarShapeModeFromUrl = function () {
-        try {
-            const raw = new URLSearchParams(window.location.search).get('stars_shape');
-            const v = (raw || '').toLowerCase();
-            if (v === 'circle' || v === 'square' || v === 'auto') return v;
-        } catch (err) {}
-        return 'auto';
-    };
-
     SkyScene.prototype._detectIntelRenderer = function () {
         if (!this.renderer || !this.renderer.gl) return false;
         const gl = this.renderer.gl;
@@ -646,17 +635,6 @@
             || text.indexOf('iris') !== -1
             || text.indexOf('uhd') !== -1
             || text.indexOf('hd graphics') !== -1;
-    };
-
-    SkyScene.prototype._shouldUseCircleStars = function (aladinActive) {
-        if (this.starShapeMode === 'circle') return true;
-        if (this.starShapeMode === 'square') return false;
-        if (aladinActive) return true;
-        const meta = (this.sceneData && this.sceneData.meta) ? this.sceneData.meta : null;
-        const mwMeta = meta && meta.milky_way ? meta.milky_way : null;
-        const mwEnabled = !!(meta && meta.show_milky_way !== false && mwMeta && mwMeta.mode !== 'off');
-        if (!mwEnabled) return true;
-        return !this.isIntelRenderer;
     };
 
     SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
@@ -686,6 +664,10 @@
     SkyScene.prototype.adjustCanvasSize = function () {
         const w = Math.max($(this.fchartDiv).width(), 1);
         const h = Math.max($(this.fchartDiv).height(), 1);
+        if (this.canvasMw) {
+            this.canvasMw.width = w;
+            this.canvasMw.height = h;
+        }
         this.canvas.width = w;
         this.canvas.height = h;
         this.overlayCanvas.width = w;
@@ -1948,20 +1930,30 @@
         if (!this.sceneData) {
             this.centerPick = null;
             measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
-            measure('gl_clear', () => this.renderer.clear(this.getThemeColor('background', [0.06, 0.07, 0.12])));
+            const bgEmpty = this.getThemeColor('background', [0.06, 0.07, 0.12]);
+            const mwClearRendererEmpty = (this.mwRendererGl && this.mwRendererGl.ready) ? this.mwRendererGl : this.renderer;
+            if (mwClearRendererEmpty && mwClearRendererEmpty !== this.renderer) {
+                measure('gl_clear_mw', () => mwClearRendererEmpty.clear(bgEmpty, 1.0));
+                measure('gl_clear_fg', () => this.renderer.clear([0.0, 0.0, 0.0], 0.0));
+            } else {
+                measure('gl_clear', () => this.renderer.clear(bgEmpty, 1.0));
+            }
             measure('overlay_clear', () => this.clearOverlay());
             this._commitPerfFrame(perfFrame, frameStartTs, false, 0);
             return;
         }
 
         const bg = this.getThemeColor('background', [0.06, 0.07, 0.12]);
-        measure('gl_clear', () => this.renderer.clear(bg));
+        const mwClearRenderer = (this.mwRendererGl && this.mwRendererGl.ready) ? this.mwRendererGl : this.renderer;
+        if (mwClearRenderer && mwClearRenderer !== this.renderer) {
+            measure('gl_clear_mw', () => mwClearRenderer.clear(bg, 1.0));
+            measure('gl_clear_fg', () => this.renderer.clear([0.0, 0.0, 0.0], 0.0));
+        } else {
+            measure('gl_clear', () => this.renderer.clear(bg, 1.0));
+        }
         measure('overlay_clear', () => this.clearOverlay());
         const liteMode = this.liteRenderDuringInteraction && this.mwInteractionActive;
         const aladinActive = !!(this.aladin && this.showAladin);
-        if (this.renderer && typeof this.renderer.setStarCircleEnabled === 'function') {
-            this.renderer.setStarCircleEnabled(this._shouldUseCircleStars(aladinActive));
-        }
         const viewState = this.buildViewState();
         if (aladinActive) {
             measure('aladin_sync', () => this._syncAladinState(viewState, false));
@@ -1969,11 +1961,12 @@
         }
         measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const projection = this.createProjection(viewState);
+        const mwRenderTarget = (this.mwRendererGl && this.mwRendererGl.ready) ? this.mwRendererGl : this.renderer;
 
         if (!aladinActive) {
             measure('milky_way', () => this.milkyWayRenderer.draw({
                 sceneData: this.sceneData,
-                renderer: this.renderer,
+                renderer: mwRenderTarget,
                 overlayCtx: this.overlayCtx,
                 projection: projection,
                 viewState: viewState,
@@ -2200,7 +2193,11 @@
             && this.renderer && this.renderer.gl
             && typeof this.renderer.gl.finish === 'function'
             && (this.perfFrameIndex % this.perfGpuFinishEveryN === 0)) {
-            measure('gpu_finish', () => this.renderer.gl.finish());
+            measure('gpu_finish_fg', () => this.renderer.gl.finish());
+            if (this.mwRendererGl && this.mwRendererGl !== this.renderer
+                && this.mwRendererGl.gl && typeof this.mwRendererGl.gl.finish === 'function') {
+                measure('gpu_finish_mw', () => this.mwRendererGl.gl.finish());
+            }
         }
         this._commitPerfFrame(perfFrame, frameStartTs, liteMode, this.perfStarsLoaded);
     };
