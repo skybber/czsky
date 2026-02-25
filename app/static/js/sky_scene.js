@@ -42,6 +42,8 @@
             if (!gl) {
                 return;
             }
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             this.pointSizeRange = null;
             try {
                 const rng = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
@@ -68,16 +70,25 @@
                 precision mediump float;
                 varying vec3 v_color;
                 uniform float u_circle;
+                float luminance(vec3 c) {
+                    return dot(c, vec3(0.2126, 0.7152, 0.0722));
+                }
                 void main() {
+                    float alpha = 1.0;
                     if (u_circle > 0.5) {
                         vec2 d = gl_PointCoord * 2.0 - 1.0;
-                        if (dot(d, d) > 1.0) {
-                            discard;
+                        float r2 = dot(d, d);
+                        float lum = luminance(v_color);
+                        if (lum > 0.55) {
+                            float aa = 0.08;
+                            alpha = 1.0 - smoothstep(1.0 - aa, 1.0 + aa, r2);
+                        } else {
+                            if (r2 > 1.0) discard;
+                            alpha = 1.0;
                         }
                     }
-                    gl_FragColor = vec4(v_color, 1.0);
-                }
-            `;
+                    gl_FragColor = vec4(v_color, alpha);
+                }`;
             try {
                 const vsh = this._compile(gl, gl.VERTEX_SHADER, vs);
                 const fsh = this._compile(gl, gl.FRAGMENT_SHADER, fs);
