@@ -2507,12 +2507,22 @@
             const pts = Array.from(this.input.activePointers.values());
             const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
             if (this.input.pinchStartDist > 5 && dist > 5) {
-                const scale = dist / this.input.pinchStartDist;
-                const minFov = this.fieldSizes[0];
-                const maxFov = this.fieldSizes[this.fieldSizes.length - 1];
-                this.renderFovDeg = clamp(this.input.pinchStartFov / scale, minFov, maxFov);
-                this._requestMilkyWaySelection({ optimized: true, immediate: false });
-                this.requestDraw();
+                const zoomInAmount = dist / this.input.pinchStartDist;
+                const zoomOutAmount = this.input.pinchStartDist / dist;
+                const pinchThreshold = 1.15;
+                if (zoomInAmount > pinchThreshold || zoomOutAmount > pinchThreshold) {
+                    const step = zoomInAmount > pinchThreshold ? -1 : 1;
+                    let newIndex = this.targetFldSizeIndex + step;
+                    newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
+                    if (newIndex !== this.targetFldSizeIndex) {
+                        const pivot = {
+                            x: 0.5 * (pts[0].x + pts[1].x),
+                            y: 0.5 * (pts[0].y + pts[1].y),
+                        };
+                        this.startZoomToIndex(newIndex, pivot);
+                    }
+                    this.input.pinchStartDist = dist;
+                }
             }
             return;
         }
@@ -2546,17 +2556,13 @@
 
         if (this.input.gesture === 'pinch') {
             if (this.input.activePointers.size < 2) {
-                const idx = this._nearestFieldSizeIndex(this.renderFovDeg || this.fieldSizes[this.fldSizeIndex]);
-                this.targetFldSizeIndex = idx;
-                this.fldSizeIndex = idx;
-                this.renderFovDeg = this.fieldSizes[idx];
-                this.renderMaglim = this._maglimForFieldIndex(idx);
-                if (this.onFieldChangeCallback) this.onFieldChangeCallback.call(this, this.fldSizeIndex);
                 this.input.gesture = 'none';
                 this.input.primaryId = null;
-                this._setMilkywayInteractionActive(false);
-                this._requestMilkyWaySelection({ optimized: false, immediate: true });
-                this.forceReloadImage();
+                if (!this.zoomAnim) {
+                    this._setMilkywayInteractionActive(false);
+                    this._requestMilkyWaySelection({ optimized: false, immediate: true });
+                    this.forceReloadImage();
+                }
                 this.input.suppressClickUntilTs = now + 300;
             }
             return;
@@ -2596,9 +2602,11 @@
         }
         if (this.input.activePointers.size < 2 && this.input.gesture === 'pinch') {
             this.input.gesture = 'none';
-            this._setMilkywayInteractionActive(false);
-            this._requestMilkyWaySelection({ optimized: false, immediate: true });
-            this.forceReloadImage();
+            if (!this.zoomAnim) {
+                this._setMilkywayInteractionActive(false);
+                this._requestMilkyWaySelection({ optimized: false, immediate: true });
+                this.forceReloadImage();
+            }
         }
         this.move.moved = false;
     };
