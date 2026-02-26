@@ -430,7 +430,7 @@
         this.mwPendingSelectOptimized = null;
         this.zoomAnim = null;
         this.zoomAnimRaf = null;
-        this.zoomDurationMs = 160;
+        this.zoomDurationMs = 300;
         this.reloadDebounceTimer = null;
         this.reloadDebounceMs = 120;
         this.drawScheduled = false;
