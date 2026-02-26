@@ -1496,6 +1496,9 @@
         var maglimArr = extractMaglimArray(response);
         if (maglimArr.length == magRangeValues.length) {
             magRangeValues = maglimArr.slice();
+            if (fchart && typeof fchart.setMagRangeValues === 'function') {
+                fchart.setMagRangeValues(magRangeValues);
+            }
         }
         fchart.reloadImage();
     });

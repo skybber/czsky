@@ -1071,6 +1071,23 @@
         this.sceneUrl = addOrReplaceQueryParam(this.sceneUrl, key, value);
     };
 
+    SkyScene.prototype.setMagRangeValues = function (magRangeValues) {
+        const parsed = Array.isArray(magRangeValues)
+            ? magRangeValues.map((v) => Number(v))
+            : null;
+        if (!parsed
+            || parsed.length !== this.fieldSizes.length
+            || parsed.some((v) => !Number.isFinite(v))) {
+            return false;
+        }
+        this.magRangeValues = parsed;
+        if (!this.zoomAnim) {
+            this.renderMaglim = this._maglimForFieldIndex(this.fldSizeIndex);
+            this.requestDraw();
+        }
+        return true;
+    };
+
     SkyScene.prototype._maglimForFieldIndex = function (idx) {
         if (Number.isInteger(idx) && idx >= 0 && idx < this.magRangeValues.length) {
             const v = Number(this.magRangeValues[idx]);
