@@ -1095,7 +1095,6 @@ def build_scene_v1() -> Dict:
 
 
 def build_stars_zones_v1() -> Dict:
-    req = _resolve_scene_request()
     raw_zones = request.args.get("zones", "")
     try:
         zone_refs = _parse_zone_refs_arg(raw_zones)
@@ -1109,14 +1108,10 @@ def build_stars_zones_v1() -> Dict:
     if star_catalog is None:
         return {
             "version": STARS_VERSION,
-            "maglim": req.maglim,
             "zones": [],
             "missing": [],
             "stats": {"zones_count": 0, "stars_count": 0},
         }
-
-    _, lat_deg, lon_deg = resolve_chart_city_lat_lon()
-    _, field_size = _field_size_rad(req.fld_size_deg, req.width, req.height)
 
     zones_out: List[dict] = []
     missing: List[str] = []
@@ -1131,7 +1126,6 @@ def build_stars_zones_v1() -> Dict:
 
     return {
         "version": STARS_VERSION,
-        "maglim": req.maglim,
         "zones": zones_out,
         "missing": missing,
         "stats": {"zones_count": len(zones_out), "stars_count": stars_total},

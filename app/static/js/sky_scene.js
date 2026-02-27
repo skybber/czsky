@@ -215,6 +215,15 @@
         }
     }
 
+    function urlPathOnly(url) {
+        try {
+            const parsed = new URL(url, window.location.origin);
+            return parsed.pathname;
+        } catch (e) {
+            return String(url || '').split('#')[0].split('?')[0];
+        }
+    }
+
     function clamp(v, lo, hi) {
         return Math.max(lo, Math.min(hi, v));
     }
@@ -413,6 +422,8 @@
         this.starZoneInFlight = new Map();
         this.starZoneBatchSize = 32;
         this.starZoneCacheMax = 384;
+        this.starZoneLevel0PrefetchStarted = false;
+        this.starZoneLevel0PrefetchDone = false;
         this.mwCatalogById = {};
         this.mwTriangulatedById = {};
         this.mwCatalogLoadingById = {};
@@ -809,6 +820,10 @@
             const glRangeText = (glRange && glRange.length >= 2)
                 ? (fmt2(glRange[0]) + ',' + fmt2(glRange[1]))
                 : '--';
+            let pinnedCount = 0;
+            for (const zs of this.starZoneCache.values()) {
+                if (zs && zs.pinNoEvict === true) pinnedCount += 1;
+            }
 
             const renderMs = (this.perfStats.milky_way || 0)
                 + (this.perfStats.grid || 0)
@@ -837,6 +852,7 @@
                 + ' resp=' + fmt0(starStreamDebug.respBatches)
                 + ' drop=' + fmt0(starStreamDebug.droppedEpoch)
                 + ' cache=' + this.starZoneCache.size + '/' + this.starZoneCacheMax
+                + ' pinned=' + pinnedCount
             );
             lines.push('stars_diag fov=' + fmt2(fov) + ' mag=' + fmt2(maglim));
             lines.push(
@@ -1435,21 +1451,46 @@
         }
     };
 
+    SkyScene.prototype._isPinnedZoneStars = function (stars) {
+        return !!(stars && stars.pinNoEvict === true);
+    };
+
+    SkyScene.prototype._getLevel0ZoneRefs = function () {
+        const out = [];
+        const globalZone = (20 << (0 << 1));
+        for (let zone = 0; zone <= globalZone; zone++) {
+            out.push({ key: this._zoneCacheKey(0, zone), level: 0, zone: zone });
+        }
+        return out;
+    };
+
+    SkyScene.prototype._buildStarsZonesRequestUrl = function (scene, tokens) {
+        let url = urlPathOnly(sceneStarsZonesUrl(this.sceneUrl, scene));
+        url = addOrReplaceQueryParam(url, 'zones', tokens);
+        return url;
+    };
+
     SkyScene.prototype._evictZoneCache = function () {
         while (this.starZoneCache.size > this.starZoneCacheMax) {
-            const oldest = this.starZoneCache.keys().next();
-            if (oldest.done) break;
-            this.starZoneCache.delete(oldest.value);
+            let removed = false;
+            for (const [key, stars] of this.starZoneCache.entries()) {
+                if (this._isPinnedZoneStars(stars)) continue;
+                this.starZoneCache.delete(key);
+                removed = true;
+                break;
+            }
+            if (!removed) break;
         }
     };
 
-    SkyScene.prototype._emptyZoneStarsSoA = function () {
+    SkyScene.prototype._emptyZoneStarsSoA = function (pinNoEvict) {
         return {
             ra: new Float64Array(0),
             dec: new Float64Array(0),
             mag: new Float32Array(0),
             bv: new Int16Array(0),
             count: 0,
+            pinNoEvict: !!pinNoEvict,
         };
     };
 
@@ -1493,7 +1534,7 @@
             bv.set(z.bv.subarray(0, count), pos);
             pos += count;
         }
-        return { ra: ra, dec: dec, mag: mag, bv: bv, count: total };
+        return { ra: ra, dec: dec, mag: mag, bv: bv, count: total, pinNoEvict: false };
     };
 
     SkyScene.prototype._collectCachedZoneStars = function (scene) {
@@ -1511,10 +1552,12 @@
         return this._concatZoneStars(out);
     };
 
-    SkyScene.prototype._expandCompactStarsSoA = function (compact) {
-        if (!compact || !Array.isArray(compact.ra)) return this._emptyZoneStarsSoA();
+    SkyScene.prototype._expandCompactStarsSoA = function (compact, opts) {
+        const options = opts || {};
+        const pinNoEvict = !!options.pinNoEvict;
+        if (!compact || !Array.isArray(compact.ra)) return this._emptyZoneStarsSoA(pinNoEvict);
         const n = compact.ra.length;
-        if (n <= 0) return this._emptyZoneStarsSoA();
+        if (n <= 0) return this._emptyZoneStarsSoA(pinNoEvict);
         const ra = new Float64Array(n);
         const dec = new Float64Array(n);
         const mag = new Float32Array(n);
@@ -1531,7 +1574,7 @@
             mag[i] = Number(compact.mag[i]);
             bv[i] = bvArr ? (Number(bvArr[i]) | 0) : -1;
         }
-        return { ra: ra, dec: dec, mag: mag, bv: bv, count: n };
+        return { ra: ra, dec: dec, mag: mag, bv: bv, count: n, pinNoEvict: pinNoEvict };
     };
 
     SkyScene.prototype._sortZoneStarsByMag = function (zoneStars) {
@@ -1563,6 +1606,54 @@
         return zoneStars;
     };
 
+    SkyScene.prototype._storeZoneBatch = function (zones) {
+        if (!Array.isArray(zones)) return;
+        zones.forEach((z) => {
+            const key = this._zoneCacheKey(z.level, z.zone);
+            const pinNoEvict = z.level === 0;
+            const stars = z.stars
+                ? this._expandCompactStarsSoA(z.stars, { pinNoEvict: pinNoEvict })
+                : this._emptyZoneStarsSoA(pinNoEvict);
+            this._sortZoneStarsByMag(stars);
+            this.starZoneCache.set(key, stars);
+        });
+        this._evictZoneCache();
+    };
+
+    SkyScene.prototype._ensureLevel0Prefetch = function (scene, epoch) {
+        if (this.starZoneLevel0PrefetchDone || this.starZoneLevel0PrefetchStarted) return;
+        const refs = this._getLevel0ZoneRefs();
+        const missing = refs.filter((r) => !this.starZoneCache.has(r.key) && !this.starZoneInFlight.has(r.key));
+        if (missing.length === 0) {
+            this.starZoneLevel0PrefetchDone = true;
+            return;
+        }
+
+        this.starZoneLevel0PrefetchStarted = true;
+        missing.forEach((r) => this.starZoneInFlight.set(r.key, epoch));
+        const tokens = missing.map((r) => 'L' + r.level + 'Z' + r.zone).join(',');
+        const url = this._buildStarsZonesRequestUrl(scene, tokens);
+
+        $.getJSON(url).done((zoneData) => {
+            missing.forEach((r) => this.starZoneInFlight.delete(r.key));
+            if (zoneData && Array.isArray(zoneData.zones)) {
+                this._storeZoneBatch(zoneData.zones);
+            }
+            const allCached = refs.every((r) => this.starZoneCache.has(r.key));
+            this.starZoneLevel0PrefetchDone = allCached;
+            if (!allCached) {
+                this.starZoneLevel0PrefetchStarted = false;
+            }
+            if (epoch === this.sceneRequestEpoch && this.sceneData) {
+                this.zoneStars = this._collectCachedZoneStars(this.sceneData);
+                this.requestDraw();
+            }
+        }).fail(() => {
+            missing.forEach((r) => this.starZoneInFlight.delete(r.key));
+            this.starZoneLevel0PrefetchStarted = false;
+        });
+    };
+
     SkyScene.prototype._loadZoneStars = function (scene, epoch) {
         if (!scene || !scene.meta || !scene.objects) return;
         const streamMeta = scene.meta.stars_stream || {};
@@ -1571,6 +1662,7 @@
             this.requestDraw();
             return;
         }
+        this._ensureLevel0Prefetch(scene, epoch);
 
         const selection = scene.objects.stars_zone_selection || [];
         if (!Array.isArray(selection) || selection.length === 0) {
@@ -1597,49 +1689,15 @@
             batch.forEach((r) => this.starZoneInFlight.set(r.key, epoch));
 
             const tokens = batch.map((r) => 'L' + r.level + 'Z' + r.zone).join(',');
-            const frameTimeISO = this._resolveRequestTimeISO();
-            let url = this.formatUrl(sceneStarsZonesUrl(this.sceneUrl, scene), { timeISO: frameTimeISO });
-            const sceneMeta = scene.meta || {};
-            const centerMeta = sceneMeta.center || {};
-            const coordSystem = sceneMeta.coord_system || 'equatorial';
-            if (coordSystem === 'equatorial') {
-                if (typeof centerMeta.phi === 'number') {
-                    url = addOrReplaceQueryParam(url, 'ra', centerMeta.phi);
-                }
-                if (typeof centerMeta.theta === 'number') {
-                    url = addOrReplaceQueryParam(url, 'dec', centerMeta.theta);
-                }
-            } else {
-                if (typeof centerMeta.phi === 'number') {
-                    url = addOrReplaceQueryParam(url, 'az', centerMeta.phi);
-                }
-                if (typeof centerMeta.theta === 'number') {
-                    url = addOrReplaceQueryParam(url, 'alt', centerMeta.theta);
-                }
-            }
-            if (typeof sceneMeta.fov_deg === 'number') {
-                url = addOrReplaceQueryParam(url, 'fsz', sceneMeta.fov_deg);
-            }
-            if (typeof sceneMeta.maglim === 'number') {
-                url = addOrReplaceQueryParam(url, 'maglim', sceneMeta.maglim);
-            }
-            url = addOrReplaceQueryParam(url, 'zones', tokens);
-            url += '&mode=data&t=' + Date.now();
+            const url = this._buildStarsZonesRequestUrl(scene, tokens);
 
             $.getJSON(url).done((zoneData) => {
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
                 if (!zoneData || !Array.isArray(zoneData.zones)) return;
-                zoneData.zones.forEach((z) => {
-                    const key = this._zoneCacheKey(z.level, z.zone);
-                    const stars = z.stars ? this._expandCompactStarsSoA(z.stars) : this._emptyZoneStarsSoA();
-                    this._sortZoneStarsByMag(stars);
-                    this.starZoneCache.set(key, stars);
-                });
+                this._storeZoneBatch(zoneData.zones);
                 if (epoch !== this.sceneRequestEpoch || !this.sceneData) {
-                    this._evictZoneCache();
                     return;
                 }
-                this._evictZoneCache();
                 this.zoneStars = this._collectCachedZoneStars(this.sceneData);
                 this.requestDraw();
             }).fail(() => {
