@@ -1,9 +1,5 @@
 (function () {
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
+    const U = window.SkySceneUtils;
 
     window.SkySceneMilkyWayRenderer = function () {};
 
@@ -56,9 +52,9 @@
 
             const rgb = Array.isArray(polygon.rgb) ? polygon.rgb : fallbackMwColor;
             const col = this._colorFromFade(fade, rgb, fallbackMwColor);
-            const cr = clamp01(col[0]);
-            const cg = clamp01(col[1]);
-            const cb = clamp01(col[2]);
+            const cr = U.clamp01(col[0]);
+            const cg = U.clamp01(col[1]);
+            const cb = U.clamp01(col[2]);
 
             for (let j = 0; j + 2 < tris.length; j += 3) {
                 const p0 = projectPoint(tris[j]);

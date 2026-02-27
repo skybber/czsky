@@ -1,23 +1,6 @@
 (function () {
-    const TWO_PI = Math.PI * 2.0;
-    const EPS = 1e-9;
-
-    function normalizeRa(rad) {
-        let r = rad % TWO_PI;
-        if (r < 0) r += TWO_PI;
-        return r;
-    }
-
-    function wrapDeltaRa(rad) {
-        let d = rad;
-        while (d > Math.PI) d -= TWO_PI;
-        while (d < -Math.PI) d += TWO_PI;
-        return d;
-    }
-
-    function deg2rad(v) {
-        return v * Math.PI / 180.0;
-    }
+    const U = window.SkySceneUtils;
+    const EPS = U.EPS;
 
     window.SceneProjection = function (opts) {
         const options = opts || {};
@@ -49,11 +32,11 @@
         if (this.viewState && typeof this.viewState.getProjectionCenter === 'function') {
             const center = this.viewState.getProjectionCenter();
             if (center && Number.isFinite(center.phi) && Number.isFinite(center.theta)) {
-                return { phi: normalizeRa(center.phi), theta: center.theta };
+                return { phi: U.normalizeRa(center.phi), theta: center.theta };
             }
         }
         return {
-            phi: normalizeRa(this.viewCenter.phi || 0.0),
+            phi: U.normalizeRa(this.viewCenter.phi || 0.0),
             theta: Number.isFinite(this.viewCenter.theta) ? this.viewCenter.theta : 0.0,
         };
     };
@@ -67,7 +50,7 @@
             return null;
         }
 
-        const dra = wrapDeltaRa(phi - centerPhi);
+        const dra = U.wrapDeltaRa(phi - centerPhi);
         const sinDec = Math.sin(theta);
         const cosDec = Math.cos(theta);
         const sinC = Math.sin(centerTheta);
@@ -81,7 +64,7 @@
         if (this.mirrorX) x = -x;
         if (this.mirrorY) y = -y;
 
-        const fieldRadius = deg2rad(this.getFovDeg()) / 2.0;
+        const fieldRadius = U.deg2rad(this.getFovDeg()) / 2.0;
         const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
         if (planeRadius <= EPS) return null;
 
@@ -103,7 +86,7 @@
             return null;
         }
 
-        const dra = wrapDeltaRa(phi - centerPhi);
+        const dra = U.wrapDeltaRa(phi - centerPhi);
         const sinDec = Math.sin(theta);
         const cosDec = Math.cos(theta);
         const sinC = Math.sin(centerTheta);
@@ -118,7 +101,7 @@
         if (this.mirrorX) x = -x;
         if (this.mirrorY) y = -y;
 
-        const fieldRadius = deg2rad(this.getFovDeg()) / 2.0;
+        const fieldRadius = U.deg2rad(this.getFovDeg()) / 2.0;
         const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
         if (planeRadius <= EPS) return null;
 

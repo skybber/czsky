@@ -1,14 +1,8 @@
 (function () {
-    const TWO_PI = Math.PI * 2.0;
+    const U = window.SkySceneUtils;
 
     function isFiniteNumber(v) {
         return typeof v === 'number' && Number.isFinite(v);
-    }
-
-    function normalizeRa(rad) {
-        let r = rad % TWO_PI;
-        if (r < 0) r += TWO_PI;
-        return r;
     }
 
     function clampTheta(theta) {
@@ -56,20 +50,20 @@
     function inferCenter(opts, coordSystem, metaCenter) {
         const vc = opts.viewCenter || {};
         if (isFiniteNumber(vc.phi) && isFiniteNumber(vc.theta)) {
-            return { phi: normalizeRa(vc.phi), theta: clampTheta(vc.theta) };
+            return { phi: U.normalizeRa(vc.phi), theta: clampTheta(vc.theta) };
         }
 
         if (coordSystem === 'equatorial'
             && isFiniteNumber(metaCenter.equatorial_ra)
             && isFiniteNumber(metaCenter.equatorial_dec)) {
             return {
-                phi: normalizeRa(metaCenter.equatorial_ra),
+                phi: U.normalizeRa(metaCenter.equatorial_ra),
                 theta: clampTheta(metaCenter.equatorial_dec),
             };
         }
 
         if (isFiniteNumber(metaCenter.phi) && isFiniteNumber(metaCenter.theta)) {
-            return { phi: normalizeRa(metaCenter.phi), theta: clampTheta(metaCenter.theta) };
+            return { phi: U.normalizeRa(metaCenter.phi), theta: clampTheta(metaCenter.theta) };
         }
 
         return { phi: 0.0, theta: 0.0 };
@@ -117,7 +111,7 @@
 
     SkySceneViewState.prototype.getEquatorialCenter = function () {
         if (this.coordSystem === 'equatorial') {
-            return { ra: normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
+            return { ra: U.normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
         }
 
         if (window.AstroMath
@@ -129,24 +123,24 @@
             if (isFiniteNumber(lst)) {
                 const eq = window.AstroMath.horizontalToEquatorial(lst, this.latitude, this.centerPhi, this.centerTheta);
                 if (eq && isFiniteNumber(eq.ra) && isFiniteNumber(eq.dec)) {
-                    return { ra: normalizeRa(eq.ra), dec: clampTheta(eq.dec) };
+                    return { ra: U.normalizeRa(eq.ra), dec: clampTheta(eq.dec) };
                 }
             }
         }
 
         if (isFiniteNumber(this.metaCenter.equatorial_ra) && isFiniteNumber(this.metaCenter.equatorial_dec)) {
             return {
-                ra: normalizeRa(this.metaCenter.equatorial_ra),
+                ra: U.normalizeRa(this.metaCenter.equatorial_ra),
                 dec: clampTheta(this.metaCenter.equatorial_dec),
             };
         }
 
-        return { ra: normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
+        return { ra: U.normalizeRa(this.centerPhi), dec: clampTheta(this.centerTheta) };
     };
 
     SkySceneViewState.prototype.getHorizontalCenter = function () {
         if (this.coordSystem === 'horizontal') {
-            return { az: normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
+            return { az: U.normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
         }
 
         if (window.AstroMath
@@ -158,7 +152,7 @@
             if (isFiniteNumber(lst)) {
                 const hor = window.AstroMath.equatorialToHorizontal(lst, this.latitude, this.centerPhi, this.centerTheta);
                 if (hor && isFiniteNumber(hor.az) && isFiniteNumber(hor.alt)) {
-                    return { az: normalizeRa(hor.az), alt: clampTheta(hor.alt) };
+                    return { az: U.normalizeRa(hor.az), alt: clampTheta(hor.alt) };
                 }
             }
         }
@@ -166,10 +160,10 @@
         if (this.sceneMeta && this.sceneMeta.coord_system === 'horizontal'
             && isFiniteNumber(this.metaCenter.phi)
             && isFiniteNumber(this.metaCenter.theta)) {
-            return { az: normalizeRa(this.metaCenter.phi), alt: clampTheta(this.metaCenter.theta) };
+            return { az: U.normalizeRa(this.metaCenter.phi), alt: clampTheta(this.metaCenter.theta) };
         }
 
-        return { az: normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
+        return { az: U.normalizeRa(this.centerPhi), alt: clampTheta(this.centerTheta) };
     };
 
     SkySceneViewState.prototype.getEffectiveDate = function () {
@@ -194,16 +188,16 @@
     SkySceneViewState.prototype.getProjectionCenter = function () {
         if (this.coordSystem === 'horizontal') {
             const hor = this.getHorizontalCenter();
-            return { phi: normalizeRa(hor.az), theta: clampTheta(hor.alt) };
+            return { phi: U.normalizeRa(hor.az), theta: clampTheta(hor.alt) };
         }
         const eq = this.getEquatorialCenter();
-        return { phi: normalizeRa(eq.ra), theta: clampTheta(eq.dec) };
+        return { phi: U.normalizeRa(eq.ra), theta: clampTheta(eq.dec) };
     };
 
     SkySceneViewState.prototype.projectEquatorial = function (ra, dec) {
         if (!isFiniteNumber(ra) || !isFiniteNumber(dec)) return null;
         if (this.coordSystem === 'equatorial') {
-            return { phi: normalizeRa(ra), theta: clampTheta(dec) };
+            return { phi: U.normalizeRa(ra), theta: clampTheta(dec) };
         }
 
         if (!window.AstroMath || typeof window.AstroMath.equatorialToHorizontal !== 'function') {
@@ -215,6 +209,6 @@
 
         const hor = window.AstroMath.equatorialToHorizontal(lst, this.latitude, ra, dec);
         if (!hor || !isFiniteNumber(hor.az) || !isFiniteNumber(hor.alt)) return null;
-        return { phi: normalizeRa(hor.az), theta: clampTheta(hor.alt) };
+        return { phi: U.normalizeRa(hor.az), theta: clampTheta(hor.alt) };
     };
 })();

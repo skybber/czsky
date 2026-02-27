@@ -1,34 +1,12 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneTrajectoryRenderer = function () {};
-    const TWO_PI = Math.PI * 2.0;
-    const EPS = 1e-9;
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
+    const EPS = U.EPS;
 
     function finiteColor(c) {
         return Array.isArray(c) && c.length >= 3
             && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
-    }
-
-    function normalizeRa(ra) {
-        let r = ra % TWO_PI;
-        if (r < 0) r += TWO_PI;
-        return r;
     }
 
     function posAngle(ra1, dec1, ra2, dec2) {
@@ -38,7 +16,7 @@
             Math.cos(dec1) * Math.tan(dec2) - Math.sin(dec1) * Math.cos(deltaRa)
         );
         a += Math.PI;
-        a = a % TWO_PI;
+        a = a % U.TWO_PI;
         return a;
     }
 
@@ -52,7 +30,7 @@
             Math.sin(pa) * sinDist * cosDec1,
             cosDist - sinDec1 * Math.sin(dec2)
         );
-        const ra2 = normalizeRa(ra1 + dra);
+        const ra2 = U.normalizeRa(ra1 + dra);
         return { ra: ra2, dec: dec2 };
     }
 
@@ -63,7 +41,7 @@
         const color = sceneCtx.getThemeColor('dso', [0.6, 0.6, 0.6]);
         return {
             color: finiteColor(color) ? color : [0.6, 0.6, 0.6],
-            lineWidthPx: Math.max(0.75, mmToPx(lwMm)),
+            lineWidthPx: Math.max(0.75, U.mmToPx(lwMm)),
         };
     };
 
@@ -71,7 +49,7 @@
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
         const mm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        return Math.max(9.0, mmToPx(mm));
+        return Math.max(9.0, U.mmToPx(mm));
     };
 
     window.SkySceneTrajectoryRenderer.prototype._drawTick = function (ctx, x1, y1, x2, y2, lw) {
@@ -107,7 +85,7 @@
             ? sizes.comet_tail_side_scale : 0.8;
         const tailColor = cometCfg && finiteColor(cometCfg.tail_color)
             ? cometCfg.tail_color : style.color;
-        const baseLen = Math.max(4.0, mmToPx(lenMm));
+        const baseLen = Math.max(4.0, U.mmToPx(lenMm));
         const paTail = posAngle(ptPx.ra, ptPx.dec, sunPx.ra, sunPx.dec);
 
         // Convert screen length to angular length locally (rad).
@@ -131,7 +109,7 @@
 
         const ctx = sceneCtx.overlayCtx;
         ctx.save();
-        ctx.strokeStyle = rgba(tailColor, 0.98);
+        ctx.strokeStyle = U.rgba(tailColor, 0.98);
         ctx.lineWidth = style.lineWidthPx;
         ctx.setLineDash([]);
         ctx.lineCap = 'round';
@@ -184,7 +162,7 @@
         }
 
         ctx.save();
-        ctx.strokeStyle = rgba(style.color, 0.98);
+        ctx.strokeStyle = U.rgba(style.color, 0.98);
         ctx.lineWidth = style.lineWidthPx;
         ctx.setLineDash([]);
         ctx.lineCap = 'round';
@@ -267,7 +245,7 @@
             const side = tailSideCount > 0 ? (tailSideSum >= 0 ? -1 : 1) : 0;
             const offset = Math.max(12.0, fontPx * 1.25);
             ctx.save();
-            ctx.fillStyle = rgba(style.color, 0.98);
+            ctx.fillStyle = U.rgba(style.color, 0.98);
             ctx.font = Math.round(fontPx) + 'px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

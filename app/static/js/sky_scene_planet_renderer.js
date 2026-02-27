@@ -1,33 +1,16 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkyScenePlanetRenderer = function () {
         this._lastLabelPlacementById = new Map();
         this._pickMoon = null;
     };
-
-    const TWO_PI = Math.PI * 2.0;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
 
     function pxToNdc(px, py, width, height) {
         return {
             x: (px / width) * 2.0 - 1.0,
             y: 1.0 - (py / height) * 2.0,
         };
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
     }
 
     function overlaps(rect, list) {
@@ -82,7 +65,7 @@
     }
 
     function darkenColor(c, factor) {
-        const f = clamp01(factor);
+        const f = U.clamp01(factor);
         return [c[0] * f, c[1] * f, c[2] * f];
     }
 
@@ -105,8 +88,8 @@
     function appendDiskTriangles(dst, cx, cy, r, width, height, segments) {
         const segs = Math.max(8, segments | 0);
         for (let i = 0; i < segs; i++) {
-            const a0 = TWO_PI * (i / segs);
-            const a1 = TWO_PI * ((i + 1) / segs);
+            const a0 = U.TWO_PI * (i / segs);
+            const a1 = U.TWO_PI * ((i + 1) / segs);
             const x1 = cx + r * Math.cos(a0);
             const y1 = cy + r * Math.sin(a0);
             const x2 = cx + r * Math.cos(a1);
@@ -118,7 +101,7 @@
     function appendHalfRingTriangles(dst, cx, cy, innerR, outerR, yScale, rot, frontHalf, width, height, segments) {
         const segs = Math.max(10, segments | 0);
         const tStart = frontHalf ? 0.0 : Math.PI;
-        const tEnd = frontHalf ? Math.PI : TWO_PI;
+        const tEnd = frontHalf ? Math.PI : U.TWO_PI;
         const dt = (tEnd - tStart) / segs;
 
         for (let i = 0; i < segs; i++) {
@@ -157,7 +140,7 @@
     }
 
     function appendPhaseLitTriangles(dst, cx, cy, r, sunDirX, sunDirY, litFrac, width, height, segments) {
-        const f = clamp01(litFrac);
+        const f = U.clamp01(litFrac);
         if (f <= 0.0 || !(r > 0.0)) return;
         if (f >= 1.0) {
             appendDiskTriangles(dst, cx, cy, r, width, height, segments);
@@ -231,7 +214,7 @@
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales ? sceneCtx.themeConfig.font_scales : null;
         const fontMm = fs && typeof fs.font_size === 'number' ? fs.font_size : 3.0;
-        const fontPx = Math.max(10, mmToPx(fontMm));
+        const fontPx = Math.max(10, U.mmToPx(fontMm));
         ctx.font = Math.round(fontPx) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
 
@@ -263,7 +246,7 @@
                 }
             }
             occupied.push({ x1: chosen.x, y1: chosen.y - fontPx, x2: chosen.x + labelWidth, y2: chosen.y });
-            ctx.fillStyle = rgba(labelColor, 1.0);
+            ctx.fillStyle = U.rgba(labelColor, 1.0);
             ctx.fillText(label, chosen.x, chosen.y);
             if (placementById && item.id) {
                 const labelCx = chosen.x + labelWidth * 0.5;
@@ -343,7 +326,7 @@
         const fontPx = Number.isFinite(pl.fontPx) ? pl.fontPx * 0.8 : 10.0;
         const text = Number(moonMag).toFixed(1) + ' mag';
         ctx.save();
-        ctx.fillStyle = rgba(pl.color || [0.85, 0.85, 0.85], 0.95);
+        ctx.fillStyle = U.rgba(pl.color || [0.85, 0.85, 0.85], 0.95);
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
         const textW = ctx.measureText(text).width || 0.0;
@@ -402,9 +385,9 @@
                 }
                 const r = planetRadiusPx(sceneCtx, p, pxPerRad);
                 const col = planetColor(sceneCtx, p);
-                ctx.fillStyle = rgba(col, 1.0);
+                ctx.fillStyle = U.rgba(col, 1.0);
                 ctx.beginPath();
-                ctx.arc(px.x, px.y, r, 0.0, TWO_PI);
+                ctx.arc(px.x, px.y, r, 0.0, U.TWO_PI);
                 ctx.fill();
                 labels.push({ x: px.x, y: px.y, r: r, id: p.id, label: p.label || '', type: p.type || 'planet' });
                 if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {

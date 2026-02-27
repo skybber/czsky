@@ -1,10 +1,5 @@
 (function () {
-
-    function normalizeRa(rad) {
-        let r = rad % (2 * Math.PI);
-        if (r < 0) r += 2 * Math.PI;
-        return r;
-    }
+    const U = window.SkySceneUtils;
 
     class ChartWebGLRenderer {
         constructor(canvas) {
@@ -989,7 +984,7 @@
     SkyScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
         if (!this.isEquatorial) {
             const lim = Math.PI / 2 - 1e-5;
-            const az = normalizeRa(Number(this.viewCenter.phi));
+            const az = U.normalizeRa(Number(this.viewCenter.phi));
             const alt = Number(this.viewCenter.theta);
             if (Number.isFinite(az) && Number.isFinite(alt)) {
                 return { az: az, alt: Math.max(-lim, Math.min(lim, alt)) };
@@ -1008,7 +1003,7 @@
             if (typeof lst === 'number' && Number.isFinite(lst)) {
                 const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
                 if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
-                    return { az: normalizeRa(hor.az), alt: hor.alt };
+                    return { az: U.normalizeRa(hor.az), alt: hor.alt };
                 }
             }
         }
@@ -1132,13 +1127,13 @@
                 if (this.isEquatorial && typeof window.AstroMath.horizontalToEquatorial === 'function') {
                     const eq = window.AstroMath.horizontalToEquatorial(lst, lat, phi, theta);
                     if (eq && Number.isFinite(eq.ra) && Number.isFinite(eq.dec)) {
-                        this.viewCenter.phi = normalizeRa(eq.ra);
+                        this.viewCenter.phi = U.normalizeRa(eq.ra);
                         this.viewCenter.theta = eq.dec;
                     }
                 } else if (!this.isEquatorial && typeof window.AstroMath.equatorialToHorizontal === 'function') {
                     const hor = window.AstroMath.equatorialToHorizontal(lst, lat, phi, theta);
                     if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
-                        this.viewCenter.phi = normalizeRa(hor.az);
+                        this.viewCenter.phi = U.normalizeRa(hor.az);
                         this.viewCenter.theta = hor.alt;
                     }
                 }
@@ -2347,7 +2342,7 @@
         const dirY = this.isMirrorY() ? -1 : 1;
         const cosDec = Math.max(0.2, Math.cos(this.viewCenter.theta));
 
-        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
+        this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
         this.viewCenter.theta += dirY * dy * fovRad / wh;
         const lim = Math.PI / 2 - 1e-5;
         if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
@@ -2690,7 +2685,7 @@
 
         const rho = Math.hypot(x, y);
         if (rho < 1e-12) {
-            return { phi: normalizeRa(centerPhi), theta: centerTheta };
+            return { phi: U.normalizeRa(centerPhi), theta: centerTheta };
         }
 
         const c = 2.0 * Math.atan(rho * 0.5);
@@ -2704,7 +2699,7 @@
             x * sinC,
             rho * cosCt * cosC - y * sinCt * sinC
         );
-        return { phi: normalizeRa(phi), theta: theta };
+        return { phi: U.normalizeRa(phi), theta: theta };
     };
 
     SkyScene.prototype._zoomCenterFromAnchor = function (baseCenter, anchor, pivotCanvas, fovDeg) {
@@ -2724,7 +2719,7 @@
         if (theta > lim) theta = lim;
         if (theta < -lim) theta = -lim;
         return {
-            phi: normalizeRa(baseCenter.phi + dPhi),
+            phi: U.normalizeRa(baseCenter.phi + dPhi),
             theta: theta,
         };
     };
@@ -2831,7 +2826,7 @@
         if (dx !== 0) {
             dAng = dAng / Math.max(0.2, Math.cos(0.9 * this.viewCenter.theta));
         }
-        this.viewCenter.phi = normalizeRa(this.viewCenter.phi + dirX * dx * dAng);
+        this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * dAng);
         this.viewCenter.theta += dirY * dy * dAng;
         const lim = Math.PI / 2 - 1e-5;
         if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;

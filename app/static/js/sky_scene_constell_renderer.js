@@ -1,42 +1,7 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneConstellationRenderer = function () {};
-
-    const TWO_PI = Math.PI * 2.0;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
-
-    function hasFlag(meta, flag) {
-        const flags = (meta && typeof meta.flags === 'string') ? meta.flags : '';
-        return flags.indexOf(flag) !== -1;
-    }
-
-    function normalizeRa(rad) {
-        let r = rad % TWO_PI;
-        if (r < 0) r += TWO_PI;
-        return r;
-    }
-
-    function wrapDeltaRa(rad) {
-        let d = rad;
-        while (d > Math.PI) d -= TWO_PI;
-        while (d < -Math.PI) d += TWO_PI;
-        return d;
-    }
 
     function pointLineDistance(px, py, x1, y1, x2, y2) {
         const vx = x2 - x1;
@@ -58,22 +23,11 @@
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    function requireClipSegmentToRect() {
-        const utils = window.SkySceneGeomUtils;
-        const clip = utils && utils.clipSegmentToRect;
-        if (typeof clip !== 'function') {
-            throw new Error(
-                'SkySceneGeomUtils.clipSegmentToRect is required. ' +
-                'Ensure sky_scene_geom_utils.js is loaded before sky_scene_constell_renderer.js'
-            );
-        }
-        return clip;
-    }
 
     window.SkySceneConstellationRenderer.prototype._themeLinesStroke = function (sceneCtx) {
         const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths.constellation : null;
-        const widthPx = (typeof lwMm === 'number') ? mmToPx(lwMm) : 1.0;
+        const widthPx = (typeof lwMm === 'number') ? U.mmToPx(lwMm) : 1.0;
         const color = sceneCtx.getThemeColor('constellation_lines', [0.45, 0.55, 0.8]);
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
@@ -81,7 +35,7 @@
     window.SkySceneConstellationRenderer.prototype._themeBoundariesStroke = function (sceneCtx) {
         const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths.constellation_border : null;
-        const widthPx = (typeof lwMm === 'number') ? mmToPx(lwMm) : 1.0;
+        const widthPx = (typeof lwMm === 'number') ? U.mmToPx(lwMm) : 1.0;
         const color = sceneCtx.getThemeColor('constellation_borders', [0.45, 0.55, 0.8]);
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
@@ -116,8 +70,8 @@
             return;
         }
 
-        const dRa = wrapDeltaRa(ra2 - ra1);
-        const midRa = normalizeRa(ra1 + dRa * 0.5);
+        const dRa = U.wrapDeltaRa(ra2 - ra1);
+        const midRa = U.normalizeRa(ra1 + dRa * 0.5);
         const midDec = (dec1 + dec2) * 0.5;
         const pm = this._project(sceneCtx, midRa, midDec);
         if (!pm) {
@@ -155,8 +109,8 @@
         const sizes = sceneCtx.themeConfig && sceneCtx.themeConfig.sizes ? sceneCtx.themeConfig.sizes : null;
         const lineSpaceMm = sizes && typeof sizes.constellation_linespace === 'number'
             ? sizes.constellation_linespace : 0.0;
-        const lineSpacePx = lineSpaceMm > 0 ? mmToPx(lineSpaceMm) : 0.0;
-        ctx.strokeStyle = rgba(stroke.color, 0.9);
+        const lineSpacePx = lineSpaceMm > 0 ? U.mmToPx(lineSpaceMm) : 0.0;
+        ctx.strokeStyle = U.rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -215,15 +169,15 @@
         const yMin = -pad;
         const xMax = sceneCtx.width + pad;
         const yMax = sceneCtx.height + pad;
-        const clipSegmentToRect = requireClipSegmentToRect();
-        ctx.strokeStyle = rgba(stroke.color, 0.9);
+        const clipSegmentToRect = U.clipSegmentToRect;
+        ctx.strokeStyle = U.rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
         // Dashed strokes are significantly cheaper with non-round caps/joins on mobile browsers.
         ctx.lineCap = 'butt';
         ctx.lineJoin = 'miter';
         const useDash = params.useDashedStroke && !sceneCtx.liteMode;
         if (useDash) {
-            ctx.setLineDash([mmToPx(0.6), mmToPx(1.2)]);
+            ctx.setLineDash([U.mmToPx(0.6), U.mmToPx(1.2)]);
         } else {
             ctx.setLineDash([]);
         }
@@ -256,10 +210,10 @@
         const meta = sceneCtx.sceneData.meta || {};
         const showShapes = (typeof meta.show_constellation_shapes === 'boolean')
             ? meta.show_constellation_shapes
-            : hasFlag(meta, 'C');
+            : U.hasFlag(meta, 'C');
         const showBorders = (typeof meta.show_constellation_borders === 'boolean')
             ? meta.show_constellation_borders
-            : hasFlag(meta, 'B');
+            : U.hasFlag(meta, 'B');
         if (!showShapes && !showBorders) return;
 
         const ctx = sceneCtx.overlayCtx;

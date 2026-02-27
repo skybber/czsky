@@ -1,25 +1,9 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneHighlightRenderer = function () {};
 
-    const TWO_PI = Math.PI * 2.0;
     const MIN_DSO_RADIUS_PX = 3.0;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
 
     function finiteColor(c) {
         return Array.isArray(c) && c.length >= 3
@@ -31,7 +15,7 @@
             ? sceneCtx.themeConfig.line_widths : null;
         const lwMm = lws && typeof lws[key] === 'number' ? lws[key] : null;
         if (lwMm == null) return fallbackPx;
-        return Math.max(0.75, mmToPx(lwMm));
+        return Math.max(0.75, U.mmToPx(lwMm));
     };
 
     window.SkySceneHighlightRenderer.prototype._highlightStyle = function (sceneCtx, hl) {
@@ -40,15 +24,15 @@
             : sceneCtx.getThemeColor('highlight', [0.15, 0.3, 0.6]);
 
         const lineWidth = Number.isFinite(hl && hl.line_width)
-            ? Math.max(0.75, mmToPx(hl.line_width))
+            ? Math.max(0.75, U.mmToPx(hl.line_width))
             : this._themeLineWidthPx(sceneCtx, 'highlight', 1.35);
 
         let dash = [];
         if (hl && Array.isArray(hl.dash) && hl.dash.length === 2
             && Number.isFinite(hl.dash[0]) && Number.isFinite(hl.dash[1])) {
-            dash = [mmToPx(hl.dash[0]), mmToPx(hl.dash[1])];
+            dash = [U.mmToPx(hl.dash[0]), U.mmToPx(hl.dash[1])];
         } else if (hl && hl.dashed) {
-            dash = [mmToPx(0.6), mmToPx(1.2)];
+            dash = [U.mmToPx(0.6), U.mmToPx(1.2)];
         }
 
         return { color: color, lineWidth: lineWidth, dash: dash };
@@ -57,7 +41,7 @@
     window.SkySceneHighlightRenderer.prototype._applyStroke = function (sceneCtx, hl) {
         const style = this._highlightStyle(sceneCtx, hl);
         const ctx = sceneCtx.overlayCtx;
-        ctx.strokeStyle = rgba(style.color, 0.98);
+        ctx.strokeStyle = U.rgba(style.color, 0.98);
         ctx.lineWidth = style.lineWidth;
         ctx.setLineDash(style.dash);
         ctx.lineCap = 'round';
@@ -125,7 +109,7 @@
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
         const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        const fontPx = mmToPx(fontMm);
+        const fontPx = U.mmToPx(fontMm);
         const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
         const r = Math.max(5.0, fontPx * 2.0 * size);
         const ctx = sceneCtx.overlayCtx;
@@ -155,7 +139,7 @@
                 ? sceneCtx.themeConfig.font_scales.font_size : null;
             const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
             const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
-            r = mmToPx(fontMm) * size;
+            r = U.mmToPx(fontMm) * size;
             if (dsoById && hl.id && dsoById[hl.id]) {
                 // Keep big objects highlighted with at least their apparent radius.
                 r = Math.max(r, this._dsoRadiusPx(sceneCtx, dsoById[hl.id]));
@@ -165,7 +149,7 @@
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
-        ctx.arc(centerPx.x, centerPx.y, r, 0, TWO_PI);
+        ctx.arc(centerPx.x, centerPx.y, r, 0, U.TWO_PI);
         ctx.stroke();
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, r);
@@ -177,13 +161,13 @@
         const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
             ? sceneCtx.themeConfig.font_scales.font_size : null;
         const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        const base = mmToPx(fontMm);
+        const base = U.mmToPx(fontMm);
         const coreR = Math.max(2.0, base * 0.3);
         const ctx = sceneCtx.overlayCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
-        ctx.arc(centerPx.x, centerPx.y, coreR, 0, TWO_PI);
+        ctx.arc(centerPx.x, centerPx.y, coreR, 0, U.TWO_PI);
         ctx.stroke();
         if (Number.isFinite(hl.tail_pa)) {
             const len = Number.isFinite(hl.tail_len_px) ? Math.max(coreR * 1.5, hl.tail_len_px) : (base * 2.5);

@@ -1,7 +1,9 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneHorizonRenderer = function () {};
 
-    const EPS = 1e-9;
+    const EPS = U.EPS;
     const CARDINAL_DIRECTIONS = [
         ['N', 0.0],
         ['NW', Math.PI / 4.0],
@@ -12,23 +14,6 @@
         ['E', Math.PI * 3.0 / 2.0],
         ['NE', Math.PI * 7.0 / 4.0],
     ];
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
 
     SkySceneHorizonRenderer.prototype._drawPolyline = function (ctx, points, closePath) {
         if (!points || !points.length) return;
@@ -91,14 +76,14 @@
         const fs = theme.font_scales || {};
         const baseFontMm = (typeof fs.font_size === 'number') ? fs.font_size : 3.0;
         const scale = (typeof fs.cardinal_directions_font_scale === 'number') ? fs.cardinal_directions_font_scale : 1.3;
-        const fontPx = Math.max(10, mmToPx(baseFontMm * scale));
+        const fontPx = Math.max(10, U.mmToPx(baseFontMm * scale));
         const color = sceneCtx.getThemeColor(
             'cardinal_directions',
             sceneCtx.getThemeColor('label', [0.8, 0.2, 0.102])
         );
 
         ctx.save();
-        ctx.fillStyle = rgba(color, 1.0);
+        ctx.fillStyle = U.rgba(color, 1.0);
         ctx.font = Math.round(fontPx) + 'px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
@@ -143,8 +128,8 @@
         const color = sceneCtx.getThemeColor('horizon', [0.6, 0.6, 0.3]);
 
         ctx.save();
-        ctx.strokeStyle = rgba(color, 1.0);
-        ctx.lineWidth = Math.max(0.75, mmToPx(lwMm));
+        ctx.strokeStyle = U.rgba(color, 1.0);
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);

@@ -1,4 +1,6 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneStarsRenderer = function () {
         this._lastDiag = null;
         this._pickStar = null;
@@ -51,24 +53,6 @@
         [1.000000,0.773726,0.634118],[1.000000,0.773432,0.637353],[1.000000,0.773138,0.640588],
         [1.000000,0.772843,0.643824],[1.000000,0.772549,0.647059]
     ];
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
-
-    function rgba(color, alpha) {
-        const c = Array.isArray(color) ? color : [0.85, 0.85, 0.85];
-        const r = Math.round(clamp01(c[0] || 0) * 255);
-        const g = Math.round(clamp01(c[1] || 0) * 255);
-        const b = Math.round(clamp01(c[2] || 0) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
 
     function colorFromBvValue(bv) {
         if (!Number.isFinite(bv)) return null;
@@ -195,14 +179,14 @@
             }
             const alpha = fadeWidthMag <= 0.0
                 ? 1.0
-                : (magDelta >= 0.0 ? 1.0 : clamp01((magDelta + fadeWidthMag) / fadeWidthMag));
+                : (magDelta >= 0.0 ? 1.0 : U.clamp01((magDelta + fadeWidthMag) / fadeWidthMag));
             if (alpha <= 0.0) return;
 
             const sz = this._starSizePx(sceneCtx, magForSize);
             const rawSizePx = Number.isFinite(sz) ? Math.max(0.0, sz) : 0.0;
             let smallStarDim = 1.0;
             if (rawSizePx < minStarPx) {
-                const t = clamp01(rawSizePx / minStarPx);
+                const t = U.clamp01(rawSizePx / minStarPx);
                 smallStarDim = t * t;
                 diag.small_star_dimmed_count += 1;
                 diag._small_star_dim_sum += smallStarDim;
@@ -218,9 +202,9 @@
             sizes.push(sizePx);
             const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
             colors.push(
-                clamp01(bgColor[0] + (c[0] - bgColor[0]) * finalAlpha),
-                clamp01(bgColor[1] + (c[1] - bgColor[1]) * finalAlpha),
-                clamp01(bgColor[2] + (c[2] - bgColor[2]) * finalAlpha)
+                U.clamp01(bgColor[0] + (c[0] - bgColor[0]) * finalAlpha),
+                U.clamp01(bgColor[1] + (c[1] - bgColor[1]) * finalAlpha),
+                U.clamp01(bgColor[2] + (c[2] - bgColor[2]) * finalAlpha)
             );
             if (pickRadius2 > 0.0) {
                 const dx = ndcX * pickScaleX;
@@ -300,11 +284,11 @@
         const themeConfig = sceneCtx.themeConfig || {};
         const fontMm = themeConfig.font_scales && typeof themeConfig.font_scales.font_size === 'number'
             ? themeConfig.font_scales.font_size : 3.0;
-        const fontPx = Math.max(10.0, mmToPx(fontMm));
+        const fontPx = Math.max(10.0, U.mmToPx(fontMm));
         const rPx = Number.isFinite(pickStar.rPx) ? Math.max(0.8, pickStar.rPx) : 0.8;
         const text = Number(pickStar.mag).toFixed(1);
         ctx.save();
-        ctx.fillStyle = rgba(labelColor, 0.95);
+        ctx.fillStyle = U.rgba(labelColor, 0.95);
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';

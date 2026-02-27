@@ -1,27 +1,11 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneDsoRenderer = function () {
         this._lastDsoLabelPlacementById = new Map();
     };
 
     const MIN_DSO_RADIUS_PX = 3.0;
-    const TWO_PI = Math.PI * 2.0;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
 
     function levelColor(base, lightMode, level) {
         const outlLev = Math.max(0, Math.min(2, level | 0));
@@ -131,7 +115,7 @@
     };
 
     SkySceneDsoRenderer.prototype._setupStroke = function (ctx, col) {
-        ctx.strokeStyle = rgba(col, 0.95);
+        ctx.strokeStyle = U.rgba(col, 0.95);
         ctx.lineWidth = 1.35;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
@@ -142,7 +126,7 @@
             ? sceneCtx.themeConfig.line_widths : null;
         const lwMm = lws && typeof lws[key] === 'number' ? lws[key] : null;
         if (lwMm == null) return fallbackPx;
-        return Math.max(0.75, mmToPx(lwMm));
+        return Math.max(0.75, U.mmToPx(lwMm));
     };
 
     SkySceneDsoRenderer.prototype._drawEllipse = function (ctx, cx, cy, rx, ry, angle, dash) {
@@ -155,7 +139,7 @@
         ctx.translate(cx, cy);
         ctx.rotate(angle || 0.0);
         ctx.beginPath();
-        ctx.ellipse(0, 0, Math.max(1, rx), Math.max(1, ry), 0, 0, TWO_PI);
+        ctx.ellipse(0, 0, Math.max(1, rx), Math.max(1, ry), 0, 0, U.TWO_PI);
         ctx.stroke();
         ctx.restore();
     };
@@ -244,7 +228,7 @@
         ctx.lineWidth = this._themeLineWidthPx(sceneCtx, 'open_cluster', ctx.lineWidth);
         ctx.lineCap = 'butt';
         ctx.lineJoin = 'miter';
-        this._drawEllipse(ctx, centerPx.x, centerPx.y, r, r, 0.0, [mmToPx(0.6), mmToPx(0.4)]);
+        this._drawEllipse(ctx, centerPx.x, centerPx.y, r, r, 0.0, [U.mmToPx(0.6), U.mmToPx(0.4)]);
         ctx.restore();
     };
 
@@ -379,14 +363,14 @@
 
         let drawn = false;
         ctx.save();
-        ctx.lineWidth = Math.max(0.75, mmToPx(lwMm));
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);
 
         for (let level = 0; level < 3; level++) {
             const col = levelColor(baseNebColor, lightMode, level);
-            ctx.strokeStyle = rgba(col, 1.0);
+            ctx.strokeStyle = U.rgba(col, 1.0);
             const outlines = outlinesItem.outlines[level];
             if (!Array.isArray(outlines)) continue;
             for (let i = 0; i < outlines.length; i++) {
@@ -474,7 +458,7 @@
     SkySceneDsoRenderer.prototype._applyLabelStyle = function (sceneCtx, ctx) {
         const labelColor = sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]);
         const fontPx = this._labelFontPx(sceneCtx);
-        ctx.fillStyle = rgba(labelColor, 0.95);
+        ctx.fillStyle = U.rgba(labelColor, 0.95);
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
         return fontPx;
@@ -741,7 +725,7 @@
         const ctx = sceneCtx.overlayCtx;
         const fullText = mag + ' mag';
         ctx.save();
-        ctx.fillStyle = rgba(placement.color || [0.8, 0.8, 0.8], 0.95);
+        ctx.fillStyle = U.rgba(placement.color || [0.8, 0.8, 0.8], 0.95);
         const fontPx = Number.isFinite(placement.fontPx) ? placement.fontPx : (this._labelFontPx(sceneCtx) * 0.8);
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';

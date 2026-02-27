@@ -1,22 +1,7 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     window.SkySceneNebulaeOutlinesRenderer = function () {};
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
 
     function levelColor(base, lightMode, level) {
         const outlLev = Math.max(0, Math.min(2, level | 0));
@@ -113,7 +98,7 @@
             ? theme.line_widths.nebula : 0.2;
 
         ctx.save();
-        ctx.lineWidth = Math.max(0.75, mmToPx(lwMm));
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);
@@ -133,7 +118,7 @@
 
             for (let level = 0; level < 3; level++) {
                 const col = levelColor(baseNebColor, lightMode, level);
-                ctx.strokeStyle = rgba(col, 1.0);
+                ctx.strokeStyle = U.rgba(col, 1.0);
                 const outlines = this._extractOutlinesAtLevel(neb, level);
                 for (let i = 0; i < outlines.length; i++) {
                     const points = this._traceOutline(sceneCtx, outlines[i]);

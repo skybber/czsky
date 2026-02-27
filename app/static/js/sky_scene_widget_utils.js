@@ -1,20 +1,12 @@
 (function () {
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
+    const U = window.SkySceneUtils;
 
     function rgb(color) {
         const c = Array.isArray(color) ? color : [0.85, 0.85, 0.85];
-        const r = Math.round(clamp01(c[0] || 0) * 255);
-        const g = Math.round(clamp01(c[1] || 0) * 255);
-        const b = Math.round(clamp01(c[2] || 0) * 255);
+        const r = Math.round(U.clamp01(c[0] || 0) * 255);
+        const g = Math.round(U.clamp01(c[1] || 0) * 255);
+        const b = Math.round(U.clamp01(c[2] || 0) * 255);
         return 'rgb(' + r + ',' + g + ',' + b + ')';
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
     }
 
     function panelStyle(sceneCtx) {
@@ -37,9 +29,9 @@
     }
 
     window.SkySceneWidgetUtils = {
-        clamp01: clamp01,
+        clamp01: U.clamp01,
         rgb: rgb,
-        mmToPx: mmToPx,
+        mmToPx: U.mmToPx,
         panelStyle: panelStyle,
         drawPanel: drawPanel,
     };

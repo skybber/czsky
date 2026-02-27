@@ -1,48 +1,15 @@
 (function () {
+    const U = window.SkySceneUtils;
+
     const MIN_GRID_DENSITY = 4.0;
     const MIN_CURVE_SAMPLE_DEG = 0.02;
     const RA_GRID_SCALE = [0.25, 0.5, 1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 180];
     const DEC_GRID_SCALE = [1, 2, 3, 5, 10, 15, 20, 30, 60, 120, 300, 600, 900, 1200, 1800, 2700, 3600];
     const AZ_GRID_SCALE = [1, 2, 3, 5, 10, 15, 20, 30, 45, 60, 120, 300, 600, 900, 1800, 2700, 3600];
-    const TWO_PI = Math.PI * 2.0;
-    const EPS = 1e-9;
+    const EPS = U.EPS;
     const GRID_CLIP_PAD_PX = 2.0;
     const GRID_MISS_STREAK_STOP = 2;
     const GRID_MISS_PROBE_COUNT = 1;
-
-    function clamp01(v) {
-        if (v < 0) return 0;
-        if (v > 1) return 1;
-        return v;
-    }
-
-    function rgba(color, alpha) {
-        const r = Math.round(clamp01(color[0]) * 255);
-        const g = Math.round(clamp01(color[1]) * 255);
-        const b = Math.round(clamp01(color[2]) * 255);
-        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-    }
-
-    function normalizeRa(rad) {
-        let r = rad % TWO_PI;
-        if (r < 0) r += TWO_PI;
-        return r;
-    }
-
-    function wrapDeltaRa(rad) {
-        let d = rad;
-        while (d > Math.PI) d -= TWO_PI;
-        while (d < -Math.PI) d += TWO_PI;
-        return d;
-    }
-
-    function deg2rad(v) {
-        return v * Math.PI / 180.0;
-    }
-
-    function mmToPx(mm) {
-        return mm * (100.0 / 25.4);
-    }
 
     function pickGridStep(scaleList, fieldRadius, centerV, cosOfV, arcminPerUnit) {
         let prevSteps = null;
@@ -68,11 +35,6 @@
         return chosen;
     }
 
-    function hasFlag(meta, flag) {
-        const flags = (meta && typeof meta.flags === 'string') ? meta.flags : '';
-        return flags.indexOf(flag) !== -1;
-    }
-
     window.SkySceneGridRenderer = function () {};
 
     SkySceneGridRenderer.prototype._setupStyles = function (sceneCtx) {
@@ -83,8 +45,8 @@
             ? theme.font_scales.font_size : 3.0;
 
         return {
-            lineWidthPx: Math.max(0.6, mmToPx(lwMm)),
-            fontPx: Math.max(10, Math.round(mmToPx(fontMm * 0.72))),
+            lineWidthPx: Math.max(0.6, U.mmToPx(lwMm)),
+            fontPx: Math.max(10, Math.round(U.mmToPx(fontMm * 0.72))),
             color: sceneCtx.getThemeColor('grid', [0.45, 0.5, 0.55]),
         };
     };
@@ -150,7 +112,7 @@
 
     SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge, clipRect) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const du = Math.max(fieldRadius / 20.0, deg2rad(MIN_CURVE_SAMPLE_DEG));
+        const du = Math.max(fieldRadius / 20.0, U.deg2rad(MIN_CURVE_SAMPLE_DEG));
         let visible = false;
         let prev = null;
         let hit = null;
@@ -203,7 +165,7 @@
 
     SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV, clipRect) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const dv = Math.max(fieldRadius / 20.0, deg2rad(MIN_CURVE_SAMPLE_DEG));
+        const dv = Math.max(fieldRadius / 20.0, U.deg2rad(MIN_CURVE_SAMPLE_DEG));
         let visible = false;
         let prev = null;
         let hit = null;
@@ -340,7 +302,7 @@
         }
 
         const uCount = Math.max(1, Math.round(cfg.uTotalMinutes / uStep));
-        const centerUMinutes = normalizeRa(centerU) * (180.0 * 60.0) / (Math.PI * cfg.uArcminPerUnit);
+        const centerUMinutes = U.normalizeRa(centerU) * (180.0 * 60.0) / (Math.PI * cfg.uArcminPerUnit);
         let centerUIndex = Math.round(centerUMinutes / uStep) % uCount;
         if (centerUIndex < 0) centerUIndex += uCount;
         const drawnU = new Set();
@@ -351,7 +313,7 @@
             if (idx < 0) idx += uCount;
             const uCur = idx * uStep;
             const u = (Math.PI * (uCur * cfg.uArcminPerUnit) / (180.0 * 60.0)) % cfg.uPeriod;
-            const du = wrapDeltaRa(u - centerU);
+            const du = U.wrapDeltaRa(u - centerU);
             if (Math.abs(du) > uSize + 1e-6) return false;
             const label = cfg.uLabelFmt(uCur, uLabelFmt);
             return this._drawSingleMeridian(sceneCtx, ctx, cfg.toRaDec, u, label, cfg.uLabelEdges, centerV, clipRect);
@@ -386,15 +348,15 @@
         const eqCenter = sceneCtx.viewState.getEquatorialCenter();
 
         return {
-            toRaDec: function (u, v) { return { ra: normalizeRa(u), dec: v }; },
-            centerU: normalizeRa(eqCenter.ra),
+            toRaDec: function (u, v) { return { ra: U.normalizeRa(u), dec: v }; },
+            centerU: U.normalizeRa(eqCenter.ra),
             centerV: eqCenter.dec,
             uScaleList: RA_GRID_SCALE,
             vScaleList: DEC_GRID_SCALE,
             uLabelFmt: this._gridRaLabel.bind(this),
             vLabelFmt: this._gridSignedDegLabel.bind(this),
             cosOfV: Math.cos,
-            uPeriod: TWO_PI,
+            uPeriod: U.TWO_PI,
             vMin: -Math.PI / 2,
             vMax: Math.PI / 2,
             vLabelEdge: 'left',
@@ -418,17 +380,17 @@
 
         return {
             toRaDec: function (u, v) {
-                const eq = window.AstroMath.horizontalToEquatorial(lst, sceneCtx.latitude, normalizeRa(u), v);
-                return { ra: normalizeRa(eq.ra), dec: eq.dec };
+                const eq = window.AstroMath.horizontalToEquatorial(lst, sceneCtx.latitude, U.normalizeRa(u), v);
+                return { ra: U.normalizeRa(eq.ra), dec: eq.dec };
             },
-            centerU: normalizeRa(az),
+            centerU: U.normalizeRa(az),
             centerV: alt,
             uScaleList: AZ_GRID_SCALE,
             vScaleList: DEC_GRID_SCALE,
             uLabelFmt: this._gridAzLabel.bind(this),
             vLabelFmt: this._gridSignedDegLabel.bind(this),
             cosOfV: Math.cos,
-            uPeriod: TWO_PI,
+            uPeriod: U.TWO_PI,
             vMin: -Math.PI / 2,
             vMax: Math.PI / 2,
             vLabelEdge: 'left',
@@ -444,16 +406,16 @@
         if (!sceneCtx.viewState) return;
 
         const meta = sceneCtx.meta || {};
-        const showEq = hasFlag(meta, 'E') || !!meta.show_equatorial_grid;
-        const showHor = hasFlag(meta, 'H') || !!meta.show_horizontal_grid;
+        const showEq = U.hasFlag(meta, 'E') || !!meta.show_equatorial_grid;
+        const showHor = U.hasFlag(meta, 'H') || !!meta.show_horizontal_grid;
         if (!showEq && !showHor) return;
 
         const style = this._setupStyles(sceneCtx);
         const ctx = sceneCtx.overlayCtx;
 
         ctx.save();
-        ctx.strokeStyle = rgba(style.color, 0.9);
-        ctx.fillStyle = rgba(style.color, 0.95);
+        ctx.strokeStyle = U.rgba(style.color, 0.9);
+        ctx.fillStyle = U.rgba(style.color, 0.95);
         ctx.lineWidth = style.lineWidthPx;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
