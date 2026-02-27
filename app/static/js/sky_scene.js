@@ -503,6 +503,7 @@
         this.horizonRenderer = new window.SkySceneHorizonRenderer();
         this.highlightRenderer = new window.SkySceneHighlightRenderer();
         this.trajectoryRenderer = new window.SkySceneTrajectoryRenderer();
+        this.arrowRenderer = new window.SkySceneArrowRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
         this.widgetLayer = new window.SkySceneWidgetLayer();
 
@@ -2195,6 +2196,18 @@
             width: this.canvas.width,
             height: this.canvas.height,
             registerSelectable: this._registerSelectable.bind(this),
+        }));
+
+        measure('arrow', () => this.arrowRenderer.draw({
+            sceneData: this.sceneData,
+            overlayCtx: this.overlayCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
         }));
 
         measure('selection_finalize', () => this.selectionIndex.finalize());
