@@ -46,7 +46,7 @@
 
         return {
             lineWidthPx: Math.max(0.6, U.mmToPx(lwMm)),
-            fontPx: Math.max(10, Math.round(U.mmToPx(fontMm * 0.72))),
+            fontPx: Math.max(10, Math.round(U.mmToPx(fontMm))),
             color: sceneCtx.getThemeColor('grid', [0.45, 0.5, 0.55]),
         };
     };
@@ -154,7 +154,9 @@
         if (!hit) return true;
 
         const pad = 4;
-        const off = 5;
+        const metrics = ctx.measureText(labelText);
+        const halfTextHeight = ((metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0)) / 2;
+        const off = 5 + halfTextHeight;
         let x = edge === 'right' ? (hit.x - pad) : (hit.x + pad);
         let y = Math.max(2, Math.min(sceneCtx.height - 2, hit.y));
         x += -Math.sin(angle) * off;
@@ -420,7 +422,7 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);
-        ctx.font = style.fontPx + 'px sans-serif';
+        ctx.font = Math.round(style.fontPx) + 'px sans-serif';
 
         if (showEq) {
             const eqCfg = this._buildEqConfig(sceneCtx);
