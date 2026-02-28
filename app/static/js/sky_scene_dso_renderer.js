@@ -7,6 +7,7 @@
     };
 
     const MIN_DSO_RADIUS_PX = 3.0;
+    const MIN_PN_BASE_RADIUS_PX = U.mmToPx(1.0);
 
     function levelColor(base, lightMode, level) {
         const outlLev = Math.max(0, Math.min(2, level | 0));
@@ -230,7 +231,8 @@
     SkySceneDsoRenderer.prototype._drawPlanetaryNebula = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
-        const r = this._dsoRadii(sceneCtx, dso).rLongPx;
+        // Match fchart3 minimum symbol size: planetary_nebula() uses r with min_radius=1.0 mm.
+        const r = Math.max(this._dsoRadii(sceneCtx, dso).rLongPx, MIN_PN_BASE_RADIUS_PX);
         const a = 0.75 * r;
         const b = 1.5 * r;
         this._setupStroke(ctx, col);
