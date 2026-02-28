@@ -105,21 +105,56 @@
         };
     };
 
-    SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, v, labelText, edge, clipRect) {
+    SkySceneGridRenderer.prototype._computeAdaptiveSampleRad = function (sceneCtx, fieldRadius) {
+        const fovDeg = (fieldRadius * 2) * (180 / Math.PI);
+        const pixelsPerDeg = Math.min(sceneCtx.width, sceneCtx.height) / fovDeg;
+        const targetSegmentPx = 3;
+        const adaptiveSampleDeg = Math.max(0.01, targetSegmentPx / pixelsPerDeg);
+        return U.deg2rad(Math.min(adaptiveSampleDeg, MIN_CURVE_SAMPLE_DEG));
+    };
+
+    SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, centerV, v, labelText, edge, clipRect) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const du = Math.max(fieldRadius / 20.0, U.deg2rad(MIN_CURVE_SAMPLE_DEG));
+        const du = Math.max(fieldRadius / 20.0, this._computeAdaptiveSampleRad(sceneCtx, fieldRadius));
         let visible = false;
         let prev = null;
         let hit = null;
         let angle = 0.0;
         const edgeX = edge === 'right' ? (sceneCtx.width - 2) : 2;
 
+        // Limit iteration to visible range of the parallel
+        // Account for distance from view center to this parallel
+        const dv = Math.abs(v - centerV);
+        const cosV = Math.cos(v);
+        let visibleURange;
+        if (dv >= fieldRadius) {
+            // Parallel is outside field of view, but draw with small margin for edge cases
+            visibleURange = fieldRadius * 0.1 / Math.max(0.1, Math.abs(cosV));
+        } else {
+            // Pythagorean: visible half-width at this declination
+            const visibleHalfWidth = Math.sqrt(fieldRadius * fieldRadius - dv * dv);
+            visibleURange = visibleHalfWidth / Math.max(0.1, Math.abs(cosV));
+        }
+        // Add generous margin for safety
+        const margin = Math.max(du * 5, fieldRadius * 0.2);
+        const uStart = Math.max(-Math.PI, -visibleURange - margin);
+        const uEnd = Math.min(Math.PI, visibleURange + margin);
+
+        // Quick AABB margin for off-screen segment rejection
+        const aabbMargin = 50;
+
         ctx.beginPath();
 
-        for (let aggU = -Math.PI; aggU <= Math.PI + 1e-9; aggU += du) {
+        for (let aggU = uStart; aggU <= uEnd + 1e-9; aggU += du) {
             const uv = toRaDec(centerU + aggU, v);
             const p = uv ? sceneCtx.projection.projectEquatorialToPx(uv.ra, uv.dec) : null;
             if (prev && p) {
+                // Quick AABB rejection before expensive clipping
+                if (prev.x < clipRect.xMin - aabbMargin && p.x < clipRect.xMin - aabbMargin) { prev = p; continue; }
+                if (prev.x > clipRect.xMax + aabbMargin && p.x > clipRect.xMax + aabbMargin) { prev = p; continue; }
+                if (prev.y < clipRect.yMin - aabbMargin && p.y < clipRect.yMin - aabbMargin) { prev = p; continue; }
+                if (prev.y > clipRect.yMax + aabbMargin && p.y > clipRect.yMax + aabbMargin) { prev = p; continue; }
+
                 const c = window.SkySceneGeomUtils.clipSegmentToRect(
                     prev.x, prev.y, p.x, p.y,
                     clipRect.xMin, clipRect.yMin, clipRect.xMax, clipRect.yMax
@@ -162,7 +197,7 @@
 
     SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV, clipRect) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
-        const dv = Math.max(fieldRadius / 20.0, U.deg2rad(MIN_CURVE_SAMPLE_DEG));
+        const dv = Math.max(fieldRadius / 20.0, this._computeAdaptiveSampleRad(sceneCtx, fieldRadius));
         let visible = false;
         let prev = null;
         let hit = null;
@@ -171,11 +206,25 @@
         const useTop = (labelEdges === 'top') || (labelEdges === 'auto' && centerV > 0);
         const edgeY = useTop ? 2 : (sceneCtx.height - 2);
 
+        // Limit iteration to visible range of the meridian
+        const margin = Math.max(dv * 5, fieldRadius * 0.2);
+        const vStart = Math.max(-Math.PI / 2, centerV - fieldRadius - margin);
+        const vEnd = Math.min(Math.PI / 2, centerV + fieldRadius + margin);
+
+        // Quick AABB margin for off-screen segment rejection
+        const aabbMargin = 50;
+
         ctx.beginPath();
-        for (let v = -Math.PI / 2; v <= Math.PI / 2 + 1e-9; v += dv) {
+        for (let v = vStart; v <= vEnd + 1e-9; v += dv) {
             const uv = toRaDec(u, v);
             const p = uv ? sceneCtx.projection.projectEquatorialToPx(uv.ra, uv.dec) : null;
             if (prev && p) {
+                // Quick AABB rejection before expensive clipping
+                if (prev.x < clipRect.xMin - aabbMargin && p.x < clipRect.xMin - aabbMargin) { prev = p; continue; }
+                if (prev.x > clipRect.xMax + aabbMargin && p.x > clipRect.xMax + aabbMargin) { prev = p; continue; }
+                if (prev.y < clipRect.yMin - aabbMargin && p.y < clipRect.yMin - aabbMargin) { prev = p; continue; }
+                if (prev.y > clipRect.yMax + aabbMargin && p.y > clipRect.yMax + aabbMargin) { prev = p; continue; }
+
                 const c = window.SkySceneGeomUtils.clipSegmentToRect(
                     prev.x, prev.y, p.x, p.y,
                     clipRect.xMin, clipRect.yMin, clipRect.xMax, clipRect.yMax
@@ -269,7 +318,7 @@
             const v = Math.PI * vCur / (180.0 * 60.0);
             if (!(v > vMinVis && v < vMaxVis)) return false;
             const label = cfg.vLabelFmt(vCur, vLabelFmt);
-            return this._drawSingleParallel(sceneCtx, ctx, cfg.toRaDec, centerU, v, label, cfg.vLabelEdge, clipRect);
+            return this._drawSingleParallel(sceneCtx, ctx, cfg.toRaDec, centerU, centerV, v, label, cfg.vLabelEdge, clipRect);
         };
 
         if (vBase > vMinMinutes && vBase < vMaxMinutes) {
