@@ -210,6 +210,15 @@
         let x = Math.max(2, Math.min(sceneCtx.width - 2, hit.x));
         x += -Math.sin(angle) * off;
         y += Math.cos(angle) * off;
+        const metrics = ctx.measureText(labelText);
+        const textW = Math.max(0, metrics.width || 0);
+        const textH = Math.max(1, (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0));
+        const ca = Math.abs(Math.cos(angle));
+        const sa = Math.abs(Math.sin(angle));
+        const halfW = 0.5 * (textW * ca + textH * sa);
+        const halfH = 0.5 * (textW * sa + textH * ca);
+        x = Math.max(2 + halfW, Math.min(sceneCtx.width - 2 - halfW, x));
+        y = Math.max(2 + halfH, Math.min(sceneCtx.height - 2 - halfH, y));
         this._drawLabel(ctx, labelText, x, y, 'center', useTop ? 'top' : 'bottom', angle);
         return true;
     };
