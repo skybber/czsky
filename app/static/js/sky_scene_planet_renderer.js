@@ -78,6 +78,20 @@
         };
     }
 
+    function destinationRaDec(ra1, dec1, pa, dist) {
+        const sinDec1 = Math.sin(dec1);
+        const cosDec1 = Math.cos(dec1);
+        const sinDist = Math.sin(dist);
+        const cosDist = Math.cos(dist);
+        const dec2 = Math.asin(sinDec1 * cosDist + cosDec1 * sinDist * Math.cos(pa));
+        const dra = Math.atan2(
+            Math.sin(pa) * sinDist * cosDec1,
+            cosDist - sinDec1 * Math.sin(dec2)
+        );
+        const ra2 = U.normalizeRa(ra1 + dra);
+        return { ra: ra2, dec: dec2 };
+    }
+
     function appendTrianglePx(dst, x1, y1, x2, y2, x3, y3, width, height) {
         const p1 = pxToNdc(x1, y1, width, height);
         const p2 = pxToNdc(x2, y2, width, height);
@@ -139,23 +153,22 @@
         }
     }
 
-    function appendPhaseLitTriangles(dst, cx, cy, r, sunDirX, sunDirY, litFrac, width, height, segments) {
+    function phasePolygonPoints(cx, cy, r, sunDirX, sunDirY, litFrac, segments) {
         const f = U.clamp01(litFrac);
-        if (f <= 0.0 || !(r > 0.0)) return;
-        if (f >= 1.0) {
-            appendDiskTriangles(dst, cx, cy, r, width, height, segments);
-            return;
-        }
+        if (f <= 0.0 || !(r > 0.0)) return null;
+        if (f >= 1.0) return null;
 
         const vx = sunDirX;
         const vy = sunDirY;
-        const ux = vy;
-        const uy = -vx;
+        const ux = vx;
+        const uy = vy;
+        const wx = vy;
+        const wy = -vx;
 
         const toWorld = function (x, y) {
             return {
-                x: cx + ux * x + vx * y,
-                y: cy + uy * x + vy * y,
+                x: cx + ux * x + wx * y,
+                y: cy + uy * x + wy * y,
             };
         };
 
@@ -184,7 +197,100 @@
             }
         }
 
+        return points;
+    }
+
+    function appendPhaseLitTriangles(dst, cx, cy, r, sunDirX, sunDirY, litFrac, width, height, segments) {
+        const f = U.clamp01(litFrac);
+        if (f <= 0.0 || !(r > 0.0)) return;
+        if (f >= 1.0) {
+            appendDiskTriangles(dst, cx, cy, r, width, height, segments);
+            return;
+        }
+        const points = phasePolygonPoints(cx, cy, r, sunDirX, sunDirY, f, segments);
         appendPolygonFan(dst, points, width, height);
+    }
+
+    function drawCanvasPhase(ctx, cx, cy, r, sunDirX, sunDirY, litFrac, color, darkColor, segments) {
+        if (!ctx || !(r > 0.0)) return;
+        const f = U.clamp01(litFrac);
+
+        ctx.fillStyle = U.rgba(darkColor, 1.0);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0.0, U.TWO_PI);
+        ctx.fill();
+
+        if (f <= 0.0) return;
+        if (f >= 1.0) {
+            ctx.fillStyle = U.rgba(color, 1.0);
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0.0, U.TWO_PI);
+            ctx.fill();
+            return;
+        }
+
+        const points = phasePolygonPoints(cx, cy, r, sunDirX, sunDirY, f, segments);
+        if (!points || points.length < 3) return;
+
+        ctx.fillStyle = U.rgba(color, 1.0);
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    function drawCanvasHalfRing(ctx, cx, cy, innerR, outerR, yScale, rot, frontHalf, color) {
+        if (!ctx || !(innerR > 0.0) || !(outerR > innerR)) return;
+        const sy = yScale >= 0.0 ? 1.0 : -1.0;
+        const ryScale = Math.max(1e-3, Math.abs(yScale));
+        const tStart = frontHalf ? 0.0 : Math.PI;
+        const tEnd = frontHalf ? Math.PI : U.TWO_PI;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(rot);
+        if (sy < 0.0) ctx.scale(1.0, -1.0);
+        ctx.fillStyle = U.rgba(color, 1.0);
+        ctx.beginPath();
+        ctx.ellipse(0.0, 0.0, outerR, outerR * ryScale, 0.0, tStart, tEnd, false);
+        ctx.lineTo(innerR * Math.cos(tEnd), innerR * ryScale * Math.sin(tEnd));
+        ctx.ellipse(0.0, 0.0, innerR, innerR * ryScale, 0.0, tEnd, tStart, true);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function ringRotation(sceneCtx, p, centerPx) {
+        let rot = hasFinite(p.north_pole_pa_rad) ? p.north_pole_pa_rad : 0.0;
+        if (sceneCtx.mirrorY) rot = -rot;
+        if (sceneCtx.mirrorX) rot = Math.PI - rot;
+
+        const coordSystem = sceneCtx && sceneCtx.viewState ? sceneCtx.viewState.coordSystem : null;
+        if (coordSystem === 'equatorial') {
+            rot = -rot;
+            return rot;
+        }
+
+        // In horizontal mode, derive on-screen pole direction and convert
+        // pole-axis angle to ellipse major-axis angle.
+        if (coordSystem === 'horizontal'
+            && sceneCtx && sceneCtx.projection && centerPx
+            && hasFinite(p.ra) && hasFinite(p.dec) && hasFinite(p.north_pole_pa_rad)) {
+            const probeEq = destinationRaDec(p.ra, p.dec, p.north_pole_pa_rad, 1e-3);
+            const probePx = sceneCtx.projection.projectEquatorialToPx(probeEq.ra, probeEq.dec);
+            if (probePx) {
+                const dx = probePx.x - centerPx.x;
+                const dy = probePx.y - centerPx.y;
+                if (Math.hypot(dx, dy) > 1e-6) {
+                    rot = Math.atan2(dy, dx) - Math.PI * 0.5;
+                }
+            }
+        }
+
+        return rot;
     }
 
     function makeLabelCandidates(x, y, r, w, fontPx, topDownOnly) {
@@ -346,7 +452,7 @@
         let bestPickMoonDist2 = Infinity;
 
         const renderer = sceneCtx.renderer;
-        const canWebGl = !!(renderer && typeof renderer.drawTriangles === 'function');
+        const canWebGl = !!(renderer && renderer.ready && typeof renderer.drawTriangles === 'function');
         const pxPerRad = projectionScalePxPerRad(sceneCtx);
 
         const labels = [];
@@ -383,10 +489,73 @@
                 }
                 const r = planetRadiusPx(sceneCtx, p, pxPerRad);
                 const col = planetColor(sceneCtx, p);
-                ctx.fillStyle = U.rgba(col, 1.0);
-                ctx.beginPath();
-                ctx.arc(px.x, px.y, r, 0.0, U.TWO_PI);
-                ctx.fill();
+                const darkCol = darkenColor(col, 0.1);
+                const hasPhase = !!p.has_phase && hasFinite(p.phase_angle_rad);
+                const bodyKey = String(p.body || '').toLowerCase();
+                const isSaturn = bodyKey === 'saturn';
+                const hasRing = !!p.has_ring && isSaturn && hasFinite(p.ring_tilt_rad);
+                if (hasRing) {
+                    const curR = (hasFinite(p.angular_radius_rad) && p.angular_radius_rad > 0 && pxPerRad > 0)
+                        ? (p.angular_radius_rad * pxPerRad)
+                        : (r * 0.75);
+                    const ringCore = Math.max(0.8, curR);
+                    const inner1 = 1.53 * ringCore;
+                    const inner2 = 1.95 * ringCore;
+                    const outer1 = 2.04 * ringCore;
+                    const outer2 = 2.28 * ringCore;
+                    const tiltScale = Math.sin(p.ring_tilt_rad);
+                    const rot = ringRotation(sceneCtx, p, px);
+                    const ringCol = [
+                        Math.min(col[0] * 1.1, 1.0),
+                        Math.min(col[1] * 1.2, 1.0),
+                        Math.min(col[2] * 1.3, 1.0),
+                    ];
+                    drawCanvasHalfRing(ctx, px.x, px.y, inner1, inner2, tiltScale, rot, false, ringCol);
+                    drawCanvasHalfRing(ctx, px.x, px.y, outer1, outer2, tiltScale, rot, false, ringCol);
+                }
+                if (hasPhase) {
+                    const litFrac = (1.0 + Math.cos(p.phase_angle_rad)) * 0.5;
+                    const sunObj = sunByBody.defaultSun;
+                    let sunDirX = 1.0;
+                    let sunDirY = 0.0;
+                    if (sunObj) {
+                        const sunPx = sceneCtx.projection.projectEquatorialToPx(sunObj.ra, sunObj.dec);
+                        if (sunPx) {
+                            const dx = sunPx.x - px.x;
+                            const dy = sunPx.y - px.y;
+                            const dn = Math.hypot(dx, dy);
+                            if (dn > 1e-6) {
+                                sunDirX = dx / dn;
+                                sunDirY = dy / dn;
+                            }
+                        }
+                    }
+                    drawCanvasPhase(ctx, px.x, px.y, r, sunDirX, sunDirY, litFrac, col, darkCol, r >= 8 ? 28 : 18);
+                } else {
+                    ctx.fillStyle = U.rgba(col, 1.0);
+                    ctx.beginPath();
+                    ctx.arc(px.x, px.y, r, 0.0, U.TWO_PI);
+                    ctx.fill();
+                }
+                if (hasRing) {
+                    const curR = (hasFinite(p.angular_radius_rad) && p.angular_radius_rad > 0 && pxPerRad > 0)
+                        ? (p.angular_radius_rad * pxPerRad)
+                        : (r * 0.75);
+                    const ringCore = Math.max(0.8, curR);
+                    const inner1 = 1.53 * ringCore;
+                    const inner2 = 1.95 * ringCore;
+                    const outer1 = 2.04 * ringCore;
+                    const outer2 = 2.28 * ringCore;
+                    const tiltScale = Math.sin(p.ring_tilt_rad);
+                    const rot = ringRotation(sceneCtx, p, px);
+                    const ringCol = [
+                        Math.min(col[0] * 1.1, 1.0),
+                        Math.min(col[1] * 1.2, 1.0),
+                        Math.min(col[2] * 1.3, 1.0),
+                    ];
+                    drawCanvasHalfRing(ctx, px.x, px.y, inner1, inner2, tiltScale, rot, true, ringCol);
+                    drawCanvasHalfRing(ctx, px.x, px.y, outer1, outer2, tiltScale, rot, true, ringCol);
+                }
                 labels.push({ x: px.x, y: px.y, r: r, id: p.id, label: p.label || '', type: p.type || 'planet' });
                 if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {
                     sceneCtx.registerSelectable({
@@ -441,9 +610,8 @@
                 const inner2 = 1.95 * ringCore;
                 const outer1 = 2.04 * ringCore;
                 const outer2 = 2.28 * ringCore;
-                const yScale = Math.abs(Math.sin(p.ring_tilt_rad));
-                const tiltScale = Math.max(0.05, yScale);
-                const rot = hasFinite(p.north_pole_pa_rad) ? p.north_pole_pa_rad : 0.0;
+                const tiltScale = Math.sin(p.ring_tilt_rad);
+                const rot = ringRotation(sceneCtx, p, px);
                 const ringCol = [
                     Math.min(col[0] * 1.1, 1.0),
                     Math.min(col[1] * 1.2, 1.0),

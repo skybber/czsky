@@ -2142,9 +2142,12 @@
         this.perfStarsLoaded = starsLoaded | 0;
         measure('planet', () => this.planetRenderer.draw({
             sceneData: this.sceneData,
+            renderer: this.renderer,
             overlayCtx: this.overlayCtx,
             projection: projection,
             viewState: viewState,
+            mirrorX: this.isMirrorX(),
+            mirrorY: this.isMirrorY(),
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
             pickRadiusPx: pickRadiusPx,
