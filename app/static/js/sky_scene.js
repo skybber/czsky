@@ -1287,7 +1287,7 @@
         if (force) {
             url += '&hqual=1';
         }
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
             if (epoch !== this.sceneRequestEpoch) return;
@@ -1382,7 +1382,7 @@
             url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
         url = addOrReplaceQueryParam(url, 'optimized', optimized ? '1' : '0');
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((resp) => {
             if (reqEpoch !== this.mwSelectRequestEpoch) return;
@@ -1751,7 +1751,7 @@
             url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
         url = addOrReplaceQueryParam(url, 'optimized', mwMeta.optimized ? '1' : '0');
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
             delete this.mwCatalogLoadingById[datasetId];
@@ -1771,7 +1771,7 @@
 
         this.dsoOutlinesCatalogLoadingById[datasetId] = true;
         let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
             delete this.dsoOutlinesCatalogLoadingById[datasetId];
@@ -1798,7 +1798,7 @@
 
         this.constellLinesCatalogLoadingById[datasetId] = true;
         let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
             delete this.constellLinesCatalogLoadingById[datasetId];
@@ -1817,7 +1817,7 @@
 
         this.constellBoundariesCatalogLoadingById[datasetId] = true;
         let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
-        url += '&mode=data&t=' + Date.now();
+        url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
             delete this.constellBoundariesCatalogLoadingById[datasetId];

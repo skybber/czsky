@@ -454,7 +454,13 @@
                             </button>
                         </div>
                         <div class="item">
-                            <button id="bperfmeter" type="button" class="ui toggle labeled tiny icon button active" style="text-align:left">
+                            <button id="boldmode" type="button" class="ui toggle labeled tiny icon button{{ ' active' if chart_control.chart_mode == 'old' else ''}}" style="text-align:left">
+                                <i class="history icon"></i>
+                                {{ _('Image mode')}}
+                            </button>
+                        </div>
+                        <div class="item">
+                            <button id="bperfmeter" type="button" class="ui toggle labeled tiny icon button" style="text-align:left">
                                 <i class="chart line icon"></i>
                                 {{ _('Perf. meter')}}
                             </button>
@@ -725,14 +731,15 @@
     }
 
     const PERF_METER_STORAGE_KEY = 'sky_scene_perf_meter_enabled';
+    const OLD_MODE_FLAG = 'L';
 
     function isPerfMeterEnabled() {
         try {
             const raw = window.localStorage.getItem(PERF_METER_STORAGE_KEY);
-            if (raw === null) return true;
+            if (raw === null) return false;
             return raw === '1';
         } catch (e) {
-            return true;
+            return false;
         }
     }
 
@@ -753,6 +760,44 @@
     function syncPerfMeterButton() {
         const enabled = isPerfMeterEnabled();
         $('#bperfmeter').toggleClass('active', enabled);
+    }
+
+    function isOldModeFromUrlFlags() {
+        const flags = new URLSearchParams(window.location.search).get('flags') || '';
+        return flags.includes(OLD_MODE_FLAG);
+    }
+
+    function setOldModeInCurrentUrl(enableOldMode) {
+        const url = new URL(window.location.href);
+        let flags = url.searchParams.get('flags') || '';
+        flags = flags.split(OLD_MODE_FLAG).join('');
+        if (enableOldMode) {
+            flags += OLD_MODE_FLAG;
+        }
+        if (flags) {
+            url.searchParams.set('flags', flags);
+        } else {
+            url.searchParams.delete('flags');
+        }
+        return url.pathname + url.search + url.hash;
+    }
+
+    function isOldModeToggleAvailable() {
+        return !!sceneUrl && isWebGL2Supported();
+    }
+
+    function isOldModeEnabled() {
+        if (isOldModeFromUrlFlags()) {
+            return true;
+        }
+        return initialChartMode === 'old';
+    }
+
+    function syncOldModeButton() {
+        const unavailable = !isOldModeToggleAvailable();
+        const oldModeEnabled = unavailable ? true : isOldModeEnabled();
+        $('#boldmode').toggleClass('active', oldModeEnabled);
+        $('#boldmode').toggleClass('disabled', unavailable);
     }
 
     function createFChart(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
@@ -1094,8 +1139,11 @@
         sceneUrlHoriz = addOrReplaceQueryParamLocal(sceneUrlHoriz, 'debug_stars', debugStarsMode);
         sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
     }
-    var chartMode = "{{ request.args.get('mode', 'image') }}";
-    var useDataMode = (chartMode === 'data') && !!sceneUrl && isWebGL2Supported();
+    var initialChartMode = "{{ chart_control.chart_mode }}";
+    if (!['old', 'data'].includes(initialChartMode)) {
+        initialChartMode = 'data';
+    }
+    var useDataMode = !isOldModeEnabled() && !!sceneUrl && isWebGL2Supported();
 
     {% if fchart_items_url is not none %}
     var chartItemsUrl;
@@ -1299,6 +1347,16 @@
         persistPerfMeterEnabled(enabled);
         syncPerfMeterButton();
         applyPerfMeterStateToChart(fchart);
+    });
+
+    $('#boldmode').click(function(event){
+        event.stopPropagation();
+        if (!isOldModeToggleAvailable()) {
+            return;
+        }
+        const enableOldMode = !isOldModeEnabled();
+        chart_param_ajax('chart_mode', enableOldMode ? 'old' : 'data');
+        window.location.href = setOldModeInCurrentUrl(enableOldMode);
     });
 
     $('#bdso').click(function(event){
@@ -1674,11 +1732,13 @@
     }
 
     function updateChartUrls() {
+        sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
         if (isEquatorial) {
             fchart.updateUrls(isEquatorial, legendUrlEq, chartUrlEq, sceneUrlEq);
         } else {
             fchart.updateUrls(isEquatorial, legendUrlHoriz, chartUrlHoriz, sceneUrlHoriz);
         }
+        syncOldModeButton();
     }
 
     function reloadLegendOrSceneWidgets() {
@@ -1938,6 +1998,8 @@
         {% endif %}
 
         $('#layers_dropdown').dropdown({ displayType : 'block' });
+        syncOldModeButton();
+        persistPerfMeterEnabled(false);
         syncPerfMeterButton();
         applyPerfMeterStateToChart(fchart);
 

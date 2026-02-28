@@ -143,6 +143,7 @@ class FlagValue(Enum):
     FOV_TELRAD = 'T'
     MIRROR_X = 'X'
     MIRROR_Y = 'Y'
+    CHART_OLD_MODE = 'L'
 
 free_mem_counter = 0
 NO_FREE_MEM_CYCLES = 200
@@ -175,7 +176,7 @@ class ChartControl:
                  chart_mlim=None, chart_flags=None, legend_flags=None, chart_pdf_flags=None,
                  chart_dso_list_menu=None, has_date_from_to=False, date_from=None, date_to=None, back_search_url_b64=None,
                  show_not_found=None, cancel_selection_url=None, equipment_telescopes=None, equipment_eyepieces=None,
-                 eyepiece_fov=None):
+                 eyepiece_fov=None, chart_mode='data'):
         self.chart_fsz = chart_fsz
         self.mag_scale = mag_scale
         self.mag_ranges = mag_ranges
@@ -199,6 +200,20 @@ class ChartControl:
         self.equipment_telescopes = equipment_telescopes
         self.equipment_eyepieces = equipment_eyepieces
         self.eyepiece_fov = eyepiece_fov
+        self.chart_mode = chart_mode
+
+
+def resolve_chart_mode():
+    request_flags = request.args.get('flags') or ''
+    if FlagValue.CHART_OLD_MODE.value in request_flags:
+        return 'old'
+    if request_flags:
+        return 'data'
+
+    session_mode = (session.get('chart_mode') or '').strip().lower()
+    if session_mode in ('old', 'data'):
+        return session_mode
+    return 'data'
 
 
 def _load_used_catalogs():
@@ -743,6 +758,8 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         cancel_selection_url = url_for('main_chart.chart')
 
     eyepiece_fov = form.eyepiece_fov.data if form.eyepiece_fov.data else ''
+    chart_mode = resolve_chart_mode()
+    session['chart_mode'] = chart_mode
 
     return ChartControl(chart_fsz=str(fld_size),
                         mag_scale=cur_mag_scale, mag_ranges=MAG_SCALES, mag_range_values=mag_range_values,
@@ -758,6 +775,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
                         show_not_found=show_not_found,
                         cancel_selection_url=cancel_selection_url,
                         eyepiece_fov=eyepiece_fov,
+                        chart_mode=chart_mode,
                         equipment_telescopes=equipment_telescopes,
                         equipment_eyepieces=equipment_eyepieces,
                         )
@@ -1541,6 +1559,9 @@ def set_chart_session_param(key, value):
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'
+    elif key == 'chart_mode':
+        if value in ['old', 'data']:
+            session['chart_mode'] = value
     else:
         maglim_prefix = None
 
