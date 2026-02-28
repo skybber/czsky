@@ -802,7 +802,7 @@
 
     function createFChart(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
-                          theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues) {
+                          theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
@@ -836,7 +836,8 @@
                 aladin,
                 showAladin,
                 projection,
-                magRangeValues
+                magRangeValues,
+                dsoMagRangeValues
             );
         } else {
             fchart = new FChart(
@@ -1196,14 +1197,14 @@
             }
             fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                   longitude, latitude, useCurrentTime, chartDateTimeISO,
-                                  theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues);
+                                  theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues);
             fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
             fchart.onWindowLoad();
         });
     } else {
         fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                               longitude, latitude, useCurrentTime, chartDateTimeISO,
-                              theme, legendUrl, chartUrl, sceneUrl, null, projection, fullScreenWrapperId, magRangeValues);
+                              theme, legendUrl, chartUrl, sceneUrl, null, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues);
         fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
         fchart.onWindowLoad();
     }
@@ -1569,6 +1570,9 @@
         var dsoMaglimArr = extractMaglimArray(response);
         if (dsoMaglimArr.length == dsoMagRangeValues.length) {
             dsoMagRangeValues = dsoMaglimArr.slice();
+            if (fchart && typeof fchart.setDsoMagRangeValues === 'function') {
+                fchart.setDsoMagRangeValues(dsoMagRangeValues);
+            }
         }
         fchart.reloadImage();
     });

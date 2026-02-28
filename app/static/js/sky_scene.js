@@ -358,7 +358,7 @@
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
         fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
-        magRangeValues
+        magRangeValues, dsoMagRangeValues
     ) {
         this.fchartDiv = fchartDiv;
         $(fchartDiv).addClass('fchart-container');
@@ -372,8 +372,15 @@
         if (this.magRangeValues.length !== this.fieldSizes.length || this.magRangeValues.some((v) => !Number.isFinite(v))) {
             this.magRangeValues = [];
         }
+        this.dsoMagRangeValues = Array.isArray(dsoMagRangeValues)
+            ? dsoMagRangeValues.map((v) => Number(v))
+            : [];
+        if (this.dsoMagRangeValues.length !== this.fieldSizes.length || this.dsoMagRangeValues.some((v) => !Number.isFinite(v))) {
+            this.dsoMagRangeValues = [];
+        }
         this.renderFovDeg = fieldSizes[fldSizeIndex];
         this.renderMaglim = Number.isFinite(this.magRangeValues[fldSizeIndex]) ? this.magRangeValues[fldSizeIndex] : null;
+        this.renderDsoMaglim = Number.isFinite(this.dsoMagRangeValues[fldSizeIndex]) ? this.dsoMagRangeValues[fldSizeIndex] : null;
         this.isEquatorial = isEquatorial;
         this.viewCenter = { phi: phi, theta: theta };
         this.obj_ra = obj_ra != null ? obj_ra : phi;
@@ -1094,6 +1101,26 @@
         return true;
     };
 
+    SkyScene.prototype.setDsoMagRangeValues = function (dsoMagRangeValues) {
+        const parsed = Array.isArray(dsoMagRangeValues)
+            ? dsoMagRangeValues.map((v) => Number(v))
+            : null;
+        if (!parsed
+            || parsed.length !== this.fieldSizes.length
+            || parsed.some((v) => !Number.isFinite(v))) {
+            return false;
+        }
+        this.dsoMagRangeValues = parsed;
+        if (!this.zoomAnim) {
+            this.renderDsoMaglim = this._dsoMaglimForFieldIndex(this.fldSizeIndex);
+            if (this.sceneData && this.sceneData.meta) {
+                this.sceneData.meta.dso_maglim = this.renderDsoMaglim;
+            }
+            this.requestDraw();
+        }
+        return true;
+    };
+
     SkyScene.prototype._maglimForFieldIndex = function (idx) {
         if (Number.isInteger(idx) && idx >= 0 && idx < this.magRangeValues.length) {
             const v = Number(this.magRangeValues[idx]);
@@ -1104,6 +1131,20 @@
         }
         if (Number.isFinite(this.renderMaglim)) {
             return this.renderMaglim;
+        }
+        return 10.0;
+    };
+
+    SkyScene.prototype._dsoMaglimForFieldIndex = function (idx) {
+        if (Number.isInteger(idx) && idx >= 0 && idx < this.dsoMagRangeValues.length) {
+            const v = Number(this.dsoMagRangeValues[idx]);
+            if (Number.isFinite(v)) return v;
+        }
+        if (this.sceneData && this.sceneData.meta && Number.isFinite(this.sceneData.meta.dso_maglim)) {
+            return this.sceneData.meta.dso_maglim;
+        }
+        if (Number.isFinite(this.renderDsoMaglim)) {
+            return this.renderDsoMaglim;
         }
         return 10.0;
     };
@@ -1296,6 +1337,11 @@
                 this.renderMaglim = data.meta.maglim;
             } else if (!this.zoomAnim && !Number.isFinite(this.renderMaglim)) {
                 this.renderMaglim = this._maglimForFieldIndex(this.fldSizeIndex);
+            }
+            if (!this.zoomAnim && data && data.meta && Number.isFinite(data.meta.dso_maglim)) {
+                this.renderDsoMaglim = data.meta.dso_maglim;
+            } else if (!this.zoomAnim && !Number.isFinite(this.renderDsoMaglim)) {
+                this.renderDsoMaglim = this._dsoMaglimForFieldIndex(this.fldSizeIndex);
             }
             this.selectableRegions = data.img_map || [];
             this.syncQueryString();
