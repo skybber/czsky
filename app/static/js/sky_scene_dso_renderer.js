@@ -643,15 +643,24 @@
         const magDy = 0.9 * fh;
         let magLength = 0;
         let layoutMagLength = 0;
-        const resolveMagX = (labelX, labelLen, magLen) => {
+        const resolveMagPlacement = (labelX, labelLen, magLen) => {
             const labelCenterX = labelX + labelLen * 0.5;
             if (labelCenterX < centerPx.x - 1.0) {
-                return labelX + (labelLen - magLen);
+                return {
+                    x: labelX + (labelLen - magLen),
+                    mode: 'right',
+                };
             }
             if (Math.abs(labelCenterX - centerPx.x) <= 1.0) {
-                return labelX + (labelLen - magLen) * 0.5;
+                return {
+                    x: labelX + (labelLen - magLen) * 0.5,
+                    mode: 'center',
+                };
             }
-            return labelX;
+            return {
+                x: labelX,
+                mode: 'left',
+            };
         };
         if (layoutMagLabel) {
             ctx.save();
@@ -685,7 +694,8 @@
         let bestMagRect = null;
         let bestScore = this._labelScore(sceneCtx, bestRect, placedRects);
         if (magLabel && magLength > 0) {
-            bestMagRect = makeRect(resolveMagX(best.x, labelLength, magLength), best.y + magDy - magFontPx, magLength, magFontPx);
+            const magPlacement = resolveMagPlacement(best.x, labelLength, magLength);
+            bestMagRect = makeRect(magPlacement.x, best.y + magDy - magFontPx, magLength, magFontPx);
             bestScore += this._labelScore(sceneCtx, bestMagRect, placedRects);
         }
         const bestLocal0 = this._toLocalCoords(sceneCtx, { x: best.x + labelLength * 0.5, y: best.y });
@@ -697,7 +707,8 @@
             const local = this._toLocalCoords(sceneCtx, { x: c.x + labelLength * 0.5, y: c.y });
             let score = this._labelScore(sceneCtx, rect, placedRects);
             if (magLabel && magLength > 0) {
-                const magRect = makeRect(resolveMagX(c.x, labelLength, magLength), c.y + magDy - magFontPx, magLength, magFontPx);
+                const magPlacement = resolveMagPlacement(c.x, labelLength, magLength);
+                const magRect = makeRect(magPlacement.x, c.y + magDy - magFontPx, magLength, magFontPx);
                 score += this._labelScore(sceneCtx, magRect, placedRects);
             }
             score += labelPotential.computePotential(local.x, local.y);
@@ -705,25 +716,27 @@
                 best = c;
                 bestRect = rect;
                 bestMagRect = (magLabel && magLength > 0)
-                    ? makeRect(resolveMagX(c.x, labelLength, magLength), c.y + magDy - magFontPx, magLength, magFontPx)
+                    ? makeRect(resolveMagPlacement(c.x, labelLength, magLength).x, c.y + magDy - magFontPx, magLength, magFontPx)
                     : null;
                 bestScore = score;
             }
         }
 
+        const bestMagPlacement = resolveMagPlacement(best.x, labelLength, layoutMagLength);
         if (dso && dso.id && layoutMagLength > 0 && this._lastDsoLabelPlacementById) {
             this._lastDsoLabelPlacementById.set(dso.id, {
-                x: resolveMagX(best.x, labelLength, layoutMagLength),
+                x: bestMagPlacement.x,
                 y: best.y + magDy,
                 fontPx: magFontPx,
                 color: labelColor,
+                alignMode: bestMagPlacement.mode,
             });
         }
 
         ctx.fillText(label, best.x, best.y);
         placedRects.push(bestRect);
         if (magLabel && magLength > 0) {
-            const magX = resolveMagX(best.x, labelLength, magLength);
+            const magX = resolveMagPlacement(best.x, labelLength, magLength).x;
             ctx.save();
             ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
             ctx.fillText(magLabel, magX, best.y + magDy);
@@ -761,8 +774,14 @@
         ctx.textBaseline = 'alphabetic';
         const baseWidth = measureTextWidth(ctx, mag);
         const fullWidth = measureTextWidth(ctx, fullText);
-        const rightAlignedX = placement.x + baseWidth - fullWidth;
-        ctx.fillText(fullText, rightAlignedX, placement.y);
+        const alignMode = placement.alignMode || 'right';
+        let textX = placement.x + baseWidth - fullWidth;
+        if (alignMode === 'left') {
+            textX = placement.x;
+        } else if (alignMode === 'center') {
+            textX = placement.x + (baseWidth - fullWidth) * 0.5;
+        }
+        ctx.fillText(fullText, textX, placement.y);
         ctx.restore();
     };
 
