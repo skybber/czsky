@@ -1940,9 +1940,6 @@
     };
 
     SkyScene.prototype._findNearestStarAtCenter = function () {
-        if (!this.starsRenderer || typeof this.starsRenderer.getNearestProjectedStarForPick !== 'function') {
-            return null;
-        }
         const picked = this.starsRenderer.getNearestProjectedStarForPick();
         if (!picked) return null;
         return {
@@ -1955,9 +1952,6 @@
     };
 
     SkyScene.prototype._findNearestMoonInPicker = function () {
-        if (!this.planetRenderer || typeof this.planetRenderer.getNearestMoonForPick !== 'function') {
-            return null;
-        }
         const picked = this.planetRenderer.getNearestMoonForPick();
         if (!picked || !picked.id) return null;
         return {
@@ -1968,9 +1962,6 @@
     };
 
     SkyScene.prototype._findNearestDsoInPicker = function () {
-        if (!this.dsoRenderer || typeof this.dsoRenderer.getNearestDsoForPick !== 'function') {
-            return null;
-        }
         const picked = this.dsoRenderer.getNearestDsoForPick();
         if (!picked || !picked.id) return null;
         const dso = this._findDsoById(picked.id);
@@ -2157,9 +2148,7 @@
                     height: this.canvas.height,
                 }) || 0;
             });
-            if (this.starsRenderer && typeof this.starsRenderer.getLastDiag === 'function') {
-                this.perfStarsDiag = this.starsRenderer.getLastDiag();
-            }
+            this.perfStarsDiag = this.starsRenderer.getLastDiag();
         }
 
         this.perfStarsLoaded = starsLoaded | 0;
@@ -2235,9 +2224,7 @@
         measure('center_pick', () => this._updateCenterPick());
         measure('picked_annotations', () => {
             if (!this.centerPick) return;
-            if (this.centerPick.kind === 'star'
-                && this.starsRenderer
-                && typeof this.starsRenderer.drawPickedStarMagnitude === 'function') {
+            if (this.centerPick.kind === 'star') {
                 this.starsRenderer.drawPickedStarMagnitude({
                     overlayCtx: this.overlayCtx,
                     themeConfig: this.getThemeConfig(),
@@ -2245,9 +2232,7 @@
                 }, this.centerPick);
                 return;
             }
-            if (this.centerPick.kind === 'dso'
-                && this.dsoRenderer
-                && typeof this.dsoRenderer.drawPickedDsoMagnitude === 'function') {
+            if (this.centerPick.kind === 'dso') {
                 this.dsoRenderer.drawPickedDsoMagnitude({
                     sceneData: this.sceneData,
                     overlayCtx: this.overlayCtx,
@@ -2256,9 +2241,7 @@
                 }, this.centerPick.id);
                 return;
             }
-            if (this.centerPick.kind === 'moon'
-                && this.planetRenderer
-                && typeof this.planetRenderer.drawPickedMoonMagnitude === 'function') {
+            if (this.centerPick.kind === 'moon') {
                 this.planetRenderer.drawPickedMoonMagnitude({
                     sceneData: this.sceneData,
                     overlayCtx: this.overlayCtx,
