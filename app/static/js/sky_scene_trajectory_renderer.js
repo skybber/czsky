@@ -46,10 +46,7 @@
     };
 
     window.SkySceneTrajectoryRenderer.prototype._fontPx = function (sceneCtx) {
-        const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-            ? sceneCtx.themeConfig.font_scales.font_size : null;
-        const mm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        return Math.max(9.0, U.mmToPx(mm));
+        return Math.max(9.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size));
     };
 
     window.SkySceneTrajectoryRenderer.prototype._drawTick = function (ctx, x1, y1, x2, y2, lw) {

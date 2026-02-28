@@ -2,7 +2,7 @@
     const U = window.SkySceneUtils;
 
     function isFiniteNumber(v) {
-        return typeof v === 'number' && Number.isFinite(v);
+        return Number.isFinite(v);
     }
 
     function clampTheta(theta) {

@@ -212,9 +212,7 @@
         if (!sceneCtx || !sceneCtx.overlayCtx || !Array.isArray(labelEntries) || labelEntries.length === 0) return;
         const ctx = sceneCtx.overlayCtx;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
-        const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales ? sceneCtx.themeConfig.font_scales : null;
-        const fontMm = fs && typeof fs.font_size === 'number' ? fs.font_size : 3.0;
-        const fontPx = Math.max(10, U.mmToPx(fontMm));
+        const fontPx = Math.max(10, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size));
         ctx.font = Math.round(fontPx) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
 

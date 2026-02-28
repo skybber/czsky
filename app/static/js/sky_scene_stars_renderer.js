@@ -93,9 +93,7 @@
 
     SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag) {
         const lm = sceneCtx.renderMaglim;
-        const themeConfig = sceneCtx ? sceneCtx.themeConfig : null;
-        const starMagShift = themeConfig && themeConfig.sizes && typeof themeConfig.sizes.star_mag_shift === 'number'
-            ? themeConfig.sizes.star_mag_shift : 0.0;
+        const starMagShift = sceneCtx.themeConfig.sizes.star_mag_shift;
 
         const starMagRShift = starMagShift > 0
             ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
@@ -281,10 +279,7 @@
         if (!Number.isFinite(pickStar.xPx) || !Number.isFinite(pickStar.yPx) || !Number.isFinite(pickStar.mag)) return;
         const ctx = sceneCtx.overlayCtx;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
-        const themeConfig = sceneCtx.themeConfig || {};
-        const fontMm = themeConfig.font_scales && typeof themeConfig.font_scales.font_size === 'number'
-            ? themeConfig.font_scales.font_size : 3.0;
-        const fontPx = Math.max(10.0, U.mmToPx(fontMm));
+        const fontPx = Math.max(10.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size));
         const rPx = Number.isFinite(pickStar.rPx) ? Math.max(0.8, pickStar.rPx) : 0.8;
         const text = Number(pickStar.mag).toFixed(1);
         ctx.save();

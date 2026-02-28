@@ -122,9 +122,7 @@
     };
 
     SkySceneDsoRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
-        const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
-            ? sceneCtx.themeConfig.line_widths : null;
-        const lwMm = lws && typeof lws[key] === 'number' ? lws[key] : null;
+        const lwMm = sceneCtx.themeConfig.line_widths[key];
         if (lwMm == null) return fallbackPx;
         return Math.max(0.75, U.mmToPx(lwMm));
     };
@@ -354,16 +352,13 @@
         }
 
         const ctx = sceneCtx.overlayCtx;
-        const theme = sceneCtx.themeConfig || {};
-        const flags = theme.flags || {};
-        const lightMode = !!flags.light_mode;
+        const theme = sceneCtx.themeConfig;
+        const lightMode = !!theme.flags.light_mode;
         const baseNebColor = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
-        const lwMm = theme.line_widths && typeof theme.line_widths.nebula === 'number'
-            ? theme.line_widths.nebula : 0.2;
 
         let drawn = false;
         ctx.save();
-        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(theme.line_widths.nebula));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);
@@ -448,10 +443,8 @@
     };
 
     SkySceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
-        const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-            ? sceneCtx.themeConfig.font_scales.font_size : null;
         // Legacy renderer uses default font size in chart units; JS keeps a practical px fallback.
-        const px = (typeof fs === 'number' && fs > 0) ? (fs * 3.2) : 12.0;
+        const px = sceneCtx.themeConfig.font_scales.font_size * 3.2;
         return Math.max(10.0, Math.min(20.0, px));
     };
 

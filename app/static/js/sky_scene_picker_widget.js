@@ -3,14 +3,9 @@
 
     window.SkyScenePickerWidget.prototype.draw = function (sceneCtx) {
         const ctx = sceneCtx.overlayCtx;
-        const themeConfig = sceneCtx.themeConfig || {};
         const c = sceneCtx.getThemeColor('picker', [0.2, 0.6, 0.8]);
-        const lineMm = themeConfig.line_widths && typeof themeConfig.line_widths.picker === 'number'
-            ? themeConfig.line_widths.picker : 0.4;
-        const sizeMm = themeConfig.sizes && typeof themeConfig.sizes.picker_radius === 'number'
-            ? themeConfig.sizes.picker_radius : 4.0;
-        const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(lineMm));
-        const r = Math.max(6.0, window.SkySceneWidgetUtils.mmToPx(sizeMm));
+        const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.picker));
+        const r = Math.max(6.0, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.sizes.picker_radius));
         const seg = r / 3.0;
 
         const cx = sceneCtx.width * 0.5;

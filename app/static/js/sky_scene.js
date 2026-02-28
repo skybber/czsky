@@ -728,9 +728,7 @@
         const dec = eq && Number.isFinite(eq.dec) ? eq.dec : this.viewCenter.theta;
         const raDeg = ra * 180.0 / Math.PI;
         const decDeg = dec * 180.0 / Math.PI;
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
 
         const sizeChanged = this._syncAladinDivSize();
         const fovChanged = !(Number.isFinite(this.aladinLastSync.fovDeg))
@@ -1001,7 +999,7 @@
             && Number.isFinite(ra)
             && Number.isFinite(dec)) {
             const lst = this._getChartLst(dateTimeISO);
-            if (typeof lst === 'number' && Number.isFinite(lst)) {
+            if (Number.isFinite(lst)) {
                 const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
                 if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
                     return { az: U.normalizeRa(hor.az), alt: hor.alt };
@@ -1012,7 +1010,7 @@
         const center = this.sceneData && this.sceneData.meta && this.sceneData.meta.center
             ? this.sceneData.meta.center
             : null;
-        if (center && typeof center.phi === 'number' && typeof center.theta === 'number') {
+        if (center && Number.isFinite(center.phi) && Number.isFinite(center.theta)) {
             return { az: center.phi, alt: center.theta };
         }
         return { az: this.viewCenter.phi, alt: this.viewCenter.theta };
@@ -1378,7 +1376,7 @@
             url = addOrReplaceQueryParam(url, 'az', centerHor.az);
             url = addOrReplaceQueryParam(url, 'alt', centerHor.alt);
         }
-        const fovDeg = (typeof this.renderFovDeg === 'number') ? this.renderFovDeg : this.fieldSizes[this.fldSizeIndex];
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
         url = addOrReplaceQueryParam(url, 'fsz', fovDeg);
         if (mwMeta.quality) {
             url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
@@ -1886,13 +1884,10 @@
     };
 
     SkyScene.prototype._pickerRadiusPx = function () {
-        const themeConfig = this.getThemeConfig() || {};
-        const sizeMm = themeConfig.sizes && typeof themeConfig.sizes.picker_radius === 'number'
-            ? themeConfig.sizes.picker_radius : 4.0;
         const mmToPx = (window.SkySceneWidgetUtils && typeof window.SkySceneWidgetUtils.mmToPx === 'function')
             ? window.SkySceneWidgetUtils.mmToPx
             : function (mm) { return mm * (100.0 / 25.4); };
-        return Math.max(6.0, mmToPx(sizeMm));
+        return Math.max(6.0, mmToPx(this.getThemeConfig().sizes.picker_radius));
     };
 
     SkyScene.prototype._findDsoById = function (id) {
@@ -2346,9 +2341,7 @@
     };
 
     SkyScene.prototype._applyPanDelta = function (dx, dy) {
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
         const fovRad = deg2rad(fovDeg);
         const wh = Math.max(this.canvas.width, this.canvas.height);
         const dirX = this.isMirrorX() ? -1 : 1;
@@ -2541,9 +2534,7 @@
             const pts = Array.from(this.input.activePointers.values());
             this.input.gesture = 'pinch';
             this.input.pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-            this.input.pinchStartFov = (typeof this.renderFovDeg === 'number')
-                ? this.renderFovDeg
-                : this.fieldSizes[this.fldSizeIndex];
+            this.input.pinchStartFov = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
             this.input.tapCandidate = false;
             this.move.moved = true;
             this.input.suppressClickUntilTs = Date.now() + 300;
@@ -2750,9 +2741,7 @@
             this.onFieldChangeCallback.call(this, this.fldSizeIndex);
         }
 
-        const fromFov = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[prevTargetIndex];
+        const fromFov = this.renderFovDeg ?? this.fieldSizes[prevTargetIndex];
         const toFov = this.fieldSizes[clampedIndex];
         const fromMaglim = Number.isFinite(this.renderMaglim)
             ? this.renderMaglim
@@ -2829,9 +2818,7 @@
     };
 
     SkyScene.prototype._applyKeyboardPanDelta = function (dx, dy, dtMs) {
-        const fovDeg = (typeof this.renderFovDeg === 'number')
-            ? this.renderFovDeg
-            : this.fieldSizes[this.fldSizeIndex];
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
         const dtSec = Math.max(1, dtMs) / 1000.0;
         let dAng = deg2rad(fovDeg) * dtSec / this.keyboardMoveSecPerScreen;
         const dirX = this.isMirrorX() ? -1 : 1;

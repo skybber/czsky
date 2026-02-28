@@ -38,15 +38,10 @@
     window.SkySceneGridRenderer = function () {};
 
     SkySceneGridRenderer.prototype._setupStyles = function (sceneCtx) {
-        const theme = sceneCtx.themeConfig || {};
-        const lwMm = theme.line_widths && typeof theme.line_widths.grid === 'number'
-            ? theme.line_widths.grid : 0.2;
-        const fontMm = theme.font_scales && typeof theme.font_scales.font_size === 'number'
-            ? theme.font_scales.font_size : 3.0;
-
+        const theme = sceneCtx.themeConfig;
         return {
-            lineWidthPx: Math.max(0.6, U.mmToPx(lwMm)),
-            fontPx: Math.max(10, Math.round(U.mmToPx(fontMm))),
+            lineWidthPx: Math.max(0.6, U.mmToPx(theme.line_widths.grid)),
+            fontPx: Math.max(10, Math.round(U.mmToPx(theme.font_scales.font_size))),
             color: sceneCtx.getThemeColor('grid', [0.45, 0.5, 0.55]),
         };
     };
@@ -92,7 +87,7 @@
     SkySceneGridRenderer.prototype._drawLabel = function (ctx, text, x, y, align, baseline, angle) {
         ctx.save();
         ctx.translate(x, y);
-        if (typeof angle === 'number' && Number.isFinite(angle)) {
+        if (angle) {
             ctx.rotate(angle);
         }
         ctx.textAlign = align;

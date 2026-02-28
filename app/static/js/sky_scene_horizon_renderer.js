@@ -72,11 +72,8 @@
 
     SkySceneHorizonRenderer.prototype._drawCardinalLabels = function (sceneCtx) {
         const ctx = sceneCtx.overlayCtx;
-        const theme = sceneCtx.themeConfig || {};
-        const fs = theme.font_scales || {};
-        const baseFontMm = (typeof fs.font_size === 'number') ? fs.font_size : 3.0;
-        const scale = (typeof fs.cardinal_directions_font_scale === 'number') ? fs.cardinal_directions_font_scale : 1.3;
-        const fontPx = Math.max(10, U.mmToPx(baseFontMm * scale));
+        const fs = sceneCtx.themeConfig.font_scales;
+        const fontPx = Math.max(10, U.mmToPx(fs.font_size * fs.cardinal_directions_font_scale));
         const color = sceneCtx.getThemeColor(
             'cardinal_directions',
             sceneCtx.getThemeColor('label', [0.8, 0.2, 0.102])
@@ -122,14 +119,11 @@
         if (typeof meta.show_horizon === 'boolean' && !meta.show_horizon) return;
 
         const ctx = sceneCtx.overlayCtx;
-        const theme = sceneCtx.themeConfig || {};
-        const lws = theme.line_widths || {};
-        const lwMm = (typeof lws.horizon === 'number') ? lws.horizon : 1.0;
         const color = sceneCtx.getThemeColor('horizon', [0.6, 0.6, 0.3]);
 
         ctx.save();
         ctx.strokeStyle = U.rgba(color, 1.0);
-        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(sceneCtx.themeConfig.line_widths.horizon));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);

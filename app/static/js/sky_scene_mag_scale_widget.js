@@ -25,10 +25,8 @@
 
     window.SkySceneMagScaleWidget.prototype._starRadiusPx = function (sceneCtx, mag) {
         const meta = sceneCtx.meta || {};
-        const themeConfig = sceneCtx.themeConfig || {};
         const lm = Number.isFinite(meta.maglim) ? meta.maglim : 10.0;
-        const starMagShift = themeConfig.sizes && typeof themeConfig.sizes.star_mag_shift === 'number'
-            ? themeConfig.sizes.star_mag_shift : 0.0;
+        const starMagShift = sceneCtx.themeConfig.sizes.star_mag_shift;
         const starMagRShift = starMagShift > 0
             ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
             : 0.0;

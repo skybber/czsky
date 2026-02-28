@@ -11,9 +11,7 @@
     }
 
     window.SkySceneHighlightRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
-        const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
-            ? sceneCtx.themeConfig.line_widths : null;
-        const lwMm = lws && typeof lws[key] === 'number' ? lws[key] : null;
+        const lwMm = sceneCtx.themeConfig.line_widths[key];
         if (lwMm == null) return fallbackPx;
         return Math.max(0.75, U.mmToPx(lwMm));
     };
@@ -106,10 +104,7 @@
     window.SkySceneHighlightRenderer.prototype._drawCross = function (sceneCtx, hl) {
         const centerPx = (Number.isFinite(hl.ra) && Number.isFinite(hl.dec) ? sceneCtx.projection.projectEquatorialToPx(hl.ra, hl.dec) : null);
         if (!centerPx) return;
-        const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-            ? sceneCtx.themeConfig.font_scales.font_size : null;
-        const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        const fontPx = U.mmToPx(fontMm);
+        const fontPx = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
         const r = Math.max(5.0, fontPx * 2.0 * size);
         const ctx = sceneCtx.overlayCtx;
@@ -135,9 +130,7 @@
         let r = Number.isFinite(hl.radius_px) ? Math.max(2.0, hl.radius_px) : 8.0;
         if (hl.shape === 'dso_circle') {
             // Match legacy fchart3 behavior: highlight circle radius follows font size.
-            const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-                ? sceneCtx.themeConfig.font_scales.font_size : null;
-            const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
+            const fontMm = sceneCtx.themeConfig.font_scales.font_size;
             const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
             r = U.mmToPx(fontMm) * size;
             if (dsoById && hl.id && dsoById[hl.id]) {
@@ -158,10 +151,7 @@
     window.SkySceneHighlightRenderer.prototype._drawComet = function (sceneCtx, hl) {
         const centerPx = (Number.isFinite(hl.ra) && Number.isFinite(hl.dec) ? sceneCtx.projection.projectEquatorialToPx(hl.ra, hl.dec) : null);
         if (!centerPx) return;
-        const fs = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-            ? sceneCtx.themeConfig.font_scales.font_size : null;
-        const fontMm = (typeof fs === 'number' && fs > 0) ? fs : 2.6;
-        const base = U.mmToPx(fontMm);
+        const base = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         const coreR = Math.max(2.0, base * 0.3);
         const ctx = sceneCtx.overlayCtx;
         ctx.save();

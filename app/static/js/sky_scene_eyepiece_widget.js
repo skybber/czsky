@@ -15,11 +15,8 @@
         if (!(eyepieceFov > 0)) return;
 
         const ctx = sceneCtx.overlayCtx;
-        const themeConfig = sceneCtx.themeConfig || {};
         const c = sceneCtx.getThemeColor('eyepiece', [0.5, 0.3, 0.0]);
-        const lineMm = themeConfig.line_widths && typeof themeConfig.line_widths.eyepiece === 'number'
-            ? themeConfig.line_widths.eyepiece : 0.4;
-        const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(lineMm));
+        const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.eyepiece));
         const scale = pxPerRad(sceneCtx);
         if (!(scale > 0)) return;
 

@@ -16,13 +16,10 @@
     };
 
     SceneProjection.prototype.getFovDeg = function () {
-        if (typeof this.renderFovDeg === 'number' && Number.isFinite(this.renderFovDeg)) {
+        if (this.renderFovDeg != null) {
             return this.renderFovDeg;
         }
-        if (Number.isInteger(this.fldSizeIndex)
-            && this.fldSizeIndex >= 0
-            && this.fldSizeIndex < this.fieldSizes.length
-            && Number.isFinite(this.fieldSizes[this.fldSizeIndex])) {
+        if (this.fldSizeIndex >= 0 && this.fldSizeIndex < this.fieldSizes.length) {
             return this.fieldSizes[this.fldSizeIndex];
         }
         return 1.0;

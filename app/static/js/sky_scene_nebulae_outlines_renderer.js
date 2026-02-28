@@ -90,15 +90,12 @@
         if (!Array.isArray(nebulae) || nebulae.length === 0) return;
 
         const ctx = sceneCtx.overlayCtx;
-        const theme = sceneCtx.themeConfig || {};
-        const flags = theme.flags || {};
-        const lightMode = !!flags.light_mode;
+        const theme = sceneCtx.themeConfig;
+        const lightMode = !!theme.flags.light_mode;
         const baseNebColor = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
-        const lwMm = theme.line_widths && typeof theme.line_widths.nebula === 'number'
-            ? theme.line_widths.nebula : 0.2;
 
         ctx.save();
-        ctx.lineWidth = Math.max(0.75, U.mmToPx(lwMm));
+        ctx.lineWidth = Math.max(0.75, U.mmToPx(theme.line_widths.nebula));
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.setLineDash([]);

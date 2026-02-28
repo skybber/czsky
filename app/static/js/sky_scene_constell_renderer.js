@@ -25,17 +25,13 @@
 
 
     window.SkySceneConstellationRenderer.prototype._themeLinesStroke = function (sceneCtx) {
-        const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
-            ? sceneCtx.themeConfig.line_widths.constellation : null;
-        const widthPx = (typeof lwMm === 'number') ? U.mmToPx(lwMm) : 1.0;
+        const widthPx = U.mmToPx(sceneCtx.themeConfig.line_widths.constellation);
         const color = sceneCtx.getThemeColor('constellation_lines', [0.45, 0.55, 0.8]);
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
 
     window.SkySceneConstellationRenderer.prototype._themeBoundariesStroke = function (sceneCtx) {
-        const lwMm = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
-            ? sceneCtx.themeConfig.line_widths.constellation_border : null;
-        const widthPx = (typeof lwMm === 'number') ? U.mmToPx(lwMm) : 1.0;
+        const widthPx = U.mmToPx(sceneCtx.themeConfig.line_widths.constellation_border);
         const color = sceneCtx.getThemeColor('constellation_borders', [0.45, 0.55, 0.8]);
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
@@ -106,9 +102,7 @@
         if (!lines.length) return;
 
         const stroke = this._themeLinesStroke(sceneCtx);
-        const sizes = sceneCtx.themeConfig && sceneCtx.themeConfig.sizes ? sceneCtx.themeConfig.sizes : null;
-        const lineSpaceMm = sizes && typeof sizes.constellation_linespace === 'number'
-            ? sizes.constellation_linespace : 0.0;
+        const lineSpaceMm = sceneCtx.themeConfig.sizes.constellation_linespace;
         const lineSpacePx = lineSpaceMm > 0 ? U.mmToPx(lineSpaceMm) : 0.0;
         ctx.strokeStyle = U.rgba(stroke.color, 0.9);
         ctx.lineWidth = stroke.widthPx;
