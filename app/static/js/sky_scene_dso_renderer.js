@@ -127,6 +127,35 @@
         return Math.max(0.75, U.mmToPx(lwMm));
     };
 
+    SkySceneDsoRenderer.prototype._scaleColor = function (col, intensity) {
+        return [col[0] * intensity, col[1] * intensity, col[2] * intensity];
+    };
+
+    SkySceneDsoRenderer.prototype._galaxyIntensity = function (sceneCtx, dso, hasExternalLabel) {
+        const dynamicBrightness = sceneCtx.themeConfig.flags.dso_dynamic_brightness;
+        const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
+        const dsoMaglim = Number(meta.dso_maglim);
+        const mag = dso ? dso.mag : null;
+
+        if (!dynamicBrightness
+            || !Number.isFinite(mag)
+            || !Number.isFinite(dsoMaglim)
+            || dsoMaglim < 10.0
+            || !!hasExternalLabel) {
+            return 1.0;
+        }
+
+        let fac = dsoMaglim - 8.0;
+        if (fac > 5.0) fac = 5.0;
+        if (fac <= 0) return 1.0;
+
+        let diffMag = dsoMaglim - mag;
+        if (diffMag < 0) diffMag = 0;
+        if (diffMag > 5) diffMag = 5;
+
+        return diffMag > fac ? 1.0 : (0.5 + 0.5 * diffMag / fac);
+    };
+
     SkySceneDsoRenderer.prototype._drawEllipse = function (ctx, cx, cy, rx, ry, angle, dash) {
         ctx.save();
         if (dash && dash.length) {
@@ -177,7 +206,9 @@
 
     SkySceneDsoRenderer.prototype._drawGalaxy = function (sceneCtx, centerPx, dso) {
         const ctx = sceneCtx.overlayCtx;
-        const col = sceneCtx.getThemeColor('galaxy', [0.4, 0.8, 1.0]);
+        const baseCol = sceneCtx.getThemeColor('galaxy', [0.4, 0.8, 1.0]);
+        const intensity = this._galaxyIntensity(sceneCtx, dso, false);
+        const col = this._scaleColor(baseCol, intensity);
         const r = this._dsoRadii(sceneCtx, dso);
         const pa = this._galaxyScreenAngle(sceneCtx, dso, centerPx);
         this._setupStroke(ctx, col);
@@ -448,10 +479,10 @@
         return Math.max(10.0, Math.min(20.0, px));
     };
 
-    SkySceneDsoRenderer.prototype._applyLabelStyle = function (sceneCtx, ctx) {
-        const labelColor = sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]);
+    SkySceneDsoRenderer.prototype._applyLabelStyle = function (sceneCtx, ctx, labelColor) {
+        const resolvedLabelColor = labelColor || sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]);
         const fontPx = this._labelFontPx(sceneCtx);
-        ctx.fillStyle = U.rgba(labelColor, 0.95);
+        ctx.fillStyle = U.rgba(resolvedLabelColor, 0.95);
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
         return fontPx;
@@ -599,7 +630,10 @@
         const layoutMagLabel = this._formatDsoMag(dso);
         const magLabel = showMag ? layoutMagLabel : null;
 
-        const fh = this._applyLabelStyle(sceneCtx, ctx);
+        const baseLabelColor = sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]);
+        const galaxyIntensity = dso.type === 'G' ? this._galaxyIntensity(sceneCtx, dso, false) : 1.0;
+        const labelColor = dso.type === 'G' ? this._scaleColor(baseLabelColor, galaxyIntensity) : baseLabelColor;
+        const fh = this._applyLabelStyle(sceneCtx, ctx, labelColor);
         const labelLength = measureTextWidth(ctx, label);
         if (!(labelLength > 0)) return;
         const magFontPx = fh * 0.8;
@@ -679,7 +713,7 @@
                 x: resolveMagX(best.x, labelLength, layoutMagLength),
                 y: best.y + magDy,
                 fontPx: magFontPx,
-                color: sceneCtx.getThemeColor('label', [0.8, 0.8, 0.8]),
+                color: labelColor,
             });
         }
 
