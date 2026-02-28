@@ -1927,11 +1927,11 @@ msgstr "Zobrazit sluneční soustavu"
 #: app/templates/main/solarsystem/planet_info.html:18
 #: app/templates/main/solarsystem/planet_moon_info.html:17
 #: app/templates/main/solarsystem/planet_moon_info.html:23
-msgid "Chart"
+msgid "Map"
 msgstr "Mapa"
 
 #: app/templates/main/index.html:36
-msgid "View sky chart"
+msgid "View sky map"
 msgstr "Zobrazit hvězdnou mapu"
 
 #: app/templates/main/index.html:38

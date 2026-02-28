@@ -3,7 +3,7 @@
 {% import 'macros/fchart_macros.html' as fchart with context %}
 
 {% set endpoints = [
-    ('main_chart.chart', 'Chart', 'Chart')
+    ('main_chart.chart', 'Map', 'Map')
 ] %}
 
 {# --- Find Chart --- #}
@@ -36,7 +36,7 @@
             </div>
 
             <h3 class="ui header" style="margin-top:0.5em">
-                {{ _('Chart') }}
+                {{ _('Map') }}
             </h3>
             {{ chart_info() }}
         </div>

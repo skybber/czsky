@@ -22,7 +22,7 @@
         </a>
         <a class="item {% if request.endpoint == 'main_double_star_list.double_star_list_chart' %}active{% endif %}"
            href="{{ url_for('main_double_star_list.double_star_list_chart', double_star_list_id=double_star_list.id, back=back, back_id=back_id, splitview='true') }}">
-            {{ _('Chart') }}
+            {{ _('Map') }}
         </a>
     </div>
 {% endmacro %}

@@ -16,7 +16,7 @@
             </a>
             <a class="item {% if request.endpoint == 'main_dso_list.dso_list_chart' %}active{% endif %}"
                href="{{ url_for('main_dso_list.dso_list_chart', dso_list_id=dso_list.id, back=back, back_id=back_id, splitview='true') }}">
-                {{ _('Chart') }}
+                {{ _('Map') }}
             </a>
     </div>
 {% endmacro %}

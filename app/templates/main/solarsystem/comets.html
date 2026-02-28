@@ -11,7 +11,7 @@
         </a>
         <a class="item {% if request.endpoint == 'main_comet.comets_chart' %}active{% endif %}"
            href="{{ url_for('main_comet.comets_chart', back=back, back_id=back_id, splitview='true') }}">
-            {{ _('Chart') }}
+            {{ _('Map') }}
         </a>
     </div>
 {% endmacro %}
