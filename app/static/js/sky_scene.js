@@ -1967,6 +1967,22 @@
         };
     };
 
+    SkyScene.prototype._findNearestDsoInPicker = function () {
+        if (!this.dsoRenderer || typeof this.dsoRenderer.getNearestDsoForPick !== 'function') {
+            return null;
+        }
+        const picked = this.dsoRenderer.getNearestDsoForPick();
+        if (!picked || !picked.id) return null;
+        const dso = this._findDsoById(picked.id);
+        if (!dso) return null;
+        return {
+            kind: 'dso',
+            id: dso.id,
+            label: dso.label || dso.cat || dso.id || '',
+            mag: Number.isFinite(dso.mag) ? dso.mag : null,
+        };
+    };
+
     SkyScene.prototype._updateCenterPick = function () {
         if (!this._isPickerEnabled()) {
             this.centerPick = null;
@@ -1975,6 +1991,11 @@
         const pickedObject = this._findObjectAtCenter();
         if (pickedObject) {
             this.centerPick = pickedObject;
+            return;
+        }
+        const pickedDso = this._findNearestDsoInPicker();
+        if (pickedDso) {
+            this.centerPick = pickedDso;
             return;
         }
         const pickedMoon = this._findNearestMoonInPicker();
@@ -2095,6 +2116,9 @@
             height: this.canvas.height,
         }));
 
+        const pickerEnabled = this._isPickerEnabled();
+        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
+
         measure('dso', () => this.dsoRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
@@ -2109,12 +2133,11 @@
             ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
             getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
             registerSelectable: this._registerSelectable.bind(this),
+            pickRadiusPx: pickRadiusPx,
         }));
 
         let starsLoaded = 0;
         this.perfStarsDiag = null;
-        const pickerEnabled = this._isPickerEnabled();
-        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
         if (!aladinActive) {
             measure('stars', () => {
                 starsLoaded = this.starsRenderer.draw({

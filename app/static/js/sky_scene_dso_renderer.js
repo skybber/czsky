@@ -3,6 +3,7 @@
 
     window.SkySceneDsoRenderer = function () {
         this._lastDsoLabelPlacementById = new Map();
+        this._pickDso = null;
     };
 
     const MIN_DSO_RADIUS_PX = 3.0;
@@ -763,15 +764,34 @@
         ctx.restore();
     };
 
+    SkySceneDsoRenderer.prototype.getNearestDsoForPick = function () {
+        if (!this._pickDso) return null;
+        return {
+            id: this._pickDso.id || null,
+            dist2: Number.isFinite(this._pickDso.dist2) ? this._pickDso.dist2 : null,
+            xPx: Number.isFinite(this._pickDso.xPx) ? this._pickDso.xPx : null,
+            yPx: Number.isFinite(this._pickDso.yPx) ? this._pickDso.yPx : null,
+            rPx: Number.isFinite(this._pickDso.rPx) ? this._pickDso.rPx : null,
+        };
+    };
+
     SkySceneDsoRenderer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
+            this._pickDso = null;
             return;
         }
 
         this._lastDsoLabelPlacementById = new Map();
+        this._pickDso = null;
         const dsoList = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.dso) || [];
         const placedLabelRects = [];
         const labelPotential = this._buildLabelPotential(sceneCtx, dsoList);
+        const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
+        const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
+        const pickCx = sceneCtx.width * 0.5;
+        const pickCy = sceneCtx.height * 0.5;
+        let bestPickDist2 = Infinity;
+        let bestPickDso = null;
         for (let i = 0; i < dsoList.length; i++) {
             const dso = dsoList[i];
             const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
@@ -779,6 +799,25 @@
                 continue;
             }
             const radii = this._dsoRadii(sceneCtx, dso);
+            if (pickRadius2 > 0.0 && dso && dso.id) {
+                const dxPick = centerPx.x - pickCx;
+                const dyPick = centerPx.y - pickCy;
+                const d2Pick = dxPick * dxPick + dyPick * dyPick;
+                if (d2Pick <= pickRadius2 && d2Pick < bestPickDist2) {
+                    bestPickDist2 = d2Pick;
+                    bestPickDso = {
+                        id: dso.id,
+                        dist2: d2Pick,
+                        xPx: centerPx.x,
+                        yPx: centerPx.y,
+                        rPx: Math.max(
+                            MIN_DSO_RADIUS_PX,
+                            Number.isFinite(radii.rLongPx) ? radii.rLongPx : MIN_DSO_RADIUS_PX,
+                            Number.isFinite(radii.rShortPx) ? radii.rShortPx : MIN_DSO_RADIUS_PX
+                        ),
+                    };
+                }
+            }
             const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
 
             switch (dso.type) {
@@ -818,5 +857,6 @@
             this._registerSelectable(sceneCtx, dso, centerPx, radii, outlinesItem);
             this._drawLabel(sceneCtx, sceneCtx.overlayCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
         }
+        this._pickDso = bestPickDso;
     };
 })();
