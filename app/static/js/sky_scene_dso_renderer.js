@@ -158,6 +158,29 @@
         return diffMag > fac ? 1.0 : (0.5 + 0.5 * diffMag / fac);
     };
 
+    SkySceneDsoRenderer.prototype._dsoVisibilityAlpha = function (sceneCtx, dso) {
+        const mag = dso ? Number(dso.mag) : NaN;
+        if (!Number.isFinite(mag) || mag === -100 || mag >= 30) {
+            return 1.0;
+        }
+        const currentDsoMaglim = Number(sceneCtx && sceneCtx.renderDsoMaglim);
+        if (!Number.isFinite(currentDsoMaglim)) {
+            return 1.0;
+        }
+        const fadeWidthMag = sceneCtx && sceneCtx.isZooming ? 0.75 : 0.0;
+        const magDelta = currentDsoMaglim - mag;
+        if (fadeWidthMag <= 0.0) {
+            return magDelta >= 0.0 ? 1.0 : 0.0;
+        }
+        if (magDelta <= -fadeWidthMag) {
+            return 0.0;
+        }
+        if (magDelta >= 0.0) {
+            return 1.0;
+        }
+        return U.clamp01((magDelta + fadeWidthMag) / fadeWidthMag);
+    };
+
     SkySceneDsoRenderer.prototype._drawEllipse = function (ctx, cx, cy, rx, ry, angle, dash) {
         ctx.save();
         if (dash && dash.length) {
@@ -820,6 +843,10 @@
                 continue;
             }
             const radii = this._dsoRadii(sceneCtx, dso);
+            const visibilityAlpha = this._dsoVisibilityAlpha(sceneCtx, dso);
+            if (visibilityAlpha <= 0.0) {
+                continue;
+            }
             if (pickRadius2 > 0.0 && dso && dso.id) {
                 const dxPick = centerPx.x - pickCx;
                 const dyPick = centerPx.y - pickCy;
@@ -840,6 +867,12 @@
                 }
             }
             const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
+            const ctx = sceneCtx.overlayCtx;
+            const useAlpha = visibilityAlpha < 0.999;
+            if (useAlpha) {
+                ctx.save();
+                ctx.globalAlpha *= visibilityAlpha;
+            }
 
             switch (dso.type) {
                 case 'G':
@@ -877,6 +910,9 @@
             }
             this._registerSelectable(sceneCtx, dso, centerPx, radii, outlinesItem);
             this._drawLabel(sceneCtx, sceneCtx.overlayCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
+            if (useAlpha) {
+                ctx.restore();
+            }
         }
         this._pickDso = bestPickDso;
     };

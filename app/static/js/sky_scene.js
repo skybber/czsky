@@ -2162,8 +2162,10 @@
             overlayCtx: this.overlayCtx,
             projection: projection,
             viewState: viewState,
+            isZooming: !!this.zoomAnim,
             themeConfig: this.getThemeConfig(),
             meta: this.sceneData.meta || {},
+            renderDsoMaglim: this.renderDsoMaglim,
             getThemeColor: this.getThemeColor.bind(this),
             width: this.canvas.width,
             height: this.canvas.height,
@@ -2802,6 +2804,10 @@
             ? this.renderMaglim
             : this._maglimForFieldIndex(prevTargetIndex);
         const toMaglim = this._maglimForFieldIndex(clampedIndex);
+        const fromDsoMaglim = Number.isFinite(this.renderDsoMaglim)
+            ? this.renderDsoMaglim
+            : this._dsoMaglimForFieldIndex(prevTargetIndex);
+        const toDsoMaglim = this._dsoMaglimForFieldIndex(clampedIndex);
 
         let pivotCanvas = { x: this.canvas.width * 0.5, y: this.canvas.height * 0.5 };
         if (pivotClient && Number.isFinite(pivotClient.x) && Number.isFinite(pivotClient.y)) {
@@ -2822,6 +2828,8 @@
             toFov: toFov,
             fromMaglim: fromMaglim,
             toMaglim: toMaglim,
+            fromDsoMaglim: fromDsoMaglim,
+            toDsoMaglim: toDsoMaglim,
             durationMs: this.zoomDurationMs,
             pivotCanvas: pivotCanvas,
             baseCenter: baseCenter,
@@ -2842,6 +2850,8 @@
             const eased = easeOutCubic(t);
             this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
             this.renderMaglim = lerp(this.zoomAnim.fromMaglim, this.zoomAnim.toMaglim, eased);
+            // Keep DSO limit transition linear so fade-out spans the full zoom animation.
+            this.renderDsoMaglim = lerp(this.zoomAnim.fromDsoMaglim, this.zoomAnim.toDsoMaglim, t);
             if (this.zoomAnim.anchor) {
                 const center = this._zoomCenterFromAnchor(
                     this.zoomAnim.baseCenter,
@@ -2863,6 +2873,7 @@
             this.zoomAnimRaf = null;
             this.renderFovDeg = toFov;
             this.renderMaglim = toMaglim;
+            this.renderDsoMaglim = toDsoMaglim;
             this.setCenterToHiddenInputs();
             this._setMilkywayInteractionActive(false);
             this._requestMilkyWaySelection({ optimized: false, immediate: true });
