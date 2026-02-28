@@ -207,7 +207,50 @@
             appendDiskTriangles(dst, cx, cy, r, width, height, segments);
             return;
         }
-        const points = phasePolygonPoints(cx, cy, r, sunDirX, sunDirY, f, segments);
+        const segArc = Math.max(12, segments | 0);
+        const ux = sunDirX;
+        const uy = sunDirY;
+        const wx = sunDirY;
+        const wy = -sunDirX;
+        const toWorld = function (x, y) {
+            return {
+                x: cx + ux * x + wx * y,
+                y: cy + uy * x + wy * y,
+            };
+        };
+
+        // Crescent (< 50%) is concave; triangle fan overfills it.
+        // Build strip triangles between limb and terminator directly.
+        if (f < 0.5) {
+            const rshort = (1.0 - 2.0 * f) * r;
+            for (let i = 0; i < segArc; i++) {
+                const t0 = -Math.PI / 2 + Math.PI * (i / segArc);
+                const t1 = -Math.PI / 2 + Math.PI * ((i + 1) / segArc);
+
+                const outer0 = toWorld(r * Math.cos(t0), r * Math.sin(t0));
+                const outer1 = toWorld(r * Math.cos(t1), r * Math.sin(t1));
+                const inner0 = toWorld(rshort * Math.cos(t0), r * Math.sin(t0));
+                const inner1 = toWorld(rshort * Math.cos(t1), r * Math.sin(t1));
+
+                appendTrianglePx(
+                    dst,
+                    outer0.x, outer0.y,
+                    inner0.x, inner0.y,
+                    inner1.x, inner1.y,
+                    width, height
+                );
+                appendTrianglePx(
+                    dst,
+                    outer0.x, outer0.y,
+                    inner1.x, inner1.y,
+                    outer1.x, outer1.y,
+                    width, height
+                );
+            }
+            return;
+        }
+
+        const points = phasePolygonPoints(cx, cy, r, sunDirX, sunDirY, f, segArc);
         appendPolygonFan(dst, points, width, height);
     }
 
