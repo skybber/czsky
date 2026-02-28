@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-25 17:36+0100\n"
+"POT-Creation-Date: 2026-02-28 10:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -380,7 +380,7 @@ msgstr ""
 #: app/main/planner/sessionplan_forms.py:71
 #: app/main/solarsystem/comet_forms.py:27
 #: app/main/solarsystem/minor_planet_forms.py:35
-#: app/templates/macros/fchart_macros.html:468
+#: app/templates/macros/fchart_macros.html:474
 #: app/templates/main/catalogue/deepskyobjects.html:57
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -513,7 +513,7 @@ msgstr ""
 msgid "Field radius"
 msgstr ""
 
-#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:481
+#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:487
 msgid "DSO limit mag"
 msgstr ""
 
@@ -1448,18 +1448,18 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:630
+#: app/templates/macros/fchart_macros.html:636
 msgid "Object not found"
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:632
+#: app/templates/macros/fchart_macros.html:638
 msgid "Specified object was not found."
 msgstr ""
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:622
-#: app/templates/macros/fchart_macros.html:636
+#: app/templates/macros/fchart_macros.html:628
+#: app/templates/macros/fchart_macros.html:642
 msgid "Close"
 msgstr ""
 
@@ -1515,12 +1515,12 @@ msgid "Add to observed"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:56
-#: app/templates/macros/fchart_macros.html:545
+#: app/templates/macros/fchart_macros.html:551
 msgid "Home"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:65
-#: app/templates/macros/fchart_macros.html:553
+#: app/templates/macros/fchart_macros.html:559
 #: app/templates/main/catalogue/double_star_list_info.html:16
 msgid "Detail"
 msgstr ""
@@ -1550,7 +1550,7 @@ msgid "Unselect"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:185
-#: app/templates/macros/fchart_macros.html:596
+#: app/templates/macros/fchart_macros.html:602
 msgid "Help"
 msgstr ""
 
@@ -1697,104 +1697,108 @@ msgid "Optimize traffic"
 msgstr ""
 
 #: app/templates/macros/fchart_macros.html:459
+msgid "Image mode"
+msgstr ""
+
+#: app/templates/macros/fchart_macros.html:465
 msgid "Perf. meter"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:498
+#: app/templates/macros/fchart_macros.html:504
 msgid "PDF export"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:529
-#: app/templates/macros/fchart_macros.html:577
+#: app/templates/macros/fchart_macros.html:535
+#: app/templates/macros/fchart_macros.html:583
 #: app/templates/macros/nav_macros.html:155
 msgid "Search..."
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:598
+#: app/templates/macros/fchart_macros.html:604
 msgid "Map controls"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:600
+#: app/templates/macros/fchart_macros.html:606
 msgid "Arrows / drag with left mouse button"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:600
+#: app/templates/macros/fchart_macros.html:606
 msgid "move sky view"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:601
+#: app/templates/macros/fchart_macros.html:607
 msgid "PgUp / PgDown"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:601
+#: app/templates/macros/fchart_macros.html:607
 msgid "zoom out / zoom in"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:602
+#: app/templates/macros/fchart_macros.html:608
 msgid "Left click"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:602
+#: app/templates/macros/fchart_macros.html:608
 msgid "select object"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:603
+#: app/templates/macros/fchart_macros.html:609
 msgid "Double click"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:603
+#: app/templates/macros/fchart_macros.html:609
 msgid "center view"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:605
+#: app/templates/macros/fchart_macros.html:611
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:607
+#: app/templates/macros/fchart_macros.html:613
 msgid "toggle equatorial grid"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:608
+#: app/templates/macros/fchart_macros.html:614
 msgid "toggle horizontal grid"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:609
+#: app/templates/macros/fchart_macros.html:615
 msgid "toggle constellation borders"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:610
+#: app/templates/macros/fchart_macros.html:616
 msgid "toggle constellation lines"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:611
+#: app/templates/macros/fchart_macros.html:617
 msgid "toggle deep-sky objects"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:612
+#: app/templates/macros/fchart_macros.html:618
 msgid "toggle Aladin background"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:613
+#: app/templates/macros/fchart_macros.html:619
 msgid "toggle solar system objects"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:614
+#: app/templates/macros/fchart_macros.html:620
 msgid "toggle star labels"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:615
+#: app/templates/macros/fchart_macros.html:621
 msgid "Space"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:615
+#: app/templates/macros/fchart_macros.html:621
 msgid "center object"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:616
+#: app/templates/macros/fchart_macros.html:622
 msgid "toggle Telrad"
 msgstr ""
 
-#: app/templates/macros/fchart_macros.html:617
+#: app/templates/macros/fchart_macros.html:623
 msgid "open help"
 msgstr ""
 

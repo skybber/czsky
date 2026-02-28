@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-25 17:36+0100\n"
+"POT-Creation-Date: 2026-02-28 10:03+0100\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -422,7 +422,7 @@ msgstr "Kupa galaxií"
 #: app/main/planner/sessionplan_forms.py:71
 #: app/main/solarsystem/comet_forms.py:27
 #: app/main/solarsystem/minor_planet_forms.py:35
-#: app/templates/macros/fchart_macros.html:468
+#: app/templates/macros/fchart_macros.html:474
 #: app/templates/main/catalogue/deepskyobjects.html:57
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -555,7 +555,7 @@ msgstr "Uživatelský seznam byl odstraněn."
 msgid "Field radius"
 msgstr "Zorné pole"
 
-#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:481
+#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:487
 msgid "DSO limit mag"
 msgstr "Limitní magnituda DSO"
 
@@ -1496,18 +1496,18 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr "Pokud jste o obnovení hesla nepožádali, tuto zprávu ignorujte."
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:630
+#: app/templates/macros/fchart_macros.html:636
 msgid "Object not found"
 msgstr "Objekt neby nalezen."
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:632
+#: app/templates/macros/fchart_macros.html:638
 msgid "Specified object was not found."
 msgstr "Požadovaný objekt nebyl nalezen."
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:622
-#: app/templates/macros/fchart_macros.html:636
+#: app/templates/macros/fchart_macros.html:628
+#: app/templates/macros/fchart_macros.html:642
 msgid "Close"
 msgstr "Zavřít"
 
@@ -1563,12 +1563,12 @@ msgid "Add to observed"
 msgstr "Přidat do pozorovaných"
 
 #: app/templates/macros/fchart_macros.html:56
-#: app/templates/macros/fchart_macros.html:545
+#: app/templates/macros/fchart_macros.html:551
 msgid "Home"
 msgstr "Domů"
 
 #: app/templates/macros/fchart_macros.html:65
-#: app/templates/macros/fchart_macros.html:553
+#: app/templates/macros/fchart_macros.html:559
 #: app/templates/main/catalogue/double_star_list_info.html:16
 msgid "Detail"
 msgstr "Detail"
@@ -1598,7 +1598,7 @@ msgid "Unselect"
 msgstr "Zrušit výběr"
 
 #: app/templates/macros/fchart_macros.html:185
-#: app/templates/macros/fchart_macros.html:596
+#: app/templates/macros/fchart_macros.html:602
 msgid "Help"
 msgstr "Nápověda"
 
@@ -1747,104 +1747,108 @@ msgid "Optimize traffic"
 msgstr "Optimalizovat přenos"
 
 #: app/templates/macros/fchart_macros.html:459
+msgid "Image mode"
+msgstr "Obrázkový mód"
+
+#: app/templates/macros/fchart_macros.html:465
 msgid "Perf. meter"
 msgstr "Perf. metr"
 
-#: app/templates/macros/fchart_macros.html:498
+#: app/templates/macros/fchart_macros.html:504
 msgid "PDF export"
 msgstr "PDF export"
 
-#: app/templates/macros/fchart_macros.html:529
-#: app/templates/macros/fchart_macros.html:577
+#: app/templates/macros/fchart_macros.html:535
+#: app/templates/macros/fchart_macros.html:583
 #: app/templates/macros/nav_macros.html:155
 msgid "Search..."
 msgstr "Hledat..."
 
-#: app/templates/macros/fchart_macros.html:598
+#: app/templates/macros/fchart_macros.html:604
 msgid "Map controls"
 msgstr "Ovládání mapy"
 
-#: app/templates/macros/fchart_macros.html:600
+#: app/templates/macros/fchart_macros.html:606
 msgid "Arrows / drag with left mouse button"
 msgstr "Šipky / tažení levým tlačítkem myši"
 
-#: app/templates/macros/fchart_macros.html:600
+#: app/templates/macros/fchart_macros.html:606
 msgid "move sky view"
 msgstr "posunout pohled na oblohu"
 
-#: app/templates/macros/fchart_macros.html:601
+#: app/templates/macros/fchart_macros.html:607
 msgid "PgUp / PgDown"
 msgstr "PgUp / PgDown"
 
-#: app/templates/macros/fchart_macros.html:601
+#: app/templates/macros/fchart_macros.html:607
 msgid "zoom out / zoom in"
 msgstr "oddálit / přiblížit"
 
-#: app/templates/macros/fchart_macros.html:602
+#: app/templates/macros/fchart_macros.html:608
 msgid "Left click"
 msgstr "Kliknutí levým tlačítkem"
 
-#: app/templates/macros/fchart_macros.html:602
+#: app/templates/macros/fchart_macros.html:608
 msgid "select object"
 msgstr "vybrat objekt"
 
-#: app/templates/macros/fchart_macros.html:603
+#: app/templates/macros/fchart_macros.html:609
 msgid "Double click"
 msgstr "Dvojklik"
 
-#: app/templates/macros/fchart_macros.html:603
+#: app/templates/macros/fchart_macros.html:609
 msgid "center view"
 msgstr "vycentrovat pohled"
 
-#: app/templates/macros/fchart_macros.html:605
+#: app/templates/macros/fchart_macros.html:611
 msgid "Keyboard shortcuts"
 msgstr "Klávesové zkratky"
 
-#: app/templates/macros/fchart_macros.html:607
+#: app/templates/macros/fchart_macros.html:613
 msgid "toggle equatorial grid"
 msgstr "přepnout rovníkovou síť"
 
-#: app/templates/macros/fchart_macros.html:608
+#: app/templates/macros/fchart_macros.html:614
 msgid "toggle horizontal grid"
 msgstr "přepnout obzorníkovou síť"
 
-#: app/templates/macros/fchart_macros.html:609
+#: app/templates/macros/fchart_macros.html:615
 msgid "toggle constellation borders"
 msgstr "přepnout hranice souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:610
+#: app/templates/macros/fchart_macros.html:616
 msgid "toggle constellation lines"
 msgstr "přepnout tvary souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:611
+#: app/templates/macros/fchart_macros.html:617
 msgid "toggle deep-sky objects"
 msgstr "přepnout deep-sky objekty"
 
-#: app/templates/macros/fchart_macros.html:612
+#: app/templates/macros/fchart_macros.html:618
 msgid "toggle Aladin background"
 msgstr "přepnout podklad Aladin"
 
-#: app/templates/macros/fchart_macros.html:613
+#: app/templates/macros/fchart_macros.html:619
 msgid "toggle solar system objects"
 msgstr "přepnout objekty sluneční soustavy"
 
-#: app/templates/macros/fchart_macros.html:614
+#: app/templates/macros/fchart_macros.html:620
 msgid "toggle star labels"
 msgstr "přepnout názvy hvězd"
 
-#: app/templates/macros/fchart_macros.html:615
+#: app/templates/macros/fchart_macros.html:621
 msgid "Space"
 msgstr "Mezerník"
 
-#: app/templates/macros/fchart_macros.html:615
+#: app/templates/macros/fchart_macros.html:621
 msgid "center object"
 msgstr "vycentrovat objekt"
 
-#: app/templates/macros/fchart_macros.html:616
+#: app/templates/macros/fchart_macros.html:622
 msgid "toggle Telrad"
 msgstr "přepnout Telrad"
 
-#: app/templates/macros/fchart_macros.html:617
+#: app/templates/macros/fchart_macros.html:623
 msgid "open help"
 msgstr "otevřít nápovědu"
 
