@@ -59,6 +59,7 @@ MAX_IMG_WIDTH = 3000
 MAX_IMG_HEIGHT = 3000
 
 A4_WIDTH = 800
+SCENE_COORD_PRECISION = 6
 
 DEFAULT_CITY_NAME = "Clementinum"
 DEFAULT_LAT_DEG = 50.086667
@@ -865,11 +866,11 @@ def _interpolate_adaptive(trajectory, trajectory_time, ts, earth, body):
 
 def _trajectory_point_to_dict(pt):
     return {
-        'ra': pt.ra,
-        'dec': pt.dec,
+        'ra': round(float(pt.ra), SCENE_COORD_PRECISION),
+        'dec': round(float(pt.dec), SCENE_COORD_PRECISION),
         'label': pt.label,
-        'sun_ra': pt.sun_ra,
-        'sun_dec': pt.sun_dec,
+        'sun_ra': round(float(pt.sun_ra), SCENE_COORD_PRECISION) if pt.sun_ra is not None else None,
+        'sun_dec': round(float(pt.sun_dec), SCENE_COORD_PRECISION) if pt.sun_dec is not None else None,
     }
 
 
