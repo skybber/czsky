@@ -28,7 +28,12 @@ from .chart_generator import (
     resolve_chart_city_lat_lon,
     to_float,
 )
-from .solar_system_chart_utils import get_planet_moons, get_solsys_bodies
+from .solar_system_chart_utils import (
+    get_jupiter_grs_offset_rad,
+    get_planet_moons,
+    get_planet_texture_orientation,
+    get_solsys_bodies,
+)
 
 SCENE_VERSION = "scene-v1"
 MW_VERSION = "milkyway-v1"
@@ -857,6 +862,16 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             for body in sl_bodies:
                 label = body.solar_system_body.label.lower().replace(" ", "")
                 body_key = body.solar_system_body.name.lower()
+                central_meridian = _float_or_none(getattr(body, "central_meridian", None))
+                sub_earth_lat = _float_or_none(getattr(body, "sub_earth_lat", None))
+                if central_meridian is None or sub_earth_lat is None:
+                    central_meridian, sub_earth_lat = get_planet_texture_orientation(
+                        body_key,
+                        scene_dt,
+                        body.ra,
+                        body.dec,
+                        _float_or_none(getattr(body, "distance", None)),
+                    )
                 planets.append(
                     {
                         "id": label,
@@ -871,6 +886,12 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                         "phase_angle_rad": _float_or_none(getattr(body, "phase", None)),
                         "north_pole_pa_rad": _float_or_none(getattr(body, "north_pole_pa", None)),
                         "ring_tilt_rad": _float_or_none(getattr(body, "ring_tilt", None)),
+                        "central_meridian_rad": _float_or_none(central_meridian),
+                        "jupiter_grs_offset_rad": (
+                            _float_or_none(get_jupiter_grs_offset_rad(scene_dt))
+                            if body_key == "jupiter" else None
+                        ),
+                        "sub_earth_lat_rad": _float_or_none(sub_earth_lat),
                         "has_phase": body_key in {"moon", "mercury", "venus", "mars"},
                         "has_ring": body_key == "saturn",
                         "texture_key": body_key,
@@ -899,6 +920,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                             "phase_angle_rad": None,
                             "north_pole_pa_rad": None,
                             "ring_tilt_rad": None,
+                            "central_meridian_rad": None,
+                            "sub_earth_lat_rad": None,
                             "has_phase": False,
                             "has_ring": False,
                             "texture_key": moon_key,

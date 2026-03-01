@@ -24,6 +24,15 @@ NEP097_BSP = 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/satellites/
 
 
 utc = dt_module.timezone.utc
+_SKYFIELD_TS = load.timescale(builtin=True)
+_EPHEMERIS_CACHE = {}
+
+
+def _get_ephemeris(url):
+    """Get cached ephemeris to avoid opening too many files."""
+    if url not in _EPHEMERIS_CACHE:
+        _EPHEMERIS_CACHE[url] = load(url)
+    return _EPHEMERIS_CACHE[url]
 
 PLANET_DATA = {
     'sun': [696340],
@@ -38,8 +47,16 @@ PLANET_DATA = {
     'pluto': [1188.3, 90560.0, 366.73]
 }
 
+# IAU 2015 North Pole coordinates (RA, Dec) in radians
+# Reference: Report of the IAU Working Group on Cartographic Coordinates
 PLANET_NORTH_POLE = {
-    'saturn': [math.radians(40.589), math.radians(83.537)]
+    'mercury': [math.radians(281.01), math.radians(61.45)],
+    'venus': [math.radians(272.76), math.radians(67.16)],
+    'mars': [math.radians(317.68), math.radians(52.89)],
+    'jupiter': [math.radians(268.06), math.radians(64.50)],
+    'saturn': [math.radians(40.589), math.radians(83.537)],
+    'uranus': [math.radians(257.31), math.radians(-15.18)],
+    'neptune': [math.radians(299.36), math.radians(43.46)],
 }
 
 PLANET_MOONS_DATA = {
@@ -93,6 +110,167 @@ PLANET_MOONS_DATA = {
 YEAR_DAYS = 365.25
 AU_TO_KM = 149597870.7
 SATURN_POLE = np.array([0.08547883, 0.07323576, 0.99364475])
+C_AU_PER_DAY = 173.1446326846693
+JD_UNIX_EPOCH = 2440587.5
+
+# Legacy skytechx defaults used to align Jupiter texture/GRS.
+JUPITER_GRS_LON0_DEG = 236.0
+JUPITER_GRS_YEAR_DRIFT_DEG = 16.6
+JUPITER_GRS_REF_JD = 2457388.5
+JUPITER_GRS_YEAR_DAYS = 365.256
+
+# IAU rotation model (base_rad, rate_rad_per_century) used for sub-Earth latitude
+_POLE_RA_DEC_RATES = {
+    'sun': ((math.radians(286.13), 0.0), (math.radians(63.87), 0.0)),
+    'mercury': ((math.radians(281.0097), -math.radians(0.0328)),
+                (math.radians(61.4143), -math.radians(0.0049))),
+    'venus': ((math.radians(272.76), 0.0), (math.radians(67.16), 0.0)),
+    'mars': ((math.radians(317.6814), -math.radians(0.1061)),
+             (math.radians(52.8865), -math.radians(0.0609))),
+    'jupiter': ((math.radians(268.056595), -math.radians(0.006499)),
+                (math.radians(64.4953), math.radians(0.002413))),
+    'saturn': ((math.radians(40.5954), -math.radians(0.0577)),
+               (math.radians(83.5380), -math.radians(0.0066))),
+    'uranus': ((math.radians(257.311), 0.0), (-math.radians(15.175), 0.0)),
+    'neptune': ((math.radians(299.36), 0.0), (math.radians(43.46), 0.0)),
+}
+
+_ROTATION_MUL = {
+    'sun': -1.0,
+    'mercury': 1.0,
+    'venus': -1.0,
+    'mars': 1.0,
+    'jupiter': 1.0,
+    'saturn': 1.0,
+    'uranus': -1.0,
+    'neptune': 1.0,
+    'moon': -1.0,  # lunar texture convention matches sun/venus sign in renderer
+}
+
+
+def _normalize_angle_rad(angle):
+    return angle % (2.0 * math.pi)
+
+
+def _datetime_to_jd_utc(dt: datetime) -> float:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=utc)
+    else:
+        dt = dt.astimezone(utc)
+    return dt.timestamp() / 86400.0 + JD_UNIX_EPOCH
+
+
+def get_jupiter_grs_offset_rad(dt: datetime) -> float:
+    """
+    Jupiter GRS longitude offset in radians, matching legacy drift model.
+    """
+    jd = _datetime_to_jd_utc(dt)
+    years = (jd - JUPITER_GRS_REF_JD) / JUPITER_GRS_YEAR_DAYS
+    lon_deg = JUPITER_GRS_LON0_DEG + JUPITER_GRS_YEAR_DRIFT_DEG * years
+    return math.radians(lon_deg % 360.0)
+
+
+def _planet_pole_ra_dec(body_name, jd_tdb):
+    if body_name == 'moon':
+        d = jd_tdb - 2451545.0
+        t_cent = d / 36525.0
+        e1 = math.radians(125.045 - 0.0529921 * d)
+        pole_ra = math.radians(269.9949 + 0.0031 * t_cent - 3.8787 * math.sin(e1))
+        pole_dec = math.radians(66.5392 + 0.0130 * t_cent + 1.5419 * math.cos(e1))
+        return pole_ra, pole_dec
+
+    pole_entry = _POLE_RA_DEC_RATES.get(body_name)
+    if not pole_entry:
+        return None, None
+    t_cent = (jd_tdb - 2451545.0) / 36525.0
+    (ra0, ra_rate), (dec0, dec_rate) = pole_entry
+    return ra0 + ra_rate * t_cent, dec0 + dec_rate * t_cent
+
+
+def _rotation_w_deg(body_name, jd_tdb_minus_light_days):
+    d = jd_tdb_minus_light_days - 2451545.0
+    if body_name == 'sun':
+        return 84.176 + 14.1844 * d
+    if body_name == 'mercury':
+        m1 = 174.791086 + 4.092335 * d
+        return 329.5469 + 6.1385025 * d + 0.00993822 * math.sin(math.radians(m1))
+    if body_name == 'venus':
+        return 160.20 - 1.4813688 * d
+    if body_name == 'mars':
+        return 176.630 + 350.89198226 * d
+    if body_name == 'jupiter':
+        return 43.3 + 870.270 * d  # System II (tropické zóny, kde je GRS)
+    if body_name == 'saturn':
+        return 227.2037 + 844.3 * d
+    if body_name == 'uranus':
+        return 203.81 - 501.1600928 * d
+    if body_name == 'neptune':
+        return 253.18 + 536.3128492 * d
+    if body_name == 'moon':
+        # IAU lunar prime meridian (main term + dominant periodic correction).
+        e1 = math.radians(125.045 - 0.0529921 * d)
+        return 38.3213 + 13.17635815 * d + 3.5610 * math.sin(e1)
+    return None
+
+
+def _planetographic_orientation(body_name, t, ra, dec, astrometric):
+    pole_ra, pole_dec = _planet_pole_ra_dec(body_name, t.tdb)
+    if pole_ra is None or pole_dec is None:
+        return None, None
+
+    sd = -math.sin(pole_dec) * math.sin(dec)
+    sd -= math.cos(pole_dec) * math.cos(dec) * math.cos(pole_ra - ra)
+    sd = max(-1.0, min(1.0, sd))
+    sub_earth_lat = math.atan2(sd, math.sqrt(max(0.0, 1.0 - sd * sd)))
+
+    w_deg = _rotation_w_deg(body_name, t.tdb - float(astrometric.light_time))
+    mul = _ROTATION_MUL.get(body_name)
+    if w_deg is None or mul is None:
+        return None, sub_earth_lat
+
+    w = math.radians(w_deg % 360.0)
+    lon_term = math.atan2(
+        math.sin(pole_dec) * math.cos(dec) * math.cos(pole_ra - ra)
+        - math.sin(dec) * math.cos(pole_dec),
+        math.cos(dec) * math.sin(pole_ra - ra),
+    )
+    central_meridian = _normalize_angle_rad((w - lon_term) * mul)
+    return central_meridian, sub_earth_lat
+
+
+def get_planet_texture_orientation(body_name, dt, ra, dec, distance_km):
+    if body_name not in _POLE_RA_DEC_RATES and body_name != 'moon':
+        return None, None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=utc)
+    t = _SKYFIELD_TS.from_datetime(dt)
+
+    pole_ra, pole_dec = _planet_pole_ra_dec(body_name, t.tdb)
+    if pole_ra is None or pole_dec is None:
+        return None, None
+
+    sd = -math.sin(pole_dec) * math.sin(dec)
+    sd -= math.cos(pole_dec) * math.cos(dec) * math.cos(pole_ra - ra)
+    sd = max(-1.0, min(1.0, sd))
+    sub_earth_lat = math.atan2(sd, math.sqrt(max(0.0, 1.0 - sd * sd)))
+
+    if distance_km is None:
+        return None, sub_earth_lat
+
+    light_days = (distance_km / AU_TO_KM) / C_AU_PER_DAY
+    w_deg = _rotation_w_deg(body_name, t.tdb - light_days)
+    mul = _ROTATION_MUL.get(body_name)
+    if w_deg is None or mul is None:
+        return None, sub_earth_lat
+
+    w = math.radians(w_deg % 360.0)
+    lon_term = math.atan2(
+        math.sin(pole_dec) * math.cos(dec) * math.cos(pole_ra - ra)
+        - math.sin(dec) * math.cos(pole_dec),
+        math.cos(dec) * math.sin(pole_ra - ra),
+    )
+    central_meridian = _normalize_angle_rad((w - lon_term) * mul)
+    return central_meridian, sub_earth_lat
 
 
 def get_north_pole_pa(ra, dec, obj_ra, obj_dec):
@@ -125,7 +303,7 @@ def get_north_pole_pa(ra, dec, obj_ra, obj_dec):
 
 def get_mpc_planet_position(planet, dt):
     ts = load.timescale(builtin=True)
-    eph = load('de421.bsp')
+    eph = _get_ephemeris('de421.bsp')
     earth = eph['earth']
 
     t = ts.from_datetime(dt.replace(tzinfo=utc))
@@ -147,7 +325,7 @@ def _get_solsys_bodies_cached(dt: datetime):
 
     sls_bodies = []
 
-    eph = load('de421.bsp')
+    eph = _get_ephemeris('de421.bsp')
 
     for body_enum in fchart3.SolarSystemBody:
         if body_enum != fchart3.SolarSystemBody.EARTH and body_enum != fchart3.SolarSystemBody.MOON:
@@ -162,7 +340,7 @@ def _get_moon_cached(dt: datetime, observer_lat=None, observer_lon=None, observe
     ts = load.timescale(builtin=True)
     t = ts.from_datetime(dt.replace(tzinfo=utc))
 
-    eph = load('de421.bsp')
+    eph = _get_ephemeris('de421.bsp')
 
     return create_solar_system_body_obj(eph, fchart3.SolarSystemBody.MOON, t, observer_lat, observer_lon, observer_elevation)
 
@@ -185,7 +363,7 @@ def _get_planet_moons_cached(dt: datetime, maglim: float):
 
     for planet, url_moons in PLANET_MOONS_DATA.items():
         for eph_url, moons in url_moons.items():
-            eph = load(eph_url)
+            eph = _get_ephemeris(eph_url)
             for moon_name, (abs_mag, color) in moons.items():
                 planet_moon_obj = _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
                 pl_moons.append(planet_moon_obj)
@@ -203,7 +381,7 @@ def create_planet_moon_obj(moon_name, t=None):
         for eph_url, moons in url_moons.items():
             for moon_name2, (abs_mag, color) in moons.items():
                 if moon_name2.lower() == moon_name.lower():
-                    eph = load(eph_url)
+                    eph = _get_ephemeris(eph_url)
                     return _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t)
     return None
 
@@ -262,9 +440,20 @@ def create_solar_system_body_obj(eph,
 
     north_pole = PLANET_NORTH_POLE.get(body_name)
     if north_pole:
-        north_pole_pa = get_north_pole_pa(north_pole[0], north_pole[1], ra, dec)
+        pole_ra, pole_dec = north_pole[0], north_pole[1]
+        north_pole_pa = get_north_pole_pa(pole_ra, pole_dec, ra, dec)
+    elif body_name == 'moon':
+        pole_ra, pole_dec = _planet_pole_ra_dec('moon', t.tdb)
+        north_pole_pa = get_north_pole_pa(pole_ra, pole_dec, ra, dec)
     else:
         north_pole_pa = None
+
+    central_meridian = None
+    sub_earth_lat = None
+    if body_name in _POLE_RA_DEC_RATES or body_name == 'moon':
+        central_meridian, sub_earth_lat = _planetographic_orientation(
+            body_name, t, ra, dec, astrometric
+        )
 
     if body_enum == fchart3.SolarSystemBody.SUN:
         mag = -26.7
@@ -275,7 +464,7 @@ def create_solar_system_body_obj(eph,
     else:
         mag = planetary_magnitude(astrometric)
 
-    return fchart3.SolarSystemBodyObject(
+    body_obj = fchart3.SolarSystemBodyObject(
         body_enum,
         ra,
         dec,
@@ -284,8 +473,13 @@ def create_solar_system_body_obj(eph,
         mag,
         phase_angle,
         distance_km,
-        ring_tilt
+        ring_tilt,
     )
+    if hasattr(body_obj, 'central_meridian'):
+        body_obj.central_meridian = central_meridian
+    if hasattr(body_obj, 'sub_earth_lat'):
+        body_obj.sub_earth_lat = sub_earth_lat
+    return body_obj
 
 
 def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
