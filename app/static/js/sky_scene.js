@@ -129,6 +129,7 @@
         _draw(mode, arr, color, pointSize, opts) {
             const gl = this.gl;
             if (!gl || !this.ready || !arr || arr.length === 0) return;
+            gl.useProgram(this.program);
             const cfg = opts || {};
             gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr), gl.STREAM_DRAW);
