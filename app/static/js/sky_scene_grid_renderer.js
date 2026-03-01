@@ -253,22 +253,25 @@
         ctx.stroke();
         if (!hit) return true;
 
-        const pad = 4;
-        const off = 5;
-        let y = useTop ? (hit.y + pad) : (hit.y - pad);
-        let x = Math.max(2, Math.min(sceneCtx.width - 2, hit.x));
-        x += -Math.sin(angle) * off;
-        y += Math.cos(angle) * off;
         const metrics = ctx.measureText(labelText);
         const textW = Math.max(0, metrics.width || 0);
         const textH = Math.max(1, (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0));
+        const pad = 4;
+        const bottomExtraPad = 4;
+        const off = 5;
+        const normalOff = useTop ? off : (off + 4);
+        const baseline = useTop ? 'top' : 'middle';
+        let y = useTop ? (hit.y + pad) : (hit.y - pad - bottomExtraPad - 0.5 * textH);
+        let x = Math.max(2, Math.min(sceneCtx.width - 2, hit.x));
+        x += -Math.sin(angle) * normalOff;
+        y += Math.cos(angle) * normalOff;
         const ca = Math.abs(Math.cos(angle));
         const sa = Math.abs(Math.sin(angle));
         const halfW = 0.5 * (textW * ca + textH * sa);
         const halfH = 0.5 * (textW * sa + textH * ca);
         x = Math.max(2 + halfW, Math.min(sceneCtx.width - 2 - halfW, x));
         y = Math.max(2 + halfH, Math.min(sceneCtx.height - 2 - halfH, y));
-        this._drawLabel(ctx, labelText, x, y, 'center', useTop ? 'top' : 'bottom', angle);
+        this._drawLabel(ctx, labelText, x, y, 'center', baseline, angle);
         return true;
     };
 
