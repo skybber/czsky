@@ -1124,6 +1124,9 @@
     if (initialEyepieceFov !== '') {
         legendUrlEq = addOrReplaceQueryParamLocal(legendUrlEq, 'epfov', initialEyepieceFov);
         legendUrlHoriz = addOrReplaceQueryParamLocal(legendUrlHoriz, 'epfov', initialEyepieceFov);
+        {% if fchart_pdf_url is not none %}
+        chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', initialEyepieceFov);
+        {% endif %}
         if (sceneUrlEq) {
             sceneUrlEq = addOrReplaceQueryParamLocal(sceneUrlEq, 'epfov', initialEyepieceFov);
         }
@@ -1757,6 +1760,9 @@
     function setEyepieceFov(eyepieceFov) {
         $('#eyepiece_fov').val(eyepieceFov);
         fchart.setLegendUrlParam('epfov', eyepieceFov);
+        {% if fchart_pdf_url is not none %}
+        chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', eyepieceFov);
+        {% endif %}
         reloadLegendOrSceneWidgets();
     }
 
@@ -1767,6 +1773,9 @@
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
         setChartUrlFlag('T', 'false');
         fchart.setLegendUrlParam('epfov', '');
+        {% if fchart_pdf_url is not none %}
+        chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', '');
+        {% endif %}
         reloadLegendOrSceneWidgets();
     }
 
