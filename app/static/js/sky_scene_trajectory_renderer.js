@@ -192,6 +192,10 @@
             if (d <= 1e-6) continue;
             const tx = dx / d;
             const ty = dy / d;
+            if (i === 1 && labels.length && labels[0].tx === null && labels[0].ty === null) {
+                labels[0].tx = tx;
+                labels[0].ty = ty;
+            }
 
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -254,14 +258,14 @@
                     nx = -nx;
                     ny = -ny;
                 }
-                if (side === 0) {
-                    nx = 0.0;
-                    ny = -1.0;
-                }
                 const nd = Math.hypot(nx, ny);
                 if (nd > 1e-6) {
                     nx /= nd;
                     ny /= nd;
+                } else {
+                    // Fallback only when local segment normal is unavailable.
+                    nx = 0.0;
+                    ny = -1.0;
                 }
                 ctx.fillText(lb.text, lb.x + nx * offset, lb.y + ny * offset);
             }
