@@ -203,6 +203,13 @@ class ChartControl:
         self.eyepiece_fov = eyepiece_fov
         self.chart_mode = chart_mode
 
+def free_star_memory(increment):
+    global free_mem_counter
+    used_catalogs = load_used_catalogs()
+    free_mem_counter += increment
+    if free_mem_counter > NO_FREE_MEM_CYCLES:
+        free_mem_counter = 0
+        used_catalogs.free_mem()
 
 def resolve_chart_mode():
     request_flags = request.args.get('flags') or ''
@@ -217,7 +224,7 @@ def resolve_chart_mode():
     return 'data'
 
 
-def _load_used_catalogs():
+def load_used_catalogs():
     global used_catalogs, catalog_lock
     if used_catalogs is None:
         with catalog_lock:
@@ -243,7 +250,7 @@ def _load_used_catalogs():
     return used_catalogs
 
 
-def _get_dso_hide_filter():
+def get_dso_hide_filter():
     global dso_hide_filter
     if dso_hide_filter is None:
         dso_hide_filter = []
@@ -1024,12 +1031,11 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
                   highlights_style='circle', highlights_size=1.0,
                   dso_highlights_style='circle', dso_highlights_size=1.0):
     """Create chart in czsky process."""
-    global free_mem_counter
     tm = time()
 
     high_quality = request.args.get('hqual', '')
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
@@ -1170,16 +1176,13 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
                     showing_dsos=showing_dsos,
                     dso_highlights=dso_highlights,
                     highlights=highlights,
-                    dso_hide_filter=_get_dso_hide_filter(),
+                    dso_hide_filter=get_dso_hide_filter(),
                     trajectories=trajectories,
                     hl_constellation=hl_constellation,
                     visible_objects=visible_objects,
                     transparent=transparent)
 
-    free_mem_counter += 1
-    if free_mem_counter > NO_FREE_MEM_CYCLES:
-        free_mem_counter = 0
-        used_catalogs.free_mem()
+    free_star_memory(1)
 
     print("Map created within : {} s".format(str(time()-tm)), flush=True)
 
@@ -1190,13 +1193,12 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
                       observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
     """Create chart PDF in czsky process."""
-    global free_mem_counter
     tm = time()
 
     if flags is None:
         flags = ''
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, None, DEFAULT_PDF_FONT_SIZE, force_light_mode=True, is_pdf=True)
@@ -1265,7 +1267,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
     dso_highlights = _create_dso_highlights(highlights_dso_list, observed_dso_ids, True) if highlights_dso_list else None
 
-    dso_hide_filter = _get_dso_hide_filter()
+    dso_hide_filter = get_dso_hide_filter()
 
     if FlagValue.SHOW_SOLAR_SYSTEM.value in flags:
         sl_bodies = get_solsys_bodies(get_utc_time(), rad2deg(lat), rad2deg(lon))
@@ -1291,12 +1293,11 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
 
 
 def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld_size, fld_label, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
-    global free_mem_counter
     # tm = time()
 
     flags = '' if flags is None else flags
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
 
     config = fchart3.EngineConfiguration()
     _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
@@ -1332,10 +1333,9 @@ def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld
     engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y)
 
     engine.make_map(used_catalogs, transparent=True)
-    free_mem_counter += 1
-    if free_mem_counter > NO_FREE_MEM_CYCLES:
-        free_mem_counter = 0
-        used_catalogs.free_mem()
+
+    free_star_memory(1)
+
     # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 

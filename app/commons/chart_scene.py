@@ -18,12 +18,13 @@ from .chart_generator import (
     MOBILE_WIDTH,
     MAX_IMG_HEIGHT,
     MAX_IMG_WIDTH,
-    _get_dso_hide_filter,
-    _load_used_catalogs,
-    get_fld_size_mags_from_request,
-    resolve_active_chart_theme_definition,
     deg2rad,
     get_chart_datetime,
+    get_dso_hide_filter,
+    get_fld_size_mags_from_request,
+    free_star_memory,
+    load_used_catalogs,
+    resolve_active_chart_theme_definition,
     rad2deg,
     resolve_chart_city_lat_lon,
     to_float,
@@ -547,7 +548,7 @@ def _get_dso_outlines_dataset() -> Dict[str, Any]:
         if _dso_outlines_dataset_cache is not None:
             return _dso_outlines_dataset_cache
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     dataset = _serialize_dso_outlines_dataset(used_catalogs)
     with _dso_outlines_cache_lock:
         _dso_outlines_dataset_cache = dataset
@@ -585,7 +586,7 @@ def _get_constellation_lines_dataset() -> Dict[str, Any]:
         if _constell_lines_dataset_cache is not None:
             return _constell_lines_dataset_cache
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     dataset = _serialize_constellation_lines_dataset(used_catalogs)
     with _constell_lines_cache_lock:
         _constell_lines_dataset_cache = dataset
@@ -637,7 +638,7 @@ def _get_constellation_boundaries_dataset() -> Dict[str, Any]:
         if _constell_boundaries_dataset_cache is not None:
             return _constell_boundaries_dataset_cache
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     dataset = _serialize_constellation_boundaries_dataset(used_catalogs)
     with _constell_boundaries_cache_lock:
         _constell_boundaries_dataset_cache = dataset
@@ -737,7 +738,7 @@ def _get_mw_dataset(quality: str, optimized: bool) -> Dict[str, Any]:
         cached = _mw_dataset_cache.get(key)
         if cached is not None:
             return cached
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     dataset = _mw_dataset_from_catalog(used_catalogs, quality, optimized)
     with _mw_cache_lock:
         _mw_dataset_cache[key] = dataset
@@ -818,7 +819,7 @@ def _star_radius_px(mag: float) -> float:
 
 
 def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, lat: float, lon: float):
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     _, field_size = _field_size_rad(req.fld_size_deg, req.width, req.height)
     active_theme, active_theme_name, active_theme_id = resolve_active_chart_theme_definition()
     scene_theme = active_theme.to_scene_theme_dict()
@@ -836,7 +837,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
     dso_items: List[dict] = []
     if FlagValue.SHOW_DEEPSKY.value in req.flags and used_catalogs.deepsky_catalog is not None:
         dso_list = used_catalogs.deepsky_catalog.select_deepsky((center_ra, center_dec), field_size, req.dso_maglim)
-        dso_hide = set(_get_dso_hide_filter() or [])
+        dso_hide = set(get_dso_hide_filter() or [])
         for dso in dso_list:
             if dso in dso_hide:
                 continue
@@ -1126,7 +1127,7 @@ def build_stars_zones_v1() -> Dict:
     if len(zone_refs) > STAR_ZONE_BATCH_MAX:
         abort(400)
 
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     star_catalog = used_catalogs.star_catalog
     if star_catalog is None:
         return {
@@ -1146,6 +1147,8 @@ def build_stars_zones_v1() -> Dict:
             missing.append(f"L{level}Z{zone}")
         stars_total += len(stars_compact["ra"])
         zones_out.append({"level": level, "zone": zone, "stars": stars_compact})
+
+    free_star_memory(1)
 
     return {
         "version": STARS_VERSION,
@@ -1190,7 +1193,7 @@ def build_milkyway_select_v1() -> Dict:
     center_ra, center_dec = _resolve_center_equatorial(req, lat, lon)
     center_ra = _normalize_ra(center_ra)
     _, field_size = _field_size_rad(req.fld_size_deg, req.width, req.height)
-    used_catalogs = _load_used_catalogs()
+    used_catalogs = load_used_catalogs()
     active_theme, _, _ = resolve_active_chart_theme_definition()
     fade = _mw_fade(req, active_theme.background_color, active_theme.milky_way_color)
     if fade is None:
