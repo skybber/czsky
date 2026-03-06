@@ -866,17 +866,19 @@
                 '{{ embed }}',
                 aladin,
                 showAladin,
-                projection
+                projection,
+                magRangeValues,
+                dsoMagRangeValues
             );
         }
 
         fchart.onFieldChange(function(fldSizeIndex) {
             submitDisabled = true;
             $('#radius').val(fldSizeIndex);
-            $('#maglim').val(magRangeValues[fldSizeIndex]);
-            $('#dso_maglim').val(dsoMagRangeValues[fldSizeIndex]);
-            $('#smaglim').text(magRangeValues[fldSizeIndex].toString());
-            $('#sdso_maglim').text(dsoMagRangeValues[fldSizeIndex].toString());
+            $('#maglim').val(fchart.magRangeValues[fldSizeIndex]);
+            $('#dso_maglim').val(fchart.dsoMagRangeValues[fldSizeIndex]);
+            $('#smaglim').text(fchart.magRangeValues[fldSizeIndex].toString());
+            $('#sdso_maglim').text(fchart.dsoMagRangeValues[fldSizeIndex].toString());
 
             $('#maglim_menu').empty();
             for (var i = magRanges[fldSizeIndex][0]; i <= magRanges[fldSizeIndex][1]; i++) {

@@ -138,7 +138,8 @@ function drawTexturedTriangle(ctx, img, x0, y0, x1, y1, x2, y2,
 
 function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
                  useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, searchUrl,
-                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection) {
+                 fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
+                 magRangeValues, dsoMagRangeValues) {
 
     this.fchartDiv = fchartDiv;
 
@@ -190,6 +191,8 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.imgFldSizeIndex = fldSizeIndex;
     this.fldSizeIndex = fldSizeIndex;
     this.fieldSizes = fieldSizes;
+    this.magRangeValues = Array.isArray(magRangeValues) ? magRangeValues.slice() : [];
+    this.dsoMagRangeValues = Array.isArray(dsoMagRangeValues) ? dsoMagRangeValues.slice() : [];
     this.isResizing = false;
     this.isNextResizeEvnt = false;
 
@@ -2360,6 +2363,18 @@ FChart.prototype.setUrlParam  = function (urlValue, param_name, param_value) {
         url.searchParams.delete(param_name);
     }
     return url.pathname + url.search + url.hash;
+}
+
+FChart.prototype.setMagRangeValues = function (magRangeValues) {
+    if (Array.isArray(magRangeValues)) {
+        this.magRangeValues = magRangeValues.slice();
+    }
+}
+
+FChart.prototype.setDsoMagRangeValues = function (dsoMagRangeValues) {
+    if (Array.isArray(dsoMagRangeValues)) {
+        this.dsoMagRangeValues = dsoMagRangeValues.slice();
+    }
 }
 
 FChart.prototype.setMirrorX = function (mirror_x) {
