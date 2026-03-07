@@ -482,6 +482,73 @@ def create_solar_system_body_obj(eph,
     return body_obj
 
 
+def _sphere_intersection(ray_direction, sphere_pos, sphere_radius):
+    """
+    Test ray-sphere intersection.
+    Ray starts at origin (Sun) with given direction.
+
+    Args:
+        ray_direction: direction vector (numpy array)
+        sphere_pos: position of sphere center (numpy array)
+        sphere_radius: radius of sphere
+
+    Returns:
+        (hit: bool, hit_point: array or None)
+    """
+    mag_d = np.linalg.norm(ray_direction)
+
+    if mag_d <= 0.0:
+        int_dist = np.linalg.norm(sphere_pos)
+        return (int_dist < sphere_radius, None)
+
+    dn = ray_direction / mag_d
+
+    w_dist = np.dot(dn, sphere_pos)
+
+    if w_dist <= -sphere_radius:
+        return (False, None)
+
+    if w_dist >= mag_d + sphere_radius:
+        return (False, None)
+
+    closest_point = dn * w_dist
+
+    dist = np.linalg.norm(closest_point - sphere_pos)
+
+    if dist < sphere_radius:
+        hit_point = w_dist * dn
+        return (True, hit_point)
+
+    return (False, None)
+
+
+def _calculate_moon_shadow_state(moon_helio, planet_helio, planet_radius_au):
+    """
+    Calculate moon shadow state.
+
+    Args:
+        moon_helio: heliocentric position of moon (numpy array)
+        planet_helio: heliocentric position of planet (numpy array)
+        planet_radius_au: radius of planet in AU
+
+    Returns:
+        (is_in_light: bool, is_throwing_shadow: bool, hit_point: array or None)
+    """
+    mn = moon_helio * 2.0
+
+    plr = np.dot(planet_helio, planet_helio)
+    sar = np.dot(moon_helio, moon_helio)
+
+    hit, hit_point = _sphere_intersection(mn, planet_helio, planet_radius_au)
+
+    if hit and sar > plr:
+        return (False, False, None)
+    elif hit:
+        return (True, True, hit_point)
+
+    return (True, False, None)
+
+
 def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
     if t is None:
         ts = load.timescale(builtin=True)
@@ -502,7 +569,41 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
 
     mag = abs_mag + 5 * math.log10(distance_sun_au * distance_earth_au)
 
-    return fchart3.PlanetMoonObject(planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km)
+    is_in_light = True
+    is_throwing_shadow = False
+    shadow_ra = None
+    shadow_dec = None
+
+    planet_name_lower = planet.name.lower()
+    planet_radius_km = PLANET_DATA.get(planet_name_lower, [None])[0]
+
+    if planet_radius_km is not None:
+        planet_radius_au = planet_radius_km / AU_TO_KM
+
+        planet_barycenter_name = planet_name_lower + ' barycenter'
+        try:
+            planet_body = eph[planet_barycenter_name]
+        except KeyError:
+            planet_body = None
+
+        if planet_body is not None:
+            moon_helio = pl_moon.at(t).position.au
+            planet_helio = planet_body.at(t).position.au
+
+            is_in_light, is_throwing_shadow, hit_point = _calculate_moon_shadow_state(
+                moon_helio, planet_helio, planet_radius_au
+            )
+
+            if is_throwing_shadow and hit_point is not None:
+                earth_pos = eph['earth'].at(t).position.au
+                geo_hit = hit_point - earth_pos
+                shadow_ra = math.atan2(geo_hit[1], geo_hit[0])
+                shadow_dec = math.atan2(geo_hit[2], math.sqrt(geo_hit[0]**2 + geo_hit[1]**2))
+
+    return fchart3.PlanetMoonObject(
+        planet, moon_name, ra_ang.radians, dec_ang.radians, mag, color, distance_earth_km,
+        is_in_light, is_throwing_shadow, shadow_ra, shadow_dec
+    )
 
 
 def get_planet_orbital_period(planet):

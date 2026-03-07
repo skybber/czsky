@@ -575,7 +575,11 @@
                     }
                     drawCanvasPhase(ctx, px.x, px.y, r, sunDirX, sunDirY, litFrac, col, darkCol, r >= 8 ? 28 : 18);
                 } else {
-                    ctx.fillStyle = U.rgba(col, 1.0);
+                    let moonCol = col;
+                    if (p.type === 'moon' && p.is_in_light === false) {
+                        moonCol = darkenColor(col, 0.3);
+                    }
+                    ctx.fillStyle = U.rgba(moonCol, 1.0);
                     ctx.beginPath();
                     ctx.arc(px.x, px.y, r, 0.0, U.TWO_PI);
                     ctx.fill();
@@ -611,6 +615,24 @@
                     });
                 }
             }
+
+            for (let i = 0; i < objects.length; i++) {
+                const p = objects[i];
+                if (p.type !== 'moon' || !p.is_throwing_shadow) continue;
+                if (!hasFinite(p.shadow_ra) || !hasFinite(p.shadow_dec)) continue;
+
+                const shadowPx = sceneCtx.projection.projectEquatorialToPx(p.shadow_ra, p.shadow_dec);
+                if (!shadowPx) continue;
+
+                const moonR = planetRadiusPx(sceneCtx, p, pxPerRad);
+                const shadowR = moonR * 1.3;
+
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.beginPath();
+                ctx.arc(shadowPx.x, shadowPx.y, shadowR, 0, U.TWO_PI);
+                ctx.fill();
+            }
+
             drawLabels(sceneCtx, labels, this._lastLabelPlacementById);
             return;
         }
@@ -698,9 +720,13 @@
                 renderer.drawTriangles(darkDisks, darkCol);
                 if (litPhase.length) renderer.drawTriangles(litPhase, col);
             } else {
+                let moonCol = col;
+                if (p.type === 'moon' && p.is_in_light === false) {
+                    moonCol = darkenColor(col, 0.3);
+                }
                 const litDisks = [];
                 appendDiskTriangles(litDisks, px.x, px.y, r, sceneCtx.width, sceneCtx.height, seg);
-                renderer.drawTriangles(litDisks, col);
+                renderer.drawTriangles(litDisks, moonCol);
             }
 
             if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {
@@ -722,6 +748,24 @@
                 type: p.type || 'planet',
             });
         }
+
+        for (let i = 0; i < objects.length; i++) {
+            const p = objects[i];
+            if (p.type !== 'moon' || !p.is_throwing_shadow) continue;
+            if (!hasFinite(p.shadow_ra) || !hasFinite(p.shadow_dec)) continue;
+
+            const shadowPx = sceneCtx.projection.projectEquatorialToPx(p.shadow_ra, p.shadow_dec);
+            if (!shadowPx) continue;
+
+            const moonR = planetRadiusPx(sceneCtx, p, pxPerRad);
+            const shadowR = moonR * 1.3;
+
+            const shadowTris = [];
+            appendDiskTriangles(shadowTris, shadowPx.x, shadowPx.y, shadowR,
+                               sceneCtx.width, sceneCtx.height, 16);
+            renderer.drawTriangles(shadowTris, [0, 0, 0]);
+        }
+
         for (let i = 0; i < frontRings.length; i++) {
             const item = frontRings[i];
             renderer.drawTriangles(item.triangles, item.color);

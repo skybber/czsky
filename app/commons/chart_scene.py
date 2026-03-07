@@ -906,6 +906,8 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                 for moon in pl_moons:
                     moon_key = moon.moon_name.lower().replace(" ", "")
                     parent_key = moon.planet.name.lower()
+                    shadow_ra = getattr(moon, "shadow_ra", None)
+                    shadow_dec = getattr(moon, "shadow_dec", None)
                     planets.append(
                         {
                             "id": moon_key,
@@ -927,6 +929,10 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
                             "has_ring": False,
                             "texture_key": moon_key,
                             "render_order_bias": 0,
+                            "is_in_light": getattr(moon, "is_in_light", True),
+                            "is_throwing_shadow": getattr(moon, "is_throwing_shadow", False),
+                            "shadow_ra": _round_coord(shadow_ra) if shadow_ra is not None else None,
+                            "shadow_dec": _round_coord(shadow_dec) if shadow_dec is not None else None,
                         }
                     )
 

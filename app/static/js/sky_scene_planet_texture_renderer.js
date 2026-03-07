@@ -337,6 +337,19 @@
         dst.push(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
     }
 
+    function appendDiskTriangles(dst, cx, cy, r, width, height, segments) {
+        const segs = Math.max(8, segments | 0);
+        for (let i = 0; i < segs; i++) {
+            const a0 = U.TWO_PI * (i / segs);
+            const a1 = U.TWO_PI * ((i + 1) / segs);
+            const x1 = cx + r * Math.cos(a0);
+            const y1 = cy + r * Math.sin(a0);
+            const x2 = cx + r * Math.cos(a1);
+            const y2 = cy + r * Math.sin(a1);
+            appendTrianglePx(dst, cx, cy, x1, y1, x2, y2, width, height);
+        }
+    }
+
     function rotateLocal(x, y, rot) {
         const cs = Math.cos(rot);
         const sn = Math.sin(rot);
@@ -807,7 +820,10 @@
                 gl.disable(gl.DEPTH_TEST);
             } else if (ctx) {
                 // Fallback to Canvas2D
-                const col = planetColor(sceneCtx, p);
+                let col = planetColor(sceneCtx, p);
+                if (p.type === 'moon' && p.is_in_light === false) {
+                    col = [col[0] * 0.3, col[1] * 0.3, col[2] * 0.3];
+                }
                 ctx.fillStyle = U.rgba(col, 1);
                 ctx.beginPath();
                 ctx.arc(px.x, px.y, r, 0, Math.PI * 2);
@@ -819,6 +835,30 @@
             }
 
             labels.push({ x: px.x, y: px.y, r, id: p.id, label: p.label || '', type: p.type || 'planet' });
+        }
+
+        for (let i = 0; i < objects.length; i++) {
+            const p = objects[i];
+            if (p.type !== 'moon' || !p.is_throwing_shadow) continue;
+            if (!hasFinite(p.shadow_ra) || !hasFinite(p.shadow_dec)) continue;
+
+            const shadowPx = sceneCtx.projection.projectEquatorialToPx(p.shadow_ra, p.shadow_dec);
+            if (!shadowPx) continue;
+
+            const moonR = planetRadiusPx(sceneCtx, p, pxPerRad);
+            const shadowR = moonR * 1.3;
+
+            if (renderer) {
+                const shadowTris = [];
+                appendDiskTriangles(shadowTris, shadowPx.x, shadowPx.y, shadowR,
+                                   sceneCtx.width, sceneCtx.height, 16);
+                renderer.drawTriangles(shadowTris, [0, 0, 0]);
+            } else if (ctx) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.beginPath();
+                ctx.arc(shadowPx.x, shadowPx.y, shadowR, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
         for (let i = 0; i < frontRings.length; i++) {
