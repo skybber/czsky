@@ -663,6 +663,16 @@
             const isSaturn = bodyKey === 'saturn';
             const hasRing = !!p.has_ring && isSaturn && hasFinite(p.ring_tilt_rad);
 
+            // Calculate effective radius including rings for visibility check
+            const effectiveR = hasRing ? r * 2.5 : r;
+
+            // Skip rendering if planet is completely outside viewport
+            const margin = 10; // Small margin for labels
+            if (px.x + effectiveR + margin < 0 || px.x - effectiveR - margin > sceneCtx.width ||
+                px.y + effectiveR + margin < 0 || px.y - effectiveR - margin > sceneCtx.height) {
+                continue;
+            }
+
             let textureKey = null;
             if (p.type === 'moon') textureKey = getMoonTextureKey(p.id);
             else if (PLANET_TEXTURES[bodyKey]) textureKey = bodyKey;
