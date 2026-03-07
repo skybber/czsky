@@ -549,6 +549,15 @@
         return cand;
     }
 
+    function labelOverlapsCircle(labelX, labelY, labelWidth, fontPx, cx, cy, r) {
+        const labelRect = { x1: labelX, y1: labelY - fontPx, x2: labelX + labelWidth, y2: labelY };
+        const closestX = Math.max(labelRect.x1, Math.min(cx, labelRect.x2));
+        const closestY = Math.max(labelRect.y1, Math.min(cy, labelRect.y2));
+        const dx = cx - closestX;
+        const dy = cy - closestY;
+        return dx * dx + dy * dy < r * r;
+    }
+
     function drawLabels(sceneCtx, labelEntries, placementById) {
         if (!sceneCtx || !sceneCtx.overlayCtx || !labelEntries.length) return;
         const ctx = sceneCtx.overlayCtx;
@@ -557,9 +566,18 @@
         ctx.font = Math.round(fontPx) + 'px sans-serif';
         ctx.textBaseline = 'alphabetic';
 
-        const occupied = labelEntries.map(item => ({
-            x1: item.x - item.r, y1: item.y - item.r, x2: item.x + item.r, y2: item.y + item.r
-        }));
+        const occupied = [];
+        const planetsByBody = {};
+        for (let i = 0; i < labelEntries.length; i++) {
+            const item = labelEntries[i];
+            occupied.push({
+                x1: item.x - item.r, y1: item.y - item.r, x2: item.x + item.r, y2: item.y + item.r
+            });
+            if (item.type !== 'moon' && item.body) {
+                const bodyKey = String(item.body).toLowerCase();
+                planetsByBody[bodyKey] = { x: item.x, y: item.y, r: item.r };
+            }
+        }
 
         for (let i = 0; i < labelEntries.length; i++) {
             const item = labelEntries[i];
@@ -574,6 +592,22 @@
                 if (!overlaps(rect, occupied)) { chosen = cand; break; }
             }
             occupied.push({ x1: chosen.x, y1: chosen.y - fontPx, x2: chosen.x + labelWidth, y2: chosen.y });
+
+            let needsOutline = false;
+            if (item.type === 'moon' && item.parent_body) {
+                const parentKey = String(item.parent_body).toLowerCase();
+                const parent = planetsByBody[parentKey];
+                if (parent) {
+                    needsOutline = labelOverlapsCircle(chosen.x, chosen.y, labelWidth, fontPx, parent.x, parent.y, parent.r);
+                }
+            }
+
+            if (needsOutline) {
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.lineWidth = 3;
+                ctx.lineJoin = 'round';
+                ctx.strokeText(label, chosen.x, chosen.y);
+            }
             ctx.fillStyle = U.rgba(labelColor, 1);
             ctx.fillText(label, chosen.x, chosen.y);
             if (placementById && item.id) {
@@ -834,7 +868,7 @@
                 sceneCtx.registerSelectable({ shape: 'circle', id: p.id, cx: px.x, cy: px.y, r: Math.max(r, 4), priority: 10 });
             }
 
-            labels.push({ x: px.x, y: px.y, r, id: p.id, label: p.label || '', type: p.type || 'planet' });
+            labels.push({ x: px.x, y: px.y, r, id: p.id, label: p.label || '', type: p.type || 'planet', body: p.body, parent_body: p.parent_body });
         }
 
         for (let i = 0; i < objects.length; i++) {

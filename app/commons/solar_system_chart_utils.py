@@ -107,6 +107,9 @@ PLANET_MOONS_DATA = {
     },
 }
 
+# Moons that can cast observable shadows on their parent planet
+SHADOW_CASTING_MOONS = {'io', 'europa', 'ganymede', 'callisto', 'titan'}
+
 YEAR_DAYS = 365.25
 AU_TO_KM = 149597870.7
 SATURN_POLE = np.array([0.08547883, 0.07323576, 0.99364475])
@@ -576,8 +579,10 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
 
     planet_name_lower = planet.name.lower()
     planet_radius_km = PLANET_DATA.get(planet_name_lower, [None])[0]
+    moon_name_lower = moon_name.lower()
 
-    if planet_radius_km is not None:
+    # Only calculate shadows for moons that can cast observable shadows
+    if planet_radius_km is not None and moon_name_lower in SHADOW_CASTING_MOONS:
         planet_radius_au = planet_radius_km / AU_TO_KM
 
         planet_barycenter_name = planet_name_lower + ' barycenter'
