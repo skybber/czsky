@@ -230,7 +230,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawGalaxy = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const baseCol = sceneCtx.getThemeColor('galaxy', [0.4, 0.8, 1.0]);
         const intensity = this._galaxyIntensity(sceneCtx, dso, false);
         const col = this._scaleColor(baseCol, intensity);
@@ -241,7 +241,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawNebula = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso);
         this._setupStroke(ctx, col);
@@ -252,7 +252,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawPlanetaryNebula = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         // Match fchart3 minimum symbol size: planetary_nebula() uses r with min_radius=1.0 mm.
         const r = Math.max(this._dsoRadii(sceneCtx, dso).rLongPx, MIN_PN_BASE_RADIUS_PX);
@@ -273,7 +273,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawOpenCluster = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
         ctx.save();
@@ -288,7 +288,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawGlobularCluster = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
         this._setupStroke(ctx, col);
@@ -302,7 +302,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawAsterism = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('star_cluster', [0.6, 0.6, 0.1]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx / Math.SQRT2;
         this._setupStroke(ctx, col);
@@ -316,7 +316,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawSNR = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
         this._setupStroke(ctx, col);
@@ -324,7 +324,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawGalaxyCluster = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('galaxy_cluster', [0.4, 0.8, 1.0]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx;
         ctx.save();
@@ -335,7 +335,7 @@
     };
 
     SkySceneDsoRenderer.prototype._drawUnknown = function (sceneCtx, centerPx, dso) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const col = sceneCtx.getThemeColor('dso', [0.8, 0.8, 0.8]);
         const r = this._dsoRadii(sceneCtx, dso).rLongPx / Math.SQRT2;
         this._setupStroke(ctx, col);
@@ -408,7 +408,7 @@
             return false;
         }
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const theme = sceneCtx.themeConfig;
         const lightMode = !!theme.flags.light_mode;
         const baseNebColor = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);
@@ -773,7 +773,9 @@
     };
 
     SkySceneDsoRenderer.prototype.drawPickedDsoMagnitude = function (sceneCtx, dsoId) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !dsoId || !this._lastDsoLabelPlacementById) return;
+        if (!sceneCtx || !dsoId || !this._lastDsoLabelPlacementById) return;
+        const ctx = sceneCtx.frontCtx || sceneCtx.backCtx;
+        if (!ctx) return;
         const placement = this._lastDsoLabelPlacementById.get(dsoId);
         if (!placement) return;
         const objects = sceneCtx.sceneData && sceneCtx.sceneData.objects ? sceneCtx.sceneData.objects : null;
@@ -788,7 +790,6 @@
         const mag = this._formatDsoMag(dso);
         if (!mag) return;
         if (!Number.isFinite(placement.x) || !Number.isFinite(placement.y)) return;
-        const ctx = sceneCtx.overlayCtx;
         const fullText = mag + ' mag';
         ctx.save();
         ctx.fillStyle = U.rgba(placement.color || [0.8, 0.8, 0.8], 0.95);
@@ -820,7 +821,7 @@
     };
 
     SkySceneDsoRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) {
             this._pickDso = null;
             return;
         }
@@ -867,7 +868,7 @@
                 }
             }
             const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
-            const ctx = sceneCtx.overlayCtx;
+            const ctx = sceneCtx.backCtx;
             const useAlpha = visibilityAlpha < 0.999;
             if (useAlpha) {
                 ctx.save();
@@ -909,7 +910,7 @@
                     break;
             }
             this._registerSelectable(sceneCtx, dso, centerPx, radii, outlinesItem);
-            this._drawLabel(sceneCtx, sceneCtx.overlayCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
+            this._drawLabel(sceneCtx, sceneCtx.frontCtx || sceneCtx.backCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
             if (useAlpha) {
                 ctx.restore();
             }

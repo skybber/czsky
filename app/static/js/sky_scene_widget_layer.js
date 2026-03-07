@@ -23,7 +23,7 @@
     };
 
     window.SkySceneWidgetLayer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !sceneCtx.meta) return;
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.meta) return;
         const widgets = sceneCtx.meta.widgets || null;
         if (!widgets) return;
 

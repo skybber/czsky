@@ -275,9 +275,9 @@
     };
 
     SkySceneStarsRenderer.prototype.drawPickedStarMagnitude = function (sceneCtx, pickStar) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !pickStar) return;
+        if (!sceneCtx || !sceneCtx.frontCtx || !pickStar) return;
         if (!Number.isFinite(pickStar.xPx) || !Number.isFinite(pickStar.yPx) || !Number.isFinite(pickStar.mag)) return;
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
         const fontPx = Math.max(10.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size));
         const rPx = Number.isFinite(pickStar.rPx) ? Math.max(0.8, pickStar.rPx) : 0.8;

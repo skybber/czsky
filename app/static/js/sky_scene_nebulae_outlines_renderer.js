@@ -83,13 +83,13 @@
     };
 
     window.SkySceneNebulaeOutlinesRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) return;
 
         const objects = sceneCtx.sceneData.objects || {};
         const nebulae = objects.nebulae_outlines || objects.unknown_nebulae || [];
         if (!Array.isArray(nebulae) || nebulae.length === 0) return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const theme = sceneCtx.themeConfig;
         const lightMode = !!theme.flags.light_mode;
         const baseNebColor = sceneCtx.getThemeColor('nebula', [0.35, 0.9, 0.8]);

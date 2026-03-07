@@ -37,7 +37,7 @@
     };
 
     window.SkySceneArrowRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx
             || !sceneCtx.projection || !Number.isFinite(sceneCtx.width) || !Number.isFinite(sceneCtx.height)) {
             return;
         }
@@ -82,7 +82,7 @@
         const rightWingX = xInt - arrowheadSize * Math.cos(rightWingAngle);
         const rightWingY = yInt - arrowheadSize * Math.sin(rightWingAngle);
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         ctx.strokeStyle = U.rgba(style.color, 0.98);
         ctx.lineWidth = style.lineWidthPx;

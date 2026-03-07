@@ -22,13 +22,13 @@
     window.SkySceneInfoPanelRenderer = function () {};
 
     window.SkySceneInfoPanelRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !sceneCtx.viewState) return;
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.viewState) return;
 
         const canvasW = Number(sceneCtx.width) || 0;
         const canvasH = Number(sceneCtx.height) || 0;
         if (canvasW <= 0 || canvasH <= 0) return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const viewState = sceneCtx.viewState;
         const isEquatorial = viewState.coordSystem === 'equatorial';
         const center = isEquatorial ? viewState.getEquatorialCenter() : viewState.getHorizontalCenter();

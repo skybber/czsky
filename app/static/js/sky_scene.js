@@ -494,10 +494,12 @@
         this.iframe = $('<iframe id="fcIframe" src="' + encodeURI(iframeUrl) + '" frameborder="0" class="fchart-iframe" style="display:none"></iframe>').appendTo(this.fchartDiv)[0];
         this.separator = $('<div class="fchart-separator fchart-separator-theme" style="display:none"></div>').appendTo(this.fchartDiv)[0];
         this.canvasMw = $('<canvas id="fcCanvasSceneMw" class="fchart-canvas" style="outline:0;pointer-events:none;z-index:0"></canvas>').appendTo(this.fchartDiv)[0];
-        this.overlayCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:1"></canvas>').appendTo(this.fchartDiv)[0];
+        this.backCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:1"></canvas>').appendTo(this.fchartDiv)[0];
         this.canvas = $('<canvas id="fcCanvasScene" class="fchart-canvas" tabindex="0" style="outline:0;z-index:2"></canvas>').appendTo(this.fchartDiv)[0];
+        this.frontCanvas = $('<canvas class="fchart-canvas" style="outline:0;pointer-events:none;z-index:3"></canvas>').appendTo(this.fchartDiv)[0];
         this.canvas.style.touchAction = 'none';
-        this.overlayCtx = this.overlayCanvas.getContext('2d');
+        this.backCtx = this.backCanvas.getContext('2d');
+        this.frontCtx = this.frontCanvas.getContext('2d');
 
         this.mwRendererGl = new ChartWebGLRenderer(this.canvasMw);
         this.renderer = new ChartWebGLRenderer(this.canvas);
@@ -717,23 +719,34 @@
         }
         this.canvas.width = w;
         this.canvas.height = h;
-        this.overlayCanvas.width = w;
-        this.overlayCanvas.height = h;
+        if (this.backCanvas) {
+            this.backCanvas.width = w;
+            this.backCanvas.height = h;
+        }
+        if (this.frontCanvas) {
+            this.frontCanvas.width = w;
+            this.frontCanvas.height = h;
+        }
     };
 
     SkyScene.prototype.clearOverlay = function () {
-        if (!this.overlayCtx) return;
-        this.overlayCtx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
-        this.overlayCtx.imageSmoothingEnabled = true;
+        if (this.backCtx) {
+            this.backCtx.clearRect(0, 0, this.backCanvas.width, this.backCanvas.height);
+            this.backCtx.imageSmoothingEnabled = true;
+        }
+        if (this.frontCtx) {
+            this.frontCtx.clearRect(0, 0, this.frontCanvas.width, this.frontCanvas.height);
+            this.frontCtx.imageSmoothingEnabled = true;
+        }
     };
 
     SkyScene.prototype._drawAladinBackground = function () {
-        if (!this.overlayCtx || !this.aladin || !this.showAladin || !this.aladin.view || !this.aladin.view.imageCanvas) {
+        if (!this.backCtx || !this.aladin || !this.showAladin || !this.aladin.view || !this.aladin.view.imageCanvas) {
             return;
         }
         const src = this.aladin.view.imageCanvas;
         if (!(src.width > 0 && src.height > 0)) return;
-        this.overlayCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, this.canvas.width, this.canvas.height);
+        this.backCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, this.canvas.width, this.canvas.height);
     };
 
     SkyScene.prototype._syncAladinDivSize = function () {
@@ -819,7 +832,7 @@
         }
         this.perfLastFrameTs = now;
 
-        const ctx = this.overlayCtx;
+        const ctx = this.frontCtx || this.backCtx;
         if (!ctx) return;
         const loaded = Number.isFinite(starsLoaded) ? (starsLoaded | 0) : (this.perfStarsLoaded | 0);
         const lines = [
@@ -2123,7 +2136,7 @@
             measure('milky_way', () => this.milkyWayRenderer.draw({
                 sceneData: this.sceneData,
                 renderer: mwRenderTarget,
-                overlayCtx: this.overlayCtx,
+                backCtx: this.backCtx,
                 projection: projection,
                 viewState: viewState,
                 themeConfig: this.getThemeConfig(),
@@ -2138,7 +2151,7 @@
 
         measure('grid', () => this.gridRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2154,7 +2167,7 @@
 
         measure('constell', () => this.constellRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             liteMode: false,
@@ -2170,7 +2183,7 @@
 
         measure('nebulae', () => this.nebulaeOutlinesRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2185,7 +2198,8 @@
         measure('dso', () => this.dsoRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
+            frontCtx: this.frontCtx,
             projection: projection,
             viewState: viewState,
             isZooming: !!this.zoomAnim,
@@ -2209,7 +2223,7 @@
                     sceneData: this.sceneData,
                     zoneStars: this.zoneStars,
                     renderer: this.renderer,
-                    overlayCtx: this.overlayCtx,
+                    backCtx: this.backCtx,
                     projection: projection,
                     viewState: viewState,
                     isZooming: !!this.zoomAnim,
@@ -2229,7 +2243,8 @@
         measure('planet', () => this.planetRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
+            frontCtx: this.frontCtx,
             projection: projection,
             viewState: viewState,
             mirrorX: this.isMirrorX(),
@@ -2246,7 +2261,7 @@
         measure('horizon', () => this.horizonRenderer.draw({
             sceneData: this.sceneData,
             renderer: this.renderer,
-            overlayCtx: this.overlayCtx,
+            frontCtx: this.frontCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2258,7 +2273,7 @@
 
         measure('trajectory', () => this.trajectoryRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2271,7 +2286,7 @@
 
         measure('highlights', () => this.highlightRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2284,7 +2299,7 @@
 
         measure('arrow', () => this.arrowRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            backCtx: this.backCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2300,7 +2315,7 @@
             if (!this.centerPick) return;
             if (this.centerPick.kind === 'star') {
                 this.starsRenderer.drawPickedStarMagnitude({
-                    overlayCtx: this.overlayCtx,
+                    frontCtx: this.frontCtx,
                     themeConfig: this.getThemeConfig(),
                     getThemeColor: this.getThemeColor.bind(this),
                 }, this.centerPick);
@@ -2309,7 +2324,7 @@
             if (this.centerPick.kind === 'dso') {
                 this.dsoRenderer.drawPickedDsoMagnitude({
                     sceneData: this.sceneData,
-                    overlayCtx: this.overlayCtx,
+                    frontCtx: this.frontCtx,
                     themeConfig: this.getThemeConfig(),
                     getThemeColor: this.getThemeColor.bind(this),
                 }, this.centerPick.id);
@@ -2318,7 +2333,8 @@
             if (this.centerPick.kind === 'moon') {
                 this.planetRenderer.drawPickedMoonMagnitude({
                     sceneData: this.sceneData,
-                    overlayCtx: this.overlayCtx,
+                    frontCtx: this.frontCtx,
+                    backCtx: this.backCtx,
                     themeConfig: this.getThemeConfig(),
                     getThemeColor: this.getThemeColor.bind(this),
                 }, this.centerPick.id, this.centerPick.mag);
@@ -2327,7 +2343,7 @@
 
         measure('info_panel', () => this.infoPanelRenderer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            frontCtx: this.frontCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),
@@ -2341,7 +2357,7 @@
 
         measure('widgets', () => this.widgetLayer.draw({
             sceneData: this.sceneData,
-            overlayCtx: this.overlayCtx,
+            frontCtx: this.frontCtx,
             projection: projection,
             viewState: viewState,
             themeConfig: this.getThemeConfig(),

@@ -24,7 +24,7 @@
     };
 
     window.SkySceneNumericMapScaleWidget.prototype.measure = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const text = this._labelText(sceneCtx);
         ctx.save();
@@ -38,7 +38,7 @@
     };
 
     window.SkySceneNumericMapScaleWidget.prototype.draw = function (sceneCtx, rect) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const text = this._labelText(sceneCtx);
 

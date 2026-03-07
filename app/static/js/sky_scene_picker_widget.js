@@ -2,7 +2,7 @@
     window.SkyScenePickerWidget = function () {};
 
     window.SkyScenePickerWidget.prototype.draw = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const c = sceneCtx.getThemeColor('picker', [0.2, 0.6, 0.8]);
         const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.picker));
         const r = Math.max(6.0, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.sizes.picker_radius));

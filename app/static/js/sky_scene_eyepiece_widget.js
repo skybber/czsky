@@ -14,7 +14,7 @@
         const eyepieceFov = Number(widgets.eyepiece_fov_deg);
         if (!(eyepieceFov > 0)) return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const c = sceneCtx.getThemeColor('eyepiece', [0.5, 0.3, 0.0]);
         const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.eyepiece));
         const scale = pxPerRad(sceneCtx);

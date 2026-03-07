@@ -38,7 +38,7 @@
 
     window.SkySceneHighlightRenderer.prototype._applyStroke = function (sceneCtx, hl) {
         const style = this._highlightStyle(sceneCtx, hl);
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.strokeStyle = U.rgba(style.color, 0.98);
         ctx.lineWidth = style.lineWidth;
         ctx.setLineDash(style.dash);
@@ -107,7 +107,7 @@
         const fontPx = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
         const r = Math.max(5.0, fontPx * 2.0 * size);
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
@@ -138,7 +138,7 @@
                 r = Math.max(r, this._dsoRadiusPx(sceneCtx, dsoById[hl.id]));
             }
         }
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
@@ -153,7 +153,7 @@
         if (!centerPx) return;
         const base = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         const coreR = Math.max(2.0, base * 0.3);
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
@@ -192,7 +192,7 @@
             pointsPx.push(px);
         }
         if (pointsPx.length < 2) return;
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
         ctx.beginPath();
@@ -206,7 +206,7 @@
     };
 
     window.SkySceneHighlightRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) return;
         const highlights = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.highlights) || [];
         if (!Array.isArray(highlights) || highlights.length === 0) return;
 

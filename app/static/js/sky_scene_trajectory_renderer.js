@@ -104,7 +104,7 @@
             { pa: paTail - halfAngle, scale: sideScale },
         ];
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         ctx.save();
         ctx.strokeStyle = U.rgba(tailColor, 0.98);
         ctx.lineWidth = style.lineWidthPx;
@@ -134,7 +134,7 @@
     window.SkySceneTrajectoryRenderer.prototype._drawTrajectory = function (sceneCtx, tr) {
         const points = tr && Array.isArray(tr.points) ? tr.points : [];
         if (points.length < 2) return;
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const style = this._style(sceneCtx);
         const fontPx = this._fontPx(sceneCtx);
         const trajectoriesMeta = sceneCtx.meta || {};
@@ -284,7 +284,7 @@
     };
 
     window.SkySceneTrajectoryRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) return;
         const objects = sceneCtx.sceneData.objects || {};
         const trajectories = Array.isArray(objects.trajectories) ? objects.trajectories : [];
         if (!trajectories.length) return;

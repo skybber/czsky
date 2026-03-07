@@ -35,7 +35,7 @@
     };
 
     window.SkySceneMagScaleWidget.prototype.measure = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const isMobile = (Number(sceneCtx.width) || 0) <= MOBILE_WIDTH_MAX;
         const labelText = isMobile ? '' : 'MAG:';
@@ -51,7 +51,7 @@
     };
 
     window.SkySceneMagScaleWidget.prototype.draw = function (sceneCtx, rect) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const widgets = sceneCtx.meta && sceneCtx.meta.widgets ? sceneCtx.meta.widgets : {};
         const magCfg = widgets.mag_scale || {};

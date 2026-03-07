@@ -47,7 +47,7 @@
     };
 
     SkySceneHorizonRenderer.prototype._drawSimpleHorizon = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const centerHor = sceneCtx.viewState.getHorizontalCenter();
         const centerAz = centerHor.az;
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
@@ -67,11 +67,11 @@
             if (!Array.isArray(p) || p.length < 2) continue;
             points.push(sceneCtx.projection.projectFrameToPx(p[0], p[1]));
         }
-        this._drawPolyline(sceneCtx.overlayCtx, points, true);
+        this._drawPolyline(sceneCtx.frontCtx, points, true);
     };
 
     SkySceneHorizonRenderer.prototype._drawCardinalLabels = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const fs = sceneCtx.themeConfig.font_scales;
         const fontPx = Math.max(10, U.mmToPx(fs.font_size * fs.cardinal_directions_font_scale));
         const color = sceneCtx.getThemeColor(
@@ -112,13 +112,13 @@
     };
 
     SkySceneHorizonRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.frontCtx) return;
         if (!sceneCtx.viewState) return;
         const meta = sceneCtx.meta || {};
         if (sceneCtx.viewState.coordSystem !== 'horizontal') return;
         if (typeof meta.show_horizon === 'boolean' && !meta.show_horizon) return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const color = sceneCtx.getThemeColor('horizon', [0.6, 0.6, 0.3]);
 
         ctx.save();

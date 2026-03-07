@@ -358,14 +358,17 @@
     }
 
     function drawLabels(sceneCtx, labelEntries, placementById) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !Array.isArray(labelEntries) || labelEntries.length === 0) return;
-        const ctx = sceneCtx.overlayCtx;
+        if (!sceneCtx || !Array.isArray(labelEntries) || labelEntries.length === 0) return;
+        const frontCtx = sceneCtx.frontCtx;
+        const backCtx = sceneCtx.backCtx;
+        if (!frontCtx && !backCtx) return;
+        const defaultCtx = frontCtx || backCtx;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
         const fontPx = Math.max(10, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size));
-        ctx.font = Math.round(fontPx) + 'px sans-serif';
-        ctx.textBaseline = 'alphabetic';
+        const fontStr = Math.round(fontPx) + 'px sans-serif';
 
         const occupied = [];
+        const planetsByBody = {};
         for (let i = 0; i < labelEntries.length; i++) {
             const item = labelEntries[i];
             occupied.push({
@@ -374,14 +377,33 @@
                 x2: item.x + item.r,
                 y2: item.y + item.r,
             });
+            if (item.type !== 'moon' && item.body) {
+                const bodyKey = String(item.body).toLowerCase();
+                planetsByBody[bodyKey] = {
+                    x: item.x, y: item.y, r: item.r,
+                    distance_km: item.distance_km
+                };
+            }
         }
+
+        // Helper to determine if moon is in front of its parent planet
+        function isMoonInFront(item) {
+            if (item.type !== 'moon' || !item.parent_body) return true;
+            const parentKey = String(item.parent_body).toLowerCase();
+            const parent = planetsByBody[parentKey];
+            if (!parent || !hasFinite(parent.distance_km) || !hasFinite(item.distance_km)) return true;
+            return item.distance_km < parent.distance_km;
+        }
+
+        // Measure text width using default context
+        defaultCtx.font = fontStr;
 
         for (let i = 0; i < labelEntries.length; i++) {
             const item = labelEntries[i];
             const label = item.label || '';
             if (!label) continue;
             const topDownOnly = item.type !== 'moon';
-            const labelWidth = ctx.measureText(label).width;
+            const labelWidth = defaultCtx.measureText(label).width;
             const candidates = makeLabelCandidates(item.x, item.y, Math.max(item.r, 0.8), labelWidth, fontPx, topDownOnly);
             let chosen = candidates[0];
             for (let c = 0; c < candidates.length; c++) {
@@ -393,8 +415,20 @@
                 }
             }
             occupied.push({ x1: chosen.x, y1: chosen.y - fontPx, x2: chosen.x + labelWidth, y2: chosen.y });
+
+            // Determine which context to use for this label
+            let ctx;
+            if (item.type === 'moon') {
+                ctx = isMoonInFront(item) ? (frontCtx || backCtx) : (backCtx || frontCtx);
+            } else {
+                ctx = frontCtx || backCtx;
+            }
+
+            ctx.font = fontStr;
+            ctx.textBaseline = 'alphabetic';
             ctx.fillStyle = U.rgba(labelColor, 1.0);
             ctx.fillText(label, chosen.x, chosen.y);
+
             if (placementById && item.id) {
                 const labelCx = chosen.x + labelWidth * 0.5;
                 const labelCy = chosen.y - fontPx * 0.5;
@@ -418,6 +452,7 @@
                     r: Math.max(item.r || 0.8, 0.8),
                     side: side,
                     verticalHalf: chosen.y < item.y ? 'upper' : 'lower',
+                    isInFront: isMoonInFront(item),
                 });
             }
         }
@@ -464,12 +499,16 @@
     }
 
     window.SkyScenePlanetRenderer.prototype.drawPickedMoonMagnitude = function (sceneCtx, moonId, moonMag) {
-        if (!sceneCtx || !sceneCtx.overlayCtx || !moonId || !Number.isFinite(moonMag)) return;
+        if (!sceneCtx || !moonId || !Number.isFinite(moonMag)) return;
         if (!this._lastLabelPlacementById) return;
         const pl = this._lastLabelPlacementById.get(moonId);
         if (!pl || pl.type !== 'moon') return;
         if (!Number.isFinite(pl.x) || !Number.isFinite(pl.y) || !Number.isFinite(pl.cx) || !Number.isFinite(pl.cy)) return;
-        const ctx = sceneCtx.overlayCtx;
+        // Use same context as the label (front for moons in front, back for moons behind)
+        const ctx = pl.isInFront !== false
+            ? (sceneCtx.frontCtx || sceneCtx.backCtx)
+            : (sceneCtx.backCtx || sceneCtx.frontCtx);
+        if (!ctx) return;
         const fontPx = Number.isFinite(pl.fontPx) ? pl.fontPx * 0.8 : 10.0;
         const text = Number(moonMag).toFixed(1) + ' mag';
         ctx.save();
@@ -511,8 +550,8 @@
         }
 
         if (!canWebGl) {
-            if (!sceneCtx.overlayCtx) return;
-            const ctx = sceneCtx.overlayCtx;
+            if (!sceneCtx.backCtx) return;
+            const ctx = sceneCtx.backCtx;
             for (let i = 0; i < objects.length; i++) {
                 const p = objects[i];
                 const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
@@ -603,7 +642,11 @@
                     drawCanvasHalfRing(ctx, px.x, px.y, inner1, inner2, tiltScale, rot, true, ringCol);
                     drawCanvasHalfRing(ctx, px.x, px.y, outer1, outer2, tiltScale, rot, true, ringCol);
                 }
-                labels.push({ x: px.x, y: px.y, r: r, id: p.id, label: p.label || '', type: p.type || 'planet' });
+                labels.push({
+                    x: px.x, y: px.y, r: r, id: p.id, label: p.label || '',
+                    type: p.type || 'planet', body: p.body, parent_body: p.parent_body,
+                    distance_km: hasFinite(p.distance_km) ? p.distance_km : null
+                });
                 if (typeof sceneCtx.registerSelectable === 'function' && p && p.id) {
                     sceneCtx.registerSelectable({
                         shape: 'circle',
@@ -746,6 +789,9 @@
                 id: p.id,
                 label: p.label || '',
                 type: p.type || 'planet',
+                body: p.body,
+                parent_body: p.parent_body,
+                distance_km: hasFinite(p.distance_km) ? p.distance_km : null,
             });
         }
 

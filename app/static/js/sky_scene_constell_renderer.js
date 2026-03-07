@@ -197,7 +197,7 @@
     };
 
     window.SkySceneConstellationRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) {
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) {
             return;
         }
 
@@ -210,7 +210,7 @@
             : U.hasFlag(meta, 'B');
         if (!showShapes && !showBorders) return;
 
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         if (showShapes) {
             this._drawLines(sceneCtx, ctx);
         }

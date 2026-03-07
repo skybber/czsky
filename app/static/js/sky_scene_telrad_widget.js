@@ -10,7 +10,7 @@
     }
 
     window.SkySceneTelradWidget.prototype.draw = function (sceneCtx) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.frontCtx;
         const c = sceneCtx.getThemeColor('telrad', [0.5, 0.0, 0.0]);
         const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.telrad));
         const scale = pxPerRad(sceneCtx);

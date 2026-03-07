@@ -318,7 +318,7 @@
     };
 
     SkySceneGridRenderer.prototype._drawGridGeneric = function (sceneCtx, cfg) {
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const centerU = cfg.centerU;
         const centerV = cfg.centerV;
@@ -485,7 +485,7 @@
     };
 
     SkySceneGridRenderer.prototype.draw = function (sceneCtx) {
-        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.overlayCtx) return;
+        if (!sceneCtx || !sceneCtx.sceneData || !sceneCtx.backCtx) return;
         if (!sceneCtx.viewState) return;
 
         const meta = sceneCtx.meta || {};
@@ -494,7 +494,7 @@
         if (!showEq && !showHor) return;
 
         const style = this._setupStyles(sceneCtx);
-        const ctx = sceneCtx.overlayCtx;
+        const ctx = sceneCtx.backCtx;
 
         ctx.save();
         ctx.strokeStyle = U.rgba(style.color, 0.9);
