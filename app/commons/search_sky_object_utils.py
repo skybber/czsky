@@ -1,5 +1,6 @@
 import re
 import urllib.parse
+import unicodedata
 
 from .dso_utils import normalize_dso_name, denormalize_dso_name, normalize_double_star_name
 from .greek import GREEK_TO_LAT, SHORT_LAT_TO_GREEK, LONG_LAT_TO_GREEK, LONG_LAT_CZ_TO_GREEK, SHORT_LAT_TO_GREEK_EXT
@@ -18,6 +19,36 @@ from app.models import (
 )
 
 from sqlalchemy import func
+
+EARTH_MOON_ALIASES = {
+    'moon',
+    'the moon',
+    'mesic',
+    'mesiac',
+    'luna',
+    'lune',
+    'mond',
+    'ksiezyc',
+    'lua',
+}
+
+
+def _normalize_text_for_alias_search(query):
+    if not query:
+        return ''
+    query = urllib.parse.unquote(query).strip().lower()
+    query = ''.join(
+        char for char in unicodedata.normalize('NFKD', query)
+        if not unicodedata.combining(char)
+    )
+    query = re.sub(r'[\s\-_]+', ' ', query)
+    return query
+
+
+def search_earth_moon(query):
+    if not query:
+        return False
+    return _normalize_text_for_alias_search(query) in EARTH_MOON_ALIASES
 
 
 def search_constellation(query):

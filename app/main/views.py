@@ -1,5 +1,6 @@
 import base64
 import urllib.parse
+from datetime import datetime, timezone
 
 from flask import (
     abort,
@@ -27,6 +28,7 @@ from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_ot
 from app.commons.utils import get_site_lang_code
 from app.commons.coordinates import parse_radec
 from app.commons.visibility_utils import create_visibility_chart
+from app.commons.solar_system_chart_utils import get_solsys_bodies
 
 from app.commons.search_sky_object_utils import (
     search_constellation,
@@ -37,6 +39,7 @@ from app.commons.search_sky_object_utils import (
     search_minor_planet,
     search_planet,
     search_planet_moon,
+    search_earth_moon,
 )
 
 from app.models import (
@@ -176,7 +179,18 @@ def do_global_search(query, level):
         else:
             return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
 
-    # 5. Search planet
+    # 5. Search Earth Moon
+    moon = _search_earth_moon(query)
+    if moon is not None:
+        return redirect(url_for('main_chart.chart',
+                                mra=moon.ra,
+                                mdec=moon.dec,
+                                fullscreen=request.args.get('fullscreen'),
+                                splitview=request.args.get('splitview'),
+                                embed=request.args.get('embed'),
+                                dt=request.args.get('dt')))
+
+    # 6. Search planet
     planet = search_planet(query)
     if planet is not None:
         return redirect(url_for('main_planet.planet_seltab',
@@ -191,7 +205,7 @@ def do_global_search(query, level):
                                 dt=request.args.get('dt'),
                                 ))
 
-    # 6. Search planet moons
+    # 7. Search planet moons
     planet_moon = search_planet_moon(query)
     if planet_moon is not None:
         return redirect(url_for('main_planet_moon.planet_moon_seltab',
@@ -206,7 +220,7 @@ def do_global_search(query, level):
                                 dt=request.args.get('dt'),
                                 ))
 
-    # 7. Search comet
+    # 8. Search comet
     comet = search_comet(query)
     if comet is not None:
         return redirect(url_for('main_comet.comet_seltab',
@@ -221,7 +235,7 @@ def do_global_search(query, level):
                                 dt=request.args.get('dt'),
                                 ))
 
-    # 8. Search minor planet
+    # 9. Search minor planet
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
         return redirect(url_for('main_minor_planet.minor_planet_seltab',
@@ -236,12 +250,12 @@ def do_global_search(query, level):
                                 dt=request.args.get('dt'),
                                 ))
 
-    # 9. search by radec
+    # 10. search by radec
     res = _search_by_ra_dec(query)
     if res:
         return res
 
-    # 10. Search Simbad
+    # 11. Search Simbad
     if level != 2:
         simbad_obj = simbad_query(dso_name_to_simbad_id(query))
         if simbad_obj is not None:
@@ -329,6 +343,41 @@ def _search_chart_ids(query):
         except (ValueError, TypeError):
             pass
     return None
+
+
+def _search_earth_moon(query):
+    if not search_earth_moon(query):
+        return None
+    dt = _get_search_datetime(request.args.get('dt'))
+    try:
+        moon = next(
+            (
+                x for x in get_solsys_bodies(dt)
+                if x.solar_system_body.name.lower() == 'moon'
+            ),
+            None
+        )
+    except Exception:
+        moon = None
+    return moon
+
+
+def _get_search_datetime(request_dt):
+    if not request_dt:
+        return datetime.now(timezone.utc)
+
+    dt_text = request_dt.strip()
+    if dt_text.endswith('Z'):
+        dt_text = dt_text[:-1] + '+00:00'
+
+    try:
+        dt = datetime.fromisoformat(dt_text)
+    except ValueError:
+        return datetime.now(timezone.utc)
+
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 def _get_constell(costell_code):
