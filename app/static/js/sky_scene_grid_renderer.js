@@ -113,7 +113,7 @@
         return U.deg2rad(Math.min(adaptiveSampleDeg, MIN_CURVE_SAMPLE_DEG));
     };
 
-    SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, centerV, v, labelText, edge, clipRect) {
+    SkySceneGridRenderer.prototype._drawSingleParallel = function (sceneCtx, ctx, toRaDec, centerU, centerV, v, labelText, edge, clipRect, isNativeCoords) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const du = Math.max(fieldRadius / 20.0, this._computeAdaptiveSampleRad(sceneCtx, fieldRadius));
         let visible = false;
@@ -123,22 +123,34 @@
         const edgeX = edge === 'right' ? (sceneCtx.width - 2) : 2;
 
         // Limit iteration to visible range of the parallel
-        // Account for distance from view center to this parallel
-        const dv = Math.abs(v - centerV);
-        const cosV = Math.cos(v);
-        let visibleURange;
-        if (dv >= fieldRadius) {
-            // Parallel is outside field of view, but draw with small margin for edge cases
-            visibleURange = fieldRadius * 0.1 / Math.max(0.1, Math.abs(cosV));
+        let uStart, uEnd;
+        // For small FoV (<15°), coordinate transformation is nearly linear,
+        // so the optimized range works even for foreign coordinate systems
+        const needFullCircle = isNativeCoords === false && fieldRadius > U.deg2rad(15);
+        if (needFullCircle) {
+            // Foreign coordinate system with large FoV - grid and projection don't align,
+            // so we must iterate full circle to avoid missing visible parts
+            uStart = -Math.PI;
+            uEnd = Math.PI;
         } else {
-            // Pythagorean: visible half-width at this declination
-            const visibleHalfWidth = Math.sqrt(fieldRadius * fieldRadius - dv * dv);
-            visibleURange = visibleHalfWidth / Math.max(0.1, Math.abs(cosV));
+            // Native coords - use optimized range based on field geometry
+            // Account for distance from view center to this parallel
+            const dv = Math.abs(v - centerV);
+            const cosV = Math.cos(v);
+            let visibleURange;
+            if (dv >= fieldRadius) {
+                // Parallel is outside field of view, but draw with small margin for edge cases
+                visibleURange = fieldRadius * 0.1 / Math.max(0.1, Math.abs(cosV));
+            } else {
+                // Pythagorean: visible half-width at this declination
+                const visibleHalfWidth = Math.sqrt(fieldRadius * fieldRadius - dv * dv);
+                visibleURange = visibleHalfWidth / Math.max(0.1, Math.abs(cosV));
+            }
+            // Add generous margin for safety
+            const margin = Math.max(du * 5, fieldRadius * 0.2);
+            uStart = Math.max(-Math.PI, -visibleURange - margin);
+            uEnd = Math.min(Math.PI, visibleURange + margin);
         }
-        // Add generous margin for safety
-        const margin = Math.max(du * 5, fieldRadius * 0.2);
-        const uStart = Math.max(-Math.PI, -visibleURange - margin);
-        const uEnd = Math.min(Math.PI, visibleURange + margin);
 
         // Quick AABB margin for off-screen segment rejection
         const aabbMargin = 50;
@@ -195,7 +207,7 @@
         return true;
     };
 
-    SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV, clipRect) {
+    SkySceneGridRenderer.prototype._drawSingleMeridian = function (sceneCtx, ctx, toRaDec, u, labelText, labelEdges, centerV, clipRect, isNativeCoords) {
         const fieldRadius = sceneCtx.viewState.getFieldRadiusRad();
         const dv = Math.max(fieldRadius / 20.0, this._computeAdaptiveSampleRad(sceneCtx, fieldRadius));
         let visible = false;
@@ -207,9 +219,20 @@
         const edgeY = useTop ? 2 : (sceneCtx.height - 2);
 
         // Limit iteration to visible range of the meridian
-        const margin = Math.max(dv * 5, fieldRadius * 0.2);
-        const vStart = Math.max(-Math.PI / 2, centerV - fieldRadius - margin);
-        const vEnd = Math.min(Math.PI / 2, centerV + fieldRadius + margin);
+        let vStart, vEnd;
+        // For small FoV (<15°), coordinate transformation is nearly linear,
+        // so the optimized range works even for foreign coordinate systems
+        const needFullRange = isNativeCoords === false && fieldRadius > U.deg2rad(15);
+        if (needFullRange) {
+            // Foreign coordinate system with large FoV - iterate full range
+            vStart = -Math.PI / 2;
+            vEnd = Math.PI / 2;
+        } else {
+            // Native coords - use optimized range
+            const margin = Math.max(dv * 5, fieldRadius * 0.2);
+            vStart = Math.max(-Math.PI / 2, centerV - fieldRadius - margin);
+            vEnd = Math.min(Math.PI / 2, centerV + fieldRadius + margin);
+        }
 
         // Quick AABB margin for off-screen segment rejection
         const aabbMargin = 50;
@@ -321,7 +344,7 @@
             const v = Math.PI * vCur / (180.0 * 60.0);
             if (!(v > vMinVis && v < vMaxVis)) return false;
             const label = cfg.vLabelFmt(vCur, vLabelFmt);
-            return this._drawSingleParallel(sceneCtx, ctx, cfg.toRaDec, centerU, centerV, v, label, cfg.vLabelEdge, clipRect);
+            return this._drawSingleParallel(sceneCtx, ctx, cfg.toRaDec, centerU, centerV, v, label, cfg.vLabelEdge, clipRect, cfg.isNativeCoords);
         };
 
         if (vBase > vMinMinutes && vBase < vMaxMinutes) {
@@ -374,7 +397,7 @@
             const du = U.wrapDeltaRa(u - centerU);
             if (Math.abs(du) > uSize + 1e-6) return false;
             const label = cfg.uLabelFmt(uCur, uLabelFmt);
-            return this._drawSingleMeridian(sceneCtx, ctx, cfg.toRaDec, u, label, cfg.uLabelEdges, centerV, clipRect);
+            return this._drawSingleMeridian(sceneCtx, ctx, cfg.toRaDec, u, label, cfg.uLabelEdges, centerV, clipRect, cfg.isNativeCoords);
         };
 
         const drawUUnique = (uIndex) => {
@@ -422,6 +445,7 @@
             uArcminPerUnit: 15.0,
             uTotalMinutes: 24 * 60,
             isEqGrid: true,
+            isNativeCoords: sceneCtx.viewState.coordSystem === 'equatorial',
         };
     };
 
@@ -456,6 +480,7 @@
             uArcminPerUnit: 1.0,
             uTotalMinutes: 360 * 60,
             isEqGrid: false,
+            isNativeCoords: sceneCtx.viewState.coordSystem === 'horizontal',
         };
     };
 
