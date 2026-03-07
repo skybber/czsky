@@ -1,0 +1,61 @@
+{% if not embed %}
+    {% extends 'layouts/base.html' %}
+{% else %}
+    {% extends 'layouts/base_embed.html' %}
+{% endif %}
+
+{% import 'macros/back_navig_macros.html' as back_navig %}
+
+{% set back = request.args.get('back') %}
+{% set back_id = request.args.get('back_id') %}
+
+{% set endpoints = [
+    ('main_planet.moon_visibility', _('Visibility'), 'eye'),
+] %}
+
+{% macro navigation(items) %}
+    <div class="ui icon secondary pointing menu">
+        {% for route, pupup_text, icon in items %}
+            {% set href = url_for(route, back=back, back_id=back_id, embed=embed) %}
+            <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
+                {{ pupup_text }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro moon_visibility() %}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main.visibility', lat=location_lat, lon=location_lon, elev=0, date=chart_date, ra=moon.ra, dec=moon.dec, theme=chart_theme, label=_('Moon'), location_name=location_city_name) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Visibility chart for') }} {{ _('Moon') }}"/>
+    </div>
+    {% if rise_transit_set %}
+    <div style="margin-top:20px;">
+        <table class="ui compact definition unstackable table">
+            <tr><td class="three wide">{{ _('Rise') }}</td><td>{{ rise_transit_set.rise_utc if rise_transit_set.rise_utc else '-' }} UTC</td></tr>
+            <tr><td class="three wide">{{ _('Transit') }}</td><td>{{ rise_transit_set.transit_utc if rise_transit_set.transit_utc else '-' }} UTC</td></tr>
+            <tr><td class="three wide">{{ _('Set') }}</td><td>{{ rise_transit_set.set_utc if rise_transit_set.set_utc else '-' }} UTC</td></tr>
+        </table>
+    </div>
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="fourteen wide tablet sixteen wide computer centered column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    {{ back_navig.back_navig(back, back_id, 'planets', embed) }}
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('Moon') }}
+                    </div>
+                </div>
+            </div>
+
+            {{ navigation(endpoints) }}
+            {{ moon_visibility() }}
+        </div>
+    </div>
+{% endblock %}

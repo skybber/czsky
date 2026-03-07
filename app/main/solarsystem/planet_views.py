@@ -3,6 +3,7 @@ import base64
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
+from types import SimpleNamespace
 
 from flask import (
     abort,
@@ -62,6 +63,7 @@ from app.commons.coordinates import ra_to_str, dec_to_str
 from app.commons.solar_system_chart_utils import (
     AU_TO_KM,
     create_solar_system_body_obj,
+    get_solsys_bodies,
     get_planet_orbital_period,
     get_planet_synodic_period,
     YEAR_DAYS
@@ -95,6 +97,56 @@ class PlanetData:
 
     def angular_diameter_seconds(self):
         return self.angular_diameter * 180.0 * 60 * 60 / math.pi
+
+
+@main_planet.route('/moon')
+def moon():
+    return _do_moon_redirect('main_planet.moon_seltab')
+
+
+@main_planet.route('/moon/seltab')
+def moon_seltab():
+    return _do_moon_redirect('main_planet.moon_visibility')
+
+
+@main_planet.route('/moon/visibility', methods=['GET', 'POST'])
+def moon_visibility():
+    embed = request.args.get('embed', None)
+    if embed:
+        session['moon_embed_seltab'] = 'visibility'
+
+    dt = _get_request_datetime_utc(request.args.get('dt'))
+    moon = _resolve_earth_moon(dt)
+    if moon is None:
+        abort(404)
+
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    chart_theme = session.get('theme', 'dark')
+    chart_date = get_chart_datetime().strftime('%Y-%m-%d')
+
+    rise_transit_set = get_rise_transit_set_utc(
+        location_name=city_name,
+        latitude=lat,
+        longitude=lon,
+        elevation=0,
+        date_str=chart_date,
+        ra=moon.ra,
+        dec=moon.dec,
+        object_label='Moon'
+    )
+
+    return render_template(
+        'main/solarsystem/moon_info.html',
+        type='visibility',
+        embed=embed,
+        location_city_name=city_name,
+        location_lat=lat,
+        location_lon=lon,
+        chart_theme=chart_theme,
+        chart_date=chart_date,
+        moon=moon,
+        rise_transit_set=rise_transit_set,
+    )
 
 
 @main_planet.route('/planets', methods=['GET', 'POST'])
@@ -438,6 +490,60 @@ def _do_redirect(url, planet, splitview=False, fullscreen=False):
     splitview = 'true' if splitview else request.args.get('splitview')
     dt = request.args.get('dt')
     return redirect(url_for(url, planet_iau_code=planet.iau_code, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, dt=dt))
+
+
+def _do_moon_redirect(url):
+    back = request.args.get('back')
+    back_id = request.args.get('back_id')
+    embed = request.args.get('embed', None)
+    fullscreen = request.args.get('fullscreen')
+    splitview = request.args.get('splitview')
+    dt = request.args.get('dt')
+    return redirect(
+        url_for(
+            url,
+            back=back,
+            back_id=back_id,
+            fullscreen=fullscreen,
+            splitview=splitview,
+            embed=embed,
+            dt=dt,
+        )
+    )
+
+
+def _resolve_earth_moon(dt):
+    try:
+        moon = next(
+            (x for x in get_solsys_bodies(dt) if x.solar_system_body.name.lower() == 'moon'),
+            None
+        )
+    except Exception:
+        moon = None
+
+    if moon is None:
+        return None
+
+    return SimpleNamespace(ra=moon.ra, dec=moon.dec)
+
+
+def _get_request_datetime_utc(request_dt):
+    if not request_dt:
+        return datetime.now(dt_module.timezone.utc)
+
+    dt_text = request_dt.strip()
+    if dt_text.endswith('Z'):
+        dt_text = dt_text[:-1] + '+00:00'
+
+    try:
+        dt = datetime.fromisoformat(dt_text)
+    except ValueError:
+        return datetime.now(dt_module.timezone.utc)
+
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=dt_module.timezone.utc)
+
+    return dt.astimezone(dt_module.timezone.utc)
 
 
 def _check_in_mag_interval(mag, mag_interval):

@@ -182,12 +182,12 @@ def do_global_search(query, level):
     # 5. Search Earth Moon
     moon = _search_earth_moon(query)
     if moon is not None:
-        return redirect(url_for('main_chart.chart',
-                                mra=moon.ra,
-                                mdec=moon.dec,
+        return redirect(url_for('main_planet.moon_seltab',
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
                                 embed=request.args.get('embed'),
+                                back=request.args.get('back'),
+                                back_id=request.args.get('back_id'),
                                 dt=request.args.get('dt')))
 
     # 6. Search planet
