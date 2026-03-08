@@ -311,16 +311,12 @@ def planet_info(planet_iau_code):
 
     form = PlanetFindChartForm()
 
-    ts = load.timescale(builtin=True)
-    eph = load('de421.bsp')
-    earth = eph['earth']
-
     if not form.date_from.data or not form.date_to.data:
         today = datetime.today()
         form.date_from.data = today
         form.date_to.data = today + timedelta(days=7)
 
-    t = ts.now()
+    dt = _get_request_datetime_utc(request.args.get('dt'))
     # trajectory_b64 = None
     # if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
     #     d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
@@ -332,9 +328,7 @@ def planet_info(planet_iau_code):
     #         t = ts.from_datetime(d2.replace(tzinfo=utc))
     #     trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, planet.eph)
 
-    planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
-    planet_ra = planet_ra_ang.radians
-    planet_dec = planet_dec_ang.radians
+    planet_ra, planet_dec = _resolve_planet_ra_dec(planet, dt)
 
     common_ra_dec_dt_fsz_from_request(form, planet_ra, planet_dec, 60)
 
@@ -382,13 +376,7 @@ def planet_chart_scene_v1(planet_iau_code):
 
     if planet_ra is None or planet_dec is None:
         dt = _get_request_datetime_utc(request.args.get('dt'))
-        ts = load.timescale(builtin=True)
-        eph = load('de421.bsp')
-        earth = eph['earth']
-        t = ts.from_datetime(dt)
-        planet_ra_ang, planet_dec_ang, _ = earth.at(t).observe(planet.eph).radec()
-        planet_ra = planet_ra_ang.radians
-        planet_dec = planet_dec_ang.radians
+        planet_ra, planet_dec = _resolve_planet_ra_dec(planet, dt)
 
     scene = build_scene_v1()
     scene_meta = scene.setdefault('meta', {})
@@ -469,15 +457,8 @@ def planet_visibility(planet_iau_code):
     if embed:
         session['planet_embed_seltab'] = 'visibility'
 
-    # Calculate current planet position
-    ts = load.timescale(builtin=True)
-    eph = load('de421.bsp')
-    earth = eph['earth']
-    t = ts.now()
-
-    planet_ra_ang, planet_dec_ang, distance = earth.at(t).observe(planet.eph).radec()
-    planet_ra = planet_ra_ang.radians
-    planet_dec = planet_dec_ang.radians
+    dt = _get_request_datetime_utc(request.args.get('dt'))
+    planet_ra, planet_dec = _resolve_planet_ra_dec(planet, dt)
 
     # Resolve location and prepare visibility parameters
     city_name, lat, lon = resolve_chart_city_lat_lon()
@@ -648,6 +629,15 @@ def _resolve_earth_moon(dt, observer_lat=None, observer_lon=None, observer_eleva
         return None
 
     return SimpleNamespace(ra=moon.ra, dec=moon.dec)
+
+
+def _resolve_planet_ra_dec(planet, dt):
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    earth = eph['earth']
+    t = ts.from_datetime(dt)
+    planet_ra_ang, planet_dec_ang, _ = earth.at(t).observe(planet.eph).radec()
+    return planet_ra_ang.radians, planet_dec_ang.radians
 
 
 def _get_request_datetime_utc(request_dt):
