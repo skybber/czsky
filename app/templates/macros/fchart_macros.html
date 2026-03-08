@@ -530,20 +530,22 @@
             </div>
         {% endif %}
 
-        <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; display:none;">
+        <div id="isearch" class="ui horizontally fitted small item computer tablet only" style="width: 150px; z-index:100; margin-right:16px; display:none;">
             <div class="ui icon input">
                 <input id="search" name="search" class="search search-dso" type="text" placeholder="{{ _('Search...') }} ">
                 <i class="search icon"></i>
             </div>
         </div>
 
-        <div class="ui horizontally fitted item" style="margin-right:16px; z-index:100">
-            <div class="ui small buttons">
-                <button id="bfullscreen" type="button" class="ui icon button">
-                    <i class="expand icon"></i>
-                </button>
+        <div id="isearch2" class="ui horizontally fitted item mobile only" style="margin-right:16px;z-index:100;">
+            <div id="iisearch2" class="ui small input transition hidden" style="width:150px; margin-right: 0.5em;">
+                <input id="iiisearch2" name="search" type="text" class="search search-dso" placeholder="{{ _('Search...') }}">
             </div>
+            <button class="ui small icon button" id="bsearch2">
+                <i class="search icon"></i>
+            </button>
         </div>
+
     </div>
 
     <div id="right-menu" class="ui vertical icon right floated mobile only menu" style="margin-right:8px;">
@@ -578,14 +580,6 @@
         </button>
     </div>
 
-    <div id="isearch2" class="ui tablet hidden computer hidden input" style="z-index:100; position: absolute; bottom: 0; right:0; display:none;">
-        <div id="iisearch2" class="ui tiny input transition hidden" style="width:150px; margin-right: 0.5em;">
-            <input id="iiisearch2" name="search" type="text" class="search search-dso" placeholder="{{ _('Search...') }}">
-        </div>
-        <button class="ui tiny icon button" id="bsearch2">
-            <i class="search icon"></i>
-        </button>
-    </div>
 
     {% assets 'aladin_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
     <div class="aladin-logo-container tablet hidden computer hidden" style="z-index:100;bottom: 35px">
@@ -1523,10 +1517,6 @@
         fchart.centerObjectInFov();
     });
 
-    $('#bfullscreen').click(function(){
-        fchart.toggleFullscreen();
-    });
-
     $('#bhideleftpanel').click(function(){
         fchart.toggleSplitView();
     });
@@ -1615,8 +1605,8 @@
         }
     });
 
-    $('#iiisearch2').on('blur', function() {
-        if (!$('#iisearch2').hasClass('hidden')) {
+    $(document).on('click', function(event) {
+        if (!$('#iisearch2').hasClass('hidden') && !$(event.target).closest('#isearch2').length) {
             $('#iisearch2').transition('fade');
         }
     });
