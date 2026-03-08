@@ -996,6 +996,12 @@
             queryParams.set('az', center.phi.toFixed(this.URL_ANG_PRECISION));
             queryParams.set('alt', center.theta.toFixed(this.URL_ANG_PRECISION));
         }
+
+        if (this.useCurrentTime) {
+            queryParams.delete('dt');
+        } else {
+            queryParams.set('dt', this.dateTimeISO);
+        }
     };
 
     SkyScene.prototype.syncQueryString = function () {
