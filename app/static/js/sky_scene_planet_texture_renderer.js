@@ -43,12 +43,21 @@
         uniform float u_phaseAngle;
         uniform float u_hasPhase;
         uniform float u_ambient;
+        uniform float u_limbDarkening;
         varying vec2 v_uv;
         varying vec3 v_normal;
         void main() {
             vec4 color = texture2D(u_texture, v_uv);
+            vec3 n = normalize(v_normal);
+
+            // Limb darkening: darken edges based on angle to viewer (camera is at +Z)
+            vec3 viewDir = vec3(0.0, 0.0, 1.0);
+            float cosAngle = max(dot(n, viewDir), 0.0);
+            // Apply limb darkening with controllable strength
+            float limb = mix(1.0, cosAngle, u_limbDarkening);
+            color.rgb *= limb;
+
             if (u_hasPhase > 0.5) {
-                vec3 n = normalize(v_normal);
                 // Build 3D sun direction from 2D screen direction and phase angle
                 // phase_angle=0 -> full illumination (sun behind observer, sunDir toward viewer)
                 // phase_angle=PI -> no illumination (sun behind planet, sunDir away from viewer)
@@ -193,6 +202,7 @@
         this._uPhaseAngle = gl.getUniformLocation(this._glProgram, 'u_phaseAngle');
         this._uHasPhase = gl.getUniformLocation(this._glProgram, 'u_hasPhase');
         this._uAmbient = gl.getUniformLocation(this._glProgram, 'u_ambient');
+        this._uLimbDarkening = gl.getUniformLocation(this._glProgram, 'u_limbDarkening');
 
         this._sphereMesh = createSphereMesh(32, 64);
 
@@ -914,6 +924,9 @@
                 gl.uniform1f(this._uPhaseAngle, phaseAngle);
                 gl.uniform1f(this._uHasPhase, hasPhase ? 1 : 0);
                 gl.uniform1f(this._uAmbient, 0.05);
+                // Limb darkening: 0 for Sun, 0.4 for other planets
+                const limbDarkening = (nameKey === 'sun' || bodyKey === 'sun') ? 0.0 : 0.4;
+                gl.uniform1f(this._uLimbDarkening, limbDarkening);
                 checkGlError(gl, 'set_uniforms');
 
                 // Draw
