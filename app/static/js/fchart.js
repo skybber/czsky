@@ -26,23 +26,25 @@ function pad2(n) {
     return (n < 10 ? "0" : "") + Math.floor(Math.abs(n));
 }
 
-function formatRA(rad) {
+function formatRA(rad, compact = false) {
     let hours = rad * 12 / Math.PI; // 0..24
     if (hours < 0) hours += 24;
     if (hours >= 24) hours -= 24;
     const h = Math.floor(hours);
     const m = Math.floor((hours - h) * 60);
     const s = Math.floor((((hours - h) * 60) - m) * 60);
-    return `${pad2(h)}h ${pad2(m)}m ${pad2(s)}s`;
+    const sp = compact ? '' : ' ';
+    return `${pad2(h)}h${sp}${pad2(m)}m${sp}${pad2(s)}s`;
 }
 
-function formatDEC(rad) {
+function formatDEC(rad, compact = false) {
     const sign = rad >= 0 ? "+" : "-";
     const deg = Math.abs(rad) * 180 / Math.PI;
     const d = Math.floor(deg);
     const m = Math.floor((deg - d) * 60);
     const s = Math.floor((((deg - d) * 60) - m) * 60);
-    return `${sign}${pad2(d)}° ${pad2(m)}′ ${pad2(s)}″`;
+    const sp = compact ? '' : ' ';
+    return `${sign}${pad2(d)}°${sp}${pad2(m)}′${sp}${pad2(s)}″`;
 }
 
 function normRad0to2Pi(rad) {
@@ -50,16 +52,17 @@ function normRad0to2Pi(rad) {
     return (x < 0) ? x + 2*Math.PI : x;
 }
 
-function formatAZ(rad) {
+function formatAZ(rad, compact = false) {
     const deg = rad2deg(normRad0to2Pi(rad));
     const d = Math.floor(deg);
     const m = Math.floor((deg - d) * 60);
     const s = Math.floor((((deg - d) * 60) - m) * 60);
-    return `${pad2(d)}° ${pad2(m)}′ ${pad2(s)}″`;
+    const sp = compact ? '' : ' ';
+    return `${pad2(d)}°${sp}${pad2(m)}′${sp}${pad2(s)}″`;
 }
 
-function formatALT(rad) {
-    return formatDEC(rad);
+function formatALT(rad, compact = false) {
+    return formatDEC(rad, compact);
 }
 
 function fixAzimuth(phi) {
@@ -2045,11 +2048,21 @@ FChart.prototype.drawOverlay = function () {
     const bgColor = this.theme === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)';
 
     if (isMobile) {
-        // mobile: 3 lines (datetime + left + right)
+        // mobile: 3 lines (datetime + left + right), compact format
+        const mobileDateTimeText = `${dateText} ${timeText}`;
+        let mobileLineLeft, mobileLineRight;
+        if (this.isEquatorial) {
+            mobileLineLeft  = `RA  ${formatRA(phi, true)}`;
+            mobileLineRight = `DEC ${formatDEC(theta, true)}`;
+        } else {
+            mobileLineLeft  = `AZ  ${formatAZ(phi, true)}`;
+            mobileLineRight = `ALT ${formatALT(theta, true)}`;
+        }
+
         const w = Math.max(
-            ctx.measureText(dateTimeText).width,
-            ctx.measureText(lineLeft).width,
-            ctx.measureText(lineRight).width
+            ctx.measureText(mobileDateTimeText).width,
+            ctx.measureText(mobileLineLeft).width,
+            ctx.measureText(mobileLineRight).width
         ) + pad * 2;
         const h = lineH * 3 + pad * 2;
         const x0 = 0, y0 = 0;
@@ -2058,9 +2071,9 @@ FChart.prototype.drawOverlay = function () {
         ctx.fillStyle = bgColor;
         ctx.fillRect(x0, y0, w, h);
         ctx.fillStyle = textColor;
-        ctx.fillText(dateTimeText, x0 + pad, y0 + pad);
-        ctx.fillText(lineLeft,     x0 + pad, y0 + pad + lineH);
-        ctx.fillText(lineRight,    x0 + pad, y0 + pad + 2 * lineH);
+        ctx.fillText(mobileDateTimeText, x0 + pad, y0 + pad);
+        ctx.fillText(mobileLineLeft,     x0 + pad, y0 + pad + lineH);
+        ctx.fillText(mobileLineRight,    x0 + pad, y0 + pad + 2 * lineH);
 
     } else {
         const margin = 8;
