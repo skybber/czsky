@@ -4,14 +4,22 @@
     {% extends 'layouts/base_embed.html' %}
 {% endif %}
 
+{% import 'macros/fchart_macros.html' as fchart with context %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
 {% set back_id = request.args.get('back_id') %}
 
-{% set endpoints = [
-    ('main_planet.moon_visibility', _('Visibility'), 'eye'),
-] %}
+{% if not embed %}
+    {% set endpoints = [
+        ('main_planet.moon_info', _('Map'), 'info'),
+        ('main_planet.moon_visibility', _('Visibility'), 'eye'),
+    ] %}
+{% else %}
+    {% set endpoints = [
+        ('main_planet.moon_visibility', _('Visibility'), 'eye'),
+    ] %}
+{% endif %}
 
 {% macro navigation(items) %}
     <div class="ui icon secondary pointing menu">
@@ -22,6 +30,23 @@
             </a>
         {% endfor %}
     </div>
+{% endmacro %}
+
+{% macro moon_info() %}
+    {{ fchart.fchart(url_for('main_planet.moon_info', back=back, back_id=back_id),
+                     url_for('main_planet.moon_chart_pos_img', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.chart_flags),
+                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
+                     url_for('main_planet.moon_chart_pdf', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
+                     None,
+                     fchart_form,
+                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=moon_ra|string, obj_dec=moon_dec|string,
+                     back=back, back_id=back_id, default_back='planets',
+                     fchart_scene_url=url_for('main_planet.moon_chart_scene_v1',
+                                              flags=chart_control.chart_flags, back=back, back_id=back_id)
+                     )
+    }}
 {% endmacro %}
 
 {% macro moon_visibility() %}
@@ -55,7 +80,11 @@
             </div>
 
             {{ navigation(endpoints) }}
-            {{ moon_visibility() }}
+            {% if type == 'info' %}
+                {{ moon_info() }}
+            {% else %}
+                {{ moon_visibility() }}
+            {% endif %}
         </div>
     </div>
 {% endblock %}

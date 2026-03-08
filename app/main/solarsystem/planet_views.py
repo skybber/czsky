@@ -106,7 +106,50 @@ def moon():
 
 @main_planet.route('/moon/seltab')
 def moon_seltab():
-    return _do_moon_redirect('main_planet.moon_visibility')
+    seltab = request.args.get('seltab')
+
+    if not seltab and request.args.get('embed'):
+        seltab = session.get('moon_embed_seltab')
+
+    if seltab == 'visibility':
+        return _do_moon_redirect('main_planet.moon_visibility')
+
+    return _do_moon_redirect('main_planet.moon_info')
+
+
+@main_planet.route('/moon/info', methods=['GET', 'POST'])
+def moon_info():
+    embed = request.args.get('embed')
+    if embed:
+        session['moon_embed_seltab'] = 'info'
+
+    dt = _get_request_datetime_utc(request.args.get('dt'))
+    moon = _resolve_earth_moon(dt)
+    if moon is None:
+        abort(404)
+
+    form = PlanetFindChartForm()
+    common_ra_dec_dt_fsz_from_request(form, moon.ra, moon.dec, 60)
+    chart_control = common_prepare_chart_data(form)
+
+    default_chart_iframe_url = url_for(
+        'main_planet.moon_visibility',
+        back=request.args.get('back'),
+        back_id=request.args.get('back_id'),
+        embed='planets',
+        allow_back='false',
+    )
+
+    return render_template(
+        'main/solarsystem/moon_info.html',
+        type='info',
+        fchart_form=form,
+        chart_control=chart_control,
+        moon_ra=moon.ra,
+        moon_dec=moon.dec,
+        embed=embed,
+        default_chart_iframe_url=default_chart_iframe_url,
+    )
 
 
 @main_planet.route('/moon/visibility', methods=['GET', 'POST'])
@@ -147,6 +190,71 @@ def moon_visibility():
         moon=moon,
         rise_transit_set=rise_transit_set,
     )
+
+
+@main_planet.route('/moon/chart-pos-img', methods=['GET'])
+def moon_chart_pos_img():
+    moon_ra = to_float(request.args.get('obj_ra'), None)
+    moon_dec = to_float(request.args.get('obj_dec'), None)
+
+    if moon_ra is None or moon_dec is None:
+        dt = _get_request_datetime_utc(request.args.get('dt'))
+        moon = _resolve_earth_moon(dt)
+        if moon is None:
+            abort(404)
+        moon_ra = moon.ra
+        moon_dec = moon.dec
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+
+    img_bytes, img_format = common_chart_pos_img(moon_ra, moon_dec, visible_objects=visible_objects)
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_planet.route('/moon/chart/scene-v1', methods=['GET'])
+def moon_chart_scene_v1():
+    moon_ra = to_float(request.args.get('obj_ra'), None)
+    moon_dec = to_float(request.args.get('obj_dec'), None)
+
+    if moon_ra is None or moon_dec is None:
+        dt = _get_request_datetime_utc(request.args.get('dt'))
+        moon = _resolve_earth_moon(dt)
+        if moon is None:
+            abort(404)
+        moon_ra = moon.ra
+        moon_dec = moon.dec
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    highlights.append(
+        build_cross_highlight(
+            highlight_id='MOON',
+            label='Moon',
+            ra=moon_ra,
+            dec=moon_dec,
+            theme_name=cur_theme,
+        )
+    )
+
+    scene_meta['object_context'] = {
+        'kind': 'moon',
+        'id': 'earth_moon',
+        'ra': float(moon_ra),
+        'dec': float(moon_dec),
+    }
+    return jsonify(scene)
+
+
+@main_planet.route('/moon/chart-pdf', methods=['GET'])
+def moon_chart_pdf():
+    img_bytes = common_chart_pdf_img(None, None)
+    return send_file(img_bytes, mimetype='application/pdf')
 
 
 @main_planet.route('/planets', methods=['GET', 'POST'])
