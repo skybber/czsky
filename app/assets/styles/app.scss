@@ -356,3 +356,47 @@ table.selectable tr:hover {
     border: 0 !important;
     max-width: none !important;
 }
+
+/* Fchart dropdowns - compact mode */
+#layers_dropdown > .menu.vertical.buttons,
+#viewcenter_dropdown > .menu.vertical.buttons {
+  padding: 0.3em !important;
+  width: fit-content !important;
+  min-width: auto !important;
+}
+
+#layers_dropdown > .menu > .item,
+#viewcenter_dropdown > .menu > .item {
+  padding: 0.15em 0 !important;
+}
+
+#layers_dropdown > .menu .ui.labeled.icon.button,
+#viewcenter_dropdown > .menu .ui.labeled.icon.button {
+  padding-left: 2.5em !important;
+  padding-right: 0.6em !important;
+  padding-top: 0.8em !important;
+  padding-bottom: 0.8em !important;
+  font-size: 0.9em !important;
+}
+
+/* Submenus */
+#layers_dropdown .right.menu,
+#viewcenter_dropdown .right.menu {
+  padding: 0.3em !important;
+  min-width: auto !important;
+}
+
+#layers_dropdown .right.menu > .item,
+#viewcenter_dropdown .right.menu > .item {
+  padding: 0.5em 0.6em !important;
+  font-size: 0.9em !important;
+}
+
+#layers_dropdown .right.menu .ui.labeled.icon.button,
+#viewcenter_dropdown .right.menu .ui.labeled.icon.button {
+  padding-left: 2.5em !important;
+  padding-right: 0.6em !important;
+  padding-top: 0.8em !important;
+  padding-bottom: 0.8em !important;
+  font-size: 0.9em !important;
+}
