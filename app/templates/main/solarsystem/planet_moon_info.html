@@ -66,7 +66,7 @@
 {% macro planet_moon_catalogue_data(planet_moon_data) %}
     <table class="ui compact striped definition unstackable table">
         <tr><td class="three wide">{{ _('Name') }}</td><td>{{ planet_moon.name }}</td></tr>
-        <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(planet_moon_data.distance_au) }}AU ({{ "%.2f" | format(planet_moon_data.distance/1000000.0) }}M km) </td></tr>
+        <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(planet_moon_data.distance_au) }}au ({{ "%.2f" | format(planet_moon_data.distance/1000000.0) }}M km) </td></tr>
         <tr><td class="three wide">RA</td><td>{{ planet_moon_data.ra_str() }}</td></tr>
         <tr><td class="three wide">Dec</td><td>{{ planet_moon_data.dec_str() }}</td></tr>
         <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(planet_moon_data.mag) }}mag</td></tr>
