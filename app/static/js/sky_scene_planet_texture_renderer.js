@@ -707,17 +707,34 @@
         const pxPerRad = projectionScalePxPerRad(sceneCtx);
         const labels = [];
         const frontRings = [];
+        const moonsInFront = [];
+        const moonsBehind = [];
         const renderer = sceneCtx.renderer && sceneCtx.renderer.ready && typeof sceneCtx.renderer.drawTriangles === 'function'
             ? sceneCtx.renderer
             : null;
 
         let sunObj = null;
+        const planetsByBody = {};
         for (let i = 0; i < objects.length; i++) {
             const it = objects[i];
-            if (it && (String(it.body || '').toLowerCase() === 'sun' || planetNameKey(it) === 'sun')) {
+            if (!it) continue;
+            if (String(it.body || '').toLowerCase() === 'sun' || planetNameKey(it) === 'sun') {
                 sunObj = it;
-                break;
             }
+            if (it.type !== 'moon' && it.body) {
+                const bodyKey = String(it.body).toLowerCase();
+                planetsByBody[bodyKey] = {
+                    distance_km: hasFinite(it.distance_km) ? it.distance_km : null
+                };
+            }
+        }
+
+        function isMoonInFront(moon) {
+            if (!moon || moon.type !== 'moon' || !moon.parent_body) return true;
+            const parentKey = String(moon.parent_body).toLowerCase();
+            const parent = planetsByBody[parentKey];
+            if (!parent || !hasFinite(parent.distance_km) || !hasFinite(moon.distance_km)) return true;
+            return moon.distance_km < parent.distance_km;
         }
 
         const ctx = sceneCtx.backCtx;
@@ -753,9 +770,27 @@
                 continue;
             }
 
+            // Collect moons for separate rendering into backCtx/frontCtx
+            if (p.type === 'moon') {
+                const moonData = { p, px, r, bodyKey, nameKey };
+                if (isMoonInFront(p)) {
+                    moonsInFront.push(moonData);
+                } else {
+                    moonsBehind.push(moonData);
+                }
+                labels.push({
+                    x: px.x, y: px.y, r, id: p.id, label: p.label || '',
+                    type: p.type || 'planet', body: p.body, parent_body: p.parent_body,
+                    distance_km: hasFinite(p.distance_km) ? p.distance_km : null
+                });
+                if (typeof sceneCtx.registerSelectable === 'function' && p.id) {
+                    sceneCtx.registerSelectable({ shape: 'circle', id: p.id, cx: px.x, cy: px.y, r: Math.max(r, 4), priority: 10 });
+                }
+                continue;
+            }
+
             let textureKey = null;
-            if (p.type === 'moon') textureKey = getMoonTextureKey(p.id);
-            else if (PLANET_TEXTURES[bodyKey]) textureKey = bodyKey;
+            if (PLANET_TEXTURES[bodyKey]) textureKey = bodyKey;
             else if (PLANET_TEXTURES[nameKey]) textureKey = nameKey;
 
             const texture = canWebGL && textureKey ? this._loadTexture(gl, textureKey) : null;
@@ -930,6 +965,21 @@
             }
         }
 
+        // Draw moons behind planet into backCtx (z-index 1, below main WebGL canvas)
+        if (sceneCtx.backCtx && moonsBehind.length) {
+            for (let i = 0; i < moonsBehind.length; i++) {
+                const moon = moonsBehind[i];
+                let col = planetColor(sceneCtx, moon.p);
+                if (moon.p.is_in_light === false) {
+                    col = [col[0] * 0.3, col[1] * 0.3, col[2] * 0.3];
+                }
+                sceneCtx.backCtx.fillStyle = U.rgba(col, 1);
+                sceneCtx.backCtx.beginPath();
+                sceneCtx.backCtx.arc(moon.px.x, moon.px.y, moon.r, 0, Math.PI * 2);
+                sceneCtx.backCtx.fill();
+            }
+        }
+
         for (let i = 0; i < frontRings.length; i++) {
             const item = frontRings[i];
             if (item.canvas) {
@@ -938,6 +988,21 @@
                 drawCanvasHalfRing(ctx, item.x, item.y, item.outer1, item.outer2, item.tiltScale, item.rot, true, item.color);
             } else if (renderer) {
                 renderer.drawTriangles(item.triangles, item.color);
+            }
+        }
+
+        // Draw moons in front of planet into frontCtx (z-index 3, above main WebGL canvas)
+        if (sceneCtx.frontCtx && moonsInFront.length) {
+            for (let i = 0; i < moonsInFront.length; i++) {
+                const moon = moonsInFront[i];
+                let col = planetColor(sceneCtx, moon.p);
+                if (moon.p.is_in_light === false) {
+                    col = [col[0] * 0.3, col[1] * 0.3, col[2] * 0.3];
+                }
+                sceneCtx.frontCtx.fillStyle = U.rgba(col, 1);
+                sceneCtx.frontCtx.beginPath();
+                sceneCtx.frontCtx.arc(moon.px.x, moon.px.y, moon.r, 0, Math.PI * 2);
+                sceneCtx.frontCtx.fill();
             }
         }
 
