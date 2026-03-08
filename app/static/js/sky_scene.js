@@ -359,7 +359,7 @@
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
         useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
         fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
-        magRangeValues, dsoMagRangeValues
+        fullScreenWrapperId, magRangeValues, dsoMagRangeValues
     ) {
         this.fchartDiv = fchartDiv;
         $(fchartDiv).addClass('fchart-container');
@@ -406,6 +406,9 @@
 
         this.splitview = splitview;
         this.fullScreen = fullScreen;
+        this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled;
+        this.fullscreenWrapper = null;
+        this.fullScreenWrapperId = fullScreenWrapperId || 'fullscreen-wrapper';
         this.mirrorX = !!mirror_x;
         this.mirrorY = !!mirror_y;
         this.usePlanetTextures = true;
@@ -1330,9 +1333,21 @@
     };
 
     SkyScene.prototype.isInSplitView = function () { return this.splitview; };
-    SkyScene.prototype.isInFullScreen = function () { return this.fullScreen; };
+    SkyScene.prototype.isInRealFullScreen = function () {
+        if (!this.isRealFullScreenSupported) {
+            return false;
+        }
+        return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    };
+    SkyScene.prototype.isInFullScreen = function () { return this.fullScreen || this.isInRealFullScreen(); };
+
+    SkyScene.prototype.setupFullscreen = function () {
+        this.doToggleFullscreen(true, false);
+    };
 
     SkyScene.prototype.toggleSplitView = function () {
+        const queryParams = new URLSearchParams(window.location.search);
+
         if (this.splitview) {
             this.splitview = false;
             this.fullScreen = true;
@@ -1341,24 +1356,109 @@
             this.fullScreen = false;
         }
         this.applyScreenMode();
-        if (this.onScreenModeChangeCallback) {
-            this.onScreenModeChangeCallback.call(this, this.fullScreen, this.splitview, false);
+        if (this.isInSplitView()) {
+            queryParams.set('splitview', 'true');
+            queryParams.delete('fullscreen');
+        } else {
+            queryParams.delete('splitview');
+            queryParams.set('fullscreen', 'true');
         }
+        history.replaceState(null, null, '?' + queryParams.toString());
+        this.callScreenModeChangeCallback();
         this.onResize();
     };
 
     SkyScene.prototype.toggleFullscreen = function () {
-        if (this.splitview) {
-            this.splitview = false;
-            this.fullScreen = true;
+        this.doToggleFullscreen(false, false);
+    };
+
+    SkyScene.prototype.exitFullscreen = function () {
+        this.doToggleFullscreen(false, true);
+    };
+
+    SkyScene.prototype.doToggleFullscreen = function (toggleClass, exitFullScreen) {
+        const queryParams = new URLSearchParams(window.location.search);
+
+        if (this.isRealFullScreenSupported) {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                if (!exitFullScreen) {
+                    const elem = $(this.fchartDiv)[0];
+                    this.fullscreenWrapper = document.createElement('div');
+                    if (this.fullScreenWrapperId) {
+                        this.fullscreenWrapper.id = this.fullScreenWrapperId;
+                    }
+                    elem.parentNode.insertBefore(this.fullscreenWrapper, elem);
+                    this.fullscreenWrapper.appendChild(elem);
+
+                    if (this.fullscreenWrapper.requestFullscreen) {
+                        this.fullscreenWrapper.requestFullscreen();
+                    } else if (this.fullscreenWrapper.webkitRequestFullscreen) {
+                        this.fullscreenWrapper.webkitRequestFullscreen();
+                    } else if (this.fullscreenWrapper.msRequestFullscreen) {
+                        this.fullscreenWrapper.msRequestFullscreen();
+                    }
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+
+                if (this.fullscreenWrapper) {
+                    const elem = $(this.fchartDiv)[0];
+                    this.fullscreenWrapper.parentNode.insertBefore(elem, this.fullscreenWrapper);
+                    this.fullscreenWrapper.parentNode.removeChild(this.fullscreenWrapper);
+                    this.fullscreenWrapper = null;
+                }
+            }
+
+            if (exitFullScreen) {
+                this.fullScreen = false;
+            } else {
+                if (this.isInSplitView()) {
+                    this.fullScreen = false;
+                    this.setSplitViewPosition();
+                } else {
+                    this.fullScreen = true;
+                }
+            }
         } else {
-            this.fullScreen = !this.fullScreen;
+            if (this.isInSplitView()) {
+                this.splitview = false;
+                if (toggleClass) {
+                    this.fullScreen = !this.fullScreen;
+                }
+            } else {
+                this.fullScreen = !this.fullScreen;
+            }
         }
+
         this.applyScreenMode();
-        if (this.onScreenModeChangeCallback) {
-            this.onScreenModeChangeCallback.call(this, this.fullScreen, this.splitview, false);
+        if (this.isInFullScreen()) {
+            queryParams.set('fullscreen', 'true');
+            queryParams.delete('splitview');
+        } else {
+            queryParams.delete('fullscreen');
         }
+        history.replaceState(null, null, '?' + queryParams.toString());
+
+        this.callScreenModeChangeCallback();
         this.onResize();
+    };
+
+    SkyScene.prototype.callScreenModeChangeCallback = function () {
+        if (this.onScreenModeChangeCallback != undefined) {
+            let fullScreen = this.isInFullScreen();
+            const splitView = this.isInSplitView();
+            const isRealFullScreen = this.isInRealFullScreen();
+            if (splitView && fullScreen) {
+                fullScreen = false;
+            }
+            this.onScreenModeChangeCallback.call(this, fullScreen, splitView, isRealFullScreen);
+        }
     };
 
     SkyScene.prototype.reloadImage = function () {
