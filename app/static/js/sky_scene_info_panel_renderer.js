@@ -64,10 +64,19 @@
         ctx.fillStyle = panelStyle.text;
 
         if (isMobile) {
+            // mobile: compact format without icon
+            const mobileDateTimeText = formatDate(dt) + ' ' + formatTime(dt);
+            const mobileLeftText = isEquatorial
+                ? ('RA  ' + formatRA(center.ra, true))
+                : ('AZ  ' + formatAZ(center.az, true));
+            const mobileRightText = isEquatorial
+                ? ('DEC ' + formatDEC(center.dec, true))
+                : ('ALT ' + formatALT(center.alt, true));
+
             const w = Math.max(
-                ctx.measureText(dateTimeText).width,
-                ctx.measureText(leftText).width,
-                ctx.measureText(rightText).width
+                ctx.measureText(mobileDateTimeText).width,
+                ctx.measureText(mobileLeftText).width,
+                ctx.measureText(mobileRightText).width
             ) + pad * 2;
             const h = lineH * 3 + pad * 2;
             const x0 = 0;
@@ -77,9 +86,9 @@
             ctx.fillRect(x0, y0, w, h);
             ctx.fillStyle = panelStyle.text;
             ctx.textAlign = 'left';
-            ctx.fillText(dateTimeText, x0 + pad, y0 + pad);
-            ctx.fillText(leftText, x0 + pad, y0 + pad + lineH);
-            ctx.fillText(rightText, x0 + pad, y0 + pad + 2 * lineH);
+            ctx.fillText(mobileDateTimeText, x0 + pad, y0 + pad);
+            ctx.fillText(mobileLeftText, x0 + pad, y0 + pad + lineH);
+            ctx.fillText(mobileRightText, x0 + pad, y0 + pad + 2 * lineH);
             ctx.restore();
             return;
         }
