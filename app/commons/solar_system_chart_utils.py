@@ -519,7 +519,12 @@ def _sphere_intersection(ray_direction, sphere_pos, sphere_radius):
     dist = np.linalg.norm(closest_point - sphere_pos)
 
     if dist < sphere_radius:
-        hit_point = w_dist * dn
+        # Calculate actual intersection point on sphere surface
+        # The ray intersects at t = w_dist ± sqrt(r² - dist²)
+        # Use the front intersection (closer to origin/Sun)
+        half_chord = math.sqrt(sphere_radius**2 - dist**2)
+        t_hit = w_dist - half_chord
+        hit_point = t_hit * dn
         return (True, hit_point)
 
     return (False, None)
@@ -592,16 +597,33 @@ def _create_planet_moon_obj(eph, planet, moon_name, abs_mag, color, t=None):
             planet_body = None
 
         if planet_body is not None:
-            moon_helio = pl_moon.at(t).position.au
-            planet_helio = planet_body.at(t).position.au
+            # Apply light-time correction: we see Jupiter/Io as they were
+            # light_time seconds ago (light travel time from Jupiter to Earth)
+            earth_pos = eph['earth'].at(t).position.au
+            planet_pos_ssb = planet_body.at(t).position.au
+            planet_earth_dist_au = np.linalg.norm(planet_pos_ssb - earth_pos)
+            light_time_days = planet_earth_dist_au / 173.1446327  # AU per day at speed of light
+
+            # Get positions at retarded time (when light left Jupiter)
+            ts = load.timescale(builtin=True)
+            t_retarded = ts.tt_jd(t.tt - light_time_days)
+
+            sun_pos = eph['sun'].at(t_retarded).position.au
+            moon_pos_ssb = pl_moon.at(t_retarded).position.au
+            planet_pos_ssb = planet_body.at(t_retarded).position.au
+
+            # Convert to heliocentric coordinates (origin = Sun)
+            moon_helio = moon_pos_ssb - sun_pos
+            planet_helio = planet_pos_ssb - sun_pos
 
             is_in_light, is_throwing_shadow, hit_point = _calculate_moon_shadow_state(
                 moon_helio, planet_helio, planet_radius_au
             )
 
             if is_throwing_shadow and hit_point is not None:
-                earth_pos = eph['earth'].at(t).position.au
-                geo_hit = hit_point - earth_pos
+                # Convert hit_point back to SSB coordinates for RA/Dec calculation
+                hit_point_ssb = hit_point + sun_pos
+                geo_hit = hit_point_ssb - earth_pos
                 shadow_ra = math.atan2(geo_hit[1], geo_hit[0])
                 shadow_dec = math.atan2(geo_hit[2], math.sqrt(geo_hit[0]**2 + geo_hit[1]**2))
 
