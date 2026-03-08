@@ -604,6 +604,41 @@
             this.onDblClick(e);
         });
         $(this.canvas).on('wheel', (e) => this.onWheel(e));
+
+        $(this.separator).on('mousedown', (e) => {
+            const md = {
+                e,
+                offsetLeft: this.separator.offsetLeft,
+                firstWidth: this.iframe.offsetWidth,
+                secondLeft: $(this.fchartDiv).offset().left,
+                secondWidth: $(this.fchartDiv).width()
+            };
+
+            $(this.iframe).css('pointer-events', 'none');
+
+            $(document).on('mousemove.separator', (e) => {
+                let delta = {
+                    x: e.clientX - md.e.clientX,
+                    y: e.clientY - md.e.clientY
+                };
+
+                delta.x = Math.min(Math.max(delta.x, -md.firstWidth), md.secondWidth);
+
+                $(this.separator).css('left', md.offsetLeft + delta.x);
+                $(this.iframe).width(md.firstWidth + delta.x);
+                $(this.fchartDiv).css('left', md.secondLeft + delta.x);
+                $(this.fchartDiv).width(md.secondWidth - delta.x);
+                this.adjustCanvasSize();
+            });
+
+            $(document).on('mouseup.separator', (e) => {
+                $(document).off('mousemove.separator');
+                $(document).off('mouseup.separator');
+                $(this.iframe).css('pointer-events', 'auto');
+                this.requestDraw();
+            });
+        });
+
         $(this.canvas).on('blur', () => {
             this.keyboardCaptureActive = false;
             this._stopKeyboardMove(true);
