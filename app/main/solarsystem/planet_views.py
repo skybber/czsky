@@ -124,7 +124,8 @@ def moon_info():
         session['moon_embed_seltab'] = 'info'
 
     dt = _get_request_datetime_utc(request.args.get('dt'))
-    moon = _resolve_earth_moon(dt)
+    _, lat, lon = resolve_chart_city_lat_lon()
+    moon = _resolve_earth_moon(dt, lat, lon, 0.0)
     if moon is None:
         abort(404)
 
@@ -159,11 +160,10 @@ def moon_visibility():
         session['moon_embed_seltab'] = 'visibility'
 
     dt = _get_request_datetime_utc(request.args.get('dt'))
-    moon = _resolve_earth_moon(dt)
+    city_name, lat, lon = resolve_chart_city_lat_lon()
+    moon = _resolve_earth_moon(dt, lat, lon, 0.0)
     if moon is None:
         abort(404)
-
-    city_name, lat, lon = resolve_chart_city_lat_lon()
     chart_theme = session.get('theme', 'dark')
     chart_date = get_chart_datetime().strftime('%Y-%m-%d')
 
@@ -199,7 +199,8 @@ def moon_chart_pos_img():
 
     if moon_ra is None or moon_dec is None:
         dt = _get_request_datetime_utc(request.args.get('dt'))
-        moon = _resolve_earth_moon(dt)
+        _, lat, lon = resolve_chart_city_lat_lon()
+        moon = _resolve_earth_moon(dt, lat, lon, 0.0)
         if moon is None:
             abort(404)
         moon_ra = moon.ra
@@ -220,7 +221,8 @@ def moon_chart_scene_v1():
 
     if moon_ra is None or moon_dec is None:
         dt = _get_request_datetime_utc(request.args.get('dt'))
-        moon = _resolve_earth_moon(dt)
+        _, lat, lon = resolve_chart_city_lat_lon()
+        moon = _resolve_earth_moon(dt, lat, lon, 0.0)
         if moon is None:
             abort(404)
         moon_ra = moon.ra
@@ -377,6 +379,16 @@ def planet_chart_scene_v1(planet_iau_code):
     planet_ra = to_float(request.args.get('obj_ra'), None)
     planet_dec = to_float(request.args.get('obj_dec'), None)
     trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+
+    if planet_ra is None or planet_dec is None:
+        dt = _get_request_datetime_utc(request.args.get('dt'))
+        ts = load.timescale(builtin=True)
+        eph = load('de421.bsp')
+        earth = eph['earth']
+        t = ts.from_datetime(dt)
+        planet_ra_ang, planet_dec_ang, _ = earth.at(t).observe(planet.eph).radec()
+        planet_ra = planet_ra_ang.radians
+        planet_dec = planet_dec_ang.radians
 
     scene = build_scene_v1()
     scene_meta = scene.setdefault('meta', {})
@@ -620,10 +632,13 @@ def _do_moon_redirect(url):
     )
 
 
-def _resolve_earth_moon(dt):
+def _resolve_earth_moon(dt, observer_lat=None, observer_lon=None, observer_elevation=0.0):
     try:
         moon = next(
-            (x for x in get_solsys_bodies(dt) if x.solar_system_body.name.lower() == 'moon'),
+            (
+                x for x in get_solsys_bodies(dt, observer_lat, observer_lon, observer_elevation)
+                if x.solar_system_body.name.lower() == 'moon'
+            ),
             None
         )
     except Exception:
