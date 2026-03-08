@@ -1,5 +1,7 @@
 import numpy as np
 import math
+from functools import lru_cache
+from datetime import datetime
 
 from sqlalchemy.exc import IntegrityError
 
@@ -50,6 +52,29 @@ def get_mpc_minor_planet_position(mpc_minor_planet, dt):
 
     ra_ang, dec_ang, distance = earth.at(t).observe(skf_mplanet).radec()
     return ra_ang, dec_ang
+
+
+def _normalize_to_300s(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=utc)
+    else:
+        dt = dt.astimezone(utc)
+
+    timestamp = dt.timestamp()
+    floored = math.floor(timestamp / 300) * 300
+    return datetime.fromtimestamp(floored, tz=utc)
+
+
+@lru_cache(maxsize=256)
+def _get_minor_planet_cached(minor_planet_int_designation: int, dt: datetime):
+    mpc_minor_planet = find_mpc_minor_planet(minor_planet_int_designation)
+    ra_ang, dec_ang = get_mpc_minor_planet_position(mpc_minor_planet, dt)
+    return ra_ang.radians, dec_ang.radians
+
+
+def get_minor_planet_radec(minor_planet_int_designation: int, dt: datetime):
+    normalized_dt = _normalize_to_300s(dt)
+    return _get_minor_planet_cached(int(minor_planet_int_designation), normalized_dt)
 
 
 def _save_minor_planets(minor_planets, show_progress, progress_title):

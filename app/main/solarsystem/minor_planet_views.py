@@ -68,7 +68,12 @@ from app.commons.chart_generator import (
 )
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
-from app.commons.minor_planet_utils import get_all_mpc_minor_planets, update_minor_planets_positions, update_minor_planets_brightness
+from app.commons.minor_planet_utils import (
+    get_all_mpc_minor_planets,
+    get_minor_planet_radec,
+    update_minor_planets_positions,
+    update_minor_planets_brightness,
+)
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
@@ -383,8 +388,18 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     if minor_planet is None:
         abort(404)
 
-    minor_planet_ra = to_float(request.args.get('obj_ra'), None)
-    minor_planet_dec = to_float(request.args.get('obj_dec'), None)
+    minor_planet_ra = None
+    minor_planet_dec = None
+    request_dt = request.args.get('dt', None)
+    if request_dt is not None:
+        try:
+            dt = datetime.fromisoformat(request_dt)
+            minor_planet_ra, minor_planet_dec = get_minor_planet_radec(minor_planet.int_designation, dt)
+        except Exception:
+            pass
+    if minor_planet_ra is None or minor_planet_dec is None:
+        minor_planet_ra = to_float(request.args.get('obj_ra'), None)
+        minor_planet_dec = to_float(request.args.get('obj_dec'), None)
     trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     scene = build_scene_v1()
