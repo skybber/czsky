@@ -527,6 +527,14 @@
             lastY: 0,
             moved: false,
         };
+        this.wheel = {
+            stepFracAccum: 0,
+            minStepIntervalMs: 45,
+            lastStepTs: 0,
+            lastNegative: false,
+            C: 0.018,
+            MAX: 0.20
+        };
         this.input = {
             activePointers: new Map(),
             primaryId: null,
@@ -2901,13 +2909,76 @@
 
     SkyScene.prototype.onWheel = function (e) {
         e.preventDefault();
-        const delta = normalizeDelta(e);
-        if (delta === 0) return;
-        let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
-        newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
-        if (newIndex === this.targetFldSizeIndex) return;
-        const p = this._eventClientXY(e);
-        this.startZoomToIndex(newIndex, p);
+
+        // mouse
+        if (this.isMouseWheelLike(e)) {
+            const delta = normalizeDelta(e);
+            if (delta === 0) return;
+            let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
+            newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
+            if (newIndex === this.targetFldSizeIndex) return;
+            const p = this._eventClientXY(e);
+            this.startZoomToIndex(newIndex, p);
+            return;
+        }
+
+        // touchpad
+        const { dy } = this.wheelPixels(e);
+        if (Math.abs(dy) < 6) return;
+
+        const isNegative = dy < 0;
+        if (isNegative != this.wheel.lastNegative) {
+            this.wheel.stepFracAccum = 0;
+            this.wheel.lastNegative = isNegative;
+        }
+
+        const MAX = this.wheel.MAX;
+        const f = Math.max(-MAX, Math.min(MAX, -dy * this.wheel.C));
+        this.wheel.stepFracAccum += f;
+
+        const now = performance.now();
+        let steps = 0;
+
+        if (this.wheel.stepFracAccum >= 1) {
+            steps = -1;
+            this.wheel.stepFracAccum -= 1;
+        } else if (this.wheel.stepFracAccum <= -1) {
+            steps = 1;
+            this.wheel.stepFracAccum += 1;
+        }
+
+        if (steps !== 0 && (now - this.wheel.lastStepTs) >= this.wheel.minStepIntervalMs) {
+            let newIndex = this.targetFldSizeIndex + steps;
+            newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
+            if (newIndex !== this.targetFldSizeIndex) {
+                const p = this._eventClientXY(e);
+                this.startZoomToIndex(newIndex, p);
+            }
+            this.wheel.lastStepTs = now;
+        }
+    };
+
+    SkyScene.prototype.wheelPixels = function (e) {
+        const oe = e.originalEvent || e;
+        const L = (oe.deltaMode === 1) ? 16 : (oe.deltaMode === 2) ? 100 : 1;
+        const dy = (typeof oe.deltaY === 'number') ? oe.deltaY * L
+                 : (typeof oe.wheelDelta === 'number') ? -oe.wheelDelta
+                 : 0;
+        const dx = (typeof oe.deltaX === 'number') ? oe.deltaX * L : 0;
+        return { dx, dy };
+    };
+
+    SkyScene.prototype.isMouseWheelLike = function (e) {
+        const oe = e.originalEvent || e;
+
+        if (oe.ctrlKey || oe.metaKey) return false;
+        if (oe.deltaMode === 1) return true;
+        if (typeof oe.wheelDelta === 'number' && Math.abs(oe.wheelDelta) % 120 === 0) return true;
+
+        const { dx, dy } = this.wheelPixels(e);
+        if (Math.abs(dy) >= 80 && Math.abs(dx) < 1) return true;
+
+        return false;
     };
 
     SkyScene.prototype._stereoScaleForFovDeg = function (fovDeg) {
