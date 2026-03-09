@@ -500,8 +500,7 @@
     };
 
     SkySceneDsoRenderer.prototype._labelFontPx = function (sceneCtx) {
-        // Legacy renderer uses default font size in chart units; JS keeps a practical px fallback.
-        const px = sceneCtx.themeConfig.font_scales.font_size * 3.2;
+        const px = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         return Math.max(10.0, Math.min(20.0, px));
     };
 
