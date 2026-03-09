@@ -49,7 +49,7 @@
 
         const panelStyle = window.SkySceneWidgetUtils
             ? window.SkySceneWidgetUtils.panelStyle(sceneCtx)
-            : { pad: 6, lineH: 16, margin: 8, font: '12px monospace', bg: 'rgb(0,0,0)', text: 'rgb(217,217,217)' };
+            : { pad: 6, lineH: 16, margin: 8, font: '12px monospace', bg: 'rgb(236,236,236)', text: 'rgb(32,32,32)' };
         const pad = panelStyle.pad;
         const lineH = panelStyle.lineH;
         const margin = panelStyle.margin;

@@ -9,16 +9,31 @@
         return 'rgb(' + r + ',' + g + ',' + b + ')';
     }
 
+    function luminance(color) {
+        const c = Array.isArray(color) ? color : [0, 0, 0];
+        const r = U.clamp01(c[0] || 0);
+        const g = U.clamp01(c[1] || 0);
+        const b = U.clamp01(c[2] || 0);
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
     function panelStyle(sceneCtx) {
         const textColor = sceneCtx.getThemeColor
             ? sceneCtx.getThemeColor('draw', [0.85, 0.85, 0.85])
             : [0.85, 0.85, 0.85];
+        const bgColor = sceneCtx.getThemeColor
+            ? sceneCtx.getThemeColor('background', [0.0, 0.0, 0.0])
+            : [0.0, 0.0, 0.0];
+        const themeName = (sceneCtx && sceneCtx.meta && typeof sceneCtx.meta.theme_name === 'string')
+            ? sceneCtx.meta.theme_name.toLowerCase()
+            : '';
+        const isLightTheme = themeName === 'light' || luminance(bgColor) >= 0.55;
         return {
             margin: 8,
             pad: 6,
             lineH: 16,
             font: '12px monospace',
-            bg: 'rgb(0,0,0)',
+            bg: isLightTheme ? 'rgb(236,236,236)' : 'rgb(0,0,0)',
             text: rgb(textColor),
         };
     }
