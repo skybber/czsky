@@ -2124,6 +2124,22 @@
         return Math.max(6.0, mmToPx(this.getThemeConfig().sizes.picker_radius));
     };
 
+    SkyScene.prototype._isInsidePickerRect = function (x, y) {
+        if (!this.canvas || !this._isPickerEnabled()) return false;
+        if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
+        const r = this._pickerRadiusPx();
+        const cx = this.canvas.width * 0.5;
+        const cy = this.canvas.height * 0.5;
+        return Math.abs(x - cx) <= r && Math.abs(y - cy) <= r;
+    };
+
+    SkyScene.prototype._pickerFallbackSelectedIdAt = function (x, y) {
+        if (!this._isInsidePickerRect(x, y)) return null;
+        if (!this.centerPick || !this.centerPick.id) return null;
+        if (this.centerPick.kind !== 'dso' && this.centerPick.kind !== 'moon') return null;
+        return this.centerPick.id;
+    };
+
     SkyScene.prototype._findDsoById = function (id) {
         if (!id || !this.sceneData || !this.sceneData.objects) return null;
         const dsoList = Array.isArray(this.sceneData.objects.dso) ? this.sceneData.objects.dso : [];
@@ -2541,6 +2557,9 @@
     SkyScene.prototype.findSelectableObjectAt = function (x, y) {
         const localHit = this.selectionIndex ? this.selectionIndex.hitTest(x, y) : null;
         if (localHit) return localHit;
+
+        const pickerFallbackId = this._pickerFallbackSelectedIdAt(x, y);
+        if (pickerFallbackId) return pickerFallbackId;
 
         if (!this.selectableRegions) return null;
         for (let i = 0; i < this.selectableRegions.length; i += 5) {
