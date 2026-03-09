@@ -6,7 +6,7 @@
         this._pickDso = null;
     };
 
-    const MIN_DSO_RADIUS_PX = 8.0;
+    const MIN_DSO_RADIUS_PX = 3.0;
     const MIN_PN_BASE_RADIUS_PX = U.mmToPx(1.0);
 
     function levelColor(base, lightMode, level) {
