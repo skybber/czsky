@@ -49,7 +49,10 @@
     }
 </style>
 
-<div id="fchart-div" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
+{% if fchart_form.splitview.data == 'true' %}
+<div id="fchart-iframe-placeholder" class="fchart-iframe-placeholder"></div>
+{% endif %}
+<div id="fchart-div" class="{% if fchart_form.fullscreen.data == 'true' %}fchart-fullscreen{% elif fchart_form.splitview.data == 'true' %}fchart-splitview{% endif %}" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
     <div id="top-menu" class="ui secondary menu">
 
         <div id="bhome" class="ui horizontally fitted computer tablet only item" style="z-index:100;display:none;margin-left:16px;">
