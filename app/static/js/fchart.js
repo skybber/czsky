@@ -241,8 +241,29 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
     this.aladin = aladin;
     this.showAladin = showAladin;
 
-    this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled
+    this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+    // Track if we're in iframe fullscreen mode
+    this.isInFullscreenIframe = (function() {
+        // Check URL parameter first
+        if (new URLSearchParams(window.location.search).get('realfullscreen') === 'iframe') {
+            return true;
+        }
+        // Fallback: check if top window has fullscreen wrapper (we're in iframe without the URL param)
+        try {
+            if (window !== top && top.document.getElementById('fullscreen-wrapper')) {
+                return true;
+            }
+        } catch(e) {
+            // Cross-origin, ignore
+        }
+        return false;
+    })();
+    // Disable real fullscreen in iframe mode
+    if (this.isInFullscreenIframe) {
+        this.isRealFullScreenSupported = false;
+    }
     this.fullscreenWrapper = undefined;
+    this.fullscreenIframe = undefined;
 
     this.disableReloadImg = false;
     this.lastInputWasTouch = false;
@@ -445,18 +466,84 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         this.chartUrl = this.chartUrl + '&avif=1';
     }).bind(this);;
 
-    // react to fullscreenchange event to restore initial width/height (if user pressed ESC to go back from full screen)
-    // $(document).on('fullscreenchange webkitfullscreenchange mozfullscreenchange MSFullscreenChange', function(e) {
-    //     let fullscreenElt = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
-    //     if (fullscreenElt===null || fullscreenElt===undefined) {
-    //         $(fchartDiv).removeClass('fchart-fullscreen');
-    //
-    //         let fullScreenToggledFn = self.callbacksByEventName['fullScreenToggled'];
-    //         (typeof fullScreenToggledFn === 'function') && fullScreenToggledFn(isInFullscreen);
-    //     }
-    // });
+    // Pending navigation URL for exitAndNavigate (used by fullscreenchange handler)
+    this.pendingNavigateUrl = null;
+
+    // Handle fullscreenchange event for iframe-based fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement && this.fullscreenWrapper) {
+            // Remove wrapper
+            this.fullscreenWrapper.remove();
+            this.fullscreenWrapper = null;
+            this.fullscreenIframe = null;
+
+            // Navigate to pending URL if set (from exitAndNavigate), otherwise reload current position
+            if (this.pendingNavigateUrl) {
+                window.location.href = this.pendingNavigateUrl;
+                this.pendingNavigateUrl = null;
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+
+    document.addEventListener('webkitfullscreenchange', () => {
+        if (!document.webkitFullscreenElement && this.fullscreenWrapper) {
+            this.fullscreenWrapper.remove();
+            this.fullscreenWrapper = null;
+            this.fullscreenIframe = null;
+
+            if (this.pendingNavigateUrl) {
+                window.location.href = this.pendingNavigateUrl;
+                this.pendingNavigateUrl = null;
+            } else {
+                window.location.reload();
+            }
+        }
+    });
+
+    // Listen for messages from iframe
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'exitRealFullscreen') {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (document.webkitFullscreenElement) {
+                document.webkitExitFullscreen();
+            }
+        } else if (e.data && e.data.type === 'urlUpdate') {
+            history.replaceState(null, null, e.data.url);
+        } else if (e.data && e.data.type === 'exitAndNavigate') {
+            // Store URL for fullscreenchange handler (exitFullscreen triggers that event)
+            this.pendingNavigateUrl = e.data.url;
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (document.webkitFullscreenElement) {
+                document.webkitExitFullscreen();
+            } else {
+                // No fullscreen element found, navigate directly
+                window.location.href = e.data.url;
+            }
+        } else if (e.data && e.data.type === 'navigateInSplitview') {
+            // Navigate in splitview - reload middle iframe with new object, staying in fullscreen
+            let url = new URL(e.data.url, window.location.origin);
+            url.searchParams.set('realfullscreen', 'iframe');
+            window.location.href = url.toString();
+        }
+    });
 
 }
+
+// Propagate URL changes to parent window when in iframe fullscreen mode
+FChart.prototype.propagateUrlToParent = function() {
+    if (this.isInFullscreenIframe && top !== window) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('realfullscreen');
+        top.postMessage({
+            type: 'urlUpdate',
+            url: url.search
+        }, '*');
+    }
+};
 
 FChart.prototype.guessGridSize = function () {
   const cores = navigator.hardwareConcurrency || 4;
@@ -538,6 +625,7 @@ FChart.prototype.updateUrls = function(isEquatorial, legendUrl, chartUrl) {
         this.setViewCenterToQueryParams(queryParams, this.viewCenter);
         this.setCenterToHiddenInputs(this.viewCenter);
         history.replaceState(null, null, "?" + queryParams.toString());
+        this.propagateUrlToParent();
     }
     this.legendUrl = legendUrl;
     this.chartUrl = chartUrl;
@@ -756,6 +844,7 @@ FChart.prototype.doReloadImage = function(forceReload) {
                 this.setCenterToHiddenInputs(cent);
                 queryParams.set('fsz', this.fieldSizes[reqFldSizeIndex]);
                 history.replaceState(null, null, "?" + queryParams.toString());
+                this.propagateUrlToParent();
                 if (this.useCurrentTime && this.onChartTimeChangedCallback) {
                     this.onChartTimeChangedCallback.call(this, this.lastChartTimeISO);
                 }
@@ -983,7 +1072,12 @@ FChart.prototype.onClick = function(e) {
             $(".fchart-iframe").attr('src', url);
             this.toggleSplitView();
         } else {
-            window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
+            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
+            // Preserve realfullscreen parameter in iframe fullscreen mode
+            if (this.isInFullscreenIframe) {
+                url += (url.includes('?') ? '&' : '?') + 'realfullscreen=iframe';
+            }
+            window.location.href = url;
         }
     }
 }
@@ -2139,22 +2233,36 @@ FChart.prototype.exitFullscreen = function() {
 }
 
 FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
+    // In iframe mode, send message to parent to exit fullscreen
+    if (this.isInFullscreenIframe && top !== window) {
+        top.postMessage({ type: 'exitRealFullscreen' }, '*');
+        return;
+    }
+
     let queryParams = new URLSearchParams(window.location.search);
     if (this.isRealFullScreenSupported) {
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (!exitFullScreen) {
-                const elem = $(this.fchartDiv)[0];
-
+                // Create wrapper and iframe
                 this.fullscreenWrapper = document.createElement('div');
-                elem.parentNode.insertBefore(this.fullscreenWrapper, elem);
-                this.fullscreenWrapper.appendChild(elem);
+                this.fullscreenWrapper.id = 'fullscreen-wrapper';
+                this.fullscreenWrapper.style.cssText = 'width:100%;height:100%;background:#000';
+
+                // Iframe with current URL + parameter
+                let iframeUrl = new URL(window.location.href);
+                iframeUrl.searchParams.set('realfullscreen', 'iframe');
+                this.fullscreenIframe = document.createElement('iframe');
+                this.fullscreenIframe.src = iframeUrl.toString();
+                this.fullscreenIframe.style.cssText = 'width:100%;height:100%;border:none';
+                this.fullscreenIframe.id = 'realfullscreen-iframe';
+
+                this.fullscreenWrapper.appendChild(this.fullscreenIframe);
+                document.body.appendChild(this.fullscreenWrapper);
 
                 if (this.fullscreenWrapper.requestFullscreen) {
                     this.fullscreenWrapper.requestFullscreen();
                 } else if (this.fullscreenWrapper.webkitRequestFullscreen) { // Safari
                     this.fullscreenWrapper.webkitRequestFullscreen();
-                } else if (this.fullscreenWrapper.msRequestFullscreen) { // IE11
-                    this.fullscreenWrapper.msRequestFullscreen();
                 }
             }
         } else {
@@ -2162,14 +2270,6 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
                 document.exitFullscreen();
             } else if (document.webkitExitFullscreen) { // Safari
                 document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { // IE11
-                document.msExitFullscreen();
-            }
-            if (this.fullscreenWrapper) {
-                const elem = $(this.fchartDiv)[0];
-                this.fullscreenWrapper.parentNode.insertBefore(elem, this.fullscreenWrapper);
-                this.fullscreenWrapper.parentNode.removeChild(this.fullscreenWrapper);
-                this.fullscreenWrapper = null;
             }
         }
         if (exitFullScreen) {
@@ -2214,6 +2314,7 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
     }
 
     history.replaceState(null, null, "?" + queryParams.toString());
+    this.propagateUrlToParent();
 
     this.syncAladinDivSize();
 
@@ -2256,6 +2357,7 @@ FChart.prototype.toggleSplitView = function() {
     }
 
     history.replaceState(null, null, "?" + queryParams.toString());
+    this.propagateUrlToParent();
 
     this.syncAladinDivSize();
 

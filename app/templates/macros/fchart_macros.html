@@ -710,6 +710,97 @@
     const fullScreenWrapperId = 'fullscreen-wrapper';
     var chartPdfUrl = "{{ fchart_pdf_url | safe }}";
 
+    // Detect iframe fullscreen mode
+    const isInFullscreenIframe = (function() {
+        // Check URL parameter first
+        if (new URLSearchParams(window.location.search).get('realfullscreen') === 'iframe') {
+            return true;
+        }
+        // Fallback: check if top window has fullscreen wrapper (we're in iframe without the URL param)
+        try {
+            if (window !== top && top.document.getElementById('fullscreen-wrapper')) {
+                return true;
+            }
+        } catch(e) {
+            // Cross-origin, ignore
+        }
+        return false;
+    })();
+
+    if (isInFullscreenIframe) {
+        $(document).ready(function() {
+            // Hide unnecessary UI elements
+            $('.pusher > .ui.vertical.menu').hide();
+            $('body').addClass('fullscreen-iframe-mode');
+
+            // Synchronize URL to parent window
+            if (top !== window) {
+                let parentUrl = new URL(window.location.href);
+                parentUrl.searchParams.delete('realfullscreen');
+                try {
+                    top.history.replaceState(null, '', parentUrl.toString());
+                } catch(e) {
+                    // Cross-origin, ignore
+                }
+            }
+        });
+
+        // Intercept form submissions to preserve realfullscreen parameter
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            let input = form.querySelector('input[name="realfullscreen"]');
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'realfullscreen';
+                input.value = 'iframe';
+                form.appendChild(input);
+            }
+        });
+
+        // Intercept navigation button clicks - exit fullscreen and navigate in parent
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.href && link.href.startsWith(window.location.origin)) {
+                // Navigation buttons should exit fullscreen and navigate in parent
+                // Use closest() to find wrapper elements (desktop IDs are on wrapper divs, not <a> elements)
+                const isExitNavButton = link.closest('#bhome, #bhome_mob, #bback, #bback_mob');
+                if (isExitNavButton && top !== window) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    top.postMessage({
+                        type: 'exitAndNavigate',
+                        url: link.href
+                    }, '*');
+                    return;
+                }
+                // Other links - preserve realfullscreen parameter
+                const url = new URL(link.href);
+                if (!url.searchParams.has('realfullscreen')) {
+                    url.searchParams.set('realfullscreen', 'iframe');
+                    link.href = url.toString();
+                }
+            }
+        });
+
+        {% if default_chart_iframe_url and not disable_to_detail %}
+        // Intercept detail button clicks (they use onclick with window.location.href)
+        document.addEventListener('click', (e) => {
+            const detailWrapper = e.target.closest('#bdetail, #bdetail_mob');
+            if (detailWrapper && top !== window) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                // Get URL using the same function as onclick handler
+                const url = removeParamFromRelativeUrl('{{ default_chart_iframe_url }}', 'embed');
+                top.postMessage({
+                    type: 'exitAndNavigate',
+                    url: url
+                }, '*');
+            }
+        }, true);
+        {% endif %}
+    }
+
     function isWebGL2Supported() {
         try {
             var canvas = document.createElement('canvas');
@@ -1072,12 +1163,24 @@
 
     var isEquatorial = ($('#is_equatorial').val() == 'true');
 
+    // Read initial position from URL parameters if available (for fullscreen exit reload)
+    var urlParams = new URLSearchParams(window.location.search);
     if (isEquatorial) {
-        phi = parseFloat($('#ra').val());
-        theta = parseFloat($('#dec').val());
+        var urlRa = urlParams.get('ra');
+        var urlDec = urlParams.get('dec');
+        phi = (urlRa !== null) ? parseFloat(urlRa) : parseFloat($('#ra').val());
+        theta = (urlDec !== null) ? parseFloat(urlDec) : parseFloat($('#dec').val());
+        // Update hidden inputs to match URL
+        if (urlRa !== null) $('#ra').val(phi);
+        if (urlDec !== null) $('#dec').val(theta);
     } else {
-        phi = parseFloat($('#az').val());
-        theta = parseFloat($('#alt').val());
+        var urlAz = urlParams.get('az');
+        var urlAlt = urlParams.get('alt');
+        phi = (urlAz !== null) ? parseFloat(urlAz) : parseFloat($('#az').val());
+        theta = (urlAlt !== null) ? parseFloat(urlAlt) : parseFloat($('#alt').val());
+        // Update hidden inputs to match URL
+        if (urlAz !== null) $('#az').val(phi);
+        if (urlAlt !== null) $('#alt').val(theta);
     }
     var longitude = {{ fchart_form.longitude.data }};
     var latitude = {{ fchart_form.latitude.data }};

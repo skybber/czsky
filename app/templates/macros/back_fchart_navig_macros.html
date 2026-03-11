@@ -1,21 +1,21 @@
 {% macro back_navig_inner(back, back_id, default_back, embed, anchor='', link_id='', extra_class='', style='', icon_extra='') %}
     {% if not embed %}
-        {% if back == 'constell' %}
+        {% if back == 'constell' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'constell_dso' %}
+        {% elif back == 'constell_dso' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_constellation.constellation_deepskyobjects', constellation_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'observation' %}
+        {% elif back == 'observation' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'stobservation' %}
+        {% elif back == 'stobservation' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_standalone_observation.standalone_observation_info', observation_id=back_id) }}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
@@ -30,22 +30,22 @@
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'session_plan' %}
+        {% elif back == 'session_plan' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'dso_list' %}
+        {% elif back == 'dso_list' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back=='dbl_star_list' %}
+        {% elif back == 'dbl_star_list' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'running_plan' %}
+        {% elif back == 'running_plan' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
@@ -93,68 +93,68 @@
         {% endif %}
         <div class="divider"></div>
     {% else %}
-        {% if back == 'constell' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}'"
+        {% if back == 'constell' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'observation' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}'"
+        {% elif back == 'observation' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_observing_session.observing_session_info', observing_session_id=back_id) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'dso_list' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}'"
+        {% elif back == 'dso_list' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_dso_list.dso_list_info', dso_list_id=back_id, nvgback=1) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back=='dbl_star_list' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}'"
+        {% elif back == 'dbl_star_list' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
-        {% elif back == 'session_plan' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}'"
+        {% elif back == 'session_plan' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif back == 'wishlist' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'deepskyobjects' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_deepskyobject.deepskyobjects', nvgback=1)}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'double_stars' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_double_star.double_stars', nvgback=1)}}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_double_star.double_stars', nvgback=1)}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'supernovae' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_supernova.supernovae', nvgback=1)}}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_supernova.supernovae', nvgback=1)}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'comets' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_comet.comets', nvgback=1) }}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_comet.comets', nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'planets' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_planet.planets', nvgback=1) }}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_planet.planets', nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'planet_moons' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_planet_moon.planet_moons', nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif default_back == 'minor_planets' %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="window.parent.location.href='{{ url_for('main_minor_planet.minor_planets', nvgback=1) }}'"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_minor_planet.minor_planets', nvgback=1) }}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>

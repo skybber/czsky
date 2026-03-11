@@ -134,7 +134,8 @@ def do_global_search(query, level):
     if constellation:
         if request.args.get('fromchart') is not None:
             return redirect(url_for('main_constellation.constellation_chart', constellation_id=constellation.iau_code,
-                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+                                    fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'),
+                                    embed=request.args.get('embed'), realfullscreen=request.args.get('realfullscreen')))
         return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
 
     # 2. Search DSO
@@ -150,6 +151,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 3. Search Double Star
@@ -165,6 +167,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 4. Search Star
@@ -173,11 +176,13 @@ def do_global_search(query, level):
         if usd:
             if request.args.get('fromchart') is not None:
                 return redirect(url_for('main_star.star_descr_chart', star_descr_id=usd.id,
-                                        fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+                                        fullscreen=request.args.get('fullscreen'), splitview=request.args.get('splitview'),
+                                        embed=request.args.get('embed'), realfullscreen=request.args.get('realfullscreen')))
             else:
                 return redirect(url_for('main_star.star_descr_info', star_descr_id=usd.id))
         else:
-            return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'), embed=request.args.get('embed')))
+            return redirect(url_for('main_star.star_chart', star_id=star.id, splitview=request.args.get('splitview'),
+                                    embed=request.args.get('embed'), realfullscreen=request.args.get('realfullscreen')))
 
     # 5. Search Earth Moon
     moon = _search_earth_moon(query)
@@ -188,7 +193,8 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 back=request.args.get('back'),
                                 back_id=request.args.get('back_id'),
-                                dt=request.args.get('dt')))
+                                dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen')))
 
     # 6. Search planet
     planet = search_planet(query)
@@ -203,6 +209,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 7. Search planet moons
@@ -218,6 +225,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 8. Search comet
@@ -233,6 +241,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 9. Search minor planet
@@ -248,6 +257,7 @@ def do_global_search(query, level):
                                 embed=request.args.get('embed'),
                                 screenWidth=request.args.get('screenWidth'),
                                 dt=request.args.get('dt'),
+                                realfullscreen=request.args.get('realfullscreen'),
                                 ))
 
     # 10. search by radec
@@ -284,6 +294,8 @@ def do_global_search(query, level):
             back_url += '&fullscreen=true'
         if request.args.get('splitview'):
             back_url += '&splitview=true'
+        if request.args.get('realfullscreen'):
+            back_url += '&realfullscreen=' + request.args.get('realfullscreen')
         return redirect(back_url)
 
     return redirect(url_for('main.object_not_found'))
@@ -299,7 +311,8 @@ def _search_by_ra_dec(query):
                                     fullscreen=request.args.get('fullscreen'),
                                     splitview=request.args.get('splitview'),
                                     embed=request.args.get('embed'),
-                                    dt=request.args.get('dt')))
+                                    dt=request.args.get('dt'),
+                                    realfullscreen=request.args.get('realfullscreen')))
     except ValueError:
         pass
 
@@ -314,7 +327,8 @@ def _search_chart_ids(query):
                                     back=request.args.get('back'),
                                     back_id=request.args.get('back_id'),
                                     splitview=request.args.get('splitview'),
-                                    embed=request.args.get('embed')))
+                                    embed=request.args.get('embed'),
+                                    realfullscreen=request.args.get('realfullscreen')))
         except (ValueError, TypeError):
             pass
     if query.startswith(CHART_DOUBLE_STAR_PREFIX):
@@ -325,7 +339,8 @@ def _search_chart_ids(query):
                                     double_star_id=double_star.id,
                                     back=request.args.get('back'),
                                     back_id=request.args.get('back_id'),
-                                    embed=request.args.get('embed')))
+                                    embed=request.args.get('embed'),
+                                    realfullscreen=request.args.get('realfullscreen')))
         except (ValueError, TypeError):
             pass
     if query.startswith(CHART_COMET_PREFIX):

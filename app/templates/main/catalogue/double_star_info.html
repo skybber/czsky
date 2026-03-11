@@ -405,19 +405,19 @@
         {% if embed == 'fc' %}
             {% if prev_wrap %}
                 $('#bprev' ).click(function() {
-                    parent.window.location.href = "{{ prev_wrap.top_url() | safe }}";
+                    navigateParent('{{ prev_wrap.top_url() | safe }}', true);
                     return true;
                 });
             {% endif %}
             {% if cur_wrap %}
                 $('#bpin' ).click(function() {
-                    parent.window.location.href = appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}');
+                    navigateParent(appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}'), true);
                     return true;
                 });
             {% endif %}
             {% if next_wrap %}
                 $('#bnext' ).click(function() {
-                    parent.window.location.href = "{{ next_wrap.top_url() | safe }}";
+                    navigateParent('{{ next_wrap.top_url() | safe }}', true);
                     return false;
                 });
             {% endif %}

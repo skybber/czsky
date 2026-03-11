@@ -27,6 +27,49 @@
               });
               return this;
             };
+
+            // Detect if parent is in fullscreen iframe mode
+            const parentIsInFullscreenIframe = (function() {
+                try {
+                    // Check parent URL parameter first
+                    const parentSearch = new URLSearchParams(parent.window.location.search);
+                    if (parentSearch.get('realfullscreen') === 'iframe') {
+                        return true;
+                    }
+                    // Fallback: check if top window has fullscreen wrapper
+                    if (window !== top && top.document.getElementById('fullscreen-wrapper')) {
+                        return true;
+                    }
+                    return false;
+                } catch(e) {
+                    return false; // Cross-origin, can't access parent
+                }
+            })();
+
+            // Helper function for navigating from embed iframe
+            // When parent is in fullscreen mode, send message to top to exit and navigate
+            // topUrl: URL for full page with map
+            // stayInFullscreen: if true and in fullscreen, stay in fullscreen and navigate middle iframe
+            window.navigateParent = function(topUrl, stayInFullscreen) {
+                if (parentIsInFullscreenIframe && top !== window) {
+                    if (stayInFullscreen) {
+                        // Stay in fullscreen - navigate middle iframe to new object
+                        parent.postMessage({
+                            type: 'navigateInSplitview',
+                            url: topUrl
+                        }, '*');
+                    } else {
+                        // Exit fullscreen and navigate
+                        top.postMessage({
+                            type: 'exitAndNavigate',
+                            url: topUrl
+                        }, '*');
+                    }
+                } else {
+                    // Normal embed - navigate parent directly
+                    parent.window.location.href = topUrl;
+                }
+            };
         </script>
         {% include 'partials/_flashes.html' %}
         {# When extended, the content block contains all the html of the webpage #}
