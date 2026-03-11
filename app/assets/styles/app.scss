@@ -291,6 +291,8 @@ table.selectable tr:hover {
     position: fixed !important;
     z-index: 9999;
     top: 0;
+    left: 464px;
+    width: calc(100% - 464px);
     height: 100% !important;
     border: 0 !important;
     max-width: none !important;
@@ -306,6 +308,16 @@ table.selectable tr:hover {
     width: 458px;
     border: 0 !important;
     max-width: none !important;
+}
+
+.fchart-iframe-placeholder {
+    position: fixed !important;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    height: 100% !important;
+    width: 458px;
+    background: #1b1c1d;
 }
 
 .fchart-iframe-no-mouse {
