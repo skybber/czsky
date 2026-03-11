@@ -562,13 +562,6 @@
         </a>
 
         {{ back_fchart_navig.back_navig_inner(back, back_id, default_back, false, back_anchor, 'bback_mob', ' item', 'z-index:100;margin-bottom:8px;', ' inverted' if chart_control.theme!='light' else '') }}
-
-        {% if default_chart_iframe_url and not disable_to_detail %}
-            <a id="bdetail_mob" class="ui small icon button item" data-inverted="" data-tooltip="{{ _('Detail') }}" data-position="bottom left" data-variation="tiny basic"
-               style="z-index:100;" onclick="window.location.href=removeParamFromRelativeUrl('{{ default_chart_iframe_url }}', 'embed');">
-                <i class="external alternate {{ 'inverted' if chart_control.theme!='light' else '' }} icon"></i>
-            </a>
-        {% endif %}
     </div>
 
     <div class="ui" style="position: absolute; top: 0; bottom: 0; display: flex; align-items: center;">
