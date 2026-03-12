@@ -430,6 +430,9 @@
         this.fullscreenWrapper = null;
         this.fullscreenIframe = null;
         this.fullScreenWrapperId = fullScreenWrapperId || 'fullscreen-wrapper';
+        this.basePageDormant = false;
+        this.basePageDormantDisplays = null;
+        this.basePageDormantBackground = '';
         this.mirrorX = !!mirror_x;
         this.mirrorY = !!mirror_y;
         this.usePlanetTextures = true;
@@ -693,6 +696,10 @@
 
         // Handle fullscreenchange event for iframe-based fullscreen
         document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === this.fullscreenWrapper) {
+                this._setBasePageMapDormant(true);
+                return;
+            }
             if (!document.fullscreenElement && this.fullscreenWrapper) {
                 // Remove wrapper
                 this.fullscreenWrapper.remove();
@@ -710,6 +717,10 @@
         });
 
         document.addEventListener('webkitfullscreenchange', () => {
+            if (document.webkitFullscreenElement === this.fullscreenWrapper) {
+                this._setBasePageMapDormant(true);
+                return;
+            }
             if (!document.webkitFullscreenElement && this.fullscreenWrapper) {
                 this.fullscreenWrapper.remove();
                 this.fullscreenWrapper = null;
@@ -830,6 +841,71 @@
             return colors[name];
         }
         return fallback;
+    };
+
+    SkyScene.prototype._getFallbackCssBackgroundColor = function () {
+        if (this.theme === 'light') {
+            return '#FFFFFF';
+        }
+        if (this.theme === 'night') {
+            return '#020202';
+        }
+        return '#03030A';
+    };
+
+    SkyScene.prototype._getCssBackgroundColor = function () {
+        const bg = this.getThemeColor('background', null);
+        if (Array.isArray(bg) && bg.length >= 3) {
+            const r = Math.round(clamp(Number(bg[0]) || 0, 0, 1) * 255);
+            const g = Math.round(clamp(Number(bg[1]) || 0, 0, 1) * 255);
+            const b = Math.round(clamp(Number(bg[2]) || 0, 0, 1) * 255);
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+        }
+        return this._getFallbackCssBackgroundColor();
+    };
+
+    SkyScene.prototype._setBasePageMapDormant = function (hidden) {
+        const containerEl = this.fchartDiv ? $(this.fchartDiv)[0] : null;
+        if (!containerEl) return;
+
+        const layers = [
+            this.canvasMw,
+            this.backCanvas,
+            this.canvas,
+            this.frontCanvas,
+            this.iframe,
+            this.separator,
+        ];
+
+        if (hidden) {
+            if (this.basePageDormant) return;
+            this.basePageDormantDisplays = [];
+            for (let i = 0; i < layers.length; i++) {
+                const el = layers[i];
+                if (!el) continue;
+                this.basePageDormantDisplays.push({
+                    el: el,
+                    display: el.style.display,
+                });
+                el.style.display = 'none';
+            }
+            this.basePageDormantBackground = containerEl.style.backgroundColor;
+            containerEl.style.backgroundColor = this._getCssBackgroundColor();
+            this.basePageDormant = true;
+            return;
+        }
+
+        if (!this.basePageDormant) return;
+        const stored = Array.isArray(this.basePageDormantDisplays) ? this.basePageDormantDisplays : [];
+        for (let i = 0; i < stored.length; i++) {
+            const item = stored[i];
+            if (!item || !item.el) continue;
+            item.el.style.display = item.display;
+        }
+        containerEl.style.backgroundColor = this.basePageDormantBackground || '';
+        this.basePageDormantDisplays = null;
+        this.basePageDormantBackground = '';
+        this.basePageDormant = false;
     };
 
     SkyScene.prototype.adjustCanvasSize = function () {
@@ -1491,12 +1567,24 @@
                     this.fullscreenWrapper.appendChild(this.fullscreenIframe);
                     document.body.appendChild(this.fullscreenWrapper);
 
+                    let fullscreenPromise = null;
                     if (this.fullscreenWrapper.requestFullscreen) {
-                        this.fullscreenWrapper.requestFullscreen();
+                        fullscreenPromise = this.fullscreenWrapper.requestFullscreen();
                     } else if (this.fullscreenWrapper.webkitRequestFullscreen) {
-                        this.fullscreenWrapper.webkitRequestFullscreen();
+                        fullscreenPromise = this.fullscreenWrapper.webkitRequestFullscreen();
                     } else if (this.fullscreenWrapper.msRequestFullscreen) {
-                        this.fullscreenWrapper.msRequestFullscreen();
+                        fullscreenPromise = this.fullscreenWrapper.msRequestFullscreen();
+                    }
+
+                    if (fullscreenPromise) {
+                        fullscreenPromise.catch(() => {
+                            if (this.fullscreenWrapper) {
+                                this.fullscreenWrapper.remove();
+                                this.fullscreenWrapper = null;
+                                this.fullscreenIframe = null;
+                            }
+                            this._setBasePageMapDormant(false);
+                        });
                     }
                 }
             } else {
