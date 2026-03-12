@@ -1208,14 +1208,18 @@ FChart.prototype.onKeyDown = function (e) {
         39: [1, 0],
         40: [0, 1],
     }
+    const event = e.originalEvent || e;
+    const key = (typeof event.key === 'string') ? event.key : '';
+    const isZoomOutKey = e.keyCode == 33 || key == '-';
+    const isZoomInKey = e.keyCode == 34 || key == '=' || key == '+';
 
-    if (e.keyCode == 33) {
+    if (isZoomOutKey) {
         if (!this.zoom.active && !this.zoom.ending) {
             this.zoom.ease = 'linear';
             this.adjustZoom(1);
         }
         e.preventDefault();
-    } else if (e.keyCode == 34) {
+    } else if (isZoomInKey) {
         if (!this.zoom.active && !this.zoom.ending) {
             this.zoom.ease = 'linear';
             this.adjustZoom(-1);

@@ -3414,13 +3414,18 @@
             39: [-1, 0],
             40: [0, -1],
         };
-        if (e.keyCode === 33 || e.keyCode === 34) {
+        const event = e.originalEvent || e;
+        const key = (typeof event.key === 'string') ? event.key : '';
+        const isZoomOutKey = e.keyCode === 33 || key === '-';
+        const isZoomInKey = e.keyCode === 34 || key === '=' || key === '+';
+
+        if (isZoomOutKey || isZoomInKey) {
             const now = this._perfNow();
             if ((now - this.keyboardZoomLastTs) < this.keyboardZoomStepMinMs) {
                 e.preventDefault();
                 return;
             }
-            const dir = (e.keyCode === 33) ? 1 : -1;
+            const dir = isZoomOutKey ? 1 : -1;
             let newIndex = this.targetFldSizeIndex + (dir > 0 ? 1 : -1);
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
             if (newIndex !== this.targetFldSizeIndex) {
@@ -3444,8 +3449,8 @@
         }
 
         if (this.onShortcutKeyCallback && !e.ctrlKey && !e.altKey && !e.metaKey) {
-            const key = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
-            if (this.onShortcutKeyCallback.call(this, key, e)) {
+            const shortcutKey = (typeof e.key === 'string') ? e.key.toLowerCase() : '';
+            if (this.onShortcutKeyCallback.call(this, shortcutKey, e)) {
                 e.preventDefault();
             }
         }
