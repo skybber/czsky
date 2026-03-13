@@ -435,7 +435,6 @@
         this.basePageDormantBackground = '';
         this.mirrorX = !!mirror_x;
         this.mirrorY = !!mirror_y;
-        this.usePlanetTextures = true;
         this.selectableRegions = [];
         this.selectionIndex = new SelectionIndex();
         this.centerPick = null;
@@ -532,7 +531,8 @@
         this.renderer = new ChartWebGLRenderer(this.canvas);
         this.dsoRenderer = new window.SkySceneDsoRenderer();
         this.starsRenderer = new window.SkySceneStarsRenderer();
-        this.planetRenderer = this._createPlanetRenderer();
+        this.planetRenderer = new window.SkyScenePlanetTextureRenderer();
+        this.planetRenderer.setOnImageLoaded(() => this.requestDraw());
         this.constellRenderer = new window.SkySceneConstellationRenderer();
         this.milkyWayRenderer = new window.SkySceneMilkyWayRenderer();
         this.gridRenderer = new window.SkySceneGridRenderer();
@@ -793,30 +793,6 @@
                 url: url.search
             }, '*');
         }
-    };
-
-    SkyScene.prototype._createPlanetRenderer = function () {
-        if (this.usePlanetTextures && window.SkyScenePlanetTextureRenderer) {
-            const renderer = new window.SkyScenePlanetTextureRenderer();
-            const self = this;
-            renderer.setOnImageLoaded(function () {
-                self.requestDraw();
-            });
-            return renderer;
-        }
-        return new window.SkyScenePlanetRenderer();
-    };
-
-    SkyScene.prototype.setPlanetTextureMode = function (enabled) {
-        const useTextures = !!enabled;
-        if (this.usePlanetTextures === useTextures) return;
-        this.usePlanetTextures = useTextures;
-        this.planetRenderer = this._createPlanetRenderer();
-        this.requestDraw();
-    };
-
-    SkyScene.prototype.isPlanetTextureMode = function () {
-        return this.usePlanetTextures && !!window.SkyScenePlanetTextureRenderer;
     };
 
     SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
