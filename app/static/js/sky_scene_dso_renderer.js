@@ -159,6 +159,9 @@
     };
 
     SkySceneDsoRenderer.prototype._dsoVisibilityAlpha = function (sceneCtx, dso) {
+        if (dso && dso.force_visible === true) {
+            return 1.0;
+        }
         const mag = dso ? Number(dso.mag) : NaN;
         if (!Number.isFinite(mag) || mag === -100 || mag >= 30) {
             return 1.0;

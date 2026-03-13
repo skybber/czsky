@@ -53,6 +53,26 @@ _constell_lines_dataset_cache: Optional[Dict[str, Any]] = None
 _constell_boundaries_cache_lock = threading.Lock()
 _constell_boundaries_dataset_cache: Optional[Dict[str, Any]] = None
 
+# Mapping from czsky database type codes to fchart3/JS renderer type codes
+CZSKY_TYPE_TO_SCENE = {
+    "GX": "G",      # Galaxy
+    "BN": "N",      # Bright Nebula
+    "DN": "N",      # Dark Nebula
+    "RNe": "N",     # Reflection Nebula
+    "HII": "N",     # HII Region
+    "PN": "PN",     # Planetary Nebula
+    "OC": "OC",     # Open Cluster
+    "GC": "GC",     # Globular Cluster
+    "SNR": "SNR",   # Supernova Remnant
+    "GALCL": "GALCL",  # Galaxy Cluster
+    "AST": "STARS",    # Asterism
+    "STARS": "STARS",
+    "QSO": "G",     # Quasar (render as galaxy)
+    # Types that are already compatible
+    "G": "G",
+    "N": "N",
+}
+
 
 def _field_size_index(fld_size_deg: float) -> int:
     for idx, size in enumerate(FIELD_SIZES):
@@ -201,20 +221,22 @@ def scene_dso_id_from_name(name: str) -> str:
 
 
 def build_scene_dso_item_from_model(dso: Any) -> SceneDsoItem:
+    raw_type = str(getattr(dso, "type", "") or "")
+    scene_type = CZSKY_TYPE_TO_SCENE.get(raw_type, raw_type)
     return {
         "id": scene_dso_id_from_name(getattr(dso, "name", "")),
         "label": dso.denormalized_name() if hasattr(dso, "denormalized_name") else str(getattr(dso, "name", "")),
         "ra": _round_coord(getattr(dso, "ra")),
         "dec": _round_coord(getattr(dso, "dec")),
         "mag": float(getattr(dso, "mag")) if getattr(dso, "mag", None) is not None else 99.0,
-        "type": str(getattr(dso, "type", "")),
+        "type": scene_type,
         "rlong_rad": _round_coord(getattr(dso, "rlong")) if getattr(dso, "rlong", None) is not None else -1.0,
         "rshort_rad": _round_coord(getattr(dso, "rshort")) if getattr(dso, "rshort", None) is not None else -1.0,
         "position_angle_rad": _sig4(getattr(dso, "position_angle")) if getattr(dso, "position_angle", None) is not None else (math.pi * 0.5),
     }
 
 
-def ensure_scene_dso_item(scene: Dict[str, Any], dso: Any) -> None:
+def ensure_scene_dso_item(scene: Dict[str, Any], dso: Any, force_visible: bool = True) -> None:
     if scene is None or dso is None:
         return
     dso_id = scene_dso_id_from_name(getattr(dso, "name", ""))
@@ -224,8 +246,13 @@ def ensure_scene_dso_item(scene: Dict[str, Any], dso: Any) -> None:
     dso_items = scene_objects.setdefault("dso", [])
     for item in dso_items:
         if item and item.get("id") == dso_id:
+            if force_visible:
+                item["force_visible"] = True
             return
-    dso_items.append(build_scene_dso_item_from_model(dso))
+    item = build_scene_dso_item_from_model(dso)
+    if force_visible:
+        item["force_visible"] = True
+    dso_items.append(item)
 
 
 def build_scene_trajectory_item(
