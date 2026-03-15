@@ -1,4 +1,6 @@
 (function () {
+    const WU = window.SkySceneWidgetUtils;
+
     window.SkySceneNumericMapScaleWidget = function () {};
     const MOBILE_WIDTH_MAX = 768;
 
@@ -6,7 +8,7 @@
         const widgets = sceneCtx.meta && sceneCtx.meta.widgets ? sceneCtx.meta.widgets : {};
         const isMobile = (Number(sceneCtx.width) || 0) <= MOBILE_WIDTH_MAX;
         const prefix = isMobile ? '' : '◯ ';
-        const fov = Number.isFinite(sceneCtx.viewState && sceneCtx.viewState.fovDeg)
+        const fov = (sceneCtx.viewState && Number.isFinite(sceneCtx.viewState.fovDeg))
             ? sceneCtx.viewState.fovDeg
             : (Number.isFinite(sceneCtx.meta.fov_deg) ? sceneCtx.meta.fov_deg : null);
 
@@ -24,6 +26,9 @@
     };
 
     window.SkySceneNumericMapScaleWidget.prototype.measure = function (sceneCtx) {
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.widgetPanelStyle) {
+            return { w: 0, h: 0 };
+        }
         const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const text = this._labelText(sceneCtx);
@@ -38,12 +43,13 @@
     };
 
     window.SkySceneNumericMapScaleWidget.prototype.draw = function (sceneCtx, rect) {
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.widgetPanelStyle) return;
         const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const text = this._labelText(sceneCtx);
 
         ctx.save();
-        window.SkySceneWidgetUtils.drawPanel(ctx, style, rect.x, rect.y, rect.w, rect.h);
+        WU.drawPanel(ctx, style, rect.x, rect.y, rect.w, rect.h);
         ctx.font = style.font;
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';

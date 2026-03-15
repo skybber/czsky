@@ -40,17 +40,7 @@
         return sceneCtx.projection.projectEquatorialToPx(ra, dec);
     };
 
-    window.SkySceneConstellationRenderer.prototype._getBoundaryRenderParams = function (sceneCtx) {
-        const width = Number(sceneCtx && sceneCtx.width) || 0;
-        const height = Number(sceneCtx && sceneCtx.height) || 0;
-        const fovDeg = sceneCtx && sceneCtx.viewState && Number(sceneCtx.viewState.renderFovDeg);
-        const shortEdge = Math.min(width, height);
-        const mobileLikeViewport = shortEdge > 0 && shortEdge <= 900;
-        const wideField = Number.isFinite(fovDeg) && fovDeg >= 70;
-
-        if (false/*mobileLikeViewport || wideField*/) {
-            return { maxDepth: 4, bendTolerancePx: 2.4, useDashedStroke: false };
-        }
+    window.SkySceneConstellationRenderer.prototype._getBoundaryRenderParams = function () {
         return { maxDepth: 7, bendTolerancePx: 1.2, useDashedStroke: true };
     };
 

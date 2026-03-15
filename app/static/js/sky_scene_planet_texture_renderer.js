@@ -422,20 +422,6 @@
         ctx.restore();
     }
 
-    function destinationRaDec(ra1, dec1, pa, dist) {
-        const sinDec1 = Math.sin(dec1);
-        const cosDec1 = Math.cos(dec1);
-        const sinDist = Math.sin(dist);
-        const cosDist = Math.cos(dist);
-        const dec2 = Math.asin(sinDec1 * cosDist + cosDec1 * sinDist * Math.cos(pa));
-        const dra = Math.atan2(
-            Math.sin(pa) * sinDist * cosDec1,
-            cosDist - sinDec1 * Math.sin(dec2)
-        );
-        const ra2 = U.normalizeRa(ra1 + dra);
-        return { ra: ra2, dec: dec2 };
-    }
-
     function ringRotation(sceneCtx, p, centerPx) {
         let rot = hasFinite(p.north_pole_pa_rad) ? p.north_pole_pa_rad : 0.0;
         if (sceneCtx.mirrorY) rot = -rot;
@@ -450,7 +436,7 @@
         if (coordSystem === 'horizontal'
             && sceneCtx && sceneCtx.projection && centerPx
             && hasFinite(p.ra) && hasFinite(p.dec) && hasFinite(p.north_pole_pa_rad)) {
-            const probeEq = destinationRaDec(p.ra, p.dec, p.north_pole_pa_rad, 1e-3);
+            const probeEq = U.destinationRaDec(p.ra, p.dec, p.north_pole_pa_rad, 1e-3);
             const probePx = sceneCtx.projection.projectEquatorialToPx(probeEq.ra, probeEq.dec);
             if (probePx) {
                 const dx = probePx.x - centerPx.x;
@@ -475,7 +461,7 @@
         if (coordSystem === 'horizontal'
             && sceneCtx && sceneCtx.projection && centerPx
             && hasFinite(p.ra) && hasFinite(p.dec)) {
-            const probeEq = destinationRaDec(p.ra, p.dec, p.north_pole_pa_rad, 1e-3);
+            const probeEq = U.destinationRaDec(p.ra, p.dec, p.north_pole_pa_rad, 1e-3);
             const probePx = sceneCtx.projection.projectEquatorialToPx(probeEq.ra, probeEq.dec);
             if (probePx) {
                 const dx = probePx.x - centerPx.x;

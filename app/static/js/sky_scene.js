@@ -1209,11 +1209,10 @@
 
     SkyScene.prototype._getRequestCenterHorizontal = function (dateTimeISO) {
         if (!this.isEquatorial) {
-            const lim = Math.PI / 2 - 1e-5;
             const az = U.normalizeRa(Number(this.viewCenter.phi));
             const alt = Number(this.viewCenter.theta);
             if (Number.isFinite(az) && Number.isFinite(alt)) {
-                return { az: az, alt: Math.max(-lim, Math.min(lim, alt)) };
+                return { az: az, alt: U.clampLatitude(alt) };
             }
         }
 
@@ -1399,9 +1398,7 @@
                 }
             }
 
-            const lim = Math.PI / 2 - 1e-5;
-            if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
-            if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+            this.viewCenter.theta = U.clampLatitude(this.viewCenter.theta);
 
             const queryParams = new URLSearchParams(window.location.search);
             this.setViewCenterToQueryParams(queryParams, this.viewCenter);
@@ -1802,6 +1799,8 @@
                 return;
             }
             this.requestDraw();
+        }).fail(() => {
+            // Silent fail - milky way selection is optional enhancement
         });
     };
 
@@ -2269,10 +2268,7 @@
     };
 
     SkyScene.prototype._pickerRadiusPx = function () {
-        const mmToPx = (window.SkySceneWidgetUtils && typeof window.SkySceneWidgetUtils.mmToPx === 'function')
-            ? window.SkySceneWidgetUtils.mmToPx
-            : function (mm) { return mm * (100.0 / 25.4); };
-        return Math.max(6.0, mmToPx(this.getThemeConfig().sizes.picker_radius));
+        return Math.max(6.0, U.mmToPx(this.getThemeConfig().sizes.picker_radius));
     };
 
     SkyScene.prototype._isInsidePickerRect = function (x, y) {
@@ -2773,9 +2769,7 @@
 
         this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
         this.viewCenter.theta += dirY * dy * fovRad / wh;
-        const lim = Math.PI / 2 - 1e-5;
-        if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
-        if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+        this.viewCenter.theta = U.clampLatitude(this.viewCenter.theta);
         this.setCenterToHiddenInputs();
         this._requestMilkyWaySelection({ optimized: true, immediate: false });
         this.requestDraw();
@@ -3204,10 +3198,7 @@
         if (!underCursor) return baseCenter;
         const dPhi = wrapPi(anchor.phi - underCursor.phi);
         const dTheta = anchor.theta - underCursor.theta;
-        let theta = baseCenter.theta + dTheta;
-        const lim = Math.PI / 2 - 1e-5;
-        if (theta > lim) theta = lim;
-        if (theta < -lim) theta = -lim;
+        const theta = U.clampLatitude(baseCenter.theta + dTheta);
         return {
             phi: U.normalizeRa(baseCenter.phi + dPhi),
             theta: theta,
@@ -3323,9 +3314,7 @@
         }
         this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * dAng);
         this.viewCenter.theta += dirY * dy * dAng;
-        const lim = Math.PI / 2 - 1e-5;
-        if (this.viewCenter.theta > lim) this.viewCenter.theta = lim;
-        if (this.viewCenter.theta < -lim) this.viewCenter.theta = -lim;
+        this.viewCenter.theta = U.clampLatitude(this.viewCenter.theta);
         this.setCenterToHiddenInputs();
         this._requestMilkyWaySelection({ optimized: true, immediate: false });
         this.requestDraw();

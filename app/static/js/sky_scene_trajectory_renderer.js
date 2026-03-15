@@ -4,43 +4,13 @@
     window.SkySceneTrajectoryRenderer = function () {};
     const EPS = U.EPS;
 
-    function finiteColor(c) {
-        return Array.isArray(c) && c.length >= 3
-            && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
-    }
-
-    function posAngle(ra1, dec1, ra2, dec2) {
-        const deltaRa = ra2 - ra1;
-        let a = Math.atan2(
-            Math.sin(deltaRa),
-            Math.cos(dec1) * Math.tan(dec2) - Math.sin(dec1) * Math.cos(deltaRa)
-        );
-        a += Math.PI;
-        a = a % U.TWO_PI;
-        return a;
-    }
-
-    function destinationRaDec(ra1, dec1, pa, dist) {
-        const sinDec1 = Math.sin(dec1);
-        const cosDec1 = Math.cos(dec1);
-        const sinDist = Math.sin(dist);
-        const cosDist = Math.cos(dist);
-        const dec2 = Math.asin(sinDec1 * cosDist + cosDec1 * sinDist * Math.cos(pa));
-        const dra = Math.atan2(
-            Math.sin(pa) * sinDist * cosDec1,
-            cosDist - sinDec1 * Math.sin(dec2)
-        );
-        const ra2 = U.normalizeRa(ra1 + dra);
-        return { ra: ra2, dec: dec2 };
-    }
-
     window.SkySceneTrajectoryRenderer.prototype._style = function (sceneCtx) {
         const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths : null;
         const lwMm = lws && Number.isFinite(lws.constellation) ? lws.constellation : 0.3;
         const color = sceneCtx.getThemeColor('dso', [0.6, 0.6, 0.6]);
         return {
-            color: finiteColor(color) ? color : [0.6, 0.6, 0.6],
+            color: U.finiteColor(color) ? color : [0.6, 0.6, 0.6],
             lineWidthPx: Math.max(0.75, U.mmToPx(lwMm)),
         };
     };
@@ -83,11 +53,11 @@
         const tailColor = cometCfg && finiteColor(cometCfg.tail_color)
             ? cometCfg.tail_color : style.color;
         const baseLen = Math.max(4.0, U.mmToPx(lenMm));
-        const paTail = posAngle(ptPx.ra, ptPx.dec, sunPx.ra, sunPx.dec);
+        const paTail = U.posAngle(ptPx.ra, ptPx.dec, sunPx.ra, sunPx.dec);
 
         // Convert screen length to angular length locally (rad).
         let pxPerRad = 0.0;
-        const probe = destinationRaDec(ptPx.ra, ptPx.dec, paTail, 1e-3);
+        const probe = U.destinationRaDec(ptPx.ra, ptPx.dec, paTail, 1e-3);
         const probePx = sceneCtx.projection.projectEquatorialToPx(probe.ra, probe.dec);
         if (probePx) {
             const dd = Math.hypot(probePx.x - ptPx.x, probePx.y - ptPx.y);
@@ -114,7 +84,7 @@
         for (let i = 0; i < dirs.length; i++) {
             const d = dirs[i];
             const targetLenPx = baseLen * d.scale;
-            const endEq = destinationRaDec(ptPx.ra, ptPx.dec, d.pa, lAngRad * d.scale);
+            const endEq = U.destinationRaDec(ptPx.ra, ptPx.dec, d.pa, lAngRad * d.scale);
             const endPx = sceneCtx.projection.projectEquatorialToPx(endEq.ra, endEq.dec);
             if (!endPx) continue;
             const vx = endPx.x - ptPx.x;
@@ -217,8 +187,8 @@
             if (showCometTail && curPt && Number.isFinite(curPt.sun_ra) && Number.isFinite(curPt.sun_dec)) {
                 const sunPx = sceneCtx.projection.projectEquatorialToPx(curPt.sun_ra, curPt.sun_dec);
                 if (sunPx) {
-                    const paTail = posAngle(curPt.ra, curPt.dec, curPt.sun_ra, curPt.sun_dec);
-                    const probeEq = destinationRaDec(curPt.ra, curPt.dec, paTail, 1e-3);
+                    const paTail = U.posAngle(curPt.ra, curPt.dec, curPt.sun_ra, curPt.sun_dec);
+                    const probeEq = U.destinationRaDec(curPt.ra, curPt.dec, paTail, 1e-3);
                     const probePx = sceneCtx.projection.projectEquatorialToPx(probeEq.ra, probeEq.dec);
                     if (probePx) {
                         const sx = probePx.x - p2.x;

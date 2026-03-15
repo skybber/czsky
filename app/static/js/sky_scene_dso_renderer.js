@@ -9,23 +9,6 @@
     const MIN_DSO_RADIUS_PX = 3.0;
     const MIN_PN_BASE_RADIUS_PX = U.mmToPx(1.0);
 
-    function levelColor(base, lightMode, level) {
-        const outlLev = Math.max(0, Math.min(2, level | 0));
-        const frac = 4.0 - 1.5 * outlLev;
-        if (lightMode) {
-            return [
-                1.0 - ((1.0 - base[0]) / frac),
-                1.0 - ((1.0 - base[1]) / frac),
-                1.0 - ((1.0 - base[2]) / frac),
-            ];
-        }
-        return [
-            base[0] / frac,
-            base[1] / frac,
-            base[2] / frac,
-        ];
-    }
-
     function measureTextWidth(ctx, text) {
         if (!text) return 0;
         return ctx.measureText(text).width;
@@ -424,7 +407,7 @@
         ctx.setLineDash([]);
 
         for (let level = 0; level < 3; level++) {
-            const col = levelColor(baseNebColor, lightMode, level);
+            const col = U.levelColor(baseNebColor, lightMode, level);
             ctx.strokeStyle = U.rgba(col, 1.0);
             const outlines = outlinesItem.outlines[level];
             if (!Array.isArray(outlines)) continue;

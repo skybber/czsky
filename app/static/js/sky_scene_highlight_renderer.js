@@ -5,11 +5,6 @@
 
     const MIN_DSO_RADIUS_PX = 3.0;
 
-    function finiteColor(c) {
-        return Array.isArray(c) && c.length >= 3
-            && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
-    }
-
     window.SkySceneHighlightRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
         const lwMm = sceneCtx.themeConfig.line_widths[key];
         if (lwMm == null) return fallbackPx;
@@ -17,7 +12,7 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._highlightStyle = function (sceneCtx, hl) {
-        const color = finiteColor(hl && hl.color)
+        const color = U.finiteColor(hl && hl.color)
             ? hl.color
             : sceneCtx.getThemeColor('highlight', [0.15, 0.3, 0.6]);
 

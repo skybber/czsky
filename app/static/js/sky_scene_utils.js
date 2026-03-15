@@ -1,6 +1,7 @@
 (function () {
     const TWO_PI = Math.PI * 2.0;
     const EPS = 1e-9;
+    const MAX_LATITUDE_RAD = Math.PI / 2 - 1e-5;
 
     // ========== Math utilities ==========
 
@@ -34,6 +35,55 @@
         const g = Math.round(clamp01(color[1]) * 255);
         const b = Math.round(clamp01(color[2]) * 255);
         return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    function finiteColor(c) {
+        return Array.isArray(c) && c.length >= 3
+            && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
+    }
+
+    function levelColor(base, lightMode, level) {
+        const outlLev = Math.max(0, Math.min(2, level | 0));
+        const frac = 4.0 - 1.5 * outlLev;
+        if (lightMode) {
+            return [
+                1.0 - ((1.0 - base[0]) / frac),
+                1.0 - ((1.0 - base[1]) / frac),
+                1.0 - ((1.0 - base[2]) / frac),
+            ];
+        }
+        return [
+            base[0] / frac,
+            base[1] / frac,
+            base[2] / frac,
+        ];
+    }
+
+    // ========== Spherical geometry utilities ==========
+
+    function posAngle(ra1, dec1, ra2, dec2) {
+        const deltaRa = ra2 - ra1;
+        let a = Math.atan2(
+            Math.sin(deltaRa),
+            Math.cos(dec1) * Math.tan(dec2) - Math.sin(dec1) * Math.cos(deltaRa)
+        );
+        a += Math.PI;
+        a = a % TWO_PI;
+        return a;
+    }
+
+    function destinationRaDec(ra1, dec1, pa, dist) {
+        const sinDec1 = Math.sin(dec1);
+        const cosDec1 = Math.cos(dec1);
+        const sinDist = Math.sin(dist);
+        const cosDist = Math.cos(dist);
+        const dec2 = Math.asin(sinDec1 * cosDist + cosDec1 * sinDist * Math.cos(pa));
+        const dra = Math.atan2(
+            Math.sin(pa) * sinDist * cosDec1,
+            cosDist - sinDec1 * Math.sin(dec2)
+        );
+        const ra2 = normalizeRa(ra1 + dra);
+        return { ra: ra2, dec: dec2 };
     }
 
     // ========== Unit conversion ==========
@@ -123,14 +173,26 @@
 
     // ========== Export ==========
 
+    function clampLatitude(v) {
+        if (v > MAX_LATITUDE_RAD) return MAX_LATITUDE_RAD;
+        if (v < -MAX_LATITUDE_RAD) return -MAX_LATITUDE_RAD;
+        return v;
+    }
+
     const utils = {
         TWO_PI: TWO_PI,
         EPS: EPS,
+        MAX_LATITUDE_RAD: MAX_LATITUDE_RAD,
         clamp01: clamp01,
+        clampLatitude: clampLatitude,
         deg2rad: deg2rad,
         normalizeRa: normalizeRa,
         wrapDeltaRa: wrapDeltaRa,
         rgba: rgba,
+        finiteColor: finiteColor,
+        levelColor: levelColor,
+        posAngle: posAngle,
+        destinationRaDec: destinationRaDec,
         mmToPx: mmToPx,
         hasFlag: hasFlag,
         computeOutCode: computeOutCode,

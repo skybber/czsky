@@ -1,4 +1,6 @@
 (function () {
+    const WU = window.SkySceneWidgetUtils;
+
     window.SkySceneWidgetLayer = function () {
         this.magScaleWidget = new window.SkySceneMagScaleWidget();
         this.numericMapScaleWidget = new window.SkySceneNumericMapScaleWidget();
@@ -10,15 +12,16 @@
 
     window.SkySceneWidgetLayer.prototype._leftBottomPanels = function (sceneCtx) {
         const style = sceneCtx.widgetPanelStyle;
-        const magSize = this.magScaleWidget.measure(sceneCtx);
-        const numericSize = this.numericMapScaleWidget.measure(sceneCtx);
-        const y = sceneCtx.height - style.margin - Math.max(magSize.h, numericSize.h);
-        const x1 = style.margin;
-        const x2 = x1 + magSize.w + this.panelGap;
+        if (!style) return { mag: { x: 0, y: 0, w: 0, h: 0 }, numeric: { x: 0, y: 0, w: 0, h: 0 } };
+        const magSize = this.magScaleWidget.measure(sceneCtx) || { w: 0, h: 0 };
+        const numericSize = this.numericMapScaleWidget.measure(sceneCtx) || { w: 0, h: 0 };
+        const y = (sceneCtx.height || 0) - (style.margin || 0) - Math.max(magSize.h || 0, numericSize.h || 0);
+        const x1 = style.margin || 0;
+        const x2 = x1 + (magSize.w || 0) + this.panelGap;
 
         return {
-            mag: { x: x1, y: y, w: magSize.w, h: magSize.h },
-            numeric: { x: x2, y: y, w: numericSize.w, h: numericSize.h },
+            mag: { x: x1, y: y, w: magSize.w || 0, h: magSize.h || 0 },
+            numeric: { x: x2, y: y, w: numericSize.w || 0, h: numericSize.h || 0 },
         };
     };
 
@@ -27,7 +30,7 @@
         const widgets = sceneCtx.meta.widgets || null;
         if (!widgets) return;
 
-        sceneCtx.widgetPanelStyle = window.SkySceneWidgetUtils.panelStyle(sceneCtx);
+        sceneCtx.widgetPanelStyle = WU.panelStyle(sceneCtx);
 
         if (widgets.show_telrad) {
             this.telradWidget.draw(sceneCtx);

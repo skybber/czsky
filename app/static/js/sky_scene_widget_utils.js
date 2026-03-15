@@ -43,11 +43,20 @@
         ctx.fillRect(x, y, w, h);
     }
 
+    function pxPerRad(sceneCtx) {
+        const fovDeg = Number.isFinite(sceneCtx.projection.getFovDeg()) ? sceneCtx.projection.getFovDeg() : 1.0;
+        const fieldRadius = (fovDeg * Math.PI / 180.0) / 2.0;
+        const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
+        if (!(planeRadius > 0)) return 0;
+        return (Math.max(sceneCtx.width, sceneCtx.height) / 2.0) / planeRadius;
+    }
+
     window.SkySceneWidgetUtils = {
         clamp01: U.clamp01,
         rgb: rgb,
         mmToPx: U.mmToPx,
         panelStyle: panelStyle,
         drawPanel: drawPanel,
+        pxPerRad: pxPerRad,
     };
 })();

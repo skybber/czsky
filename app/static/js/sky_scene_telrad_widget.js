@@ -1,19 +1,15 @@
 (function () {
+    const WU = window.SkySceneWidgetUtils;
+
     window.SkySceneTelradWidget = function () {};
 
-    function pxPerRad(sceneCtx) {
-        const fovDeg = Number.isFinite(sceneCtx.projection.getFovDeg()) ? sceneCtx.projection.getFovDeg() : 1.0;
-        const fieldRadius = (fovDeg * Math.PI / 180.0) / 2.0;
-        const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
-        if (!(planeRadius > 0)) return 0;
-        return (Math.max(sceneCtx.width, sceneCtx.height) / 2.0) / planeRadius;
-    }
-
     window.SkySceneTelradWidget.prototype.draw = function (sceneCtx) {
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.projection || !sceneCtx.themeConfig) return;
+        const lineWidths = sceneCtx.themeConfig.line_widths || {};
         const ctx = sceneCtx.frontCtx;
         const c = sceneCtx.getThemeColor('telrad', [0.5, 0.0, 0.0]);
-        const lw = Math.max(0.75, window.SkySceneWidgetUtils.mmToPx(sceneCtx.themeConfig.line_widths.telrad));
-        const scale = pxPerRad(sceneCtx);
+        const lw = Math.max(0.75, WU.mmToPx(lineWidths.telrad || 0.2));
+        const scale = WU.pxPerRad(sceneCtx);
         if (!(scale > 0)) return;
 
         const cx = sceneCtx.width * 0.5;
@@ -21,7 +17,7 @@
         const radiiArcMin = [15, 60, 120];
 
         ctx.save();
-        ctx.strokeStyle = window.SkySceneWidgetUtils.rgb(c);
+        ctx.strokeStyle = WU.rgb(c);
         ctx.lineWidth = lw;
         ctx.setLineDash([]);
         for (let i = 0; i < radiiArcMin.length; i++) {

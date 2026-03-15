@@ -1,4 +1,6 @@
 (function () {
+    const WU = window.SkySceneWidgetUtils;
+
     window.SkySceneMagScaleWidget = function () {};
     const MAG_COUNT = 4;
     const MAG_STEP_PX = 34;
@@ -31,10 +33,13 @@
             ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
             : 0.0;
         const radiusMm = this._starRadiusMm(lm, mag, starMagRShift);
-        return window.SkySceneWidgetUtils.mmToPx(radiusMm);
+        return WU.mmToPx(radiusMm);
     };
 
     window.SkySceneMagScaleWidget.prototype.measure = function (sceneCtx) {
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.widgetPanelStyle) {
+            return { w: 0, h: 0 };
+        }
         const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const isMobile = (Number(sceneCtx.width) || 0) <= MOBILE_WIDTH_MAX;
@@ -51,6 +56,7 @@
     };
 
     window.SkySceneMagScaleWidget.prototype.draw = function (sceneCtx, rect) {
+        if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.widgetPanelStyle) return;
         const ctx = sceneCtx.frontCtx;
         const style = sceneCtx.widgetPanelStyle;
         const widgets = sceneCtx.meta && sceneCtx.meta.widgets ? sceneCtx.meta.widgets : {};
@@ -59,7 +65,7 @@
         const mags = [limMag, limMag - 2, limMag - 4, limMag - 6];
 
         ctx.save();
-        window.SkySceneWidgetUtils.drawPanel(ctx, style, rect.x, rect.y, rect.w, rect.h);
+        WU.drawPanel(ctx, style, rect.x, rect.y, rect.w, rect.h);
         ctx.font = style.font;
         ctx.textBaseline = 'top';
         ctx.fillStyle = style.text;

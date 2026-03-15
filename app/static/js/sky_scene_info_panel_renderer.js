@@ -1,6 +1,52 @@
 (function () {
+    const WU = window.SkySceneWidgetUtils;
+    const TWO_PI = Math.PI * 2;
+
     function pad2(n) {
         return (n < 10 ? '0' : '') + Math.floor(Math.abs(n));
+    }
+
+    function normalizeRad0to2Pi(rad) {
+        let x = rad % TWO_PI;
+        return (x < 0) ? x + TWO_PI : x;
+    }
+
+    function rad2deg(r) {
+        return r * 180 / Math.PI;
+    }
+
+    function formatRA(rad, compact) {
+        let hours = rad * 12 / Math.PI;
+        if (hours < 0) hours += 24;
+        if (hours >= 24) hours -= 24;
+        const h = Math.floor(hours);
+        const m = Math.floor((hours - h) * 60);
+        const s = Math.floor((((hours - h) * 60) - m) * 60);
+        const sp = compact ? '' : ' ';
+        return pad2(h) + 'h' + sp + pad2(m) + 'm' + sp + pad2(s) + 's';
+    }
+
+    function formatDEC(rad, compact) {
+        const sign = rad >= 0 ? '+' : '-';
+        const deg = Math.abs(rad) * 180 / Math.PI;
+        const d = Math.floor(deg);
+        const m = Math.floor((deg - d) * 60);
+        const s = Math.floor((((deg - d) * 60) - m) * 60);
+        const sp = compact ? '' : ' ';
+        return sign + pad2(d) + '°' + sp + pad2(m) + "'" + sp + pad2(s) + '"';
+    }
+
+    function formatAZ(rad, compact) {
+        const deg = rad2deg(normalizeRad0to2Pi(rad));
+        const d = Math.floor(deg);
+        const m = Math.floor((deg - d) * 60);
+        const s = Math.floor((((deg - d) * 60) - m) * 60);
+        const sp = compact ? '' : ' ';
+        return pad2(d) + '°' + sp + pad2(m) + "'" + sp + pad2(s) + '"';
+    }
+
+    function formatALT(rad, compact) {
+        return formatDEC(rad, compact);
     }
 
     function formatDate(dt) {
@@ -18,6 +64,8 @@
         const SS = pad2(d.getSeconds());
         return HH + ':' + MI + ':' + SS;
     }
+
+    const MOBILE_WIDTH_MAX = 768;
 
     window.SkySceneInfoPanelRenderer = function () {};
 
@@ -47,15 +95,15 @@
         const timeIcon = (themeName === 'night') ? '⏱' : '📅';
         const dateTimeText = timeIcon + ' ' + formatDate(dt) + ' ' + formatTime(dt);
 
-        const panelStyle = window.SkySceneWidgetUtils
-            ? window.SkySceneWidgetUtils.panelStyle(sceneCtx)
+        const panelStyle = WU
+            ? WU.panelStyle(sceneCtx)
             : { pad: 6, lineH: 16, margin: 8, font: '12px monospace', bg: 'rgb(236,236,236)', text: 'rgb(32,32,32)' };
         const pad = panelStyle.pad;
         const lineH = panelStyle.lineH;
         const margin = panelStyle.margin;
         const coordText = '⌖ ' + leftText + '  ' + rightText;
         const gap = 16;
-        const isMobile = canvasW <= 768;
+        const isMobile = canvasW <= MOBILE_WIDTH_MAX;
         const aladinShift = (sceneCtx.aladinActive && !isMobile) ? 90 : 0;
 
         ctx.save();

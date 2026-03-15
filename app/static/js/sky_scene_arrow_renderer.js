@@ -3,11 +3,6 @@
 
     window.SkySceneArrowRenderer = function () {};
 
-    function finiteColor(c) {
-        return Array.isArray(c) && c.length >= 3
-            && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Number.isFinite(c[2]);
-    }
-
     window.SkySceneArrowRenderer.prototype._style = function (sceneCtx) {
         const legendLwMm = sceneCtx.themeConfig
             && sceneCtx.themeConfig.line_widths
@@ -16,7 +11,7 @@
             : 0.2;
         const color = sceneCtx.getThemeColor('draw', [0.85, 0.85, 0.85]);
         return {
-            color: finiteColor(color) ? color : [0.85, 0.85, 0.85],
+            color: U.finiteColor(color) ? color : [0.85, 0.85, 0.85],
             lineWidthPx: Math.max(1.0, U.mmToPx(legendLwMm * 3.0)),
         };
     };
