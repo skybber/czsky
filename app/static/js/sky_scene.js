@@ -1,359 +1,7 @@
 (function () {
     const U = window.SkySceneUtils;
-
-    class ChartWebGLRenderer {
-        constructor(canvas) {
-            this.canvas = canvas;
-            this.gl = canvas.getContext('webgl', { antialias: true, alpha: true });
-            this.program = null;
-            this.posBuf = null;
-            this.sizeBuf = null;
-            this.colorBuf = null;
-            this.aPos = null;
-            this.aSize = null;
-            this.aColor = null;
-            this.uColor = null;
-            this.uPointSize = null;
-            this.uUseAttrSize = null;
-            this.uUseAttrColor = null;
-            this.uCircle = null;
-            this.pointSizeRange = null;
-            this.ready = false;
-            this._init();
-        }
-
-        _compile(gl, type, source) {
-            const sh = gl.createShader(type);
-            gl.shaderSource(sh, source);
-            gl.compileShader(sh);
-            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-                throw new Error(gl.getShaderInfoLog(sh));
-            }
-            return sh;
-        }
-
-        _init() {
-            const gl = this.gl;
-            if (!gl) {
-                return;
-            }
-            gl.enable(gl.BLEND);
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            this.pointSizeRange = null;
-            try {
-                const rng = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
-                if (rng && rng.length >= 2 && Number.isFinite(rng[0]) && Number.isFinite(rng[1])) {
-                    this.pointSizeRange = [Number(rng[0]), Number(rng[1])];
-                }
-            } catch (err) {}
-            const vs = `
-                attribute vec2 a_pos;
-                attribute float a_size;
-                attribute vec3 a_color;
-                varying vec3 v_color;
-                uniform vec4 u_color;
-                uniform float u_point_size;
-                uniform float u_use_attr_size;
-                uniform float u_use_attr_color;
-                void main() {
-                    gl_Position = vec4(a_pos, 0.0, 1.0);
-                    gl_PointSize = mix(u_point_size, a_size, u_use_attr_size);
-                    v_color = mix(u_color.rgb, a_color, u_use_attr_color);
-                }
-            `;
-            const fs = `
-                precision mediump float;
-                varying vec3 v_color;
-                uniform float u_circle;
-                float luminance(vec3 c) {
-                    return dot(c, vec3(0.2126, 0.7152, 0.0722));
-                }
-                void main() {
-                    float alpha = 1.0;
-                    if (u_circle > 0.5) {
-                        vec2 d = gl_PointCoord * 2.0 - 1.0;
-                        float r2 = dot(d, d);
-                        float lum = luminance(v_color);
-                        if (lum > 0.55) {
-                            float aa = 0.08;
-                            alpha = 1.0 - smoothstep(1.0 - aa, 1.0 + aa, r2);
-                        } else {
-                            if (r2 > 1.0) discard;
-                            alpha = 1.0;
-                        }
-                    }
-                    gl_FragColor = vec4(v_color, alpha);
-                }`;
-            try {
-                const vsh = this._compile(gl, gl.VERTEX_SHADER, vs);
-                const fsh = this._compile(gl, gl.FRAGMENT_SHADER, fs);
-                this.program = gl.createProgram();
-                gl.attachShader(this.program, vsh);
-                gl.attachShader(this.program, fsh);
-                gl.linkProgram(this.program);
-                if (!gl.getProgramParameter(this.program, gl.LINK_STATUS)) {
-                    throw new Error(gl.getProgramInfoLog(this.program));
-                }
-                this.posBuf = gl.createBuffer();
-                this.sizeBuf = gl.createBuffer();
-                this.colorBuf = gl.createBuffer();
-                this.aPos = gl.getAttribLocation(this.program, 'a_pos');
-                this.aSize = gl.getAttribLocation(this.program, 'a_size');
-                this.aColor = gl.getAttribLocation(this.program, 'a_color');
-                this.uColor = gl.getUniformLocation(this.program, 'u_color');
-                this.uPointSize = gl.getUniformLocation(this.program, 'u_point_size');
-                this.uUseAttrSize = gl.getUniformLocation(this.program, 'u_use_attr_size');
-                this.uUseAttrColor = gl.getUniformLocation(this.program, 'u_use_attr_color');
-                this.uCircle = gl.getUniformLocation(this.program, 'u_circle');
-                this.ready = true;
-            } catch (e) {
-                console.error('WebGL init failed', e);
-                this.ready = false;
-            }
-        }
-
-        clear(bgColor, alpha) {
-            const gl = this.gl;
-            if (!gl || !this.ready) return;
-            const c = Array.isArray(bgColor) ? bgColor : [0.0, 0.0, 0.0];
-            const a = Number.isFinite(alpha) ? alpha : 1.0;
-            gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-            gl.clearColor(c[0], c[1], c[2], a);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.useProgram(this.program);
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
-            gl.enableVertexAttribArray(this.aPos);
-            gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
-        }
-
-        _draw(mode, arr, color, pointSize, opts) {
-            const gl = this.gl;
-            if (!gl || !this.ready || !arr || arr.length === 0) return;
-            gl.useProgram(this.program);
-            const cfg = opts || {};
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr), gl.STREAM_DRAW);
-            gl.enableVertexAttribArray(this.aPos);
-            gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
-
-            if (mode === gl.POINTS && cfg.sizes && cfg.sizes.length === (arr.length / 2)) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cfg.sizes), gl.STREAM_DRAW);
-                gl.enableVertexAttribArray(this.aSize);
-                gl.vertexAttribPointer(this.aSize, 1, gl.FLOAT, false, 0, 0);
-                gl.uniform1f(this.uUseAttrSize, 1.0);
-            } else {
-                gl.disableVertexAttribArray(this.aSize);
-                gl.vertexAttrib1f(this.aSize, pointSize || 1.0);
-                gl.uniform1f(this.uUseAttrSize, 0.0);
-            }
-
-            if (cfg.colors && cfg.colors.length === (arr.length / 2) * 3) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cfg.colors), gl.STREAM_DRAW);
-                gl.enableVertexAttribArray(this.aColor);
-                gl.vertexAttribPointer(this.aColor, 3, gl.FLOAT, false, 0, 0);
-                gl.uniform1f(this.uUseAttrColor, 1.0);
-            } else {
-                gl.disableVertexAttribArray(this.aColor);
-                gl.vertexAttrib3f(this.aColor, color[0], color[1], color[2]);
-                gl.uniform1f(this.uUseAttrColor, 0.0);
-            }
-
-            gl.uniform4f(this.uColor, color[0], color[1], color[2], 1.0);
-            gl.uniform1f(this.uPointSize, pointSize || 1.0);
-            gl.uniform1f(this.uCircle, cfg.circle ? 1.0 : 0.0);
-            gl.drawArrays(mode, 0, arr.length / 2);
-        }
-
-        drawLines(arr, color) {
-            this._draw(this.gl.LINES, arr, color, 1.0, { circle: false });
-        }
-
-        drawPoints(arr, color, pointSize) {
-            this._draw(this.gl.POINTS, arr, color, pointSize, { circle: false });
-        }
-
-        drawStarPoints(arr, sizes, color, colors) {
-            this._draw(this.gl.POINTS, arr, color, 1.0, {
-                circle: true,
-                sizes: sizes,
-                colors: colors
-            });
-        }
-
-        drawTriangles(arr, color, colors) {
-            this._draw(this.gl.TRIANGLES, arr, color, 1.0, { circle: false, colors: colors });
-        }
-
-        getPointSizeRange() {
-            if (!this.pointSizeRange || this.pointSizeRange.length < 2) return null;
-            return [this.pointSizeRange[0], this.pointSizeRange[1]];
-        }
-    }
-
-    function addOrReplaceQueryParam(url, key, value) {
-        try {
-            const parsed = new URL(url, window.location.origin);
-            parsed.searchParams.set(key, value);
-            return parsed.pathname + parsed.search + parsed.hash;
-        } catch (e) {
-            const k = encodeURIComponent(key);
-            const v = encodeURIComponent(value);
-            if (url.indexOf('?') === -1) {
-                return url + '?' + k + '=' + v;
-            }
-            const re = new RegExp('([?&])' + k + '=[^&]*');
-            if (re.test(url)) {
-                return url.replace(re, '$1' + k + '=' + v);
-            }
-            return url + '&' + k + '=' + v;
-        }
-    }
-
-    function urlPathOnly(url) {
-        try {
-            const parsed = new URL(url, window.location.origin);
-            return parsed.pathname;
-        } catch (e) {
-            return String(url || '').split('#')[0].split('?')[0];
-        }
-    }
-
-    function clamp(v, lo, hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
-
-    function lerp(a, b, t) {
-        return a + (b - a) * t;
-    }
-
-    function easeOutCubic(t) {
-        const u = 1.0 - t;
-        return 1.0 - u * u * u;
-    }
-
-    function wrapPi(rad) {
-        let v = rad;
-        while (v > Math.PI) v -= 2.0 * Math.PI;
-        while (v < -Math.PI) v += 2.0 * Math.PI;
-        return v;
-    }
-
-    function sceneSharedUrl(sceneData, key) {
-        const meta = sceneData && sceneData.meta ? sceneData.meta : null;
-        const shared = meta && meta.shared_urls ? meta.shared_urls : null;
-        const value = shared && typeof shared[key] === 'string' ? shared[key] : null;
-        return value && value.length ? value : null;
-    }
-
-    function sceneMilkyCatalogUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'milkyway_catalog') || sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
-    }
-
-    function sceneMilkySelectUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'milkyway_select') || sceneUrl.replace('/scene-v1', '/milkyway-v1/select');
-    }
-
-    function sceneStarsZonesUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'stars_zones') || sceneUrl.replace('/scene-v1', '/stars-v1/zones');
-    }
-
-    function sceneDsoOutlinesCatalogUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'dso_outlines_catalog') || sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
-    }
-
-    function sceneConstellationLinesCatalogUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'constellation_lines_catalog') || sceneUrl.replace('/scene-v1', '/constellation-lines-v1/catalog');
-    }
-
-    function sceneConstellationBoundariesCatalogUrl(sceneUrl, sceneData) {
-        return sceneSharedUrl(sceneData, 'constellation_boundaries_catalog') || sceneUrl.replace('/scene-v1', '/constellation-boundaries-v1/catalog');
-    }
-
-    function SelectionIndex() {
-        this.width = 0;
-        this.height = 0;
-        this.items = [];
-    }
-
-    SelectionIndex.prototype.beginFrame = function (width, height) {
-        this.width = Math.max(1, width | 0);
-        this.height = Math.max(1, height | 0);
-        this.items = [];
-    };
-
-    SelectionIndex.prototype._clampRect = function (x1, y1, x2, y2) {
-        if (![x1, y1, x2, y2].every(Number.isFinite)) return null;
-        let ax1 = Math.min(x1, x2);
-        let ay1 = Math.min(y1, y2);
-        let ax2 = Math.max(x1, x2);
-        let ay2 = Math.max(y1, y2);
-        ax1 = Math.max(0, Math.min(this.width - 1, ax1));
-        ay1 = Math.max(0, Math.min(this.height - 1, ay1));
-        ax2 = Math.max(0, Math.min(this.width - 1, ax2));
-        ay2 = Math.max(0, Math.min(this.height - 1, ay2));
-        if (ax2 < ax1 || ay2 < ay1) return null;
-        return { x1: ax1, y1: ay1, x2: ax2, y2: ay2 };
-    };
-
-    SelectionIndex.prototype.addRect = function (id, x1, y1, x2, y2, priority) {
-        if (!id) return;
-        const box = this._clampRect(x1, y1, x2, y2);
-        if (!box) return;
-        this.items.push({
-            id: id,
-            priority: Number.isFinite(priority) ? priority : 10,
-            x1: box.x1,
-            y1: box.y1,
-            x2: box.x2,
-            y2: box.y2,
-        });
-    };
-
-    SelectionIndex.prototype.addCircle = function (id, cx, cy, r, priority) {
-        if (!Number.isFinite(cx) || !Number.isFinite(cy) || !(r > 0)) return;
-        this.addRect(id, cx - r, cy - r, cx + r, cy + r, priority);
-    };
-
-    SelectionIndex.prototype.addPolylineBounds = function (id, points, padPx, priority) {
-        if (!Array.isArray(points) || points.length < 2) return;
-        let x1 = Infinity;
-        let y1 = Infinity;
-        let x2 = -Infinity;
-        let y2 = -Infinity;
-        for (let i = 0; i < points.length; i++) {
-            const p = points[i];
-            if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
-            x1 = Math.min(x1, p.x);
-            y1 = Math.min(y1, p.y);
-            x2 = Math.max(x2, p.x);
-            y2 = Math.max(y2, p.y);
-        }
-        if (!Number.isFinite(x1) || !Number.isFinite(y1) || !Number.isFinite(x2) || !Number.isFinite(y2)) return;
-        const pad = Number.isFinite(padPx) ? Math.max(0, padPx) : 0;
-        this.addRect(id, x1 - pad, y1 - pad, x2 + pad, y2 + pad, priority);
-    };
-
-    SelectionIndex.prototype.finalize = function () {
-        this.items.sort((a, b) => {
-            if (a.priority !== b.priority) return a.priority - b.priority;
-            const areaA = (a.x2 - a.x1) * (a.y2 - a.y1);
-            const areaB = (b.x2 - b.x1) * (b.y2 - b.y1);
-            return areaA - areaB;
-        });
-    };
-
-    SelectionIndex.prototype.hitTest = function (x, y) {
-        if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
-        for (let i = 0; i < this.items.length; i++) {
-            const it = this.items[i];
-            if (x >= it.x1 && x <= it.x2 && y >= it.y1 && y <= it.y2) {
-                return it.id;
-            }
-        }
-        return null;
-    };
+    const ChartWebGLRenderer = window.ChartWebGLRenderer;
+    const SelectionIndex = window.SelectionIndex;
 
     window.SkyScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
@@ -832,9 +480,9 @@
     SkyScene.prototype._getCssBackgroundColor = function () {
         const bg = this.getThemeColor('background', null);
         if (Array.isArray(bg) && bg.length >= 3) {
-            const r = Math.round(clamp(Number(bg[0]) || 0, 0, 1) * 255);
-            const g = Math.round(clamp(Number(bg[1]) || 0, 0, 1) * 255);
-            const b = Math.round(clamp(Number(bg[2]) || 0, 0, 1) * 255);
+            const r = Math.round(U.clamp(Number(bg[0]) || 0, 0, 1) * 255);
+            const g = Math.round(U.clamp(Number(bg[1]) || 0, 0, 1) * 255);
+            const b = Math.round(U.clamp(Number(bg[2]) || 0, 0, 1) * 255);
             return 'rgb(' + r + ', ' + g + ', ' + b + ')';
         }
         return this._getFallbackCssBackgroundColor();
@@ -1299,8 +947,8 @@
     };
 
     SkyScene.prototype.setLegendUrlParam = function (key, value) {
-        this.legendUrl = addOrReplaceQueryParam(this.legendUrl, key, value);
-        this.sceneUrl = addOrReplaceQueryParam(this.sceneUrl, key, value);
+        this.legendUrl = U.addOrReplaceQueryParam(this.legendUrl, key, value);
+        this.sceneUrl = U.addOrReplaceQueryParam(this.sceneUrl, key, value);
     };
 
     SkyScene.prototype.setMagRangeValues = function (magRangeValues) {
@@ -1748,22 +1396,22 @@
         this.mwSelectLastTs = Date.now();
 
         const frameTimeISO = this._resolveRequestTimeISO();
-        let url = this.formatUrl(sceneMilkySelectUrl(this.sceneUrl, this.sceneData), { timeISO: frameTimeISO });
+        let url = this.formatUrl(U.sceneMilkySelectUrl(this.sceneUrl, this.sceneData), { timeISO: frameTimeISO });
         const coordSystem = this.sceneData.meta.coord_system || 'equatorial';
         if (coordSystem === 'equatorial') {
-            url = addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
-            url = addOrReplaceQueryParam(url, 'dec', this.viewCenter.theta);
+            url = U.addOrReplaceQueryParam(url, 'ra', this.viewCenter.phi);
+            url = U.addOrReplaceQueryParam(url, 'dec', this.viewCenter.theta);
         } else {
             const centerHor = this._getRequestCenterHorizontal(frameTimeISO);
-            url = addOrReplaceQueryParam(url, 'az', centerHor.az);
-            url = addOrReplaceQueryParam(url, 'alt', centerHor.alt);
+            url = U.addOrReplaceQueryParam(url, 'az', centerHor.az);
+            url = U.addOrReplaceQueryParam(url, 'alt', centerHor.alt);
         }
         const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
-        url = addOrReplaceQueryParam(url, 'fsz', fovDeg);
+        url = U.addOrReplaceQueryParam(url, 'fsz', fovDeg);
         if (mwMeta.quality) {
-            url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
+            url = U.addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
-        url = addOrReplaceQueryParam(url, 'optimized', optimized ? '1' : '0');
+        url = U.addOrReplaceQueryParam(url, 'optimized', optimized ? '1' : '0');
         url += '&t=' + Date.now();
 
         $.getJSON(url).done((resp) => {
@@ -1804,15 +1452,6 @@
         });
     };
 
-    SkyScene.prototype.setMilkyWayVisible = function (visible) {
-        if (!this.sceneData || !this.sceneData.meta) return;
-        this.sceneData.meta.show_milky_way = !!visible;
-        if (!this.sceneData.meta.show_milky_way) {
-            this._setMilkywayInteractionActive(false);
-        }
-        this.requestDraw();
-    };
-
     SkyScene.prototype._zoneCacheKey = function (level, zone) {
         return 'L' + level + 'Z' + zone;
     };
@@ -1839,8 +1478,8 @@
     };
 
     SkyScene.prototype._buildStarsZonesRequestUrl = function (scene, tokens) {
-        let url = urlPathOnly(sceneStarsZonesUrl(this.sceneUrl, scene));
-        url = addOrReplaceQueryParam(url, 'zones', tokens);
+        let url = U.urlPathOnly(U.sceneStarsZonesUrl(this.sceneUrl, scene));
+        url = U.addOrReplaceQueryParam(url, 'zones', tokens);
         return url;
     };
 
@@ -2130,11 +1769,11 @@
         if (this.mwCatalogById[datasetId] || this.mwCatalogLoadingById[datasetId]) return;
 
         this.mwCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneMilkyCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(U.sceneMilkyCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         if (mwMeta.quality) {
-            url = addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
+            url = U.addOrReplaceQueryParam(url, 'quality', mwMeta.quality);
         }
-        url = addOrReplaceQueryParam(url, 'optimized', mwMeta.optimized ? '1' : '0');
+        url = U.addOrReplaceQueryParam(url, 'optimized', mwMeta.optimized ? '1' : '0');
         url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -2154,7 +1793,7 @@
         if (this.dsoOutlinesCatalogById[datasetId] || this.dsoOutlinesCatalogLoadingById[datasetId]) return;
 
         this.dsoOutlinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneDsoOutlinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(U.sceneDsoOutlinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -2181,7 +1820,7 @@
         if (this.constellLinesCatalogById[datasetId] || this.constellLinesCatalogLoadingById[datasetId]) return;
 
         this.constellLinesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationLinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(U.sceneConstellationLinesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -2200,7 +1839,7 @@
         if (this.constellBoundariesCatalogById[datasetId] || this.constellBoundariesCatalogLoadingById[datasetId]) return;
 
         this.constellBoundariesCatalogLoadingById[datasetId] = true;
-        let url = this.formatUrl(sceneConstellationBoundariesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
+        let url = this.formatUrl(U.sceneConstellationBoundariesCatalogUrl(this.sceneUrl, this.sceneData), { timeISO: this._resolveRequestTimeISO() });
         url += '&t=' + Date.now();
 
         $.getJSON(url).done((data) => {
@@ -3178,7 +2817,7 @@
         const sinCt = Math.sin(centerTheta);
         const cosCt = Math.cos(centerTheta);
 
-        const theta = Math.asin(clamp(cosC * sinCt + (y * sinC * cosCt) / rho, -1.0, 1.0));
+        const theta = Math.asin(U.clamp(cosC * sinCt + (y * sinC * cosCt) / rho, -1.0, 1.0));
         const phi = centerPhi + Math.atan2(
             x * sinC,
             rho * cosCt * cosC - y * sinCt * sinC
@@ -3196,7 +2835,7 @@
             fovDeg
         );
         if (!underCursor) return baseCenter;
-        const dPhi = wrapPi(anchor.phi - underCursor.phi);
+        const dPhi = U.wrapPi(anchor.phi - underCursor.phi);
         const dTheta = anchor.theta - underCursor.theta;
         const theta = U.clampLatitude(baseCenter.theta + dTheta);
         return {
@@ -3266,12 +2905,12 @@
         const tick = (ts) => {
             if (!this.zoomAnim) return;
             const elapsed = ts - this.zoomAnim.startTs;
-            const t = clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
-            const eased = easeOutCubic(t);
-            this.renderFovDeg = lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
-            this.renderMaglim = lerp(this.zoomAnim.fromMaglim, this.zoomAnim.toMaglim, eased);
+            const t = U.clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
+            const eased = U.easeOutCubic(t);
+            this.renderFovDeg = U.lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
+            this.renderMaglim = U.lerp(this.zoomAnim.fromMaglim, this.zoomAnim.toMaglim, eased);
             // Keep DSO limit transition linear so fade-out spans the full zoom animation.
-            this.renderDsoMaglim = lerp(this.zoomAnim.fromDsoMaglim, this.zoomAnim.toDsoMaglim, t);
+            this.renderDsoMaglim = U.lerp(this.zoomAnim.fromDsoMaglim, this.zoomAnim.toDsoMaglim, t);
             if (this.zoomAnim.anchor) {
                 const center = this._zoomCenterFromAnchor(
                     this.zoomAnim.baseCenter,

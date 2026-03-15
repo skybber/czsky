@@ -5,9 +5,29 @@
 
     // ========== Math utilities ==========
 
+    function clamp(v, lo, hi) {
+        return Math.max(lo, Math.min(hi, v));
+    }
+
     function clamp01(v) {
         if (v < 0) return 0;
         if (v > 1) return 1;
+        return v;
+    }
+
+    function lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    function easeOutCubic(t) {
+        const u = 1.0 - t;
+        return 1.0 - u * u * u;
+    }
+
+    function wrapPi(rad) {
+        let v = rad;
+        while (v > Math.PI) v -= 2.0 * Math.PI;
+        while (v < -Math.PI) v += 2.0 * Math.PI;
         return v;
     }
 
@@ -171,6 +191,67 @@
         }
     }
 
+    // ========== URL utilities ==========
+
+    function addOrReplaceQueryParam(url, key, value) {
+        try {
+            const parsed = new URL(url, window.location.origin);
+            parsed.searchParams.set(key, value);
+            return parsed.pathname + parsed.search + parsed.hash;
+        } catch (e) {
+            const k = encodeURIComponent(key);
+            const v = encodeURIComponent(value);
+            if (url.indexOf('?') === -1) {
+                return url + '?' + k + '=' + v;
+            }
+            const re = new RegExp('([?&])' + k + '=[^&]*');
+            if (re.test(url)) {
+                return url.replace(re, '$1' + k + '=' + v);
+            }
+            return url + '&' + k + '=' + v;
+        }
+    }
+
+    function urlPathOnly(url) {
+        try {
+            const parsed = new URL(url, window.location.origin);
+            return parsed.pathname;
+        } catch (e) {
+            return String(url || '').split('#')[0].split('?')[0];
+        }
+    }
+
+    function sceneSharedUrl(sceneData, key) {
+        const meta = sceneData && sceneData.meta ? sceneData.meta : null;
+        const shared = meta && meta.shared_urls ? meta.shared_urls : null;
+        const value = shared && typeof shared[key] === 'string' ? shared[key] : null;
+        return value && value.length ? value : null;
+    }
+
+    function sceneMilkyCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'milkyway_catalog') || sceneUrl.replace('/scene-v1', '/milkyway-v1/catalog');
+    }
+
+    function sceneMilkySelectUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'milkyway_select') || sceneUrl.replace('/scene-v1', '/milkyway-v1/select');
+    }
+
+    function sceneStarsZonesUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'stars_zones') || sceneUrl.replace('/scene-v1', '/stars-v1/zones');
+    }
+
+    function sceneDsoOutlinesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'dso_outlines_catalog') || sceneUrl.replace('/scene-v1', '/dso-outlines-v1/catalog');
+    }
+
+    function sceneConstellationLinesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'constellation_lines_catalog') || sceneUrl.replace('/scene-v1', '/constellation-lines-v1/catalog');
+    }
+
+    function sceneConstellationBoundariesCatalogUrl(sceneUrl, sceneData) {
+        return sceneSharedUrl(sceneData, 'constellation_boundaries_catalog') || sceneUrl.replace('/scene-v1', '/constellation-boundaries-v1/catalog');
+    }
+
     // ========== Export ==========
 
     function clampLatitude(v) {
@@ -183,8 +264,12 @@
         TWO_PI: TWO_PI,
         EPS: EPS,
         MAX_LATITUDE_RAD: MAX_LATITUDE_RAD,
+        clamp: clamp,
         clamp01: clamp01,
         clampLatitude: clampLatitude,
+        lerp: lerp,
+        easeOutCubic: easeOutCubic,
+        wrapPi: wrapPi,
         deg2rad: deg2rad,
         normalizeRa: normalizeRa,
         wrapDeltaRa: wrapDeltaRa,
@@ -197,6 +282,15 @@
         hasFlag: hasFlag,
         computeOutCode: computeOutCode,
         clipSegmentToRect: clipSegmentToRect,
+        addOrReplaceQueryParam: addOrReplaceQueryParam,
+        urlPathOnly: urlPathOnly,
+        sceneSharedUrl: sceneSharedUrl,
+        sceneMilkyCatalogUrl: sceneMilkyCatalogUrl,
+        sceneMilkySelectUrl: sceneMilkySelectUrl,
+        sceneStarsZonesUrl: sceneStarsZonesUrl,
+        sceneDsoOutlinesCatalogUrl: sceneDsoOutlinesCatalogUrl,
+        sceneConstellationLinesCatalogUrl: sceneConstellationLinesCatalogUrl,
+        sceneConstellationBoundariesCatalogUrl: sceneConstellationBoundariesCatalogUrl,
     };
 
     window.SkySceneUtils = utils;

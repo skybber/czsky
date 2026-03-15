@@ -29,6 +29,7 @@
 - `app/assets/`: Editable frontend asset sources.
 - `app/templates/`: Jinja templates.
 - `app/static/`: Generated/static-served assets and static resources.
+- `app/static/js/`: JavaScript frontend scritps.
 - `app/translations/`: i18n translation files.
 - `imports/`: Initialization/import scripts for catalog/data ingestion.
 - `tests/`: Python `unittest` suite.
