@@ -64,7 +64,7 @@ requests==2.32.5
 rq==2.6.1
 setuptools==80.9.0
 six==1.17.0
-skia-python==138.0; python_version < "3.14"
+skia-python==144.0.post1; python_version < "3.14"
 skyfield==1.53
 SQLAlchemy==2.0.44
 text-unidecode==1.3
