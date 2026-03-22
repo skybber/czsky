@@ -50,7 +50,7 @@
             ? sizes.comet_tail_half_angle_deg : 15.0;
         const sideScale = sizes && Number.isFinite(sizes.comet_tail_side_scale)
             ? sizes.comet_tail_side_scale : 0.8;
-        const tailColor = cometCfg && finiteColor(cometCfg.tail_color)
+        const tailColor = cometCfg && U.finiteColor(cometCfg.tail_color)
             ? cometCfg.tail_color : style.color;
         const baseLen = Math.max(4.0, U.mmToPx(lenMm));
         const paTail = U.posAngle(ptPx.ra, ptPx.dec, sunPx.ra, sunPx.dec);
