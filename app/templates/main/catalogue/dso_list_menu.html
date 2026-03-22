@@ -5,7 +5,7 @@
         <tbody>
             {% for l in dso_lists %}
                 {% if l.list_type.value == list_type %}
-                <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_info', dso_list_id=l.name) }}';">
+                <tr onclick="window.location.href = '{{ url_for('main_dso_list.dso_list_chart', dso_list_id=l.name, splitview='true') }}';">
                     <td>{{ l.get_descr_by_lang_code(lang_code).long_name }}</td>
                     <td>{{ l.get_descr_by_lang_code(lang_code).short_descr }}</td>
                 </tr>
