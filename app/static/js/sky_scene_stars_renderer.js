@@ -70,6 +70,80 @@
             && Number.isInteger(zoneStars.count));
     }
 
+    function isZoneStarLabelsSoA(labels) {
+        return !!(labels
+            && labels.index instanceof Int32Array
+            && Array.isArray(labels.text)
+            && Number.isInteger(labels.count));
+    }
+
+    function zoneStarLabelsCount(labels) {
+        if (!isZoneStarLabelsSoA(labels)) return 0;
+        return Math.max(
+            0,
+            Math.min(
+                labels.count,
+                labels.index.length,
+                labels.text.length
+            )
+        );
+    }
+
+    function firstToken(text) {
+        return String(text || '').trim().split(/\s+/, 1)[0] || '';
+    }
+
+    function isGreekToken(token) {
+        return /^[α-ω][0-9]*$/i.test(String(token || ''));
+    }
+
+    function isFlamsteedLabel(text) {
+        return /^\d+\s+[A-Z][a-z]{2}$/.test(String(text || '').trim());
+    }
+
+    function isBayerLabel(text) {
+        return isGreekToken(firstToken(text));
+    }
+
+    function displayLabelText(fullText) {
+        const trimmed = String(fullText || '').trim();
+        if (!trimmed) return '';
+        if (isBayerLabel(trimmed)) return firstToken(trimmed);
+        if (isFlamsteedLabel(trimmed)) return trimmed;
+        return trimmed;
+    }
+
+    function shouldDrawStarLabels(sceneCtx) {
+        const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
+        const flags = String(meta.flags || '');
+        const fovDeg = Number.isFinite(meta.fov_deg) ? meta.fov_deg : null;
+        const width = Number.isFinite(sceneCtx && sceneCtx.width) ? sceneCtx.width : 0;
+        if (!flags.includes('N')) return false;
+        if (fovDeg != null) {
+            if (fovDeg >= 60.0) return false;
+            if (fovDeg >= 40.0 && width > 0 && width <= 500) return false;
+        }
+        return true;
+    }
+
+    function shouldDrawFlamsteedLabel(sceneCtx) {
+        const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
+        const fovDeg = Number.isFinite(meta.fov_deg) ? meta.fov_deg : null;
+        const width = Number.isFinite(sceneCtx && sceneCtx.width) ? sceneCtx.width : 0;
+        if (width > 0 && width <= 500) return false;
+        if (fovDeg == null) return true;
+        return fovDeg <= 30.0;
+    }
+
+    function makeRect(x, y, w, h) {
+        return { x1: x, y1: y, x2: x + w, y2: y + h };
+    }
+
+    function rectsOverlap(a, b) {
+        if (!a || !b) return false;
+        return !(a.x2 <= b.x1 || b.x2 <= a.x1 || a.y2 <= b.y1 || b.y2 <= a.y1);
+    }
+
     SkySceneStarsRenderer.prototype._interp = function (x, xp, yp) {
         if (x <= xp[0]) {
             return yp[0];
@@ -136,11 +210,21 @@
         let bestPickXPx = null;
         let bestPickYPx = null;
         let bestPickRPx = null;
+        let bestPickIndex = -1;
+        const labelByStarIndex = new Map();
 
         const zoneStars = sceneCtx.zoneStars || null;
         const zoneCount = isZoneStarsSoA(zoneStars)
             ? Math.max(0, Math.min(zoneStars.count, zoneStars.ra.length, zoneStars.dec.length, zoneStars.mag.length, zoneStars.bv.length))
             : 0;
+        const labels = zoneStars && zoneStars.labels;
+        const labelsCount = zoneStarLabelsCount(labels);
+        for (let i = 0; i < labelsCount; i++) {
+            labelByStarIndex.set(labels.index[i] | 0, {
+                text: labels.text[i] || '',
+            });
+        }
+        this._labelByStarIndex = labelByStarIndex;
 
         const diag = {
             preview_input_count: 0,
@@ -158,10 +242,12 @@
             star_colors_enabled: starColorsEnabled,
             render_maglim: lm,
             fade_width_mag: fadeWidthMag,
+            small_star_dimmed_count: 0,
+            _small_star_dim_sum: 0.0,
             _size_sum_px: 0.0,
         };
 
-        const pushStar = (ra, dec, magRaw, bvRaw, explicitColor) => {
+        const pushStar = (ra, dec, magRaw, bvRaw, explicitColor, starIndex) => {
             diag.unique_count += 1;
             const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
             if (!p) {
@@ -214,6 +300,7 @@
                     bestPickXPx = dx + pickScaleX;
                     bestPickYPx = pickScaleY - dy;
                     bestPickRPx = Math.max(0.8, sizePx * 0.5);
+                    bestPickIndex = starIndex;
                 }
             }
 
@@ -228,7 +315,7 @@
 
         if (isZoneStarsSoA(zoneStars)) {
             for (let i = 0; i < zoneCount; i++) {
-                pushStar(zoneStars.ra[i], zoneStars.dec[i], zoneStars.mag[i], zoneStars.bv[i], null);
+                pushStar(zoneStars.ra[i], zoneStars.dec[i], zoneStars.mag[i], zoneStars.bv[i], null, i);
             }
         }
 
@@ -245,6 +332,8 @@
                 xPx: bestPickXPx,
                 yPx: bestPickYPx,
                 rPx: bestPickRPx,
+                index: bestPickIndex,
+                labelSuffix: labelByStarIndex.has(bestPickIndex) ? (labelByStarIndex.get(bestPickIndex).text || null) : null,
             };
         }
         delete diag._size_sum_px;
@@ -256,6 +345,144 @@
             sizes: sizes,
             colors: colors,
         };
+    };
+
+    SkySceneStarsRenderer.prototype._labelFontPx = function (sceneCtx, fullText) {
+        const fs = (sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales) || {};
+        const base = Math.max(10.0, U.mmToPx(fs.font_size || 2.8));
+        if (isFlamsteedLabel(fullText)) {
+            return Math.max(9.0, base * Number(fs.flamsteed_label_font_scale || 0.9));
+        }
+        if (isBayerLabel(fullText)) {
+            return Math.max(9.0, base * Number(fs.bayer_label_font_scale || 1.0));
+        }
+        return Math.max(9.0, base * 0.9);
+    };
+
+    SkySceneStarsRenderer.prototype._collectStarLabels = function (sceneCtx) {
+        if (!shouldDrawStarLabels(sceneCtx)) return [];
+        const zoneStars = sceneCtx.zoneStars || null;
+        if (!isZoneStarsSoA(zoneStars) || !isZoneStarLabelsSoA(zoneStars.labels)) return [];
+        const labels = zoneStars.labels;
+        const labelsCount = zoneStarLabelsCount(labels);
+        if (labelsCount <= 0) return [];
+
+        const entries = [];
+        const lm = sceneCtx.renderMaglim;
+        const fadeWidthMag = sceneCtx.isZooming ? 0.75 : 0.0;
+        const halfW = 0.5 * sceneCtx.width;
+        const halfH = 0.5 * sceneCtx.height;
+        for (let i = 0; i < labelsCount; i++) {
+            const starIndex = labels.index[i] | 0;
+            if (starIndex < 0 || starIndex >= zoneStars.count) continue;
+            if (this._pickStar && Number.isFinite(this._pickStar.index) && (this._pickStar.index | 0) === starIndex) continue;
+            const fullText = labels.text[i] || '';
+            if (!isBayerLabel(fullText) && !isFlamsteedLabel(fullText)) continue;
+            if (isFlamsteedLabel(fullText) && !shouldDrawFlamsteedLabel(sceneCtx)) continue;
+            const text = displayLabelText(fullText);
+            if (!text || !fullText) continue;
+            const mag = Number(zoneStars.mag[starIndex]);
+            const magDelta = lm - mag;
+            if (fadeWidthMag <= 0.0) {
+                if (mag > lm) continue;
+            } else if (magDelta <= -fadeWidthMag) {
+                continue;
+            }
+            const p = sceneCtx.projection.projectEquatorialToNdc(zoneStars.ra[starIndex], zoneStars.dec[starIndex]);
+            if (!p) continue;
+            const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
+            const ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
+            const xPx = halfW + ndcX * halfW;
+            const yPx = halfH - ndcY * halfH;
+            const rPx = Math.max(0.8, this._starSizePx(sceneCtx, mag) * 0.5);
+            entries.push({
+                starIndex: starIndex,
+                fullText: fullText,
+                text: text,
+                mag: mag,
+                xPx: xPx,
+                yPx: yPx,
+                rPx: rPx,
+            });
+        }
+        return entries;
+    };
+
+    SkySceneStarsRenderer.prototype._dedupeLabels = function (entries) {
+        const bestByKey = new Map();
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const key = entry.fullText;
+            const prev = bestByKey.get(key);
+            if (!prev || entry.mag < prev.mag) {
+                bestByKey.set(key, entry);
+            }
+        }
+        return Array.from(bestByKey.values()).sort((a, b) => a.mag - b.mag);
+    };
+
+    SkySceneStarsRenderer.prototype._labelCandidates = function (entry, textWidth, fontPx) {
+        const pad = Math.max(2.0, fontPx * 0.18);
+        const baseR = Math.max(entry.rPx, 1.0) + pad;
+        return [
+            { x: entry.xPx + baseR, y: entry.yPx, align: 'left', baseline: 'middle' },
+            { x: entry.xPx - baseR, y: entry.yPx, align: 'right', baseline: 'middle' },
+            { x: entry.xPx, y: entry.yPx - baseR, align: 'center', baseline: 'bottom' },
+            { x: entry.xPx, y: entry.yPx + baseR, align: 'center', baseline: 'top' },
+        ].map((cand) => {
+            let rectX = cand.x;
+            if (cand.align === 'center') rectX -= textWidth * 0.5;
+            else if (cand.align === 'right') rectX -= textWidth;
+            let rectY = cand.y - fontPx * 0.5;
+            if (cand.baseline === 'bottom') rectY = cand.y - fontPx;
+            else if (cand.baseline === 'top') rectY = cand.y;
+            return {
+                x: cand.x,
+                y: cand.y,
+                align: cand.align,
+                baseline: cand.baseline,
+                rect: makeRect(rectX, rectY, textWidth, fontPx),
+            };
+        });
+    };
+
+    SkySceneStarsRenderer.prototype._drawLabels = function (sceneCtx, entries) {
+        const ctx = sceneCtx.frontCtx;
+        if (!ctx || !entries || entries.length === 0) return;
+        const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
+        const placed = [];
+        ctx.save();
+        ctx.fillStyle = U.rgba(labelColor, 0.95);
+        for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const fontPx = this._labelFontPx(sceneCtx, entry.fullText);
+            ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+            const textWidth = Math.max(1.0, ctx.measureText(entry.text).width);
+            const candidates = this._labelCandidates(entry, textWidth, fontPx);
+            if (!candidates.length) continue;
+            let best = candidates[0];
+            let bestScore = Infinity;
+            for (let j = 0; j < candidates.length; j++) {
+                const cand = candidates[j];
+                let score = 0.0;
+                for (let k = 0; k < placed.length; k++) {
+                    if (rectsOverlap(cand.rect, placed[k])) score += 1000.0;
+                }
+                if (cand.rect.x1 < 0) score += Math.abs(cand.rect.x1) * 4.0;
+                if (cand.rect.y1 < 0) score += Math.abs(cand.rect.y1) * 4.0;
+                if (cand.rect.x2 > sceneCtx.width) score += Math.abs(cand.rect.x2 - sceneCtx.width) * 4.0;
+                if (cand.rect.y2 > sceneCtx.height) score += Math.abs(cand.rect.y2 - sceneCtx.height) * 4.0;
+                if (score < bestScore) {
+                    best = cand;
+                    bestScore = score;
+                }
+            }
+            ctx.textAlign = best.align;
+            ctx.textBaseline = best.baseline;
+            ctx.fillText(entry.text, best.x, best.y);
+            placed.push(best.rect);
+        }
+        ctx.restore();
     };
 
     SkySceneStarsRenderer.prototype.getLastDiag = function () {
@@ -271,6 +498,8 @@
             xPx: Number.isFinite(this._pickStar.xPx) ? this._pickStar.xPx : null,
             yPx: Number.isFinite(this._pickStar.yPx) ? this._pickStar.yPx : null,
             rPx: Number.isFinite(this._pickStar.rPx) ? this._pickStar.rPx : null,
+            index: Number.isFinite(this._pickStar.index) ? this._pickStar.index : null,
+            labelSuffix: this._pickStar.labelSuffix || null,
         };
     };
 
@@ -287,7 +516,8 @@
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText(text, pickStar.xPx + rPx + fontPx / 6.0, pickStar.yPx);
+        const fullText = pickStar.labelSuffix ? (text + '(' + pickStar.labelSuffix + ')') : text;
+        ctx.fillText(fullText, pickStar.xPx + rPx + fontPx / 6.0, pickStar.yPx);
         ctx.restore();
     };
 
@@ -305,6 +535,7 @@
         }
         const webgl = this._collectStars(sceneCtx);
         renderer.drawStarPoints(webgl.positions, webgl.sizes, [1.0, 1.0, 1.0], webgl.colors);
+        this._drawLabels(sceneCtx, this._dedupeLabels(this._collectStarLabels(sceneCtx)));
         return (webgl.positions.length / 2) | 0;
     };
 })();

@@ -93,6 +93,7 @@
             dec: new Float64Array(0),
             mag: new Float32Array(0),
             bv: new Int16Array(0),
+            labels: null,
             count: 0,
         };
         this.sceneRequestEpoch = 0;
@@ -1478,7 +1479,7 @@
     };
 
     SkyScene.prototype._buildStarsZonesRequestUrl = function (scene, tokens) {
-        let url = U.urlPathOnly(U.sceneStarsZonesUrl(this.sceneUrl, scene));
+        let url = this.formatUrl(U.sceneStarsZonesUrl(this.sceneUrl, scene), { timeISO: this._resolveRequestTimeISO() });
         url = U.addOrReplaceQueryParam(url, 'zones', tokens);
         return url;
     };
@@ -1502,9 +1503,17 @@
             dec: new Float64Array(0),
             mag: new Float32Array(0),
             bv: new Int16Array(0),
+            labels: null,
             count: 0,
             pinNoEvict: !!pinNoEvict,
         };
+    };
+
+    SkyScene.prototype._isZoneStarLabelsSoA = function (labels) {
+        return !!(labels
+            && labels.index instanceof Int32Array
+            && Array.isArray(labels.text)
+            && Number.isInteger(labels.count));
     };
 
     SkyScene.prototype._isZoneStarsSoA = function (stars) {
@@ -1513,6 +1522,7 @@
             && stars.dec instanceof Float64Array
             && stars.mag instanceof Float32Array
             && stars.bv instanceof Int16Array
+            && (stars.labels == null || this._isZoneStarLabelsSoA(stars.labels))
             && Number.isInteger(stars.count));
     };
 
@@ -1536,7 +1546,29 @@
         const dec = new Float64Array(total);
         const mag = new Float32Array(total);
         const bv = new Int16Array(total);
+        let labelsTotal = 0;
+        for (let i = 0; i < zones.length; i++) {
+            const z = zones[i];
+            if (this._isZoneStarLabelsSoA(z && z.labels)) {
+                labelsTotal += Math.max(
+                    0,
+                    Math.min(
+                        z.labels.count,
+                        z.labels.index.length,
+                        z.labels.text.length
+                    )
+                );
+            }
+        }
+        const labels = labelsTotal > 0
+            ? {
+                index: new Int32Array(labelsTotal),
+                text: new Array(labelsTotal),
+                count: labelsTotal,
+            }
+            : null;
         let pos = 0;
+        let labelPos = 0;
         for (let i = 0; i < zones.length; i++) {
             const z = zones[i];
             const count = this._zoneStarsCount(z);
@@ -1545,9 +1577,27 @@
             dec.set(z.dec.subarray(0, count), pos);
             mag.set(z.mag.subarray(0, count), pos);
             bv.set(z.bv.subarray(0, count), pos);
+            if (labels && this._isZoneStarLabelsSoA(z.labels)) {
+                const labelCount = Math.max(
+                    0,
+                    Math.min(
+                        z.labels.count,
+                        z.labels.index.length,
+                        z.labels.text.length
+                    )
+                );
+                for (let j = 0; j < labelCount; j++) {
+                    labels.index[labelPos] = pos + (z.labels.index[j] | 0);
+                    labels.text[labelPos] = z.labels.text[j];
+                    labelPos += 1;
+                }
+            }
             pos += count;
         }
-        return { ra: ra, dec: dec, mag: mag, bv: bv, count: total, pinNoEvict: false };
+        if (labels && labelPos !== labels.count) {
+            labels.count = labelPos;
+        }
+        return { ra: ra, dec: dec, mag: mag, bv: bv, labels: labels, count: total, pinNoEvict: false };
     };
 
     SkyScene.prototype._collectCachedZoneStars = function (scene) {
@@ -1576,6 +1626,7 @@
         const mag = new Float32Array(n);
         const bv = new Int16Array(n);
         const bvArr = compact.bv;
+        const compactLabels = compact.labels || null;
         // Delta compression: d > 0 means ra/dec are scaled int offsets from ra0/dec0
         const deltaScale = compact.d || 0;
         const ra0 = deltaScale ? (compact.ra0 || 0) : 0;
@@ -1587,7 +1638,34 @@
             mag[i] = Number(compact.mag[i]);
             bv[i] = bvArr ? (Number(bvArr[i]) | 0) : -1;
         }
-        return { ra: ra, dec: dec, mag: mag, bv: bv, count: n, pinNoEvict: pinNoEvict };
+        let labels = null;
+        if (compactLabels && Array.isArray(compactLabels.i) && Array.isArray(compactLabels.t)) {
+            const labelCount = Math.max(
+                0,
+                Math.min(
+                    compactLabels.i.length,
+                    compactLabels.t.length
+                )
+            );
+            if (labelCount > 0) {
+                const index = new Int32Array(labelCount);
+                const text = new Array(labelCount);
+                let outPos = 0;
+                for (let i = 0; i < labelCount; i++) {
+                    const starIdx = compactLabels.i[i] | 0;
+                    if (starIdx < 0 || starIdx >= n) continue;
+                    index[outPos] = starIdx;
+                    text[outPos] = compactLabels.t[i];
+                    outPos += 1;
+                }
+                labels = {
+                    index: index,
+                    text: text,
+                    count: outPos,
+                };
+            }
+        }
+        return { ra: ra, dec: dec, mag: mag, bv: bv, labels: labels, count: n, pinNoEvict: pinNoEvict };
     };
 
     SkyScene.prototype._sortZoneStarsByMag = function (zoneStars) {
@@ -1604,17 +1682,36 @@
         const dec = new Float64Array(n);
         const mag = new Float32Array(n);
         const bv = new Int16Array(n);
+        const oldToNew = new Int32Array(n);
         for (let i = 0; i < n; i++) {
             const src = idx[i];
             ra[i] = zoneStars.ra[src];
             dec[i] = zoneStars.dec[src];
             mag[i] = zoneStars.mag[src];
             bv[i] = zoneStars.bv[src];
+            oldToNew[src] = i;
         }
         zoneStars.ra = ra;
         zoneStars.dec = dec;
         zoneStars.mag = mag;
         zoneStars.bv = bv;
+        if (this._isZoneStarLabelsSoA(zoneStars.labels)) {
+            const labels = zoneStars.labels;
+            const labelCount = Math.max(
+                0,
+                Math.min(
+                    labels.count,
+                    labels.index.length,
+                    labels.text.length
+                )
+            );
+            for (let i = 0; i < labelCount; i++) {
+                const oldIdx = labels.index[i] | 0;
+                if (oldIdx >= 0 && oldIdx < n) {
+                    labels.index[i] = oldToNew[oldIdx];
+                }
+            }
+        }
         zoneStars.count = n;
         return zoneStars;
     };
@@ -1984,6 +2081,7 @@
             xPx: Number.isFinite(picked.xPx) ? picked.xPx : null,
             yPx: Number.isFinite(picked.yPx) ? picked.yPx : null,
             rPx: Number.isFinite(picked.rPx) ? picked.rPx : null,
+            labelSuffix: picked.labelSuffix || null,
         };
     };
 
@@ -2175,6 +2273,7 @@
                     zoneStars: this.zoneStars,
                     renderer: this.renderer,
                     backCtx: this.backCtx,
+                    frontCtx: this.frontCtx,
                     projection: projection,
                     viewState: viewState,
                     isZooming: !!this.zoomAnim,
