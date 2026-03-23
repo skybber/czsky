@@ -119,6 +119,7 @@
         this.mwSelectTimer = null;
         this.mwPendingSelectOptimized = null;
         this.zoomAnim = null;
+        this.zoomAnimProgress = null;
         this.zoomAnimRaf = null;
         this.zoomDurationMs = 300;
         this.reloadDebounceTimer = null;
@@ -2280,6 +2281,10 @@
                     themeConfig: this.getThemeConfig(),
                     meta: this.sceneData.meta || {},
                     renderMaglim: this.renderMaglim,
+                    renderFovDeg: this.renderFovDeg,
+                    zoomProgress: Number.isFinite(this.zoomAnimProgress) ? this.zoomAnimProgress : null,
+                    zoomFromFov: this.zoomAnim ? this.zoomAnim.fromFov : this.renderFovDeg,
+                    zoomToFov: this.zoomAnim ? this.zoomAnim.toFov : this.renderFovDeg,
                     pickRadiusPx: pickRadiusPx,
                     getThemeColor: this.getThemeColor.bind(this),
                     width: this.canvas.width,
@@ -2993,6 +2998,7 @@
             baseCenter: baseCenter,
             anchor: anchor,
         };
+        this.zoomAnimProgress = 0.0;
         this._setMilkywayInteractionActive(true);
         this._requestMilkyWaySelection({ optimized: true, immediate: true });
 
@@ -3005,6 +3011,7 @@
             if (!this.zoomAnim) return;
             const elapsed = ts - this.zoomAnim.startTs;
             const t = U.clamp(elapsed / this.zoomAnim.durationMs, 0.0, 1.0);
+            this.zoomAnimProgress = t;
             const eased = U.easeOutCubic(t);
             this.renderFovDeg = U.lerp(this.zoomAnim.fromFov, this.zoomAnim.toFov, eased);
             this.renderMaglim = U.lerp(this.zoomAnim.fromMaglim, this.zoomAnim.toMaglim, eased);
@@ -3028,6 +3035,7 @@
                 return;
             }
             this.zoomAnim = null;
+            this.zoomAnimProgress = null;
             this.zoomAnimRaf = null;
             this.renderFovDeg = toFov;
             this.renderMaglim = toMaglim;

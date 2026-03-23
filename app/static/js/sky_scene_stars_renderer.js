@@ -116,7 +116,9 @@
     function shouldDrawStarLabels(sceneCtx) {
         const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
         const flags = String(meta.flags || '');
-        const fovDeg = Number.isFinite(meta.fov_deg) ? meta.fov_deg : null;
+        const fovDeg = Number.isFinite(sceneCtx && sceneCtx.renderFovDeg)
+            ? sceneCtx.renderFovDeg
+            : (Number.isFinite(meta.fov_deg) ? meta.fov_deg : null);
         const width = Number.isFinite(sceneCtx && sceneCtx.width) ? sceneCtx.width : 0;
         if (!flags.includes('N')) return false;
         if (fovDeg != null) {
@@ -128,7 +130,9 @@
 
     function shouldDrawFlamsteedLabel(sceneCtx) {
         const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
-        const fovDeg = Number.isFinite(meta.fov_deg) ? meta.fov_deg : null;
+        const fovDeg = Number.isFinite(sceneCtx && sceneCtx.renderFovDeg)
+            ? sceneCtx.renderFovDeg
+            : (Number.isFinite(meta.fov_deg) ? meta.fov_deg : null);
         const width = Number.isFinite(sceneCtx && sceneCtx.width) ? sceneCtx.width : 0;
         if (width > 0 && width <= 500) return false;
         if (fovDeg == null) return true;
@@ -179,6 +183,58 @@
         return radiusMm * pxPerMm * 2.0;
     };
 
+    SkySceneStarsRenderer.prototype._magnitudeVisibilityAlpha = function (sceneCtx, mag) {
+        const currentMaglim = Number(sceneCtx && sceneCtx.renderMaglim);
+        if (!Number.isFinite(currentMaglim)) return 1.0;
+        const currentMag = Number(mag);
+        if (!Number.isFinite(currentMag)) return 0.0;
+        const fadeWidthMag = sceneCtx && sceneCtx.isZooming ? 0.75 : 0.0;
+        const magDelta = currentMaglim - currentMag;
+        if (fadeWidthMag <= 0.0) {
+            return magDelta >= 0.0 ? 1.0 : 0.0;
+        }
+        if (magDelta <= -fadeWidthMag) {
+            return 0.0;
+        }
+        if (magDelta >= 0.0) {
+            return 1.0;
+        }
+        return U.clamp01((magDelta + fadeWidthMag) / fadeWidthMag);
+    };
+
+    SkySceneStarsRenderer.prototype._labelFovVisibility = function (sceneCtx, fullText, fovDeg) {
+        const meta = sceneCtx && sceneCtx.meta ? sceneCtx.meta : {};
+        const virtualSceneCtx = {
+            meta: {
+                flags: meta.flags || '',
+                fov_deg: fovDeg,
+            },
+            width: Number.isFinite(sceneCtx && sceneCtx.width) ? sceneCtx.width : 0,
+        };
+        if (!shouldDrawStarLabels(virtualSceneCtx)) return 0.0;
+        if (isFlamsteedLabel(fullText) && !shouldDrawFlamsteedLabel(virtualSceneCtx)) return 0.0;
+        return 1.0;
+    };
+
+    SkySceneStarsRenderer.prototype._labelFovAlpha = function (sceneCtx, fullText) {
+        const currentFov = Number(sceneCtx && sceneCtx.renderFovDeg);
+        const fallbackFov = Number.isFinite(currentFov)
+            ? currentFov
+            : Number(sceneCtx && sceneCtx.meta && sceneCtx.meta.fov_deg);
+        if (!sceneCtx || !sceneCtx.isZooming) {
+            return this._labelFovVisibility(sceneCtx, fullText, fallbackFov);
+        }
+        const zoomProgressRaw = Number(sceneCtx.zoomProgress);
+        const zoomProgress = Number.isFinite(zoomProgressRaw) ? U.clamp01(zoomProgressRaw) : 0.0;
+        const fromFov = Number.isFinite(sceneCtx.zoomFromFov) ? sceneCtx.zoomFromFov : fallbackFov;
+        const toFov = Number.isFinite(sceneCtx.zoomToFov) ? sceneCtx.zoomToFov : fallbackFov;
+        const fromVisible = this._labelFovVisibility(sceneCtx, fullText, fromFov);
+        const toVisible = this._labelFovVisibility(sceneCtx, fullText, toFov);
+        if (fromVisible === toVisible) return fromVisible;
+        if (fromVisible > toVisible) return 1.0 - zoomProgress;
+        return zoomProgress;
+    };
+
     SkySceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
         if (!this._positions) this._positions = [];
         if (!this._sizes) this._sizes = [];
@@ -198,7 +254,6 @@
             sceneCtx.themeConfig.flags &&
             sceneCtx.themeConfig.flags.star_colors
         );
-        const fadeWidthMag = sceneCtx.isZooming ? 0.75 : 0.0;
         const lm = sceneCtx.renderMaglim;
         const minStarPx = 1.5;
         const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
@@ -241,7 +296,7 @@
             size_lt_1_px_count: 0,
             star_colors_enabled: starColorsEnabled,
             render_maglim: lm,
-            fade_width_mag: fadeWidthMag,
+            fade_width_mag: sceneCtx.isZooming ? 0.75 : 0.0,
             small_star_dimmed_count: 0,
             _small_star_dim_sum: 0.0,
             _size_sum_px: 0.0,
@@ -255,15 +310,7 @@
                 return;
             }
             const magForSize = Number.isFinite(magRaw) ? magRaw : 7;
-            const magDelta = lm - magForSize;
-            if (fadeWidthMag <= 0.0) {
-                if (magForSize > lm) return;
-            } else if (magDelta <= -fadeWidthMag) {
-                return;
-            }
-            const alpha = fadeWidthMag <= 0.0
-                ? 1.0
-                : (magDelta >= 0.0 ? 1.0 : U.clamp01((magDelta + fadeWidthMag) / fadeWidthMag));
+            const alpha = this._magnitudeVisibilityAlpha(sceneCtx, magForSize);
             if (alpha <= 0.0) return;
 
             const sz = this._starSizePx(sceneCtx, magForSize);
@@ -360,16 +407,14 @@
     };
 
     SkySceneStarsRenderer.prototype._collectStarLabels = function (sceneCtx) {
-        if (!shouldDrawStarLabels(sceneCtx)) return [];
         const zoneStars = sceneCtx.zoneStars || null;
         if (!isZoneStarsSoA(zoneStars) || !isZoneStarLabelsSoA(zoneStars.labels)) return [];
         const labels = zoneStars.labels;
         const labelsCount = zoneStarLabelsCount(labels);
         if (labelsCount <= 0) return [];
+        if (!sceneCtx.isZooming && !shouldDrawStarLabels(sceneCtx)) return [];
 
         const entries = [];
-        const lm = sceneCtx.renderMaglim;
-        const fadeWidthMag = sceneCtx.isZooming ? 0.75 : 0.0;
         const halfW = 0.5 * sceneCtx.width;
         const halfH = 0.5 * sceneCtx.height;
         for (let i = 0; i < labelsCount; i++) {
@@ -378,16 +423,11 @@
             if (this._pickStar && Number.isFinite(this._pickStar.index) && (this._pickStar.index | 0) === starIndex) continue;
             const fullText = labels.text[i] || '';
             if (!isBayerLabel(fullText) && !isFlamsteedLabel(fullText)) continue;
-            if (isFlamsteedLabel(fullText) && !shouldDrawFlamsteedLabel(sceneCtx)) continue;
             const text = displayLabelText(fullText);
             if (!text || !fullText) continue;
             const mag = Number(zoneStars.mag[starIndex]);
-            const magDelta = lm - mag;
-            if (fadeWidthMag <= 0.0) {
-                if (mag > lm) continue;
-            } else if (magDelta <= -fadeWidthMag) {
-                continue;
-            }
+            const alpha = this._magnitudeVisibilityAlpha(sceneCtx, mag) * this._labelFovAlpha(sceneCtx, fullText);
+            if (alpha <= 0.0) continue;
             const p = sceneCtx.projection.projectEquatorialToNdc(zoneStars.ra[starIndex], zoneStars.dec[starIndex]);
             if (!p) continue;
             const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
@@ -403,6 +443,7 @@
                 xPx: xPx,
                 yPx: yPx,
                 rPx: rPx,
+                alpha: alpha,
             });
         }
         return entries;
@@ -452,7 +493,6 @@
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
         const placed = [];
         ctx.save();
-        ctx.fillStyle = U.rgba(labelColor, 0.95);
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
             const fontPx = this._labelFontPx(sceneCtx, entry.fullText);
@@ -479,6 +519,7 @@
             }
             ctx.textAlign = best.align;
             ctx.textBaseline = best.baseline;
+            ctx.fillStyle = U.rgba(labelColor, 0.95 * U.clamp01(Number(entry.alpha)));
             ctx.fillText(entry.text, best.x, best.y);
             placed.push(best.rect);
         }
