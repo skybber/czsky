@@ -634,9 +634,11 @@
         return pot;
     };
 
-    SkySceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential) {
+    SkySceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential, visibilityAlpha) {
         const label = this._resolveDsoLabel(dso);
         if (!label) return;
+        const labelAlpha = U.clamp01(Number.isFinite(visibilityAlpha) ? visibilityAlpha : 1.0);
+        if (labelAlpha <= 0.0) return;
         const showMag = this._showDsoMag(sceneCtx);
         const layoutMagLabel = this._formatDsoMag(dso);
         const magLabel = showMag ? layoutMagLabel : null;
@@ -741,12 +743,14 @@
             });
         }
 
+        ctx.fillStyle = U.rgba(labelColor, 0.95 * labelAlpha);
         ctx.fillText(label, best.x, best.y);
         placedRects.push(bestRect);
         if (magLabel && magLength > 0) {
             const magX = resolveMagPlacement(best.x, labelLength, magLength).x;
             ctx.save();
             ctx.font = magFontPx.toFixed(1) + 'px sans-serif';
+            ctx.fillStyle = U.rgba(labelColor, 0.95 * labelAlpha);
             ctx.fillText(magLabel, magX, best.y + magDy);
             ctx.restore();
             if (bestMagRect) {
@@ -895,7 +899,7 @@
                     break;
             }
             this._registerSelectable(sceneCtx, dso, centerPx, radii, outlinesItem);
-            this._drawLabel(sceneCtx, sceneCtx.frontCtx || sceneCtx.backCtx, dso, centerPx, radii, placedLabelRects, labelPotential);
+            this._drawLabel(sceneCtx, sceneCtx.frontCtx || sceneCtx.backCtx, dso, centerPx, radii, placedLabelRects, labelPotential, visibilityAlpha);
             if (useAlpha) {
                 ctx.restore();
             }
