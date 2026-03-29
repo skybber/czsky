@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-02-28 10:03+0100\n"
+"POT-Creation-Date: 2026-03-29 19:04+0200\n"
 "PO-Revision-Date: 2020-01-07 18:29+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: cs\n"
@@ -255,7 +255,7 @@ msgstr "Uložit"
 #: app/main/observation/observation_forms.py:15
 #: app/main/observation/observing_session_forms.py:58
 #: app/main/observation/standalone_observation_forms.py:40
-#: app/templates/macros/fchart_macros.html:118
+#: app/templates/macros/fchart_macros.html:151
 #: app/templates/main/observation/observing_session_info.html:50
 msgid "Date From"
 msgstr "Čas od"
@@ -422,7 +422,7 @@ msgstr "Kupa galaxií"
 #: app/main/planner/sessionplan_forms.py:71
 #: app/main/solarsystem/comet_forms.py:27
 #: app/main/solarsystem/minor_planet_forms.py:35
-#: app/templates/macros/fchart_macros.html:474
+#: app/templates/macros/fchart_macros.html:513
 #: app/templates/main/catalogue/deepskyobjects.html:57
 #: app/templates/main/catalogue/dso_list_info.html:52
 #: app/templates/main/planner/session_plan_schedule.html:67
@@ -555,15 +555,15 @@ msgstr "Uživatelský seznam byl odstraněn."
 msgid "Field radius"
 msgstr "Zorné pole"
 
-#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:487
+#: app/main/chart/chart_forms.py:19 app/templates/macros/fchart_macros.html:526
 msgid "DSO limit mag"
 msgstr "Limitní magnituda DSO"
 
-#: app/main/chart/chart_forms.py:50
+#: app/main/chart/chart_forms.py:51
 #: app/main/observation/observing_session_forms.py:62
 #: app/main/observation/standalone_observation_forms.py:44
 #: app/main/planner/sessionplan_forms.py:42
-#: app/templates/macros/fchart_macros.html:297
+#: app/templates/macros/fchart_macros.html:330
 #: app/templates/main/observation/observing_session_info.html:52
 #: app/templates/main/observation/observing_sessions.html:31
 #: app/templates/main/observation/standalone_observation_info.html:60
@@ -882,7 +882,7 @@ msgstr "Uložit novinku"
 #: app/main/observation/observation_forms.py:17
 #: app/main/observation/observing_session_forms.py:60
 #: app/main/observation/standalone_observation_forms.py:42
-#: app/templates/macros/fchart_macros.html:130
+#: app/templates/macros/fchart_macros.html:163
 #: app/templates/main/observation/observing_session_info.html:51
 msgid "Date To"
 msgstr "Čas do"
@@ -1246,6 +1246,7 @@ msgstr "Souhvězdí"
 #: app/templates/main/planner/session_plan_schedule.html:231
 #: app/templates/main/solarsystem/comet_info.html:111
 #: app/templates/main/solarsystem/minor_planet_info.html:82
+#: app/templates/main/solarsystem/moon_info.html:61
 #: app/templates/main/solarsystem/planet_info.html:87
 msgid "Rise"
 msgstr "Východ"
@@ -1267,6 +1268,7 @@ msgstr "Merid."
 #: app/templates/main/planner/session_plan_schedule.html:233
 #: app/templates/main/solarsystem/comet_info.html:113
 #: app/templates/main/solarsystem/minor_planet_info.html:84
+#: app/templates/main/solarsystem/moon_info.html:63
 #: app/templates/main/solarsystem/planet_info.html:89
 msgid "Set"
 msgstr "Západ"
@@ -1496,18 +1498,18 @@ msgid "If you have not requested a password reset, simply ignore this message."
 msgstr "Pokud jste o obnovení hesla nepožádali, tuto zprávu ignorujte."
 
 #: app/templates/errors/object_not_found.html:5
-#: app/templates/macros/fchart_macros.html:636
+#: app/templates/macros/fchart_macros.html:668
 msgid "Object not found"
 msgstr "Objekt neby nalezen."
 
 #: app/templates/errors/object_not_found.html:7
-#: app/templates/macros/fchart_macros.html:638
+#: app/templates/macros/fchart_macros.html:670
 msgid "Specified object was not found."
 msgstr "Požadovaný objekt nebyl nalezen."
 
 #: app/templates/errors/object_not_found.html:11
-#: app/templates/macros/fchart_macros.html:628
-#: app/templates/macros/fchart_macros.html:642
+#: app/templates/macros/fchart_macros.html:660
+#: app/templates/macros/fchart_macros.html:674
 msgid "Close"
 msgstr "Zavřít"
 
@@ -1562,63 +1564,62 @@ msgstr "Přidat na wishlist"
 msgid "Add to observed"
 msgstr "Přidat do pozorovaných"
 
-#: app/templates/macros/fchart_macros.html:56
-#: app/templates/macros/fchart_macros.html:551
+#: app/templates/macros/fchart_macros.html:88
+#: app/templates/macros/fchart_macros.html:598
 msgid "Home"
 msgstr "Domů"
 
-#: app/templates/macros/fchart_macros.html:65
-#: app/templates/macros/fchart_macros.html:559
+#: app/templates/macros/fchart_macros.html:97
 #: app/templates/main/catalogue/double_star_list_info.html:16
 msgid "Detail"
 msgstr "Detail"
 
-#: app/templates/macros/fchart_macros.html:105
+#: app/templates/macros/fchart_macros.html:138
 msgid "Interval"
 msgstr "Interval"
 
-#: app/templates/macros/fchart_macros.html:138
+#: app/templates/macros/fchart_macros.html:171
 msgid "View center settings"
 msgstr "Zobrazit nastavení středu"
 
-#: app/templates/macros/fchart_macros.html:144
+#: app/templates/macros/fchart_macros.html:177
 msgid "Center object"
 msgstr "Vycentrovat na objekt"
 
-#: app/templates/macros/fchart_macros.html:150
+#: app/templates/macros/fchart_macros.html:183
 msgid "Telrad"
 msgstr "Telrad"
 
-#: app/templates/macros/fchart_macros.html:156
+#: app/templates/macros/fchart_macros.html:189
 msgid "Picker"
 msgstr "Picker"
 
-#: app/templates/macros/fchart_macros.html:178
+#: app/templates/macros/fchart_macros.html:211
 msgid "Unselect"
 msgstr "Zrušit výběr"
 
-#: app/templates/macros/fchart_macros.html:185
-#: app/templates/macros/fchart_macros.html:602
+#: app/templates/macros/fchart_macros.html:218
+#: app/templates/macros/fchart_macros.html:634
 msgid "Help"
 msgstr "Nápověda"
 
-#: app/templates/macros/fchart_macros.html:193
+#: app/templates/macros/fchart_macros.html:226
 msgid "Setup time"
 msgstr "Nastavit čas"
 
-#: app/templates/macros/fchart_macros.html:203
+#: app/templates/macros/fchart_macros.html:236
 msgid "Use current time"
 msgstr "Použít aktuální čas"
 
-#: app/templates/macros/fchart_macros.html:282
+#: app/templates/macros/fchart_macros.html:315
 msgid "Current Location"
 msgstr "Aktuální poloha"
 
-#: app/templates/macros/fchart_macros.html:282
+#: app/templates/macros/fchart_macros.html:315
 msgid "Unknown city"
 msgstr "Neznámá poloha"
 
-#: app/templates/macros/fchart_macros.html:287
+#: app/templates/macros/fchart_macros.html:320
 msgid ""
 "We use your IP temporarily to show accurate maps. It is processed in real"
 " time and not stored. "
@@ -1626,15 +1627,15 @@ msgstr ""
 "Vaši IP adresu dočasně používáme k zobrazení přesných map. Je "
 "zpracovávána v reálném čase a není ukládána."
 
-#: app/templates/macros/fchart_macros.html:289
+#: app/templates/macros/fchart_macros.html:322
 msgid "Use auto location"
 msgstr "Použít automatickou polohu"
 
-#: app/templates/macros/fchart_macros.html:304
+#: app/templates/macros/fchart_macros.html:337
 msgid "User location"
 msgstr "Uživ. poloha"
 
-#: app/templates/macros/fchart_macros.html:310
+#: app/templates/macros/fchart_macros.html:343
 #: app/templates/main/chart/chart_themes.html:10
 #: app/templates/main/equipment/equipment_menu.html:10
 #: app/templates/main/location/locations.html:10
@@ -1643,212 +1644,216 @@ msgstr "Uživ. poloha"
 msgid "Settings"
 msgstr "Nastavení"
 
-#: app/templates/macros/fchart_macros.html:316
+#: app/templates/macros/fchart_macros.html:349
 msgid "Equat ↔ Horizontal"
 msgstr "Rovnik ↔ Obzorník"
 
-#: app/templates/macros/fchart_macros.html:322
+#: app/templates/macros/fchart_macros.html:355
 msgid "Constellation lines"
 msgstr "Tvary souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:328
+#: app/templates/macros/fchart_macros.html:361
 msgid "Constellation borders"
 msgstr "Hranice souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:334
+#: app/templates/macros/fchart_macros.html:367
 msgid "Equatorial grid"
 msgstr "Rovníková síť"
 
-#: app/templates/macros/fchart_macros.html:340
+#: app/templates/macros/fchart_macros.html:373
 msgid "Horizontal grid"
 msgstr "Obzorníková síť"
 
-#: app/templates/macros/fchart_macros.html:346
+#: app/templates/macros/fchart_macros.html:379
 msgid "Sol. system"
 msgstr "Sl. soustava"
 
-#: app/templates/macros/fchart_macros.html:352
+#: app/templates/macros/fchart_macros.html:385
 msgid "SS bodies"
 msgstr "Objekty SS"
 
-#: app/templates/macros/fchart_macros.html:358
+#: app/templates/macros/fchart_macros.html:391
 msgid "Comet tail"
 msgstr "Ohony komet"
 
-#: app/templates/macros/fchart_macros.html:366
+#: app/templates/macros/fchart_macros.html:399
 msgid "Distant universe"
 msgstr "Hluboký vesmír"
 
-#: app/templates/macros/fchart_macros.html:372
+#: app/templates/macros/fchart_macros.html:405
 msgid "Deepsky objects"
 msgstr "Deepsky objekty"
 
-#: app/templates/macros/fchart_macros.html:378
+#: app/templates/macros/fchart_macros.html:411
 msgid "Milky way"
 msgstr "Mléčná dráha"
 
-#: app/templates/macros/fchart_macros.html:384
+#: app/templates/macros/fchart_macros.html:417
 msgid "DSO mag"
 msgstr "DSO mag"
 
-#: app/templates/macros/fchart_macros.html:390
+#: app/templates/macros/fchart_macros.html:423
 msgid "Star labels"
 msgstr "Názvy hvězd"
 
-#: app/templates/macros/fchart_macros.html:404
+#: app/templates/macros/fchart_macros.html:437
 msgid "Aladin color"
 msgstr "Aladin color"
 
-#: app/templates/macros/fchart_macros.html:411
+#: app/templates/macros/fchart_macros.html:444
 msgid "Aladin blue"
 msgstr "Aladin blue"
 
-#: app/templates/macros/fchart_macros.html:417
+#: app/templates/macros/fchart_macros.html:450
 msgid "Aladin fram"
 msgstr "Aladin Fram"
 
-#: app/templates/macros/fchart_macros.html:426
+#: app/templates/macros/fchart_macros.html:459
 #: app/templates/main/userdata/userdata_menu.html:25
 #: app/templates/main/userdata/userdata_menu.html:26
 msgid "Chart Themes"
 msgstr "Mapové téma"
 
-#: app/templates/macros/fchart_macros.html:429
+#: app/templates/macros/fchart_macros.html:462
 #: app/templates/macros/nav_macros.html:80
 #: app/templates/macros/nav_macros.html:84
 #: app/templates/macros/nav_macros.html:98
 msgid "Dark Mode"
 msgstr "Tmavý mód"
 
-#: app/templates/macros/fchart_macros.html:430
+#: app/templates/macros/fchart_macros.html:463
 #: app/templates/macros/nav_macros.html:76
 #: app/templates/macros/nav_macros.html:85
 #: app/templates/macros/nav_macros.html:99
 msgid "Light Mode"
 msgstr "Světlý mód"
 
-#: app/templates/macros/fchart_macros.html:431
+#: app/templates/macros/fchart_macros.html:464
 #: app/templates/macros/nav_macros.html:78
 #: app/templates/macros/nav_macros.html:86
 #: app/templates/macros/nav_macros.html:100
 msgid "Night Mode"
 msgstr "Noční mód"
 
-#: app/templates/macros/fchart_macros.html:441
+#: app/templates/macros/fchart_macros.html:474
 msgid "Flip horizontally"
 msgstr "Otočit horizontálně"
 
-#: app/templates/macros/fchart_macros.html:447
+#: app/templates/macros/fchart_macros.html:480
 msgid "Flip vertically"
 msgstr "Otočit vertikálně"
 
-#: app/templates/macros/fchart_macros.html:453
+#: app/templates/macros/fchart_macros.html:486
 msgid "Optimize traffic"
 msgstr "Optimalizovat přenos"
 
-#: app/templates/macros/fchart_macros.html:459
+#: app/templates/macros/fchart_macros.html:492
 msgid "Image mode"
 msgstr "Obrázkový mód"
 
-#: app/templates/macros/fchart_macros.html:465
+#: app/templates/macros/fchart_macros.html:498
+msgid "Bottom menu"
+msgstr "Menu dole"
+
+#: app/templates/macros/fchart_macros.html:504
 msgid "Perf. meter"
 msgstr "Perf. metr"
 
-#: app/templates/macros/fchart_macros.html:504
+#: app/templates/macros/fchart_macros.html:543
 msgid "PDF export"
 msgstr "PDF export"
 
-#: app/templates/macros/fchart_macros.html:535
-#: app/templates/macros/fchart_macros.html:583
+#: app/templates/macros/fchart_macros.html:574
+#: app/templates/macros/fchart_macros.html:591
 #: app/templates/macros/nav_macros.html:155
 msgid "Search..."
 msgstr "Hledat..."
 
-#: app/templates/macros/fchart_macros.html:604
+#: app/templates/macros/fchart_macros.html:636
 msgid "Map controls"
 msgstr "Ovládání mapy"
 
-#: app/templates/macros/fchart_macros.html:606
+#: app/templates/macros/fchart_macros.html:638
 msgid "Arrows / drag with left mouse button"
 msgstr "Šipky / tažení levým tlačítkem myši"
 
-#: app/templates/macros/fchart_macros.html:606
+#: app/templates/macros/fchart_macros.html:638
 msgid "move sky view"
 msgstr "posunout pohled na oblohu"
 
-#: app/templates/macros/fchart_macros.html:607
-msgid "PgUp / PgDown"
-msgstr "PgUp / PgDown"
+#: app/templates/macros/fchart_macros.html:639
+msgid "PgUp / PgDown, - / = / +"
+msgstr "PgUp / PgDown, - / = / +"
 
-#: app/templates/macros/fchart_macros.html:607
+#: app/templates/macros/fchart_macros.html:639
 msgid "zoom out / zoom in"
 msgstr "oddálit / přiblížit"
 
-#: app/templates/macros/fchart_macros.html:608
+#: app/templates/macros/fchart_macros.html:640
 msgid "Left click"
 msgstr "Kliknutí levým tlačítkem"
 
-#: app/templates/macros/fchart_macros.html:608
+#: app/templates/macros/fchart_macros.html:640
 msgid "select object"
 msgstr "vybrat objekt"
 
-#: app/templates/macros/fchart_macros.html:609
+#: app/templates/macros/fchart_macros.html:641
 msgid "Double click"
 msgstr "Dvojklik"
 
-#: app/templates/macros/fchart_macros.html:609
+#: app/templates/macros/fchart_macros.html:641
 msgid "center view"
 msgstr "vycentrovat pohled"
 
-#: app/templates/macros/fchart_macros.html:611
+#: app/templates/macros/fchart_macros.html:643
 msgid "Keyboard shortcuts"
 msgstr "Klávesové zkratky"
 
-#: app/templates/macros/fchart_macros.html:613
+#: app/templates/macros/fchart_macros.html:645
 msgid "toggle equatorial grid"
 msgstr "přepnout rovníkovou síť"
 
-#: app/templates/macros/fchart_macros.html:614
+#: app/templates/macros/fchart_macros.html:646
 msgid "toggle horizontal grid"
 msgstr "přepnout obzorníkovou síť"
 
-#: app/templates/macros/fchart_macros.html:615
+#: app/templates/macros/fchart_macros.html:647
 msgid "toggle constellation borders"
 msgstr "přepnout hranice souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:616
+#: app/templates/macros/fchart_macros.html:648
 msgid "toggle constellation lines"
 msgstr "přepnout tvary souhvězdí"
 
-#: app/templates/macros/fchart_macros.html:617
+#: app/templates/macros/fchart_macros.html:649
 msgid "toggle deep-sky objects"
 msgstr "přepnout deep-sky objekty"
 
-#: app/templates/macros/fchart_macros.html:618
+#: app/templates/macros/fchart_macros.html:650
 msgid "toggle Aladin background"
 msgstr "přepnout podklad Aladin"
 
-#: app/templates/macros/fchart_macros.html:619
+#: app/templates/macros/fchart_macros.html:651
 msgid "toggle solar system objects"
 msgstr "přepnout objekty sluneční soustavy"
 
-#: app/templates/macros/fchart_macros.html:620
+#: app/templates/macros/fchart_macros.html:652
 msgid "toggle star labels"
 msgstr "přepnout názvy hvězd"
 
-#: app/templates/macros/fchart_macros.html:621
+#: app/templates/macros/fchart_macros.html:653
 msgid "Space"
 msgstr "Mezerník"
 
-#: app/templates/macros/fchart_macros.html:621
+#: app/templates/macros/fchart_macros.html:653
 msgid "center object"
 msgstr "vycentrovat objekt"
 
-#: app/templates/macros/fchart_macros.html:622
+#: app/templates/macros/fchart_macros.html:654
 msgid "toggle Telrad"
 msgstr "přepnout Telrad"
 
-#: app/templates/macros/fchart_macros.html:623
+#: app/templates/macros/fchart_macros.html:655
 msgid "open help"
 msgstr "otevřít nápovědu"
 
@@ -1924,6 +1929,7 @@ msgstr "Zobrazit sluneční soustavu"
 #: app/templates/main/solarsystem/comets.html:14
 #: app/templates/main/solarsystem/minor_planet_info.html:18
 #: app/templates/main/solarsystem/minor_planets.html:14
+#: app/templates/main/solarsystem/moon_info.html:15
 #: app/templates/main/solarsystem/planet_info.html:18
 #: app/templates/main/solarsystem/planet_moon_info.html:17
 #: app/templates/main/solarsystem/planet_moon_info.html:23
@@ -2098,6 +2104,8 @@ msgstr "Pozorování"
 #: app/templates/main/solarsystem/comet_info.html:26
 #: app/templates/main/solarsystem/minor_planet_info.html:20
 #: app/templates/main/solarsystem/minor_planet_info.html:25
+#: app/templates/main/solarsystem/moon_info.html:16
+#: app/templates/main/solarsystem/moon_info.html:20
 #: app/templates/main/solarsystem/planet_info.html:20
 #: app/templates/main/solarsystem/planet_info.html:25
 msgid "Visibility"
@@ -2109,6 +2117,7 @@ msgstr "Viditelnost"
 #: app/templates/main/catalogue/supernova_info.html:127
 #: app/templates/main/solarsystem/comet_info.html:106
 #: app/templates/main/solarsystem/minor_planet_info.html:77
+#: app/templates/main/solarsystem/moon_info.html:56
 #: app/templates/main/solarsystem/planet_info.html:82
 msgid "Visibility chart for"
 msgstr "Graf vititelnosti pro"
@@ -2119,6 +2128,7 @@ msgstr "Graf vititelnosti pro"
 #: app/templates/main/catalogue/supernova_info.html:133
 #: app/templates/main/solarsystem/comet_info.html:112
 #: app/templates/main/solarsystem/minor_planet_info.html:83
+#: app/templates/main/solarsystem/moon_info.html:62
 #: app/templates/main/solarsystem/planet_info.html:88
 msgid "Transit"
 msgstr "Transit"
@@ -3347,6 +3357,12 @@ msgstr "Úhlová vzd. Sl."
 #: app/templates/main/solarsystem/minor_planets.html:158
 msgid "Minor Planets"
 msgstr "Planetky"
+
+#: app/templates/main/solarsystem/moon_info.html:54
+#: app/templates/main/solarsystem/moon_info.html:56
+#: app/templates/main/solarsystem/moon_info.html:77
+msgid "Moon"
+msgstr "Měsíc"
 
 #: app/templates/main/solarsystem/planet_info.html:70
 msgid "Angular diameter"

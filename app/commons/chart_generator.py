@@ -703,6 +703,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
         form.mobile_menu_bottom.data = session.get('chart_mobile_menu_bottom', form.mobile_menu_bottom.data)
+        session.setdefault('chart_mobile_menu_bottom', form.mobile_menu_bottom.data)
         form.use_auto_location.data = session.get('use_auto_location', form.use_auto_location.data)
         form.user_location.data = session.get('user_location', form.user_location.data)
     else:
