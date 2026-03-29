@@ -127,8 +127,8 @@
                 ctx.measureText(mobileRightText).width
             ) + pad * 2;
             const h = lineH * 3 + pad * 2;
-            const x0 = 0;
-            const y0 = 0;
+            const x0 = margin;
+            const y0 = margin;
 
             ctx.fillStyle = panelStyle.bg;
             ctx.fillRect(x0, y0, w, h);

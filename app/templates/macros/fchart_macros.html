@@ -47,12 +47,41 @@
         display: none !important;
       }
     }
+    @media only screen and (max-width: 768px) {
+      #fchart-div.fchart-mobile-menu-bottom #top-menu {
+        position: absolute;
+        left: 0;
+        right: 8px;
+        bottom: -4px;
+        margin: 0;
+        padding: 0 0 env(safe-area-inset-bottom, 0);
+        z-index: 120;
+        background: transparent;
+      }
+
+      #fchart-div.fchart-mobile-menu-bottom #top-menu > .ui.horizontally.fitted.item:last-child {
+        margin-right: 0 !important;
+      }
+
+      #fchart-div.fchart-mobile-menu-bottom #right-menu {
+        position: absolute;
+        right: -4px;
+        bottom: calc(48px + env(safe-area-inset-bottom, 0));
+        margin-right: 0;
+        margin-top: 0;
+        z-index: 121;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: 0 !important;
+      }
+
+    }
 </style>
 
 {% if fchart_form.splitview.data == 'true' %}
 <div id="fchart-iframe-placeholder" class="fchart-iframe-placeholder" style="background:{{ '#fff' if chart_control.theme=='light' else ('#211010' if chart_control.theme=='night' else '#383c4a') }}"></div>
 {% endif %}
-<div id="fchart-div" class="{% if fchart_form.fullscreen.data == 'true' %}fchart-fullscreen{% elif fchart_form.splitview.data == 'true' %}fchart-splitview{% endif %}" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
+<div id="fchart-div" class="{% if fchart_form.fullscreen.data == 'true' %}fchart-fullscreen{% elif fchart_form.splitview.data == 'true' %}fchart-splitview{% endif %}{% if fchart_form.mobile_menu_bottom.data == 'true' %} fchart-mobile-menu-bottom{% endif %}" style="width:100%;height:75vh;background:{{ '#fff' if chart_control.theme=='light' else ('#020202' if chart_control.theme=='night' else '#03030A') }}">
     <div id="top-menu" class="ui secondary menu">
 
         <div id="bhome" class="ui horizontally fitted computer tablet only item" style="z-index:100;display:none;margin-left:16px;">
@@ -102,6 +131,7 @@
             <input type="hidden" id="mirror_y" name="{{ fchart_form.mirror_y.name }}" value="{{ fchart_form.mirror_y.data }}" >
             <input type="hidden" id="optimize_traffic" name="{{ fchart_form.optimize_traffic.name }}" value="{{ fchart_form.optimize_traffic.data }}" >
             <input type="hidden" id="is_equatorial" name="{{ fchart_form.is_equatorial.name }}" value="{{ fchart_form.is_equatorial.data }}">
+            <input type="hidden" id="mobile_menu_bottom" name="{{ fchart_form.mobile_menu_bottom.name }}" value="{{ fchart_form.mobile_menu_bottom.data }}">
 
             {% if chart_control.has_date_from_to %}
                 <div class="ui horizontally fitted mobile hidden item" style="z-index:100;">
@@ -460,6 +490,12 @@
                             <button id="boldmode" type="button" class="ui toggle labeled tiny icon button{{ ' active' if chart_control.chart_mode == 'old' else ''}}" style="text-align:left">
                                 <i class="history icon"></i>
                                 {{ _('Image mode')}}
+                            </button>
+                        </div>
+                        <div class="item mobile only">
+                            <button id="bmobilemenuposition" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.mobile_menu_bottom.data=='true' else ''}}" style="text-align:left">
+                                <i class="mobile alternate icon"></i>
+                                {{ _('Bottom mobile menu')}}
                             </button>
                         </div>
                         <div class="item">
@@ -1620,6 +1656,16 @@
         chart_param_ajax('optimize_traffic', value);
     });
 
+    $('#bmobilemenuposition').click(function(event){
+        event.stopPropagation();
+        var value = $('#mobile_menu_bottom').val() == 'true' ? 'false' : 'true';
+        applyMobileMenuBottom(value == 'true');
+        chart_param_ajax('chart_mobile_menu_bottom', value);
+        if (fchart) {
+            fchart.reloadImage();
+        }
+    });
+
     $('#bcenterobj').click(function(){
         fchart.centerObjectInFov();
     });
@@ -1852,6 +1898,22 @@
         syncOldModeButton();
     }
 
+    function applyMobileMenuBottom(enabled) {
+        $('#mobile_menu_bottom').val(enabled ? 'true' : 'false');
+        $('#fchart-div').toggleClass('fchart-mobile-menu-bottom', enabled);
+        $('#bmobilemenuposition').toggleClass('active', enabled);
+        const $rightMenu = $('#right-menu');
+        const $home = $('#bhome_mob');
+        const $search = $('#isearch2');
+        if ($rightMenu.length && $home.length && $search.length) {
+            if (enabled) {
+                $home.insertBefore($search);
+            } else {
+                $search.insertBefore($home);
+            }
+        }
+    }
+
     function reloadLegendOrSceneWidgets() {
         if (useDataMode) {
             fchart.reloadImage();
@@ -2037,6 +2099,8 @@
             $("#top-menu, #right-menu, #isearch2").hide();
         }
     }
+
+    applyMobileMenuBottom($('#mobile_menu_bottom').val() == 'true');
 
     function chart_param_ajax(...params) {
         const data = {};

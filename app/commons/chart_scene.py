@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import numpy as np
-from flask import abort, current_app, request, url_for
+from flask import abort, current_app, request, session, url_for
 
 import fchart3
 
@@ -1066,6 +1066,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
         "show_telrad": FlagValue.FOV_TELRAD.value in req.flags,
         "show_eyepiece": eyepiece_fov is not None,
         "show_picker": FlagValue.SHOW_PICKER.value in req.flags,
+        "mobile_menu_bottom": session.get('chart_mobile_menu_bottom', 'false') == 'true',
         "eyepiece_fov_deg": float(eyepiece_fov) if eyepiece_fov is not None else None,
         "numeric_fov_label": "FoV: " + FIELD_LABELS[fld_size_idx],
         "mag_scale": {

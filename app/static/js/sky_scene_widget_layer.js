@@ -25,6 +25,22 @@
         };
     };
 
+    window.SkySceneWidgetLayer.prototype._rightTopPanels = function (sceneCtx) {
+        const style = sceneCtx.widgetPanelStyle;
+        if (!style) return { mag: { x: 0, y: 0, w: 0, h: 0 }, numeric: { x: 0, y: 0, w: 0, h: 0 } };
+        const magSize = this.magScaleWidget.measure(sceneCtx) || { w: 0, h: 0 };
+        const numericSize = this.numericMapScaleWidget.measure(sceneCtx) || { w: 0, h: 0 };
+        const y = style.margin || 0;
+        const right = Number(sceneCtx.width) || 0;
+        const numericX = right - (style.margin || 0) - (numericSize.w || 0);
+        const magX = numericX - this.panelGap - (magSize.w || 0);
+
+        return {
+            mag: { x: magX, y: y, w: magSize.w || 0, h: magSize.h || 0 },
+            numeric: { x: numericX, y: y, w: numericSize.w || 0, h: numericSize.h || 0 },
+        };
+    };
+
     window.SkySceneWidgetLayer.prototype.draw = function (sceneCtx) {
         if (!sceneCtx || !sceneCtx.frontCtx || !sceneCtx.meta) return;
         const widgets = sceneCtx.meta.widgets || null;
@@ -42,7 +58,10 @@
             this.pickerWidget.draw(sceneCtx);
         }
 
-        const rects = this._leftBottomPanels(sceneCtx);
+        const isMobile = (Number(sceneCtx.width) || 0) <= 768;
+        const rects = isMobile && widgets.mobile_menu_bottom
+            ? this._rightTopPanels(sceneCtx)
+            : this._leftBottomPanels(sceneCtx);
         if (widgets.show_mag_scale) {
             this.magScaleWidget.draw(sceneCtx, rects.mag);
         }

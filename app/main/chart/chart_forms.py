@@ -46,5 +46,6 @@ class ChartForm(FlaskForm):
     dss_layer = HiddenField('dss_layer', default='')
     optimize_traffic = HiddenField('optimize_traffic', default='false')
     is_equatorial = HiddenField('is_equatorial', default='true')
+    mobile_menu_bottom = HiddenField('mobile_menu_bottom', default='true')
     use_auto_location = HiddenField('use_auto_location', default='false')
     user_location = StringField(lazy_gettext('Location'), validators=[InputRequired(), Length(max=256), location_lonlat_check])

@@ -702,6 +702,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         form.mirror_x.data = session.get('chart_mirror_x', form.mirror_x.data)
         form.mirror_y.data = session.get('chart_mirror_y', form.mirror_y.data)
         form.optimize_traffic.data = session.get('optimize_traffic', form.optimize_traffic.data)
+        form.mobile_menu_bottom.data = session.get('chart_mobile_menu_bottom', form.mobile_menu_bottom.data)
         form.use_auto_location.data = session.get('use_auto_location', form.use_auto_location.data)
         form.user_location.data = session.get('user_location', form.user_location.data)
     else:
@@ -725,6 +726,7 @@ def common_prepare_chart_data(form, cancel_selection_url=None):
         session['chart_show_dso_mag'] = form.show_dso_mag.data
         session['chart_show_star_labels'] = form.show_star_labels.data
         session['optimize_traffic'] = form.optimize_traffic.data
+        session['chart_mobile_menu_bottom'] = form.mobile_menu_bottom.data
         session['use_auto_location'] = form.use_auto_location.data
         session['user_location'] = form.user_location.data
 
@@ -1556,7 +1558,8 @@ def set_chart_session_param(key, value):
                  'chart_show_constell_borders', 'chart_show_dso', 'chart_show_milky_way', 'chart_show_solar_system', 'chart_show_comet_tail',
                  'chart_dss_layer',
                  'chart_show_equatorial_grid', 'chart_show_horizontal_grid', 'chart_mirror_x', 'chart_mirror_y', 'chart_show_dso_mag',
-                 'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial']:
+                 'chart_show_star_labels', 'optimize_traffic', 'chart_eyepiece_fov', 'chart_is_equatorial',
+                 'chart_mobile_menu_bottom']:
         session[key] = value
         if session.get('theme', '') == 'night' and session.get('chart_dss_layer', '') == 'blue':
             session['chart_dss_layer'] = 'colored'
