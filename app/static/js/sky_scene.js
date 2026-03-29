@@ -837,9 +837,6 @@
     };
 
     SkyScene.prototype._getChartLst = function (dateTimeISO) {
-        if (!window.AstroMath || typeof window.AstroMath.localSiderealTime !== 'function') {
-            return null;
-        }
         const lon = Number(this.longitude);
         if (!Number.isFinite(lon)) return null;
 
@@ -869,9 +866,7 @@
         const lat = Number(this.latitude);
         const ra = Number(this.viewCenter.phi);
         const dec = Number(this.viewCenter.theta);
-        if (window.AstroMath
-            && typeof window.AstroMath.equatorialToHorizontal === 'function'
-            && Number.isFinite(lat)
+        if (Number.isFinite(lat)
             && Number.isFinite(ra)
             && Number.isFinite(dec)) {
             const lst = this._getChartLst(dateTimeISO);
@@ -1028,18 +1023,17 @@
             const theta = Number(this.viewCenter.theta);
             const lst = this._getChartLst(this._resolveRequestTimeISO());
 
-            if (window.AstroMath
-                && Number.isFinite(lat)
+            if (Number.isFinite(lat)
                 && Number.isFinite(phi)
                 && Number.isFinite(theta)
                 && Number.isFinite(lst)) {
-                if (this.isEquatorial && typeof window.AstroMath.horizontalToEquatorial === 'function') {
+                if (this.isEquatorial) {
                     const eq = window.AstroMath.horizontalToEquatorial(lst, lat, phi, theta);
                     if (eq && Number.isFinite(eq.ra) && Number.isFinite(eq.dec)) {
                         this.viewCenter.phi = U.normalizeRa(eq.ra);
                         this.viewCenter.theta = eq.dec;
                     }
-                } else if (!this.isEquatorial && typeof window.AstroMath.equatorialToHorizontal === 'function') {
+                } else if (!this.isEquatorial) {
                     const hor = window.AstroMath.equatorialToHorizontal(lst, lat, phi, theta);
                     if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
                         this.viewCenter.phi = U.normalizeRa(hor.az);
@@ -1111,9 +1105,29 @@
         }
     };
     SkyScene.prototype.centerObjectInFov = function () {
-        this.viewCenter.phi = this.obj_ra;
-        this.viewCenter.theta = this.obj_dec;
+        if (this.isEquatorial) {
+            this.viewCenter.phi = this.obj_ra;
+            this.viewCenter.theta = this.obj_dec;
+        } else {
+            const lat = Number(this.latitude);
+            const ra = Number(this.obj_ra);
+            const dec = Number(this.obj_dec);
+            const timeISO = this._resolveRequestTimeISO();
+            const lst = this._getChartLst(timeISO);
+
+            if (Number.isFinite(lat)
+                && Number.isFinite(ra)
+                && Number.isFinite(dec)
+                && Number.isFinite(lst)) {
+                const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
+                if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
+                    this.viewCenter.phi = U.normalizeRa(hor.az);
+                    this.viewCenter.theta = U.clampLatitude(hor.alt);
+                }
+            }
+        }
         this.setCenterToHiddenInputs();
+        this.syncQueryString();
         this.forceReloadImage();
     };
 
