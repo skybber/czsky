@@ -1,7 +1,8 @@
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for speed
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_svg import FigureCanvasSVG
+from matplotlib.lines import Line2D
 from datetime import datetime
 import matplotlib.dates as mdates
 from matplotlib.patches import Patch
@@ -191,7 +192,9 @@ def create_visibility_chart(
     dpi = 140 if panel_mode else 100
     figsize = (12, 6.5) if panel_mode else (16, 9)
 
-    fig, ax = plt.subplots(figsize=figsize, facecolor=colors['bg_color'], dpi=dpi)
+    fig = Figure(figsize=figsize, facecolor=colors['bg_color'], dpi=dpi)
+    canvas = FigureCanvasSVG(fig)
+    ax = fig.add_subplot(111)
     ax.set_facecolor(colors['bg_color'])
 
     twilight_colors = {
@@ -316,8 +319,8 @@ def create_visibility_chart(
 
     # Legend (simplified for speed)
     legend_elements = [
-        plt.Line2D([0], [0], color=colors['object_color'], linewidth=3 * scale, label=object_label),
-        plt.Line2D([0], [0], color=colors['horizon_color'], linewidth=2.5 * scale, label='Horizon'),
+        Line2D([0], [0], color=colors['object_color'], linewidth=3 * scale, label=object_label),
+        Line2D([0], [0], color=colors['horizon_color'], linewidth=2.5 * scale, label='Horizon'),
         Patch(facecolor=colors['day'][0], alpha=colors['day'][1], label='Day'),
         Patch(facecolor=colors['night'][0], alpha=colors['night'][1], label='Night'),
     ]
@@ -331,21 +334,25 @@ def create_visibility_chart(
     )
     plt.setp(legend.get_texts(), color=colors['fg_color'])
 
-    plt.tight_layout()
+    fig.tight_layout()
 
-    # Save or return SVG
-    if return_svg_string:
-        svg_buffer = io.BytesIO()
-        plt.savefig(svg_buffer, format='svg', bbox_inches='tight')
-        plt.close(fig)
-        svg_buffer.seek(0)
-        return svg_buffer.getvalue().decode('utf-8')
-    else:
-        if not output_file:
-            raise ValueError("output_file must be set when return_svg_string=False")
-        plt.savefig(output_file, format='svg', dpi=dpi, bbox_inches='tight')
-        plt.close(fig)
-        return None
+    try:
+        if return_svg_string:
+            svg_buffer = io.BytesIO()
+            canvas.print_svg(svg_buffer)
+            svg_buffer.seek(0)
+            svg_str = svg_buffer.getvalue().decode('utf-8')
+            svg_buffer.close()
+            return svg_str
+        else:
+            if not output_file:
+                raise ValueError("output_file must be set when return_svg_string=False")
+            with open(output_file, 'wb') as f:
+                canvas.print_svg(f)
+            return None
+    finally:
+        fig.clf()
+        del fig, canvas, ax
 
 
 def get_rise_transit_set_utc(
