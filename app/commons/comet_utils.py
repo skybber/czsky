@@ -2,13 +2,13 @@ import math
 from io import BytesIO
 from functools import lru_cache
 
-import requests
 import re
 import datetime
 import calendar
 from bs4 import BeautifulSoup
 from sqlalchemy.exc import IntegrityError
 import numpy as np
+import requests
 
 from datetime import datetime, timedelta
 import datetime as dt_module
@@ -89,6 +89,28 @@ def get_mag_coma_from_observations(observs):
             coma_diameter = coma_diameter / n
 
     return mag, coma_diameter
+
+
+def fetch_recent_cobs_observations(comet_id: int | None, limit=5):
+    if comet_id is None:
+        return []
+
+    observations = (
+        CometObservation.query.filter_by(comet_id=comet_id)
+        .order_by(CometObservation.date.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return [
+        {
+            "obs_date": observation.date.strftime("%Y-%m-%d %H:%M:%S") if observation.date else None,
+            "magnitude": observation.mag,
+            "coma_diameter": observation.coma_diameter,
+            "comment": observation.notes,
+        }
+        for observation in observations
+    ]
 
 
 def get_all_comets(update_cobs_props=True, force_reload=False):

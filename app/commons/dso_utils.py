@@ -1,8 +1,6 @@
 import re
 from io import BytesIO
 
-from app.models.catalogue import Catalogue
-
 CATALOG_REPLACEMENTS = [
     (re.compile(re.escape('barnard'), re.IGNORECASE), 'B'),
     (re.compile(re.escape('hickson'), re.IGNORECASE), 'HCG')
@@ -39,6 +37,15 @@ CHART_COMET_PREFIX = '_com_'
 CHART_MINOR_PLANET_PREFIX = '_mpl_'
 
 PK_NUM_PATTERN = re.compile(r'([+-])0+(\d+).0+(\d+)')
+
+
+def _get_catalogue_model():
+    # Avoid importing app.models at module import time because that package
+    # eagerly imports all models, including DeepskyObject, which imports this
+    # module back.
+    from app.models.catalogue import Catalogue
+
+    return Catalogue
 
 
 def split_catalog_name(dso_name):
@@ -80,6 +87,7 @@ def split_catalog_name(dso_name):
 
 def get_catalog_from_dsoname(dso_name):
     catalog_code, dso_id = split_catalog_name(dso_name)
+    Catalogue = _get_catalogue_model()
     return Catalogue.get_catalogue_by_code(catalog_code)
 
 
@@ -93,6 +101,7 @@ def normalize_dso_name(dso_name):
     if dso_name is not None:
         cat_code, dso_id = split_catalog_name(dso_name)
         if cat_code:
+            Catalogue = _get_catalogue_model()
             norm_cat_code = Catalogue.get_catalogue_code(cat_code)
             if norm_cat_code == 'Mi':
                 norm_cat_code = 'M'

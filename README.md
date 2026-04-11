@@ -154,6 +154,26 @@ $ source venv/bin/activate
 $ honcho start -e config.env -f Local
 ```
 
+## Running the MCP Sidecar
+
+The MCP server runs as a separate sidecar process. It shares the Flask app
+factory, configuration, and database models, but it is not mounted into Flask
+routes.
+
+```
+$ source venv/bin/activate
+$ python -m app.mcp_server
+```
+
+Useful environment variables:
+
+| Variable | Default | Discussion |
+| --------------- | ------------- | -----|
+| `MCP_TRANSPORT` | `streamable-http` | Recommended MCP transport |
+| `MCP_HOST` | `127.0.0.1` | Bind address for the MCP sidecar |
+| `MCP_PORT` | `8001` | Port for the MCP sidecar |
+| `FLASK_CONFIG` | `default` | Reuses the standard Flask configuration selection |
+
 #### Opening CzSkY in Browser
 To open the CzSkY home page in your browser, navigate to `http://localhost:5000`.
 
