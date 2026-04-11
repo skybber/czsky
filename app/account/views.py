@@ -17,6 +17,7 @@ from flask_login import (
 )
 from app.compat.flask_rq import get_queue
 from flask_babel import gettext
+from app.commons.utils import is_safe_url
 
 from app import db, get_locale
 from app.account.forms import (
@@ -52,7 +53,10 @@ def login():
                     db.session.add(user)
                     db.session.commit()
                     flash(gettext('You are now logged in. Welcome back!'), 'success')
-                    return redirect(request.args.get('next') or url_for('main.index'))
+                    next_url = request.args.get('next')
+                    if not is_safe_url(next_url):
+                        next_url = url_for('main.index')
+                    return redirect(next_url)
                 else:
                     flash(gettext('User was disabled, please contact administrator.'), 'form-error')
             else:

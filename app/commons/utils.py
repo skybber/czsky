@@ -1,3 +1,4 @@
+from urllib.parse import urlparse, urljoin
 from flask import (
     current_app,
     request,
@@ -5,6 +6,14 @@ from flask import (
 
 from app.models.user import User
 from flask_babel import gettext
+
+
+def is_safe_url(target):
+    if not target:
+        return False
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
 
 
 def to_int(value, default):

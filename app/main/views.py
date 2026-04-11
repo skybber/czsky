@@ -25,7 +25,7 @@ from app.commons.dso_utils import (
 )
 from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_otype_from_simbad
 
-from app.commons.utils import get_site_lang_code
+from app.commons.utils import get_site_lang_code, is_safe_url
 from app.commons.coordinates import parse_radec
 from app.commons.visibility_utils import create_visibility_chart
 from app.commons.solar_system_chart_utils import get_solsys_bodies
@@ -76,21 +76,21 @@ def about():
 def theme_dark():
     session['theme'] = 'dark'
     _clear_custom_theme()
-    return redirect(request.referrer)
+    return redirect(request.referrer if is_safe_url(request.referrer) else url_for('main.index'))
 
 
 @main.route('/theme_light')
 def theme_light():
     session['theme'] = 'light'
     _clear_custom_theme()
-    return redirect(request.referrer)
+    return redirect(request.referrer if is_safe_url(request.referrer) else url_for('main.index'))
 
 
 @main.route('/theme_night')
 def theme_night():
     session['theme'] = 'night'
     _clear_custom_theme()
-    return redirect(request.referrer)
+    return redirect(request.referrer if is_safe_url(request.referrer) else url_for('main.index'))
 
 
 def _clear_custom_theme():
@@ -107,7 +107,7 @@ def theme_custom(chart_theme_id):
     session['theme'] = chart_theme.default_type.value.lower()
     session['cur_custom_theme_name'] = chart_theme.name
     session['cur_custom_theme_id'] = chart_theme.id
-    return redirect(request.referrer)
+    return redirect(request.referrer if is_safe_url(request.referrer) else url_for('main.index'))
 
 
 @main.route('/search')
@@ -296,7 +296,8 @@ def do_global_search(query, level):
             back_url += '&splitview=true'
         if request.args.get('realfullscreen'):
             back_url += '&realfullscreen=' + request.args.get('realfullscreen')
-        return redirect(back_url)
+        if is_safe_url(back_url):
+            return redirect(back_url)
 
     return redirect(url_for('main.object_not_found'))
 
