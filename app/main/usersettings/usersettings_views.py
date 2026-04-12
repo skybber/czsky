@@ -6,6 +6,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    session,
     url_for,
 )
 
@@ -23,9 +24,16 @@ from .usersettings_forms import (
     PublicProfileForm,
     GitContentSSHKeyForm,
     GitSSHKeyForm,
+    McpTokenCreateForm,
+    McpTokenRevokeForm,
 )
 
 from .delete_account_utils import process_delete_account
+from .mcp_token_service import (
+    create_user_mcp_token,
+    list_user_mcp_tokens,
+    revoke_user_mcp_token,
+)
 from app.commons.countries import countries
 
 main_usersettings = Blueprint('main_usersettings', __name__)
@@ -187,4 +195,60 @@ def git_content_ssh_key_delete():
     flash('SSH key for content was deleted.', 'form-success')
     return redirect(url_for('main_usersettings.git_repository'))
 
+
+@main_usersettings.route('/user-settings/mcp-token', methods=['GET', 'POST'])
+@login_required
+def mcp_token():
+    create_form = McpTokenCreateForm()
+    revoke_form = McpTokenRevokeForm()
+
+    if request.method == 'POST':
+        if create_form.validate_on_submit():
+            if current_user.verify_password(create_form.current_password.data):
+                try:
+                    _, plain_token = create_user_mcp_token(
+                        user_id=current_user.id,
+                        token_name=create_form.token_name.data,
+                        scope=create_form.scope.data,
+                        expires_in_days=create_form.expires_in_days.data,
+                    )
+                except ValueError as exc:
+                    flash(str(exc), 'form-error')
+                except RuntimeError:
+                    flash('Token generation failed, please try again.', 'form-error')
+                else:
+                    session['new_mcp_token_value'] = plain_token
+                    flash(
+                        'MCP token was created. Copy it now, it will not be shown again.',
+                        'form-success',
+                    )
+                    return redirect(url_for('main_usersettings.mcp_token'))
+            else:
+                flash('Original password is invalid.', 'form-error')
+
+    tokens = list_user_mcp_tokens(current_user.id)
+    new_token_value = session.pop('new_mcp_token_value', None)
+    return render_template(
+        'main/usersettings/usersettings_edit.html',
+        type='mcp_token',
+        create_form=create_form,
+        revoke_form=revoke_form,
+        tokens=tokens,
+        new_token_value=new_token_value,
+    )
+
+
+@main_usersettings.route('/user-settings/mcp-token/<int:token_row_id>/revoke', methods=['POST'])
+@login_required
+def mcp_token_revoke(token_row_id):
+    form = McpTokenRevokeForm()
+    if not form.validate_on_submit():
+        flash('Invalid MCP token revoke request.', 'form-error')
+        return redirect(url_for('main_usersettings.mcp_token'))
+
+    if revoke_user_mcp_token(current_user.id, token_row_id):
+        flash('MCP token was revoked.', 'form-success')
+    else:
+        flash('MCP token not found.', 'form-error')
+    return redirect(url_for('main_usersettings.mcp_token'))
 

@@ -17,6 +17,7 @@ from .import_history import *
 from .location import *
 from .miscellaneous import *
 from .minor_planet import *
+from .mcp_token import *
 from .news import *
 from .observation import *
 from .observed_list import *

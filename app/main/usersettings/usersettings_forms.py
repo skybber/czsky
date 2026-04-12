@@ -2,12 +2,13 @@ from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
 from wtforms.fields import EmailField
 from wtforms.fields import (
+    IntegerField,
     PasswordField,
     SubmitField,
     StringField,
     TextAreaField,
 )
-from wtforms.validators import Email, EqualTo, InputRequired, Length
+from wtforms.validators import Email, EqualTo, InputRequired, Length, NumberRange
 
 
 class PublicProfileForm(FlaskForm):
@@ -41,3 +42,25 @@ class GitContentSSHKeyForm(FlaskForm):
     ssh_public_key = TextAreaField(lazy_gettext('Public key'), render_kw={'readonly': True})
     submit = SubmitField(lazy_gettext('Update'))
 
+
+class McpTokenCreateForm(FlaskForm):
+    token_name = StringField(
+        lazy_gettext('Token name'),
+        validators=[InputRequired(), Length(1, 128)],
+    )
+    current_password = PasswordField(lazy_gettext('Current Password'), validators=[InputRequired()])
+    scope = StringField(
+        lazy_gettext('Scope'),
+        default='wishlist:read',
+        validators=[InputRequired(), Length(1, 256)],
+    )
+    expires_in_days = IntegerField(
+        lazy_gettext('Expires in days'),
+        default=365,
+        validators=[InputRequired(), NumberRange(min=1, max=3650)],
+    )
+    submit = SubmitField(lazy_gettext('Create MCP Token'))
+
+
+class McpTokenRevokeForm(FlaskForm):
+    submit = SubmitField(lazy_gettext('Revoke'))

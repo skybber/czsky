@@ -5,6 +5,7 @@
     ('main_usersettings.public_profile', 'Profile'),
     ('main_usersettings.user_account', 'Account'),
     ('main_usersettings.git_repository', 'Git repository'),
+    ('main_usersettings.mcp_token', 'MCP token'),
 ] %}
 
 {% macro navigation(items) %}
@@ -238,6 +239,90 @@
 
 {% endmacro %}
 
+{% macro mcp_token_settings(create_form, revoke_form, tokens, new_token_value) %}
+    {% set flashes = {
+        'error':   get_flashed_messages(category_filter=['form-error']),
+        'info':    get_flashed_messages(category_filter=['form-info']),
+        'success': get_flashed_messages(category_filter=['form-success'])
+    } %}
+
+    {{ f.display_standard_flashes(flashes) }}
+
+    <h4 class="ui top attached block header segment">MCP token</h4>
+    <div class="ui attached segment">
+        <p>Create personal token for MCP clients. Keep this token secret.</p>
+        <p>Default scope for current implementation is <code>wishlist:read</code>.</p>
+
+        {% if new_token_value %}
+            <div class="ui positive message">
+                <div class="header">Copy this token now</div>
+                <p>This value is shown only once.</p>
+            </div>
+            <div class="field">
+                <label>New token value</label>
+                <textarea rows="3" readonly>{{ new_token_value }}</textarea>
+            </div>
+        {% endif %}
+
+        {{ f.begin_form(create_form, flashes, action=url_for('main_usersettings.mcp_token')) }}
+            {{ f.render_form_field(create_form.token_name) }}
+            {{ f.render_form_field(create_form.scope) }}
+            {{ f.render_form_field(create_form.expires_in_days) }}
+            {{ f.render_form_field(create_form.current_password) }}
+            {{ create_form.submit(class='positive ui button') }}
+        {{ f.end_form() }}
+    </div>
+
+    <h4 class="ui top attached block header segment">Issued tokens</h4>
+    <div class="ui attached segment">
+        {% if tokens %}
+            <table class="ui very basic table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Scope</th>
+                        <th>Prefix</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Last used</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for token in tokens %}
+                        <tr>
+                            <td>{{ token.token_name }}</td>
+                            <td><code>{{ token.scope }}</code></td>
+                            <td><code>{{ token.token_prefix }}</code></td>
+                            <td>{{ token.create_date.strftime('%Y-%m-%d %H:%M') if token.create_date else '' }}</td>
+                            <td>{{ token.expires_date.strftime('%Y-%m-%d %H:%M') if token.expires_date else '' }}</td>
+                            <td>{{ token.last_used_date.strftime('%Y-%m-%d %H:%M') if token.last_used_date else '' }}</td>
+                            <td>
+                                {% if token.is_revoked %}
+                                    <span class="ui tiny label">Revoked</span>
+                                {% else %}
+                                    <span class="ui tiny green label">Active</span>
+                                {% endif %}
+                            </td>
+                            <td class="right aligned">
+                                {% if not token.is_revoked %}
+                                    <form class="ui form" method="post" action="{{ url_for('main_usersettings.mcp_token_revoke', token_row_id=token.id) }}">
+                                        {{ revoke_form.csrf_token }}
+                                        <button class="ui tiny negative button" type="submit">Revoke</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="ui info message">No MCP tokens created yet.</div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
 
 {% block content %}
     <div class="ui stackable centered grid container">
@@ -249,6 +334,8 @@
                 {{ user_account(form1, form2, current_user, subtype) }}
             {% elif type == 'git_repository' %}
                 {{ git_repository(form1, form2, current_user, subtype) }}
+            {% elif type == 'mcp_token' %}
+                {{ mcp_token_settings(create_form, revoke_form, tokens, new_token_value) }}
             {% endif %}
         </div>
     </div>
