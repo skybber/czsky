@@ -172,7 +172,22 @@ Useful environment variables:
 | `MCP_TRANSPORT` | `streamable-http` | Recommended MCP transport |
 | `MCP_HOST` | `127.0.0.1` | Bind address for the MCP sidecar |
 | `MCP_PORT` | `8001` | Port for the MCP sidecar |
+| `MCP_ENABLE_TOKEN_AUTH` | `1` | Enable bearer token verification for MCP transport |
+| `MCP_AUTH_ISSUER_URL` | derived from host/port | Optional OAuth issuer URL metadata |
+| `MCP_AUTH_RESOURCE_SERVER_URL` | `http://<host>:<port>/mcp` | Optional protected resource metadata URL |
 | `FLASK_CONFIG` | `default` | Reuses the standard Flask configuration selection |
+| `MCP_USER_ID` | unset | Local fallback user id for wishlist tools when token auth is disabled |
+
+When `MCP_ENABLE_TOKEN_AUTH=1`, the MCP transport requires `Authorization: Bearer <token>`.
+Use a token generated in `User settings -> MCP token`.
+
+Current MCP tools:
+
+- `resolve_sky_object`
+- `get_comet_recent_observations`
+- `wishlist.list`
+- `wishlist.get`
+- `wishlist.stats`
 
 #### Opening CzSkY in Browser
 To open the CzSkY home page in your browser, navigate to `http://localhost:5000`.
