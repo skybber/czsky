@@ -247,10 +247,14 @@ def _resolve_session_plan_target(
     }, None
 
 
-def _load_owned_session_plan(resolved_user_id: int, session_plan_id: int):
+def _load_owned_active_session_plan(resolved_user_id: int, session_plan_id: int):
     from app.models import SessionPlan
 
-    return SessionPlan.query.filter_by(id=session_plan_id, user_id=resolved_user_id).first()
+    return (
+        SessionPlan.query
+        .filter_by(id=session_plan_id, user_id=resolved_user_id, is_archived=False)
+        .first()
+    )
 
 
 def _find_session_plan_item(session_plan: Any, object_type: str, target_id: int):
@@ -453,6 +457,7 @@ def session_plan_get_id_by_date_payload(
         session_plans = (
             SessionPlan.query
             .filter(SessionPlan.user_id == resolved_user_id)
+            .filter(SessionPlan.is_archived.is_(False))
             .filter(db.func.date(SessionPlan.for_date) == target_date)
             .order_by(SessionPlan.for_date.desc(), SessionPlan.id.desc())
             .all()
@@ -498,7 +503,7 @@ def session_plan_add_item_payload(
 
     app = get_app()
     with app.app_context():
-        session_plan = _load_owned_session_plan(resolved_user_id, session_plan_id)
+        session_plan = _load_owned_active_session_plan(resolved_user_id, session_plan_id)
         if session_plan is None:
             return {
                 "added": False,
@@ -580,7 +585,7 @@ def session_plan_remove_item_payload(
 
     app = get_app()
     with app.app_context():
-        session_plan = _load_owned_session_plan(resolved_user_id, session_plan_id)
+        session_plan = _load_owned_active_session_plan(resolved_user_id, session_plan_id)
         if session_plan is None:
             return {
                 "removed": False,
