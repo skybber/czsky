@@ -71,9 +71,19 @@
             }
             return false;
         })();
+        this.isInEmbeddedIframePanel = false;
+        if (!this.isInFullscreenIframe) {
+            this.isInEmbeddedIframePanel = window !== top;
+        }
         // Disable real fullscreen in iframe mode
-        if (this.isInFullscreenIframe) {
+        if (this.isInFullscreenIframe || this.isInEmbeddedIframePanel) {
             this.isRealFullScreenSupported = false;
+        }
+        if (this.isInEmbeddedIframePanel) {
+            // Embedded panel should not initialize chart in split/fullscreen layout.
+            this.splitview = false;
+            this.fullScreen = false;
+            $('#fchart-iframe-placeholder').hide();
         }
         this.fullscreenWrapper = null;
         this.fullscreenIframe = null;

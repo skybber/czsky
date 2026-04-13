@@ -760,6 +760,18 @@
         return false;
     })();
 
+    // Regular embedded iframe panel (left/middle panel), not real fullscreen iframe.
+    const isInEmbeddedIframePanel = (function() {
+        if (isInFullscreenIframe) {
+            return false;
+        }
+        try {
+            return window !== top;
+        } catch (e) {
+            return true;
+        }
+    })();
+
     if (isInFullscreenIframe) {
         $(document).ready(function() {
             // Hide unnecessary UI elements
@@ -832,6 +844,19 @@
             }
         }, true);
         {% endif %}
+    }
+
+    function applyEmbeddedIframePanelUi() {
+        if (!isInEmbeddedIframePanel) {
+            return;
+        }
+        $('#splitview').val('false');
+        $('#fchart-iframe-placeholder').hide();
+        $('#fchart-div').removeClass('fchart-splitview').css({ left: '', width: '' });
+        $('.fchart-iframe, .fchart-separator').hide();
+        $("#top-menu").show();
+        $("#bhideleftpanel, #bshowleftpanel1, #bshowleftpanel2").hide();
+        $("#bhome, #bhome_mob, #bback, #bback_mob, #bdetail, #bdetail_mob, #isearch, #isearch2").hide();
     }
 
     function isWebGL2Supported() {
@@ -1042,6 +1067,7 @@
                     $("#bhome, #bback, #bdetail").hide();
                 }
             }
+            applyEmbeddedIframePanelUi();
             let popupContext = realFullScreen ? '#' + fullScreenWrapperId : 'body';
             $('.chart-popup').popup('hide');
             $('.chart-popup').popup('destroy');
@@ -1366,6 +1392,8 @@
         $("#bshowleftpanel1").show();
         $("#bshowleftpanel2").show();
     }
+
+    applyEmbeddedIframePanelUi();
 
     function setAladinLayer(surveyCustomName) {
         if (surveyCustomName in SURVEY_OPTIONS) {
@@ -2099,6 +2127,7 @@
             $("#top-menu, #right-menu, #isearch2").hide();
         }
     }
+    applyEmbeddedIframePanelUi();
 
     applyMobileMenuBottom($('#mobile_menu_bottom').val() == 'true');
 

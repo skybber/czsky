@@ -258,9 +258,21 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
         }
         return false;
     })();
+    this.isInEmbeddedIframePanel = false;
+    if (!this.isInFullscreenIframe) {
+        this.isInEmbeddedIframePanel = window !== top;
+    }
     // Disable real fullscreen in iframe mode
-    if (this.isInFullscreenIframe) {
+    if (this.isInFullscreenIframe || this.isInEmbeddedIframePanel) {
         this.isRealFullScreenSupported = false;
+    }
+    if (this.isInEmbeddedIframePanel) {
+        // Embedded panel should not initialize chart in split/fullscreen layout.
+        fullScreen = false;
+        splitview = false;
+        this.splitview = false;
+        $(this.fchartDiv).removeClass('fchart-fullscreen fchart-splitview');
+        $('#fchart-iframe-placeholder').hide();
     }
     this.fullscreenWrapper = undefined;
     this.fullscreenIframe = undefined;
@@ -368,7 +380,7 @@ function FChart (fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, 
 
     if (fullScreen) {
         $(this.fchartDiv).addClass('fchart-fullscreen');
-    } else if (splitview) {
+    } else if (this.splitview) {
         $(this.fchartDiv).addClass('fchart-splitview');
         $(".fchart-iframe").show();
         $(".fchart-separator").show();
