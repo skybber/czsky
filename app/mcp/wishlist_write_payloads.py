@@ -8,6 +8,9 @@ from typing import Any, Callable
 
 OBJECT_ID_PATTERN = re.compile(r"^(dso|double_star):(\d+)$", re.IGNORECASE)
 
+_BULK_ITEM_LIMIT = 500
+_IMPORT_CONTENT_MAX_BYTES = 1_000_000  # 1 MB
+
 
 def parse_wishlist_object_id(object_id: str | None) -> tuple[str, int] | None:
     if object_id is None:
@@ -322,6 +325,8 @@ def _bulk_add_objects_for_user(
 
     if isinstance(object_inputs, str) or not isinstance(object_inputs, list):
         raise ValueError("objects must be a list of strings")
+    if len(object_inputs) > _BULK_ITEM_LIMIT:
+        raise ValueError(f"Too many items; maximum is {_BULK_ITEM_LIMIT}")
 
     app = get_app()
     with app.app_context():
@@ -482,6 +487,8 @@ def wishlist_bulk_remove_payload(
 
     if isinstance(wishlist_item_ids, str) or not isinstance(wishlist_item_ids, list):
         raise ValueError("wishlist_item_ids must be a list")
+    if len(wishlist_item_ids) > _BULK_ITEM_LIMIT:
+        raise ValueError(f"Too many items; maximum is {_BULK_ITEM_LIMIT}")
 
     app = get_app()
     with app.app_context():
@@ -795,6 +802,8 @@ def wishlist_import_payload(
     normalized_format = _normalize_transfer_format(import_format)
     if not isinstance(content, str) or not content.strip():
         raise ValueError("content must be a non-empty string")
+    if len(content.encode("utf-8")) > _IMPORT_CONTENT_MAX_BYTES:
+        raise ValueError(f"Import content too large; maximum is {_IMPORT_CONTENT_MAX_BYTES // 1_000_000} MB")
 
     require_scope_if_available_func(required_scope)
     resolved_user_id = resolve_wishlist_user_id_func(user_id)
