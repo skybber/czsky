@@ -13,6 +13,8 @@ USER_SUBJECT_PATTERNS = (
 
 
 def get_access_token():
+    import logging
+
     try:
         from mcp.server.auth.middleware.auth_context import get_access_token as get_token
     except ImportError:
@@ -20,7 +22,8 @@ def get_access_token():
 
     try:
         return get_token()
-    except Exception:
+    except Exception as exc:
+        logging.getLogger(__name__).error("Failed to get MCP access token: %s", exc)
         return None
 
 
