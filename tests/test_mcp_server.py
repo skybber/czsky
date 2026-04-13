@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 import app.mcp_server as mcp_server
+from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import wishlist as wishlist_tools
 from flask import Flask, current_app
 
@@ -462,6 +463,85 @@ class McpWishlistWriteBridgeTestCase(unittest.TestCase):
         self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
 
 
+class McpSessionPlanBridgeTestCase(unittest.TestCase):
+    def test_session_plan_create_payload_passes_write_scope(self):
+        expected = {"created": True, "sessionPlanId": 10}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_create_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_create_payload(
+                for_date="2026-05-10",
+                location_name="Prague",
+                title="Test",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+        self.assertEqual(payload_mock.call_args.kwargs["location_name"], "Prague")
+
+    def test_session_plan_create_payload_accepts_location_id(self):
+        expected = {"created": True, "sessionPlanId": 11}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_create_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_create_payload(
+                for_date="2026-05-10",
+                location_id=12,
+                title="Plan with id",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["location_id"], 12)
+
+    def test_session_plan_get_id_by_date_payload_passes_read_scope(self):
+        expected = {"found": True, "sessionPlanId": 10, "sessionPlanIds": [10], "total": 1}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_get_id_by_date_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_get_id_by_date_payload(
+                for_date="2026-05-10",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:read")
+
+    def test_session_plan_add_item_payload_passes_write_scope(self):
+        expected = {"added": True, "sessionPlanItemId": 77}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_add_item_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_add_item_payload(
+                session_plan_id=10,
+                query="M1",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
+    def test_session_plan_remove_item_payload_passes_write_scope(self):
+        expected = {"removed": True, "sessionPlanItemId": 77}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_remove_item_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_remove_item_payload(
+                session_plan_id=10,
+                query="M1",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
+
 class _DummyToolServer:
     def __init__(self):
         self.tool_names = []
@@ -498,3 +578,24 @@ class McpWishlistToolsRegistrationTestCase(unittest.TestCase):
         self.assertIn("wishlist.contains", server.tool_names)
         self.assertIn("wishlist.find", server.tool_names)
         self.assertNotIn("wishlist.get", server.tool_names)
+
+
+class McpSessionPlanToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_session_plan_tools(self):
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        session_plan_tools.register_tools(
+            server,
+            session_plan_create_resolver=_noop,
+            session_plan_get_id_by_date_resolver=_noop,
+            session_plan_add_item_resolver=_noop,
+            session_plan_remove_item_resolver=_noop,
+        )
+
+        self.assertIn("session_plan.create", server.tool_names)
+        self.assertIn("session_plan.get_id_by_date", server.tool_names)
+        self.assertIn("session_plan.add_item", server.tool_names)
+        self.assertIn("session_plan.remove_item", server.tool_names)
