@@ -9,6 +9,7 @@ from app.mcp import app_context
 from app.mcp import auth as mcp_auth
 from app.mcp import runtime as mcp_runtime
 from app.mcp import sky_objects as mcp_sky_objects
+from app.mcp import wishlist_lookup_payloads as mcp_wishlist_lookup_payloads
 from app.mcp import wishlist_payloads as mcp_wishlist_payloads
 from app.mcp import wishlist_query
 from app.mcp import wishlist_repo
@@ -241,6 +242,40 @@ def wishlist_get_payload(wishlist_item_id: str, user_id: int | None = None) -> d
     )
 
 
+def wishlist_contains_payload(
+    query: str,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_wishlist_lookup_payloads.wishlist_contains_payload(
+        query=query,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=WISHLIST_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+        resolve_global_object_func=resolve_global_object,
+        load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
+    )
+
+
+def wishlist_find_payload(
+    query: str,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_wishlist_lookup_payloads.wishlist_find_payload(
+        query=query,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=WISHLIST_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+        resolve_global_object_func=resolve_global_object,
+        load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
+        load_observed_sets_for_user_wishlist_func=_load_observed_sets_for_user_wishlist,
+        build_wishlist_item_detail_func=_build_wishlist_item_detail,
+    )
+
+
 def wishlist_stats_payload(user_id: int | None = None) -> dict[str, Any]:
     return mcp_wishlist_payloads.wishlist_stats_payload(
         user_id=user_id,
@@ -365,8 +400,9 @@ def build_mcp_server():
         wishlist_tools.register_tools(
             server,
             wishlist_list_resolver=wishlist_list_payload,
-            wishlist_get_resolver=wishlist_get_payload,
             wishlist_stats_resolver=wishlist_stats_payload,
+            wishlist_contains_resolver=wishlist_contains_payload,
+            wishlist_find_resolver=wishlist_find_payload,
             wishlist_add_resolver=wishlist_add_payload,
             wishlist_remove_resolver=wishlist_remove_payload,
             wishlist_bulk_add_resolver=wishlist_bulk_add_payload,

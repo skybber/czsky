@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 import app.mcp_server as mcp_server
+from app.mcp.tools import wishlist as wishlist_tools
 from flask import Flask, current_app
 
 
@@ -263,6 +264,85 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         self.assertEqual(len(result["items"]), 1)
         self.assertEqual(result["items"][0]["wishlistItemId"], "w_1")
 
+    def test_wishlist_contains_payload_matches_item_for_current_user(self):
+        fake_app = Flask("mcp-test-app")
+        resolved = {
+            "object_type": "dso",
+            "object": type("Dso", (), {"id": 1})(),
+        }
+
+        with patch("app.mcp_server.get_app", return_value=fake_app), \
+             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server.resolve_global_object", return_value=resolved), \
+             patch("app.mcp_server._load_wishlist_items_for_user",
+                   return_value=(self.wishlist, [self.item_1])):
+            result = mcp_server.wishlist_contains_payload(query="M31", user_id=5)
+
+        self.assertTrue(result["contains"])
+        self.assertEqual(result["reason"], "in_wishlist")
+        self.assertEqual(result["wishlistItemId"], "w_1")
+        self.assertEqual(result["objectId"], "dso:1")
+
+    def test_wishlist_contains_payload_does_not_match_other_items(self):
+        fake_app = Flask("mcp-test-app")
+        resolved = {
+            "object_type": "dso",
+            "object": type("Dso", (), {"id": 1})(),
+        }
+
+        with patch("app.mcp_server.get_app", return_value=fake_app), \
+             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server.resolve_global_object", return_value=resolved), \
+             patch(
+                 "app.mcp_server._load_wishlist_items_for_user",
+                 return_value=(self.wishlist, [self.item_2]),
+             ) as load_items_mock:
+            result = mcp_server.wishlist_contains_payload(query="M31", user_id=5)
+
+        load_items_mock.assert_called_once_with(5)
+        self.assertFalse(result["contains"])
+        self.assertEqual(result["reason"], "not_in_wishlist")
+
+    def test_wishlist_find_payload_returns_item_for_current_user(self):
+        fake_app = Flask("mcp-test-app")
+        resolved = {
+            "object_type": "dso",
+            "object": type("Dso", (), {"id": 1})(),
+        }
+
+        expected_item = {
+            "wishlistItemId": "w_1",
+            "objectId": "dso:1",
+            "identifier": "M31",
+            "name": "M 31",
+            "itemType": "dso",
+            "objectType": "Galaxy",
+            "constellation": "AND",
+            "magnitude": 3.4,
+            "order": 1,
+            "observed": False,
+            "addedAt": "2026-04-10T20:00:00",
+            "updatedAt": "2026-04-10T20:30:00",
+        }
+
+        with patch("app.mcp_server.get_app", return_value=fake_app), \
+             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server.resolve_global_object", return_value=resolved), \
+             patch(
+                 "app.mcp_server._load_wishlist_items_for_user",
+                 return_value=(self.wishlist, [self.item_1]),
+             ), \
+             patch(
+                 "app.mcp_server._load_observed_sets_for_user_wishlist",
+                 return_value=(set(), set()),
+             ), \
+             patch("app.mcp_server._build_wishlist_item_detail", return_value=expected_item):
+            result = mcp_server.wishlist_find_payload(query="M31", user_id=5)
+
+        self.assertTrue(result["found"])
+        self.assertEqual(result["reason"], "in_wishlist")
+        self.assertEqual(result["item"]["wishlistItemId"], "w_1")
+
 
 class McpAuthBridgeTestCase(unittest.TestCase):
     def test_build_base_url_normalizes_bind_all_host(self):
@@ -380,3 +460,41 @@ class McpWishlistWriteBridgeTestCase(unittest.TestCase):
 
         self.assertEqual(result, expected)
         self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
+
+
+class _DummyToolServer:
+    def __init__(self):
+        self.tool_names = []
+
+    def tool(self, name=None):
+        def decorator(fn):
+            self.tool_names.append(name or fn.__name__)
+            return fn
+
+        return decorator
+
+
+class McpWishlistToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_contains_and_find_tools(self):
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        wishlist_tools.register_tools(
+            server,
+            wishlist_list_resolver=_noop,
+            wishlist_stats_resolver=_noop,
+            wishlist_contains_resolver=_noop,
+            wishlist_find_resolver=_noop,
+            wishlist_add_resolver=_noop,
+            wishlist_remove_resolver=_noop,
+            wishlist_bulk_add_resolver=_noop,
+            wishlist_bulk_remove_resolver=_noop,
+            wishlist_export_resolver=_noop,
+            wishlist_import_resolver=_noop,
+        )
+
+        self.assertIn("wishlist.contains", server.tool_names)
+        self.assertIn("wishlist.find", server.tool_names)
+        self.assertNotIn("wishlist.get", server.tool_names)

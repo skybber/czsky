@@ -7,8 +7,9 @@ def register_tools(
     server: Any,
     *,
     wishlist_list_resolver: Callable[..., dict[str, Any]],
-    wishlist_get_resolver: Callable[..., dict[str, Any]],
     wishlist_stats_resolver: Callable[..., dict[str, Any]],
+    wishlist_contains_resolver: Callable[..., dict[str, Any]],
+    wishlist_find_resolver: Callable[..., dict[str, Any]],
     wishlist_add_resolver: Callable[..., dict[str, Any]],
     wishlist_remove_resolver: Callable[..., dict[str, Any]],
     wishlist_bulk_add_resolver: Callable[..., dict[str, Any]],
@@ -41,15 +42,20 @@ def register_tools(
             constellations=constellations,
         )
 
-    @server.tool(name="wishlist.get")
-    def wishlist_get(wishlist_item_id: str, user_id: int | None = None) -> dict[str, Any]:
-        """Return details for a single wishlist item."""
-        return wishlist_get_resolver(wishlist_item_id=wishlist_item_id, user_id=user_id)
-
     @server.tool(name="wishlist.stats")
     def wishlist_stats(user_id: int | None = None) -> dict[str, Any]:
         """Return aggregate wishlist statistics."""
         return wishlist_stats_resolver(user_id=user_id)
+
+    @server.tool(name="wishlist.contains")
+    def wishlist_contains(query: str, user_id: int | None = None) -> dict[str, Any]:
+        """Check whether the user's wishlist contains an object resolved from query."""
+        return wishlist_contains_resolver(query=query, user_id=user_id)
+
+    @server.tool(name="wishlist.find")
+    def wishlist_find(query: str, user_id: int | None = None) -> dict[str, Any]:
+        """Find wishlist item details for object resolved from query."""
+        return wishlist_find_resolver(query=query, user_id=user_id)
 
     @server.tool(name="wishlist.add")
     def wishlist_add(
