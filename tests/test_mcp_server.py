@@ -304,3 +304,79 @@ class McpAuthBridgeTestCase(unittest.TestCase):
             auth_token = asyncio.run(token_verifier.verify_token("czmcp_invalid"))
 
         self.assertIsNone(auth_token)
+
+
+class McpWishlistWriteBridgeTestCase(unittest.TestCase):
+    def test_parse_wishlist_object_id_accepts_supported_format(self):
+        self.assertEqual(mcp_server._parse_wishlist_object_id("dso:12"), ("dso", 12))
+        self.assertEqual(mcp_server._parse_wishlist_object_id("double_star:34"), ("double_star", 34))
+
+    def test_parse_wishlist_object_id_rejects_invalid_format(self):
+        with self.assertRaises(ValueError):
+            mcp_server._parse_wishlist_object_id("planet:1")
+
+    def test_wishlist_add_payload_passes_write_scope(self):
+        expected = {"added": True}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_add_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_add_payload(object_id="dso:1", user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
+
+    def test_wishlist_remove_payload_passes_write_scope(self):
+        expected = {"removed": True}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_remove_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_remove_payload(wishlist_item_id="w_1", user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
+
+    def test_wishlist_bulk_add_payload_passes_write_scope(self):
+        expected = {"total": 1, "added": 1, "skipped": 0, "results": []}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_bulk_add_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_bulk_add_payload(objects=["M31"], user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
+
+    def test_wishlist_bulk_remove_payload_passes_write_scope(self):
+        expected = {"total": 1, "removed": 1, "notRemoved": 0, "results": []}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_bulk_remove_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_bulk_remove_payload(wishlist_item_ids=["w_1"], user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
+
+    def test_wishlist_export_payload_passes_read_scope(self):
+        expected = {"format": "json", "content": "{}", "total": 0}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_export_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_export_payload(format="json", user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:read")
+
+    def test_wishlist_import_payload_passes_write_scope(self):
+        expected = {"format": "json", "processed": 0, "added": 0, "skipped": 0, "errors": 0, "results": []}
+        with patch(
+            "app.mcp_server.mcp_wishlist_write_payloads.wishlist_import_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.wishlist_import_payload(content='{"items":[]}', format="json", user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "wishlist:write")
