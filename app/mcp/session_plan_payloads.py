@@ -170,9 +170,10 @@ def _resolve_location_for_session_plan_create(
                 _serialize_location_row(match) for match in exact_matches[:10]
             ]
 
+        escaped_name = parsed_location_name.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
         similar_matches = (
             Location.query
-            .filter(Location.name.ilike(f"%{parsed_location_name}%"))
+            .filter(Location.name.ilike(f"%{escaped_name}%", escape="\\"))
             .filter(
                 or_(
                     Location.user_id == resolved_user_id,
@@ -370,7 +371,7 @@ def session_plan_create_payload(
     resolved_user_id = resolve_wishlist_user_id_func(user_id)
 
     parsed_for_date = parse_for_date(for_date)
-    normalized_title = (title or "").strip() or "Uknown"
+    normalized_title = ((title or "").strip() or "Unknown")[:128]
 
     app = get_app()
     with app.app_context():
