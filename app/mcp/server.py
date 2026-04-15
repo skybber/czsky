@@ -8,13 +8,15 @@ from app.commons.mcp_sky_object_formatters import format_resolved_object
 from app.mcp import app_context
 from app.mcp import auth as mcp_auth
 from app.mcp import runtime as mcp_runtime
-from app.mcp import sky_objects as mcp_sky_objects
+from app.mcp import sky_objects_payloads as mcp_sky_objects
+from app.mcp import dso_payloads as mcp_dso_payloads
 from app.mcp import session_plan_payloads as mcp_session_plan_payloads
 from app.mcp import wishlist_lookup_payloads as mcp_wishlist_lookup_payloads
 from app.mcp import wishlist_payloads as mcp_wishlist_payloads
 from app.mcp import wishlist_query
 from app.mcp import wishlist_repo
 from app.mcp import wishlist_write_payloads as mcp_wishlist_write_payloads
+from app.mcp.tools import dso as dso_tools
 from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import sky_objects as sky_object_tools
 from app.mcp.tools import wishlist as wishlist_tools
@@ -24,6 +26,7 @@ from app.mcp.tools import wishlist as wishlist_tools
 
 WISHLIST_READ_SCOPE = "wishlist:read"
 WISHLIST_WRITE_SCOPE = "wishlist:write"
+DSO_READ_SCOPE = "dso:read"
 SESSION_PLAN_READ_SCOPE = "sessionplan:read"
 SESSION_PLAN_WRITE_SCOPE = "sessionplan:write"
 MAX_WISHLIST_PAGE_SIZE = wishlist_query.MAX_WISHLIST_PAGE_SIZE
@@ -447,6 +450,38 @@ def session_plan_add_item_payload(
     )
 
 
+def dso_find_payload(
+    obj_source: str | None = None,
+    dso_type: str | None = None,
+    maglim: int | None = None,
+    constellation: str | None = None,
+    min_altitude: int = 5,
+    session_plan_id: int | None = None,
+    time_from: str | None = None,
+    time_to: str | None = None,
+    not_observed: bool = True,
+    max_results: int = 20,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_dso_payloads.dso_find_payload(
+        obj_source=obj_source,
+        dso_type=dso_type,
+        maglim=maglim,
+        constellation=constellation,
+        min_altitude=min_altitude,
+        session_plan_id=session_plan_id,
+        time_from=time_from,
+        time_to=time_to,
+        not_observed=not_observed,
+        max_results=max_results,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=DSO_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
 def dso_list_get_id_by_name_payload(
     name: str,
     user_id: int | None = None,
@@ -480,6 +515,10 @@ def session_plan_remove_item_payload(
 
 def build_mcp_server():
     def _register_tools(server):
+        dso_tools.register_tools(
+            server,
+            dso_find_resolver=dso_find_payload,
+        )
         sky_object_tools.register_tools(
             server,
             resolve_sky_object_resolver=resolve_sky_object_payload,
