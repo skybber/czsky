@@ -564,6 +564,93 @@ def session_plan_add_item_payload(
         }
 
 
+def dso_list_get_id_by_name_payload(
+    *,
+    name: Any,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from sqlalchemy import func
+
+    from app.models import DsoList
+
+    require_scope_if_available_func(required_scope)
+    resolve_wishlist_user_id_func(user_id)
+
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("name must be a non-empty string")
+
+    stripped = name.strip()
+    if len(stripped) > 256:
+        raise ValueError("name must be at most 256 characters")
+
+    app = get_app()
+    with app.app_context():
+        def _serialize(dso_list: Any) -> dict[str, Any]:
+            return {
+                "dsoListId": dso_list.id,
+                "name": dso_list.name,
+                "longName": dso_list.long_name,
+            }
+
+        # exact match on name or long_name
+        exact_matches = (
+            DsoList.query
+            .filter(DsoList.hidden.is_(False))
+            .filter(
+                (func.lower(DsoList.name) == stripped.casefold()) |
+                (func.lower(DsoList.long_name) == stripped.casefold())
+            )
+            .order_by(DsoList.id.asc())
+            .all()
+        )
+        if len(exact_matches) == 1:
+            return {
+                "found": True,
+                "reason": "found",
+                "dsoListId": exact_matches[0].id,
+                "candidates": [_serialize(exact_matches[0])],
+            }
+        if len(exact_matches) > 1:
+            return {
+                "found": False,
+                "reason": "ambiguous",
+                "dsoListId": None,
+                "candidates": [_serialize(m) for m in exact_matches[:10]],
+            }
+
+        # fuzzy match
+        escaped = stripped.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        similar_matches = (
+            DsoList.query
+            .filter(DsoList.hidden.is_(False))
+            .filter(
+                DsoList.name.ilike(f"%{escaped}%", escape="\\") |
+                DsoList.long_name.ilike(f"%{escaped}%", escape="\\")
+            )
+            .order_by(DsoList.id.asc())
+            .limit(10)
+            .all()
+        )
+        if similar_matches:
+            return {
+                "found": False,
+                "reason": "ambiguous",
+                "dsoListId": None,
+                "candidates": [_serialize(m) for m in similar_matches],
+            }
+
+        return {
+            "found": False,
+            "reason": "not_found",
+            "dsoListId": None,
+            "candidates": [],
+        }
+
+
 def session_plan_remove_item_payload(
     *,
     session_plan_id: int,

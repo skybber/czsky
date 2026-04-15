@@ -10,6 +10,7 @@ def register_tools(
     session_plan_get_id_by_date_resolver: Callable[..., dict[str, Any]],
     session_plan_add_item_resolver: Callable[..., dict[str, Any]],
     session_plan_remove_item_resolver: Callable[..., dict[str, Any]],
+    dso_list_get_id_by_name_resolver: Callable[..., dict[str, Any]],
 ) -> None:
     @server.tool(name="session_plan.create")
     def session_plan_create(
@@ -63,3 +64,16 @@ def register_tools(
             query=query,
             user_id=user_id,
         )
+
+    @server.tool(name="session_plan.get_dso_list_id_by_name")
+    def dso_list_get_id_by_name(
+        name: str,
+        user_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Find a DSO list ID by its name or long name.
+
+        Returns an exact match when unique, or a list of candidates when the name
+        is ambiguous or only partially matched. Use the returned dsoListId as the
+        dso_list_id parameter when filtering session plan items by DSO list.
+        """
+        return dso_list_get_id_by_name_resolver(name=name, user_id=user_id)

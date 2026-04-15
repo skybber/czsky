@@ -447,6 +447,20 @@ def session_plan_add_item_payload(
     )
 
 
+def dso_list_get_id_by_name_payload(
+    name: str,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.dso_list_get_id_by_name_payload(
+        name=name,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
 def session_plan_remove_item_payload(
     session_plan_id: int,
     query: str,
@@ -477,6 +491,7 @@ def build_mcp_server():
             session_plan_get_id_by_date_resolver=session_plan_get_id_by_date_payload,
             session_plan_add_item_resolver=session_plan_add_item_payload,
             session_plan_remove_item_resolver=session_plan_remove_item_payload,
+            dso_list_get_id_by_name_resolver=dso_list_get_id_by_name_payload,
         )
         wishlist_tools.register_tools(
             server,
