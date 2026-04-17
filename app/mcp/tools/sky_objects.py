@@ -7,6 +7,7 @@ def register_tools(
     server: Any,
     *,
     resolve_sky_object_resolver: Callable[[str], dict[str, Any]],
+    resolve_sky_objects_resolver: Callable[[list[str]], dict[str, Any]],
     comet_observations_resolver: Callable[[str, int], dict[str, Any]],
 ) -> None:
     @server.tool()
@@ -20,6 +21,17 @@ def register_tools(
         COBS observations stored in the CzSkY database.
         """
         return resolve_sky_object_resolver(query)
+
+    @server.tool()
+    def resolve_sky_objects(queries: list[str]) -> dict[str, Any]:
+        """Find multiple astronomical objects in the local CzSkY database.
+
+        Accepts a list of identifiers or names such as M31, NGC891, Saturn,
+        Moon, comet designations, minor planets, stars, double stars, and
+        constellation names. Returns one result entry per query using the same
+        priority as the CzSkY global search.
+        """
+        return resolve_sky_objects_resolver(queries)
 
     @server.tool()
     def get_comet_recent_observations(query: str, limit: int = 5) -> dict[str, Any]:

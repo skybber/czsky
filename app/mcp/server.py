@@ -188,6 +188,15 @@ def resolve_sky_object_payload(query: str) -> dict[str, Any]:
     )
 
 
+def resolve_sky_objects_payload(queries: list[str]) -> dict[str, Any]:
+    return mcp_sky_objects.resolve_sky_objects_payload(
+        queries=queries,
+        get_app=get_app,
+        resolve_global_object=resolve_global_object,
+        format_resolved_object=format_resolved_object,
+    )
+
+
 def resolve_sky_object(query: str) -> dict[str, Any]:
     return resolve_sky_object_payload(query)
 
@@ -419,6 +428,36 @@ def session_plan_create_payload(
     )
 
 
+def session_plan_get_payload(
+    session_plan_id: int,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_get_payload(
+        session_plan_id=session_plan_id,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
+def session_plan_list_payload(
+    for_date: str | None = None,
+    include_archived: bool = False,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_list_payload(
+        for_date=for_date,
+        include_archived=include_archived,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
 def session_plan_get_id_by_date_payload(
     for_date: str,
     user_id: int | None = None,
@@ -450,6 +489,72 @@ def session_plan_add_item_payload(
     )
 
 
+def session_plan_items_payload(
+    session_plan_id: int,
+    object_types: list[str] | None = None,
+    dso_list_id: int | None = None,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_items_payload(
+        session_plan_id=session_plan_id,
+        object_types=object_types,
+        dso_list_id=dso_list_id,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
+def session_plan_add_items_payload(
+    session_plan_id: int,
+    queries: list[str],
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_add_items_payload(
+        session_plan_id=session_plan_id,
+        queries=queries,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_WRITE_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+        resolve_global_object_func=resolve_global_object,
+    )
+
+
+def session_plan_remove_items_payload(
+    session_plan_id: int,
+    queries: list[str],
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_remove_items_payload(
+        session_plan_id=session_plan_id,
+        queries=queries,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_WRITE_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+        resolve_global_object_func=resolve_global_object,
+    )
+
+
+def session_plan_clear_payload(
+    session_plan_id: int,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_session_plan_payloads.session_plan_clear_payload(
+        session_plan_id=session_plan_id,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=SESSION_PLAN_WRITE_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
 def dso_find_payload(
     obj_source: str | None = None,
     dso_type: str | None = None,
@@ -474,6 +579,16 @@ def dso_find_payload(
         time_to=time_to,
         not_observed=not_observed,
         max_results=max_results,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=DSO_READ_SCOPE,
+        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        get_app=get_app,
+    )
+
+
+def dso_list_sources_payload(user_id: int | None = None) -> dict[str, Any]:
+    return mcp_dso_payloads.dso_list_sources_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=DSO_READ_SCOPE,
@@ -518,18 +633,26 @@ def build_mcp_server():
         dso_tools.register_tools(
             server,
             dso_find_resolver=dso_find_payload,
+            dso_list_sources_resolver=dso_list_sources_payload,
         )
         sky_object_tools.register_tools(
             server,
             resolve_sky_object_resolver=resolve_sky_object_payload,
+            resolve_sky_objects_resolver=resolve_sky_objects_payload,
             comet_observations_resolver=get_comet_recent_observations_payload,
         )
         session_plan_tools.register_tools(
             server,
             session_plan_create_resolver=session_plan_create_payload,
+            session_plan_get_resolver=session_plan_get_payload,
+            session_plan_list_resolver=session_plan_list_payload,
             session_plan_get_id_by_date_resolver=session_plan_get_id_by_date_payload,
+            session_plan_items_resolver=session_plan_items_payload,
             session_plan_add_item_resolver=session_plan_add_item_payload,
+            session_plan_add_items_resolver=session_plan_add_items_payload,
             session_plan_remove_item_resolver=session_plan_remove_item_payload,
+            session_plan_remove_items_resolver=session_plan_remove_items_payload,
+            session_plan_clear_resolver=session_plan_clear_payload,
             dso_list_get_id_by_name_resolver=dso_list_get_id_by_name_payload,
         )
         wishlist_tools.register_tools(

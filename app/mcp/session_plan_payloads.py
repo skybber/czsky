@@ -257,6 +257,174 @@ def _load_owned_active_session_plan(resolved_user_id: int, session_plan_id: int)
     )
 
 
+def _load_owned_session_plan(resolved_user_id: int, session_plan_id: int):
+    from app.models import SessionPlan
+
+    return (
+        SessionPlan.query
+        .filter_by(id=session_plan_id, user_id=resolved_user_id)
+        .first()
+    )
+
+
+def _serialize_session_plan_location(session_plan: Any) -> dict[str, Any]:
+    location_name = session_plan.location.name if session_plan.location else None
+    return {
+        "locationId": session_plan.location_id,
+        "locationName": location_name,
+        "locationPosition": session_plan.location_position,
+    }
+
+
+def _serialize_session_plan_item(item: Any) -> dict[str, Any]:
+    from app.models import Constellation
+
+    object_type = None
+    object_id = None
+    title = None
+    identifier = None
+    summary = {}
+    coordinates = {
+        "ra": item.get_ra(),
+        "dec": item.get_dec(),
+        "ra_str": item.get_ra_str_short(),
+        "dec_str": item.get_dec_str_short(),
+    }
+
+    if item.deepsky_object is not None:
+        dso = item.deepsky_object
+        object_type = "dso"
+        object_id = f"dso:{dso.id}"
+        title = dso.denormalized_name()
+        identifier = dso.name
+        summary = {
+            "classification": dso.type,
+            "magnitude": dso.mag,
+        }
+        constell = Constellation.get_constellation_by_id(dso.constellation_id) if dso.constellation_id else None
+    elif item.double_star is not None:
+        double_star = item.double_star
+        object_type = "double_star"
+        object_id = f"double_star:{double_star.id}"
+        title = double_star.get_catalog_name()
+        identifier = double_star.common_cat_id or double_star.wds_number
+        summary = {
+            "classification": "double_star",
+            "separation": double_star.separation,
+        }
+        constell = Constellation.get_constellation_by_id(double_star.constellation_id) if double_star.constellation_id else None
+    elif item.comet is not None:
+        comet = item.comet
+        object_type = "comet"
+        object_id = f"comet:{comet.id}"
+        title = comet.designation
+        identifier = comet.comet_id
+        summary = {
+            "classification": "comet",
+            "magnitude": comet.real_mag if comet.real_mag is not None else comet.eval_mag,
+        }
+        constell = Constellation.get_constellation_by_id(item.constell_id) if item.constell_id else comet.cur_constell()
+    elif item.minor_planet is not None:
+        minor_planet = item.minor_planet
+        object_type = "minor_planet"
+        object_id = f"minor_planet:{minor_planet.id}"
+        title = minor_planet.designation or str(minor_planet.int_designation)
+        identifier = str(minor_planet.int_designation)
+        summary = {
+            "classification": "minor_planet",
+            "magnitude": minor_planet.eval_mag,
+        }
+        constell = Constellation.get_constellation_by_id(item.constell_id) if item.constell_id else minor_planet.cur_constell()
+    elif item.planet is not None:
+        planet = item.planet
+        object_type = "planet"
+        object_id = f"planet:{planet.id}"
+        title = planet.get_localized_name()
+        identifier = planet.iau_code
+        summary = {
+            "classification": "planet",
+        }
+        constell = Constellation.get_constellation_by_id(item.constell_id) if item.constell_id else None
+    else:
+        constell = Constellation.get_constellation_by_id(item.constell_id) if item.constell_id else None
+
+    return {
+        "sessionPlanItemId": item.id,
+        "order": item.order,
+        "itemType": object_type,
+        "objectId": object_id,
+        "title": title,
+        "identifier": identifier,
+        "coordinates": coordinates,
+        "summary": summary,
+        "constellation": constell.iau_code if constell else None,
+        "constellationName": constell.name if constell else None,
+    }
+
+
+def _get_session_plan_astronomical_night(session_plan: Any) -> dict[str, Any]:
+    try:
+        from app.mcp.dso_payloads import _build_observer_tzinfo, _get_twilight_window
+
+        _observer, tz_info, latitude, longitude = _build_observer_tzinfo(session_plan)
+        time_from, time_to = _get_twilight_window(session_plan, latitude, longitude, tz_info)
+        return {
+            "astronomicalNightStart": _to_iso(time_from),
+            "astronomicalNightEnd": _to_iso(time_to),
+        }
+    except Exception:
+        return {
+            "astronomicalNightStart": None,
+            "astronomicalNightEnd": None,
+        }
+
+
+def _serialize_session_plan_summary(session_plan: Any) -> dict[str, Any]:
+    return {
+        "sessionPlanId": session_plan.id,
+        "title": session_plan.title,
+        "forDate": _to_iso(session_plan.for_date),
+        "isArchived": bool(session_plan.is_archived),
+        "isPublic": bool(session_plan.is_public),
+        "isAnonymous": bool(session_plan.is_anonymous),
+        **_serialize_session_plan_location(session_plan),
+        **_get_session_plan_astronomical_night(session_plan),
+    }
+
+
+def _serialize_session_plan(session_plan: Any, items: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    sorted_items = items
+    if sorted_items is None:
+        sorted_items = [
+            _serialize_session_plan_item(item)
+            for item in sorted(session_plan.session_plan_items, key=lambda current: ((current.order or 0), current.id or 0))
+        ]
+
+    return {
+        **_serialize_session_plan_summary(session_plan),
+        "itemCount": len(sorted_items),
+        "items": sorted_items,
+    }
+
+
+def _parse_session_plan_object_types(object_types: Any) -> set[str] | None:
+    if object_types is None:
+        return None
+    if not isinstance(object_types, list):
+        raise ValueError("object_types must be a list of strings")
+
+    valid = {"dso", "double_star", "comet", "minor_planet", "planet"}
+    parsed = set()
+    for value in object_types:
+        if not isinstance(value, str):
+            raise ValueError("object_types must be a list of strings")
+        normalized = value.strip().lower()
+        if normalized not in valid:
+            raise ValueError("object_types contains unsupported value")
+        parsed.add(normalized)
+    return parsed
+
+
 def _find_session_plan_item(session_plan: Any, object_type: str, target_id: int):
     if object_type == "dso":
         return session_plan.find_dso_item_by_id(target_id)
@@ -434,6 +602,79 @@ def session_plan_create_payload(
         }
 
 
+def session_plan_get_payload(
+    *,
+    session_plan_id: int,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
+        raise ValueError("session_plan_id must be a positive integer")
+
+    app = get_app()
+    with app.app_context():
+        session_plan = _load_owned_session_plan(resolved_user_id, session_plan_id)
+        if session_plan is None:
+            return {
+                "found": False,
+                "reason": "session_plan_not_found",
+                "sessionPlan": None,
+            }
+
+        return {
+            "found": True,
+            "reason": "found",
+            "sessionPlan": _serialize_session_plan(session_plan),
+        }
+
+
+def session_plan_list_payload(
+    *,
+    for_date: Any,
+    include_archived: bool,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from app import db
+    from app.models import SessionPlan
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    parsed_for_date = parse_for_date(for_date).date() if for_date is not None else None
+
+    app = get_app()
+    with app.app_context():
+        query = SessionPlan.query.filter(SessionPlan.user_id == resolved_user_id)
+        if not include_archived:
+            query = query.filter(SessionPlan.is_archived.is_(False))
+        if parsed_for_date is not None:
+            query = query.filter(db.func.date(SessionPlan.for_date) == parsed_for_date)
+
+        session_plans = query.order_by(SessionPlan.for_date.desc(), SessionPlan.id.desc()).all()
+        items = [
+            {
+                **_serialize_session_plan_summary(session_plan),
+                "itemCount": len(session_plan.session_plan_items),
+            }
+            for session_plan in session_plans
+        ]
+
+        return {
+            "total": len(items),
+            "sessionPlans": items,
+        }
+
+
 def session_plan_get_id_by_date_payload(
     *,
     for_date: Any,
@@ -479,6 +720,77 @@ def session_plan_get_id_by_date_payload(
             "sessionPlanId": ids[0],
             "sessionPlanIds": ids,
             "total": len(ids),
+        }
+
+
+def session_plan_items_payload(
+    *,
+    session_plan_id: int,
+    object_types: Any,
+    dso_list_id: Any,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from app.models import DsoList, DsoListItem
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
+        raise ValueError("session_plan_id must be a positive integer")
+
+    parsed_object_types = _parse_session_plan_object_types(object_types)
+    parsed_dso_list_id = parse_location_id(dso_list_id)
+
+    app = get_app()
+    with app.app_context():
+        session_plan = _load_owned_session_plan(resolved_user_id, session_plan_id)
+        if session_plan is None:
+            return {
+                "found": False,
+                "reason": "session_plan_not_found",
+                "sessionPlanId": session_plan_id,
+                "items": [],
+                "total": 0,
+            }
+
+        dso_ids_in_list = None
+        if parsed_dso_list_id is not None:
+            dso_list = DsoList.query.filter_by(id=parsed_dso_list_id, hidden=False).first()
+            if dso_list is None:
+                return {
+                    "found": False,
+                    "reason": "dso_list_not_found",
+                    "sessionPlanId": session_plan_id,
+                    "items": [],
+                    "total": 0,
+                }
+            dso_ids_in_list = {
+                dso_id
+                for (dso_id,) in DsoListItem.query
+                .filter(DsoListItem.dso_list_id == parsed_dso_list_id)
+                .with_entities(DsoListItem.dso_id)
+                .all()
+            }
+
+        items = []
+        for item in sorted(session_plan.session_plan_items, key=lambda current: ((current.order or 0), current.id or 0)):
+            serialized = _serialize_session_plan_item(item)
+            if parsed_object_types is not None and serialized["itemType"] not in parsed_object_types:
+                continue
+            if dso_ids_in_list is not None and (item.dso_id is None or item.dso_id not in dso_ids_in_list):
+                continue
+            items.append(serialized)
+
+        return {
+            "found": True,
+            "reason": "found",
+            "sessionPlanId": session_plan_id,
+            "items": items,
+            "total": len(items),
         }
 
 
@@ -561,6 +873,278 @@ def session_plan_add_item_payload(
             "sessionPlanId": session_plan_id,
             "sessionPlanItemId": new_item.id,
             "objectId": target["objectId"],
+        }
+
+
+def session_plan_add_items_payload(
+    *,
+    session_plan_id: int,
+    queries: Any,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+    resolve_global_object_func: Callable[[str], dict[str, Any] | None],
+) -> dict[str, Any]:
+    from app import db
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
+        raise ValueError("session_plan_id must be a positive integer")
+
+    if not isinstance(queries, list):
+        raise ValueError("queries must be a list of object names")
+    if not queries:
+        raise ValueError("queries must not be empty")
+    if len(queries) > 100:
+        raise ValueError("queries must contain at most 100 items")
+
+    app = get_app()
+    with app.app_context():
+        session_plan = _load_owned_active_session_plan(resolved_user_id, session_plan_id)
+        if session_plan is None:
+            return {
+                "sessionPlanId": session_plan_id,
+                "addedCount": 0,
+                "results": [
+                    {
+                        "query": query,
+                        "added": False,
+                        "reason": "session_plan_not_found",
+                        "sessionPlanItemId": None,
+                        "objectId": None,
+                    }
+                    for query in queries
+                ],
+            }
+
+        results = []
+        added_items = []
+
+        for query in queries:
+            if not isinstance(query, str):
+                results.append({
+                    "query": query,
+                    "added": False,
+                    "reason": "invalid_query",
+                    "sessionPlanItemId": None,
+                    "objectId": None,
+                })
+                continue
+
+            target, reason = _resolve_session_plan_target(
+                app=app,
+                query=query,
+                resolve_global_object_func=resolve_global_object_func,
+            )
+            if target is None:
+                results.append({
+                    "query": query,
+                    "added": False,
+                    "reason": reason,
+                    "sessionPlanItemId": None,
+                    "objectId": None,
+                })
+                continue
+
+            existing_item = _find_session_plan_item(
+                session_plan,
+                target["objectType"],
+                target["targetId"],
+            )
+            if existing_item is not None:
+                results.append({
+                    "query": target["query"],
+                    "added": False,
+                    "reason": "already_exists",
+                    "sessionPlanItemId": existing_item.id,
+                    "objectId": target["objectId"],
+                })
+                continue
+
+            new_item, create_reason = _create_session_plan_item(session_plan, target)
+            if new_item is None:
+                results.append({
+                    "query": target["query"],
+                    "added": False,
+                    "reason": create_reason or "cannot_create_item",
+                    "sessionPlanItemId": None,
+                    "objectId": target["objectId"],
+                })
+                continue
+
+            db.session.add(new_item)
+            added_items.append(new_item)
+            results.append({
+                "query": target["query"],
+                "added": True,
+                "reason": "added",
+                "sessionPlanItemId": new_item.id,
+                "objectId": target["objectId"],
+            })
+
+        if added_items:
+            db.session.commit()
+            _safe_reorder_session_plan(session_plan)
+
+        return {
+            "sessionPlanId": session_plan_id,
+            "addedCount": len(added_items),
+            "results": results,
+        }
+
+
+def session_plan_remove_items_payload(
+    *,
+    session_plan_id: int,
+    queries: Any,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+    resolve_global_object_func: Callable[[str], dict[str, Any] | None],
+) -> dict[str, Any]:
+    from app import db
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
+        raise ValueError("session_plan_id must be a positive integer")
+
+    if not isinstance(queries, list):
+        raise ValueError("queries must be a list of object names")
+    if not queries:
+        raise ValueError("queries must not be empty")
+    if len(queries) > 100:
+        raise ValueError("queries must contain at most 100 items")
+
+    app = get_app()
+    with app.app_context():
+        session_plan = _load_owned_active_session_plan(resolved_user_id, session_plan_id)
+        if session_plan is None:
+            return {
+                "sessionPlanId": session_plan_id,
+                "removedCount": 0,
+                "results": [
+                    {
+                        "query": query,
+                        "removed": False,
+                        "reason": "session_plan_not_found",
+                        "sessionPlanItemId": None,
+                        "objectId": None,
+                    }
+                    for query in queries
+                ],
+            }
+
+        results = []
+        removed_items = []
+        for query in queries:
+            if not isinstance(query, str):
+                results.append({
+                    "query": query,
+                    "removed": False,
+                    "reason": "invalid_query",
+                    "sessionPlanItemId": None,
+                    "objectId": None,
+                })
+                continue
+
+            target, reason = _resolve_session_plan_target(
+                app=app,
+                query=query,
+                resolve_global_object_func=resolve_global_object_func,
+            )
+            if target is None:
+                results.append({
+                    "query": query,
+                    "removed": False,
+                    "reason": reason,
+                    "sessionPlanItemId": None,
+                    "objectId": None,
+                })
+                continue
+
+            existing_item = _find_session_plan_item(
+                session_plan,
+                target["objectType"],
+                target["targetId"],
+            )
+            if existing_item is None:
+                results.append({
+                    "query": target["query"],
+                    "removed": False,
+                    "reason": "not_in_session_plan",
+                    "sessionPlanItemId": None,
+                    "objectId": target["objectId"],
+                })
+                continue
+
+            db.session.delete(existing_item)
+            removed_items.append(existing_item.id)
+            results.append({
+                "query": target["query"],
+                "removed": True,
+                "reason": "removed",
+                "sessionPlanItemId": existing_item.id,
+                "objectId": target["objectId"],
+            })
+
+        if removed_items:
+            db.session.commit()
+
+        return {
+            "sessionPlanId": session_plan_id,
+            "removedCount": len(removed_items),
+            "results": results,
+        }
+
+
+def session_plan_clear_payload(
+    *,
+    session_plan_id: int,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from app import db
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+
+    if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
+        raise ValueError("session_plan_id must be a positive integer")
+
+    app = get_app()
+    with app.app_context():
+        session_plan = _load_owned_active_session_plan(resolved_user_id, session_plan_id)
+        if session_plan is None:
+            return {
+                "cleared": False,
+                "reason": "session_plan_not_found",
+                "sessionPlanId": session_plan_id,
+                "removedCount": 0,
+            }
+
+        removed_count = len(session_plan.session_plan_items)
+        for item in list(session_plan.session_plan_items):
+            db.session.delete(item)
+
+        if removed_count:
+            db.session.commit()
+
+        return {
+            "cleared": True,
+            "reason": "cleared",
+            "sessionPlanId": session_plan_id,
+            "removedCount": removed_count,
         }
 
 

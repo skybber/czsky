@@ -7,6 +7,7 @@ def register_tools(
     server: Any,
     *,
     dso_find_resolver: Callable[..., dict[str, Any]],
+    dso_list_sources_resolver: Callable[..., dict[str, Any]],
 ) -> None:
     @server.tool(name="dso.find")
     def dso_find(
@@ -65,3 +66,8 @@ def register_tools(
             max_results=max_results,
             user_id=user_id,
         )
+
+    @server.tool(name="dso.list_sources")
+    def dso_list_sources(user_id: int | None = None) -> dict[str, Any]:
+        """List available sources usable with dso.find, including catalogues and DSO lists."""
+        return dso_list_sources_resolver(user_id=user_id)

@@ -73,13 +73,29 @@ def _get_twilight_window(session_plan: Any, latitude: float, longitude: float, t
 
 def _parse_time_filter(time_str: str | None, for_date: Any, tz_info: Any, default_dt: Any):
     """Parse HH:MM string into a timezone-aware datetime, falling back to default_dt."""
-    from datetime import datetime
+    from datetime import date, datetime, time, timedelta
+
+    def _resolve_filter_date() -> date:
+        if isinstance(default_dt, datetime):
+            return default_dt.date()
+        if hasattr(for_date, "to_datetime"):
+            return for_date.to_datetime().date()
+        if isinstance(for_date, datetime):
+            return for_date.date()
+        if isinstance(for_date, date):
+            return for_date
+        raise ValueError("Unsupported date type for time filter")
+
     if not time_str:
         return default_dt
     try:
-        t = datetime.strptime(time_str.strip(), '%H:%M').time()
-        return tz_info.localize(datetime.combine(for_date.date(), t))
-    except (ValueError, AttributeError):
+        stripped = time_str.strip()
+        filter_date = _resolve_filter_date()
+        if stripped == '24:00':
+            return tz_info.localize(datetime.combine(filter_date, time.min)) + timedelta(days=1)
+        t = datetime.strptime(stripped, '%H:%M').time()
+        return tz_info.localize(datetime.combine(filter_date, t))
+    except (TypeError, ValueError, AttributeError):
         return default_dt
 
 
@@ -164,7 +180,7 @@ def dso_find_payload(
 
         # --- build base DSO query by source ---
         is_anonymous = session_plan.is_anonymous if session_plan else False
-        effective_source = obj_source or ("M" if is_anonymous else "WL")
+        effective_source = obj_source or ("M" if is_anonymous else None)
 
         if effective_source == "WL":
             wishlist_subq = (
@@ -175,7 +191,7 @@ def dso_find_payload(
                 .with_entities(WishListItem.dso_id)
             )
             dso_query = DeepskyObject.query.filter(DeepskyObject.id.in_(wishlist_subq))
-        elif effective_source.startswith("dso_list:"):
+        elif isinstance(effective_source, str) and effective_source.startswith("dso_list:"):
             raw_id = effective_source[len("dso_list:"):]
             if not raw_id.isdigit():
                 return {
@@ -311,4 +327,56 @@ def dso_find_payload(
             "reason": "ok",
             "total": len(results),
             "results": results,
+        }
+
+
+def dso_list_sources_payload(
+    *,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from app.models import Catalogue, DsoList
+
+    require_scope_if_available_func(required_scope)
+    resolve_wishlist_user_id_func(user_id)
+
+    app = get_app()
+    with app.app_context():
+        catalogues = [
+            {
+                "sourceType": "catalogue",
+                "sourceValue": catalogue.code,
+                "catalogueId": catalogue.id,
+                "code": catalogue.code,
+                "name": catalogue.name,
+                "description": catalogue.descr,
+            }
+            for catalogue in Catalogue.query.order_by(Catalogue.code.asc()).all()
+        ]
+        dso_lists = [
+            {
+                "sourceType": "dso_list",
+                "sourceValue": f"dso_list:{dso_list.id}",
+                "dsoListId": dso_list.id,
+                "name": dso_list.name,
+                "longName": dso_list.long_name,
+            }
+            for dso_list in DsoList.query.filter(DsoList.hidden.is_(False)).order_by(DsoList.name.asc(), DsoList.id.asc()).all()
+        ]
+
+        return {
+            "sources": [
+                {
+                    "sourceType": "wishlist",
+                    "sourceValue": "WL",
+                    "name": "Wishlist",
+                },
+                *catalogues,
+                *dso_lists,
+            ],
+            "catalogues": catalogues,
+            "dsoLists": dso_lists,
         }

@@ -4,6 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 import app.mcp_server as mcp_server
+from app.mcp.tools import sky_objects as sky_object_tools
 from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import wishlist as wishlist_tools
 from flask import Flask, current_app
@@ -113,6 +114,41 @@ class McpServerTestCase(unittest.TestCase):
 
         self.assertTrue(result["found"])
         self.assertEqual(result["result"]["identifier"], "SATURN")
+
+    def test_resolve_many_returns_per_query_payloads(self):
+        resolved = {"object_type": "planet", "matched_by": "planet", "object": object()}
+
+        with patch("app.mcp_server.get_app") as get_app_mock, \
+             patch("app.mcp_server.resolve_global_object", side_effect=[resolved, None]), \
+             patch(
+                 "app.mcp_server.format_resolved_object",
+                 return_value={"object_type": "planet", "identifier": "SATURN"},
+             ):
+            app = get_app_mock.return_value
+            app.app_context.return_value.__enter__.return_value = None
+            app.app_context.return_value.__exit__.return_value = None
+            app.test_request_context.return_value.__enter__.return_value = None
+            app.test_request_context.return_value.__exit__.return_value = None
+
+            result = mcp_server.resolve_sky_objects_payload(["Saturn", "unknown"])
+
+        self.assertEqual(
+            result,
+            {
+                "results": [
+                    {
+                        "query": "Saturn",
+                        "found": True,
+                        "result": {"object_type": "planet", "identifier": "SATURN"},
+                    },
+                    {
+                        "query": "unknown",
+                        "found": False,
+                        "result": None,
+                    },
+                ]
+            },
+        )
 
     def test_returns_comet_recent_observations_payload(self):
         comet = type(
@@ -481,6 +517,32 @@ class McpSessionPlanBridgeTestCase(unittest.TestCase):
         self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
         self.assertEqual(payload_mock.call_args.kwargs["location_name"], "Prague")
 
+    def test_session_plan_get_payload_passes_read_scope(self):
+        expected = {"found": True, "sessionPlan": {"sessionPlanId": 10}}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_get_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_get_payload(session_plan_id=10, user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:read")
+
+    def test_session_plan_list_payload_passes_read_scope(self):
+        expected = {"total": 1, "sessionPlans": []}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_list_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_list_payload(
+                for_date="2026-05-10",
+                include_archived=True,
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:read")
+
     def test_session_plan_create_payload_accepts_location_id(self):
         expected = {"created": True, "sessionPlanId": 11}
         with patch(
@@ -526,6 +588,66 @@ class McpSessionPlanBridgeTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
 
+    def test_session_plan_items_payload_passes_read_scope(self):
+        expected = {"found": True, "items": [], "total": 0}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_items_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_items_payload(
+                session_plan_id=10,
+                object_types=["dso"],
+                dso_list_id=7,
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:read")
+
+    def test_session_plan_add_items_payload_passes_write_scope(self):
+        expected = {"addedCount": 2, "results": []}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_add_items_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_add_items_payload(
+                session_plan_id=10,
+                queries=["M1", "M31"],
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
+    def test_session_plan_remove_items_payload_passes_write_scope(self):
+        expected = {"removedCount": 1, "results": []}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_remove_items_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_remove_items_payload(
+                session_plan_id=10,
+                queries=["M1", "M31"],
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
+    def test_session_plan_clear_payload_passes_write_scope(self):
+        expected = {"cleared": True, "removedCount": 2}
+        with patch(
+            "app.mcp_server.mcp_session_plan_payloads.session_plan_clear_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.session_plan_clear_payload(
+                session_plan_id=10,
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
     def test_session_plan_remove_item_payload_passes_write_scope(self):
         expected = {"removed": True, "sessionPlanItemId": 77}
         with patch(
@@ -540,6 +662,17 @@ class McpSessionPlanBridgeTestCase(unittest.TestCase):
 
         self.assertEqual(result, expected)
         self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "sessionplan:write")
+
+    def test_dso_list_sources_payload_passes_read_scope(self):
+        expected = {"sources": [], "catalogues": [], "dsoLists": []}
+        with patch(
+            "app.mcp_server.mcp_dso_payloads.dso_list_sources_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.dso_list_sources_payload(user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "dso:read")
 
 
 class _DummyToolServer:
@@ -590,12 +723,63 @@ class McpSessionPlanToolsRegistrationTestCase(unittest.TestCase):
         session_plan_tools.register_tools(
             server,
             session_plan_create_resolver=_noop,
+            session_plan_get_resolver=_noop,
+            session_plan_list_resolver=_noop,
             session_plan_get_id_by_date_resolver=_noop,
+            session_plan_items_resolver=_noop,
             session_plan_add_item_resolver=_noop,
+            session_plan_add_items_resolver=_noop,
             session_plan_remove_item_resolver=_noop,
+            session_plan_remove_items_resolver=_noop,
+            session_plan_clear_resolver=_noop,
+            dso_list_get_id_by_name_resolver=_noop,
         )
 
         self.assertIn("session_plan.create", server.tool_names)
+        self.assertIn("session_plan.get", server.tool_names)
+        self.assertIn("session_plan.list", server.tool_names)
         self.assertIn("session_plan.get_id_by_date", server.tool_names)
+        self.assertIn("session_plan.items", server.tool_names)
         self.assertIn("session_plan.add_item", server.tool_names)
+        self.assertIn("session_plan.add_items", server.tool_names)
         self.assertIn("session_plan.remove_item", server.tool_names)
+        self.assertIn("session_plan.remove_items", server.tool_names)
+        self.assertIn("session_plan.clear", server.tool_names)
+
+
+class McpSkyObjectToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_resolve_many_tool(self):
+        server = _DummyToolServer()
+
+        def _noop(*_args, **_kwargs):
+            return {}
+
+        sky_object_tools.register_tools(
+            server,
+            resolve_sky_object_resolver=_noop,
+            resolve_sky_objects_resolver=_noop,
+            comet_observations_resolver=_noop,
+        )
+
+        self.assertIn("resolve_sky_object", server.tool_names)
+        self.assertIn("resolve_sky_objects", server.tool_names)
+        self.assertIn("get_comet_recent_observations", server.tool_names)
+
+
+class McpDsoToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_list_sources_tool(self):
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        from app.mcp.tools import dso as dso_tools
+
+        dso_tools.register_tools(
+            server,
+            dso_find_resolver=_noop,
+            dso_list_sources_resolver=_noop,
+        )
+
+        self.assertIn("dso.find", server.tool_names)
+        self.assertIn("dso.list_sources", server.tool_names)

@@ -624,7 +624,7 @@ def wishlist_export_payload(
         writer.writerow(
             [
                 item.get("objectId"),
-                item.get("identifier"),
+                item.get("query"),
                 item.get("wishlistItemId"),
                 item.get("identifier"),
                 item.get("name"),
