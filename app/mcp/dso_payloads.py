@@ -76,14 +76,14 @@ def _parse_time_filter(time_str: str | None, for_date: Any, tz_info: Any, defaul
     from datetime import date, datetime, time, timedelta
 
     def _resolve_filter_date() -> date:
-        if isinstance(default_dt, datetime):
-            return default_dt.date()
         if hasattr(for_date, "to_datetime"):
             return for_date.to_datetime().date()
         if isinstance(for_date, datetime):
             return for_date.date()
         if isinstance(for_date, date):
             return for_date
+        if isinstance(default_dt, datetime):
+            return default_dt.date()
         raise ValueError("Unsupported date type for time filter")
 
     if not time_str:
@@ -94,7 +94,12 @@ def _parse_time_filter(time_str: str | None, for_date: Any, tz_info: Any, defaul
         if stripped == '24:00':
             return tz_info.localize(datetime.combine(filter_date, time.min)) + timedelta(days=1)
         t = datetime.strptime(stripped, '%H:%M').time()
-        return tz_info.localize(datetime.combine(filter_date, t))
+        parsed_dt = tz_info.localize(datetime.combine(filter_date, t))
+        # Session-plan nights are modeled as the evening of for_date into the next morning.
+        # Interpret early-morning local times as belonging to the next calendar day.
+        if t < time(12, 0):
+            parsed_dt += timedelta(days=1)
+        return parsed_dt
     except (TypeError, ValueError, AttributeError):
         return default_dt
 

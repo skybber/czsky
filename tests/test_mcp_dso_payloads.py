@@ -28,6 +28,24 @@ class McpDsoPayloadsTestCase(unittest.TestCase):
 
         self.assertEqual(parsed.strftime("%Y-%m-%d %H:%M %z"), "2026-04-18 00:00 +0200")
 
+    def test_parse_time_filter_interprets_midnight_as_next_night_morning(self):
+        tz_info = pytz.timezone("Europe/Prague")
+        default_dt = tz_info.localize(datetime(2026, 4, 17, 22, 5, 22, 611555))
+        for_date = Time(datetime(2026, 4, 17, 0, 0, 0))
+
+        parsed = _parse_time_filter("00:00", for_date, tz_info, default_dt)
+
+        self.assertEqual(parsed.strftime("%Y-%m-%d %H:%M %z"), "2026-04-18 00:00 +0200")
+
+    def test_parse_time_filter_keeps_early_morning_on_same_night_not_day_after(self):
+        tz_info = pytz.timezone("Europe/Prague")
+        default_dt = tz_info.localize(datetime(2026, 4, 18, 2, 5, 22, 611555))
+        for_date = Time(datetime(2026, 4, 17, 0, 0, 0))
+
+        parsed = _parse_time_filter("03:00", for_date, tz_info, default_dt)
+
+        self.assertEqual(parsed.strftime("%Y-%m-%d %H:%M %z"), "2026-04-18 03:00 +0200")
+
     def test_parse_time_filter_returns_default_for_invalid_time(self):
         tz_info = pytz.timezone("Europe/Prague")
         default_dt = tz_info.localize(datetime(2026, 4, 17, 22, 5, 22, 611555))
