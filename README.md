@@ -181,13 +181,45 @@ Useful environment variables:
 When `MCP_ENABLE_TOKEN_AUTH=1`, the MCP transport requires `Authorization: Bearer <token>`.
 Use a token generated in `User settings -> MCP token`.
 
+Recent MCP updates add write-capable workflows on top of the original lookup tools.
+Clients can now search DSO catalogues, create and manage session plans, create and
+activate observing sessions, and create or update observation logs directly from
+the MCP sidecar. Wishlist support was also extended with lookup, bulk add/remove,
+and import/export operations, so external agents can cover a full planning flow
+from target discovery to observation logging.
+
 Current MCP tools:
 
 - `resolve_sky_object`
+- `resolve_sky_objects`
 - `get_comet_recent_observations`
+- `dso.find`
+- `dso.list_sources`
+- `session_plan.create`
+- `session_plan.get`
+- `session_plan.list`
+- `session_plan.get_id_by_date`
+- `session_plan.add_item`
+- `session_plan.add_items`
+- `session_plan.items`
+- `session_plan.remove_item`
+- `session_plan.remove_items`
+- `session_plan.clear`
+- `session_plan.get_dso_list_id_by_name`
+- `observing_session.create`
+- `observing_session.set_active`
+- `observing_session.get_active`
+- `observation_log.upsert`
 - `wishlist.list`
-- `wishlist.get`
 - `wishlist.stats`
+- `wishlist.contains`
+- `wishlist.find`
+- `wishlist.add`
+- `wishlist.remove`
+- `wishlist.bulk_add`
+- `wishlist.bulk_remove`
+- `wishlist.export`
+- `wishlist.import`
 
 #### Opening CzSkY in Browser
 To open the CzSkY home page in your browser, navigate to `http://localhost:5000`.
