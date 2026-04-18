@@ -4,6 +4,8 @@ from datetime import datetime
 from unittest.mock import patch
 
 import app.mcp_server as mcp_server
+from app.mcp.tools import observation_log as observation_log_tools
+from app.mcp.tools import observing_session as observing_session_tools
 from app.mcp.tools import sky_objects as sky_object_tools
 from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import wishlist as wishlist_tools
@@ -208,7 +210,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         self.wishlist = type("WishList", (), {"id": 77})()
 
     def test_wishlist_list_payload_paginates(self):
-        with patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+        with patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server._load_wishlist_items_for_user",
                    return_value=(self.wishlist, [self.item_1, self.item_2, self.item_3])), \
              patch(
@@ -224,7 +226,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         self.assertEqual(result["items"][1]["wishlistItemId"], "w_2")
 
     def test_wishlist_get_payload_found_and_missing(self):
-        with patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+        with patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server._load_wishlist_items_for_user",
                    return_value=(self.wishlist, [self.item_1, self.item_2, self.item_3])), \
              patch(
@@ -240,7 +242,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         self.assertIsNone(missing["item"])
 
     def test_wishlist_stats_payload_counts_items(self):
-        with patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+        with patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server._load_wishlist_items_for_user",
                    return_value=(self.wishlist, [self.item_1, self.item_2, self.item_3])), \
              patch(
@@ -261,10 +263,10 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 mcp_server._require_scope_if_available("wishlist:read")
 
-    def test_resolve_wishlist_user_id_accepts_explicit_stub_user(self):
+    def test_resolve_mcp_user_id_accepts_explicit_stub_user(self):
         with patch("app.mcp_server._get_access_token", return_value=None), \
              patch.dict("os.environ", {}, clear=True):
-            resolved = mcp_server._resolve_wishlist_user_id(user_id=12)
+            resolved = mcp_server._resolve_mcp_user_id(user_id=12)
         self.assertEqual(resolved, 12)
 
     def test_wishlist_list_formats_items_inside_app_context(self):
@@ -288,7 +290,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         fake_app = Flask("mcp-test-app")
 
         with patch("app.mcp_server.get_app", return_value=fake_app), \
-             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server._load_wishlist_items_for_user",
                    return_value=(self.wishlist, [self.item_1])), \
              patch(
@@ -309,7 +311,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         }
 
         with patch("app.mcp_server.get_app", return_value=fake_app), \
-             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server.resolve_global_object", return_value=resolved), \
              patch("app.mcp_server._load_wishlist_items_for_user",
                    return_value=(self.wishlist, [self.item_1])):
@@ -328,7 +330,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         }
 
         with patch("app.mcp_server.get_app", return_value=fake_app), \
-             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server.resolve_global_object", return_value=resolved), \
              patch(
                  "app.mcp_server._load_wishlist_items_for_user",
@@ -363,7 +365,7 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         }
 
         with patch("app.mcp_server.get_app", return_value=fake_app), \
-             patch("app.mcp_server._resolve_wishlist_user_id", return_value=5), \
+             patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server.resolve_global_object", return_value=resolved), \
              patch(
                  "app.mcp_server._load_wishlist_items_for_user",
@@ -559,6 +561,65 @@ class McpSessionPlanBridgeTestCase(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertEqual(payload_mock.call_args.kwargs["location_id"], 12)
 
+    def test_observing_session_create_payload_passes_write_scope(self):
+        expected = {"created": True, "observingSessionId": 10}
+        with patch(
+            "app.mcp_server.mcp_observing_session_payloads.observing_session_create_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.observing_session_create_payload(
+                date_from="2026-05-10T21:30:00",
+                date_to="2026-05-11T01:15:00",
+                location_name="Prague",
+                title="Night session",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "observingsession:write")
+        self.assertEqual(payload_mock.call_args.kwargs["location_name"], "Prague")
+
+    def test_observing_session_set_active_payload_passes_write_scope(self):
+        expected = {"updated": True, "observingSessionId": 10, "isActive": True}
+        with patch(
+            "app.mcp_server.mcp_observing_session_payloads.observing_session_set_active_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.observing_session_set_active_payload(
+                observing_session_id=10,
+                is_active=True,
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "observingsession:write")
+
+    def test_observing_session_get_active_payload_passes_read_scope(self):
+        expected = {"found": True, "observingSession": {"observingSessionId": 10}}
+        with patch(
+            "app.mcp_server.mcp_observing_session_payloads.observing_session_get_active_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.observing_session_get_active_payload(user_id=5)
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "observingsession:read")
+
+    def test_observation_log_upsert_payload_passes_write_scope(self):
+        expected = {"upserted": True, "observationId": 22}
+        with patch(
+            "app.mcp_server.mcp_observation_log_payloads.observation_log_upsert_payload",
+            return_value=expected,
+        ) as payload_mock:
+            result = mcp_server.observation_log_upsert_payload(
+                query="M31",
+                notes="nice core",
+                user_id=5,
+            )
+
+        self.assertEqual(result, expected)
+        self.assertEqual(payload_mock.call_args.kwargs["required_scope"], "observationlog:write")
+
     def test_session_plan_get_id_by_date_payload_passes_read_scope(self):
         expected = {"found": True, "sessionPlanId": 10, "sessionPlanIds": [10], "total": 1}
         with patch(
@@ -745,6 +806,40 @@ class McpSessionPlanToolsRegistrationTestCase(unittest.TestCase):
         self.assertIn("session_plan.remove_item", server.tool_names)
         self.assertIn("session_plan.remove_items", server.tool_names)
         self.assertIn("session_plan.clear", server.tool_names)
+
+
+class McpObservationLogToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_observation_log_tools(self):
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        observation_log_tools.register_tools(
+            server,
+            observation_log_upsert_resolver=_noop,
+        )
+
+        self.assertIn("observation_log.upsert", server.tool_names)
+
+
+class McpObservingSessionToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_observing_session_tools(self):
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        observing_session_tools.register_tools(
+            server,
+            observing_session_create_resolver=_noop,
+            observing_session_set_active_resolver=_noop,
+            observing_session_get_active_resolver=_noop,
+        )
+
+        self.assertIn("observing_session.create", server.tool_names)
+        self.assertIn("observing_session.set_active", server.tool_names)
+        self.assertIn("observing_session.get_active", server.tool_names)
 
 
 class McpSkyObjectToolsRegistrationTestCase(unittest.TestCase):

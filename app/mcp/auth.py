@@ -99,7 +99,7 @@ def extract_user_id_from_access_token(
     return None
 
 
-def resolve_wishlist_user_id(
+def resolve_mcp_user_id(
     user_id: int | None = None,
     *,
     get_access_token_func: Callable[[], Any],
@@ -124,7 +124,7 @@ def resolve_wishlist_user_id(
         return env_user_id
 
     raise PermissionError(
-        "Missing user identity for wishlist tools. "
+        "Missing user identity for MCP tools. "
         "Provide a token with subject claims or pass user_id in stub mode."
     )
 

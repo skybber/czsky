@@ -7,6 +7,8 @@ from app.commons.global_search_resolver import resolve_global_object
 from app.commons.mcp_sky_object_formatters import format_resolved_object
 from app.mcp import app_context
 from app.mcp import auth as mcp_auth
+from app.mcp import observation_log_payloads as mcp_observation_log_payloads
+from app.mcp import observing_session_payloads as mcp_observing_session_payloads
 from app.mcp import runtime as mcp_runtime
 from app.mcp import sky_objects_payloads as mcp_sky_objects
 from app.mcp import dso_payloads as mcp_dso_payloads
@@ -17,6 +19,8 @@ from app.mcp import wishlist_query
 from app.mcp import wishlist_repo
 from app.mcp import wishlist_write_payloads as mcp_wishlist_write_payloads
 from app.mcp.tools import dso as dso_tools
+from app.mcp.tools import observation_log as observation_log_tools
+from app.mcp.tools import observing_session as observing_session_tools
 from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import sky_objects as sky_object_tools
 from app.mcp.tools import wishlist as wishlist_tools
@@ -29,6 +33,9 @@ WISHLIST_WRITE_SCOPE = "wishlist:write"
 DSO_READ_SCOPE = "dso:read"
 SESSION_PLAN_READ_SCOPE = "sessionplan:read"
 SESSION_PLAN_WRITE_SCOPE = "sessionplan:write"
+OBSERVING_SESSION_READ_SCOPE = "observingsession:read"
+OBSERVING_SESSION_WRITE_SCOPE = "observingsession:write"
+OBSERVATION_LOG_WRITE_SCOPE = "observationlog:write"
 MAX_WISHLIST_PAGE_SIZE = wishlist_query.MAX_WISHLIST_PAGE_SIZE
 _USER_SUBJECT_PATTERNS = mcp_auth.USER_SUBJECT_PATTERNS
 _ENV_FALSE_VALUES = mcp_auth.ENV_FALSE_VALUES
@@ -84,8 +91,8 @@ def _extract_user_id_from_access_token(access_token: Any) -> int | None:
     )
 
 
-def _resolve_wishlist_user_id(user_id: int | None = None) -> int:
-    return mcp_auth.resolve_wishlist_user_id(
+def _resolve_mcp_user_id(user_id: int | None = None) -> int:
+    return mcp_auth.resolve_mcp_user_id(
         user_id=user_id,
         get_access_token_func=_get_access_token,
         extract_user_id_from_access_token_func=_extract_user_id_from_access_token,
@@ -151,6 +158,10 @@ def _parse_wishlist_item_id(wishlist_item_id: str | int) -> int:
 
 def _parse_wishlist_object_id(object_id: str | None) -> tuple[str, int] | None:
     return mcp_wishlist_write_payloads.parse_wishlist_object_id(object_id)
+
+
+def _parse_observation_object_id(object_id: str | None) -> tuple[str, int] | None:
+    return mcp_observation_log_payloads.parse_observation_object_id(object_id)
 
 
 def _validate_wishlist_limit(limit: int) -> int:
@@ -231,7 +242,7 @@ def wishlist_list_payload(
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
         get_app=get_app,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         validate_wishlist_limit_func=_validate_wishlist_limit,
         parse_wishlist_cursor_func=_parse_wishlist_cursor,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
@@ -250,7 +261,7 @@ def wishlist_get_payload(wishlist_item_id: str, user_id: int | None = None) -> d
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
         get_app=get_app,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         parse_wishlist_item_id_func=_parse_wishlist_item_id,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
         load_observed_sets_for_user_wishlist_func=_load_observed_sets_for_user_wishlist,
@@ -267,7 +278,7 @@ def wishlist_contains_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
@@ -283,7 +294,7 @@ def wishlist_find_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
@@ -298,7 +309,7 @@ def wishlist_stats_payload(user_id: int | None = None) -> dict[str, Any]:
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
         get_app=get_app,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
         load_observed_sets_for_user_wishlist_func=_load_observed_sets_for_user_wishlist,
         build_wishlist_item_summary_func=_build_wishlist_item_summary,
@@ -317,7 +328,7 @@ def wishlist_add_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
         parse_wishlist_object_id_func=_parse_wishlist_object_id,
@@ -335,7 +346,7 @@ def wishlist_remove_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         parse_wishlist_item_id_func=_parse_wishlist_item_id,
         get_app=get_app,
     )
@@ -350,7 +361,7 @@ def wishlist_bulk_add_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
         parse_wishlist_object_id_func=_parse_wishlist_object_id,
@@ -366,7 +377,7 @@ def wishlist_bulk_remove_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         parse_wishlist_item_id_func=_parse_wishlist_item_id,
         get_app=get_app,
     )
@@ -381,7 +392,7 @@ def wishlist_export_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         load_wishlist_items_for_user_func=_load_wishlist_items_for_user,
         load_observed_sets_for_user_wishlist_func=_load_observed_sets_for_user_wishlist,
         build_wishlist_item_detail_func=_build_wishlist_item_detail,
@@ -399,7 +410,7 @@ def wishlist_import_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=WISHLIST_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
         parse_wishlist_object_id_func=_parse_wishlist_object_id,
@@ -423,8 +434,113 @@ def session_plan_create_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
+    )
+
+
+def observing_session_create_payload(
+    date_from: str,
+    date_to: str,
+    location_id: int | str | None = None,
+    location_name: str | None = None,
+    location: str | int | None = None,
+    title: str | None = None,
+    sqm: float | str | None = None,
+    faintest_star: float | str | None = None,
+    seeing: str | None = None,
+    transparency: str | None = None,
+    weather: str | None = None,
+    equipment: str | None = None,
+    notes: str | None = None,
+    is_public: bool = False,
+    is_finished: bool = False,
+    is_active: bool = False,
+    rating: int | str | None = None,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_observing_session_payloads.observing_session_create_payload(
+        date_from=date_from,
+        date_to=date_to,
+        location_id=location_id,
+        location_name=location_name,
+        location=location,
+        title=title,
+        sqm=sqm,
+        faintest_star=faintest_star,
+        seeing=seeing,
+        transparency=transparency,
+        weather=weather,
+        equipment=equipment,
+        notes=notes,
+        is_public=is_public,
+        is_finished=is_finished,
+        is_active=is_active,
+        rating=rating,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=OBSERVING_SESSION_WRITE_SCOPE,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
+        get_app=get_app,
+    )
+
+
+
+def observing_session_set_active_payload(
+    observing_session_id: int,
+    is_active: bool = True,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_observing_session_payloads.observing_session_set_active_payload(
+        observing_session_id=observing_session_id,
+        is_active=is_active,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=OBSERVING_SESSION_WRITE_SCOPE,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
+        get_app=get_app,
+    )
+
+
+def observing_session_get_active_payload(
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_observing_session_payloads.observing_session_get_active_payload(
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=OBSERVING_SESSION_READ_SCOPE,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
+        get_app=get_app,
+    )
+
+
+def observation_log_upsert_payload(
+    object_id: str | None = None,
+    query: str | None = None,
+    observing_session_id: int | str | None = None,
+    notes: str | None = None,
+    date_from: str | None = None,
+    telescope_id: int | str | None = None,
+    eyepiece_id: int | str | None = None,
+    filter_id: int | str | None = None,
+    user_id: int | None = None,
+) -> dict[str, Any]:
+    return mcp_observation_log_payloads.observation_log_upsert_payload(
+        object_id=object_id,
+        query=query,
+        observing_session_id=observing_session_id,
+        notes=notes,
+        date_from=date_from,
+        telescope_id=telescope_id,
+        eyepiece_id=eyepiece_id,
+        filter_id=filter_id,
+        user_id=user_id,
+        require_scope_if_available_func=_require_scope_if_available,
+        required_scope=OBSERVATION_LOG_WRITE_SCOPE,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
+        get_app=get_app,
+        resolve_global_object_func=resolve_global_object,
+        parse_observation_object_id_func=_parse_observation_object_id,
     )
 
 
@@ -437,7 +553,7 @@ def session_plan_get_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -453,7 +569,7 @@ def session_plan_list_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -467,7 +583,7 @@ def session_plan_get_id_by_date_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -483,7 +599,7 @@ def session_plan_add_item_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
     )
@@ -502,7 +618,7 @@ def session_plan_items_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -518,7 +634,7 @@ def session_plan_add_items_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
     )
@@ -535,7 +651,7 @@ def session_plan_remove_items_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
     )
@@ -550,7 +666,7 @@ def session_plan_clear_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -582,7 +698,7 @@ def dso_find_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=DSO_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -592,7 +708,7 @@ def dso_list_sources_payload(user_id: int | None = None) -> dict[str, Any]:
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=DSO_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -606,7 +722,7 @@ def dso_list_get_id_by_name_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_READ_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
     )
 
@@ -622,7 +738,7 @@ def session_plan_remove_item_payload(
         user_id=user_id,
         require_scope_if_available_func=_require_scope_if_available,
         required_scope=SESSION_PLAN_WRITE_SCOPE,
-        resolve_wishlist_user_id_func=_resolve_wishlist_user_id,
+        resolve_mcp_user_id_func=_resolve_mcp_user_id,
         get_app=get_app,
         resolve_global_object_func=resolve_global_object,
     )
@@ -654,6 +770,16 @@ def build_mcp_server():
             session_plan_remove_items_resolver=session_plan_remove_items_payload,
             session_plan_clear_resolver=session_plan_clear_payload,
             dso_list_get_id_by_name_resolver=dso_list_get_id_by_name_payload,
+        )
+        observing_session_tools.register_tools(
+            server,
+            observing_session_create_resolver=observing_session_create_payload,
+            observing_session_set_active_resolver=observing_session_set_active_payload,
+            observing_session_get_active_resolver=observing_session_get_active_payload,
+        )
+        observation_log_tools.register_tools(
+            server,
+            observation_log_upsert_resolver=observation_log_upsert_payload,
         )
         wishlist_tools.register_tools(
             server,

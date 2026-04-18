@@ -140,7 +140,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                 user_id=5,
                 require_scope_if_available_func=lambda _scope: None,
                 required_scope="sessionplan:read",
-                resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                 get_app=lambda: _DummyApp(),
             )
 
@@ -167,7 +167,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                     user_id=5,
                     require_scope_if_available_func=lambda _scope: None,
                     required_scope="sessionplan:read",
-                    resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                    resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                     get_app=lambda: _DummyApp(),
                 )
 
@@ -194,7 +194,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                 user_id=5,
                 require_scope_if_available_func=lambda _scope: None,
                 required_scope="sessionplan:write",
-                resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                 get_app=lambda: _DummyApp(),
                 resolve_global_object_func=lambda _query: None,
             )
@@ -219,7 +219,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                 user_id=5,
                 require_scope_if_available_func=lambda _scope: None,
                 required_scope="sessionplan:write",
-                resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                 get_app=lambda: _DummyApp(),
             )
 
@@ -239,7 +239,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                 user_id=5,
                 require_scope_if_available_func=lambda _scope: None,
                 required_scope="sessionplan:write",
-                resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                 get_app=lambda: _DummyApp(),
             )
 
@@ -266,7 +266,7 @@ class McpSessionPlanReadPayloadsTestCase(unittest.TestCase):
                     user_id=5,
                     require_scope_if_available_func=lambda _scope: None,
                     required_scope="sessionplan:read",
-                    resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                    resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                     get_app=lambda: _DummyApp(),
                 )
 
@@ -288,7 +288,7 @@ class McpDsoSourcesPayloadsTestCase(unittest.TestCase):
                     user_id=5,
                     require_scope_if_available_func=lambda _scope: None,
                     required_scope="dso:read",
-                    resolve_wishlist_user_id_func=lambda user_id: user_id or 0,
+                    resolve_mcp_user_id_func=lambda user_id: user_id or 0,
                     get_app=lambda: _DummyApp(),
                 )
 

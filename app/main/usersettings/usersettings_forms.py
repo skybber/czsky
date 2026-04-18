@@ -51,7 +51,7 @@ class McpTokenCreateForm(FlaskForm):
     current_password = PasswordField(lazy_gettext('Current Password'), validators=[InputRequired()])
     scope = StringField(
         lazy_gettext('Scope'),
-        default='wishlist:read wishlist:write dso:read sessionplan:read sessionplan:write',
+        default='wishlist:read wishlist:write dso:read sessionplan:read sessionplan:write observingsession:read observingsession:write observationlog:write',
         validators=[InputRequired(), Length(1, 256)],
     )
     expires_in_days = IntegerField(

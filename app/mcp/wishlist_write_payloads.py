@@ -189,7 +189,7 @@ def wishlist_add_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
     parse_wishlist_object_id_func: Callable[[str | None], tuple[str, int] | None],
@@ -200,7 +200,7 @@ def wishlist_add_payload(
     from app.models import WishList
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     app = get_app()
     with app.app_context():
@@ -270,7 +270,7 @@ def wishlist_remove_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     parse_wishlist_item_id_func: Callable[[str | int], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
@@ -278,7 +278,7 @@ def wishlist_remove_payload(
     from app.models import WishList, WishListItem
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
     target_item_id = parse_wishlist_item_id_func(wishlist_item_id)
 
     app = get_app()
@@ -445,13 +445,13 @@ def wishlist_bulk_add_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
     parse_wishlist_object_id_func: Callable[[str | None], tuple[str, int] | None],
 ) -> dict[str, Any]:
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     results, added_count, skipped_count = _bulk_add_objects_for_user(
         object_inputs=objects,
@@ -475,7 +475,7 @@ def wishlist_bulk_remove_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     parse_wishlist_item_id_func: Callable[[str | int], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
@@ -483,7 +483,7 @@ def wishlist_bulk_remove_payload(
     from app.models import WishList, WishListItem
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(wishlist_item_ids, str) or not isinstance(wishlist_item_ids, list):
         raise ValueError("wishlist_item_ids must be a list")
@@ -561,14 +561,14 @@ def wishlist_export_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
     load_observed_sets_for_user_wishlist_func: Callable[[int, int], tuple[set[int], set[int]]],
     build_wishlist_item_detail_func: Callable[[Any, set[int], set[int]], dict[str, Any] | None],
 ) -> dict[str, Any]:
     normalized_format = _normalize_transfer_format(export_format)
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     wish_list, wish_list_items = load_wishlist_items_for_user_func(resolved_user_id)
     if not wish_list:
@@ -794,7 +794,7 @@ def wishlist_import_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
     parse_wishlist_object_id_func: Callable[[str | None], tuple[str, int] | None],
@@ -806,7 +806,7 @@ def wishlist_import_payload(
         raise ValueError(f"Import content too large; maximum is {_IMPORT_CONTENT_MAX_BYTES // 1_000_000} MB")
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if normalized_format == "json":
         object_inputs, parse_errors = _parse_json_import_entries(content)

@@ -125,7 +125,7 @@ def wishlist_list_payload(
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
     get_app: Callable[[], Any],
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     validate_wishlist_limit_func: Callable[[int], int],
     parse_wishlist_cursor_func: Callable[[str | int | None], int],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
@@ -139,7 +139,7 @@ def wishlist_list_payload(
 
     app = get_app()
     with app.app_context():
-        resolved_user_id = resolve_wishlist_user_id_func(user_id)
+        resolved_user_id = resolve_mcp_user_id_func(user_id)
         valid_limit = validate_wishlist_limit_func(limit)
         offset = parse_wishlist_cursor_func(cursor)
 
@@ -175,7 +175,7 @@ def wishlist_get_payload(
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
     get_app: Callable[[], Any],
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     parse_wishlist_item_id_func: Callable[[str | int], int],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
     load_observed_sets_for_user_wishlist_func: Callable[[int, int], tuple[set[int], set[int]]],
@@ -185,7 +185,7 @@ def wishlist_get_payload(
 
     app = get_app()
     with app.app_context():
-        resolved_user_id = resolve_wishlist_user_id_func(user_id)
+        resolved_user_id = resolve_mcp_user_id_func(user_id)
         target_item_id = parse_wishlist_item_id_func(wishlist_item_id)
 
         wish_list, wish_list_items = load_wishlist_items_for_user_func(resolved_user_id)
@@ -214,7 +214,7 @@ def wishlist_stats_payload(
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
     get_app: Callable[[], Any],
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
     load_observed_sets_for_user_wishlist_func: Callable[[int, int], tuple[set[int], set[int]]],
     build_wishlist_item_summary_func: Callable[[Any, set[int], set[int]], dict[str, Any] | None],
@@ -224,7 +224,7 @@ def wishlist_stats_payload(
 
     app = get_app()
     with app.app_context():
-        resolved_user_id = resolve_wishlist_user_id_func(user_id)
+        resolved_user_id = resolve_mcp_user_id_func(user_id)
         wish_list, wish_list_items = load_wishlist_items_for_user_func(resolved_user_id)
 
         if not wish_list:

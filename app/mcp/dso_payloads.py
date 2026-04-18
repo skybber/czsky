@@ -135,7 +135,7 @@ def dso_find_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     import astropy.units as u
@@ -157,7 +157,7 @@ def dso_find_payload(
     )
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if max_results < 1 or max_results > 200:
         raise ValueError("max_results must be between 1 and 200")
@@ -340,13 +340,13 @@ def dso_list_sources_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app.models import Catalogue, DsoList
 
     require_scope_if_available_func(required_scope)
-    resolve_wishlist_user_id_func(user_id)
+    resolve_mcp_user_id_func(user_id)
 
     app = get_app()
     with app.app_context():

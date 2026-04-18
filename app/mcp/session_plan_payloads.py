@@ -533,14 +533,14 @@ def session_plan_create_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app import db
     from app.models import SessionPlan
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     parsed_for_date = parse_for_date(for_date)
     normalized_title = ((title or "").strip() or "Unknown")[:128]
@@ -608,11 +608,11 @@ def session_plan_get_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -641,14 +641,14 @@ def session_plan_list_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app import db
     from app.models import SessionPlan
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     parsed_for_date = parse_for_date(for_date).date() if for_date is not None else None
 
@@ -681,14 +681,14 @@ def session_plan_get_id_by_date_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app import db
     from app.models import SessionPlan
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     parsed_for_date = parse_for_date(for_date)
     target_date = parsed_for_date.date()
@@ -731,13 +731,13 @@ def session_plan_items_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app.models import DsoList, DsoListItem
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -801,14 +801,14 @@ def session_plan_add_item_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
 ) -> dict[str, Any]:
     from app import db
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -883,14 +883,14 @@ def session_plan_add_items_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
 ) -> dict[str, Any]:
     from app import db
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -1004,14 +1004,14 @@ def session_plan_remove_items_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
 ) -> dict[str, Any]:
     from app import db
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -1111,13 +1111,13 @@ def session_plan_clear_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from app import db
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")
@@ -1154,7 +1154,7 @@ def dso_list_get_id_by_name_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
 ) -> dict[str, Any]:
     from sqlalchemy import func
@@ -1162,7 +1162,7 @@ def dso_list_get_id_by_name_payload(
     from app.models import DsoList
 
     require_scope_if_available_func(required_scope)
-    resolve_wishlist_user_id_func(user_id)
+    resolve_mcp_user_id_func(user_id)
 
     if not isinstance(name, str) or not name.strip():
         raise ValueError("name must be a non-empty string")
@@ -1242,14 +1242,14 @@ def session_plan_remove_item_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
 ) -> dict[str, Any]:
     from app import db
 
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     if isinstance(session_plan_id, bool) or not isinstance(session_plan_id, int) or session_plan_id <= 0:
         raise ValueError("session_plan_id must be a positive integer")

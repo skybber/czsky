@@ -58,13 +58,13 @@ def wishlist_contains_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
 ) -> dict[str, Any]:
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     app = get_app()
     with app.app_context():
@@ -122,7 +122,7 @@ def wishlist_find_payload(
     user_id: int | None,
     require_scope_if_available_func: Callable[[str], None],
     required_scope: str,
-    resolve_wishlist_user_id_func: Callable[[int | None], int],
+    resolve_mcp_user_id_func: Callable[[int | None], int],
     get_app: Callable[[], Any],
     resolve_global_object_func: Callable[[str], dict[str, Any] | None],
     load_wishlist_items_for_user_func: Callable[[int], tuple[Any, list[Any]]],
@@ -130,7 +130,7 @@ def wishlist_find_payload(
     build_wishlist_item_detail_func: Callable[[Any, set[int], set[int]], dict[str, Any] | None],
 ) -> dict[str, Any]:
     require_scope_if_available_func(required_scope)
-    resolved_user_id = resolve_wishlist_user_id_func(user_id)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
 
     app = get_app()
     with app.app_context():
