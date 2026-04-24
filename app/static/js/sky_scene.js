@@ -189,6 +189,24 @@
 
         this.mwRendererGl = new ChartWebGLRenderer(this.canvasMw);
         this.renderer = new ChartWebGLRenderer(this.canvas);
+
+        this.canvas.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+            this.renderer.ready = false;
+        }, false);
+        this.canvas.addEventListener('webglcontextrestored', () => {
+            this.renderer.reinit();
+            this.forceReloadImage();
+        }, false);
+        this.canvasMw.addEventListener('webglcontextlost', (e) => {
+            e.preventDefault();
+            this.mwRendererGl.ready = false;
+        }, false);
+        this.canvasMw.addEventListener('webglcontextrestored', () => {
+            this.mwRendererGl.reinit();
+            this.requestDraw();
+        }, false);
+
         this.dsoRenderer = new window.SkySceneDsoRenderer();
         this.starsRenderer = new window.SkySceneStarsRenderer();
         this.planetRenderer = new window.SkyScenePlanetTextureRenderer();
@@ -268,6 +286,10 @@
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 this._restoreKeyboardCapture();
+                // Chrome mobile can abort in-flight XHR when the page is hidden
+                if (!this.sceneData) {
+                    this.forceReloadImage();
+                }
             }
         });
 
@@ -1299,6 +1321,14 @@
     };
 
     SkyScene.prototype.forceReloadImage = function () {
+        if (this._sceneRetryTimer) {
+            clearTimeout(this._sceneRetryTimer);
+            this._sceneRetryTimer = null;
+        }
+        if (this._deferredRedrawTimer) {
+            clearTimeout(this._deferredRedrawTimer);
+            this._deferredRedrawTimer = null;
+        }
         if (this.reloadDebounceTimer) {
             clearTimeout(this.reloadDebounceTimer);
             this.reloadDebounceTimer = null;
@@ -1357,6 +1387,15 @@
             this.syncQueryString();
             this.setCenterToHiddenInputs();
             this.requestDraw();
+            // Chrome mobile: window.resize fired by the iframe appearing can cancel the RAF above.
+            // A deferred redraw ensures the chart is painted after resize events settle.
+            this._deferredRedrawTimer = setTimeout(() => {
+                this._deferredRedrawTimer = null;
+                if (this.sceneData) {
+                    this.adjustCanvasSize();
+                    this.requestDraw();
+                }
+            }, 200);
             this.ensureDsoOutlinesCatalog(this.sceneData.meta ? this.sceneData.meta.dso_outlines : null);
             this.ensureConstellationLinesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_lines : null);
             this.ensureConstellationBoundariesCatalog(this.sceneData.meta ? this.sceneData.meta.constellation_boundaries : null);
@@ -1367,6 +1406,13 @@
             this.isReloadingImage = false;
         }).fail(() => {
             this.isReloadingImage = false;
+            // Retry once after 600 ms – Chrome mobile can abort XHR during split view transition
+            if (!this._sceneRetryTimer) {
+                this._sceneRetryTimer = setTimeout(() => {
+                    this._sceneRetryTimer = null;
+                    this.forceReloadImage();
+                }, 600);
+            }
         });
     };
 

@@ -110,9 +110,18 @@
             }
         }
 
+        isGlContextLost() {
+            return !this.gl || this.gl.isContextLost();
+        }
+
+        reinit() {
+            this.ready = false;
+            this._init();
+        }
+
         clear(bgColor, alpha) {
             const gl = this.gl;
-            if (!gl || !this.ready) return;
+            if (!gl || !this.ready || gl.isContextLost()) return;
             const c = Array.isArray(bgColor) ? bgColor : [0.0, 0.0, 0.0];
             const a = Number.isFinite(alpha) ? alpha : 1.0;
             gl.viewport(0, 0, this.canvas.width, this.canvas.height);
@@ -126,7 +135,7 @@
 
         _draw(mode, arr, color, pointSize, opts) {
             const gl = this.gl;
-            if (!gl || !this.ready || !arr || arr.length === 0) return;
+            if (!gl || !this.ready || gl.isContextLost() || !arr || arr.length === 0) return;
             gl.useProgram(this.program);
             const cfg = opts || {};
             gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
