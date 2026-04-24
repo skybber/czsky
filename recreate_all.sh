@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -e
+
+prepare_fomantic_assets() {
+    mkdir -p app/static/webassets-external/themes
+    cp -r app/assets/styles/vendor/themes/* app/static/webassets-external/themes/
+}
+
 confirm() {
     # call with a prompt string or use a default
     echo "This operation initializes CzSky database. It could be long."
@@ -33,3 +40,4 @@ flask import_comets
 flask import_supernovae
 flask update_pgc_imported_dsos
 flask preload_ephemeris
+prepare_fomantic_assets
