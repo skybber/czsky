@@ -43,6 +43,7 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
+from app.commons.chart_scene import build_scene_v1
 
 from .constellation_forms import (
     ConstellationEditForm,
@@ -255,6 +256,26 @@ def constellation_chart_pos_img(constellation_id):
     img_bytes, img_format = common_chart_pos_img(constellation.label_ra, constellation.label_dec, visible_objects=visible_objects, hl_constellation=constellation.iau_code)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_constellation.route('/constellation/<string:constellation_id>/chart/scene-v1', methods=['GET'])
+def constellation_chart_scene_v1(constellation_id):
+    constellation = _find_constellation(constellation_id)
+    if constellation is None:
+        abort(404)
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    common_name = _get_constellation_common_name(constellation)
+    scene_meta['highlight_constellation'] = constellation.iau_code.upper()
+    scene_meta['object_context'] = {
+        'kind': 'constellation',
+        'id': constellation.iau_code,
+        'label': common_name or constellation.name,
+        'ra': float(constellation.label_ra),
+        'dec': float(constellation.label_dec),
+    }
+    return jsonify(scene)
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/chart-pdf', methods=['GET'])

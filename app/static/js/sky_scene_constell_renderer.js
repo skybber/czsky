@@ -36,6 +36,18 @@
         return { widthPx: Math.max(0.75, widthPx), color: color };
     };
 
+    window.SkySceneConstellationRenderer.prototype._themeHighlightedBoundariesStroke = function (sceneCtx) {
+        const lineWidths = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
+            ? sceneCtx.themeConfig.line_widths : {};
+        const constellationWidthMm = Number.isFinite(lineWidths.constellation)
+            ? lineWidths.constellation
+            : lineWidths.constellation_border;
+        const widthPx = U.mmToPx(constellationWidthMm) * 1.75;
+        const borderStroke = this._themeBoundariesStroke(sceneCtx);
+        const color = sceneCtx.getThemeColor('constellation_hl_borders', borderStroke.color);
+        return { widthPx: Math.max(1.25, widthPx), color: color };
+    };
+
     window.SkySceneConstellationRenderer.prototype._project = function (sceneCtx, ra, dec) {
         return sceneCtx.projection.projectEquatorialToPx(ra, dec);
     };
@@ -73,6 +85,47 @@
 
         this._subdivide(sceneCtx, out, ra1, dec1, midRa, midDec, depth + 1, params, p1, pm);
         this._subdivide(sceneCtx, out, midRa, midDec, ra2, dec2, depth + 1, params, pm, p2);
+    };
+
+    window.SkySceneConstellationRenderer.prototype._drawBoundarySegments = function (
+        sceneCtx, ctx, bounds, stroke, params, filterFn, dashed
+    ) {
+        const pad = Math.max(2.0, stroke.widthPx * 1.5);
+        const xMin = -pad;
+        const yMin = -pad;
+        const xMax = sceneCtx.width + pad;
+        const yMax = sceneCtx.height + pad;
+        const clipSegmentToRect = U.clipSegmentToRect;
+        ctx.strokeStyle = U.rgba(stroke.color, 0.9);
+        ctx.lineWidth = stroke.widthPx;
+        // Dashed strokes are significantly cheaper with non-round caps/joins on mobile browsers.
+        ctx.lineCap = 'butt';
+        ctx.lineJoin = 'miter';
+        if (dashed) {
+            ctx.setLineDash([U.mmToPx(0.6), U.mmToPx(1.2)]);
+        } else {
+            ctx.setLineDash([]);
+        }
+        ctx.beginPath();
+        for (let i = 0; i < bounds.length; i++) {
+            const seg = bounds[i];
+            if (filterFn && !filterFn(seg)) continue;
+            const pieces = [];
+            const a = this._project(sceneCtx, seg.ra1, seg.dec1);
+            const b = this._project(sceneCtx, seg.ra2, seg.dec2);
+            this._subdivide(sceneCtx, pieces, seg.ra1, seg.dec1, seg.ra2, seg.dec2, 0, params, a, b);
+            for (let j = 0; j < pieces.length; j += 2) {
+                const a = pieces[j];
+                const b = pieces[j + 1];
+                if (!a || !b) continue;
+                const c = clipSegmentToRect(a.x, a.y, b.x, b.y, xMin, yMin, xMax, yMax);
+                if (!c) continue;
+                ctx.moveTo(c.x1, c.y1);
+                ctx.lineTo(c.x2, c.y2);
+            }
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
     };
 
     window.SkySceneConstellationRenderer.prototype._drawLines = function (sceneCtx, ctx) {
@@ -148,42 +201,36 @@
 
         const stroke = this._themeBoundariesStroke(sceneCtx);
         const params = this._getBoundaryRenderParams(sceneCtx);
-        const pad = Math.max(2.0, stroke.widthPx * 1.5);
-        const xMin = -pad;
-        const yMin = -pad;
-        const xMax = sceneCtx.width + pad;
-        const yMax = sceneCtx.height + pad;
-        const clipSegmentToRect = U.clipSegmentToRect;
-        ctx.strokeStyle = U.rgba(stroke.color, 0.9);
-        ctx.lineWidth = stroke.widthPx;
-        // Dashed strokes are significantly cheaper with non-round caps/joins on mobile browsers.
-        ctx.lineCap = 'butt';
-        ctx.lineJoin = 'miter';
         const useDash = params.useDashedStroke && !sceneCtx.liteMode;
-        if (useDash) {
-            ctx.setLineDash([U.mmToPx(0.6), U.mmToPx(1.2)]);
-        } else {
-            ctx.setLineDash([]);
-        }
-        ctx.beginPath();
-        for (let i = 0; i < bounds.length; i++) {
-            const seg = bounds[i];
-            const pieces = [];
-            const a = this._project(sceneCtx, seg.ra1, seg.dec1);
-            const b = this._project(sceneCtx, seg.ra2, seg.dec2);
-            this._subdivide(sceneCtx, pieces, seg.ra1, seg.dec1, seg.ra2, seg.dec2, 0, params, a, b);
-            for (let j = 0; j < pieces.length; j += 2) {
-                const a = pieces[j];
-                const b = pieces[j + 1];
-                if (!a || !b) continue;
-                const c = clipSegmentToRect(a.x, a.y, b.x, b.y, xMin, yMin, xMax, yMax);
-                if (!c) continue;
-                ctx.moveTo(c.x1, c.y1);
-                ctx.lineTo(c.x2, c.y2);
+        this._drawBoundarySegments(sceneCtx, ctx, bounds, stroke, params, null, useDash);
+    };
+
+    window.SkySceneConstellationRenderer.prototype._drawHighlightedBoundaries = function (sceneCtx, ctx) {
+        const meta = sceneCtx.sceneData.meta || {};
+        const hlConstellation = (meta.highlight_constellation || '').toString().trim().toUpperCase();
+        if (!hlConstellation) return;
+
+        const boundsMeta = meta.constellation_boundaries || {};
+        if (!boundsMeta.dataset_id) return;
+
+        const getCatalog = sceneCtx.getConstellationBoundariesCatalog;
+        const catalog = getCatalog ? getCatalog(boundsMeta.dataset_id) : null;
+        if (!catalog) {
+            if (sceneCtx.ensureConstellationBoundariesCatalog) {
+                sceneCtx.ensureConstellationBoundariesCatalog(boundsMeta);
             }
+            return;
         }
-        ctx.stroke();
-        ctx.setLineDash([]);
+        const bounds = Array.isArray(catalog.items) ? catalog.items : [];
+        if (!bounds.length) return;
+
+        const stroke = this._themeHighlightedBoundariesStroke(sceneCtx);
+        const params = this._getBoundaryRenderParams(sceneCtx);
+        const useDash = params.useDashedStroke && !sceneCtx.liteMode;
+        this._drawBoundarySegments(sceneCtx, ctx, bounds, stroke, params, function (seg) {
+            return (seg.cons1 || '').toString().toUpperCase() === hlConstellation
+                || (seg.cons2 || '').toString().toUpperCase() === hlConstellation;
+        }, useDash);
     };
 
     window.SkySceneConstellationRenderer.prototype.draw = function (sceneCtx) {
@@ -198,7 +245,8 @@
         const showBorders = (typeof meta.show_constellation_borders === 'boolean')
             ? meta.show_constellation_borders
             : U.hasFlag(meta, 'B');
-        if (!showShapes && !showBorders) return;
+        const showHighlightedBorders = !!(meta.highlight_constellation || '').toString().trim();
+        if (!showShapes && !showBorders && !showHighlightedBorders) return;
 
         const ctx = sceneCtx.backCtx;
         if (showShapes) {
@@ -206,6 +254,9 @@
         }
         if (showBorders) {
             this._drawBoundaries(sceneCtx, ctx);
+        }
+        if (showHighlightedBorders) {
+            this._drawHighlightedBoundaries(sceneCtx, ctx);
         }
     };
 })();
