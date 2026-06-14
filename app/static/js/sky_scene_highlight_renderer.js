@@ -12,9 +12,15 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._highlightStyle = function (sceneCtx, hl) {
-        const color = U.finiteColor(hl && hl.color)
-            ? hl.color
-            : sceneCtx.getThemeColor('highlight', [0.15, 0.3, 0.6]);
+        let fallbackColor = sceneCtx.getThemeColor('highlight', [0.15, 0.3, 0.6]);
+        if (hl && hl.shape === 'comet') {
+            const cometCfg = sceneCtx.themeConfig && sceneCtx.themeConfig.comet
+                ? sceneCtx.themeConfig.comet : null;
+            if (cometCfg && U.finiteColor(cometCfg.highlight_color)) {
+                fallbackColor = cometCfg.highlight_color;
+            }
+        }
+        const color = U.finiteColor(hl && hl.color) ? hl.color : fallbackColor;
 
         const lineWidth = Number.isFinite(hl && hl.line_width)
             ? Math.max(0.75, U.mmToPx(hl.line_width))
@@ -155,13 +161,55 @@
         ctx.arc(centerPx.x, centerPx.y, coreR, 0, U.TWO_PI);
         ctx.stroke();
         if (Number.isFinite(hl.tail_pa)) {
-            const len = Number.isFinite(hl.tail_len_px) ? Math.max(coreR * 1.5, hl.tail_len_px) : (base * 2.5);
-            const ex = centerPx.x + Math.sin(hl.tail_pa) * len;
-            const ey = centerPx.y - Math.cos(hl.tail_pa) * len;
-            ctx.beginPath();
-            ctx.moveTo(centerPx.x, centerPx.y);
-            ctx.lineTo(ex, ey);
-            ctx.stroke();
+            const sizes = sceneCtx.themeConfig && sceneCtx.themeConfig.sizes
+                ? sceneCtx.themeConfig.sizes : null;
+            const lenMm = sizes && Number.isFinite(sizes.comet_tail_length)
+                ? sizes.comet_tail_length : 6.0;
+            const halfAngleDeg = sizes && Number.isFinite(sizes.comet_tail_half_angle_deg)
+                ? sizes.comet_tail_half_angle_deg : 15.0;
+            const sideScale = sizes && Number.isFinite(sizes.comet_tail_side_scale)
+                ? sizes.comet_tail_side_scale : 0.8;
+            const tailColor = U.finiteColor(hl.tail_color)
+                ? hl.tail_color : this._highlightStyle(sceneCtx, hl).color;
+            const len = Number.isFinite(hl.tail_len_px)
+                ? Math.max(coreR * 1.5, hl.tail_len_px)
+                : Math.max(4.0, U.mmToPx(lenMm));
+            const halfAngle = halfAngleDeg * Math.PI / 180.0;
+            const dirs = [
+                { pa: hl.tail_pa, scale: 1.0 },
+                { pa: hl.tail_pa + halfAngle, scale: sideScale },
+                { pa: hl.tail_pa - halfAngle, scale: sideScale },
+            ];
+            ctx.strokeStyle = U.rgba(tailColor, 0.98);
+            for (let i = 0; i < dirs.length; i++) {
+                const d = dirs[i];
+                const ex = centerPx.x + Math.sin(d.pa) * len * d.scale;
+                const ey = centerPx.y - Math.cos(d.pa) * len * d.scale;
+                ctx.beginPath();
+                ctx.moveTo(centerPx.x, centerPx.y);
+                ctx.lineTo(ex, ey);
+                ctx.stroke();
+            }
+        }
+        const label = (hl.label || '').toString().trim();
+        if (label) {
+            const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
+                ? sceneCtx.themeConfig.font_scales : {};
+            const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
+                ? fontScales.highlight_label_font_scale : 1.0;
+            const fontPx = Math.max(9.0, base * labelScale);
+            ctx.setLineDash([]);
+            ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
+            ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            const x = centerPx.x + Math.max(coreR + fontPx * 1.5, fontPx * 1.7);
+            const y = centerPx.y;
+            ctx.fillText(label, x, y);
+            if (Number.isFinite(hl.mag)) {
+                ctx.font = (fontPx * 0.8).toFixed(1) + 'px sans-serif';
+                ctx.fillText(hl.mag.toFixed(1) + 'm', x, y + fontPx * 0.9);
+            }
         }
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, coreR + 4.0);

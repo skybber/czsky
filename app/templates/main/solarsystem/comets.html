@@ -124,7 +124,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, embed='comets',
-                     default_back='comets'
+                     default_back='comets',
+                     fchart_scene_url=url_for('main_comet.comets_chart_scene_v1',
+                                              flags=chart_control.chart_flags)
                      )
     }}
 {% endmacro %}

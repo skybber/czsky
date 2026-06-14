@@ -217,6 +217,30 @@ def build_circle_highlight(
     }
 
 
+def build_comet_highlight(
+    highlight_id: str,
+    label: str,
+    ra: float,
+    dec: float,
+    mag: Optional[float] = None,
+    tail_pa: Optional[float] = None,
+) -> SceneHighlight:
+    item: SceneHighlight = {
+        "shape": "comet",
+        "id": highlight_id,
+        "label": label,
+        "ra": _round_coord(ra),
+        "dec": _round_coord(dec),
+        "line_width": 0.3,
+        "priority": 9,
+    }
+    if mag is not None:
+        item["mag"] = float(mag)
+    if tail_pa is not None:
+        item["tail_pa"] = float(tail_pa)
+    return item
+
+
 def scene_dso_id_from_name(name: str) -> str:
     return str(name).replace(" ", "")
 

@@ -68,6 +68,7 @@ from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.visibility_utils import get_rise_transit_set_utc
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.chart_scene import (
+    build_comet_highlight,
     build_cross_highlight,
     build_scene_trajectory_item,
     build_scene_v1,
@@ -204,6 +205,42 @@ def comets_chart_pos_img():
     img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_comet.route('/comets/chart/scene-v1', methods=['GET'])
+def comets_chart_scene_v1():
+    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
+    _, _, _, dso_maglim = get_fld_size_mags_from_request()
+    if dso_maglim < 16.0:
+        dso_maglim = 16.0
+    comets = [
+        c for c in comets
+        if c.real_mag is not None and c.real_mag <= dso_maglim
+        and c.cur_ra is not None and c.cur_dec is not None
+    ]
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+
+    for comet in comets:
+        highlights.append(
+            build_comet_highlight(
+                highlight_id=CHART_COMET_PREFIX + str(comet.id),
+                label=comet.designation,
+                ra=comet.cur_ra,
+                dec=comet.cur_dec,
+                mag=comet.real_mag,
+                tail_pa=comet.cur_tail_pa,
+            )
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'comets',
+        'count': len(comets),
+    }
+    return jsonify(scene)
 
 
 @main_comet.route('/comets/chart-pdf', methods=['GET'])
