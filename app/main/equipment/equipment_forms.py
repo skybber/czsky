@@ -22,7 +22,7 @@ BARREL_DIAMETERS_CHOICES = [(d, str(d) + '"') for d in [0.965, 1.25, 2, 2.7, 3, 
 
 
 class TelescopeMixin:
-    name = StringField(lazy_gettext('Name'), validators=[Length(max=128)])
+    name = StringField(lazy_gettext('Name'), validators=[InputRequired(), Length(max=128)])
     vendor = StringField(lazy_gettext('Vendor'), validators=[Length(max=128)])
     model = StringField(lazy_gettext('Model'), validators=[Length(max=128)])
     descr = TextAreaField(lazy_gettext('Notes'))
@@ -114,4 +114,3 @@ class LensNewForm(FlaskForm, LensMixin):
 
 class LensEditForm(FlaskForm, LensMixin):
     submit = SubmitField(lazy_gettext('Update Lens'))
-
