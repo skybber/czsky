@@ -108,11 +108,61 @@ def _get_user_name(user_id, user_name_cache):
     return user_name
 
 
-def save_public_content_data_to_git(user_name, commit_message):
-    owner = User.query.filter_by(user_name=user_name).first()
+def _get_configured_public_content_editors():
+    user_names = []
+    lang_codes = current_app.config.get('LANGUAGES') or []
+    for lang_code in lang_codes:
+        str_all_editors = current_app.config.get('ALL_EDITORS_USER_NAMES_' + lang_code.upper())
+        if str_all_editors:
+            lang_user_names = [x.strip() for x in str_all_editors.split(',') if x.strip()]
+        else:
+            editor_user_name = current_app.config.get('EDITOR_USER_NAME_' + lang_code.upper())
+            lang_user_names = [editor_user_name] if editor_user_name else []
+        for lang_user_name in lang_user_names:
+            if lang_user_name not in user_names:
+                user_names.append(lang_user_name)
+
+    editor_users = User.query.filter(User.user_name.in_(user_names)).all() if user_names else []
+    editor_users_by_name = {editor_user.user_name: editor_user for editor_user in editor_users}
+    return [editor_users_by_name[user_name] for user_name in user_names if user_name in editor_users_by_name]
+
+
+def _get_legacy_editor_user():
     editor_user = User.get_editor_user()
     if not editor_user:
         raise EnvironmentError('User Editor not found.')
+    return editor_user
+
+
+def _iter_public_content_roots(repository_path):
+    ignored_root_dirs = {'.git', 'images'}
+    legacy_editor_user = _get_legacy_editor_user()
+    has_editor_content_roots = False
+    editor_users = _get_configured_public_content_editors()
+    ignored_legacy_root_dirs = ignored_root_dirs | {editor_user.user_name for editor_user in editor_users}
+
+    for editor_user in editor_users:
+        editor_dir = os.path.join(repository_path, editor_user.user_name)
+        if not os.path.isdir(editor_dir):
+            continue
+        for lang_code_dir in [f for f in os.listdir(editor_dir) if os.path.isdir(os.path.join(editor_dir, f)) and f not in ignored_root_dirs]:
+            has_editor_content_roots = True
+            yield editor_user, lang_code_dir, editor_dir
+
+    if not has_editor_content_roots:
+        for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in ignored_legacy_root_dirs]:
+            yield legacy_editor_user, lang_code_dir, repository_path
+
+
+def _get_public_content_repo_file_name(editor_user, user_descr, *path_parts):
+    return os.path.join(editor_user.user_name, user_descr.lang_code, *path_parts)
+
+
+def save_public_content_data_to_git(user_name, commit_message):
+    owner = User.query.filter_by(user_name=user_name).first()
+    editor_users = _get_configured_public_content_editors()
+    if not editor_users:
+        editor_users = [_get_legacy_editor_user()]
     user_name_cache = {}
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     _actualize_repository(owner.user_name, owner.git_content_repository, owner.git_content_ssh_private_key, repository_path)
@@ -125,101 +175,102 @@ def save_public_content_data_to_git(user_name, commit_message):
             else:
                 os.remove(fpath)
 
-    for udd in UserDsoDescription.query.filter_by(user_id=editor_user.id):
-        cat_name, dso_id = destructuralize_dso_name(udd.deepsky_object.name)
-        dso_dir = _get_dso_dir(cat_name, dso_id)
+    for editor_user in editor_users:
+        for udd in UserDsoDescription.query.filter_by(user_id=editor_user.id):
+            cat_name, dso_id = destructuralize_dso_name(udd.deepsky_object.name)
+            dso_dir = _get_dso_dir(cat_name, dso_id)
 
-        repo_file_name = os.path.join(udd.lang_code,'dso', dso_dir, udd.deepsky_object.name + '.md')
-        filename = os.path.join(repository_path, repo_file_name)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write('---\n')
-            f.write('name: ' + (udd.common_name if udd.common_name is not None else '' ) + '\n')
-            f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
-            f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
-            f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
-            f.write('updated_by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
-            f.write('updated_date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
-            f.write('---\n')
-            f.write(udd.text)
+            repo_file_name = _get_public_content_repo_file_name(editor_user, udd, 'dso', dso_dir, udd.deepsky_object.name + '.md')
+            filename = os.path.join(repository_path, repo_file_name)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as f:
+                f.write('---\n')
+                f.write('name: ' + (udd.common_name if udd.common_name is not None else '' ) + '\n')
+                f.write('rating: ' + (str(udd.rating) if udd.rating else '') + '\n')
+                f.write('references: ' + _convert_to_multiline(udd.references) + '\n')
+                f.write('created_by: ' + _get_user_name(udd.create_by, user_name_cache) + '\n')
+                f.write('created_date: ' + (str(udd.create_date) if udd.create_date else '') + '\n')
+                f.write('updated_by: ' + _get_user_name(udd.update_by, user_name_cache) + '\n')
+                f.write('updated_date: ' + (str(udd.update_date) if udd.create_date else '') + '\n')
+                f.write('---\n')
+                f.write(udd.text)
 
-    for uad in UserDsoApertureDescription.query.filter_by(user_id=editor_user.id):
-        if not uad.text:
-            continue
+        for uad in UserDsoApertureDescription.query.filter_by(user_id=editor_user.id):
+            if not uad.text:
+                continue
 
-        cat_name, dso_id = destructuralize_dso_name(uad.deepsky_object.name)
-        dso_dir = _get_dso_dir(cat_name, dso_id)
+            cat_name, dso_id = destructuralize_dso_name(uad.deepsky_object.name)
+            dso_dir = _get_dso_dir(cat_name, dso_id)
 
-        repo_file_name = os.path.join(uad.lang_code,'dso', dso_dir, uad.deepsky_object.name + '_' + uad.aperture_class.replace('/', 'u') + '.md')
-        filename = os.path.join(repository_path, repo_file_name)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write('---\n')
-            f.write('aperture: ' + uad.aperture_class + '\n')
-            f.write('rating: ' + (str(uad.rating) if uad.rating else '') + '\n')
-            f.write('created_by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
-            f.write('updated_by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
-            f.write('updated_date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
-            f.write('---\n')
-            f.write(uad.text)
+            repo_file_name = _get_public_content_repo_file_name(editor_user, uad, 'dso', dso_dir, uad.deepsky_object.name + '_' + uad.aperture_class.replace('/', 'u') + '.md')
+            filename = os.path.join(repository_path, repo_file_name)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as f:
+                f.write('---\n')
+                f.write('aperture: ' + uad.aperture_class + '\n')
+                f.write('rating: ' + (str(uad.rating) if uad.rating else '') + '\n')
+                f.write('created_by: ' + _get_user_name(uad.create_by, user_name_cache) + '\n')
+                f.write('created_date: ' + (str(uad.create_date) if uad.create_date else '') + '\n')
+                f.write('updated_by: ' + _get_user_name(uad.update_by, user_name_cache) + '\n')
+                f.write('updated_date: ' + (str(uad.update_date) if uad.create_date else '') + '\n')
+                f.write('---\n')
+                f.write(uad.text)
 
-    for ucd in UserConsDescription.query.filter_by(user_id=editor_user.id):
-        repo_file_name = os.path.join(ucd.lang_code, 'constellation', ucd.constellation.name + '.md')
-        filename = os.path.join(repository_path, repo_file_name)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write('---\n')
-            f.write('name: ' + str(ucd.common_name) + '\n')
-            f.write('created_by: ' + _get_user_name(ucd.create_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(ucd.create_date) if ucd.create_date else '') + '\n')
-            f.write('updated_by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
-            f.write('updated_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
-            f.write('---\n')
-            f.write(ucd.text)
+        for ucd in UserConsDescription.query.filter_by(user_id=editor_user.id):
+            repo_file_name = _get_public_content_repo_file_name(editor_user, ucd, 'constellation', ucd.constellation.name + '.md')
+            filename = os.path.join(repository_path, repo_file_name)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as f:
+                f.write('---\n')
+                f.write('name: ' + str(ucd.common_name) + '\n')
+                f.write('created_by: ' + _get_user_name(ucd.create_by, user_name_cache) + '\n')
+                f.write('created_date: ' + (str(ucd.create_date) if ucd.create_date else '') + '\n')
+                f.write('updated_by: ' + _get_user_name(ucd.update_by, user_name_cache) + '\n')
+                f.write('updated_date: ' + (str(ucd.update_date) if ucd.create_date else '') + '\n')
+                f.write('---\n')
+                f.write(ucd.text)
 
-    for usd in UserStarDescription.query.filter_by(user_id=editor_user.id):
-        if usd.star:
-            star_file_name = 'hr' + str(usd.star.hr)
-        else:
-            star_file_name = usd.common_name.replace(' ', '_').replace('/', '-slash-')
-        repo_file_name = os.path.join(usd.lang_code, 'star', star_file_name + '.md')
-        filename = os.path.join(repository_path, repo_file_name)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write('---\n')
-            f.write('name: ' + str(usd.common_name) + '\n')
-            if usd.constellation:
-                f.write('constellation: ' + usd.constellation.iau_code + '\n')
-            f.write('created_by: ' + _get_user_name(usd.create_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(usd.create_date) if usd.create_date else '') + '\n')
-            f.write('updated_by: ' + _get_user_name(usd.update_by, user_name_cache) + '\n')
-            f.write('updated_date: ' + (str(usd.update_date) if usd.create_date else '') + '\n')
-            f.write('---\n')
-            f.write(usd.text)
+        for usd in UserStarDescription.query.filter_by(user_id=editor_user.id):
+            if usd.star:
+                star_file_name = 'hr' + str(usd.star.hr)
+            else:
+                star_file_name = usd.common_name.replace(' ', '_').replace('/', '-slash-')
+            repo_file_name = _get_public_content_repo_file_name(editor_user, usd, 'star', star_file_name + '.md')
+            filename = os.path.join(repository_path, repo_file_name)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as f:
+                f.write('---\n')
+                f.write('name: ' + str(usd.common_name) + '\n')
+                if usd.constellation:
+                    f.write('constellation: ' + usd.constellation.iau_code + '\n')
+                f.write('created_by: ' + _get_user_name(usd.create_by, user_name_cache) + '\n')
+                f.write('created_date: ' + (str(usd.create_date) if usd.create_date else '') + '\n')
+                f.write('updated_by: ' + _get_user_name(usd.update_by, user_name_cache) + '\n')
+                f.write('updated_date: ' + (str(usd.update_date) if usd.create_date else '') + '\n')
+                f.write('---\n')
+                f.write(usd.text)
 
-    for udsd in UserDoubleStarDescription.query.filter_by(user_id=editor_user.id):
-        fn_prefix = udsd.double_star.common_cat_id.replace(' ', '_')
-        fn_appendix = udsd.double_star.components.replace(',', '_') if udsd.double_star.components else ''
-        double_star_file_name = fn_prefix
-        if fn_appendix:
-            double_star_file_name += '-' + fn_appendix
-        repo_file_name = os.path.join(udsd.lang_code, 'doublestar', double_star_file_name + '.md')
-        filename = os.path.join(repository_path, repo_file_name)
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "w") as f:
-            f.write('---\n')
-            str_components_appendix = '-' + udsd.double_star.components  if udsd.double_star.components else ''
-            f.write('name: ' + '{}'.format(udsd.double_star.common_cat_id) + str_components_appendix + '\n')
-            f.write('rating: ' + (str(udsd.rating) if udd.rating else '') + '\n')
-            f.write('references: ' + _convert_to_multiline(udsd.references) + '\n')
-            f.write('created_by: ' + _get_user_name(udsd.create_by, user_name_cache) + '\n')
-            f.write('created_date: ' + (str(udsd.create_date) if udsd.create_date else '') + '\n')
-            f.write('updated_by: ' + _get_user_name(udsd.update_by, user_name_cache) + '\n')
-            f.write('updated_date: ' + (str(udsd.update_date) if udsd.create_date else '') + '\n')
-            f.write('---\n')
-            f.write(udsd.text)
+        for udsd in UserDoubleStarDescription.query.filter_by(user_id=editor_user.id):
+            fn_prefix = udsd.double_star.common_cat_id.replace(' ', '_')
+            fn_appendix = udsd.double_star.components.replace(',', '_') if udsd.double_star.components else ''
+            double_star_file_name = fn_prefix
+            if fn_appendix:
+                double_star_file_name += '-' + fn_appendix
+            repo_file_name = _get_public_content_repo_file_name(editor_user, udsd, 'doublestar', double_star_file_name + '.md')
+            filename = os.path.join(repository_path, repo_file_name)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            with open(filename, "w") as f:
+                f.write('---\n')
+                str_components_appendix = '-' + udsd.double_star.components  if udsd.double_star.components else ''
+                f.write('name: ' + '{}'.format(udsd.double_star.common_cat_id) + str_components_appendix + '\n')
+                f.write('rating: ' + (str(udsd.rating) if udsd.rating else '') + '\n')
+                f.write('references: ' + _convert_to_multiline(udsd.references) + '\n')
+                f.write('created_by: ' + _get_user_name(udsd.create_by, user_name_cache) + '\n')
+                f.write('created_date: ' + (str(udsd.create_date) if udsd.create_date else '') + '\n')
+                f.write('updated_by: ' + _get_user_name(udsd.update_by, user_name_cache) + '\n')
+                f.write('updated_date: ' + (str(udsd.update_date) if udsd.create_date else '') + '\n')
+                f.write('---\n')
+                f.write(udsd.text)
 
     repo = git.Repo(repository_path)
     try:
@@ -245,7 +296,6 @@ def load_public_content_data_from_git(user_name, **kwargs):
 
 def load_public_content_data_from_git2(user_name, git_content_repository=None):
     owner = User.query.filter_by(user_name=user_name).first()
-    editor_user = User.get_editor_user()
     repository_path = os.path.join(os.getcwd(), get_content_repository_path(owner))
     if not git_content_repository:
         git_content_repository = owner.git_content_repository
@@ -253,12 +303,12 @@ def load_public_content_data_from_git2(user_name, git_content_repository=None):
 
     user_cache = {}
 
-    for lang_code_dir in [f for f in os.listdir(repository_path) if os.path.isdir(os.path.join(repository_path, f)) and f not in  ['.git', 'images']]:
-        _load_dso_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
-        _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
-        _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
-        _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
-        _load_double_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache)
+    for editor_user, lang_code_dir, content_root_path in _iter_public_content_roots(repository_path):
+        _load_dso_descriptions(owner, editor_user, content_root_path, lang_code_dir, user_cache)
+        _load_dso_apert_descriptions(owner, editor_user, content_root_path, lang_code_dir, user_cache)
+        _load_constellation_descriptions(owner, editor_user, content_root_path, lang_code_dir, user_cache)
+        _load_star_descriptions(owner, editor_user, content_root_path, lang_code_dir, user_cache)
+        _load_double_star_descriptions(owner, editor_user, content_root_path, lang_code_dir, user_cache)
 
     db.session.commit()
     current_app.logger.info('Public content data loading succeeded.')
@@ -444,6 +494,8 @@ def _load_dso_apert_descriptions(owner, editor_user, repository_path, lang_code_
 
 def _load_constellation_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     constellation_dir = os.path.join(repository_path, lang_code_dir, 'constellation')
+    if not os.path.exists(constellation_dir):
+        return
     files = [f for f in os.listdir(constellation_dir) if os.path.isfile(os.path.join(constellation_dir, f))]
     for constellation_name_md in files:
         # current_app.logger.info('Reading constell. description {}'.format(constellation_name_md))
@@ -484,6 +536,8 @@ def _load_constellation_descriptions(owner, editor_user, repository_path, lang_c
 
 def _load_star_descriptions(owner, editor_user, repository_path, lang_code_dir, user_cache):
     star_dir = os.path.join(repository_path, lang_code_dir, 'star')
+    if not os.path.exists(star_dir):
+        return
     files = [f for f in os.listdir(star_dir) if os.path.isfile(os.path.join(star_dir, f))]
     for star_name_md in files:
         # current_app.logger.info('Reading star description {}'.format(star_name_md))
