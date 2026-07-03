@@ -433,6 +433,7 @@ def update_comets_cobs_observations():
                 comet.real_mag = None
                 comet.real_coma_diameter = None
                 db.session.add(comet)
+        db.session.commit()
     except IntegrityError as err:
         current_app.logger.error('\nIntegrity error {}'.format(err))
         db.session.rollback()
