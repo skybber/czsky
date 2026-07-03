@@ -113,6 +113,43 @@ def fetch_recent_cobs_observations(comet_id: int | None, limit=5):
     ]
 
 
+def _strip_cobs_comet_name(cobs_comet_name):
+    return cobs_comet_name.split('(')[0].strip() if cobs_comet_name else ''
+
+
+def _cobs_comet_name_candidates(cobs_comet_name):
+    comet_name = _strip_cobs_comet_name(cobs_comet_name)
+    if not comet_name:
+        return []
+
+    candidates = [comet_name]
+
+    numbered_match = re.match(r'^(\d+[A-Z]/\S+)\s+\d+$', comet_name)
+    if numbered_match:
+        candidates.append(numbered_match.group(1))
+
+    return list(dict.fromkeys(candidates))
+
+
+def find_comet_by_cobs_name(cobs_comet_name):
+    candidates = _cobs_comet_name_candidates(cobs_comet_name)
+    for comet_name in candidates:
+        comet = Comet.query.filter(Comet.designation.ilike(comet_name)).first()
+        if comet:
+            return comet
+
+        comet = Comet.query.filter(Comet.designation.ilike(comet_name + '%')).first()
+        if comet:
+            return comet
+
+    for comet_name in candidates[1:]:
+        comet = Comet.query.filter(Comet.designation.ilike(comet_name + ' %')).first()
+        if comet:
+            return comet
+
+    return None
+
+
 def get_all_comets(update_cobs_props=True, force_reload=False):
     global all_comets
     global all_comets_expiration
@@ -355,8 +392,7 @@ def update_comets_cobs_observations():
                                         continue
 
                                     if date is not None:
-                                        comet_name = comet_name.split('(')[0].strip()
-                                        comet = Comet.query.filter(Comet.designation.like(comet_name.strip() + '%')).first()
+                                        comet = find_comet_by_cobs_name(comet_name)
                                         if comet:
                                             comet_observation = CometObservation.query.filter_by(comet_id=comet.id, date=date, mag=mag).first()
                                             if not comet_observation:
@@ -374,7 +410,7 @@ def update_comets_cobs_observations():
                                                     current_app.logger.error('\nIntegrity error {}'.format(err))
                                                     db.session.rollback()
                                         else:
-                                            current_app.logger.warn('Can\'t find comet={}'.format(comet_name))
+                                            current_app.logger.warn('Can\'t find comet={}'.format(_strip_cobs_comet_name(comet_name)))
 
     # update brightness from COBS
     try:

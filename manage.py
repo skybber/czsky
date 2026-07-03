@@ -704,6 +704,12 @@ def tmp_update_comets():
     update_comets_positions(show_progress=True)
 
 
+@app.cli.command("tmp_update_comets_cobs_observations")
+def tmp_update_comets_cobs_observations():
+    from app.commons.comet_utils import update_comets_cobs_observations
+    update_comets_cobs_observations()
+
+
 @app.cli.command("tmp_update_hnsky")
 def tmp_update_hnsky():
     from imports.import_hnsky import import_hnsky, fix_masters_after_hnsky_import
