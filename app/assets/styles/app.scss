@@ -4,6 +4,60 @@ $mobile-breakpoint:        768px;
 $tablet-breakpoint:        992px;
 $small-monitor-breakpoint: 1100px;
 
+// Prefer a bundled app font over platform-specific defaults.
+$czsky-inter-latin-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+$czsky-inter-latin-ext-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+
+@mixin czsky-inter-face($weight, $style, $subset, $unicode-range) {
+    @font-face {
+        font-family: "Inter";
+        font-style: $style;
+        font-display: swap;
+        font-weight: $weight;
+        src: url("/static/fonts/inter/inter-#{$subset}-#{$weight}-#{$style}.woff2") format("woff2");
+        unicode-range: $unicode-range;
+    }
+}
+
+@include czsky-inter-face(400, normal, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(500, normal, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(600, normal, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(700, normal, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(400, italic, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(700, italic, latin-ext, $czsky-inter-latin-ext-range);
+@include czsky-inter-face(400, normal, latin, $czsky-inter-latin-range);
+@include czsky-inter-face(500, normal, latin, $czsky-inter-latin-range);
+@include czsky-inter-face(600, normal, latin, $czsky-inter-latin-range);
+@include czsky-inter-face(700, normal, latin, $czsky-inter-latin-range);
+@include czsky-inter-face(400, italic, latin, $czsky-inter-latin-range);
+@include czsky-inter-face(700, italic, latin, $czsky-inter-latin-range);
+
+$czsky-font-family: "Inter", "Noto Sans", "Segoe UI", Roboto, Ubuntu, Cantarell, Arial, sans-serif;
+
+body,
+button,
+input,
+optgroup,
+select,
+textarea,
+.ui,
+.ui.header,
+.ui.button,
+.ui.input input,
+.ui.form input,
+.ui.form textarea,
+.ui.dropdown,
+.ui.menu,
+.ui.table,
+.ui.card,
+.ui.message,
+.ui.label,
+.ui.list,
+.ui.items,
+.ui.breadcrumb {
+    font-family: $czsky-font-family !important;
+}
+
 // General nav
 nav {
     margin-bottom: 40px !important;
