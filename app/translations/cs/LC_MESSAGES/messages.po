@@ -2210,7 +2210,7 @@ msgstr "Záznam pozorování"
 #: app/templates/main/catalogue/double_star_info.html:369
 #: app/templates/main/solarsystem/comet_info.html:239
 msgid "Pin object"
-msgstr "Deepsky objekty"
+msgstr "Připnout objekt"
 
 #: app/templates/main/catalogue/deepskyobjects.html:15
 msgid "Deepsky Objects"

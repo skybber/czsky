@@ -102,6 +102,19 @@ table.selectable tr:hover {
   display: none;
 }
 
+.ui.basic.buttons.object-nav-buttons {
+  box-shadow: 0 0 0 1px rgba(34, 36, 38, 0.3);
+  border-radius: .28571429rem;
+}
+
+.ui.basic.buttons.object-nav-buttons > .button {
+  padding: .6em .75em;
+}
+
+.ui.basic.buttons.object-nav-buttons > .button > .icon {
+  font-size: 1.1em;
+}
+
 /* Mobile */
 @media only screen and (max-width: 767px) {
   [class*="mobile hidden"],

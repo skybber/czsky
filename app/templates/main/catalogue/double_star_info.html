@@ -366,20 +366,24 @@
                     </div>
                 </div>
                 {% if embed == 'fc' %}
-                    <a id="bpin" class="ui basic icon compact button" style="margin-left: 4px;" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                    <a id="bpin" class="ui basic circular icon compact button" style="margin-left: 4px;" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
                         <i class="crosshairs icon"></i>
                     </a>
                 {% endif %}
 
-                {% if next_wrap and embed != 'pl' %}
-                    <a id="bnext" class="ui basic icon compact right floated button" href="{{ '#' if embed else next_wrap.url() }}">
-                        <i class="caret right icon"></i>
-                    </a>
-                {% endif %}
-                {% if prev_wrap and embed != 'pl' %}
-                    <a id="bprev" class="ui basic icon compact right floated button" href="{{ '#' if embed else prev_wrap.url() }}">
-                        <i class="caret left icon"></i>
-                    </a>
+                {% if embed != 'pl' and (prev_wrap or next_wrap) %}
+                    <div class="ui basic icon compact right floated buttons object-nav-buttons">
+                        {% if prev_wrap %}
+                            <a id="bprev" class="ui button" href="{{ '#' if embed else prev_wrap.url() }}">
+                                <i class="caret left icon"></i>
+                            </a>
+                        {% endif %}
+                        {% if next_wrap %}
+                            <a id="bnext" class="ui button" href="{{ '#' if embed else next_wrap.url() }}">
+                                <i class="caret right icon"></i>
+                            </a>
+                        {% endif %}
+                    </div>
                 {% endif %}
             </div>
 
