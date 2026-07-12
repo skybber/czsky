@@ -1,4 +1,4 @@
-{% macro back_navig_inner(back, back_id, default_back, embed, anchor='', link_id='', extra_class='', style='', icon_extra='') %}
+{% macro back_navig_inner(back, back_id, default_back, embed, anchor='', link_id='', extra_class='', style='', icon_extra='', show_divider=True) %}
     {% if not embed %}
         {% if back == 'constell' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}"
@@ -91,7 +91,9 @@
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% endif %}
-        <div class="divider"></div>
+        {% if show_divider %}
+            <div class="divider"></div>
+        {% endif %}
     {% else %}
         {% if back == 'constell' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_constellation.constellation_info', constellation_id=back_id) }}{{anchor}}')"
