@@ -47,6 +47,14 @@
         display: none !important;
       }
     }
+    #top-menu .ui.dropdown.active[data-tooltip]::before,
+    #top-menu .ui.dropdown.active[data-tooltip]::after,
+    #top-menu .ui.dropdown.visible[data-tooltip]::before,
+    #top-menu .ui.dropdown.visible[data-tooltip]::after,
+    #top-menu .fchart-tooltip-hidden[data-tooltip]::before,
+    #top-menu .fchart-tooltip-hidden[data-tooltip]::after {
+      display: none !important;
+    }
     @media only screen and (max-width: 768px) {
       #fchart-div.fchart-mobile-menu-bottom #top-menu {
         position: absolute;
@@ -1076,7 +1084,15 @@
             $('.chart-popup').popup({
                 on: 'click',
                 inline: true,
-                context : popupContext
+                context : popupContext,
+                onShow: function() {
+                    const $target = $(this);
+                    $target.add($target.prev()).filter('.chart-popup[data-tooltip]').addClass('fchart-tooltip-hidden');
+                },
+                onHide: function() {
+                    const $target = $(this);
+                    $target.add($target.prev()).filter('.chart-popup[data-tooltip]').removeClass('fchart-tooltip-hidden');
+                }
             });
             updateDateTimeControls($('#cb_use_current_time').prop('checked'));
         });
@@ -2246,7 +2262,23 @@
         });
     }
 
-    $('.chart-popup').popup({ on: 'click' });
+    $('.chart-popup').popup({
+        on: 'click',
+        onShow: function() {
+            const $target = $(this);
+            $target.add($target.prev()).filter('.chart-popup[data-tooltip]').addClass('fchart-tooltip-hidden');
+        },
+        onHide: function() {
+            const $target = $(this);
+            $target.add($target.prev()).filter('.chart-popup[data-tooltip]').removeClass('fchart-tooltip-hidden');
+        }
+    });
+
+    $(document).on('mouseleave', '.chart-popup[data-tooltip]', function() {
+        if (!$(this).next('.ui.popup').hasClass('visible')) {
+            $(this).removeClass('fchart-tooltip-hidden');
+        }
+    });
 
     $(document).on('keydown.fchartHelp', function(event) {
         const isF1 = event.key === 'F1' || event.which === 112 || event.keyCode === 112;
