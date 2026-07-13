@@ -59,7 +59,7 @@
       #fchart-div.fchart-mobile-menu-bottom #top-menu {
         position: absolute;
         left: 0;
-        right: 8px;
+        right: -1px;
         bottom: -4px;
         margin: 0;
         padding: 0 0 env(safe-area-inset-bottom, 0);
@@ -69,6 +69,21 @@
 
       #fchart-div.fchart-mobile-menu-bottom #top-menu > .ui.horizontally.fitted.item:last-child {
         margin-right: 0 !important;
+      }
+
+      #fchart-div.fchart-mobile-menu-bottom #top-menu > .right.menu > .ui.horizontally.fitted.item,
+      #fchart-div.fchart-mobile-menu-bottom #top-menu > .ui.horizontally.fitted.item {
+        margin-left: 3px;
+        margin-right: 3px;
+      }
+
+      #fchart-div.fchart-mobile-menu-bottom #top-menu .ui.buttons {
+        column-gap: 8px;
+      }
+
+      #fchart-div.fchart-mobile-menu-bottom #top-menu .ui.buttons > .button {
+        border-radius: .28571429rem !important;
+        margin-left: 0 !important;
       }
 
       #fchart-div.fchart-mobile-menu-bottom #right-menu {
