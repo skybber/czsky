@@ -1216,6 +1216,11 @@
         }
 
         const queryParams = new URLSearchParams(window.location.search);
+        const enteringRealFullscreen = this.isRealFullScreenSupported
+            && !document.fullscreenElement
+            && !document.webkitFullscreenElement
+            && !document.msFullscreenElement
+            && !exitFullScreen;
 
         if (this.isRealFullScreenSupported) {
             if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
@@ -1228,6 +1233,8 @@
                     // Iframe with current URL + parameter
                     let iframeUrl = new URL(window.location.href);
                     iframeUrl.searchParams.set('realfullscreen', 'iframe');
+                    iframeUrl.searchParams.set('fullscreen', 'true');
+                    iframeUrl.searchParams.delete('splitview');
                     this.fullscreenIframe = document.createElement('iframe');
                     this.fullscreenIframe.src = iframeUrl.toString();
                     this.fullscreenIframe.style.cssText = 'width:100%;height:100%;border:none';
@@ -1269,7 +1276,10 @@
             if (exitFullScreen) {
                 this.fullScreen = false;
             } else {
-                if (this.isInSplitView()) {
+                if (enteringRealFullscreen) {
+                    this.splitview = false;
+                    this.fullScreen = true;
+                } else if (this.isInSplitView()) {
                     this.fullScreen = false;
                     this.setSplitViewPosition();
                 } else {

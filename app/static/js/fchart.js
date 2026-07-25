@@ -2256,6 +2256,10 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
     }
 
     let queryParams = new URLSearchParams(window.location.search);
+    const enteringRealFullscreen = this.isRealFullScreenSupported
+        && !document.fullscreenElement
+        && !document.webkitFullscreenElement
+        && !exitFullScreen;
     if (this.isRealFullScreenSupported) {
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (!exitFullScreen) {
@@ -2267,6 +2271,8 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
                 // Iframe with current URL + parameter
                 let iframeUrl = new URL(window.location.href);
                 iframeUrl.searchParams.set('realfullscreen', 'iframe');
+                iframeUrl.searchParams.set('fullscreen', 'true');
+                iframeUrl.searchParams.delete('splitview');
                 this.fullscreenIframe = document.createElement('iframe');
                 this.fullscreenIframe.src = iframeUrl.toString();
                 this.fullscreenIframe.style.cssText = 'width:100%;height:100%;border:none';
@@ -2291,7 +2297,13 @@ FChart.prototype.doToggleFullscreen = function(toggleClass, exitFullScreen) {
         if (exitFullScreen) {
             $(this.fchartDiv).removeClass('fchart-fullscreen');
         } else {
-            if (this.isInSplitView()) {
+            if (enteringRealFullscreen) {
+                $(this.fchartDiv).removeClass('fchart-splitview').addClass('fchart-fullscreen');
+                $(".fchart-iframe").hide();
+                $(".fchart-separator").hide();
+                $(this.fchartDiv).css('left', 0);
+                $(this.fchartDiv).css('width', '100%');
+            } else if (this.isInSplitView()) {
                 $(this.fchartDiv).removeClass('fchart-fullscreen');
                 this.setSplitViewPosition();
             } else {
