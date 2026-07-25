@@ -116,6 +116,17 @@ def planet_moon_info(planet_moon_name):
     if planet_moon is None:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['fullscreen' if is_mobile() else 'splitview'] = 'true'
+        return redirect(url_for('main_planet_moon.planet_moon_info', planet_moon_name=planet_moon.name, **args))
+
     embed = request.args.get('embed')
     if embed:
         session['planet_moon_embed_seltab'] = 'info'

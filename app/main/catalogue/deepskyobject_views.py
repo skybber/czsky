@@ -514,6 +514,17 @@ def deepskyobject_chart(dso_id):
     if dso is None:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, **args))
+
     form = ChartForm()
 
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(orig_dso, tab='chart')

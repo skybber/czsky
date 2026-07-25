@@ -119,6 +119,17 @@ def moon_seltab():
 
 @main_planet.route('/moon/info', methods=['GET', 'POST'])
 def moon_info():
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['fullscreen' if is_mobile() else 'splitview'] = 'true'
+        return redirect(url_for('main_planet.moon_info', **args))
+
     embed = request.args.get('embed')
     if embed:
         session['moon_embed_seltab'] = 'info'
@@ -304,6 +315,17 @@ def planet_info(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:
         abort(404)
+
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['fullscreen' if is_mobile() else 'splitview'] = 'true'
+        return redirect(url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, **args))
 
     embed = request.args.get('embed')
     if embed:

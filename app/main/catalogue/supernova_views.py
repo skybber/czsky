@@ -254,6 +254,17 @@ def supernova_chart(designation):
     if not supernova:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_supernova.supernova_chart', designation=supernova.designation, **args))
+
     embed = request.args.get('embed')
     if embed:
         session['supernova_embed_seltab'] = 'info'

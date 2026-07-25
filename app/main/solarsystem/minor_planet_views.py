@@ -312,6 +312,17 @@ def minor_planet_info(minor_planet_id):
     if minor_planet is None:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['fullscreen' if is_mobile() else 'splitview'] = 'true'
+        return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation, **args))
+
     form = MinorPlanetFindChartForm()
 
     ts = load.timescale(builtin=True)

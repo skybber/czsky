@@ -28,7 +28,7 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
 )
 
-from app.commons.utils import get_lang_and_editor_user_from_request
+from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported
 from app.commons.prevnext_utils import create_navigation_wrappers
 from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.dso_utils import CHART_STAR_PREFIX
@@ -225,6 +225,17 @@ def star_chart(star_id):
     if not star:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_star.star_chart', star_id=star.id, **args))
+
     embed = request.args.get('embed')
     if embed:
         session['star_embed_seltab'] = 'info'
@@ -257,6 +268,17 @@ def star_descr_chart(star_descr_id):
     star = user_descr.star
     if not star:
         abort(404)
+
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_star.star_descr_chart', star_descr_id=user_descr.id, **args))
 
     embed = request.args.get('embed')
     if embed:

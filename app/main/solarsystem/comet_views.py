@@ -290,6 +290,18 @@ def comet_info(comet_id):
     comet = find_mpc_comet(comet_id)
     if comet is None:
         abort(404)
+
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['fullscreen' if is_mobile() else 'splitview'] = 'true'
+        return redirect(url_for('main_comet.comet_info', comet_id=comet.comet_id, **args))
+
     comet_db = Comet.query.filter_by(comet_id=comet.comet_id).first()
 
     form = CometFindChartForm()

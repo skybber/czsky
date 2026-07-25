@@ -421,6 +421,17 @@ def double_star_chart(double_star_id):
     if not double_star:
         abort(404)
 
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_double_star.double_star_chart', double_star_id=double_star.id, **args))
+
     embed = request.args.get('embed')
     if embed:
         session['double_star_embed_seltab'] = 'catalogue_data'
