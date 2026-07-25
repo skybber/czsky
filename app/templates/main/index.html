@@ -7,19 +7,21 @@
         <div class="twelve wide column">
 
             {% if news_list %}
-            <div class="ui segment">
-                <div class="ui fluid accordion">
-                    <div class="title" style="font-size: 18px;font-weight: 700">
-                        <i class="dropdown icon"></i>
-                        <i class="rss icon"></i>
-                        {{ _('News of the Week') }}
+            <div class="czsky-news-panel">
+                <div class="ui fluid accordion czsky-news-accordion">
+                    <div class="title czsky-news-title">
+                        <span class="czsky-news-title-main">
+                            <i class="rss icon"></i>
+                            {{ _('News of the Week') }}
+                        </span>
+                        <i class="dropdown icon czsky-news-toggle"></i>
                     </div>
-                    <div class="ui thirteen wide column content markdown" style="padding-top: 0px; padding-bottom: 0px;">
-                            {% for news in news_list %}
+                    <div class="content markdown czsky-news-content">
+                        {% for news in news_list %}
                     {% filter extended_commonmark('') %}
 {{ news.text  | safe}}
                     {% endfilter %}
-                            {% endfor %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
