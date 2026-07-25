@@ -2366,7 +2366,7 @@ msgid "CzSkY lists"
 msgstr "CzSkY seznamy"
 
 #: app/templates/main/catalogue/dso_list_menu.html:52
-msgid "Classic list"
+msgid "Classic lists"
 msgstr "Klasické seznamy"
 
 #: app/templates/main/catalogue/dso_list_menu.html:57
