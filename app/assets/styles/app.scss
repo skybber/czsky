@@ -34,6 +34,22 @@ $czsky-inter-latin-ext-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7
 
 $czsky-font-family: "Inter", "Noto Sans", "Segoe UI", Roboto, Ubuntu, Cantarell, Arial, sans-serif;
 
+:root {
+  --czsky-dashboard-tile-bg: rgba(255, 255, 255, 0.62);
+  --czsky-dashboard-tile-bg-hover: rgba(255, 255, 255, 0.86);
+  --czsky-dashboard-tile-border: rgba(120, 130, 145, 0.22);
+  --czsky-dashboard-tile-border-hover: rgba(90, 100, 115, 0.34);
+  --czsky-dashboard-tile-shadow: rgba(0, 0, 0, 0.05);
+  --czsky-dashboard-tile-shadow-hover: rgba(0, 0, 0, 0.09);
+  --czsky-dashboard-tile-accent: rgba(120, 130, 145, 0.36);
+  --czsky-dashboard-tile-media-bg: rgba(120, 130, 145, 0.09);
+  --czsky-dashboard-tile-media-color: rgba(65, 72, 84, 0.9);
+  --czsky-dashboard-tile-title-color: rgba(26, 31, 38, 0.96);
+  --czsky-dashboard-tile-description-color: rgba(82, 91, 105, 0.92);
+  --czsky-dashboard-tile-arrow-color: rgba(82, 91, 105, 0.58);
+  --czsky-dashboard-tile-arrow-hover-color: rgba(45, 52, 62, 0.82);
+}
+
 body,
 button,
 input,
@@ -81,6 +97,128 @@ nav .mobile.only.row {
     margin-bottom: 2rem;
 }
 
+// Dashboard section tiles
+.czsky-dashboard-tile-wrap {
+  color: inherit;
+  text-decoration: none;
+}
+
+.czsky-dashboard-tile-wrap:hover,
+.czsky-dashboard-tile-wrap:focus {
+  color: inherit;
+  text-decoration: none;
+}
+
+.czsky-dashboard-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 76px;
+  height: 100%;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  overflow: hidden;
+  border: 1px solid var(--czsky-dashboard-tile-border);
+  border-radius: 8px;
+  background: var(--czsky-dashboard-tile-bg);
+  box-shadow: 0 1px 2px var(--czsky-dashboard-tile-shadow);
+  transition:
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+
+.czsky-dashboard-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--czsky-dashboard-tile-accent);
+}
+
+.czsky-dashboard-tile-wrap:hover .czsky-dashboard-tile,
+.czsky-dashboard-tile-wrap:focus .czsky-dashboard-tile {
+  border-color: var(--czsky-dashboard-tile-border-hover);
+  background-color: var(--czsky-dashboard-tile-bg-hover);
+  box-shadow: 0 5px 14px var(--czsky-dashboard-tile-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.czsky-dashboard-tile-media {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--czsky-dashboard-tile-media-bg);
+  color: var(--czsky-dashboard-tile-media-color);
+}
+
+.czsky-dashboard-tile-media > .icon {
+  width: auto;
+  height: auto;
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.czsky-dashboard-tile-icons {
+  margin: 0;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.czsky-dashboard-tile-image {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+
+.czsky-dashboard-tile-image img {
+  display: block;
+  max-width: 34px;
+  max-height: 34px;
+  object-fit: contain;
+}
+
+.czsky-dashboard-tile-body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.czsky-dashboard-tile-title {
+  color: var(--czsky-dashboard-tile-title-color);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.czsky-dashboard-tile-description {
+  margin-top: 0.15rem;
+  color: var(--czsky-dashboard-tile-description-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.czsky-dashboard-tile-arrow {
+  flex: 0 0 auto;
+  margin: 0 0 0 0.35rem !important;
+  color: var(--czsky-dashboard-tile-arrow-color);
+  transition: color 0.16s ease, transform 0.16s ease;
+}
+
+.czsky-dashboard-tile-wrap:hover .czsky-dashboard-tile-arrow,
+.czsky-dashboard-tile-wrap:focus .czsky-dashboard-tile-arrow {
+  color: var(--czsky-dashboard-tile-arrow-hover-color);
+  transform: translateX(2px);
+}
+
 // Tables
 table.selectable tr:hover {
     cursor: pointer !important;
@@ -117,6 +255,25 @@ table.selectable tr:hover {
 
 /* Mobile */
 @media only screen and (max-width: 767px) {
+  .czsky-dashboard-tile {
+    min-height: 72px;
+    padding: 0.7rem 0.9rem;
+  }
+
+  .czsky-dashboard-tile-media {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .czsky-dashboard-tile-title {
+    font-size: 1.02rem;
+  }
+
+  .czsky-dashboard-tile-description {
+    font-size: 0.9rem;
+  }
+
   [class*="mobile hidden"],
   [class*="tablet only"]:not(.mobile),
   [class*="computer only"]:not(.mobile),

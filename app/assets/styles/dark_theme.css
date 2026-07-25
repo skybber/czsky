@@ -1,3 +1,4 @@
+:root{--czsky-dashboard-tile-bg:rgba(255,255,255,.025);--czsky-dashboard-tile-bg-hover:rgba(255,255,255,.05);--czsky-dashboard-tile-border:rgba(150,156,166,.26);--czsky-dashboard-tile-border-hover:rgba(205,210,218,.58);--czsky-dashboard-tile-shadow:rgba(0,0,0,.05);--czsky-dashboard-tile-shadow-hover:rgba(0,0,0,.1);--czsky-dashboard-tile-accent:rgba(150,156,166,.5);--czsky-dashboard-tile-media-bg:rgba(150,156,166,.11);--czsky-dashboard-tile-media-color:rgba(215,220,228,.95);--czsky-dashboard-tile-title-color:rgba(232,236,242,.98);--czsky-dashboard-tile-description-color:rgba(190,196,205,.96);--czsky-dashboard-tile-arrow-color:rgba(150,156,166,.72);--czsky-dashboard-tile-arrow-hover-color:rgba(225,230,238,.92)}
 .ui.horizontal.segments>.segment{background-color:#383c4a}
 body{background:#383c4a;color:#9e9e9e}
 *{scrollbar-width:thin;scrollbar-color:#87ab63 rgba(255,255,255,.1)}
