@@ -38,10 +38,11 @@ $czsky-font-family: "Inter", "Noto Sans", "Segoe UI", Roboto, Ubuntu, Cantarell,
   --czsky-dashboard-tile-bg: rgba(255, 255, 255, 0.62);
   --czsky-dashboard-tile-bg-hover: rgba(255, 255, 255, 0.86);
   --czsky-dashboard-tile-border: rgba(120, 130, 145, 0.22);
-  --czsky-dashboard-tile-border-hover: rgba(90, 100, 115, 0.34);
+  --czsky-dashboard-tile-border-hover: rgba(116, 126, 149, 0.42);
   --czsky-dashboard-tile-shadow: rgba(0, 0, 0, 0.05);
   --czsky-dashboard-tile-shadow-hover: rgba(0, 0, 0, 0.09);
-  --czsky-dashboard-tile-accent: rgba(120, 130, 145, 0.36);
+  --czsky-dashboard-tile-accent: rgba(120, 130, 145, 0.24);
+  --czsky-dashboard-tile-accent-hover: rgba(88, 132, 186, 0.5);
   --czsky-dashboard-tile-media-bg: rgba(120, 130, 145, 0.09);
   --czsky-dashboard-tile-media-color: rgba(65, 72, 84, 0.9);
   --czsky-dashboard-tile-title-color: rgba(26, 31, 38, 0.96);
@@ -113,10 +114,10 @@ nav .mobile.only.row {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 76px;
+  min-height: 74px;
   height: 100%;
-  gap: 0.85rem;
-  padding: 0.75rem 1rem;
+  gap: 14px;
+  padding: 14px 16px;
   overflow: hidden;
   border: 1px solid var(--czsky-dashboard-tile-border);
   border-radius: 8px;
@@ -135,14 +136,20 @@ nav .mobile.only.row {
   inset: 0 auto 0 0;
   width: 3px;
   background: var(--czsky-dashboard-tile-accent);
+  transition: background-color 0.16s ease;
 }
 
 .czsky-dashboard-tile-wrap:hover .czsky-dashboard-tile,
 .czsky-dashboard-tile-wrap:focus .czsky-dashboard-tile {
   border-color: var(--czsky-dashboard-tile-border-hover);
   background-color: var(--czsky-dashboard-tile-bg-hover);
-  box-shadow: 0 5px 14px var(--czsky-dashboard-tile-shadow-hover);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--czsky-dashboard-tile-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.czsky-dashboard-tile-wrap:hover .czsky-dashboard-tile::before,
+.czsky-dashboard-tile-wrap:focus .czsky-dashboard-tile::before {
+  background-color: var(--czsky-dashboard-tile-accent-hover);
 }
 
 .czsky-dashboard-tile-media {
@@ -193,12 +200,12 @@ nav .mobile.only.row {
   color: var(--czsky-dashboard-tile-title-color);
   font-size: 1.04rem;
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 .czsky-dashboard-tile-description {
-  margin-top: 0.15rem;
+  margin-top: 3px;
   color: var(--czsky-dashboard-tile-description-color);
   font-size: 0.95rem;
   font-weight: 500;
@@ -216,7 +223,7 @@ nav .mobile.only.row {
 .czsky-dashboard-tile-wrap:hover .czsky-dashboard-tile-arrow,
 .czsky-dashboard-tile-wrap:focus .czsky-dashboard-tile-arrow {
   color: var(--czsky-dashboard-tile-arrow-hover-color);
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
 .czsky-news-panel {
@@ -315,7 +322,8 @@ table.selectable tr:hover {
 @media only screen and (max-width: 767px) {
   .czsky-dashboard-tile {
     min-height: 72px;
-    padding: 0.7rem 0.9rem;
+    gap: 12px;
+    padding: 12px 14px;
   }
 
   .czsky-dashboard-tile-media {
