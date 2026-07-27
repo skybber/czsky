@@ -669,11 +669,17 @@ table.selectable tr:hover {
 }
 
 /* Fchart dropdowns - compact mode */
+#layers_dropdown,
+#viewcenter_dropdown {
+  z-index: 300 !important;
+}
+
 #layers_dropdown > .menu.vertical.buttons,
 #viewcenter_dropdown > .menu.vertical.buttons {
   padding: 0.3em !important;
   width: fit-content !important;
   min-width: auto !important;
+  z-index: 301 !important;
 }
 
 #layers_dropdown > .menu > .item,
@@ -695,6 +701,7 @@ table.selectable tr:hover {
 #viewcenter_dropdown .right.menu {
   padding: 0.3em !important;
   min-width: auto !important;
+  z-index: 302 !important;
 }
 
 #layers_dropdown .right.menu > .item,
@@ -710,4 +717,28 @@ table.selectable tr:hover {
   padding-top: 0.8em !important;
   padding-bottom: 0.8em !important;
   font-size: 0.9em !important;
+}
+
+@media only screen and (max-width: 768px) {
+  #fchart-div.fchart-mobile-menu-bottom #layers_dropdown > .menu.vertical.buttons {
+    right: 0 !important;
+    left: auto !important;
+    max-width: calc(100vw - 1rem);
+  }
+
+  #fchart-div.fchart-mobile-menu-bottom #layers_dropdown .right.menu {
+    left: auto !important;
+    right: 100% !important;
+    top: 0 !important;
+    margin: 0 !important;
+    max-width: calc(100vw - 1rem);
+  }
+
+  #fchart-div.fchart-mobile-menu-bottom #viewcenter_dropdown .right.menu {
+    left: auto !important;
+    right: 100% !important;
+    top: 0 !important;
+    margin: 0 !important;
+    max-width: calc(100vw - 1rem);
+  }
 }
