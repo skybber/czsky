@@ -305,7 +305,7 @@ class Observation(db.Model):
         if self.target_type == ObservationTargetType.COMET and self.comet:
             return '<a class="sw-link" href="' + url_for('main_comet.comet_seltab', comet_id=self.comet.comet_id, back=back, back_id=back_id) + '">' + self.comet.designation + '</a>'
         if self.target_type == ObservationTargetType.M_PLANET and self.minor_planet:
-            return '<a href="' + url_for('main_minor_planet.minor_planet_info', minor_planet_id=self.minor_planet.int_designation, back=back, back_id=back_id) + '">' + self.minor_planet.designation + '</a>'
+            return '<a href="' + url_for('main_minor_planet.minor_planet_info', minor_planet_id=self.minor_planet.url_id(), back=back, back_id=back_id) + '">' + self.minor_planet.designation + '</a>'
         formatted_dsos = []
         for dso in self.deepsky_objects:
             formatted_dsos.append('<a class="sw-link" href="' + url_for('main_deepskyobject.deepskyobject_seltab', dso_id=dso.name, back=back, back_id=back_id) + '">' + dso.denormalized_name() + '</a>')

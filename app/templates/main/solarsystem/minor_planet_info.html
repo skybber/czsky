@@ -32,9 +32,9 @@
     <div class="ui icon secondary pointing menu">
         {% for route, pupup_text, icon in items %}
             {% if route == 'main_minor_planet.minor_planet_info' %}
-            {% set href = url_for(route, minor_planet_id=minor_planet.id, back=back, back_id=back_id, embed=embed, splitview='true') %}
+            {% set href = url_for(route, minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id, embed=embed, splitview='true') %}
             {% else %}
-            {% set href = url_for(route, minor_planet_id=minor_planet.id, back=back, back_id=back_id, embed=embed) %}
+            {% set href = url_for(route, minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id, embed=embed) %}
             {% endif %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ pupup_text }}
@@ -45,17 +45,17 @@
 
 {# --- Find Chart --- #}
 {% macro minor_planet_info() %}
-    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.id, back=back, back_id=back_id),
-                     url_for('main_minor_planet.minor_planet_chart_pos_img', minor_planet_id=minor_planet.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id),
+                     url_for('main_minor_planet.minor_planet_chart_pos_img', minor_planet_id=minor_planet.url_id(), obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_flags, trajectory=trajectory),
                      url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
-                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.url_id(), obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,
                      back=back, back_id=back_id, default_back='minor_planets',
-                     fchart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.id,
+                     fchart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.url_id(),
                                               flags=chart_control.chart_flags, back=back, back_id=back_id,
                                               trajectory=trajectory)
                      )
@@ -168,7 +168,7 @@
           </div>
           <div class="actions">
             <div class="ui negative cancel button">No</div>
-            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_minor_planet.minor_planet_observation_log_delete', minor_planet_id=minor_planet.id, back=back, back_id=back_id ) }}">
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_minor_planet.minor_planet_observation_log_delete', minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id ) }}">
                 {{ _('Yes') }}
                 <i class="checkmark icon"></i>
             </a>

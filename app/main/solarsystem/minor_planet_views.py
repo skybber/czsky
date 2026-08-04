@@ -2,7 +2,6 @@ import numpy as np
 import os
 import math
 import base64
-import requests
 import gzip
 import uuid
 
@@ -24,6 +23,7 @@ from flask import (
 )
 
 from flask_login import current_user
+from sqlalchemy import func, or_
 
 from skyfield.api import load
 from skyfield.data import mpc
@@ -69,8 +69,13 @@ from app.commons.chart_generator import (
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.minor_planet_utils import (
-    get_all_mpc_minor_planets,
+    MPCORB_EXCERPT_FILE,
+    append_mpcorb_excerpt_lines_by_designations,
+    ensure_full_mpcorb_file,
+    find_mpc_minor_planet,
     get_minor_planet_radec,
+    import_minor_planet_by_designation,
+    reset_minor_planets_cache,
     update_minor_planets_positions,
     update_minor_planets_brightness,
 )
@@ -93,6 +98,43 @@ utc = dt_module.timezone.utc
 main_minor_planet = Blueprint('main_minor_planet', __name__)
 
 
+def _get_minor_planet_by_url_id(minor_planet_id):
+    minor_planet = None
+    try:
+        minor_planet = MinorPlanet.query.filter_by(int_designation=int(minor_planet_id)).first()
+    except (TypeError, ValueError):
+        pass
+    if minor_planet is None:
+        minor_planet = MinorPlanet.query.filter_by(mpc_designation=minor_planet_id).first()
+    return minor_planet
+
+
+def _import_minor_planet_from_search(search_expr):
+    try:
+        imported_minor_planet = import_minor_planet_by_designation(search_expr)
+    except Exception as exc:
+        current_app.logger.exception('Minor planet import failed.')
+        flash('Minor planet import failed: {}'.format(exc), 'form-error')
+        return None
+
+    if imported_minor_planet:
+        flash('Minor planet {} imported.'.format(imported_minor_planet.designation), 'form-success')
+        return imported_minor_planet
+
+    flash('Minor planet not found in MPCORB.', 'form-error')
+    return None
+
+
+def _build_minor_planet_search_filters(search_expr):
+    search_filters = [
+        MinorPlanet.designation.like('%' + search_expr + '%'),
+        func.lower(MinorPlanet.mpc_designation) == func.lower(search_expr),
+    ]
+    if search_expr.isdigit():
+        search_filters.append(MinorPlanet.int_designation == int(search_expr))
+    return search_filters
+
+
 def _update_minor_planet_positions():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
@@ -106,15 +148,11 @@ def _download_mpcorb_dat():
     with app.app_context():
         if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, timedelta(hours=1)):
             data_dir = os.path.join(os.getcwd(), 'data/')
-            url = "https://minorplanetcenter.net/iau/MPCORB/MPCORB.DAT.gz"
-            gz_file_path = data_dir + f"MPCORB.DAT.{uuid.uuid4().hex}.gz"
             output_tmp_file_path = data_dir + f"MPCORB.9999.DAT.{uuid.uuid4().hex}.tmp"
-            output_file_path = data_dir + "MPCORB.9999.DAT"
+            output_file_path = os.path.join(os.getcwd(), MPCORB_EXCERPT_FILE)
 
-            response = requests.get(url, stream=True)
-            if response.status_code == 200:
-                with open(gz_file_path, 'wb') as f:
-                    f.write(response.raw.read())
+            try:
+                gz_file_path = ensure_full_mpcorb_file(force_reload=True)
                 with gzip.open(gz_file_path, 'rt') as gz_file:
                     with open(output_tmp_file_path, 'w') as output_file:
                         for current_row, line in enumerate(gz_file, start=1):
@@ -123,10 +161,18 @@ def _download_mpcorb_dat():
                             if current_row >= 10042:
                                 break
                 os.rename(output_tmp_file_path, output_file_path)
-                os.remove(gz_file_path)
+                extra_mpc_designations = [
+                    mp.mpc_designation
+                    for mp in MinorPlanet.query
+                    .filter(MinorPlanet.mpc_designation.isnot(None))
+                    .filter((MinorPlanet.int_designation.is_(None)) | (MinorPlanet.int_designation > 9999))
+                    .all()
+                ]
+                append_mpcorb_excerpt_lines_by_designations(extra_mpc_designations, gz_file_path)
+                reset_minor_planets_cache()
                 current_app.logger.info('File MPCORB.9999.DAT updated.')
-            else:
-                current_app.logger.error('Download MPCORB.DAT.gz failed. url={}'.format(url))
+            except Exception:
+                current_app.logger.exception('Download MPCORB.DAT.gz failed.')
 
 
 job1 = scheduler.add_job(_update_minor_planet_positions, 'cron', hour=14, replace_existing=True, jitter=60)
@@ -180,6 +226,15 @@ def minor_planets():
     """View minor_planets."""
     search_form = SearchMinorPlanetForm()
 
+    if request.method == 'POST' and current_user.is_editor():
+        search_expr = (request.form.get(search_form.q.name) or '').replace('"', '').strip()
+        if search_expr:
+            existing_minor_planet = MinorPlanet.query.filter(or_(*_build_minor_planet_search_filters(search_expr))).first()
+            if existing_minor_planet is None:
+                imported_minor_planet = _import_minor_planet_from_search(search_expr)
+                if imported_minor_planet:
+                    return redirect(url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=imported_minor_planet.url_id()))
+
     sort_def = { 'designation': MinorPlanet.designation,
                  'cur_ra': MinorPlanet.cur_ra,
                  'cur_dec': MinorPlanet.cur_dec,
@@ -207,8 +262,9 @@ def minor_planets():
     minor_planet_query = MinorPlanet.query
 
     if search_form.q.data:
-        search_expr = search_form.q.data.replace('"', '')
-        minor_planet_query = minor_planet_query.filter(MinorPlanet.designation.like('%' + search_expr + '%'))
+        search_expr = search_form.q.data.replace('"', '').strip()
+        search_filters = _build_minor_planet_search_filters(search_expr)
+        minor_planet_query = minor_planet_query.filter(or_(*search_filters))
     else:
         if search_form.dec_min.data:
             minor_planet_query = minor_planet_query.filter(MinorPlanet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
@@ -245,7 +301,7 @@ def minor_planets_chart():
 
     default_chart_iframe_url = None
     if minor_planet:
-        default_chart_iframe_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.int_designation, embed='minor_planets', allow_back='false')
+        default_chart_iframe_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.url_id(), embed='minor_planets', allow_back='false')
 
     chart_control = common_prepare_chart_data(form)
 
@@ -278,7 +334,7 @@ def minor_planets_chart_pdf():
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/seltab')
 def minor_planet_seltab(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -308,7 +364,7 @@ def minor_planet_seltab(minor_planet_id):
 @csrf.exempt
 def minor_planet_info(minor_planet_id):
     """View a minor_planet info."""
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -321,7 +377,7 @@ def minor_planet_info(minor_planet_id):
     ):
         args = request.args.to_dict(flat=True)
         args['fullscreen' if is_mobile() else 'splitview'] = 'true'
-        return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.int_designation, **args))
+        return redirect(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.url_id(), **args))
 
     form = MinorPlanetFindChartForm()
 
@@ -329,7 +385,7 @@ def minor_planet_info(minor_planet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    mpc_minor_planet = get_all_mpc_minor_planets().iloc[minor_planet.int_designation - 1]
+    mpc_minor_planet = find_mpc_minor_planet(minor_planet)
 
     body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
@@ -377,7 +433,7 @@ def minor_planet_info(minor_planet_id):
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img', methods=['GET'])
 def minor_planet_chart_pos_img(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -395,7 +451,7 @@ def minor_planet_chart_pos_img(minor_planet_id):
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart/scene-v1', methods=['GET'])
 def minor_planet_chart_scene_v1(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -405,7 +461,7 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     if request_dt is not None:
         try:
             dt = datetime.fromisoformat(request_dt)
-            minor_planet_ra, minor_planet_dec = get_minor_planet_radec(minor_planet.int_designation, dt)
+            minor_planet_ra, minor_planet_dec = get_minor_planet_radec(minor_planet, dt)
         except Exception:
             pass
     if minor_planet_ra is None or minor_planet_dec is None:
@@ -441,7 +497,7 @@ def minor_planet_chart_scene_v1(minor_planet_id):
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET'])
 def minor_planet_chart_pdf(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -459,7 +515,7 @@ def minor_planet_chart_pdf(minor_planet_id):
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/catalogue_data')
 def minor_planet_catalogue_data(minor_planet_id):
     """View a minor_planet catalog info."""
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -467,7 +523,7 @@ def minor_planet_catalogue_data(minor_planet_id):
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
 
-    mpc_minor_planet = get_all_mpc_minor_planets().iloc[minor_planet.int_designation - 1]
+    mpc_minor_planet = find_mpc_minor_planet(minor_planet)
 
     body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
@@ -493,7 +549,7 @@ def minor_planet_catalogue_data(minor_planet_id):
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/visibility', methods=['GET', 'POST'])
 def minor_planet_visibility(minor_planet_id):
     """View visibility chart for a minor planet."""
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -530,7 +586,7 @@ def minor_planet_visibility(minor_planet_id):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log', methods=['GET', 'POST'])
 def minor_planet_observation_log(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -598,7 +654,7 @@ def minor_planet_observation_log(minor_planet_id):
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log-delete', methods=['GET', 'POST'])
 def minor_planet_observation_log_delete(minor_planet_id):
-    minor_planet = MinorPlanet.query.filter_by(int_designation=minor_planet_id).first()
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:
         abort(404)
 
@@ -623,7 +679,7 @@ def _do_redirect(url, minor_planet, splitview=False, fullscreen=False):
     fullscreen = 'true' if fullscreen else request.args.get('fullscreen')
     splitview = 'true' if splitview else request.args.get('splitview')
     dt = request.args.get('dt')
-    return redirect(url_for(url, minor_planet_id=minor_planet.int_designation, back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, dt=dt))
+    return redirect(url_for(url, minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id, fullscreen=fullscreen, splitview=splitview, embed=embed, dt=dt))
 
 
 def _check_in_mag_interval(mag, mag_interval):

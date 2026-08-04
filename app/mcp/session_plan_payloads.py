@@ -329,7 +329,7 @@ def _serialize_session_plan_item(item: Any) -> dict[str, Any]:
         object_type = "minor_planet"
         object_id = f"minor_planet:{minor_planet.id}"
         title = minor_planet.designation or str(minor_planet.int_designation)
-        identifier = str(minor_planet.int_designation)
+        identifier = str(minor_planet.url_id())
         summary = {
             "classification": "minor_planet",
             "magnitude": minor_planet.eval_mag,
@@ -474,7 +474,7 @@ def _create_session_plan_item(session_plan: Any, target: dict[str, Any]):
 
     if object_type == "minor_planet":
         try:
-            minor_planet_for_position = find_mpc_minor_planet(target_object.int_designation)
+            minor_planet_for_position = find_mpc_minor_planet(target_object)
             mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(
                 minor_planet_for_position,
                 session_plan.for_date,

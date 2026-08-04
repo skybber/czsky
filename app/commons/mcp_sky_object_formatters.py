@@ -335,7 +335,7 @@ def _format_minor_planet(query: str, resolved: dict[str, Any]) -> dict[str, Any]
             "matched_by": resolved["matched_by"],
             "object_type": "minor_planet",
             "title": minor_planet.designation,
-            "identifier": minor_planet.int_designation,
+            "identifier": minor_planet.url_id(),
             "coordinates": _coordinates(
                 minor_planet.cur_ra,
                 minor_planet.cur_dec,

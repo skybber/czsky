@@ -10,6 +10,7 @@ class MinorPlanet(db.Model):
     __tablename__ = 'minor_planets'
     id = db.Column(db.Integer, primary_key=True)
     int_designation = db.Column(db.Integer, index=True)
+    mpc_designation = db.Column(db.String(16), index=True)
     magnitude_H = db.Column(db.Float)
     magnitude_G = db.Column(db.Float)
     epoch = db.Column(db.String(6))
@@ -37,6 +38,11 @@ class MinorPlanet(db.Model):
     cur_angular_dist_from_sun = db.Column(db.Float)
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
     eval_mag = db.Column(db.Float)
+
+    def url_id(self):
+        if self.int_designation is not None:
+            return self.int_designation
+        return self.mpc_designation
 
     def displayed_mag(self):
         if self.eval_mag is not None:

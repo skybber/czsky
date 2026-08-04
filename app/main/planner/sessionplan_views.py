@@ -242,7 +242,7 @@ def session_plan_edit(session_plan_id):
                     if item.item_type == SessionPlanItemType.COMET:
                         ra, dec = get_mpc_comet_position(find_mpc_comet(item.comet.comet_id), for_date)
                     elif item.item_type == SessionPlanItemType.MINOR_PLANET:
-                        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(item.minor_planet.int_designation), for_date)
+                        ra, dec = get_mpc_minor_planet_position(find_mpc_minor_planet(item.minor_planet), for_date)
                     elif item.item_type == SessionPlanItemType.PLANET:
                         ra, dec = get_mpc_planet_position(item.planet, for_date)
                     if (ra is not None) and (dec is not None):
@@ -360,7 +360,7 @@ def session_plan_item_add(session_plan_id):
                                                           Constellation.get_constellation_by_position(comet_ra.radians, comet_dec.radians))
     if minor_planet:
         if not session_plan.find_minor_planet_item_by_id(minor_planet.id):
-            mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet.int_designation), session_plan.for_date)
+            mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet), session_plan.for_date)
             new_item = session_plan.create_new_minor_planet_item(minor_planet, mplanet_ra.radians, mplanet_dec.radians,
                                                                  Constellation.get_constellation_by_position(mplanet_ra.radians, mplanet_dec.radians))
     if planet:

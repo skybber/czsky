@@ -18,7 +18,7 @@ from app.models import (
     UserStarDescription,
 )
 
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 EARTH_MOON_ALIASES = {
     'moon',
@@ -211,14 +211,26 @@ def search_comet_exact(query):
 
 def search_minor_planet(query):
     if len(query) > 3:
-        minor_planet = MinorPlanet.query.filter(MinorPlanet.designation.like('%' + query + '%')).first()
+        filters = [
+            MinorPlanet.designation.like('%' + query + '%'),
+            func.lower(MinorPlanet.mpc_designation) == func.lower(query.strip()),
+        ]
+        if query.strip().isdigit():
+            filters.append(MinorPlanet.int_designation == int(query.strip()))
+        minor_planet = MinorPlanet.query.filter(or_(*filters)).first()
         return minor_planet
     return None
 
 
 def search_minor_planet_exact(query):
     if len(query) > 3:
-        minor_planet = MinorPlanet.query.filter(func.lower(MinorPlanet.designation) == func.lower(query)).first()
+        filters = [
+            func.lower(MinorPlanet.designation) == func.lower(query),
+            func.lower(MinorPlanet.mpc_designation) == func.lower(query.strip()),
+        ]
+        if query.strip().isdigit():
+            filters.append(MinorPlanet.int_designation == int(query.strip()))
+        minor_planet = MinorPlanet.query.filter(or_(*filters)).first()
         return minor_planet
     return None
 

@@ -83,7 +83,7 @@
                         {% macro to_dso_url(item) %}{{ url_for('main_deepskyobject.deepskyobject_info', dso_id=item.deepsky_object.name, back='observed_list') }}{% endmacro %}
                         {% macro to_double_star_url(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, back='observed_list') }}{% endmacro %}
                         {% macro to_comet_url(item) %}{{ url_for('main_comet.comet_info', comet_id=item.comet.comet_id, back='observed_list') }}{% endmacro %}
-                        {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.int_designation, back='observed_list') }}{% endmacro %}
+                        {% macro to_minor_planet_url(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item.minor_planet.url_id(), back='observed_list') }}{% endmacro %}
 
                         {% for i, item in observed_list_items %}
                             {% if item.dso_id is not none %}

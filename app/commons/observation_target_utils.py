@@ -118,7 +118,7 @@ def set_observation_targets(observation, targets):
         eph = load('de421.bsp')
         sun, earth = eph['sun'], eph['earth']
 
-        mpc_minor_planet = find_mpc_minor_planet(minor_planet.int_designation)
+        mpc_minor_planet = find_mpc_minor_planet(minor_planet)
         c = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
         dt = observation.date_from

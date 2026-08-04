@@ -103,7 +103,7 @@
                 </thead>
                 <tbody>
                 {% for mp in minor_planets %}
-                    {% set minor_planet_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=mp.int_designation, back='minor_planets', back_id=mp.int_designation) %}
+                    {% set minor_planet_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=mp.url_id(), back='minor_planets', back_id=mp.url_id()) %}
                     <tr class="sw-onclick" onclick="window.location.href = '{{ minor_planet_url }}';">
                         <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
                         <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>

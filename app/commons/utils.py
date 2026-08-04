@@ -73,8 +73,10 @@ def get_lang_and_all_editor_users_from_request(for_constell_descr=False):
         editor_env_lang = 'cs'
     str_all_editors = current_app.config.get('ALL_EDITORS_USER_NAMES_' + editor_env_lang.upper())
     if str_all_editors:
-        all_editors_ar = [x.strip() for x in str_all_editors.split(',')]
-        all_editors = User.query.filter(User.user_name.in_(all_editors_ar)).all()
+        all_editors_ar = [x.strip() for x in str_all_editors.split(',') if x.strip()]
+        editor_users = User.query.filter(User.user_name.in_(all_editors_ar)).all()
+        editor_users_by_name = {editor_user.user_name: editor_user for editor_user in editor_users}
+        all_editors = [editor_users_by_name[user_name] for user_name in all_editors_ar if user_name in editor_users_by_name]
     else:
         editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + editor_env_lang.upper())).first()
         all_editors = ( editor, )

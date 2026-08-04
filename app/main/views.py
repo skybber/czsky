@@ -248,7 +248,7 @@ def do_global_search(query, level):
     minor_planet = search_minor_planet(query)
     if minor_planet is not None:
         return redirect(url_for('main_minor_planet.minor_planet_seltab',
-                                minor_planet_id=minor_planet.int_designation,
+                                minor_planet_id=minor_planet.url_id(),
                                 seltab=request.args.get('seltab'),
                                 fullscreen=request.args.get('fullscreen'),
                                 splitview=request.args.get('splitview'),
@@ -355,7 +355,7 @@ def _search_chart_ids(query):
         try:
             minor_planet_id = int(query[len(CHART_MINOR_PLANET_PREFIX):])
             minor_planet = MinorPlanet.query.filter_by(id=minor_planet_id).first()
-            return redirect(url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.int_designation, embed=request.args.get('embed')))
+            return redirect(url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=minor_planet.url_id(), embed=request.args.get('embed')))
         except (ValueError, TypeError):
             pass
     return None
