@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.exc import IntegrityError
 
-from skyfield.api import load
+from skyfield.api import load, wgs84
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 from skyfield.api import position_from_radec, load_constellation_map
@@ -75,7 +75,7 @@ def find_mpc_minor_planet(minor_planet):
     return get_all_mpc_minor_planets().loc[mpc_designation]
 
 
-def get_mpc_minor_planet_position(mpc_minor_planet, dt):
+def get_mpc_minor_planet_position(mpc_minor_planet, dt, observer_lat=None, observer_lon=None, observer_elevation=0.0):
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -83,7 +83,15 @@ def get_mpc_minor_planet_position(mpc_minor_planet, dt):
     t = ts.from_datetime(dt.replace(tzinfo=utc))
     skf_mplanet = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
 
-    ra_ang, dec_ang, _ = earth.at(t).observe(skf_mplanet).radec()
+    observer = earth
+    if observer_lat is not None and observer_lon is not None:
+        observer = earth + wgs84.latlon(
+            latitude_degrees=observer_lat,
+            longitude_degrees=observer_lon,
+            elevation_m=observer_elevation,
+        )
+
+    ra_ang, dec_ang, _ = observer.at(t).observe(skf_mplanet).radec()
     return ra_ang, dec_ang
 
 
@@ -99,15 +107,32 @@ def _normalize_to_300s(dt: datetime) -> datetime:
 
 
 @lru_cache(maxsize=256)
-def _get_minor_planet_cached(minor_planet_mpc_designation: str, dt: datetime):
+def _get_minor_planet_cached(
+        minor_planet_mpc_designation: str,
+        dt: datetime,
+        observer_lat: float | None,
+        observer_lon: float | None,
+        observer_elevation: float):
     mpc_minor_planet = find_mpc_minor_planet(minor_planet_mpc_designation)
-    ra_ang, dec_ang = get_mpc_minor_planet_position(mpc_minor_planet, dt)
+    ra_ang, dec_ang = get_mpc_minor_planet_position(
+        mpc_minor_planet,
+        dt,
+        observer_lat=observer_lat,
+        observer_lon=observer_lon,
+        observer_elevation=observer_elevation,
+    )
     return ra_ang.radians, dec_ang.radians
 
 
-def get_minor_planet_radec(minor_planet, dt: datetime):
+def get_minor_planet_radec(minor_planet, dt: datetime, observer_lat=None, observer_lon=None, observer_elevation=0.0):
     normalized_dt = _normalize_to_300s(dt)
-    return _get_minor_planet_cached(_get_minor_planet_mpc_designation(minor_planet), normalized_dt)
+    return _get_minor_planet_cached(
+        _get_minor_planet_mpc_designation(minor_planet),
+        normalized_dt,
+        round(float(observer_lat), 6) if observer_lat is not None else None,
+        round(float(observer_lon), 6) if observer_lon is not None else None,
+        round(float(observer_elevation), 1),
+    )
 
 
 def _calculate_minor_planet_current_values(minor_planet, mpc_minor_planet, ts, eph, t, constellation_at):
@@ -277,12 +302,20 @@ def ensure_full_mpcorb_file(force_reload=False):
     data_dir = os.path.dirname(MPCORB_FULL_GZ_FILE)
     os.makedirs(data_dir, exist_ok=True)
     tmp_file_path = os.path.join(data_dir, 'MPCORB.DAT.{}.gz.tmp'.format(uuid.uuid4().hex))
-    response = requests.get(MPCORB_URL, stream=True)
-    if response.status_code != 200:
-        raise RuntimeError('Download MPCORB.DAT.gz failed. url={}'.format(MPCORB_URL))
-    with open(tmp_file_path, 'wb') as f:
-        f.write(response.raw.read())
-    os.rename(tmp_file_path, MPCORB_FULL_GZ_FILE)
+    try:
+        response = requests.get(MPCORB_URL, stream=True)
+        if response.status_code != 200:
+            raise RuntimeError('Download MPCORB.DAT.gz failed. url={}'.format(MPCORB_URL))
+        with open(tmp_file_path, 'wb') as f:
+            f.write(response.raw.read())
+        os.rename(tmp_file_path, MPCORB_FULL_GZ_FILE)
+    except Exception:
+        if os.path.exists(tmp_file_path):
+            os.remove(tmp_file_path)
+        if os.path.exists(MPCORB_FULL_GZ_FILE):
+            current_app.logger.warning('Using stale MPCORB.DAT.gz because refresh failed.', exc_info=True)
+            return MPCORB_FULL_GZ_FILE
+        raise
     return MPCORB_FULL_GZ_FILE
 
 

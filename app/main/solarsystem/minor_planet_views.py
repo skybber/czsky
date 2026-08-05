@@ -25,7 +25,7 @@ from flask import (
 from flask_login import current_user
 from sqlalchemy import func, or_
 
-from skyfield.api import load
+from skyfield.api import load, wgs84
 from skyfield.data import mpc
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 
@@ -384,6 +384,11 @@ def minor_planet_info(minor_planet_id):
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
+    _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
+    observer = earth + wgs84.latlon(
+        latitude_degrees=observer_lat,
+        longitude_degrees=observer_lon,
+    )
 
     mpc_minor_planet = find_mpc_minor_planet(minor_planet)
 
@@ -396,7 +401,8 @@ def minor_planet_info(minor_planet_id):
         form.date_from.data = today
         form.date_to.data = today + timedelta(days=7)
 
-    t = ts.now()
+    chart_dt = get_chart_datetime()
+    t = ts.from_datetime(chart_dt)
     trajectory_b64 = None
     if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
@@ -406,9 +412,9 @@ def minor_planet_info(minor_planet_id):
             t = ts.from_datetime(d1.replace(tzinfo=utc))
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False)
+        trajectory_b64 = get_trajectory_b64(d1, d2, ts, observer, body, is_comet=False)
 
-    minor_planet_ra_ang, minor_planet_dec_ang, distance = earth.at(t).observe(body).radec()
+    minor_planet_ra_ang, minor_planet_dec_ang, distance = observer.at(t).observe(body).radec()
     minor_planet_ra = minor_planet_ra_ang.radians
     minor_planet_dec = minor_planet_dec_ang.radians
 
@@ -461,7 +467,13 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     if request_dt is not None:
         try:
             dt = datetime.fromisoformat(request_dt)
-            minor_planet_ra, minor_planet_dec = get_minor_planet_radec(minor_planet, dt)
+            _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
+            minor_planet_ra, minor_planet_dec = get_minor_planet_radec(
+                minor_planet,
+                dt,
+                observer_lat=observer_lat,
+                observer_lon=observer_lon,
+            )
         except Exception:
             pass
     if minor_planet_ra is None or minor_planet_dec is None:
