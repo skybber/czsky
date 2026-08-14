@@ -190,6 +190,15 @@
                     var month = date.getMonth() + 1;
                     var year = date.getFullYear();
                     return day + '/' + month + '/' + year;
+                    },
+                    datetime: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    var hour = date.getHours();
+                    var minute = date.getMinutes();
+                    return day + '/' + month + '/' + year + ' ' + hour + ':' + (minute < 10 ? '0' : '') + minute;
                     }
                 }
             });
@@ -206,6 +215,15 @@
                     var month = date.getMonth() + 1;
                     var year = date.getFullYear();
                     return day + '/' + month + '/' + year;
+                    },
+                    datetime: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    var hour = date.getHours();
+                    var minute = date.getMinutes();
+                    return day + '/' + month + '/' + year + ' ' + hour + ':' + (minute < 10 ? '0' : '') + minute;
                     },
                 }
             });

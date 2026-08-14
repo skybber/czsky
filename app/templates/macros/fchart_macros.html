@@ -1888,6 +1888,15 @@
                 let month = date.getMonth() + 1;
                 let year = date.getFullYear();
                 return year + '-' + month + '-' + day;
+            },
+            datetime: function (date, settings) {
+                if (!date) return '';
+                let day = date.getDate();
+                let month = date.getMonth() + 1;
+                let year = date.getFullYear();
+                let hour = date.getHours();
+                let minute = date.getMinutes();
+                return year + '-' + month + '-' + day + ' ' + hour + ':' + (minute < 10 ? '0' : '') + minute;
             }
         },
         onChange: function(date, text, mode) {
