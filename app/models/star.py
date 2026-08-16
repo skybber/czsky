@@ -32,6 +32,11 @@ class Star(db.Model):
     mult_id = db.Column(db.String(4))                                       # Identifications of components in Dmag
     mult_cnt = db.Column(db.Integer)                                        # Number of components assigned to a multiple
 
+    @property
+    def bayer_flamsteed(self):
+        """Backward-compatible combined Bayer/Flamsteed designation."""
+        return self.bayer or self.flamsteed or ''
+
 
     def get_name(self):
         if self.common_name:
