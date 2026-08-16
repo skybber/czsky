@@ -261,7 +261,7 @@ def planet_moon_observation_log(planet_moon_name):
             notes=form.notes.data if form.notes.data else '',
             telescope_id=form.telescope.data if form.telescope.data != -1 else None,
             eyepiece_id=form.eyepiece.data if form.eyepiece.data != -1 else None,
-            filter=form.filter.data if form.filter.data != -1 else None,
+            filter_id=form.filter.data if form.filter.data != -1 else None,
             create_by=current_user.id,
             update_by=current_user.id,
             create_date=datetime.now(),
