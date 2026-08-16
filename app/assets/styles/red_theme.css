@@ -1,6 +1,7 @@
 :root{--czsky-dashboard-tile-bg:rgba(255,255,255,.022);--czsky-dashboard-tile-bg-hover:rgba(255,255,255,.042);--czsky-dashboard-tile-border:rgba(96,78,78,.22);--czsky-dashboard-tile-border-hover:rgba(142,120,120,.3);--czsky-dashboard-tile-shadow:rgba(0,0,0,.05);--czsky-dashboard-tile-shadow-hover:rgba(0,0,0,.09);--czsky-dashboard-tile-accent:rgba(166,150,150,.24);--czsky-dashboard-tile-accent-hover:rgba(198,132,132,.38);--czsky-dashboard-tile-media-bg:rgba(166,150,150,.1);--czsky-dashboard-tile-media-color:rgba(194,176,176,.82);--czsky-dashboard-tile-title-color:rgba(198,178,178,.84);--czsky-dashboard-tile-description-color:rgba(172,150,150,.86);--czsky-dashboard-tile-arrow-color:rgba(150,130,130,.56);--czsky-dashboard-tile-arrow-hover-color:rgba(198,178,178,.76)}
 .ui.horizontal.segments>.segment{background-color:#211010}
 body{background:#211010;color:#be9e9e}
+label{color:#be9e9e}
 *{scrollbar-width:thin;scrollbar-color:#ab6363 rgba(255,255,255,.1)}
 ::-webkit-scrollbar{-webkit-appearance:none!important;width:10px!important;height:10px!important}
 ::-webkit-scrollbar-track{border-radius:0!important;background:rgba(255,255,255,.1)!important}
@@ -99,6 +100,7 @@ footer{background:#3e2e2e;border-top:1px solid #313131}
 .ui.selection.active.dropdown,.ui.selection.active.dropdown .menu{border-color:#614e4e;box-shadow:0 2px 3px 0 rgba(38,36,34,.15)}
 .ui.selection.active.dropdown:hover,.ui.selection.active.dropdown:hover .menu{border-color:#614e4e;box-shadow:0 2px 3px 0 rgba(38,36,34,.15)}
 .ui.selection.dropdown{background:#2b1919;border:1px solid #2b1919;color:#be9e9e}
+.ui.selection.dropdown .default.text{color:#be9e9e}
 .ui.menu .ui.dropdown .menu>.active.item{color:#dbdbdb!important}
 .ui.tabular.menu{border-bottom:1px solid #473131}
 .ui.card,.ui.cards>.card{background:#1c0e0e;box-shadow:0 1px 3px 0 #5c4c4c,0 0 0 1px #5c4c4c}
@@ -111,8 +113,8 @@ footer{background:#3e2e2e;border-top:1px solid #313131}
 .ui.user.list .item:not(:first-child){border-top:1px solid #5c4c4c}
 .ui.secondary.pointing.menu .active.item:hover{border-color:#af8b4c;color:#dbdbdb;background:#624b4b}
 .ui.secondary.pointing.menu .dropdown.item:hover,.ui.secondary.pointing.menu .link.item:hover,.ui.secondary.pointing.menu a.item:hover{color:#dbdbdb}
-.ui.checkbox label,.ui.checkbox+label,.ui.form .field>label{color:#be9e9e}
-.ui.form .inline.field>label,.ui.form .inline.field>p,.ui.form .inline.fields .field>label,.ui.form .inline.fields .field>p,.ui.form .inline.fields>label{color:#be9e9e}
+.ui.checkbox label,.ui.checkbox+label,.ui.form .field>label{color:#be9e9e!important}
+.ui.form .inline.field>label,.ui.form .inline.field>p,.ui.form .inline.fields .field>label,.ui.form .inline.fields .field>p,.ui.form .inline.fields>label{color:#be9e9e!important}
 .user.settings .email.list .item:not(:first-child){border-top:1px solid #513f3f}
 .explore .navbar{background-color:#140a0a!important}
 .ui.menu.new-menu{background-color:#140a0a!important}

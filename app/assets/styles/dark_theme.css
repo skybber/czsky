@@ -1,6 +1,7 @@
 :root{--czsky-dashboard-tile-bg:#3d4353;--czsky-dashboard-tile-bg-hover:#454c5d;--czsky-dashboard-tile-border:rgba(85,93,112,.48);--czsky-dashboard-tile-border-hover:rgba(116,126,149,.56);--czsky-dashboard-tile-shadow:rgba(0,0,0,.08);--czsky-dashboard-tile-shadow-hover:rgba(0,0,0,.12);--czsky-dashboard-tile-accent:rgba(150,156,166,.26);--czsky-dashboard-tile-accent-hover:rgba(103,145,196,.52);--czsky-dashboard-tile-media-bg:rgba(184,192,210,.08);--czsky-dashboard-tile-media-color:rgba(198,204,212,.9);--czsky-dashboard-tile-title-color:rgba(241,243,247,.92);--czsky-dashboard-tile-description-color:rgba(184,192,210,.9);--czsky-dashboard-tile-arrow-color:rgba(184,192,210,.58);--czsky-dashboard-tile-arrow-hover-color:rgba(220,225,234,.82)}
 .ui.horizontal.segments>.segment{background-color:#353b4b}
 body{background:#353b4b;color:#9e9e9e}
+label{color:#9e9e9e}
 *{scrollbar-width:thin;scrollbar-color:#87ab63 rgba(255,255,255,.1)}
 ::-webkit-scrollbar{-webkit-appearance:none!important;width:10px!important;height:10px!important}
 ::-webkit-scrollbar-track{border-radius:0!important;background:rgba(255,255,255,.1)!important}
@@ -99,6 +100,7 @@ footer{background:#2e323e;border-top:1px solid #313131}
 .ui.selection.active.dropdown,.ui.selection.active.dropdown .menu{border-color:#4e5361;box-shadow:0 2px 3px 0 rgba(34,36,38,.15)}
 .ui.selection.active.dropdown:hover,.ui.selection.active.dropdown:hover .menu{border-color:#4e5361;box-shadow:0 2px 3px 0 rgba(34,36,38,.15)}
 .ui.selection.dropdown{background:#404552;border:1px solid #404552;color:#9e9e9e}
+.ui.selection.dropdown .default.text{color:#9e9e9e}
 .ui.menu .ui.dropdown .menu>.active.item{color:#dbdbdb!important}
 .ui.tabular.menu{border-bottom:1px solid #313c47}
 .ui.card,.ui.cards>.card{background:#353945;box-shadow:0 1px 3px 0 #4c505c,0 0 0 1px #4c505c}
@@ -111,8 +113,8 @@ footer{background:#2e323e;border-top:1px solid #313131}
 .ui.user.list .item:not(:first-child){border-top:1px solid #4c505c}
 .ui.secondary.pointing.menu .active.item:hover{border-color:#af8b4c;color:#dbdbdb;background:#4b5162}
 .ui.secondary.pointing.menu .dropdown.item:hover,.ui.secondary.pointing.menu .link.item:hover,.ui.secondary.pointing.menu a.item:hover{color:#dbdbdb}
-.ui.checkbox label,.ui.checkbox+label,.ui.form .field>label{color:#9e9e9e}
-.ui.form .inline.field>label,.ui.form .inline.field>p,.ui.form .inline.fields .field>label,.ui.form .inline.fields .field>p,.ui.form .inline.fields>label{color:#9e9e9e}
+.ui.checkbox label,.ui.checkbox+label,.ui.form .field>label{color:#9e9e9e!important}
+.ui.form .inline.field>label,.ui.form .inline.field>p,.ui.form .inline.fields .field>label,.ui.form .inline.fields .field>p,.ui.form .inline.fields>label{color:#9e9e9e!important}
 .user.settings .email.list .item:not(:first-child){border-top:1px solid #3f4451}
 .explore .navbar{background-color:#2a2e3a!important}
 .ui.menu.new-menu{background-color:#2a2e3a!important}
