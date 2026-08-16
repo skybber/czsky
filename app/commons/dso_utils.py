@@ -187,6 +187,8 @@ def destructuralize_dso_name(name):
     if name.startswith('Sh2-'):
         return 'Sh2', name[4:]
     m = re.search("\\d+", name)
+    if m is None:
+        return name, None
     return name[:m.start()], int(name[m.start():m.end()])
 
 
