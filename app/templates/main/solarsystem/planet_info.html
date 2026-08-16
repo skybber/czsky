@@ -187,7 +187,15 @@
         $('#odtime-from')
           .calendar({
             type: 'time',
-            ampm: false
+            ampm: false,
+            formatter: {
+                time: function (date) {
+                    if (!date) return '';
+                    var hour = date.getHours();
+                    var minute = date.getMinutes();
+                    return hour + ':' + (minute < 10 ? '0' : '') + minute;
+                }
+            }
           })
         ;
         $('#odate-from').calendar({

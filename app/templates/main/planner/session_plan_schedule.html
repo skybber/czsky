@@ -436,6 +436,14 @@ $(function(){
     $('#time_from').calendar({
         type: 'time',
         ampm: false,
+        formatter: {
+            time: function (date) {
+                if (!date) return '';
+                var hour = date.getHours();
+                var minute = date.getMinutes();
+                return hour + ':' + (minute < 10 ? '0' : '') + minute;
+            }
+        },
         onChange: function(value) {
             $(this).calendar.changed = true;
         },
@@ -450,6 +458,14 @@ $(function(){
         type: 'time',
         ampm: false,
         changed: false,
+        formatter: {
+            time: function (date) {
+                if (!date) return '';
+                var hour = date.getHours();
+                var minute = date.getMinutes();
+                return hour + ':' + (minute < 10 ? '0' : '') + minute;
+            }
+        },
         onChange: function(value) {
             $(this).calendar.changed = true;
         },

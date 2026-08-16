@@ -128,11 +128,11 @@
                      observeChanges: false
                 },
                 formatter: {
-                    date: function (time, settings) {
+                    time: function (date) {
                     if (!date) return '';
-                    var hour = date.getHout();
-                    var minute = date.getMinute();
-                    return hout + ':' + minute;
+                    var hour = date.getHours();
+                    var minute = date.getMinutes();
+                    return hour + ':' + (minute < 10 ? '0' : '') + minute;
                     }
                 }
             });
@@ -176,11 +176,11 @@
                              observeChanges: false
                         },
                         formatter: {
-                            date: function (time, settings) {
+                            time: function (date) {
                             if (!date) return '';
-                            var hour = date.getHout();
-                            var minute = date.getMinute();
-                            return hout + ':' + minute;
+                            var hour = date.getHours();
+                            var minute = date.getMinutes();
+                            return hour + ':' + (minute < 10 ? '0' : '') + minute;
                             }
                         }
                     });
