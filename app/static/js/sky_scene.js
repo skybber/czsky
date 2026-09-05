@@ -138,6 +138,10 @@
         this.drawRaf = null;
         this.infoPanelDrawScheduled = false;
         this.infoPanelDrawRaf = null;
+        this.infoPanelTimer = setInterval(() => {
+            if (!this.useCurrentTime) return;
+            try { this.requestInfoPanelDraw(); } catch (e) {}
+        }, 1000);
         this.perfStats = {};
         this.perfDrawHz = 0.0;
         this.perfLastFrameTs = 0.0;
@@ -287,6 +291,12 @@
         this.applyScreenMode();
 
         window.addEventListener('resize', () => this.onResize());
+        window.addEventListener('beforeunload', () => {
+            if (this.infoPanelTimer) {
+                clearInterval(this.infoPanelTimer);
+                this.infoPanelTimer = null;
+            }
+        });
         window.addEventListener('focus', () => this._restoreKeyboardCapture());
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -857,8 +867,14 @@
     SkyScene.prototype.onChartTimeChanged = function (cb) { this.onChartTimeChangedCallback = cb; };
     SkyScene.prototype.onShortcutKey = function (cb) { this.onShortcutKeyCallback = cb; };
 
-    SkyScene.prototype.setUseCurrentTime = function (v) { this.useCurrentTime = v; };
-    SkyScene.prototype.setDateTimeISO = function (v) { this.dateTimeISO = v; };
+    SkyScene.prototype.setUseCurrentTime = function (v) {
+        this.useCurrentTime = v;
+        this.requestInfoPanelDraw();
+    };
+    SkyScene.prototype.setDateTimeISO = function (v) {
+        this.dateTimeISO = v;
+        this.requestInfoPanelDraw();
+    };
     SkyScene.prototype.setLongitude = function (v) { this.longitude = v; };
     SkyScene.prototype.setLatitude = function (v) { this.latitude = v; };
 
