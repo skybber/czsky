@@ -136,6 +136,8 @@
         this.reloadDebounceMs = 120;
         this.drawScheduled = false;
         this.drawRaf = null;
+        this.infoPanelDrawScheduled = false;
+        this.infoPanelDrawRaf = null;
         this.perfStats = {};
         this.perfDrawHz = 0.0;
         this.perfLastFrameTs = 0.0;
@@ -227,6 +229,9 @@
             lastX: 0,
             lastY: 0,
             moved: false,
+            pointerInside: false,
+            pointerClientX: null,
+            pointerClientY: null,
         };
         this.wheel = {
             stepFracAccum: 0,
@@ -301,7 +306,7 @@
             $(this.canvas).on('pointermove', (e) => this.onPointerMove(e));
             $(this.canvas).on('pointerup', (e) => this.onPointerUp(e));
             $(this.canvas).on('pointercancel', (e) => this.onPointerCancel(e));
-            $(this.canvas).on('pointerleave', (e) => this.onPointerUp(e));
+            $(this.canvas).on('pointerleave', (e) => this.onPointerLeave(e));
         } else {
             $(this.canvas).on('mousedown', (e) => {
                 this.keyboardCaptureActive = true;
@@ -309,7 +314,10 @@
             });
             $(this.canvas).on('mousemove', (e) => this.onMouseMove(e));
             $(this.canvas).on('mouseup', (e) => this.onMouseUp(e));
-            $(this.canvas).on('mouseleave', (e) => this.onMouseUp(e));
+            $(this.canvas).on('mouseleave', (e) => {
+                this.onMouseUp(e);
+                this.onMouseLeave(e);
+            });
         }
         $(this.canvas).on('click', (e) => {
             this.keyboardCaptureActive = true;
@@ -785,11 +793,46 @@
 
     SkyScene.prototype.requestDraw = function () {
         if (this.drawScheduled) return;
+        if (this.infoPanelDrawRaf) {
+            cancelAnimationFrame(this.infoPanelDrawRaf);
+            this.infoPanelDrawRaf = null;
+            this.infoPanelDrawScheduled = false;
+        }
         this.drawScheduled = true;
         this.drawRaf = requestAnimationFrame(() => {
             this.drawScheduled = false;
             this.drawRaf = null;
             this.draw();
+        });
+    };
+
+    SkyScene.prototype.redrawInfoPanel = function () {
+        if (!this.sceneData || !this.frontCtx || !this.infoPanelRenderer) return;
+        const viewState = this.buildViewState();
+        const projection = this.createProjection(viewState);
+        this.infoPanelRenderer.draw({
+            sceneData: this.sceneData,
+            frontCtx: this.frontCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            meta: this.sceneData.meta || {},
+            getThemeColor: this.getThemeColor.bind(this),
+            width: this.canvas.width,
+            height: this.canvas.height,
+            aladinActive: !!(this.aladin && this.showAladin),
+            centerPick: this.centerPick,
+            cursorFrame: this._getCursorFramePosition(projection),
+        });
+    };
+
+    SkyScene.prototype.requestInfoPanelDraw = function () {
+        if (this.drawScheduled || this.infoPanelDrawScheduled) return;
+        this.infoPanelDrawScheduled = true;
+        this.infoPanelDrawRaf = requestAnimationFrame(() => {
+            this.infoPanelDrawScheduled = false;
+            this.infoPanelDrawRaf = null;
+            this.redrawInfoPanel();
         });
     };
 
@@ -1347,6 +1390,11 @@
             cancelAnimationFrame(this.drawRaf);
             this.drawRaf = null;
             this.drawScheduled = false;
+        }
+        if (this.infoPanelDrawRaf) {
+            cancelAnimationFrame(this.infoPanelDrawRaf);
+            this.infoPanelDrawRaf = null;
+            this.infoPanelDrawScheduled = false;
         }
         this.isReloadingImage = true;
         this._loadScene(true);
@@ -2260,6 +2308,7 @@
         }
         measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const projection = this.createProjection(viewState);
+        const cursorFrame = this._getCursorFramePosition(projection);
         const mwRenderTarget = (this.mwRendererGl && this.mwRendererGl.ready) ? this.mwRendererGl : this.renderer;
 
         if (!aladinActive) {
@@ -2488,6 +2537,7 @@
             height: this.canvas.height,
             aladinActive: aladinActive,
             centerPick: this.centerPick,
+            cursorFrame: cursorFrame,
         }));
 
         measure('widgets', () => this.widgetLayer.draw({
@@ -2548,6 +2598,18 @@
         const y = e.clientY - rect.top;
         const selected = this.findSelectableObjectAt(x, y);
         this.canvas.style.cursor = selected ? 'pointer' : '';
+    };
+
+    SkyScene.prototype._getCursorFramePosition = function (projection) {
+        if (!this.move.pointerInside
+            || !Number.isFinite(this.move.pointerClientX)
+            || !Number.isFinite(this.move.pointerClientY)
+            || !projection) return null;
+        const point = this._clientToCanvasXY(this.move.pointerClientX, this.move.pointerClientY);
+        const center = projection.getProjectionCenter();
+        return this._unprojectCanvasToFrame(
+            point.x, point.y, center.phi, center.theta, projection.getFovDeg()
+        );
     };
 
     SkyScene.prototype._eventClientXY = function (e) {
@@ -2713,8 +2775,12 @@
     };
 
     SkyScene.prototype.onMouseMove = function (e) {
+        this.move.pointerInside = true;
+        this.move.pointerClientX = e.clientX;
+        this.move.pointerClientY = e.clientY;
         if (!this.move.isDragging) {
             this.updateHoverCursor(e);
+            this.requestInfoPanelDraw();
             return;
         }
         const dx = e.clientX - this.move.lastX;
@@ -2783,8 +2849,16 @@
 
     SkyScene.prototype.onPointerMove = function (e) {
         const oe = e.originalEvent || e;
+        if (oe.pointerType === 'mouse') {
+            this.move.pointerInside = true;
+            this.move.pointerClientX = oe.clientX;
+            this.move.pointerClientY = oe.clientY;
+        }
         if (!this.input.activePointers.has(oe.pointerId)) {
-            if (oe.pointerType === 'mouse') this.updateHoverCursor(e);
+            if (oe.pointerType === 'mouse') {
+                this.updateHoverCursor(e);
+                this.requestInfoPanelDraw();
+            }
             return;
         }
         e.preventDefault();
@@ -2897,6 +2971,25 @@
             }
         }
         this.move.moved = false;
+    };
+
+    SkyScene.prototype.onPointerLeave = function (e) {
+        const oe = e.originalEvent || e;
+        this.onPointerUp(e);
+        if (oe.pointerType !== 'mouse') return;
+        this.move.pointerInside = false;
+        this.move.pointerClientX = null;
+        this.move.pointerClientY = null;
+        this.requestInfoPanelDraw();
+        this.canvas.style.cursor = '';
+    };
+
+    SkyScene.prototype.onMouseLeave = function (e) {
+        this.move.pointerInside = false;
+        this.move.pointerClientX = null;
+        this.move.pointerClientY = null;
+        this.requestInfoPanelDraw();
+        this.canvas.style.cursor = '';
     };
 
     SkyScene.prototype.onWheel = function (e) {

@@ -82,13 +82,22 @@
         const center = isEquatorial ? viewState.getEquatorialCenter() : viewState.getHorizontalCenter();
         if (!center) return;
 
+        let coordinate = center;
+        if (sceneCtx.cursorFrame
+            && Number.isFinite(sceneCtx.cursorFrame.phi)
+            && Number.isFinite(sceneCtx.cursorFrame.theta)) {
+            coordinate = isEquatorial
+                ? { ra: normalizeRad0to2Pi(sceneCtx.cursorFrame.phi), dec: sceneCtx.cursorFrame.theta }
+                : { az: normalizeRad0to2Pi(sceneCtx.cursorFrame.phi), alt: sceneCtx.cursorFrame.theta };
+        }
+
         const dt = viewState.getEffectiveDate();
         const leftText = isEquatorial
-            ? ('RA ' + formatRA(center.ra))
-            : ('AZ ' + formatAZ(center.az));
+            ? ('RA ' + formatRA(coordinate.ra))
+            : ('AZ ' + formatAZ(coordinate.az));
         const rightText = isEquatorial
-            ? ('DEC ' + formatDEC(center.dec))
-            : ('ALT ' + formatALT(center.alt));
+            ? ('DEC ' + formatDEC(coordinate.dec))
+            : ('ALT ' + formatALT(coordinate.alt));
         const themeName = (sceneCtx.meta && typeof sceneCtx.meta.theme_name === 'string')
             ? sceneCtx.meta.theme_name.toLowerCase()
             : '';
@@ -115,17 +124,17 @@
             // mobile: compact format without icon
             const mobileDateTimeText = formatDate(dt) + ' ' + formatTime(dt);
             const mobileLeftText = isEquatorial
-                ? ('RA  ' + formatRA(center.ra, true))
-                : ('AZ  ' + formatAZ(center.az, true));
+                ? ('RA  ' + formatRA(coordinate.ra, true))
+                : ('AZ  ' + formatAZ(coordinate.az, true));
             const mobileRightText = isEquatorial
-                ? ('DEC ' + formatDEC(center.dec, true))
-                : ('ALT ' + formatALT(center.alt, true));
+                ? ('DEC ' + formatDEC(coordinate.dec, true))
+                : ('ALT ' + formatALT(coordinate.alt, true));
 
-            const w = Math.max(
-                ctx.measureText(mobileDateTimeText).width,
-                ctx.measureText(mobileLeftText).width,
-                ctx.measureText(mobileRightText).width
-            ) + pad * 2;
+            const w = Math.ceil(Math.max(
+                ctx.measureText('0000-00-00 00:00:00').width,
+                ctx.measureText(isEquatorial ? 'RA  23h59m59s' : 'AZ  359°59\'59"').width,
+                ctx.measureText(isEquatorial ? 'DEC -89°59\'59"' : 'ALT -89°59\'59"').width
+            ) + pad * 2);
             const h = lineH * 3 + pad * 2;
             const x0 = margin;
             const y0 = margin;
@@ -141,7 +150,13 @@
             return;
         }
 
-        const w = ctx.measureText(coordText).width + gap + ctx.measureText(dateTimeText).width + pad * 2;
+        const coordSample = isEquatorial
+            ? '⌖ RA 23h 59m 59s  DEC -89° 59\' 59"'
+            : '⌖ AZ 359° 59\' 59"  ALT -89° 59\' 59"';
+        const dateTimeSample = timeIcon + ' 0000-00-00 00:00:00';
+        const w = Math.ceil(
+            ctx.measureText(coordSample).width + gap + ctx.measureText(dateTimeSample).width + pad * 2
+        );
         const h = lineH + pad * 2;
         const x0 = canvasW - w - margin - aladinShift;
         const y0 = canvasH - h - margin;
