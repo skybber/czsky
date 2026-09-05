@@ -48,7 +48,8 @@
     };
 
     window.SkySceneHighlightRenderer.prototype._registerCircle = function (sceneCtx, hl, centerPx, r) {
-        if (!sceneCtx || typeof sceneCtx.registerSelectable !== 'function' || !(r > 0) || !hl || !hl.id) return;
+        if (!sceneCtx || typeof sceneCtx.registerSelectable !== 'function' || !(r > 0)
+            || !hl || !hl.id || hl.selectable === false) return;
         sceneCtx.registerSelectable({
             id: hl.id,
             shape: 'circle',
@@ -145,6 +146,20 @@
         ctx.beginPath();
         ctx.arc(centerPx.x, centerPx.y, r, 0, U.TWO_PI);
         ctx.stroke();
+        const label = (hl.show_label && hl.label ? String(hl.label).trim() : '');
+        if (label) {
+            const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
+                ? sceneCtx.themeConfig.font_scales : {};
+            const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
+                ? fontScales.highlight_label_font_scale : 1.0;
+            const fontPx = Math.max(9.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size) * labelScale);
+            ctx.setLineDash([]);
+            ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
+            ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, centerPx.x + r + fontPx * 0.4, centerPx.y);
+        }
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, r);
     };

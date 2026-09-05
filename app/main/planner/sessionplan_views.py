@@ -38,13 +38,16 @@ from app import db, csrf
 
 from app.models import (
     Constellation,
+    Comet,
     DeepskyObject,
     DsoList,
     Location,
+    MinorPlanet,
     ObservedList,
     SessionPlan,
     SessionPlanItem,
     SessionPlanItemType,
+    Planet,
 )
 
 from app.commons.pagination import Pagination
@@ -69,6 +72,7 @@ from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
     build_circle_highlight,
+    build_comet_highlight,
     ensure_scene_dso_item,
 )
 
@@ -97,10 +101,15 @@ from app.commons.coordinates import parse_latlon
 from app.commons.prevnext_utils import find_by_url_obj_id_in_list, get_default_chart_iframe_url
 from app.commons.highlights_list_utils import common_highlights_from_session_plan, find_session_plan_observed
 
-from .session_scheduler import create_selection_coumpound_list, create_session_plan_compound_list, reorder_by_merid_time
+from .session_scheduler import (
+    create_selection_coumpound_list,
+    create_session_plan_compound_list,
+    get_session_plan_position_datetime,
+    reorder_by_merid_time,
+)
 from .sessionplan_import import import_session_plan_items
 from .sessionplan_export import create_oal_observations_from_session_plan
-from app.commons.comet_utils import find_mpc_comet, get_mpc_comet_position
+from app.commons.comet_utils import find_mpc_comet, get_comet_radec, get_mpc_comet_position
 from app.commons.search_sky_object_utils import search_double_star, search_comet, search_minor_planet, search_planet, search_dso
 from app.commons.minor_planet_utils import get_mpc_minor_planet_position, find_mpc_minor_planet
 from app.commons.solar_system_chart_utils import get_mpc_planet_position
@@ -345,27 +354,37 @@ def session_plan_item_add(session_plan_id):
                         deepsky_object = search_dso(query)
 
     elif request.method == 'GET':
-        dso_id = request.args.get('dso_id', None)
-        if dso_id is not None:
-            deepsky_object = DeepskyObject.query.filter(DeepskyObject.id==dso_id).first()
+        object_type = request.args.get('object_type')
+        object_id = request.args.get('object_id', type=int)
+        if object_type == 'dso' and object_id is not None:
+            deepsky_object = DeepskyObject.query.filter(DeepskyObject.id == object_id).first()
+        elif object_type == 'comet' and object_id is not None:
+            comet = Comet.query.filter(Comet.id == object_id).first()
+        elif object_type == 'minor_planet' and object_id is not None:
+            minor_planet = MinorPlanet.query.filter(MinorPlanet.id == object_id).first()
+        elif object_type == 'planet' and object_id is not None:
+            planet = Planet.get_planet_by_id(object_id)
 
     new_item = None
+    position_dt = get_session_plan_position_datetime(session_plan, _get_session_plan_tzinfo(session_plan))
     if double_star:
         if not session_plan.find_double_star_item_by_id(double_star.id):
             new_item = session_plan.create_new_double_star_item(double_star.id)
     if comet:
         if not session_plan.find_comet_item_by_id(comet.id):
-            comet_ra, comet_dec = get_mpc_comet_position(find_mpc_comet(comet.comet_id), session_plan.for_date)
-            new_item = session_plan.create_new_comet_item(comet, comet_ra.radians, comet_dec.radians,
-                                                          Constellation.get_constellation_by_position(comet_ra.radians, comet_dec.radians))
+            comet_ra, comet_dec = get_comet_radec(comet.comet_id, position_dt)
+            new_item = session_plan.create_new_comet_item(
+                comet, comet_ra, comet_dec,
+                Constellation.get_constellation_by_position(comet_ra, comet_dec)
+            )
     if minor_planet:
         if not session_plan.find_minor_planet_item_by_id(minor_planet.id):
-            mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet), session_plan.for_date)
+            mplanet_ra, mplanet_dec = get_mpc_minor_planet_position(find_mpc_minor_planet(minor_planet), position_dt)
             new_item = session_plan.create_new_minor_planet_item(minor_planet, mplanet_ra.radians, mplanet_dec.radians,
                                                                  Constellation.get_constellation_by_position(mplanet_ra.radians, mplanet_dec.radians))
     if planet:
         if not session_plan.find_planet_item_by_id(planet.id):
-            planet_ra, planet_dec = get_mpc_planet_position(planet, session_plan.for_date)
+            planet_ra, planet_dec = get_mpc_planet_position(planet, position_dt)
             new_item = session_plan.create_new_planet_item(planet, planet_ra.radians, planet_dec.radians,
                                                                  Constellation.get_constellation_by_position(planet_ra.radians, planet_dec.radians))
     if deepsky_object:
@@ -589,6 +608,7 @@ def session_plan_schedule(session_plan_id):
                                 per_page=per_page, record_name='deepskyobjects', css_framework='semantic', not_passed_args='back')
 
     selected_dso_name = None
+    selected_object_url = None
 
     srow_index = request.args.get('srow_index', type=int, default=-1)
     drow_index = request.args.get('drow_index', type=int, default=-1)
@@ -599,12 +619,15 @@ def session_plan_schedule(session_plan_id):
     if srow_index > len(selection_compound_list):
         srow_index = len(selection_compound_list)
     if srow_index > 0:
-        selected_dso_name = selection_compound_list[srow_index-1][0].name
+        selected_object = selection_compound_list[srow_index-1][0]
+        selected_dso_name = selected_object.name
+        selected_object_url = _get_selection_candidate_url(selected_object)
 
     if drow_index > len(session_plan_compound_list_for_render):
         drow_index = len(session_plan_compound_list_for_render)
     if drow_index > 0:
         sel_item = session_plan_compound_list_for_render[drow_index-1][0]
+        selected_object_url = _get_session_plan_item_url(sel_item)
         if sel_item.dso_id is not None:
             selected_dso_name = sel_item.deepsky_object.name
         elif sel_item.double_star_id is not None:
@@ -614,6 +637,12 @@ def session_plan_schedule(session_plan_id):
         schedule_form.selected_dso_name.data = 'M1'
     if not selected_dso_name:
         selected_dso_name = schedule_form.selected_dso_name.data
+    if not selected_object_url:
+        selected_object_url = url_for(
+            'main_deepskyobject.deepskyobject_info',
+            dso_id=selected_dso_name,
+            embed='pl',
+        )
 
     packed_constell_list = get_packed_constell_list()
 
@@ -624,10 +653,36 @@ def session_plan_schedule(session_plan_id):
                            dso_lists=DsoList.query.all(), catalogues_menu_items=get_catalogues_menu_items(), mag_scale=mag_scale,
                            add_form=add_form, schedule_form=schedule_form, min_alt_item_list=min_alt_item_list,
                            src_pagination=src_pagination, src_table_sort=src_table_sort, dst_pagination=dst_pagination,
-                           selected_dso_name=selected_dso_name, srow_index=srow_index, drow_index=drow_index,
+                           selected_dso_name=selected_dso_name, selected_object_url=selected_object_url,
+                           srow_index=srow_index, drow_index=drow_index,
                            is_mine_session_plan=is_mine_session_plan, packed_constell_list=packed_constell_list,
                            constellation_by_id_dict=Constellation.get_id_dict()
                            )
+
+
+def _get_selection_candidate_url(candidate):
+    object_type = getattr(candidate, 'object_type', 'dso')
+    if object_type == 'comet':
+        return url_for('main_comet.comet_seltab', comet_id=candidate.detail_id, embed='pl')
+    if object_type == 'minor_planet':
+        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=candidate.detail_id, embed='pl')
+    if object_type == 'planet':
+        return url_for('main_planet.planet_seltab', planet_iau_code=candidate.detail_id, embed='pl')
+    return url_for('main_deepskyobject.deepskyobject_seltab', dso_id=candidate.name, embed='pl')
+
+
+def _get_session_plan_item_url(item):
+    if item.dso_id is not None:
+        return url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item.deepsky_object.name, embed='pl')
+    if item.double_star_id is not None:
+        return url_for('main_double_star.double_star_info', double_star_id=item.double_star.id, embed='pl')
+    if item.planet_id is not None:
+        return url_for('main_planet.planet_seltab', planet_iau_code=item.planet.iau_code, embed='pl')
+    if item.minor_planet_id is not None:
+        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item.minor_planet.url_id(), embed='pl')
+    if item.comet_id is not None:
+        return url_for('main_comet.comet_seltab', comet_id=item.comet.comet_id, embed='pl')
+    return None
 
 
 def _get_session_plan_tzinfo(session_plan):
@@ -786,7 +841,7 @@ def session_plan_chart_scene_v1(session_plan_id):
             hl_id = str(hl_dso.name).replace(' ', '')
             observed = bool(observed_dso_ids and hl_dso.id in observed_dso_ids)
             highlights.append(
-                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
+                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme, show_label=True)
             )
 
     if highlights_pos_list:
@@ -794,11 +849,26 @@ def session_plan_chart_scene_v1(session_plan_id):
             if hl_pos is None or len(hl_pos) < 4:
                 continue
             hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            hl_payload = hl_pos[4] if len(hl_pos) > 4 and isinstance(hl_pos[4], dict) else {}
             if hl_ra is None or hl_dec is None:
                 continue
             highlights.append(
-                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
+                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme, show_label=True)
             )
+            if str(hl_id).startswith(CHART_COMET_PREFIX):
+                # The circle remains the selectable plan-item highlight.  The
+                # comet overlay only supplies its already supported chart symbol.
+                highlights.append(
+                    build_comet_highlight(
+                        highlight_id=str(hl_id),
+                        label='',
+                        ra=hl_ra,
+                        dec=hl_dec,
+                        mag=hl_payload.get('mag'),
+                        tail_pa=hl_payload.get('tail_pa'),
+                        selectable=False,
+                    )
+                )
 
     scene_meta['object_context'] = {
         'kind': 'session_plan',

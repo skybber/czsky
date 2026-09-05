@@ -132,6 +132,7 @@ class SceneHighlight(TypedDict, total=False):
     color: List[float]
     dashed: bool
     dash: Optional[List[float]]
+    selectable: bool
 
 
 class SceneDsoItem(TypedDict, total=False):
@@ -194,6 +195,7 @@ def build_circle_highlight(
     dec: float,
     dashed: bool,
     theme_name: Optional[str],
+    show_label: bool = False,
 ) -> SceneHighlight:
     theme = normalized_theme_name(theme_name)
     if theme == "light":
@@ -212,6 +214,7 @@ def build_circle_highlight(
         "dec": _round_coord(dec),
         "dashed": is_dashed,
         "dash": [0.6, 1.2] if is_dashed else None,
+        "show_label": bool(show_label),
         "line_width": 0.4 if is_dashed else 0.3,
         "color": dso_hl_color,
     }
@@ -224,6 +227,7 @@ def build_comet_highlight(
     dec: float,
     mag: Optional[float] = None,
     tail_pa: Optional[float] = None,
+    selectable: bool = True,
 ) -> SceneHighlight:
     item: SceneHighlight = {
         "shape": "comet",
@@ -238,6 +242,8 @@ def build_comet_highlight(
         item["mag"] = float(mag)
     if tail_pa is not None:
         item["tail_pa"] = float(tail_pa)
+    if not selectable:
+        item["selectable"] = False
     return item
 
 

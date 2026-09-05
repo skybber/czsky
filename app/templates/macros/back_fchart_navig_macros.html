@@ -31,7 +31,7 @@
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif back == 'session_plan' and back_id %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
@@ -116,7 +116,7 @@
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
         {% elif back == 'session_plan' and back_id %}
-            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_sessionplan.session_plan_info', session_plan_id=back_id) }}{{anchor}}')"
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=back_id) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>

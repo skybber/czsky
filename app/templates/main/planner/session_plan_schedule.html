@@ -37,10 +37,13 @@
                         {% endfor %}
                     </div>
                 </div>
+                <div class="item" data-value="PLANETS">{{ _('Planets') }}</div>
+                <div class="item" data-value="MINOR_PLANETS">{{ _('Minor planets') }}</div>
+                <div class="item" data-value="COMETS">{{ _('Comets') }}</div>
             </div>
         </div>
     </div>
-    <div class="ui item computer tablet only" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Object Type') }}" data-variation="tiny basic">
+    <div id="dso_type_filter" class="ui item computer tablet only {{ 'hidden' if schedule_form.obj_source.data in ['COMETS', 'MINOR_PLANETS', 'PLANETS'] else '' }}" data-inverted="" data-tooltip="{{ _('Object Type') }}" data-variation="tiny basic">
         {{ schedule_form.dso_type(class='ui dropdown button',onchange='this.form.submit()') }}
     </div>
     <div class="ui item">
@@ -64,7 +67,7 @@
             </div>
         </div>
     </div>
-    <div class="ui item" class="ui dropdown" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
+    <div class="ui item {{ 'hidden' if schedule_form.obj_source.data == 'PLANETS' else '' }}" data-inverted="" data-tooltip="{{ _('Limit mag') }}" data-variation="tiny basic">
         <div class="ui icon dropdown button">
             <input type="hidden" id="{{ schedule_form.maglim.name }}" name="{{ schedule_form.maglim.name }}" value="{{ schedule_form.maglim.data }}"
                     onchange="this.form.submit()">
@@ -110,7 +113,7 @@
         </div>
     </div>
     {% if not session_plan.is_anonymous %}
-        <div id="not_observed" class="ui inverted checkbox item" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
+        <div id="not_observed" class="ui inverted checkbox item {{ 'hidden' if schedule_form.obj_source.data == 'PLANETS' else '' }}" data-inverted="" data-tooltip="{{ _('Hide observed objects') }}" data-variation="tiny basic">
           <input type="checkbox" id="not_observed_data" name="{{ schedule_form.not_observed.name }}" {{ 'checked=checked' if schedule_form.not_observed.data else '' | safe  }}>
           <label>{{_('Unobserved objects')}}</label>
         </div>
@@ -130,11 +133,11 @@
                         </a>
                     </th>
 
-                    <th>
+                    {% if schedule_form.obj_source.data not in ['COMETS', 'MINOR_PLANETS', 'PLANETS'] %}<th>
                         <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['type'].sort) }}" style="color: inherit;">
                             {{ _('Type') }} {{ src_table_sort['type'].icon | safe }}
                         </a>
-                    </th>
+                    </th>{% endif %}
                     <th class="right aligned collapsing">
                         <a href="{{ url_for('main_sessionplan.session_plan_schedule', session_plan_id=session_plan.id, page=src_pagination.page, src_sortby=src_table_sort['constellation'].sort) }}" style="color: inherit;">
                             <i class="lastfm icon"></i> {{ src_table_sort['constellation'].icon | safe }}
@@ -157,15 +160,15 @@
 
             {% for item in selection_compound_list %}
                 <tr class="{{ 'left marked green' if loop.index == srow_index else '' }}" tabindex="0">
-                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{{ master_name(item[0].master_dso) }}</td>
-                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].type }}</td>
-                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].get_constellation_iau_code() }}</td>
-                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].mag }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].denormalized_name() }}{% if item[0].object_type == 'dso' %}{{ master_name(item[0].master_dso) }}{% endif %}</td>
+                    {% if schedule_form.obj_source.data not in ['COMETS', 'MINOR_PLANETS', 'PLANETS'] %}<td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].display_type }}</td>{% endif %}
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[0].display_constellation if item[0].object_type == 'dso' else item[0].constellation }}</td>
+                    <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ '%.2f'|format(item[0].mag) if item[0].mag is not none else '' }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[1] }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[2] }}</td>
                     <td onclick="setIFrameSrcFromSrcList({{ loop.index }})">{{ item[3] }}</td>
                     <td class="collapsing specialClass">
-                        <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, dso_id=item[0].id, row_index=loop.index) }}">
+                        <a class="ui icon mini button" href="{{ url_for('main_sessionplan.session_plan_item_add', session_plan_id=session_plan.id, object_type=item[0].object_type, object_id=item[0].object_id, row_index=loop.index) }}">
                             <i class="arrow right icon"></i>
                         </a>
                     </td>
@@ -238,9 +241,9 @@
             <tbody>
             {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepsky_object.name, embed='pl') }}{% endmacro %}
             {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item[0].double_star.id, embed='pl') }}{% endmacro %}
-            {% macro to_planet_url2(item) %}{{ url_for('main_planet.planet_info', planet_iau_code=item[0].planet.iau_code, embed='pl') }}{% endmacro %}
-            {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_info', minor_planet_id=item[0].minor_planet.url_id(), embed='pl') }}{% endmacro %}
-            {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_info', comet_id=item[0].comet.comet_id, embed='pl') }}{% endmacro %}
+            {% macro to_planet_url2(item) %}{{ url_for('main_planet.planet_seltab', planet_iau_code=item[0].planet.iau_code, embed='pl') }}{% endmacro %}
+            {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].minor_planet.url_id(), embed='pl') }}{% endmacro %}
+            {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_seltab', comet_id=item[0].comet.comet_id, embed='pl') }}{% endmacro %}
 
             {% for item in session_plan_compound_list %}
                 {% if item[0].dso_id is not none %}
@@ -336,9 +339,20 @@
 </style>
 
 <script type="text/javascript">
-var srcDsoUrls = [
+var srcSkyObjUrls = [
 {% for item in selection_compound_list %}
-    '{{ to_dso_url1(item) }}',
+    {% if item[0].object_type == 'dso' %}
+        {% set to_url = to_dso_url1(item) %}
+    {% elif item[0].object_type == 'comet' %}
+        {% set to_url = url_for('main_comet.comet_seltab', comet_id=item[0].detail_id, embed='pl') %}
+    {% elif item[0].object_type == 'minor_planet' %}
+        {% set to_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].detail_id, embed='pl') %}
+    {% elif item[0].object_type == 'planet' %}
+        {% set to_url = url_for('main_planet.planet_seltab', planet_iau_code=item[0].detail_id, embed='pl') %}
+    {% else %}
+        {% set to_url = '' %}
+    {% endif %}
+    '{{ to_url }}',
 {% endfor %}
 ];
 
@@ -369,7 +383,7 @@ function setIFrameSrcFromSrcList(rowIndex) {
     $('#tbldst tr').removeClass();
     $('#tblsrc tr:nth-child(' + rowIndex + ')').addClass('left marked green');
     srcRowIndex = rowIndex;
-    setIFrameSrc(srcDsoUrls[rowIndex-1]);
+    setIFrameSrc(srcSkyObjUrls[rowIndex-1]);
 }
 
 function setIFrameSrcFromDstList(rowIndex) {
@@ -484,7 +498,7 @@ $(function(){
             }
             e.preventDefault();
         } else if (keyCode == 40) {
-            if (srcRowIndex < srcDsoUrls.length) {
+            if (srcRowIndex < srcSkyObjUrls.length) {
                 setIFrameSrcFromSrcList(srcRowIndex+1);
             }
             e.preventDefault();
