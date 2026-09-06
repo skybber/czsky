@@ -523,7 +523,6 @@ def minor_planet_chart_pdf(minor_planet_id):
     return send_file(img_bytes, mimetype='application/pdf')
 
 
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>')
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/catalogue_data')
 def minor_planet_catalogue_data(minor_planet_id):
     """View a minor_planet catalog info."""

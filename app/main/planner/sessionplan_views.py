@@ -665,7 +665,7 @@ def _get_selection_candidate_url(candidate):
     if object_type == 'comet':
         return url_for('main_comet.comet_seltab', comet_id=candidate.detail_id, embed='pl')
     if object_type == 'minor_planet':
-        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=candidate.detail_id, embed='pl')
+        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=candidate.detail_id, seltab='catalogue_data', embed='pl')
     if object_type == 'planet':
         return url_for('main_planet.planet_seltab', planet_iau_code=candidate.detail_id, embed='pl')
     return url_for('main_deepskyobject.deepskyobject_seltab', dso_id=candidate.name, embed='pl')
@@ -679,7 +679,7 @@ def _get_session_plan_item_url(item):
     if item.planet_id is not None:
         return url_for('main_planet.planet_seltab', planet_iau_code=item.planet.iau_code, embed='pl')
     if item.minor_planet_id is not None:
-        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item.minor_planet.url_id(), embed='pl')
+        return url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item.minor_planet.url_id(), seltab='catalogue_data', embed='pl')
     if item.comet_id is not None:
         return url_for('main_comet.comet_seltab', comet_id=item.comet.comet_id, embed='pl')
     return None

@@ -242,7 +242,7 @@
             {% macro to_dso_url2(item) %}{{ url_for('main_deepskyobject.deepskyobject_seltab', dso_id=item[0].deepsky_object.name, embed='pl') }}{% endmacro %}
             {% macro to_double_star_url2(item) %}{{ url_for('main_double_star.double_star_info', double_star_id=item[0].double_star.id, embed='pl') }}{% endmacro %}
             {% macro to_planet_url2(item) %}{{ url_for('main_planet.planet_seltab', planet_iau_code=item[0].planet.iau_code, embed='pl') }}{% endmacro %}
-            {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].minor_planet.url_id(), embed='pl') }}{% endmacro %}
+            {% macro to_minor_planet_url2(item) %}{{ url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].minor_planet.url_id(), seltab='catalogue_data', embed='pl') }}{% endmacro %}
             {% macro to_comet_url2(item) %}{{ url_for('main_comet.comet_seltab', comet_id=item[0].comet.comet_id, embed='pl') }}{% endmacro %}
 
             {% for item in session_plan_compound_list %}
@@ -346,7 +346,7 @@ var srcSkyObjUrls = [
     {% elif item[0].object_type == 'comet' %}
         {% set to_url = url_for('main_comet.comet_seltab', comet_id=item[0].detail_id, embed='pl') %}
     {% elif item[0].object_type == 'minor_planet' %}
-        {% set to_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].detail_id, embed='pl') %}
+        {% set to_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=item[0].detail_id, seltab='catalogue_data', embed='pl') %}
     {% elif item[0].object_type == 'planet' %}
         {% set to_url = url_for('main_planet.planet_seltab', planet_iau_code=item[0].detail_id, embed='pl') %}
     {% else %}

@@ -49,7 +49,7 @@ class SessionSchedulerSolarTestCase(unittest.TestCase):
         candidates = [
             (SimpleNamespace(object_type='dso', name='M1'), '/deepskyobject/M1/seltab?embed=pl'),
             (SimpleNamespace(object_type='comet', detail_id='0010P'), '/comet/0010P/seltab?embed=pl'),
-            (SimpleNamespace(object_type='minor_planet', detail_id='1-Ceres'), '/minor-planet/1-Ceres/seltab?embed=pl'),
+            (SimpleNamespace(object_type='minor_planet', detail_id='1-Ceres'), '/minor-planet/1-Ceres/seltab?seltab=catalogue_data&embed=pl'),
             (SimpleNamespace(object_type='planet', detail_id='mars'), '/planet/mars/seltab?embed=pl'),
         ]
 
@@ -81,7 +81,7 @@ class SessionSchedulerSolarTestCase(unittest.TestCase):
                     **{**common_ids, 'minor_planet_id': 1},
                     minor_planet=SimpleNamespace(url_id=lambda: '1-Ceres'),
                 ),
-                '/minor-planet/1-Ceres/seltab?embed=pl',
+                '/minor-planet/1-Ceres/seltab?seltab=catalogue_data&embed=pl',
             ),
             (
                 SimpleNamespace(
