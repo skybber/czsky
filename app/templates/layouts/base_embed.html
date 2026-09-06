@@ -7,7 +7,7 @@
         {# Any templates that extend this template can set custom_head_tags to add scripts to their page #}
         {% block custom_head_tags %}{% endblock %}
     </head>
-    <body style="margin-top: 8px;">
+    <body class="embedded-page" style="margin-top: 8px;">
         <script type=text/javascript>
             function appendScreenWidthToUrl(url) {
                 let sep = url.includes('?') ? "&" : "?";

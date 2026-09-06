@@ -113,7 +113,7 @@
     </style>
 
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block;width:100%">
+        <div class="ui blue segment dso-info-content" style="display: inline-block;width:100%">
             <div id="dso-toolbar">
                 {% if dso.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=dso.constellation.iau_code) }}">
