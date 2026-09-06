@@ -70,6 +70,21 @@
                     parent.window.location.href = topUrl;
                 }
             };
+
+            document.addEventListener('click', function(event) {
+                const link = event.target.closest && event.target.closest('a[data-embed-map-url]');
+                if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                    return;
+                }
+
+                const mapUrl = link.getAttribute('data-embed-map-url');
+                if (!mapUrl) {
+                    return;
+                }
+
+                event.preventDefault();
+                navigateParent(appendScreenWidthToUrl(mapUrl), true);
+            });
         </script>
         {% include 'partials/_flashes.html' %}
         {# When extended, the content block contains all the html of the webpage #}

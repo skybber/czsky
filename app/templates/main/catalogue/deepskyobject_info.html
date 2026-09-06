@@ -173,18 +173,18 @@
             {% endif %}
             <div class="markdown" style="clear:both;">
                 {% if descr_available %}
-                    {% filter extended_commonmark(dso.name) %}
+                    {% filter extended_commonmark(dso.name, '', embed) %}
                         {% if title_img %}
 ![<]({{ title_img }})
                         {% endif %}
 {{ user_descr.text  | safe}}
                     {% endfilter %}
                     {% for ap_class, app_descr in apert_descriptions %}
-                        {% filter extended_commonmark(dso.name) %}
+                        {% filter extended_commonmark(dso.name, '', embed) %}
 **{{ commons.norm_aperture_class(ap_class) }}** - {{ app_descr }}
                         {% endfilter %}
                     {% endfor %}
-                    {% filter extended_commonmark(dso.name) %}
+                    {% filter extended_commonmark(dso.name, '', embed) %}
 {{ user_descr.references or '' }}
                     {% endfilter %}
                 {% else %}

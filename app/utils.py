@@ -17,8 +17,8 @@ def register_template_utils(app):
         return isinstance(field, HiddenField)
 
     @app.template_filter()
-    def extended_commonmark(s, ignore_name, ext_url_params=''):
-        return parse_extended_commonmark(s, ignore_name, ext_url_params)
+    def extended_commonmark(s, ignore_name, ext_url_params='', embed=None):
+        return parse_extended_commonmark(s, ignore_name, ext_url_params, embed)
 
     app.add_template_global(index_for_role)
 
