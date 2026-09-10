@@ -73,6 +73,27 @@ class CometUtilsTestCase(unittest.TestCase):
         self.assertEqual(observations[0].mag, 9.8)
         self.assertEqual(observations[0].coma_diameter, 3.0)
 
+    def test_update_comets_cobs_observations_skips_shibaev_observations(self):
+        comet = self._add_comet('10P/Tempel', comet_id='0010P', eval_mag=14.0)
+        html = b'''
+            <html>
+              <body>
+                <p class="text-info">
+                  <strong><a>10P/Tempel</a></strong>
+                  <strong>2026</strong>
+                  <code>Jul 2.5, 9.8, 3' (A. Shibaev; false observation)<br/>Jul 3.5, 10.1, 2' (Observer; note)</code>
+                </p>
+              </body>
+            </html>
+        '''
+
+        with patch('app.commons.comet_utils.requests.get', return_value=SimpleNamespace(content=html)):
+            update_comets_cobs_observations()
+
+        observations = CometObservation.query.filter_by(comet_id=comet.id).all()
+        self.assertEqual(len(observations), 1)
+        self.assertEqual(observations[0].mag, 10.1)
+
 
 if __name__ == '__main__':
     unittest.main()

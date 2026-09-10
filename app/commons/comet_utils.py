@@ -34,6 +34,8 @@ from imports.import_utils import progress
 
 utc = dt_module.timezone.utc
 
+COBS_EXCLUDED_NOTE_FRAGMENT = 'A. Shibaev'
+
 # comets intended to be periodically updated, so it is not part of import package
 
 all_comets = None
@@ -369,6 +371,9 @@ def update_comets_cobs_observations():
                                     mag = float(mags[0]) if len(mags) > 0 else None
                                     diams = obs_items[2].strip()
                                     notes = obs_parts[1][:obs_parts[1].index(';')-1]
+
+                                    if COBS_EXCLUDED_NOTE_FRAGMENT.casefold() in notes.casefold():
+                                        continue
 
                                     coma_diameter = None
                                     if diams != '':
