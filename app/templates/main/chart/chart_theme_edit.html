@@ -62,10 +62,13 @@
                 </div>
 
                 <!-- Buttons to load themes -->
-                <div class="one fields" style="margin-top:1rem;">
+                <div class="two fields" style="margin-top:1rem;">
                     {% for field in form | selectattr('type', 'equalto', 'SubmitField') %}
                         {{ field(class='positive ui button') }}
                     {% endfor %}
+                    {% if not is_new %}
+                        <a id="bdelete" class="negative ui button" href="#">{{ _('Delete Theme') }}</a>
+                    {% endif %}
                 </div>
             {{ f.end_form() }}
         </div>
@@ -86,6 +89,25 @@
         </div>
     </div>
 
+    {% if not is_new %}
+        <div class="ui tiny modal" id="deleteModal">
+            <div class="header">{{ _('Delete Chart Theme') }}</div>
+            <div class="content">
+                <p>{{ _('Are you sure you want to delete this chart theme?') }}</p>
+            </div>
+            <div class="actions">
+                <div class="ui negative cancel button">{{ _('No') }}</div>
+                <form action="{{ url_for('main_chart_theme.chart_theme_delete', chart_theme_id=chart_theme.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                    <button type="submit" class="ui positive right labeled icon approve button">
+                        {{ _('Yes') }}
+                        <i class="checkmark icon"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
     <!-- JavaScript to load the theme definitions into the text area after confirmation -->
     <script type="text/javascript">
         var selectedTheme = '';
@@ -102,5 +124,12 @@
             $('#definition').val(definition); // Load it into the text area
             $('#confirmModal').modal('hide');
         });
+
+        {% if not is_new %}
+            $('#bdelete').click(function(event) {
+                event.preventDefault();
+                $('#deleteModal').modal('show');
+            });
+        {% endif %}
     </script>
 {% endblock %}

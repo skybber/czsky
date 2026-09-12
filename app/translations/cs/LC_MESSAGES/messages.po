@@ -2590,6 +2590,22 @@ msgstr "Nahrát světlé téma"
 msgid "Load Night Theme"
 msgstr "Nahrát noční téma"
 
+#: app/templates/main/chart/chart_theme_edit.html
+msgid "Delete Theme"
+msgstr "Smazat téma"
+
+#: app/templates/main/chart/chart_theme_edit.html
+msgid "Delete Chart Theme"
+msgstr "Smazat mapové téma"
+
+#: app/templates/main/chart/chart_theme_edit.html
+msgid "Are you sure you want to delete this chart theme?"
+msgstr "Opravdu chcete toto mapové téma smazat?"
+
+#: app/main/chart/chart_theme_views.py
+msgid "Chart theme was deleted"
+msgstr "Mapové téma bylo smazáno"
+
 #: app/templates/main/chart/chart_theme_edit.html:76
 msgid "Load Theme"
 msgstr "Nahrát téma"

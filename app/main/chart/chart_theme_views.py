@@ -32,6 +32,23 @@ from ...commons.chart_theme_definition import MERGED_DARK_THEME_TEMPL, MERGED_LI
 main_chart_theme = Blueprint('main_chart_theme', __name__)
 
 
+def _get_user_chart_theme_or_404(chart_theme_id):
+    chart_theme = ChartTheme.query.filter_by(
+        id=chart_theme_id,
+        user_id=current_user.id,
+    ).first()
+    if chart_theme is None:
+        abort(404)
+    return chart_theme
+
+
+def _reset_selected_chart_theme(chart_theme):
+    if str(session.get('cur_custom_theme_id')) == str(chart_theme.id):
+        session.pop('cur_custom_theme_name', None)
+        session.pop('cur_custom_theme_id', None)
+        session['theme'] = chart_theme.default_type.value.lower()
+
+
 @main_chart_theme.route('/chart-themes', methods=['GET', 'POST'])
 @login_required
 def chart_themes():
@@ -43,9 +60,7 @@ def chart_themes():
 @login_required
 def chart_theme_edit(chart_theme_id):
     """Edit chart theme."""
-    chart_theme = ChartTheme.query.filter_by(id=chart_theme_id).first()
-    if chart_theme is None:
-        abort(404)
+    chart_theme = _get_user_chart_theme_or_404(chart_theme_id)
 
     form = ChartThemeEditForm()
     if request.method == 'GET':
@@ -66,12 +81,31 @@ def chart_theme_edit(chart_theme_id):
         db.session.commit()
         flash(gettext('Constellation successfully updated'), 'form-success')
 
-        if session.get('cur_custom_theme_id') == str(chart_theme.id):
-            session.pop('cur_custom_theme_name', None)
-            session.pop('cur_custom_theme_id', None)
-            session['theme'] = chart_theme.default_type.value.lower()
+        _reset_selected_chart_theme(chart_theme)
 
     return render_template('main/chart/chart_theme_edit.html', form=form, chart_theme=chart_theme)
+
+
+@main_chart_theme.route('/chart-theme/<int:chart_theme_id>/delete', methods=['POST'])
+@login_required
+def chart_theme_delete(chart_theme_id):
+    """Delete a chart theme owned by the current user."""
+    chart_theme = _get_user_chart_theme_or_404(chart_theme_id)
+    _reset_selected_chart_theme(chart_theme)
+    db.session.delete(chart_theme)
+
+    remaining_themes = (
+        ChartTheme.query
+        .filter_by(user_id=current_user.id)
+        .order_by(ChartTheme.order, ChartTheme.id)
+        .all()
+    )
+    for order, remaining_theme in enumerate(remaining_themes, start=1):
+        remaining_theme.order = order
+
+    db.session.commit()
+    flash(gettext('Chart theme was deleted'), 'form-success')
+    return redirect(url_for('main_chart_theme.chart_themes'))
 
 
 @main_chart_theme.route('/new-chart-theme', methods=['GET', 'POST'])
