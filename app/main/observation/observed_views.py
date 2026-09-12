@@ -32,7 +32,7 @@ from .observed_forms import (
     SearchObservedForm,
 )
 
-from app.models import ObservedList, ObservedListItem, DeepskyObject, DoubleStar
+from app.models import ObservedList, ObservedListItem, DeepskyObject, DoubleStar, Comet, MinorPlanet
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.chart_generator import (
@@ -41,6 +41,8 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
 )
 from app.commons.chart_scene import (
+    build_circle_highlight,
+    build_comet_highlight,
     build_scene_v1,
     ensure_scene_dso_item,
     SceneHighlight, normalized_theme_name,
@@ -351,11 +353,25 @@ def observed_list_chart_scene_v1():
             if hl_pos is None or len(hl_pos) < 4:
                 continue
             hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
+            hl_payload = hl_pos[4] if len(hl_pos) > 4 and isinstance(hl_pos[4], dict) else {}
             if hl_ra is None or hl_dec is None:
                 continue
-            highlights.append(
-                build_obs_highlight_cross(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, theme_name=cur_theme, size=0.75,)
-            )
+            str_hl_id = str(hl_id)
+            if str_hl_id.startswith((CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX)):
+                highlights.append(
+                    build_circle_highlight(highlight_id=str_hl_id, label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec,
+                                           dashed=False, theme_name=cur_theme, show_label=True)
+                )
+                if str_hl_id.startswith(CHART_COMET_PREFIX):
+                    highlights.append(
+                        build_comet_highlight(highlight_id=str_hl_id, label='', ra=hl_ra, dec=hl_dec,
+                                              mag=hl_payload.get('mag'), tail_pa=hl_payload.get('tail_pa'), selectable=False)
+                    )
+            else:
+                highlights.append(
+                    build_obs_highlight_cross(highlight_id=str_hl_id, label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec,
+                                              theme_name=cur_theme, size=0.75,)
+                )
 
     scene_meta['object_context'] = {
         'kind': 'observed_list',
@@ -368,10 +384,17 @@ def _get_observed_list_items(user_id):
     observed_list = ObservedList.query.options(load_only(ObservedList.id)).filter_by(user_id=user_id).first()
     if observed_list:
         ret = db.session.query(ObservedListItem).options(
-                load_only(ObservedListItem.id, ObservedListItem.observed_list_id, ObservedListItem.dso_id, ObservedListItem.double_star_id),
+                load_only(ObservedListItem.id, ObservedListItem.observed_list_id, ObservedListItem.dso_id, ObservedListItem.double_star_id,
+                          ObservedListItem.comet_id, ObservedListItem.minor_planet_id),
                 joinedload(ObservedListItem.deepsky_object).load_only(DeepskyObject.id, DeepskyObject.name),
                 joinedload(ObservedListItem.double_star).load_only(
                     DoubleStar.id, DoubleStar.ra_first, DoubleStar.dec_first, DoubleStar.common_cat_id, DoubleStar.wds_number
+                ),
+                joinedload(ObservedListItem.comet).load_only(
+                    Comet.id, Comet.designation, Comet.cur_ra, Comet.cur_dec, Comet.real_mag, Comet.cur_tail_pa
+                ),
+                joinedload(ObservedListItem.minor_planet).load_only(
+                    MinorPlanet.id, MinorPlanet.designation, MinorPlanet.cur_ra, MinorPlanet.cur_dec
                 ),
                 ) \
                 .filter(ObservedListItem.observed_list_id == observed_list.id) \

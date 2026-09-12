@@ -64,6 +64,21 @@
 
 {# --- Catalogue Data --- #}
 {% macro minor_planet_catalogue_data() %}
+    <div style="display:flow-root;">
+        <div class="ui label" style="float:left;">
+            {{ minor_planet.cur_constellation_iau_code() or '-' }}
+        </div>
+        <div class="ui label" style="float:left;">
+            &#9728;{{ minor_planet.displayed_mag() or '-' }}mag
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="ui icon label" style="float:left;">
+            <a id="switch_observed_minor_planet" class="icon detail" data-tooltip="{{ _('Add to observed') }}" data-variation="mini" data-inverted="">
+                <i class="eye {{ '' if is_observed else 'slash outline black' }} icon"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
     <table class="ui compact striped definition unstackable table">
         <tr><td class="three wide">{{ _('Name') }}</td><td>{{ minor_planet.designation.capitalize() }}</td></tr>
         <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(minor_planet_data.distance_au) }}au ({{ "%.2f" | format(minor_planet_data.distance/1000000.0) }}M km) </td></tr>
@@ -240,6 +255,19 @@
             $('#bdeleteobservlog').click(function() {
                 $('.ui.modal.deleteObservationLogModal')
                     .modal('show');
+            });
+        {% endif %}
+        {% if type == 'catalogue_data' and current_user.is_authenticated %}
+            $('#switch_observed_minor_planet').click(function(e) {
+                e.preventDefault();
+                var $icon = $(this).find('i');
+                $.getJSON("{{ url_for('main_minor_planet.minor_planet_switch_observed_list', minor_planet_id=minor_planet.url_id()) }}", function(data) {
+                    if (data.result == 'on') {
+                        $icon.attr('class', 'eye icon');
+                    } else {
+                        $icon.attr('class', 'eye slash outline black icon');
+                    }
+                });
             });
         {% endif %}
     </script>

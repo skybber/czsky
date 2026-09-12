@@ -65,11 +65,27 @@
 
 {# --- COBS observations --- #}
 {% macro comet_cobs_observations() %}
-    Credit: COBS Comet Observation Database – CC BY-NA-SA 4.0”
-    <table class="ui compact striped definition unstackable table">
-        <tr><td class="three wide">{{ _('Mag') }}</td><td>{{ last_mag }}</td></tr>
-        <tr><td class="three wide">{{ _('Coma diameter') }}</td><td>{{ last_coma_diameter }}</td></tr>
-    </table>
+    <div style="display:flow-root;">
+        <div class="ui label" style="float:left;">
+            {{ comet.cur_constellation_iau_code() or '-' }}
+        </div>
+        <div class="ui label" style="float:left;">
+            &#9728;{{ comet.displayed_mag() or '-' }}mag
+        </div>
+        <div class="ui label" style="float:left;">
+            Ø {{ ("%.2f'" | format(comet.real_coma_diameter)) if comet.real_coma_diameter is not none else '-' }}
+        </div>
+        {% if current_user.is_authenticated %}
+        <div class="ui icon label" style="float:left;">
+            <a id="switch_observed_comet" class="icon detail" data-tooltip="{{ _('Add to observed') }}" data-variation="mini" data-inverted="">
+                <i class="eye {{ '' if is_observed else 'slash outline black' }} icon"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    <div style="margin: 0.75em 0;">
+        Credit: COBS Comet Observation Database – CC BY-NA-SA 4.0”
+    </div>
     <div style="overflow-x: scroll;width: 100%">
         <form action="{{ url_for('main_comet.comet_cobs_observations', comet_id=comet.comet_id) }}" method="post" name="search">
             <table class="ui searchable sortable unstackable selectable celled table">
@@ -288,6 +304,19 @@
             $('#bdeleteobservlog').click(function() {
                 $('.ui.modal.deleteObservationLogModal')
                     .modal('show');
+            });
+        {% endif %}
+        {% if type == 'cobs_observations' and current_user.is_authenticated %}
+            $('#switch_observed_comet').click(function(e) {
+                e.preventDefault();
+                var $icon = $(this).find('i');
+                $.getJSON("{{ url_for('main_comet.comet_switch_observed_list', comet_id=comet.comet_id) }}", function(data) {
+                    if (data.result == 'on') {
+                        $icon.attr('class', 'eye icon');
+                    } else {
+                        $icon.attr('class', 'eye slash outline black icon');
+                    }
+                });
             });
         {% endif %}
     </script>

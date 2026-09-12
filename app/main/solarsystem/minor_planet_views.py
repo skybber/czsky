@@ -22,7 +22,7 @@ from flask import (
     url_for,
 )
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 from sqlalchemy import func, or_
 
 from skyfield.api import load, wgs84
@@ -37,6 +37,8 @@ from app.models import (
     MinorPlanet,
     Observation,
     ObservationTargetType,
+    ObservedList,
+    ObservedListItem,
 )
 
 from app.commons.dso_utils import CHART_MINOR_PLANET_PREFIX
@@ -432,9 +434,19 @@ def minor_planet_info(minor_planet_id):
                                        back=request.args.get('back'), back_id=request.args.get('back_id'),
                                        embed='minor_planets', allow_back='false')
 
+    is_observed = False
+    if current_user.is_authenticated:
+        observed_list = ObservedList.query.filter_by(user_id=current_user.id).first()
+        if observed_list:
+            is_observed = ObservedListItem.query.filter_by(
+                observed_list_id=observed_list.id,
+                minor_planet_id=minor_planet.id,
+            ).first() is not None
+
     return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
-                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url)
+                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
+                           is_observed=is_observed)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img', methods=['GET'])
@@ -553,8 +565,40 @@ def minor_planet_catalogue_data(minor_planet_id):
 
     show_obs_log = show_observation_log()
 
+    is_observed = False
+    if current_user.is_authenticated:
+        observed_list = ObservedList.query.filter_by(user_id=current_user.id).first()
+        if observed_list:
+            is_observed = ObservedListItem.query.filter_by(
+                observed_list_id=observed_list.id,
+                minor_planet_id=minor_planet.id,
+            ).first() is not None
+
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet,
-                           minor_planet_data=minor_planet_data, embed=embed, show_obs_log=show_obs_log)
+                           minor_planet_data=minor_planet_data, embed=embed, show_obs_log=show_obs_log,
+                           is_observed=is_observed)
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/switch-observed-list', methods=['GET'])
+@login_required
+def minor_planet_switch_observed_list(minor_planet_id):
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
+    if minor_planet is None:
+        abort(404)
+
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    observed_list_item = ObservedListItem.query.filter_by(
+        observed_list_id=observed_list.id,
+        minor_planet_id=minor_planet.id,
+    ).first()
+    if observed_list_item:
+        db.session.delete(observed_list_item)
+        result = 'off'
+    else:
+        db.session.add(observed_list.create_new_minor_planet_item(minor_planet.id))
+        result = 'on'
+    db.session.commit()
+    return jsonify(result=result)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/visibility', methods=['GET', 'POST'])

@@ -6,6 +6,7 @@ from flask_login import current_user
 
 from app.models import (
     Constellation,
+    Comet,
     DeepskyObject,
     DoubleStar,
     DoubleStarList,
@@ -15,12 +16,14 @@ from app.models import (
     ObservedList,
     ObsSessionPlanRun,
     ObservationTargetType,
+    MinorPlanet,
     SessionPlan,
     StarList,
     WishList,
 )
 
 from app.commons.permission_utils import allow_view_session_plan
+from app.commons.dso_utils import CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX
 from app.commons.sky_object_wrapper import (
     OBJ_ID_DSO_PREFIX,
     OBJ_ID_DOUBLE_STAR_PREFIX,
@@ -38,6 +41,10 @@ def parse_prefix_obj_id(url_obj_id):
             prefix = OBJ_ID_DOUBLE_STAR_PREFIX
         elif url_obj_id.startswith(OBJ_ID_STAR_PREFIX):
             prefix = OBJ_ID_STAR_PREFIX
+        elif url_obj_id.startswith(CHART_COMET_PREFIX):
+            prefix = CHART_COMET_PREFIX
+        elif url_obj_id.startswith(CHART_MINOR_PLANET_PREFIX):
+            prefix = CHART_MINOR_PLANET_PREFIX
         if prefix:
             try:
                 obj_id = int(url_obj_id[len(prefix):])
@@ -54,6 +61,10 @@ def find_by_url_obj_id_in_list(url_obj_id, list):
             return next((x for x in list if x.dso_id == obj_id), None)
         if prefix == OBJ_ID_DOUBLE_STAR_PREFIX:
             return next((x for x in list if x.double_star_id == obj_id), None)
+        if prefix == CHART_COMET_PREFIX:
+            return next((x for x in list if x.comet_id == obj_id), None)
+        if prefix == CHART_MINOR_PLANET_PREFIX:
+            return next((x for x in list if x.minor_planet_id == obj_id), None)
     return None
 
 
@@ -70,6 +81,10 @@ def get_default_chart_iframe_url(obj_item, back, back_id=None):
             return url_for('main_deepskyobject.deepskyobject_info', dso_id=obj_item.deepsky_object.name, back=back, back_id=back_id, embed='fc', allow_back='true')
         if obj_item.double_star_id is not None:
             return url_for('main_double_star.double_star_info', double_star_id=obj_item.double_star_id, back=back, back_id=back_id, embed='fc', allow_back='true')
+        if obj_item.comet_id is not None:
+            return url_for('main_comet.comet_info', comet_id=obj_item.comet.comet_id, back=back, back_id=back_id, embed='fc', allow_back='true')
+        if obj_item.minor_planet_id is not None:
+            return url_for('main_minor_planet.minor_planet_info', minor_planet_id=obj_item.minor_planet.url_id(), back=back, back_id=back_id, embed='fc', allow_back='true')
     return None
 
 
@@ -79,6 +94,10 @@ def _unwrap(item):
             return item.deepsky_object
         if item.double_star_id is not None:
             return item.double_star
+        if item.comet_id is not None:
+            return item.comet
+        if item.minor_planet_id is not None:
+            return item.minor_planet
     return None
 
 
@@ -169,14 +188,20 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
     sorted_list = sorted(common_list, key=lambda x: x.id)
     constell_ids = Constellation.get_season_constell_ids(request.args.get('season', None))
     for i, item in enumerate(sorted_list):
-        if isinstance(sky_obj, DeepskyObject) and item.dso_id == sky_obj.id or \
-           isinstance(sky_obj, DoubleStar) and item.double_star_id == sky_obj.id:
+        if (isinstance(sky_obj, DeepskyObject) and item.dso_id == sky_obj.id) or \
+           (isinstance(sky_obj, DoubleStar) and item.double_star_id == sky_obj.id) or \
+           (isinstance(sky_obj, Comet) and item.comet_id == sky_obj.id) or \
+           (isinstance(sky_obj, MinorPlanet) and item.minor_planet_id == sky_obj.id):
             for prev_item in reversed(sorted_list[0:i]):
                 if constell_ids is None:
                     break
                 if prev_item.dso_id is not None and prev_item.deepsky_object.constellation_id in constell_ids:
                     break
                 if prev_item.double_star_id is not None and prev_item.double_star.constellation_id in constell_ids:
+                    break
+                if prev_item.comet_id is not None and prev_item.comet.cur_constell_id in constell_ids:
+                    break
+                if prev_item.minor_planet_id is not None and prev_item.minor_planet.cur_constell_id in constell_ids:
                     break
             else:
                 prev_item = None
@@ -186,6 +211,10 @@ def _get_prev_next_from_common_list(common_list, sky_obj):
                 if next_item.dso_id is not None and next_item.deepsky_object.constellation_id in constell_ids:
                     break
                 if next_item.double_star_id is not None and next_item.double_star.constellation_id in constell_ids:
+                    break
+                if next_item.comet_id is not None and next_item.comet.cur_constell_id in constell_ids:
+                    break
+                if next_item.minor_planet_id is not None and next_item.minor_planet.cur_constell_id in constell_ids:
                     break
             else:
                 next_item = None

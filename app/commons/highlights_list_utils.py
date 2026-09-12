@@ -59,6 +59,15 @@ def common_highlights_from_observed_list_items(observed_list_items):
                 highlights_dso_list.append(item.deepsky_object)
             elif item.double_star_id is not None:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])
+            elif item.comet_id is not None and item.comet is not None:
+                comet = item.comet
+                if comet.cur_ra is not None and comet.cur_dec is not None:
+                    highlights_pos_list.append([comet.cur_ra, comet.cur_dec, CHART_COMET_PREFIX + str(comet.id), comet.designation,
+                                                {'mag': comet.real_mag, 'tail_pa': comet.cur_tail_pa}])
+            elif item.minor_planet_id is not None and item.minor_planet is not None:
+                minor_planet = item.minor_planet
+                if minor_planet.cur_ra is not None and minor_planet.cur_dec is not None:
+                    highlights_pos_list.append([minor_planet.cur_ra, minor_planet.cur_dec, CHART_MINOR_PLANET_PREFIX + str(minor_planet.id), minor_planet.designation])
     return highlights_dso_list, highlights_pos_list
 
 

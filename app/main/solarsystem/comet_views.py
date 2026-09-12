@@ -18,7 +18,7 @@ from flask import (
     url_for,
 )
 
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from skyfield.api import load
 from skyfield.data import mpc
@@ -81,6 +81,8 @@ from app.models import (
     DB_UPDATE_COMETS,
     Observation,
     ObservationTargetType,
+    ObservedList,
+    ObservedListItem,
 )
 
 from app.commons.dso_utils import CHART_COMET_PREFIX
@@ -357,6 +359,28 @@ def comet_info(comet_id):
                            show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
+@main_comet.route('/comet/<string:comet_id>/switch-observed-list', methods=['GET'])
+@login_required
+def comet_switch_observed_list(comet_id):
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    observed_list = ObservedList.create_get_observed_list_by_user_id(current_user.id)
+    observed_list_item = ObservedListItem.query.filter_by(
+        observed_list_id=observed_list.id,
+        comet_id=comet.id,
+    ).first()
+    if observed_list_item:
+        db.session.delete(observed_list_item)
+        result = 'off'
+    else:
+        db.session.add(observed_list.create_new_comet_item(comet.id))
+        result = 'on'
+    db.session.commit()
+    return jsonify(result=result)
+
+
 @main_comet.route('/comet/<string:comet_id>/cobs-observations', methods=['GET', 'POST'])
 def comet_cobs_observations(comet_id):
     """View a comet observations from cobs."""
@@ -410,12 +434,22 @@ def comet_cobs_observations(comet_id):
 
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet)
 
+    is_observed = False
+    if current_user.is_authenticated:
+        observed_list = ObservedList.query.filter_by(user_id=current_user.id).first()
+        if observed_list:
+            is_observed = ObservedListItem.query.filter_by(
+                observed_list_id=observed_list.id,
+                comet_id=comet.id,
+            ).first() is not None
+
     print(f'cur_wrap: {cur_wrap._sky_obj.designation}', flush=True)
 
     return render_template('main/solarsystem/comet_info.html', type='cobs_observations', comet=comet, last_mag=last_mag,
                            last_coma_diameter=last_coma_diameter, cobs_observations=enumerate(page_items),
                            page_offset=page_offset, pagination=pagination, search_form=search_form, embed=embed,
-                           show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
+                           show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           is_observed=is_observed)
 
 
 @main_comet.route('/comet/<string:comet_id>/visibility', methods=['GET', 'POST'])
