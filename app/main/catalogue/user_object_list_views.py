@@ -44,7 +44,7 @@ from app.commons.chart_generator import (
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
     ensure_scene_dso_item,
 )
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
@@ -357,7 +357,7 @@ def user_object_list_chart_scene_v1(user_object_list_id):
                 continue
             ensure_scene_dso_item(scene, hl_dso)
             highlights.append(
-                build_circle_highlight(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=False, theme_name=cur_theme,)
+                build_list_cross_highlight(highlight_id=str(hl_dso.name).replace(' ', ''), label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=False, theme_name=cur_theme,)
             )
 
     if highlights_pos_list:
@@ -368,7 +368,7 @@ def user_object_list_chart_scene_v1(user_object_list_id):
             if hl_ra is None or hl_dec is None:
                 continue
             highlights.append(
-                build_circle_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
+                build_list_cross_highlight(highlight_id=str(hl_id), label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec, dashed=False, theme_name=cur_theme,)
             )
 
     scene_meta['object_context'] = {

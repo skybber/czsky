@@ -204,7 +204,10 @@ def comets_chart_pos_img():
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(
+        None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list,
+        highlights_style='comet', highlights_size=1.0,
+    )
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
@@ -254,7 +257,10 @@ def comets_chart_pdf():
         for x in comets if comets
     ]
 
-    img_bytes = common_chart_pdf_img(None, None, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pdf_img(
+        None, None, highlights_pos_list=highlights_pos_list,
+        highlights_style='comet', highlights_size=1.0,
+    )
 
     return send_file(img_bytes, mimetype='application/pdf')
 

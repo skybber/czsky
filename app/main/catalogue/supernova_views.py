@@ -65,7 +65,7 @@ from app.commons.highlights_list_utils import create_hightlights_lists
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
 )
 
 from .supernova_forms import SearchSupernovaForm
@@ -335,7 +335,7 @@ def supernova_chart_scene_v1(designation):
             if hl_dso is None:
                 continue
             highlights.append(
-                build_circle_highlight(
+                build_list_cross_highlight(
                     highlight_id=str(hl_dso.name).replace(' ', ''),
                     label=hl_dso.denormalized_name(),
                     ra=hl_dso.ra,
@@ -353,7 +353,7 @@ def supernova_chart_scene_v1(designation):
             if hl_ra is None or hl_dec is None:
                 continue
             highlights.append(
-                build_circle_highlight(
+                build_list_cross_highlight(
                     highlight_id=str(hl_id),
                     label=str(hl_label or hl_id),
                     ra=hl_ra,

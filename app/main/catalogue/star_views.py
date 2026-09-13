@@ -35,7 +35,7 @@ from app.commons.dso_utils import CHART_STAR_PREFIX
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
 )
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.visibility_utils import get_rise_transit_set_utc
@@ -348,7 +348,7 @@ def star_chart_scene_v1(star_id):
             if hl_dso is None:
                 continue
             highlights.append(
-                build_circle_highlight(
+                build_list_cross_highlight(
                     highlight_id=str(hl_dso.name).replace(' ', ''),
                     label=hl_dso.denormalized_name(),
                     ra=hl_dso.ra,
@@ -366,7 +366,7 @@ def star_chart_scene_v1(star_id):
             if hl_ra is None or hl_dec is None:
                 continue
             highlights.append(
-                build_circle_highlight(
+                build_list_cross_highlight(
                     highlight_id=str(hl_id),
                     label=str(hl_label or hl_id),
                     ra=hl_ra,

@@ -133,6 +133,7 @@ class SceneHighlight(TypedDict, total=False):
     dashed: bool
     dash: Optional[List[float]]
     selectable: bool
+    mag: float
 
 
 class SceneDsoItem(TypedDict, total=False):
@@ -184,11 +185,11 @@ def build_cross_highlight(
         "size": float(size),
         # Keep legacy fchart3 width: highlight_linewidth * 1.3 = 0.39
         "line_width": 0.39,
-        "color": [0.5, 0.2, 0.0] if theme == "night" else [0.0, 0.5, 0.0],
+        "color": [1.0, 0.2, 0.05] if theme == "night" else [0.0, 0.5, 0.0],
     }
 
 
-def build_circle_highlight(
+def build_list_cross_highlight(
     highlight_id: str,
     label: str,
     ra: float,
@@ -196,28 +197,34 @@ def build_circle_highlight(
     dashed: bool,
     theme_name: Optional[str],
     show_label: bool = False,
+    mag: Optional[float] = None,
 ) -> SceneHighlight:
+    """Build the smaller cross used for non-selected objects in chart lists."""
     theme = normalized_theme_name(theme_name)
     if theme == "light":
         dso_hl_color = [0.1, 0.2, 0.4]
     elif theme == "night":
-        dso_hl_color = [0.4, 0.2, 0.1]
+        dso_hl_color = [0.8, 0.12, 0.04]
     else:
-        dso_hl_color = [0.15, 0.3, 0.6]
+        dso_hl_color = [0.3, 0.7, 1.0]
 
     is_dashed = bool(dashed)
-    return {
-        "shape": "dso_circle",
+    item: SceneHighlight = {
+        "shape": "cross",
         "id": highlight_id,
         "label": label,
         "ra": _round_coord(ra),
         "dec": _round_coord(dec),
+        "size": 0.75,
         "dashed": is_dashed,
-        "dash": [0.6, 1.2] if is_dashed else None,
+        "dash": [0.15, 0.75] if is_dashed else None,
         "show_label": bool(show_label),
-        "line_width": 0.4 if is_dashed else 0.3,
+        "line_width": 0.3,
         "color": dso_hl_color,
     }
+    if mag is not None:
+        item["mag"] = float(mag)
+    return item
 
 
 def build_comet_highlight(

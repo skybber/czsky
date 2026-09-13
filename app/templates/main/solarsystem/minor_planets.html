@@ -136,7 +136,9 @@
                      None,
                      fchart_form,
                      default_chart_iframe_url=default_chart_iframe_url, embed='minor_planets',
-                     default_back='minor_planets'
+                     default_back='minor_planets',
+                     fchart_scene_url=url_for('main_minor_planet.minor_planets_chart_scene_v1',
+                                              flags=chart_control.chart_flags)
                      )
     }}
 {% endmacro %}

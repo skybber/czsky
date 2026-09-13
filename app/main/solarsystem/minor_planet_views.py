@@ -87,6 +87,7 @@ from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_da
 from app.commons.visibility_utils import get_rise_transit_set_utc
 from app.commons.chart_scene import (
     build_cross_highlight,
+    build_list_cross_highlight,
     build_scene_trajectory_item,
     build_scene_v1,
 )
@@ -319,9 +320,47 @@ def minor_planets_chart_pos_img():
 
     flags = request.args.get('json')
     visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
+    img_bytes, img_format = common_chart_pos_img(
+        None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list,
+        highlights_show_labels=True,
+    )
     img = base64.b64encode(img_bytes.read()).decode()
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_minor_planet.route('/minor-planets/chart/scene-v1', methods=['GET'])
+def minor_planets_chart_scene_v1():
+    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 13.0).all()
+    minor_planets = [
+        minor_planet for minor_planet in minor_planets
+        if minor_planet.cur_ra is not None and minor_planet.cur_dec is not None
+    ]
+
+    scene = build_scene_v1()
+    scene_meta = scene.setdefault('meta', {})
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    cur_theme = session.get('theme')
+
+    for minor_planet in minor_planets:
+        highlights.append(
+            build_list_cross_highlight(
+                highlight_id=CHART_MINOR_PLANET_PREFIX + str(minor_planet.id),
+                label=minor_planet.designation,
+                ra=minor_planet.cur_ra,
+                dec=minor_planet.cur_dec,
+                dashed=False,
+                theme_name=cur_theme,
+                show_label=True,
+                mag=minor_planet.eval_mag,
+            )
+        )
+
+    scene_meta['object_context'] = {
+        'kind': 'minor_planets',
+        'count': len(minor_planets),
+    }
+    return jsonify(scene)
 
 
 @main_minor_planet.route('/minor-planets/chart-pdf', methods=['GET'])
@@ -329,7 +368,9 @@ def minor_planets_chart_pdf():
     minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
 
-    img_bytes = common_chart_pdf_img(None, None, highlights_pos_list=highlights_pos_list)
+    img_bytes = common_chart_pdf_img(
+        None, None, highlights_pos_list=highlights_pos_list, highlights_show_labels=True,
+    )
 
     return send_file(img_bytes, mimetype='application/pdf')
 

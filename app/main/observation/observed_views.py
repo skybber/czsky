@@ -41,8 +41,7 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
 )
 from app.commons.chart_scene import (
-    build_circle_highlight,
-    build_comet_highlight,
+    build_list_cross_highlight,
     build_scene_v1,
     ensure_scene_dso_item,
     SceneHighlight, normalized_theme_name,
@@ -283,9 +282,9 @@ def build_obs_highlight_cross(
     if theme == "light":
         hl_color = [0.1, 0.2, 0.4]
     elif theme == "night":
-        hl_color = [0.4, 0.2, 0.1]
+        hl_color = [0.8, 0.12, 0.04]
     else:
-        hl_color = [0.15, 0.3, 0.6]
+        hl_color = [0.3, 0.7, 1.0]
     return {
         "shape": "cross",
         "id": highlight_id,
@@ -353,20 +352,14 @@ def observed_list_chart_scene_v1():
             if hl_pos is None or len(hl_pos) < 4:
                 continue
             hl_ra, hl_dec, hl_id, hl_label = hl_pos[0], hl_pos[1], hl_pos[2], hl_pos[3]
-            hl_payload = hl_pos[4] if len(hl_pos) > 4 and isinstance(hl_pos[4], dict) else {}
             if hl_ra is None or hl_dec is None:
                 continue
             str_hl_id = str(hl_id)
             if str_hl_id.startswith((CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX)):
                 highlights.append(
-                    build_circle_highlight(highlight_id=str_hl_id, label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec,
-                                           dashed=False, theme_name=cur_theme, show_label=True)
+                    build_list_cross_highlight(highlight_id=str_hl_id, label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec,
+                                               dashed=False, theme_name=cur_theme, show_label=True)
                 )
-                if str_hl_id.startswith(CHART_COMET_PREFIX):
-                    highlights.append(
-                        build_comet_highlight(highlight_id=str_hl_id, label='', ra=hl_ra, dec=hl_dec,
-                                              mag=hl_payload.get('mag'), tail_pa=hl_payload.get('tail_pa'), selectable=False)
-                    )
             else:
                 highlights.append(
                     build_obs_highlight_cross(highlight_id=str_hl_id, label=str(hl_label or hl_id), ra=hl_ra, dec=hl_dec,

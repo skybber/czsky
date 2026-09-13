@@ -41,7 +41,7 @@ from app.commons.chart_generator import (
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
 )
 
 from .double_star_list_forms import (
@@ -299,7 +299,7 @@ def double_star_list_chart_scene_v1(double_star_list_id):
             continue
         ds = item.double_star
         highlights.append(
-            build_circle_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, dashed=False, theme_name=cur_theme,)
+            build_list_cross_highlight(highlight_id=CHART_DOUBLE_STAR_PREFIX + str(ds.id), label=ds.get_catalog_name(), ra=ds.ra_first, dec=ds.dec_first, dashed=False, theme_name=cur_theme,)
         )
 
     scene_meta['object_context'] = {

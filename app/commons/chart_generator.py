@@ -404,8 +404,9 @@ def _fld_filter_trajectory(trajectory, gui_fld_size, width):
 
 def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, highlights_pos_list=None, trajectory=None, hl_constellation=None,
-                         highlights_style='circle', highlights_size=1.0,
-                         dso_highlights_style='circle', dso_highlights_size=1.0):
+                         highlights_style='cross', highlights_size=0.75,
+                         dso_highlights_style='cross', dso_highlights_size=0.75,
+                         highlights_show_labels=False):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     is_equatorial = request.args.get('ra') is not None
@@ -442,7 +443,8 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
                                observed_dso_ids=observed_dso_ids, highlights_pos_list=highlights_pos_list, trajectory=trajectory,
                                hl_constellation=hl_constellation, img_formats=img_formats,
                                highlights_style=highlights_style, highlights_size=highlights_size,
-                               dso_highlights_style=dso_highlights_style, dso_highlights_size=dso_highlights_size)
+                               dso_highlights_style=dso_highlights_style, dso_highlights_size=dso_highlights_size,
+                               highlights_show_labels=highlights_show_labels)
     img_bytes.seek(0)
     if img_format == 'jpg':
         out_img_format = 'jpeg'
@@ -488,7 +490,9 @@ def common_chart_legend_img():
 
 
 def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
-                         observed_dso_ids=None, trajectory=None, highlights_pos_list=None):
+                         observed_dso_ids=None, trajectory=None, highlights_pos_list=None,
+                         highlights_style='cross', highlights_size=0.75,
+                         highlights_show_labels=False):
     gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
 
     is_equatorial = request.args.get('ra') is not None
@@ -515,7 +519,8 @@ def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
                       gui_fld_label, maglim, dso_maglim,
                       landscape=landscape, dso_names=dso_names, flags=flags, highlights_dso_list=highlights_dso_list,
                       highlights_pos_list=highlights_pos_list, observed_dso_ids=observed_dso_ids, trajectory=trajectory,
-                      eyepiece_fov=eyepiece_fov)
+                      eyepiece_fov=eyepiece_fov, highlights_style=highlights_style,
+                      highlights_size=highlights_size, highlights_show_labels=highlights_show_labels)
     img_bytes.seek(0)
     return img_bytes
 
@@ -1031,8 +1036,9 @@ def _check_in_mag_interval(mag, mag_interval):
 def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, fld_size, fld_label, width, height, star_maglim,
                   dso_maglim, show_legend=True, dso_names=None, flags='', highlights_dso_list=None, observed_dso_ids=None,
                   highlights_pos_list=None, trajectory=None, hl_constellation=None, img_formats='png',
-                  highlights_style='circle', highlights_size=1.0,
-                  dso_highlights_style='circle', dso_highlights_size=1.0):
+                  highlights_style='cross', highlights_size=0.75,
+                  dso_highlights_style='cross', dso_highlights_size=0.75,
+                  highlights_show_labels=False):
     """Create chart in czsky process."""
     tm = time()
 
@@ -1130,7 +1136,9 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
     if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
-        highlights = _create_highlights_from_pos_list(highlights_pos_list, config, highlights_style, highlights_size)
+        highlights = _create_highlights_from_pos_list(
+            highlights_pos_list, config, highlights_style, highlights_size, highlights_show_labels
+        )
         if (obj_ra is not None) and (obj_dec is not None):
             highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
@@ -1194,7 +1202,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
 def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi, theta, fld_size, fld_label, star_maglim, dso_maglim,
                       landscape=True, show_legend=True, dso_names=None, flags='', highlights_dso_list=None,
-                      observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None):
+                      observed_dso_ids=None, highlights_pos_list=None, trajectory=None, eyepiece_fov=None,
+                      highlights_style='cross', highlights_size=0.75, highlights_show_labels=False):
     """Create chart PDF in czsky process."""
     tm = time()
 
@@ -1255,7 +1264,9 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
     if not highlights_pos_list and obj_ra is not None and obj_dec is not None:
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3, True)
     elif highlights_pos_list:
-        highlights = _create_highlights_from_pos_list(highlights_pos_list, config)
+        highlights = _create_highlights_from_pos_list(
+            highlights_pos_list, config, highlights_style, highlights_size, highlights_show_labels
+        )
         if (obj_ra is not None) and (obj_dec is not None):
             highlights.extend(_create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3))
     else:
@@ -1268,7 +1279,9 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
             if dso:
                 showing_dsos.add(dso)
 
-    dso_highlights = _create_dso_highlights(highlights_dso_list, observed_dso_ids, True) if highlights_dso_list else None
+    dso_highlights = _create_dso_highlights(
+        highlights_dso_list, observed_dso_ids, True, 'cross', 0.75
+    ) if highlights_dso_list else None
 
     dso_hide_filter = get_dso_hide_filter()
 
@@ -1346,7 +1359,7 @@ def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
     if force_light_mode or session.get('theme', '') == 'light':
         color = (0.0, 0.5, 0.0)
     elif session.get('theme', '') == 'night':
-        color = (0.5, 0.2, 0.0)
+        color = (1.0, 0.2, 0.05)
     else:
         color = (0.0, 0.5, 0.0)
 
@@ -1354,7 +1367,7 @@ def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):
     return [hl]
 
 
-def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mode=False, highlight_style='circle', highlight_size=1.0):
+def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mode=False, highlight_style='cross', highlight_size=0.75):
     full_highlighted_dsos = set()
     dashed_highlighted_dsos = set()
 
@@ -1370,19 +1383,20 @@ def _create_dso_highlights(highlights_dso_list, observed_dso_ids, force_light_mo
         color = (0.1, 0.2, 0.4)
         line_width = 0.3
     elif session.get('theme', '') == 'night':
-        color = (0.4, 0.2, 0.1)
+        color = (0.8, 0.12, 0.04)
         line_width = 0.3
     else:
-        color = (0.15, 0.3, 0.6)
+        color = (0.3, 0.7, 1.0)
         line_width = 0.3
 
     # def __init__(self, dsos, line_width, color, dash):
     hl1 = fchart3.DsoHighlightDefinition(full_highlighted_dsos, line_width, color, None, highlight_style, highlight_size)
-    hl2 = fchart3.DsoHighlightDefinition(dashed_highlighted_dsos, line_width+0.1, color, (0.6, 1.2), highlight_style, highlight_size)
+    hl2 = fchart3.DsoHighlightDefinition(dashed_highlighted_dsos, line_width+0.1, color, (0.15, 0.75), highlight_style, highlight_size)
     return [hl1, hl2]
 
 
-def _create_highlights_from_pos_list(highlights_pos_list, config, highlight_style='circle', highlight_size=1.0):
+def _create_highlights_from_pos_list(highlights_pos_list, config, highlight_style='cross', highlight_size=0.75,
+                                     show_labels=False):
     if not highlights_pos_list:
         return None
 
@@ -1391,14 +1405,17 @@ def _create_highlights_from_pos_list(highlights_pos_list, config, highlight_styl
     for hlpos in highlights_pos_list:
         hlpos_mag = hlpos[4] if len(hlpos) > 4 else None
         item = (hlpos[0], hlpos[1], hlpos[2], hlpos[3], hlpos_mag)
-        if hlpos[2] and str(hlpos[2]).startswith(CHART_COMET_PREFIX):
+        if highlight_style == 'comet' and hlpos[2] and str(hlpos[2]).startswith(CHART_COMET_PREFIX):
             comet_def_items.append(item)
         else:
             highlight_def_items.append(item)
 
     highlights = []
     if highlight_def_items:
-        highlights.append(fchart3.HighlightDefinition(highlight_style, config.highlight_linewidth, config.highlight_color, highlight_def_items, highlight_size))
+        highlights.append(fchart3.HighlightDefinition(
+            highlight_style, config.highlight_linewidth, config.highlight_color,
+            highlight_def_items, highlight_size, show_labels,
+        ))
     if comet_def_items:
         highlights.append(fchart3.HighlightDefinition('comet', config.highlight_linewidth, config.comet_highlight_color, comet_def_items))
 

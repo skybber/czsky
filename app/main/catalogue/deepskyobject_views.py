@@ -71,7 +71,7 @@ from app.commons.dso_description_utils import get_dso_descriptions
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
     ensure_scene_dso_item,
 )
 from app.commons.prevnext_utils import create_navigation_wrappers
@@ -586,7 +586,7 @@ def deepskyobject_chart_scene_v1(dso_id):
             dashed = observed_dso_ids and hl_dso.id in observed_dso_ids
             ensure_scene_dso_item(scene, hl_dso)
             highlights.append(
-                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=dashed, theme_name=cur_theme,)
+                build_list_cross_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=dashed, theme_name=cur_theme,)
             )
 
     scene_meta['object_context'] = {

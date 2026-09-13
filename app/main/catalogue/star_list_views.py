@@ -26,7 +26,7 @@ from app.commons.chart_generator import (
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
 )
 
 from .star_list_forms import (
@@ -176,7 +176,7 @@ def star_list_chart_scene_v1(star_list_id):
             continue
         star = item.star
         highlights.append(
-            build_circle_highlight(
+            build_list_cross_highlight(
                 highlight_id=CHART_STAR_PREFIX + str(star.id),
                 label=star.get_name(),
                 ra=star.ra,

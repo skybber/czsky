@@ -47,7 +47,7 @@ from app.commons.chart_generator import (
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
     ensure_scene_dso_item,
 )
 
@@ -274,7 +274,7 @@ def dso_list_chart_scene_v1(dso_list_id):
         observed = bool(observed_dso_ids and dso.id in observed_dso_ids)
         ensure_scene_dso_item(scene, dso)
         highlights.append(
-            build_circle_highlight(highlight_id=hl_id, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, dashed=observed, theme_name=cur_theme,)
+            build_list_cross_highlight(highlight_id=hl_id, label=dso.denormalized_name(), ra=dso.ra, dec=dso.dec, dashed=observed, theme_name=cur_theme,)
         )
 
     scene_meta['object_context'] = {

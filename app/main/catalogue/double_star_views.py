@@ -45,7 +45,7 @@ from app.commons.chart_generator import (
 from app.commons.chart_scene import (
     build_scene_v1,
     build_cross_highlight,
-    build_circle_highlight,
+    build_list_cross_highlight,
 )
 
 from app.commons.utils import get_lang_and_editor_user_from_request, is_splitview_supported, \
@@ -503,7 +503,7 @@ def double_star_chart_scene_v1(double_star_id):
             hl_id = str(hl_dso.name).replace(' ', '')
             observed = observed_dso_ids and hl_dso.id in observed_dso_ids
             highlights.append(
-                build_circle_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
+                build_list_cross_highlight(highlight_id=hl_id, label=hl_dso.denormalized_name(), ra=hl_dso.ra, dec=hl_dso.dec, dashed=observed, theme_name=cur_theme,)
             )
 
     scene_meta['object_context'] = {
