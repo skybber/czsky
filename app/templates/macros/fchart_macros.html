@@ -447,10 +447,10 @@
                                 <span class="text">Aladin<i class="dropdown icon"></i></span>
                             </button>
                             <div class="right menu">
-                                <div class="item div_dsscolored">
-                                    <button id="bdsscolored" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.dss_layer.data=='colored' else ''}}" style="text-align:left">
+                                <div class="item {{ 'div_dssblue' if chart_control.theme=='night' else 'div_dsscolored' }}">
+                                    <button id="{{ 'bdssblue' if chart_control.theme=='night' else 'bdsscolored' }}" type="button" class="ui toggle labeled tiny icon button{{ ' active' if (chart_control.theme=='night' and fchart_form.dss_layer.data) or fchart_form.dss_layer.data=='colored' else ''}}" style="text-align:left">
                                         <i class="image outline icon"></i>
-                                        {{ _('Aladin color') }}
+                                        {{ 'Blue DSS' if chart_control.theme=='night' else _('Aladin color') }}
                                     </button>
                                 </div>
                                 {% if chart_control.theme!='night' %}
@@ -1231,6 +1231,7 @@
         url: "P/DSS2/color"
       }
     };
+    const IS_NIGHT_THEME = {{ 'true' if chart_control.theme == 'night' else 'false' }};
 
     var submitDisabled = false;
     var fieldSizes = [{{ chart_control.gui_field_sizes }}];
@@ -1360,15 +1361,20 @@
     var projection = new Projection();
     var aladin = null;
     var fchart;
-    var lastAladinLayer = '{{ fchart_form.dss_layer.data }}';
+    var initialAladinLayer = '{{ fchart_form.dss_layer.data }}';
+    if (IS_NIGHT_THEME && initialAladinLayer !== '') {
+        initialAladinLayer = 'blue';
+    }
+    $('#dss_layer').val(initialAladinLayer);
+    var lastAladinLayer = initialAladinLayer;
     if (!['colored', 'blue', 'fram'].includes(lastAladinLayer)) {
-        lastAladinLayer = 'colored';
+        lastAladinLayer = IS_NIGHT_THEME ? 'blue' : 'colored';
     }
 
     projection.setProjection(Projection.PROJ_TAN2);
 
     if (isWebGL2Supported()) {
-        const dssLayerData = '{{ fchart_form.dss_layer.data }}';
+        const dssLayerData = initialAladinLayer;
         A.init.then(() => {
             aladin = A.aladin('#fchart-aladin-div', {
                 fov:60,

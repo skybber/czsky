@@ -620,7 +620,18 @@
         }
         const src = this.aladin.view.imageCanvas;
         if (!(src.width > 0 && src.height > 0)) return;
+        if (this.theme === 'night') {
+            this.backCtx.save();
+            this.backCtx.fillStyle = '#000000';
+            this.backCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
         this.backCtx.drawImage(src, 0, 0, src.width, src.height, 0, 0, this.canvas.width, this.canvas.height);
+        if (this.theme === 'night') {
+            this.backCtx.globalCompositeOperation = 'multiply';
+            this.backCtx.fillStyle = '#ff0000';
+            this.backCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.backCtx.restore();
+        }
     };
 
     SkyScene.prototype._syncAladinDivSize = function () {
