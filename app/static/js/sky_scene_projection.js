@@ -120,6 +120,71 @@
         return this._projectStereographic(framePoint.phi, framePoint.theta, center.phi, center.theta);
     };
 
+    // Builds a per-frame projector for cached equatorial unit vectors. This avoids
+    // repeated center/FOV setup, coordinate objects and equatorial-to-horizontal
+    // trigonometry for large static catalogs such as the Milky Way mesh.
+    SceneProjection.prototype.createEquatorialVectorProjector = function () {
+        if (!this.viewState || !(this.width > 0) || !(this.height > 0)) return null;
+
+        const center = this.getProjectionCenter();
+        if (!center || !Number.isFinite(center.phi) || !Number.isFinite(center.theta)) return null;
+        const fieldRadius = U.deg2rad(this.getFovDeg()) / 2.0;
+        const planeRadius = 2.0 * Math.tan(fieldRadius / 2.0);
+        if (!(planeRadius > EPS)) return null;
+
+        const sinCenterPhi = Math.sin(center.phi);
+        const cosCenterPhi = Math.cos(center.phi);
+        const sinCenterTheta = Math.sin(center.theta);
+        const cosCenterTheta = Math.cos(center.theta);
+        const maxSize = Math.max(this.width, this.height);
+        const ndcScaleX = maxSize / (planeRadius * this.width) * (this.mirrorX ? -1.0 : 1.0);
+        const ndcScaleY = maxSize / (planeRadius * this.height) * (this.mirrorY ? -1.0 : 1.0);
+
+        const coordSystem = this.viewState.coordSystem || 'equatorial';
+        let horizontal = false;
+        let sinLat = 0.0;
+        let cosLat = 1.0;
+        let sinLst = 0.0;
+        let cosLst = 1.0;
+        if (coordSystem === 'horizontal') {
+            if (!Number.isFinite(this.viewState.latitude)
+                || typeof this.viewState._getLst !== 'function') return null;
+            const lst = this.viewState._getLst();
+            if (!Number.isFinite(lst)) return null;
+            horizontal = true;
+            sinLat = Math.sin(this.viewState.latitude);
+            cosLat = Math.cos(this.viewState.latitude);
+            sinLst = Math.sin(lst);
+            cosLst = Math.cos(lst);
+        }
+
+        return function (eqX, eqY, eqZ, outX, outY, outIndex) {
+            let frameX = eqX;
+            let frameY = eqY;
+            let frameZ = eqZ;
+            if (horizontal) {
+                const cosDecCosHa = cosLst * eqX + sinLst * eqY;
+                frameX = cosLat * eqZ - sinLat * cosDecCosHa;
+                frameY = sinLst * eqX - cosLst * eqY;
+                frameZ = sinLat * eqZ + cosLat * cosDecCosHa;
+            }
+
+            const dot = cosCenterTheta * cosCenterPhi * frameX
+                + cosCenterTheta * sinCenterPhi * frameY
+                + sinCenterTheta * frameZ;
+            const denom = 1.0 + dot;
+            if (!(denom > EPS)) return false;
+
+            const east = -sinCenterPhi * frameX + cosCenterPhi * frameY;
+            const north = -sinCenterTheta * cosCenterPhi * frameX
+                - sinCenterTheta * sinCenterPhi * frameY
+                + cosCenterTheta * frameZ;
+            outX[outIndex] = (-2.0 * east / denom) * ndcScaleX;
+            outY[outIndex] = (2.0 * north / denom) * ndcScaleY;
+            return Number.isFinite(outX[outIndex]) && Number.isFinite(outY[outIndex]);
+        };
+    };
+
     SceneProjection.prototype.projectFrameToNdc = function (phi, theta) {
         const center = this.getProjectionCenter();
         return this._projectStereographic(phi, theta, center.phi, center.theta);

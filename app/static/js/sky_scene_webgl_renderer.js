@@ -138,14 +138,16 @@
             if (!gl || !this.ready || gl.isContextLost() || !arr || arr.length === 0) return;
             gl.useProgram(this.program);
             const cfg = opts || {};
+            const positions = arr instanceof Float32Array ? arr : new Float32Array(arr);
             gl.bindBuffer(gl.ARRAY_BUFFER, this.posBuf);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(arr), gl.STREAM_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STREAM_DRAW);
             gl.enableVertexAttribArray(this.aPos);
             gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
 
             if (mode === gl.POINTS && cfg.sizes && cfg.sizes.length === (arr.length / 2)) {
+                const sizes = cfg.sizes instanceof Float32Array ? cfg.sizes : new Float32Array(cfg.sizes);
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cfg.sizes), gl.STREAM_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, sizes, gl.STREAM_DRAW);
                 gl.enableVertexAttribArray(this.aSize);
                 gl.vertexAttribPointer(this.aSize, 1, gl.FLOAT, false, 0, 0);
                 gl.uniform1f(this.uUseAttrSize, 1.0);
@@ -156,8 +158,9 @@
             }
 
             if (cfg.colors && cfg.colors.length === (arr.length / 2) * 3) {
+                const colors = cfg.colors instanceof Float32Array ? cfg.colors : new Float32Array(cfg.colors);
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuf);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cfg.colors), gl.STREAM_DRAW);
+                gl.bufferData(gl.ARRAY_BUFFER, colors, gl.STREAM_DRAW);
                 gl.enableVertexAttribArray(this.aColor);
                 gl.vertexAttribPointer(this.aColor, 3, gl.FLOAT, false, 0, 0);
                 gl.uniform1f(this.uUseAttrColor, 1.0);
