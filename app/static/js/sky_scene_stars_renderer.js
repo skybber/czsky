@@ -4,7 +4,21 @@
     window.SkySceneStarsRenderer = function () {
         this._lastDiag = null;
         this._pickStar = null;
+        this._zoneVectors = new WeakMap();
+        this._positions = null;
+        this._sizes = null;
+        this._colors = null;
+        this._projectedX = null;
+        this._projectedY = null;
+        this._projectedSize = null;
+        this._projectedValid = null;
+        this._workspaceCapacity = 0;
+        this._projectedZoneStars = null;
     };
+
+    const MAG_SCALE_X = [0, 1, 2, 3, 4, 5, 25];
+    const MAG_SCALE_Y = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
+    const STAR_DIAMETER_PX_PER_MM = (100.0 / 25.4) * 2.0;
 
     // B-V index to RGB color lookup table (128 entries, index 0-127)
     // Source: fchart3 geodesic_star_catalog_gaia.py
@@ -162,25 +176,66 @@
     };
 
     SkySceneStarsRenderer.prototype._starRadiusMm = function (limMag, mag, starMagRShift) {
-        const magScaleX = [0, 1, 2, 3, 4, 5, 25];
-        const magScaleY = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
         const magD = limMag - Math.min(mag, limMag);
-        const magS = this._interp(magD, magScaleX, magScaleY);
+        const magS = this._interp(magD, MAG_SCALE_X, MAG_SCALE_Y);
         return 0.1 * Math.pow(1.33, magS) + starMagRShift;
     };
 
-    SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag) {
+    SkySceneStarsRenderer.prototype._starMagRadiusShift = function (sceneCtx) {
         const lm = sceneCtx.renderMaglim;
         const starMagShift = sceneCtx.themeConfig.sizes.star_mag_shift;
-
-        const starMagRShift = starMagShift > 0
+        return starMagShift > 0
             ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
             : 0.0;
-        const radiusMm = this._starRadiusMm(lm, mag, starMagRShift);
+    };
+
+    SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag, starMagRShift) {
+        const lm = sceneCtx.renderMaglim;
+        const radiusShift = Number.isFinite(starMagRShift)
+            ? starMagRShift
+            : this._starMagRadiusShift(sceneCtx);
+        const radiusMm = this._starRadiusMm(lm, mag, radiusShift);
 
         // Match old Cairo output units (100 DPI in fchart3 graphics backends).
-        const pxPerMm = 100.0 / 25.4;
-        return radiusMm * pxPerMm * 2.0;
+        return radiusMm * STAR_DIAMETER_PX_PER_MM;
+    };
+
+    SkySceneStarsRenderer.prototype._getZoneVectors = function (zoneStars, count) {
+        const cached = this._zoneVectors.get(zoneStars);
+        if (cached && cached.count === count) return cached.xyz;
+
+        const xyz = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+            const ra = zoneStars.ra[i];
+            const dec = zoneStars.dec[i];
+            const off = i * 3;
+            if (!Number.isFinite(ra) || !Number.isFinite(dec)) {
+                xyz[off] = NaN;
+                xyz[off + 1] = NaN;
+                xyz[off + 2] = NaN;
+                continue;
+            }
+            const cosDec = Math.cos(dec);
+            xyz[off] = cosDec * Math.cos(ra);
+            xyz[off + 1] = cosDec * Math.sin(ra);
+            xyz[off + 2] = Math.sin(dec);
+        }
+        this._zoneVectors.set(zoneStars, { count: count, xyz: xyz });
+        return xyz;
+    };
+
+    SkySceneStarsRenderer.prototype._ensureWorkspace = function (starCount) {
+        if (this._positions && this._workspaceCapacity >= starCount) return;
+        let capacity = Math.max(1024, this._workspaceCapacity || 0);
+        while (capacity < starCount) capacity *= 2;
+        this._positions = new Float32Array(capacity * 2);
+        this._sizes = new Float32Array(capacity);
+        this._colors = new Float32Array(capacity * 3);
+        this._projectedX = new Float32Array(capacity);
+        this._projectedY = new Float32Array(capacity);
+        this._projectedSize = new Float32Array(capacity);
+        this._projectedValid = new Uint8Array(capacity);
+        this._workspaceCapacity = capacity;
     };
 
     SkySceneStarsRenderer.prototype._magnitudeVisibilityAlpha = function (sceneCtx, mag) {
@@ -236,15 +291,6 @@
     };
 
     SkySceneStarsRenderer.prototype._collectStars = function (sceneCtx) {
-        if (!this._positions) this._positions = [];
-        if (!this._sizes) this._sizes = [];
-        if (!this._colors) this._colors = [];
-        const positions = this._positions;
-        const sizes = this._sizes;
-        const colors = this._colors;
-        positions.length = 0;
-        sizes.length = 0;
-        colors.length = 0;
         this._pickStar = null;
         const drawColor = sceneCtx.getThemeColor('draw', [0.8, 0.8, 0.8]);
         const bgColorRaw = sceneCtx.getThemeColor('background', [0.0, 0.0, 0.0]);
@@ -266,20 +312,17 @@
         let bestPickYPx = null;
         let bestPickRPx = null;
         let bestPickIndex = -1;
-        const labelByStarIndex = new Map();
-
         const zoneStars = sceneCtx.zoneStars || null;
         const zoneCount = isZoneStarsSoA(zoneStars)
             ? Math.max(0, Math.min(zoneStars.count, zoneStars.ra.length, zoneStars.dec.length, zoneStars.mag.length, zoneStars.bv.length))
             : 0;
+        this._ensureWorkspace(zoneCount);
+        this._projectedZoneStars = zoneStars;
+        const positions = this._positions;
+        const sizes = this._sizes;
+        const colors = this._colors;
         const labels = zoneStars && zoneStars.labels;
         const labelsCount = zoneStarLabelsCount(labels);
-        for (let i = 0; i < labelsCount; i++) {
-            labelByStarIndex.set(labels.index[i] | 0, {
-                text: labels.text[i] || '',
-            });
-        }
-        this._labelByStarIndex = labelByStarIndex;
 
         const diag = {
             preview_input_count: 0,
@@ -302,19 +345,73 @@
             _size_sum_px: 0.0,
         };
 
-        const pushStar = (ra, dec, magRaw, bvRaw, explicitColor, starIndex) => {
+        const starMagRShift = this._starMagRadiusShift(sceneCtx);
+        const fastProject = sceneCtx.projection
+            && typeof sceneCtx.projection.createEquatorialVectorProjector === 'function'
+            ? sceneCtx.projection.createEquatorialVectorProjector()
+            : null;
+        const zoneVectors = fastProject && zoneCount > 0
+            ? this._getZoneVectors(zoneStars, zoneCount)
+            : null;
+        let outputCount = 0;
+        for (let starIndex = 0; starIndex < zoneCount; starIndex++) {
             diag.unique_count += 1;
-            const p = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-            if (!p) {
-                diag.project_drop_count += 1;
-                return;
-            }
+            this._projectedValid[starIndex] = 0;
+            const magRaw = zoneStars.mag[starIndex];
             const magForSize = Number.isFinite(magRaw) ? magRaw : 7;
             const alpha = this._magnitudeVisibilityAlpha(sceneCtx, magForSize);
-            if (alpha <= 0.0) return;
+            // Magnitude filtering is independent of projection and avoids the most
+            // expensive per-star work for stars which cannot contribute a pixel.
+            if (alpha <= 0.0) continue;
 
-            const sz = this._starSizePx(sceneCtx, magForSize);
+            let ndcX;
+            let ndcY;
+            let projected = false;
+            if (fastProject) {
+                const vectorOffset = starIndex * 3;
+                if (Number.isFinite(zoneVectors[vectorOffset])) {
+                    projected = fastProject(
+                        zoneVectors[vectorOffset],
+                        zoneVectors[vectorOffset + 1],
+                        zoneVectors[vectorOffset + 2],
+                        this._projectedX,
+                        this._projectedY,
+                        starIndex
+                    );
+                    if (projected) {
+                        ndcX = this._projectedX[starIndex];
+                        ndcY = this._projectedY[starIndex];
+                    }
+                }
+            } else {
+                const p = sceneCtx.projection.projectEquatorialToNdc(
+                    zoneStars.ra[starIndex],
+                    zoneStars.dec[starIndex]
+                );
+                if (p) {
+                    ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
+                    ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
+                    projected = Number.isFinite(ndcX) && Number.isFinite(ndcY);
+                    if (projected) {
+                        this._projectedX[starIndex] = ndcX;
+                        this._projectedY[starIndex] = ndcY;
+                    }
+                }
+            }
+            if (!projected) {
+                diag.project_drop_count += 1;
+                continue;
+            }
+
+            const sz = this._starSizePx(sceneCtx, magForSize, starMagRShift);
             const rawSizePx = Number.isFinite(sz) ? Math.max(0.0, sz) : 0.0;
+            const sizePx = Math.max(minStarPx, rawSizePx);
+            const marginX = sizePx / sceneCtx.width;
+            const marginY = sizePx / sceneCtx.height;
+            if (ndcX < -1.0 - marginX || ndcX > 1.0 + marginX
+                || ndcY < -1.0 - marginY || ndcY > 1.0 + marginY) {
+                continue;
+            }
             let smallStarDim = 1.0;
             if (rawSizePx < minStarPx) {
                 const t = U.clamp01(rawSizePx / minStarPx);
@@ -323,20 +420,20 @@
                 diag._small_star_dim_sum += smallStarDim;
             }
             const finalAlpha = alpha * smallStarDim;
-            if (finalAlpha <= 0.0) return;
-            const bvColor = colorFromBvValue(bvRaw);
-            const starColor = (starColorsEnabled && (explicitColor || bvColor)) ? (explicitColor || bvColor) : drawColor;
-            const sizePx = Math.max(minStarPx, rawSizePx);
-            const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
-            const ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
-            positions.push(ndcX, ndcY);
-            sizes.push(sizePx);
+            if (finalAlpha <= 0.0) continue;
+            this._projectedValid[starIndex] = 1;
+            this._projectedSize[starIndex] = sizePx;
+            const posOffset = outputCount * 2;
+            positions[posOffset] = ndcX;
+            positions[posOffset + 1] = ndcY;
+            sizes[outputCount] = sizePx;
+            const bvColor = colorFromBvValue(zoneStars.bv[starIndex]);
+            const starColor = (starColorsEnabled && bvColor) ? bvColor : drawColor;
             const c = Array.isArray(starColor) && starColor.length === 3 ? starColor : [1.0, 1.0, 1.0];
-            colors.push(
-                U.clamp01(bgColor[0] + (c[0] - bgColor[0]) * finalAlpha),
-                U.clamp01(bgColor[1] + (c[1] - bgColor[1]) * finalAlpha),
-                U.clamp01(bgColor[2] + (c[2] - bgColor[2]) * finalAlpha)
-            );
+            const colorOffset = outputCount * 3;
+            colors[colorOffset] = U.clamp01(bgColor[0] + (c[0] - bgColor[0]) * finalAlpha);
+            colors[colorOffset + 1] = U.clamp01(bgColor[1] + (c[1] - bgColor[1]) * finalAlpha);
+            colors[colorOffset + 2] = U.clamp01(bgColor[2] + (c[2] - bgColor[2]) * finalAlpha);
             if (pickRadius2 > 0.0) {
                 const dx = ndcX * pickScaleX;
                 const dy = ndcY * pickScaleY;
@@ -351,6 +448,7 @@
                 }
             }
 
+            outputCount += 1;
             diag.projected_count += 1;
             if (!Number.isFinite(diag.mag_min) || magForSize < diag.mag_min) diag.mag_min = magForSize;
             if (!Number.isFinite(diag.mag_max) || magForSize > diag.mag_max) diag.mag_max = magForSize;
@@ -358,12 +456,6 @@
             if (!Number.isFinite(diag.size_max_px) || sizePx > diag.size_max_px) diag.size_max_px = sizePx;
             if (sizePx < 1.0) diag.size_lt_1_px_count += 1;
             diag._size_sum_px += sizePx;
-        };
-
-        if (isZoneStarsSoA(zoneStars)) {
-            for (let i = 0; i < zoneCount; i++) {
-                pushStar(zoneStars.ra[i], zoneStars.dec[i], zoneStars.mag[i], zoneStars.bv[i], null, i);
-            }
         }
 
         if (diag.projected_count > 0) {
@@ -373,6 +465,13 @@
             diag.small_star_dim_factor_avg = diag._small_star_dim_sum / diag.small_star_dimmed_count;
         }
         if (Number.isFinite(bestPickDist2)) {
+            let labelSuffix = null;
+            for (let i = 0; i < labelsCount; i++) {
+                if ((labels.index[i] | 0) === bestPickIndex) {
+                    labelSuffix = labels.text[i] || null;
+                    break;
+                }
+            }
             this._pickStar = {
                 mag: bestPickMag,
                 dist2: bestPickDist2,
@@ -380,7 +479,7 @@
                 yPx: bestPickYPx,
                 rPx: bestPickRPx,
                 index: bestPickIndex,
-                labelSuffix: labelByStarIndex.has(bestPickIndex) ? (labelByStarIndex.get(bestPickIndex).text || null) : null,
+                labelSuffix: labelSuffix,
             };
         }
         delete diag._size_sum_px;
@@ -388,9 +487,9 @@
         this._lastDiag = diag;
 
         return {
-            positions: positions,
-            sizes: sizes,
-            colors: colors,
+            positions: positions.subarray(0, outputCount * 2),
+            sizes: sizes.subarray(0, outputCount),
+            colors: colors.subarray(0, outputCount * 3),
         };
     };
 
@@ -428,13 +527,23 @@
             const mag = Number(zoneStars.mag[starIndex]);
             const alpha = this._magnitudeVisibilityAlpha(sceneCtx, mag) * this._labelFovAlpha(sceneCtx, fullText);
             if (alpha <= 0.0) continue;
-            const p = sceneCtx.projection.projectEquatorialToNdc(zoneStars.ra[starIndex], zoneStars.dec[starIndex]);
-            if (!p) continue;
-            const ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
-            const ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
+            let ndcX;
+            let ndcY;
+            let rPx;
+            if (this._projectedZoneStars === zoneStars && this._projectedValid
+                && this._projectedValid[starIndex]) {
+                ndcX = this._projectedX[starIndex];
+                ndcY = this._projectedY[starIndex];
+                rPx = Math.max(0.8, this._projectedSize[starIndex] * 0.5);
+            } else {
+                const p = sceneCtx.projection.projectEquatorialToNdc(zoneStars.ra[starIndex], zoneStars.dec[starIndex]);
+                if (!p) continue;
+                ndcX = (p.ndcX != null) ? p.ndcX : 0.0;
+                ndcY = (p.ndcY != null) ? p.ndcY : 0.0;
+                rPx = Math.max(0.8, this._starSizePx(sceneCtx, mag) * 0.5);
+            }
             const xPx = halfW + ndcX * halfW;
             const yPx = halfH - ndcY * halfH;
-            const rPx = Math.max(0.8, this._starSizePx(sceneCtx, mag) * 0.5);
             entries.push({
                 starIndex: starIndex,
                 fullText: fullText,
