@@ -123,6 +123,16 @@ class SkyObjectWrapper:
                 splitview='true',
             )
 
+        if isinstance(self._sky_obj, Star):
+            return url_for(
+                'main_star.star_chart',
+                star_id=self._sky_obj.id,
+                back=back,
+                back_id=back_id,
+                season=season,
+                splitview='true',
+            )
+
         if isinstance(self._sky_obj, Comet):
             return url_for(
                 'main_comet.comet_info',

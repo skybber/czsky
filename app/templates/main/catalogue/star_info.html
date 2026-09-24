@@ -216,6 +216,20 @@
         </div>
     </div>
     <script type="text/javascript">
+        {% if embed == 'fc' %}
+            {% if prev_wrap %}
+                $('#bprev').click(function() {
+                    navigateParent(appendScreenWidthToUrl('{{ prev_wrap.top_url() | safe }}'), true);
+                    return false;
+                });
+            {% endif %}
+            {% if next_wrap %}
+                $('#bnext').click(function() {
+                    navigateParent(appendScreenWidthToUrl('{{ next_wrap.top_url() | safe }}'), true);
+                    return false;
+                });
+            {% endif %}
+        {% endif %}
         $('.ui.rating')
         .rating();
     </script>
