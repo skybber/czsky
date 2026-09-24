@@ -14,6 +14,7 @@
         this._projectedValid = null;
         this._workspaceCapacity = 0;
         this._projectedZoneStars = null;
+        this._labelWidthCache = new Map();
     };
 
     const MAG_SCALE_X = [0, 1, 2, 3, 4, 5, 25];
@@ -601,12 +602,51 @@
         if (!ctx || !entries || entries.length === 0) return;
         const labelColor = sceneCtx.getThemeColor('label', [0.85, 0.85, 0.85]);
         const placed = [];
+        const cellSize = 64.0;
+        const grid = new Map();
+        const addToGrid = (rect, index) => {
+            const x1 = Math.floor(rect.x1 / cellSize);
+            const y1 = Math.floor(rect.y1 / cellSize);
+            const x2 = Math.floor(rect.x2 / cellSize);
+            const y2 = Math.floor(rect.y2 / cellSize);
+            for (let y = y1; y <= y2; y++) {
+                for (let x = x1; x <= x2; x++) {
+                    const key = x + ',' + y;
+                    let bucket = grid.get(key);
+                    if (!bucket) {
+                        bucket = [];
+                        grid.set(key, bucket);
+                    }
+                    bucket.push(index);
+                }
+            }
+        };
+        const nearbyPlaced = (rect) => {
+            const indices = new Set();
+            const x1 = Math.floor(rect.x1 / cellSize);
+            const y1 = Math.floor(rect.y1 / cellSize);
+            const x2 = Math.floor(rect.x2 / cellSize);
+            const y2 = Math.floor(rect.y2 / cellSize);
+            for (let y = y1; y <= y2; y++) {
+                for (let x = x1; x <= x2; x++) {
+                    const bucket = grid.get(x + ',' + y);
+                    if (!bucket) continue;
+                    for (let i = 0; i < bucket.length; i++) indices.add(bucket[i]);
+                }
+            }
+            return indices;
+        };
         ctx.save();
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
             const fontPx = this._labelFontPx(sceneCtx, entry.fullText);
             ctx.font = fontPx.toFixed(1) + 'px sans-serif';
-            const textWidth = Math.max(1.0, ctx.measureText(entry.text).width);
+            const widthKey = ctx.font + '\u0000' + entry.text;
+            let textWidth = this._labelWidthCache.get(widthKey);
+            if (textWidth == null) {
+                textWidth = Math.max(1.0, ctx.measureText(entry.text).width);
+                this._labelWidthCache.set(widthKey, textWidth);
+            }
             const candidates = this._labelCandidates(entry, textWidth, fontPx);
             if (!candidates.length) continue;
             let best = candidates[0];
@@ -614,8 +654,9 @@
             for (let j = 0; j < candidates.length; j++) {
                 const cand = candidates[j];
                 let score = 0.0;
-                for (let k = 0; k < placed.length; k++) {
-                    if (rectsOverlap(cand.rect, placed[k])) score += 1000.0;
+                const nearby = nearbyPlaced(cand.rect);
+                for (const placedIndex of nearby) {
+                    if (rectsOverlap(cand.rect, placed[placedIndex])) score += 1000.0;
                 }
                 if (cand.rect.x1 < 0) score += Math.abs(cand.rect.x1) * 4.0;
                 if (cand.rect.y1 < 0) score += Math.abs(cand.rect.y1) * 4.0;
@@ -630,7 +671,9 @@
             ctx.textBaseline = best.baseline;
             ctx.fillStyle = U.rgba(labelColor, 0.95 * U.clamp01(Number(entry.alpha)));
             ctx.fillText(entry.text, best.x, best.y);
+            const placedIndex = placed.length;
             placed.push(best.rect);
+            addToGrid(best.rect, placedIndex);
         }
         ctx.restore();
     };
