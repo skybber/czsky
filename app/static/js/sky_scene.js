@@ -205,6 +205,7 @@
         }, false);
         this.canvas.addEventListener('webglcontextrestored', () => {
             this.renderer.reinit();
+            this.planetRenderer.resetGL();
             this.forceReloadImage();
         }, false);
         this.canvasMw.addEventListener('webglcontextlost', (e) => {
@@ -1954,7 +1955,7 @@
             if (!allCached) {
                 this.starZoneLevel0PrefetchStarted = false;
             }
-            if (epoch === this.sceneRequestEpoch && this.sceneData) {
+            if (this.sceneData) {
                 this.zoneStars = this._collectCachedZoneStars(this.sceneData);
                 this.requestDraw();
             }
@@ -2005,9 +2006,9 @@
                 batch.forEach((r) => this.starZoneInFlight.delete(r.key));
                 if (!zoneData || !Array.isArray(zoneData.zones)) return;
                 this._storeZoneBatch(zoneData.zones);
-                if (epoch !== this.sceneRequestEpoch || !this.sceneData) {
-                    return;
-                }
+                // Do not drop responses from older scene epochs: newer scenes skip zones
+                // already in flight, so they rely on this response to show them.
+                if (!this.sceneData) return;
                 this.zoneStars = this._collectCachedZoneStars(this.sceneData);
                 this.requestDraw();
             }).fail(() => {
