@@ -232,6 +232,8 @@
         this.arrowRenderer = new window.SkySceneArrowRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
         this.widgetLayer = new window.SkySceneWidgetLayer();
+        this._getThemeColorFn = this.getThemeColor.bind(this);
+        this._registerSelectableFn = this._registerSelectable.bind(this);
 
         this.move = {
             isDragging: false,
@@ -873,20 +875,11 @@
         if (!this.sceneData || !this.frontCtx || !this.infoPanelRenderer) return;
         const viewState = this.buildViewState();
         const projection = this.createProjection(viewState);
-        this.infoPanelRenderer.draw({
-            sceneData: this.sceneData,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
+        this.infoPanelRenderer.draw(Object.assign(this._baseSceneCtx(viewState, projection), {
             aladinActive: !!(this.aladin && this.showAladin),
             centerPick: this.centerPick,
             cursorFrame: this._getCursorFramePosition(projection),
-        });
+        }));
     };
 
     SkyScene.prototype.requestInfoPanelDraw = function () {
@@ -2214,6 +2207,23 @@
         });
     };
 
+    // Fields shared by all renderers for one frame.
+    SkyScene.prototype._baseSceneCtx = function (viewState, projection) {
+        return {
+            sceneData: this.sceneData,
+            meta: this.sceneData.meta || {},
+            backCtx: this.backCtx,
+            frontCtx: this.frontCtx,
+            projection: projection,
+            viewState: viewState,
+            themeConfig: this.getThemeConfig(),
+            getThemeColor: this._getThemeColorFn,
+            registerSelectable: this._registerSelectableFn,
+            width: this.canvas.width,
+            height: this.canvas.height,
+        };
+    };
+
     SkyScene.prototype._registerSelectable = function (shape) {
         if (!this.selectionIndex || !shape || !shape.id) return;
         const priority = Number.isFinite(shape.priority) ? shape.priority : 10;
@@ -2420,24 +2430,22 @@
         measure('selection_begin', () => this.selectionIndex.beginFrame(this.canvas.width, this.canvas.height));
         const projection = this.createProjection(viewState);
         const cursorFrame = this._getCursorFramePosition(projection);
+        const pickerEnabled = this._isPickerEnabled();
+        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
+        const isZooming = !!this.zoomAnim;
+        const base = this._baseSceneCtx(viewState, projection);
+        // Each renderer gets its own copy: some of them store per-frame values on the context.
+        const ctx = (extra) => Object.assign({}, base, extra);
 
         if (redrawMilkyWay) {
             let mwReady = false;
             measure('milky_way', () => {
-                mwReady = this.milkyWayRenderer.draw({
-                    sceneData: this.sceneData,
+                mwReady = this.milkyWayRenderer.draw(ctx({
                     renderer: mwRenderTarget,
-                    backCtx: this.backCtx,
-                    projection: projection,
-                    viewState: viewState,
-                    themeConfig: this.getThemeConfig(),
-                    getThemeColor: this.getThemeColor.bind(this),
-                    width: this.canvas.width,
-                    height: this.canvas.height,
                     ensureMilkyWayCatalog: this.ensureMilkyWayCatalog.bind(this),
                     getMilkyWayCatalog: this.getMilkyWayCatalog.bind(this),
                     getMilkyWayTriangulated: this.getMilkyWayTriangulated.bind(this),
-                }) === true;
+                })) === true;
             });
             if (separateMwCanvas && mwReady) {
                 this.mwLastRenderKey = mwRenderKey;
@@ -2458,231 +2466,84 @@
             if (this.perfMwDiag) this.perfMwDiag.cached = true;
         }
 
-        measure('grid', () => this.gridRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            meta: this.sceneData.meta || {},
+        measure('grid', () => this.gridRenderer.draw(ctx({
             latitude: this.latitude,
             longitude: this.longitude,
             useCurrentTime: this.useCurrentTime,
             dateTimeISO: this._resolveRequestTimeISO(),
-        }));
+        })));
 
-        measure('constell', () => this.constellRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
+        measure('constell', () => this.constellRenderer.draw(ctx({
             liteMode: false,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
             ensureConstellationLinesCatalog: this.ensureConstellationLinesCatalog.bind(this),
             getConstellationLinesCatalog: this.getConstellationLinesCatalog.bind(this),
             ensureConstellationBoundariesCatalog: this.ensureConstellationBoundariesCatalog.bind(this),
             getConstellationBoundariesCatalog: this.getConstellationBoundariesCatalog.bind(this),
-        }));
+        })));
 
-        measure('nebulae', () => this.nebulaeOutlinesRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        }));
+        measure('nebulae', () => this.nebulaeOutlinesRenderer.draw(ctx({})));
 
-        const pickerEnabled = this._isPickerEnabled();
-        const pickRadiusPx = pickerEnabled ? this._pickerRadiusPx() : 0.0;
-
-        measure('dso', () => this.dsoRenderer.draw({
-            sceneData: this.sceneData,
+        measure('dso', () => this.dsoRenderer.draw(ctx({
             renderer: this.renderer,
-            backCtx: this.backCtx,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
-            isZooming: !!this.zoomAnim,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
+            isZooming: isZooming,
             renderDsoMaglim: this.renderDsoMaglim,
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
             ensureDsoOutlinesCatalog: this.ensureDsoOutlinesCatalog.bind(this),
             getDsoOutlinesCatalog: this.getDsoOutlinesCatalog.bind(this),
-            registerSelectable: this._registerSelectable.bind(this),
             pickRadiusPx: pickRadiusPx,
-        }));
+        })));
 
         let starsLoaded = 0;
         this.perfStarsDiag = null;
         if (!aladinActive) {
             measure('stars', () => {
-                starsLoaded = this.starsRenderer.draw({
-                    sceneData: this.sceneData,
+                starsLoaded = this.starsRenderer.draw(ctx({
                     zoneStars: this.zoneStars,
                     renderer: this.renderer,
-                    backCtx: this.backCtx,
-                    frontCtx: this.frontCtx,
-                    projection: projection,
-                    viewState: viewState,
-                    isZooming: !!this.zoomAnim,
-                    themeConfig: this.getThemeConfig(),
-                    meta: this.sceneData.meta || {},
+                    isZooming: isZooming,
                     renderMaglim: this.renderMaglim,
                     renderFovDeg: this.renderFovDeg,
                     zoomProgress: Number.isFinite(this.zoomAnimProgress) ? this.zoomAnimProgress : null,
                     zoomFromFov: this.zoomAnim ? this.zoomAnim.fromFov : this.renderFovDeg,
                     zoomToFov: this.zoomAnim ? this.zoomAnim.toFov : this.renderFovDeg,
                     pickRadiusPx: pickRadiusPx,
-                    getThemeColor: this.getThemeColor.bind(this),
-                    width: this.canvas.width,
-                    height: this.canvas.height,
-                }) || 0;
+                })) || 0;
             });
             this.perfStarsDiag = this.starsRenderer.getLastDiag();
         }
 
         this.perfStarsLoaded = starsLoaded | 0;
-        measure('planet', () => this.planetRenderer.draw({
-            sceneData: this.sceneData,
+        measure('planet', () => this.planetRenderer.draw(ctx({
             renderer: this.renderer,
-            backCtx: this.backCtx,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
             mirrorX: this.isMirrorX(),
             mirrorY: this.isMirrorY(),
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
             pickRadiusPx: pickRadiusPx,
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            registerSelectable: this._registerSelectable.bind(this),
-        }));
+        })));
 
-        measure('horizon', () => this.horizonRenderer.draw({
-            sceneData: this.sceneData,
-            renderer: this.renderer,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        }));
-
-        measure('trajectory', () => this.trajectoryRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            registerSelectable: this._registerSelectable.bind(this),
-        }));
-
-        measure('highlights', () => this.highlightRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            registerSelectable: this._registerSelectable.bind(this),
-        }));
-
-        measure('arrow', () => this.arrowRenderer.draw({
-            sceneData: this.sceneData,
-            backCtx: this.backCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-        }));
+        measure('horizon', () => this.horizonRenderer.draw(ctx({ renderer: this.renderer })));
+        measure('trajectory', () => this.trajectoryRenderer.draw(ctx({})));
+        measure('highlights', () => this.highlightRenderer.draw(ctx({})));
+        measure('arrow', () => this.arrowRenderer.draw(ctx({})));
 
         measure('selection_finalize', () => this.selectionIndex.finalize());
         measure('center_pick', () => this._updateCenterPick());
         measure('picked_annotations', () => {
-            if (!this.centerPick) return;
-            if (this.centerPick.kind === 'star') {
-                this.starsRenderer.drawPickedStarMagnitude({
-                    frontCtx: this.frontCtx,
-                    themeConfig: this.getThemeConfig(),
-                    getThemeColor: this.getThemeColor.bind(this),
-                }, this.centerPick);
-                return;
-            }
-            if (this.centerPick.kind === 'dso') {
-                this.dsoRenderer.drawPickedDsoMagnitude({
-                    sceneData: this.sceneData,
-                    frontCtx: this.frontCtx,
-                    themeConfig: this.getThemeConfig(),
-                    getThemeColor: this.getThemeColor.bind(this),
-                }, this.centerPick.id);
-                return;
-            }
-            if (this.centerPick.kind === 'moon') {
-                this.planetRenderer.drawPickedMoonMagnitude({
-                    sceneData: this.sceneData,
-                    frontCtx: this.frontCtx,
-                    backCtx: this.backCtx,
-                    themeConfig: this.getThemeConfig(),
-                    getThemeColor: this.getThemeColor.bind(this),
-                }, this.centerPick.id, this.centerPick.mag);
+            const pick = this.centerPick;
+            if (!pick) return;
+            if (pick.kind === 'star') {
+                this.starsRenderer.drawPickedStarMagnitude(ctx({}), pick);
+            } else if (pick.kind === 'dso') {
+                this.dsoRenderer.drawPickedDsoMagnitude(ctx({}), pick.id);
+            } else if (pick.kind === 'moon') {
+                this.planetRenderer.drawPickedMoonMagnitude(ctx({}), pick.id, pick.mag);
             }
         });
 
-        measure('info_panel', () => this.infoPanelRenderer.draw({
-            sceneData: this.sceneData,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
+        const overlayCtx = {
             aladinActive: aladinActive,
             centerPick: this.centerPick,
-            cursorFrame: cursorFrame,
-        }));
-
-        measure('widgets', () => this.widgetLayer.draw({
-            sceneData: this.sceneData,
-            frontCtx: this.frontCtx,
-            projection: projection,
-            viewState: viewState,
-            themeConfig: this.getThemeConfig(),
-            meta: this.sceneData.meta || {},
-            getThemeColor: this.getThemeColor.bind(this),
-            width: this.canvas.width,
-            height: this.canvas.height,
-            aladinActive: aladinActive,
-            centerPick: this.centerPick,
-        }));
+        };
+        measure('info_panel', () => this.infoPanelRenderer.draw(ctx(Object.assign({ cursorFrame: cursorFrame }, overlayCtx))));
+        measure('widgets', () => this.widgetLayer.draw(ctx(overlayCtx)));
 
         if (perfEnabled && this.perfGpuFinishEnabled
             && this.renderer && this.renderer.gl
