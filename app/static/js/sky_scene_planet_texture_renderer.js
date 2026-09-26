@@ -176,10 +176,24 @@
         this._posBuffer = null;
         this._uvBuffer = null;
         this._indexBuffer = null;
+        this._glGeneration = 0;
     };
 
     window.SkyScenePlanetTextureRenderer.prototype.setOnImageLoaded = function (cb) {
         this._onImageLoaded = cb;
+    };
+
+    // Drops all GL resources; they are invalid after a WebGL context loss.
+    window.SkyScenePlanetTextureRenderer.prototype.resetGL = function () {
+        this._glGeneration += 1;
+        this._glInited = false;
+        this._glProgram = null;
+        this._sphereMesh = null;
+        this._posBuffer = null;
+        this._uvBuffer = null;
+        this._indexBuffer = null;
+        this._textures = {};
+        this._texturesLoading = {};
     };
 
     window.SkyScenePlanetTextureRenderer.prototype._initGL = function (gl) {
@@ -236,9 +250,12 @@
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 128, 255]));
 
         const self = this;
+        const generation = this._glGeneration;
         const image = new Image();
         image.crossOrigin = 'anonymous';
         image.onload = function () {
+            // Texture belongs to a lost context; a new load starts on next draw.
+            if (generation !== self._glGeneration) return;
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
@@ -252,6 +269,7 @@
             }
         };
         image.onerror = function () {
+            if (generation !== self._glGeneration) return;
             delete self._texturesLoading[key];
         };
         image.src = path;
@@ -692,8 +710,12 @@
         this._lastLabelPlacementById = new Map();
         this._pickMoon = null;
 
-        const gl = sceneCtx.renderer && sceneCtx.renderer.gl;
-        const canWebGL = gl && this._initGL(gl);
+        const renderer = sceneCtx.renderer && sceneCtx.renderer.ready && typeof sceneCtx.renderer.drawTriangles === 'function'
+            && !sceneCtx.renderer.isGlContextLost()
+            ? sceneCtx.renderer
+            : null;
+        const gl = renderer ? renderer.gl : null;
+        const canWebGL = !!(gl && this._initGL(gl));
 
         const pickRadiusPx = hasFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0;
         const pickRadius2 = pickRadiusPx > 0 ? pickRadiusPx * pickRadiusPx : 0;
@@ -706,9 +728,6 @@
         const frontRings = [];
         const moonsInFront = [];
         const moonsBehind = [];
-        const renderer = sceneCtx.renderer && sceneCtx.renderer.ready && typeof sceneCtx.renderer.drawTriangles === 'function'
-            ? sceneCtx.renderer
-            : null;
 
         let sunObj = null;
         const planetsByBody = {};
@@ -926,8 +945,15 @@
                 if (p.type === 'moon' && p.is_in_light === false) {
                     col = [col[0] * 0.3, col[1] * 0.3, col[2] * 0.3];
                 }
-                const ndc = pxToNdc(px.x, px.y, sceneCtx.width, sceneCtx.height);
-                renderer.drawStarPoints([ndc.x, ndc.y], [r * 2], col, [col[0], col[1], col[2]]);
+                if (renderer) {
+                    const ndc = pxToNdc(px.x, px.y, sceneCtx.width, sceneCtx.height);
+                    renderer.drawStarPoints([ndc.x, ndc.y], [r * 2], col, [col[0], col[1], col[2]]);
+                } else if (ctx) {
+                    ctx.fillStyle = U.rgba(col, 1);
+                    ctx.beginPath();
+                    ctx.arc(px.x, px.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             if (typeof sceneCtx.registerSelectable === 'function' && p.id) {
