@@ -1,39 +1,17 @@
 (function () {
+    const U = window.SkySceneUtils;
     const WU = window.SkySceneWidgetUtils;
 
     window.SkySceneMagScaleWidget = function () {};
     const MAG_COUNT = 4;
     const MAG_STEP_PX = 34;
-    const MOBILE_WIDTH_MAX = 768;
-
-    window.SkySceneMagScaleWidget.prototype._interp = function (x, xp, yp) {
-        if (x <= xp[0]) return yp[0];
-        for (let i = 1; i < xp.length; i++) {
-            if (x <= xp[i]) {
-                const t = (x - xp[i - 1]) / (xp[i] - xp[i - 1]);
-                return yp[i - 1] + t * (yp[i] - yp[i - 1]);
-            }
-        }
-        return yp[yp.length - 1];
-    };
-
-    window.SkySceneMagScaleWidget.prototype._starRadiusMm = function (limMag, mag, starMagRShift) {
-        const magScaleX = [0, 1, 2, 3, 4, 5, 25];
-        const magScaleY = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
-        const magD = limMag - Math.min(mag, limMag);
-        const magS = this._interp(magD, magScaleX, magScaleY);
-        return 0.1 * Math.pow(1.33, magS) + starMagRShift;
-    };
+    const MOBILE_WIDTH_MAX = WU.MOBILE_WIDTH_MAX;
 
     window.SkySceneMagScaleWidget.prototype._starRadiusPx = function (sceneCtx, mag) {
         const meta = sceneCtx.meta || {};
         const lm = Number.isFinite(meta.maglim) ? meta.maglim : 10.0;
-        const starMagShift = sceneCtx.themeConfig.sizes.star_mag_shift;
-        const starMagRShift = starMagShift > 0
-            ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
-            : 0.0;
-        const radiusMm = this._starRadiusMm(lm, mag, starMagRShift);
-        return WU.mmToPx(radiusMm);
+        const starMagRShift = U.starMagRadiusShiftMm(lm, sceneCtx.themeConfig.sizes.star_mag_shift);
+        return WU.mmToPx(U.starRadiusMm(lm, mag, starMagRShift));
     };
 
     window.SkySceneMagScaleWidget.prototype.measure = function (sceneCtx) {

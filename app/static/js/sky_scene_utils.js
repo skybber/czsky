@@ -112,6 +112,110 @@
         return mm * (100.0 / 25.4);
     }
 
+    // ========== Layout ==========
+
+    // Canvas width at or below which compact (mobile) overlays are used.
+    const MOBILE_WIDTH_MAX = 768;
+
+    // ========== Star sizes ==========
+
+    // Magnitude-to-size curve matching fchart3.
+    const STAR_MAG_SCALE_X = [0, 1, 2, 3, 4, 5, 25];
+    const STAR_MAG_SCALE_Y = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
+
+    function interp(x, xp, yp) {
+        if (x <= xp[0]) {
+            return yp[0];
+        }
+        for (let i = 1; i < xp.length; i++) {
+            if (x <= xp[i]) {
+                const t = (x - xp[i - 1]) / (xp[i] - xp[i - 1]);
+                return yp[i - 1] + t * (yp[i] - yp[i - 1]);
+            }
+        }
+        return yp[yp.length - 1];
+    }
+
+    function starRadiusMm(limMag, mag, starMagRShift) {
+        const magD = limMag - Math.min(mag, limMag);
+        const magS = interp(magD, STAR_MAG_SCALE_X, STAR_MAG_SCALE_Y);
+        return 0.1 * Math.pow(1.33, magS) + starMagRShift;
+    }
+
+    // Extra radius added to every star when the theme enlarges faint stars.
+    function starMagRadiusShiftMm(limMag, starMagShift) {
+        return starMagShift > 0
+            ? starRadiusMm(limMag, limMag - starMagShift, 0.0) - starRadiusMm(limMag, limMag, 0.0)
+            : 0.0;
+    }
+
+    // ========== DSO sizes ==========
+
+    const MIN_DSO_RADIUS_PX = 3.0;
+
+    function dsoRadiusPxFromRad(projection, width, height, ra, dec, radiusRad) {
+        if (!(radiusRad > 0)) {
+            return MIN_DSO_RADIUS_PX;
+        }
+        const p0 = projection.projectEquatorialToNdc(ra, dec);
+        if (!p0) {
+            return MIN_DSO_RADIUS_PX;
+        }
+
+        const cosDec = Math.max(0.2, Math.cos(dec));
+        const p1 = projection.projectEquatorialToNdc(ra + radiusRad / cosDec, dec)
+            || projection.projectEquatorialToNdc(ra, dec + radiusRad);
+        if (!p1) {
+            return MIN_DSO_RADIUS_PX;
+        }
+
+        const dx = (p1.ndcX - p0.ndcX) * 0.5 * width;
+        const dy = (p1.ndcY - p0.ndcY) * 0.5 * height;
+        return Math.max(MIN_DSO_RADIUS_PX, Math.sqrt(dx * dx + dy * dy));
+    }
+
+    // Projected long/short semi-axes of a DSO; a missing axis falls back to the other one.
+    function dsoRadiiPx(projection, width, height, dso) {
+        let rLongPx = dsoRadiusPxFromRad(projection, width, height, dso.ra, dso.dec, dso.rlong_rad || -1.0);
+        let rShortPx = dsoRadiusPxFromRad(projection, width, height, dso.ra, dso.dec, dso.rshort_rad || -1.0);
+
+        if (!(dso.rlong_rad > 0) && (dso.rshort_rad > 0)) {
+            rLongPx = rShortPx;
+        }
+        if (!(dso.rshort_rad > 0)) {
+            rShortPx = rLongPx;
+        }
+        return { rLongPx: rLongPx, rShortPx: rShortPx };
+    }
+
+    // ========== Zone stars (SoA) ==========
+
+    function isZoneStarsSoA(stars) {
+        return !!(stars
+            && stars.ra instanceof Float64Array
+            && stars.dec instanceof Float64Array
+            && stars.mag instanceof Float32Array
+            && stars.bv instanceof Int16Array
+            && Number.isInteger(stars.count));
+    }
+
+    function isZoneStarLabelsSoA(labels) {
+        return !!(labels
+            && labels.index instanceof Int32Array
+            && Array.isArray(labels.text)
+            && Number.isInteger(labels.count));
+    }
+
+    function zoneStarsCount(stars) {
+        if (!isZoneStarsSoA(stars)) return 0;
+        return Math.max(0, Math.min(stars.count, stars.ra.length, stars.dec.length, stars.mag.length, stars.bv.length));
+    }
+
+    function zoneStarLabelsCount(labels) {
+        if (!isZoneStarLabelsSoA(labels)) return 0;
+        return Math.max(0, Math.min(labels.count, labels.index.length, labels.text.length));
+    }
+
     // ========== Meta flag utilities ==========
 
     function hasFlag(meta, flag) {
@@ -279,6 +383,15 @@
         posAngle: posAngle,
         destinationRaDec: destinationRaDec,
         mmToPx: mmToPx,
+        MOBILE_WIDTH_MAX: MOBILE_WIDTH_MAX,
+        starRadiusMm: starRadiusMm,
+        starMagRadiusShiftMm: starMagRadiusShiftMm,
+        MIN_DSO_RADIUS_PX: MIN_DSO_RADIUS_PX,
+        dsoRadiiPx: dsoRadiiPx,
+        isZoneStarsSoA: isZoneStarsSoA,
+        isZoneStarLabelsSoA: isZoneStarLabelsSoA,
+        zoneStarsCount: zoneStarsCount,
+        zoneStarLabelsCount: zoneStarLabelsCount,
         hasFlag: hasFlag,
         computeOutCode: computeOutCode,
         clipSegmentToRect: clipSegmentToRect,
@@ -294,6 +407,4 @@
     };
 
     window.SkySceneUtils = utils;
-    // Backwards compatibility alias
-    window.SkySceneGeomUtils = utils;
 })();

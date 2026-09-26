@@ -55,6 +55,7 @@
         clamp01: U.clamp01,
         rgb: rgb,
         mmToPx: U.mmToPx,
+        MOBILE_WIDTH_MAX: U.MOBILE_WIDTH_MAX,
         panelStyle: panelStyle,
         drawPanel: drawPanel,
         pxPerRad: pxPerRad,

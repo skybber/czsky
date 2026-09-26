@@ -2,7 +2,7 @@
     const WU = window.SkySceneWidgetUtils;
 
     window.SkySceneNumericMapScaleWidget = function () {};
-    const MOBILE_WIDTH_MAX = 768;
+    const MOBILE_WIDTH_MAX = WU.MOBILE_WIDTH_MAX;
 
     window.SkySceneNumericMapScaleWidget.prototype._labelText = function (sceneCtx) {
         const widgets = sceneCtx.meta && sceneCtx.meta.widgets ? sceneCtx.meta.widgets : {};

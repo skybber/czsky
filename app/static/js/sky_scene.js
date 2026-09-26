@@ -401,14 +401,14 @@
         // Pending navigation URL for exitAndNavigate (used by fullscreenchange handler)
         this.pendingNavigateUrl = null;
 
-        // Handle fullscreenchange event for iframe-based fullscreen
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement === this.fullscreenWrapper) {
+        // Handle fullscreen changes for iframe-based fullscreen (standard and WebKit events).
+        const onFullscreenChange = () => {
+            const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+            if (fullscreenElement === this.fullscreenWrapper) {
                 this._setBasePageMapDormant(true);
                 return;
             }
-            if (!document.fullscreenElement && this.fullscreenWrapper) {
-                // Remove wrapper
+            if (!fullscreenElement && this.fullscreenWrapper) {
                 this.fullscreenWrapper.remove();
                 this.fullscreenWrapper = null;
                 this.fullscreenIframe = null;
@@ -421,26 +421,9 @@
                     window.location.reload();
                 }
             }
-        });
-
-        document.addEventListener('webkitfullscreenchange', () => {
-            if (document.webkitFullscreenElement === this.fullscreenWrapper) {
-                this._setBasePageMapDormant(true);
-                return;
-            }
-            if (!document.webkitFullscreenElement && this.fullscreenWrapper) {
-                this.fullscreenWrapper.remove();
-                this.fullscreenWrapper = null;
-                this.fullscreenIframe = null;
-
-                if (this.pendingNavigateUrl) {
-                    window.location.href = this.pendingNavigateUrl;
-                    this.pendingNavigateUrl = null;
-                } else {
-                    window.location.reload();
-                }
-            }
-        });
+        };
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
         // Listen for messages from iframe
         window.addEventListener('message', (e) => {
@@ -1703,26 +1686,13 @@
         };
     };
 
-    SkyScene.prototype._isZoneStarLabelsSoA = function (labels) {
-        return !!(labels
-            && labels.index instanceof Int32Array
-            && Array.isArray(labels.text)
-            && Number.isInteger(labels.count));
-    };
-
+    // Zone stars must be SoA with either no labels or well-formed labels.
     SkyScene.prototype._isZoneStarsSoA = function (stars) {
-        return !!(stars
-            && stars.ra instanceof Float64Array
-            && stars.dec instanceof Float64Array
-            && stars.mag instanceof Float32Array
-            && stars.bv instanceof Int16Array
-            && (stars.labels == null || this._isZoneStarLabelsSoA(stars.labels))
-            && Number.isInteger(stars.count));
+        return U.isZoneStarsSoA(stars) && (stars.labels == null || U.isZoneStarLabelsSoA(stars.labels));
     };
 
     SkyScene.prototype._zoneStarsCount = function (stars) {
-        if (!this._isZoneStarsSoA(stars)) return 0;
-        return Math.max(0, Math.min(stars.count, stars.ra.length, stars.dec.length, stars.mag.length, stars.bv.length));
+        return this._isZoneStarsSoA(stars) ? U.zoneStarsCount(stars) : 0;
     };
 
     SkyScene.prototype._concatZoneStars = function (zones) {
@@ -1743,16 +1713,7 @@
         let labelsTotal = 0;
         for (let i = 0; i < zones.length; i++) {
             const z = zones[i];
-            if (this._isZoneStarLabelsSoA(z && z.labels)) {
-                labelsTotal += Math.max(
-                    0,
-                    Math.min(
-                        z.labels.count,
-                        z.labels.index.length,
-                        z.labels.text.length
-                    )
-                );
-            }
+            labelsTotal += U.zoneStarLabelsCount(z && z.labels);
         }
         const labels = labelsTotal > 0
             ? {
@@ -1771,15 +1732,8 @@
             dec.set(z.dec.subarray(0, count), pos);
             mag.set(z.mag.subarray(0, count), pos);
             bv.set(z.bv.subarray(0, count), pos);
-            if (labels && this._isZoneStarLabelsSoA(z.labels)) {
-                const labelCount = Math.max(
-                    0,
-                    Math.min(
-                        z.labels.count,
-                        z.labels.index.length,
-                        z.labels.text.length
-                    )
-                );
+            if (labels && U.isZoneStarLabelsSoA(z.labels)) {
+                const labelCount = U.zoneStarLabelsCount(z.labels);
                 for (let j = 0; j < labelCount; j++) {
                     labels.index[labelPos] = pos + (z.labels.index[j] | 0);
                     labels.text[labelPos] = z.labels.text[j];
@@ -1889,16 +1843,9 @@
         zoneStars.dec = dec;
         zoneStars.mag = mag;
         zoneStars.bv = bv;
-        if (this._isZoneStarLabelsSoA(zoneStars.labels)) {
+        if (U.isZoneStarLabelsSoA(zoneStars.labels)) {
             const labels = zoneStars.labels;
-            const labelCount = Math.max(
-                0,
-                Math.min(
-                    labels.count,
-                    labels.index.length,
-                    labels.text.length
-                )
-            );
+            const labelCount = U.zoneStarLabelsCount(labels);
             for (let i = 0; i < labelCount; i++) {
                 const oldIdx = labels.index[i] | 0;
                 if (oldIdx >= 0 && oldIdx < n) {
@@ -2637,7 +2584,7 @@
 
     SkyScene.prototype._applyPanDelta = function (dx, dy) {
         const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
-        const fovRad = deg2rad(fovDeg);
+        const fovRad = U.deg2rad(fovDeg);
         const wh = Math.max(this.canvas.width, this.canvas.height);
         const dirX = this.isMirrorX() ? -1 : 1;
         const dirY = this.isMirrorY() ? -1 : 1;
@@ -2988,7 +2935,8 @@
 
         // mouse
         if (this.isMouseWheelLike(e)) {
-            const delta = normalizeDelta(e);
+            // normalizeDelta() is a global shared with the legacy chart in fchart.js.
+            const delta = window.normalizeDelta(e);
             if (delta === 0) return;
             let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
@@ -3059,7 +3007,7 @@
 
     SkyScene.prototype._stereoScaleForFovDeg = function (fovDeg) {
         if (!Number.isFinite(fovDeg) || fovDeg <= 0.0) return 0.0;
-        const fovRad = deg2rad(fovDeg);
+        const fovRad = U.deg2rad(fovDeg);
         const planeRadius = 2.0 * Math.tan(fovRad / 4.0);
         if (!(planeRadius > 0.0)) return 0.0;
         return (Math.max(this.canvas.width, this.canvas.height) * 0.5) / planeRadius;
@@ -3216,7 +3164,7 @@
     SkyScene.prototype._applyKeyboardPanDelta = function (dx, dy, dtMs) {
         const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
         const dtSec = Math.max(1, dtMs) / 1000.0;
-        let dAng = deg2rad(fovDeg) * dtSec / this.keyboardMoveSecPerScreen;
+        let dAng = U.deg2rad(fovDeg) * dtSec / this.keyboardMoveSecPerScreen;
         const dirX = this.isMirrorX() ? -1 : 1;
         const dirY = this.isMirrorY() ? -1 : 1;
         if (dx !== 0) {

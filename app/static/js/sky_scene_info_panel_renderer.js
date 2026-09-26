@@ -65,7 +65,7 @@
         return HH + ':' + MI + ':' + SS;
     }
 
-    const MOBILE_WIDTH_MAX = 768;
+    const MOBILE_WIDTH_MAX = WU.MOBILE_WIDTH_MAX;
 
     window.SkySceneInfoPanelRenderer = function () {};
 

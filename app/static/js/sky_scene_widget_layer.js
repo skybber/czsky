@@ -58,7 +58,7 @@
             this.pickerWidget.draw(sceneCtx);
         }
 
-        const isMobile = (Number(sceneCtx.width) || 0) <= 768;
+        const isMobile = (Number(sceneCtx.width) || 0) <= WU.MOBILE_WIDTH_MAX;
         const rects = isMobile && widgets.mobile_menu_bottom
             ? this._rightTopPanels(sceneCtx)
             : this._leftBottomPanels(sceneCtx);

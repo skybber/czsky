@@ -17,8 +17,6 @@
         this._labelWidthCache = new Map();
     };
 
-    const MAG_SCALE_X = [0, 1, 2, 3, 4, 5, 25];
-    const MAG_SCALE_Y = [0, 1.8, 3.3, 4.7, 6, 7.2, 18.0];
     const STAR_DIAMETER_PX_PER_MM = (100.0 / 25.4) * 2.0;
 
     // B-V index to RGB color lookup table (128 entries, index 0-127)
@@ -74,34 +72,6 @@
         const idx = bv | 0;
         if (idx < 0 || idx >= BV_COLOR_TABLE.length) return null;
         return BV_COLOR_TABLE[idx];
-    }
-
-    function isZoneStarsSoA(zoneStars) {
-        return !!(zoneStars
-            && zoneStars.ra instanceof Float64Array
-            && zoneStars.dec instanceof Float64Array
-            && zoneStars.mag instanceof Float32Array
-            && zoneStars.bv instanceof Int16Array
-            && Number.isInteger(zoneStars.count));
-    }
-
-    function isZoneStarLabelsSoA(labels) {
-        return !!(labels
-            && labels.index instanceof Int32Array
-            && Array.isArray(labels.text)
-            && Number.isInteger(labels.count));
-    }
-
-    function zoneStarLabelsCount(labels) {
-        if (!isZoneStarLabelsSoA(labels)) return 0;
-        return Math.max(
-            0,
-            Math.min(
-                labels.count,
-                labels.index.length,
-                labels.text.length
-            )
-        );
     }
 
     function firstToken(text) {
@@ -163,31 +133,8 @@
         return !(a.x2 <= b.x1 || b.x2 <= a.x1 || a.y2 <= b.y1 || b.y2 <= a.y1);
     }
 
-    SkySceneStarsRenderer.prototype._interp = function (x, xp, yp) {
-        if (x <= xp[0]) {
-            return yp[0];
-        }
-        for (let i = 1; i < xp.length; i++) {
-            if (x <= xp[i]) {
-                const t = (x - xp[i - 1]) / (xp[i] - xp[i - 1]);
-                return yp[i - 1] + t * (yp[i] - yp[i - 1]);
-            }
-        }
-        return yp[yp.length - 1];
-    };
-
-    SkySceneStarsRenderer.prototype._starRadiusMm = function (limMag, mag, starMagRShift) {
-        const magD = limMag - Math.min(mag, limMag);
-        const magS = this._interp(magD, MAG_SCALE_X, MAG_SCALE_Y);
-        return 0.1 * Math.pow(1.33, magS) + starMagRShift;
-    };
-
     SkySceneStarsRenderer.prototype._starMagRadiusShift = function (sceneCtx) {
-        const lm = sceneCtx.renderMaglim;
-        const starMagShift = sceneCtx.themeConfig.sizes.star_mag_shift;
-        return starMagShift > 0
-            ? this._starRadiusMm(lm, lm - starMagShift, 0.0) - this._starRadiusMm(lm, lm, 0.0)
-            : 0.0;
+        return U.starMagRadiusShiftMm(sceneCtx.renderMaglim, sceneCtx.themeConfig.sizes.star_mag_shift);
     };
 
     SkySceneStarsRenderer.prototype._starSizePx = function (sceneCtx, mag, starMagRShift) {
@@ -195,7 +142,7 @@
         const radiusShift = Number.isFinite(starMagRShift)
             ? starMagRShift
             : this._starMagRadiusShift(sceneCtx);
-        const radiusMm = this._starRadiusMm(lm, mag, radiusShift);
+        const radiusMm = U.starRadiusMm(lm, mag, radiusShift);
 
         // Match old Cairo output units (100 DPI in fchart3 graphics backends).
         return radiusMm * STAR_DIAMETER_PX_PER_MM;
@@ -314,16 +261,14 @@
         let bestPickRPx = null;
         let bestPickIndex = -1;
         const zoneStars = sceneCtx.zoneStars || null;
-        const zoneCount = isZoneStarsSoA(zoneStars)
-            ? Math.max(0, Math.min(zoneStars.count, zoneStars.ra.length, zoneStars.dec.length, zoneStars.mag.length, zoneStars.bv.length))
-            : 0;
+        const zoneCount = U.zoneStarsCount(zoneStars);
         this._ensureWorkspace(zoneCount);
         this._projectedZoneStars = zoneStars;
         const positions = this._positions;
         const sizes = this._sizes;
         const colors = this._colors;
         const labels = zoneStars && zoneStars.labels;
-        const labelsCount = zoneStarLabelsCount(labels);
+        const labelsCount = U.zoneStarLabelsCount(labels);
 
         const diag = {
             preview_input_count: 0,
@@ -508,9 +453,9 @@
 
     SkySceneStarsRenderer.prototype._collectStarLabels = function (sceneCtx) {
         const zoneStars = sceneCtx.zoneStars || null;
-        if (!isZoneStarsSoA(zoneStars) || !isZoneStarLabelsSoA(zoneStars.labels)) return [];
+        if (!U.isZoneStarsSoA(zoneStars) || !U.isZoneStarLabelsSoA(zoneStars.labels)) return [];
         const labels = zoneStars.labels;
-        const labelsCount = zoneStarLabelsCount(labels);
+        const labelsCount = U.zoneStarLabelsCount(labels);
         if (labelsCount <= 0) return [];
         if (!sceneCtx.isZooming && !shouldDrawStarLabels(sceneCtx)) return [];
 

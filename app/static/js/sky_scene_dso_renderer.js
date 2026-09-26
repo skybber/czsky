@@ -7,7 +7,7 @@
         this._frameRadii = new WeakMap();
     };
 
-    const MIN_DSO_RADIUS_PX = 3.0;
+    const MIN_DSO_RADIUS_PX = U.MIN_DSO_RADIUS_PX;
     const MIN_PN_BASE_RADIUS_PX = U.mmToPx(1.0);
 
     function measureTextWidth(ctx, text) {
@@ -59,50 +59,12 @@
         return v;
     };
 
-    SkySceneDsoRenderer.prototype._radiusPxFromRad = function (sceneCtx, ra, dec, radiusRad) {
-        if (!(radiusRad > 0)) {
-            return MIN_DSO_RADIUS_PX;
-        }
-        const p0 = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p0) {
-            return MIN_DSO_RADIUS_PX;
-        }
-
-        const cosDec = Math.max(0.2, Math.cos(dec));
-        const p1 = sceneCtx.projection.projectEquatorialToNdc(ra + radiusRad / cosDec, dec) || sceneCtx.projection.projectEquatorialToNdc(ra, dec + radiusRad);
-        if (!p1) {
-            return MIN_DSO_RADIUS_PX;
-        }
-
-        const dx = (p1.ndcX - p0.ndcX) * 0.5 * sceneCtx.width;
-        const dy = (p1.ndcY - p0.ndcY) * 0.5 * sceneCtx.height;
-        const rp = Math.sqrt(dx * dx + dy * dy);
-        return Math.max(MIN_DSO_RADIUS_PX, rp);
-    };
-
+    // Radii are cached per frame; the cache is reset at the start of draw().
     SkySceneDsoRenderer.prototype._dsoRadii = function (sceneCtx, dso) {
-        const cached = this._frameRadii && this._frameRadii.get(dso);
+        const cached = this._frameRadii.get(dso);
         if (cached) return cached;
-        let rLongPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rlong_rad || -1.0);
-        let rShortPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rshort_rad || -1.0);
-
-        if (!(dso.rlong_rad > 0) && (dso.rshort_rad > 0)) {
-            rLongPx = rShortPx;
-        }
-        if (!(dso.rshort_rad > 0)) {
-            rShortPx = rLongPx;
-        }
-
-        if (rLongPx < MIN_DSO_RADIUS_PX) {
-            const fac = MIN_DSO_RADIUS_PX / Math.max(rLongPx, 1e-6);
-            rShortPx *= fac;
-            rLongPx = MIN_DSO_RADIUS_PX;
-        }
-
-        const result = { rLongPx, rShortPx };
-        if (this._frameRadii && dso && typeof dso === 'object') {
-            this._frameRadii.set(dso, result);
-        }
+        const result = U.dsoRadiiPx(sceneCtx.projection, sceneCtx.width, sceneCtx.height, dso);
+        this._frameRadii.set(dso, result);
         return result;
     };
 

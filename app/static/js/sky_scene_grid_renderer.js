@@ -167,7 +167,7 @@
                 if (prev.y < clipRect.yMin - aabbMargin && p.y < clipRect.yMin - aabbMargin) { prev = p; continue; }
                 if (prev.y > clipRect.yMax + aabbMargin && p.y > clipRect.yMax + aabbMargin) { prev = p; continue; }
 
-                const c = window.SkySceneGeomUtils.clipSegmentToRect(
+                const c = U.clipSegmentToRect(
                     prev.x, prev.y, p.x, p.y,
                     clipRect.xMin, clipRect.yMin, clipRect.xMax, clipRect.yMax
                 );
@@ -248,7 +248,7 @@
                 if (prev.y < clipRect.yMin - aabbMargin && p.y < clipRect.yMin - aabbMargin) { prev = p; continue; }
                 if (prev.y > clipRect.yMax + aabbMargin && p.y > clipRect.yMax + aabbMargin) { prev = p; continue; }
 
-                const c = window.SkySceneGeomUtils.clipSegmentToRect(
+                const c = U.clipSegmentToRect(
                     prev.x, prev.y, p.x, p.y,
                     clipRect.xMin, clipRect.yMin, clipRect.xMax, clipRect.yMax
                 );

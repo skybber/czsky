@@ -3,8 +3,6 @@
 
     window.SkySceneHighlightRenderer = function () {};
 
-    const MIN_DSO_RADIUS_PX = 3.0;
-
     window.SkySceneHighlightRenderer.prototype._themeLineWidthPx = function (sceneCtx, key, fallbackPx) {
         const lwMm = sceneCtx.themeConfig.line_widths[key];
         if (lwMm == null) return fallbackPx;
@@ -47,6 +45,28 @@
         ctx.lineJoin = 'round';
     };
 
+    window.SkySceneHighlightRenderer.prototype._labelFontPx = function (sceneCtx) {
+        const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
+            ? sceneCtx.themeConfig.font_scales : {};
+        const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
+            ? fontScales.highlight_label_font_scale : 1.0;
+        return Math.max(9.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size) * labelScale);
+    };
+
+    // Draws a label (and optionally a smaller magnitude line below it) in the theme label color.
+    window.SkySceneHighlightRenderer.prototype._drawLabelText = function (sceneCtx, ctx, text, x, y, fontPx, baseline, mag) {
+        ctx.setLineDash([]);
+        ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
+        ctx.font = fontPx.toFixed(1) + 'px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = baseline;
+        ctx.fillText(text, x, y);
+        if (Number.isFinite(mag)) {
+            ctx.font = (fontPx * 0.8).toFixed(1) + 'px sans-serif';
+            ctx.fillText(mag.toFixed(1) + 'm', x, y + fontPx * 1.1);
+        }
+    };
+
     window.SkySceneHighlightRenderer.prototype._registerCircle = function (sceneCtx, hl, centerPx, r) {
         if (!sceneCtx || typeof sceneCtx.registerSelectable !== 'function' || !(r > 0)
             || !hl || !hl.id || hl.selectable === false) return;
@@ -80,36 +100,10 @@
             && centerPx.y - margin <= sceneCtx.height;
     };
 
-    window.SkySceneHighlightRenderer.prototype._dsoRadiusPxFromRad = function (sceneCtx, ra, dec, radiusRad) {
-        if (!(radiusRad > 0)) {
-            return MIN_DSO_RADIUS_PX;
-        }
-        const p0 = sceneCtx.projection.projectEquatorialToNdc(ra, dec);
-        if (!p0) {
-            return MIN_DSO_RADIUS_PX;
-        }
-        const cosDec = Math.max(0.2, Math.cos(dec));
-        const p1 = sceneCtx.projection.projectEquatorialToNdc(ra + radiusRad / cosDec, dec)
-            || sceneCtx.projection.projectEquatorialToNdc(ra, dec + radiusRad);
-        if (!p1) {
-            return MIN_DSO_RADIUS_PX;
-        }
-        const dx = (p1.ndcX - p0.ndcX) * 0.5 * sceneCtx.width;
-        const dy = (p1.ndcY - p0.ndcY) * 0.5 * sceneCtx.height;
-        return Math.max(MIN_DSO_RADIUS_PX, Math.sqrt(dx * dx + dy * dy));
-    };
-
     window.SkySceneHighlightRenderer.prototype._dsoRadiusPx = function (sceneCtx, dso) {
         if (!dso) return 8.0;
-        let rLong = this._dsoRadiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rlong_rad || -1.0);
-        let rShort = this._dsoRadiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rshort_rad || -1.0);
-        if (!(dso.rlong_rad > 0) && (dso.rshort_rad > 0)) {
-            rLong = rShort;
-        }
-        if (!(dso.rshort_rad > 0)) {
-            rShort = rLong;
-        }
-        return Math.max(rLong, rShort) + 4.0;
+        const r = U.dsoRadiiPx(sceneCtx.projection, sceneCtx.width, sceneCtx.height, dso);
+        return Math.max(r.rLongPx, r.rShortPx) + 4.0;
     };
 
     window.SkySceneHighlightRenderer.prototype._drawCross = function (sceneCtx, hl) {
@@ -134,23 +128,8 @@
         ctx.stroke();
         const label = (hl.show_label && hl.label ? String(hl.label).trim() : '');
         if (label) {
-            const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-                ? sceneCtx.themeConfig.font_scales : {};
-            const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
-                ? fontScales.highlight_label_font_scale : 1.0;
-            const labelFontPx = Math.max(9.0, fontPx * labelScale);
-            ctx.setLineDash([]);
-            ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
-            ctx.font = labelFontPx.toFixed(1) + 'px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            const labelX = centerPx.x + r * 0.55;
-            const labelY = centerPx.y + r * 0.55;
-            ctx.fillText(label, labelX, labelY);
-            if (Number.isFinite(hl.mag)) {
-                ctx.font = (labelFontPx * 0.8).toFixed(1) + 'px sans-serif';
-                ctx.fillText(hl.mag.toFixed(1) + 'm', labelX, labelY + labelFontPx * 1.1);
-            }
+            this._drawLabelText(sceneCtx, ctx, label, centerPx.x + r * 0.55, centerPx.y + r * 0.55,
+                this._labelFontPx(sceneCtx), 'top', hl.mag);
         }
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, r);
@@ -179,17 +158,8 @@
         ctx.stroke();
         const label = (hl.show_label && hl.label ? String(hl.label).trim() : '');
         if (label) {
-            const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-                ? sceneCtx.themeConfig.font_scales : {};
-            const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
-                ? fontScales.highlight_label_font_scale : 1.0;
-            const fontPx = Math.max(9.0, U.mmToPx(sceneCtx.themeConfig.font_scales.font_size) * labelScale);
-            ctx.setLineDash([]);
-            ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
-            ctx.font = fontPx.toFixed(1) + 'px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, centerPx.x + r + fontPx * 0.4, centerPx.y);
+            const fontPx = this._labelFontPx(sceneCtx);
+            this._drawLabelText(sceneCtx, ctx, label, centerPx.x + r + fontPx * 0.4, centerPx.y, fontPx, 'middle', null);
         }
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, r);
@@ -239,23 +209,8 @@
         }
         const label = (hl.label || '').toString().trim();
         if (label) {
-            const fontScales = sceneCtx.themeConfig && sceneCtx.themeConfig.font_scales
-                ? sceneCtx.themeConfig.font_scales : {};
-            const labelScale = Number.isFinite(fontScales.highlight_label_font_scale)
-                ? fontScales.highlight_label_font_scale : 1.0;
-            const fontPx = Math.max(9.0, base * labelScale);
-            ctx.setLineDash([]);
-            ctx.fillStyle = U.rgba(sceneCtx.getThemeColor('label', [0.7, 0.7, 0.7]), 0.98);
-            ctx.font = fontPx.toFixed(1) + 'px sans-serif';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            const x = centerPx.x + coreR * 0.85;
-            const y = centerPx.y + coreR * 0.85;
-            ctx.fillText(label, x, y);
-            if (Number.isFinite(hl.mag)) {
-                ctx.font = (fontPx * 0.8).toFixed(1) + 'px sans-serif';
-                ctx.fillText(hl.mag.toFixed(1) + 'm', x, y + fontPx * 1.1);
-            }
+            this._drawLabelText(sceneCtx, ctx, label, centerPx.x + coreR * 0.85, centerPx.y + coreR * 0.85,
+                this._labelFontPx(sceneCtx), 'top', hl.mag);
         }
         ctx.restore();
         this._registerCircle(sceneCtx, hl, centerPx, coreR + 4.0);
