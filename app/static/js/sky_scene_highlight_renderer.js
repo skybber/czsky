@@ -71,6 +71,15 @@
         });
     };
 
+    window.SkySceneHighlightRenderer.prototype._intersectsViewport = function (sceneCtx, centerPx, radiusPx) {
+        if (!centerPx) return false;
+        const margin = Math.max(8.0, Number.isFinite(radiusPx) ? radiusPx : 8.0) + 24.0;
+        return centerPx.x + margin >= 0.0
+            && centerPx.x - margin <= sceneCtx.width
+            && centerPx.y + margin >= 0.0
+            && centerPx.y - margin <= sceneCtx.height;
+    };
+
     window.SkySceneHighlightRenderer.prototype._dsoRadiusPxFromRad = function (sceneCtx, ra, dec, radiusRad) {
         if (!(radiusRad > 0)) {
             return MIN_DSO_RADIUS_PX;
@@ -109,6 +118,7 @@
         const fontPx = U.mmToPx(sceneCtx.themeConfig.font_scales.font_size);
         const size = (Number.isFinite(hl.size) && hl.size > 0) ? hl.size : 1.0;
         const r = Math.max(5.0, fontPx * 2.0 * size);
+        if (!this._intersectsViewport(sceneCtx, centerPx, r)) return;
         const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);
@@ -160,6 +170,7 @@
                 r = Math.max(r, this._dsoRadiusPx(sceneCtx, dsoById[hl.id]));
             }
         }
+        if (!this._intersectsViewport(sceneCtx, centerPx, r)) return;
         const ctx = sceneCtx.backCtx;
         ctx.save();
         this._applyStroke(sceneCtx, hl);

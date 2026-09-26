@@ -4,6 +4,7 @@
     window.SkySceneDsoRenderer = function () {
         this._lastDsoLabelPlacementById = new Map();
         this._pickDso = null;
+        this._frameRadii = new WeakMap();
     };
 
     const MIN_DSO_RADIUS_PX = 3.0;
@@ -80,6 +81,8 @@
     };
 
     SkySceneDsoRenderer.prototype._dsoRadii = function (sceneCtx, dso) {
+        const cached = this._frameRadii && this._frameRadii.get(dso);
+        if (cached) return cached;
         let rLongPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rlong_rad || -1.0);
         let rShortPx = this._radiusPxFromRad(sceneCtx, dso.ra, dso.dec, dso.rshort_rad || -1.0);
 
@@ -96,7 +99,11 @@
             rLongPx = MIN_DSO_RADIUS_PX;
         }
 
-        return { rLongPx, rShortPx };
+        const result = { rLongPx, rShortPx };
+        if (this._frameRadii && dso && typeof dso === 'object') {
+            this._frameRadii.set(dso, result);
+        }
+        return result;
     };
 
     SkySceneDsoRenderer.prototype._setupStroke = function (ctx, col) {
@@ -615,14 +622,13 @@
         return raw;
     };
 
-    SkySceneDsoRenderer.prototype._buildLabelPotential = function (sceneCtx, dsoList) {
+    SkySceneDsoRenderer.prototype._buildLabelPotential = function (sceneCtx, preparedList) {
         const pot = new LabelPotential();
         const ds = [];
-        for (let i = 0; i < dsoList.length; i++) {
-            const dso = dsoList[i];
-            const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
-            if (!centerPx) continue;
-            const radii = this._dsoRadii(sceneCtx, dso);
+        for (let i = 0; i < preparedList.length; i++) {
+            const item = preparedList[i];
+            const centerPx = item.centerPx;
+            const radii = item.radii;
             const local = this._toLocalCoords(sceneCtx, centerPx);
             ds.push({
                 x: local.x,
@@ -632,6 +638,22 @@
         }
         pot.addDeepskyList(ds);
         return pot;
+    };
+
+    SkySceneDsoRenderer.prototype._isInsideViewport = function (sceneCtx, centerPx, radii) {
+        if (!centerPx) return false;
+        const objectRadius = Math.max(
+            MIN_DSO_RADIUS_PX,
+            Number.isFinite(radii && radii.rLongPx) ? radii.rLongPx : MIN_DSO_RADIUS_PX,
+            Number.isFinite(radii && radii.rShortPx) ? radii.rShortPx : MIN_DSO_RADIUS_PX
+        );
+        // Include a small label/cross margin so objects touching the edge are
+        // not popped while panning.
+        const margin = objectRadius + 24.0;
+        return centerPx.x + margin >= 0.0
+            && centerPx.x - margin <= sceneCtx.width
+            && centerPx.y + margin >= 0.0
+            && centerPx.y - margin <= sceneCtx.height;
     };
 
     SkySceneDsoRenderer.prototype._drawLabel = function (sceneCtx, ctx, dso, centerPx, radii, placedRects, labelPotential, visibilityAlpha) {
@@ -817,26 +839,41 @@
 
         this._lastDsoLabelPlacementById = new Map();
         this._pickDso = null;
+        this._frameRadii = new WeakMap();
         const dsoList = (sceneCtx.sceneData.objects && sceneCtx.sceneData.objects.dso) || [];
+        const prepared = [];
+        for (let i = 0; i < dsoList.length; i++) {
+            const dso = dsoList[i];
+            // force_visible is deliberately checked before projection and
+            // radius calculations: it bypasses only the magnitude limit.
+            const visibilityAlpha = this._dsoVisibilityAlpha(sceneCtx, dso);
+            if (visibilityAlpha <= 0.0) continue;
+            const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
+            if (!centerPx) continue;
+            const radii = this._dsoRadii(sceneCtx, dso);
+            if (!this._isInsideViewport(sceneCtx, centerPx, radii)) continue;
+            prepared.push({
+                dso: dso,
+                centerPx: centerPx,
+                radii: radii,
+                visibilityAlpha: visibilityAlpha,
+                outlinesItem: this._getDsoOutlinesItem(sceneCtx, dso),
+            });
+        }
         const placedLabelRects = [];
-        const labelPotential = this._buildLabelPotential(sceneCtx, dsoList);
+        const labelPotential = this._buildLabelPotential(sceneCtx, prepared);
         const pickRadiusPx = Number.isFinite(sceneCtx.pickRadiusPx) ? sceneCtx.pickRadiusPx : 0.0;
         const pickRadius2 = pickRadiusPx > 0.0 ? (pickRadiusPx * pickRadiusPx) : 0.0;
         const pickCx = sceneCtx.width * 0.5;
         const pickCy = sceneCtx.height * 0.5;
         let bestPickDist2 = Infinity;
         let bestPickDso = null;
-        for (let i = 0; i < dsoList.length; i++) {
-            const dso = dsoList[i];
-            const centerPx = sceneCtx.projection.projectEquatorialToPx(dso.ra, dso.dec);
-            if (!centerPx) {
-                continue;
-            }
-            const radii = this._dsoRadii(sceneCtx, dso);
-            const visibilityAlpha = this._dsoVisibilityAlpha(sceneCtx, dso);
-            if (visibilityAlpha <= 0.0) {
-                continue;
-            }
+        for (let i = 0; i < prepared.length; i++) {
+            const item = prepared[i];
+            const dso = item.dso;
+            const centerPx = item.centerPx;
+            const radii = item.radii;
+            const visibilityAlpha = item.visibilityAlpha;
             if (pickRadius2 > 0.0 && dso && dso.id) {
                 const dxPick = centerPx.x - pickCx;
                 const dyPick = centerPx.y - pickCy;
@@ -856,7 +893,7 @@
                     };
                 }
             }
-            const outlinesItem = this._getDsoOutlinesItem(sceneCtx, dso);
+            const outlinesItem = item.outlinesItem;
             const ctx = sceneCtx.backCtx;
             const useAlpha = visibilityAlpha < 0.999;
             if (useAlpha) {
