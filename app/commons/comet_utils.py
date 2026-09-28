@@ -8,6 +8,7 @@ import calendar
 from bs4 import BeautifulSoup
 from sqlalchemy.exc import IntegrityError
 import numpy as np
+import pandas as pd
 import requests
 
 from datetime import datetime, timedelta
@@ -41,6 +42,56 @@ COBS_EXCLUDED_NOTE_FRAGMENT = 'A. Shibaev'
 all_comets = None
 all_comets_expiration = datetime.now() + timedelta(days=1)
 
+COMET_ORBIT_FIELDS = (
+    'perihelion_year', 'perihelion_month', 'perihelion_day', 'perihelion_distance_au',
+    'eccentricity', 'argument_of_perihelion_degrees',
+    'longitude_of_ascending_node_degrees', 'inclination_degrees',
+)
+
+
+def manual_comet_row(comet):
+    """Use the same element interface as the Skyfield MPC loader."""
+    return pd.Series({column.name: getattr(comet, column.name) for column in Comet.__table__.columns})
+
+
+def include_manual_comets(catalogue):
+    # Read these on every call: edits must be visible across web workers without
+    # waiting for the external catalogue cache to expire.
+    manual = Comet.query.filter_by(is_manual=True).all()
+    if not manual:
+        return catalogue
+    rows = pd.DataFrame([manual_comet_row(comet) for comet in manual])
+    catalogue = catalogue.loc[~catalogue['comet_id'].isin(rows['comet_id'])]
+    return pd.concat([catalogue, rows], ignore_index=True).set_index('designation', drop=False)
+
+
+def evaluate_comet_magnitude(comet, dist_earth, dist_sun):
+    g, k = comet.magnitude_g, comet.magnitude_k
+    if g is None or k is None or not math.isfinite(g) or not math.isfinite(k):
+        return None
+    return float(g + 5.0 * np.log10(dist_earth) + 2.5 * k * np.log10(dist_sun))
+
+
+def refresh_manual_comet(comet):
+    """Calculate the public position and brightness before saving an edit."""
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    sun, earth = eph['sun'], eph['earth']
+    t = ts.now()
+    body = sun + mpc.comet_orbit(manual_comet_row(comet), ts, GM_SUN)
+    observed = earth.at(t).observe(body)
+    ra, dec, distance = observed.radec()
+    comet.cur_ra, comet.cur_dec = ra.radians, dec.radians
+    if not math.isfinite(comet.cur_ra) or not math.isfinite(comet.cur_dec):
+        raise ValueError('The elements do not produce a finite position.')
+    sun_ra, sun_dec, _ = earth.at(t).observe(sun).radec()
+    comet.cur_tail_pa = pos_angle(comet.cur_ra, comet.cur_dec, sun_ra.radians, sun_dec.radians)
+    const_code = load_constellation_map()(position_from_radec(ra.hours, dec.degrees))
+    constellation = Constellation.get_constellation_by_iau_code(const_code)
+    comet.cur_constell_id = constellation.id if constellation else None
+    comet.eval_mag = evaluate_comet_magnitude(comet, distance.au, sun.at(t).observe(body).distance().au)
+    comet.mag = comet.real_mag if comet.real_mag is not None else comet.eval_mag
+
 
 def _normalize_to_300s(dt: datetime) -> datetime:
     if dt.tzinfo is None:
@@ -52,8 +103,12 @@ def _normalize_to_300s(dt: datetime) -> datetime:
 
 
 @lru_cache(maxsize=100)
-def _get_comet_cached(comet_id: str, dt: datetime):
-    comet = find_mpc_comet(comet_id)
+def _get_comet_cached(comet_id: str, dt: datetime, manual_elements=None):
+    if manual_elements is None:
+        comet = find_mpc_comet(comet_id)
+    else:
+        comet = pd.Series(dict(zip(COMET_ORBIT_FIELDS, manual_elements)))
+        comet['designation'] = comet_id
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -67,7 +122,10 @@ def _get_comet_cached(comet_id: str, dt: datetime):
 
 def get_comet_radec(comet_id: str, dt: datetime):
     normalized_dt = _normalize_to_300s(dt)
-    return _get_comet_cached(comet_id, normalized_dt)
+    manual = Comet.query.filter_by(comet_id=comet_id, is_manual=True).first()
+    # The elements form part of the cache key, including in other web workers.
+    elements = tuple(getattr(manual, field) for field in COMET_ORBIT_FIELDS) if manual else None
+    return _get_comet_cached(comet_id, normalized_dt, elements)
 
 
 def get_mag_coma_from_observations(observs):
@@ -200,10 +258,15 @@ def get_all_comets(update_cobs_props=True, force_reload=False):
                 except Exception:
                     pass
 
-    return all_comets
+    return include_manual_comets(all_comets)
 
 
 def find_mpc_comet(comet_id):
+    manual = Comet.query.filter_by(comet_id=comet_id, is_manual=True).first()
+    if manual:
+        return manual_comet_row(manual)
+    if comet_id.startswith('manual-'):
+        return None
     all_comets = get_all_comets()
     c = all_comets.loc[all_comets['comet_id'] == comet_id]
     return c.iloc[0] if len(c) > 0 else None
@@ -263,6 +326,8 @@ def import_update_comets(all_mpc_comets, show_progress=False):
         comet_id = mpc_comet['comet_id']
         
         comet = Comet.query.filter_by(comet_id=comet_id).first()
+        if comet is not None and comet.is_manual:
+            continue
         if comet is None:
             comet = Comet()
             comet.comet_id = comet_id
@@ -306,6 +371,7 @@ def import_update_comets(all_mpc_comets, show_progress=False):
 def update_evaluated_comet_brightness(all_mpc_comets=None, show_progress=False, reload_comets=True):
     if all_mpc_comets is None:
         all_mpc_comets = load_all_mpc_comets(reload_comets)
+    all_mpc_comets = include_manual_comets(all_mpc_comets)
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
     sun, earth = eph['sun'], eph['earth']
@@ -318,11 +384,13 @@ def update_evaluated_comet_brightness(all_mpc_comets=None, show_progress=False, 
             skf_comet = sun + mpc.comet_orbit(mpc_comet, ts, GM_SUN)
             dist_earth = earth.at(t).observe(skf_comet).distance().au
             dist_sun = sun.at(t).observe(skf_comet).distance().au
-            m = mpc_comet['magnitude_g'] + 5.0*np.log10(dist_earth) + 2.5*mpc_comet['magnitude_k']*np.log10(dist_sun)
+            m = evaluate_comet_magnitude(mpc_comet, dist_earth, dist_sun)
             current_app.logger.info('Comet: {} de={} ds={} m={} g={}'.format(mpc_comet['designation'], dist_earth, dist_sun, m, mpc_comet['magnitude_k']))
             comet = Comet.query.filter_by(comet_id=mpc_comet['comet_id']).first()
             if comet:
                 comet.eval_mag = m
+                if comet.is_manual:
+                    comet.mag = comet.real_mag if comet.real_mag is not None else m
                 comets.append(comet)
         except Exception as err:
             current_app.logger.error('\nError {}'.format(err))
@@ -449,6 +517,7 @@ def update_comets_cobs_observations():
 def update_comets_positions(all_mpc_comets=None, show_progress=False, reload_comets=True):
     if all_mpc_comets is None:
         all_mpc_comets = load_all_mpc_comets(reload_comets)
+    all_mpc_comets = include_manual_comets(all_mpc_comets)
 
     ts = load.timescale(builtin=True)
     eph = load('de421.bsp')
@@ -472,7 +541,8 @@ def update_comets_positions(all_mpc_comets=None, show_progress=False, reload_com
             db_comet.cur_dec = dec_ang.radians
             db_comet.cur_tail_pa = pos_angle(db_comet.cur_ra, db_comet.cur_dec, sun_ra, sun_dec)
             const_code = constellation_at(position_from_radec(ra_ang.radians / np.pi * 12.0, dec_ang.radians / np.pi * 180.0))
-            db_comet.cur_constell_id = Constellation.get_constellation_by_iau_code(const_code).id if const_code else None
+            constellation = Constellation.get_constellation_by_iau_code(const_code) if const_code else None
+            db_comet.cur_constell_id = constellation.id if constellation else None
 
             comets.append(db_comet)
 

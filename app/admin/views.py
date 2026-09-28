@@ -1,6 +1,10 @@
+from datetime import date
+from uuid import uuid4
+
 from flask import (
     Blueprint,
     abort,
+    current_app,
     flash,
     redirect,
     render_template,
@@ -13,10 +17,14 @@ from flask_login import (
     login_user,
     login_required
 )
+from flask_babel import gettext
+from sqlalchemy.exc import IntegrityError
 
 from app.compat.flask_rq import get_queue
 
 from app.commons.utils import is_safe_url
+from app.commons.comet_utils import COMET_ORBIT_FIELDS, refresh_manual_comet
+from app.admin.comet_forms import DeleteManualCometForm, ManualCometForm
 
 from app import db, get_locale
 from app.admin.forms import (
@@ -28,7 +36,10 @@ from app.admin.forms import (
 )
 from app.decorators import admin_required
 from app.email import send_email
-from app.models import EditableHTML, Role, User
+from app.models import (
+    Comet, CometObservation, EditableHTML, Observation, ObservedListItem,
+    Role, SessionPlanItem, User, UserObjectListItem,
+)
 
 admin = Blueprint('admin', __name__)
 
@@ -39,6 +50,86 @@ admin = Blueprint('admin', __name__)
 def index():
     """Admin dashboard page."""
     return render_template('admin/index.html')
+
+
+@admin.route('/comets')
+@login_required
+@admin_required
+def comets():
+    comets = Comet.query.filter_by(is_manual=True).order_by(Comet.designation).all()
+    return render_template('admin/comets.html', comets=comets)
+
+
+@admin.route('/comets/new', methods=['GET', 'POST'])
+@admin.route('/comets/<int:comet_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_comet(comet_id=None):
+    comet = None
+    if comet_id is not None:
+        comet = Comet.query.filter_by(id=comet_id, is_manual=True).first_or_404()
+    form = ManualCometForm(obj=comet)
+    if request.method == 'GET' and comet:
+        form.epoch.data = date(
+            int(comet.perturbed_epoch_year), int(comet.perturbed_epoch_month),
+            int(comet.perturbed_epoch_day),
+        )
+    if form.validate_on_submit():
+        if comet is None:
+            comet = Comet(comet_id='manual-' + uuid4().hex, is_manual=True, is_disintegrated=False)
+        for field in COMET_ORBIT_FIELDS + ('designation', 'magnitude_g', 'magnitude_k', 'reference'):
+            setattr(comet, field, getattr(form, field).data)
+        comet.perturbed_epoch_year = form.epoch.data.year
+        comet.perturbed_epoch_month = form.epoch.data.month
+        comet.perturbed_epoch_day = form.epoch.data.day
+        try:
+            refresh_manual_comet(comet)
+        except (ValueError, ArithmeticError, OSError):
+            db.session.rollback()
+            current_app.logger.exception('Could not calculate manually entered comet orbit')
+            flash('Could not calculate the orbit. Check the elements and availability of the ephemeris.', 'form-error')
+        else:
+            db.session.add(comet)
+            db.session.commit()
+            flash('Comet saved. It is publicly visible.', 'form-success')
+            return redirect(url_for('admin.comets'))
+    return render_template('admin/edit_comet.html', form=form, comet=comet)
+
+
+@admin.route('/comets/<int:comet_id>/delete', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def delete_comet(comet_id):
+    query = Comet.query.filter_by(id=comet_id, is_manual=True)
+    if request.method == 'POST':
+        query = query.with_for_update()
+    comet = query.first_or_404()
+    form = DeleteManualCometForm()
+    references = [
+        label for model, label in (
+            (Observation, gettext('Observations')),
+            (CometObservation, gettext('COBS observations')),
+            (SessionPlanItem, gettext('Session plans')),
+            (ObservedListItem, gettext('Observed lists')),
+            (UserObjectListItem, gettext('User object lists')),
+        ) if model.query.filter_by(comet_id=comet.id).first() is not None
+    ]
+    if form.validate_on_submit():
+        if references:
+            flash(gettext('This comet cannot be deleted because it has linked records.'), 'form-error')
+        else:
+            try:
+                db.session.delete(comet)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                flash(gettext('The comet could not be deleted because it is still referenced. '
+                              'Reload this page to see its linked records.'), 'form-error')
+            else:
+                flash(gettext('Comet deleted.'), 'form-success')
+                return redirect(url_for('admin.comets'))
+    return render_template('admin/delete_comet.html', comet=comet, form=form,
+                           references=references)
 
 
 @admin.route('/new-user', methods=['GET', 'POST'])

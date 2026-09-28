@@ -1,0 +1,41 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+<div class="ui stackable centered grid container">
+    <div class="twelve wide column">
+        <a class="ui basic compact button" href="{{ url_for('admin.comets') }}">{{ _('Manual comets') }}</a>
+        <h2 class="ui header">{{ _('Edit comet') if comet else _('Add comet') }}</h2>
+        <p>{{ _('The comet will be publicly visible after saving. Automatic catalogue updates will preserve these elements.') }}</p>
+        <p>{{ _('Enter heliocentric osculating elements relative to the J2000 ecliptic and equinox. Perihelion time and epoch use TT, not UTC. The epoch records when the elements apply; the orbit is propagated as a two-body Kepler orbit.') }}</p>
+        {% set flashes = {'error': get_flashed_messages(category_filter=['form-error'])} %}
+        {{ f.begin_form(form, flashes) }}
+            {{ f.display_standard_flashes(flashes) }}
+            {{ f.render_form_field(form.designation) }}
+            <div class="three fields">
+                {{ f.render_form_field(form.perihelion_year) }}
+                {{ f.render_form_field(form.perihelion_month) }}
+                {{ f.render_form_field(form.perihelion_day) }}
+            </div>
+            <div class="two fields">
+                {{ f.render_form_field(form.perihelion_distance_au) }}
+                {{ f.render_form_field(form.eccentricity) }}
+            </div>
+            {{ f.render_form_field(form.inclination_degrees) }}
+            {{ f.render_form_field(form.longitude_of_ascending_node_degrees) }}
+            {{ f.render_form_field(form.argument_of_perihelion_degrees) }}
+            {{ f.render_form_field(form.epoch) }}
+            <p>{{ _('Brightness is optional. If known, provide both H and k for m = H + 5 log10(Δ) + 2.5 k log10(r), with distances in AU.') }}</p>
+            <div class="two fields">
+                {{ f.render_form_field(form.magnitude_g) }}
+                {{ f.render_form_field(form.magnitude_k) }}
+            </div>
+            {{ f.render_form_field(form.reference) }}
+            {{ f.render_form_field(form.submit) }}
+        {{ f.end_form() }}
+        {% if comet and comet.id %}
+            <a class="ui negative basic button" href="{{ url_for('admin.delete_comet', comet_id=comet.id) }}">{{ _('Delete comet') }}</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

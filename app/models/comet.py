@@ -10,6 +10,7 @@ class Comet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     comet_id = db.Column(db.String(50), index=True)
     designation = db.Column(db.String(50))
+    is_manual = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false())
     number = db.Column(db.Float)
     orbit_type = db.Column(db.String(2))
     designation_packed = db.Column(db.String(30))

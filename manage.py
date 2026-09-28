@@ -249,7 +249,7 @@ def import_comets():
 @app.cli.command("delete_lost_comets")
 def delete_lost_comets():
     from app.commons.comet_utils import find_mpc_comet
-    comets = Comet.query.all()
+    comets = Comet.query.filter_by(is_manual=False).all()
     for comet in comets:
         if find_mpc_comet(comet.comet_id) is None:
             print('Deleting comet', comet.comet_id)

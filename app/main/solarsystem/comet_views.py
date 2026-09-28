@@ -19,6 +19,7 @@ from flask import (
 )
 
 from flask_login import current_user, login_required
+from sqlalchemy import and_, or_
 
 from skyfield.api import load
 from skyfield.data import mpc
@@ -150,10 +151,10 @@ def comets():
         search_expr = search_form.q.data.replace('"', '')
         comet_query = Comet.query.filter(Comet.designation.like('%' + search_expr + '%'))
     else:
-        comet_query = Comet.query.filter(Comet.mag < 20)
+        comet_query = Comet.query.filter(or_(Comet.mag < 20, and_(Comet.is_manual.is_(True), Comet.mag.is_(None))))
         if search_form.dec_min.data:
             comet_query = comet_query.filter(Comet.cur_dec > (np.pi * search_form.dec_min.data / 180.0))
-        if search_form.maglim.data:
+        if search_form.maglim.data is not None:
             comet_query = comet_query.filter(Comet.mag <= search_form.maglim.data)
 
     order_by_field = get_order_by_field(sort_def, sort_by)
@@ -175,9 +176,9 @@ def comets():
 def comets_chart():
     form = ChartForm()
 
-    comet = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).order_by('mag').first()
+    comet = _chart_comets_query().order_by('mag').first()
 
-    common_ra_dec_dt_fsz_from_request(form, comet.cur_ra, comet.cur_dec)
+    common_ra_dec_dt_fsz_from_request(form, comet.cur_ra if comet else None, comet.cur_dec if comet else None)
 
     default_chart_iframe_url = None
     if comet:
@@ -189,16 +190,34 @@ def comets_chart():
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
+def _chart_comets_query():
+    return Comet.query.filter(
+        or_(Comet.mag < 17.5, and_(Comet.is_manual.is_(True), Comet.mag.is_(None))),
+        Comet.is_disintegrated.is_(False),
+    )
+
+
+def _chart_comet_magnitude(comet):
+    return comet.mag if getattr(comet, 'is_manual', False) else comet.real_mag
+
+
+def _comet_visible_on_chart(comet, maglim):
+    mag = _chart_comet_magnitude(comet)
+    return (comet.cur_ra is not None and comet.cur_dec is not None
+            and ((mag is not None and mag <= maglim)
+                 or (mag is None and getattr(comet, 'is_manual', False))))
+
+
 @main_comet.route('/comets/chart-pos-img', methods=['GET'])
 def comets_chart_pos_img():
-    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
+    comets = _chart_comets_query().all()
     _, _, i_, dso_maglim = get_fld_size_mags_from_request()
     if dso_maglim < 16.0:
         dso_maglim = 16.0
-    comets = [c for c in comets if c.real_mag is not None and c.real_mag <= dso_maglim]
+    comets = [c for c in comets if _comet_visible_on_chart(c, dso_maglim)]
     highlights_pos_list = [
         (x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation,
-         {'mag': x.real_mag, 'tail_pa': x.cur_tail_pa})
+         {'mag': _chart_comet_magnitude(x), 'tail_pa': x.cur_tail_pa})
         for x in comets if comets
     ]
 
@@ -214,14 +233,13 @@ def comets_chart_pos_img():
 
 @main_comet.route('/comets/chart/scene-v1', methods=['GET'])
 def comets_chart_scene_v1():
-    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
+    comets = _chart_comets_query().all()
     _, _, _, dso_maglim = get_fld_size_mags_from_request()
     if dso_maglim < 16.0:
         dso_maglim = 16.0
     comets = [
         c for c in comets
-        if c.real_mag is not None and c.real_mag <= dso_maglim
-        and c.cur_ra is not None and c.cur_dec is not None
+        if _comet_visible_on_chart(c, dso_maglim)
     ]
 
     scene = build_scene_v1()
@@ -236,7 +254,7 @@ def comets_chart_scene_v1():
                 label=comet.designation,
                 ra=comet.cur_ra,
                 dec=comet.cur_dec,
-                mag=comet.real_mag,
+                mag=_chart_comet_magnitude(comet),
                 tail_pa=comet.cur_tail_pa,
             )
         )
@@ -250,11 +268,11 @@ def comets_chart_scene_v1():
 
 @main_comet.route('/comets/chart-pdf', methods=['GET'])
 def comets_chart_pdf():
-    comets = Comet.query.filter(Comet.mag < 17.5, Comet.is_disintegrated == False).all()
+    comets = _chart_comets_query().all()
     highlights_pos_list = [
         (x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation,
-         {'mag': x.real_mag, 'tail_pa': x.cur_tail_pa})
-        for x in comets if comets
+         {'mag': _chart_comet_magnitude(x), 'tail_pa': x.cur_tail_pa})
+        for x in comets if x.cur_ra is not None and x.cur_dec is not None
     ]
 
     img_bytes = common_chart_pdf_img(
