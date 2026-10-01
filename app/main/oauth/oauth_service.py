@@ -40,6 +40,11 @@ ACCESS_TOKEN_TTL_SECONDS = 3600
 REFRESH_TOKEN_TTL_DAYS = 90
 AUTHORIZATION_CODE_TTL_SECONDS = 300
 
+# Nightly cleanup retention.
+CLEANUP_AUTHORIZATION_CODE_DAYS = 1
+CLEANUP_UNUSED_CLIENT_DAYS = 1
+CLEANUP_DEAD_TOKEN_DAYS = 30
+
 AUTH_METHOD_NONE = "none"
 SECRET_AUTH_METHODS = ("client_secret_post", "client_secret_basic")
 SUPPORTED_AUTH_METHODS = (AUTH_METHOD_NONE,) + SECRET_AUTH_METHODS
@@ -502,3 +507,57 @@ def revoke_token(client: McpOAuthClient, raw_token: str | None) -> None:
         return
     _revoke_row(token_row)
     db.session.commit()
+
+
+def cleanup_oauth_data(now: datetime | None = None) -> dict[str, int]:
+    """Delete OAuth data that can no longer be used.
+
+    - authorization codes older than a day (they live 5 minutes, the rest is kept for replay detection),
+    - refresh token history older than the refresh token lifetime (such tokens are expired anyway),
+    - OAuth grants revoked or with expired refresh token for more than 30 days (kept visible in settings
+      until then), including their history,
+    - registered clients that never obtained a token within a day.
+    """
+    now = now or datetime.now()
+    dead_before = now - timedelta(days=CLEANUP_DEAD_TOKEN_DAYS)
+
+    deleted_codes = McpOAuthAuthorizationCode.query.filter(
+        McpOAuthAuthorizationCode.create_date < now - timedelta(days=CLEANUP_AUTHORIZATION_CODE_DAYS)
+    ).delete(synchronize_session=False)
+
+    deleted_history = McpOAuthRefreshTokenHistory.query.filter(
+        McpOAuthRefreshTokenHistory.create_date < now - timedelta(days=REFRESH_TOKEN_TTL_DAYS)
+    ).delete(synchronize_session=False)
+
+    dead_token_ids = [
+        row_id for (row_id,) in db.session.query(McpUserToken.id).filter(
+            McpUserToken.oauth_client_id.isnot(None),
+            db.or_(
+                db.and_(McpUserToken.is_revoked.is_(True), McpUserToken.update_date < dead_before),
+                McpUserToken.refresh_expires_date < dead_before,
+                # Grants without a refresh token (reset by migration) die with the access token.
+                db.and_(McpUserToken.refresh_token_hash.is_(None), McpUserToken.expires_date < dead_before),
+            ),
+        )
+    ]
+    deleted_tokens = 0
+    if dead_token_ids:
+        deleted_history += McpOAuthRefreshTokenHistory.query.filter(
+            McpOAuthRefreshTokenHistory.token_row_id.in_(dead_token_ids)
+        ).delete(synchronize_session=False)
+        deleted_tokens = McpUserToken.query.filter(
+            McpUserToken.id.in_(dead_token_ids)
+        ).delete(synchronize_session=False)
+
+    deleted_clients = McpOAuthClient.query.filter(
+        McpOAuthClient.last_used_date.is_(None),
+        McpOAuthClient.create_date < now - timedelta(days=CLEANUP_UNUSED_CLIENT_DAYS),
+    ).delete(synchronize_session=False)
+
+    db.session.commit()
+    return {
+        "authorization_codes": deleted_codes,
+        "refresh_token_history": deleted_history,
+        "tokens": deleted_tokens,
+        "clients": deleted_clients,
+    }

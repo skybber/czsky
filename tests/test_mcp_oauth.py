@@ -9,7 +9,13 @@ from sqlalchemy import text
 
 from app import create_app, db
 from app.main.usersettings.mcp_token_service import create_user_mcp_token, verify_user_mcp_token
-from app.models import McpOAuthAuthorizationCode, McpUserToken, User
+from app.models import (
+    McpOAuthAuthorizationCode,
+    McpOAuthClient,
+    McpOAuthRefreshTokenHistory,
+    McpUserToken,
+    User,
+)
 
 REDIRECT_URI = 'http://127.0.0.1:33418/callback'
 CODE_VERIFIER = 'v' * 64
@@ -334,6 +340,42 @@ class McpOAuthTestCase(unittest.TestCase):
             response = self.client.get('/oauth/authorize', query_string=self._authorize_params(client_id))
         self.assertEqual(302, response.status_code)
         self.assertIn('error=invalid_target', response.headers['Location'])
+
+    def test_cleanup_removes_only_dead_data(self):
+        from datetime import datetime, timedelta
+        from app.main.oauth.oauth_service import cleanup_oauth_data
+
+        client_id = self._register()['client_id']
+        tokens = self._exchange(client_id, self._get_code(client_id)).get_json()
+        self._refresh(client_id, tokens['refresh_token'])
+        dead_client_id = self._register(client_name='Never used')['client_id']
+        own_pat, _ = create_user_mcp_token(self.user.id, 'personal')
+        own_pat.is_revoked = True
+        own_pat.update_date = datetime.now() - timedelta(days=365)
+        db.session.commit()
+
+        # Fresh data survives.
+        self.assertEqual(
+            {'authorization_codes': 0, 'refresh_token_history': 0, 'tokens': 0, 'clients': 0},
+            cleanup_oauth_data(),
+        )
+
+        # Two days later: used code and never used client are gone, grant stays.
+        result = cleanup_oauth_data(now=datetime.now() + timedelta(days=2))
+        self.assertEqual(1, result['authorization_codes'])
+        self.assertEqual(1, result['clients'])
+        self.assertIsNone(McpOAuthClient.query.filter_by(client_id=dead_client_id).first())
+        self.assertIsNotNone(McpOAuthClient.query.filter_by(client_id=client_id).first())
+        self.assertEqual(1, McpOAuthRefreshTokenHistory.query.count())
+
+        # Revoked grant is deleted after 30 days with its history; personal token is kept.
+        oauth_row = McpUserToken.query.filter(McpUserToken.oauth_client_id.isnot(None)).one()
+        oauth_row.is_revoked = True
+        db.session.commit()
+        result = cleanup_oauth_data(now=datetime.now() + timedelta(days=31))
+        self.assertEqual(1, result['tokens'])
+        self.assertEqual(0, McpOAuthRefreshTokenHistory.query.count())
+        self.assertIsNotNone(db.session.get(McpUserToken, own_pat.id))
 
     def test_delete_token_from_settings(self):
         other = User(user_name='other', full_name='Other', email='other@example.com',

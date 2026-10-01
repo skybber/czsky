@@ -1,3 +1,6 @@
+import logging
+import os
+from datetime import timedelta
 from urllib.parse import urlencode, urlparse
 
 from flask import (
@@ -10,12 +13,15 @@ from flask import (
 )
 from flask_login import current_user, login_required
 
-from app import csrf
+from app import create_app, csrf, scheduler
+from app.commons.dbupdate_utils import ask_dbupdate_permit
+from app.models import DB_CLEANUP_MCP_OAUTH
 from .oauth_forms import OAuthConsentForm
 from .oauth_service import (
     OAuthError,
     authenticate_client,
     build_authorization_server_metadata,
+    cleanup_oauth_data,
     create_authorization_code,
     exchange_authorization_code,
     get_issuer_url,
@@ -27,6 +33,17 @@ from .oauth_service import (
 )
 
 main_oauth = Blueprint('main_oauth', __name__)
+
+
+def _cleanup_oauth_data():
+    app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
+    with app.app_context():
+        if ask_dbupdate_permit(DB_CLEANUP_MCP_OAUTH, timedelta(hours=20)):
+            deleted = cleanup_oauth_data()
+            logging.getLogger(__name__).info('MCP OAuth cleanup: %s', deleted)
+
+
+job1 = scheduler.add_job(_cleanup_oauth_data, 'cron', hour=3, replace_existing=True, jitter=60)
 
 
 def _json_response(payload, status_code=200):
