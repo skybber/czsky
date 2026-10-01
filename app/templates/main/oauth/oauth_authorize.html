@@ -1,0 +1,43 @@
+{% extends 'layouts/base.html' %}
+
+{% set scope_labels = {
+    'wishlist:read': _('Read your wishlist'),
+    'wishlist:write': _('Modify your wishlist'),
+    'dso:read': _('Read deep-sky object data'),
+    'sessionplan:read': _('Read your session plans'),
+    'sessionplan:write': _('Modify your session plans'),
+    'observingsession:read': _('Read your observing sessions'),
+    'observingsession:write': _('Modify your observing sessions'),
+    'observationlog:write': _('Write observations to your log'),
+} %}
+
+{% block content %}
+    <div class="ui text container" style="padding-top: 2em;">
+        <h2 class="ui header">{{ _('Authorize MCP client') }}</h2>
+        <div class="ui segment">
+            <p>
+                {{ _('Application') }} <strong>{{ client.client_name or client.client_id }}</strong>
+                {{ _('requests access to your CzSky account as') }} <strong>{{ current_user.user_name }}</strong>.
+            </p>
+            <p>{{ _('After approval you will be redirected to') }} <code>{{ redirect_host }}</code>.</p>
+            <div class="ui list">
+                {% for scope in scopes %}
+                    <div class="item">
+                        <i class="check icon"></i>
+                        <div class="content">
+                            {{ scope_labels.get(scope, scope) }} <code>{{ scope }}</code>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <form class="ui form" method="post" action="{{ request.full_path }}">
+                {{ form.csrf_token }}
+                {{ form.allow(class_='ui primary button') }}
+                {{ form.deny(class_='ui button') }}
+            </form>
+        </div>
+        <p class="ui small grey text">
+            {{ _('Access can be revoked at any time in user settings, MCP token section.') }}
+        </p>
+    </div>
+{% endblock %}

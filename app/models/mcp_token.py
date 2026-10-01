@@ -16,8 +16,15 @@ class McpUserToken(db.Model):
     last_used_date = db.Column(db.DateTime, nullable=True)
     expires_date = db.Column(db.DateTime, nullable=True)
     is_revoked = db.Column(db.Boolean, nullable=False, default=False)
+    oauth_client_id = db.Column(db.String(64), nullable=True, index=True)
+    refresh_token_hash = db.Column(db.String(255), nullable=True)
+    refresh_expires_date = db.Column(db.DateTime, nullable=True)
     create_date = db.Column(db.DateTime, default=datetime.now())
     update_date = db.Column(db.DateTime, default=datetime.now())
+
+    @property
+    def is_oauth(self):
+        return self.oauth_client_id is not None
 
     def __repr__(self):
         return f"<McpUserToken '{self.token_id}'>"

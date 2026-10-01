@@ -251,6 +251,7 @@
     <h4 class="ui top attached block header segment">MCP token</h4>
     <div class="ui attached segment">
         <p>Create personal token for MCP clients. Keep this token secret.</p>
+        <p>MCP clients that support OAuth (e.g. Claude) can connect without a personal token; their authorizations are listed below with the <code>(OAuth)</code> suffix and can be revoked here.</p>
         <p>Available scopes: <code>wishlist:read</code>, <code>wishlist:write</code>, <code>dso:read</code>, <code>sessionplan:read</code>, <code>sessionplan:write</code>, <code>observingsession:read</code>, <code>observingsession:write</code>, <code>observationlog:write</code>.</p>
 
         {% if new_token_value %}
@@ -287,6 +288,7 @@
                         <th>Last used</th>
                         <th>Status</th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -296,7 +298,8 @@
                             <td><code>{{ token.scope }}</code></td>
                             <td><code>{{ token.token_prefix }}</code></td>
                             <td>{{ token.create_date.strftime('%Y-%m-%d %H:%M') if token.create_date else '' }}</td>
-                            <td>{{ token.expires_date.strftime('%Y-%m-%d %H:%M') if token.expires_date else '' }}</td>
+                            {% set token_expires = token.refresh_expires_date if token.is_oauth else token.expires_date %}
+                            <td>{{ token_expires.strftime('%Y-%m-%d %H:%M') if token_expires else '' }}</td>
                             <td>{{ token.last_used_date.strftime('%Y-%m-%d %H:%M') if token.last_used_date else '' }}</td>
                             <td>
                                 {% if token.is_revoked %}
@@ -312,6 +315,13 @@
                                         <button class="ui tiny negative button" type="submit">Revoke</button>
                                     </form>
                                 {% endif %}
+                            </td>
+                            <td class="collapsing right aligned">
+                                <form class="ui form" method="post" action="{{ url_for('main_usersettings.mcp_token_delete', token_row_id=token.id) }}"
+                                      data-token-name="{{ token.token_name }}" onsubmit="return confirm('Delete MCP token \'' + this.dataset.tokenName + '\'?');">
+                                    {{ revoke_form.csrf_token }}
+                                    <button class="ui tiny basic negative icon button" type="submit" title="Delete"><i class="trash alternate icon"></i></button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

@@ -11,6 +11,16 @@ from app.models import McpUserToken
 
 TOKEN_PREFIX = "czmcp_"
 DEFAULT_SCOPE = "wishlist:read"
+SUPPORTED_SCOPES = (
+    "wishlist:read",
+    "wishlist:write",
+    "dso:read",
+    "sessionplan:read",
+    "sessionplan:write",
+    "observingsession:read",
+    "observingsession:write",
+    "observationlog:write",
+)
 
 
 def normalize_scope(scope: str | None) -> str:
@@ -56,11 +66,11 @@ def _generate_token_id() -> str:
     return secrets.token_hex(12)
 
 
-def _generate_secret() -> str:
+def generate_secret() -> str:
     return secrets.token_urlsafe(32)
 
 
-def _generate_unique_token_id() -> str:
+def generate_unique_token_id() -> str:
     for _ in range(8):
         token_id = _generate_token_id()
         exists = McpUserToken.query.filter_by(token_id=token_id).first()
@@ -88,8 +98,8 @@ def create_user_mcp_token(
     else:
         expires_date = None
 
-    token_id = _generate_unique_token_id()
-    secret = _generate_secret()
+    token_id = generate_unique_token_id()
+    secret = generate_secret()
     plain_token = build_plain_mcp_token(token_id, secret)
 
     token_row = McpUserToken(
@@ -127,6 +137,16 @@ def revoke_user_mcp_token(user_id: int, token_row_id: int) -> bool:
     token_row.is_revoked = True
     token_row.update_date = datetime.now()
     db.session.add(token_row)
+    db.session.commit()
+    return True
+
+
+def delete_user_mcp_token(user_id: int, token_row_id: int) -> bool:
+    token_row = McpUserToken.query.filter_by(id=token_row_id, user_id=user_id).first()
+    if token_row is None:
+        return False
+
+    db.session.delete(token_row)
     db.session.commit()
     return True
 

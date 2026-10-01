@@ -1,0 +1,10 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui text container" style="padding-top: 2em;">
+        <div class="ui negative message">
+            <div class="header">{{ _('Authorization request is invalid') }}</div>
+            <p><code>{{ error.error }}</code>: {{ error.description }}</p>
+        </div>
+    </div>
+{% endblock %}

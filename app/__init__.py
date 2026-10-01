@@ -199,6 +199,8 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_import_history)
         from .main.system import main_system as main_system
         app.register_blueprint(main_system)
+        from .main.oauth import main_oauth as main_oauth
+        app.register_blueprint(main_oauth)
 
         from .account import account as account_blueprint
         app.register_blueprint(account_blueprint, url_prefix='/account')

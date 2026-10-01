@@ -31,6 +31,7 @@ from .usersettings_forms import (
 from .delete_account_utils import process_delete_account
 from .mcp_token_service import (
     create_user_mcp_token,
+    delete_user_mcp_token,
     list_user_mcp_tokens,
     revoke_user_mcp_token,
 )
@@ -252,3 +253,17 @@ def mcp_token_revoke(token_row_id):
         flash('MCP token not found.', 'form-error')
     return redirect(url_for('main_usersettings.mcp_token'))
 
+
+@main_usersettings.route('/user-settings/mcp-token/<int:token_row_id>/delete', methods=['POST'])
+@login_required
+def mcp_token_delete(token_row_id):
+    form = McpTokenRevokeForm()
+    if not form.validate_on_submit():
+        flash('Invalid MCP token delete request.', 'form-error')
+        return redirect(url_for('main_usersettings.mcp_token'))
+
+    if delete_user_mcp_token(current_user.id, token_row_id):
+        flash('MCP token was deleted.', 'form-success')
+    else:
+        flash('MCP token not found.', 'form-error')
+    return redirect(url_for('main_usersettings.mcp_token'))
