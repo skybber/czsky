@@ -146,6 +146,28 @@ def _resolve_observation_target(
     )
 
 
+def _find_foreign_equipment(resolved_user_id: int, telescope_id: int | None, eyepiece_id: int | None,
+                            filter_id: int | None) -> str | None:
+    """Return the reason when any given equipment id does not belong to the user."""
+    from app.models import Eyepiece, Filter, Telescope
+
+    for model, equipment_id, reason in (
+        (Telescope, telescope_id, "telescope_not_found"),
+        (Eyepiece, eyepiece_id, "eyepiece_not_found"),
+        (Filter, filter_id, "filter_not_found"),
+    ):
+        if equipment_id is None:
+            continue
+        owned = (
+            model.query
+            .filter(model.id == equipment_id, model.user_id == resolved_user_id, model.is_deleted.is_not(True))
+            .first()
+        )
+        if owned is None:
+            return reason
+    return None
+
+
 def _find_observation_for_target(observing_session: Any, object_type: str, target_id: int):
     if object_type == "dso":
         return observing_session.find_observation_by_dso_id(target_id)
@@ -289,6 +311,21 @@ def observation_log_upsert_payload(
                 "objectType": target["objectType"],
             }
 
+        foreign_equipment_reason = _find_foreign_equipment(
+            resolved_user_id, parsed_telescope_id, parsed_eyepiece_id, parsed_filter_id,
+        )
+        if foreign_equipment_reason is not None:
+            return {
+                "upserted": False,
+                "created": False,
+                "updated": False,
+                "reason": foreign_equipment_reason,
+                "observingSessionId": observing_session.id,
+                "observationId": None,
+                "objectId": target["objectId"],
+                "objectType": target["objectType"],
+            }
+
         if observing_session.is_finished:
             return {
                 "upserted": False,
@@ -343,3 +380,171 @@ def observation_log_upsert_payload(
             "objectId": target["objectId"],
             "objectType": target["objectType"],
         }
+
+
+MAX_OBSERVATION_LIST_LIMIT = 100
+
+
+def _enum_value(value: Any) -> str | None:
+    return value.value if value is not None and hasattr(value, "value") else value
+
+
+def _observation_targets(observation: Any) -> list[dict[str, Any]]:
+    targets = []
+    for dso in observation.deepsky_objects or []:
+        targets.append({"objectId": f"dso:{dso.id}", "name": dso.denormalized_name(), "type": dso.type})
+    single_targets = (
+        ("double_star", observation.double_star, lambda o: o.get_common_norm_name()),
+        ("comet", observation.comet, lambda o: o.designation),
+        ("minor_planet", observation.minor_planet, lambda o: o.designation),
+        ("planet", observation.planet, lambda o: o.get_localized_name()),
+        ("planet_moon", observation.planet_moon, lambda o: getattr(o, "name", None)),
+    )
+    for object_type, target, name_func in single_targets:
+        if target is not None:
+            targets.append({"objectId": f"{object_type}:{target.id}", "name": name_func(target), "type": object_type})
+    return targets
+
+
+def _owned_equipment(observation: Any, equipment: Any, id_key: str) -> dict[str, Any] | None:
+    # Older data may reference equipment of another user; never expose its name.
+    if equipment is None or equipment.user_id != observation.user_id:
+        return None
+    return {id_key: equipment.id, "name": equipment.name}
+
+
+def serialize_observation(observation: Any, *, include_notes: bool = True) -> dict[str, Any]:
+    result = {
+        "observationId": observation.id,
+        "observingSessionId": observation.observing_session_id,
+        "dateFrom": observation.date_from.isoformat() if observation.date_from else None,
+        "targetType": _enum_value(observation.target_type),
+        "targets": _observation_targets(observation),
+        "telescope": _owned_equipment(observation, observation.telescope, "telescopeId"),
+        "eyepiece": _owned_equipment(observation, observation.eyepiece, "eyepieceId"),
+        "filter": _owned_equipment(observation, observation.filter, "filterId"),
+        "magnification": observation.magnification,
+        "seeing": _enum_value(observation.seeing),
+        "sqm": observation.sqm,
+        "faintestStar": observation.faintest_star,
+        "locationId": observation.location_id,
+    }
+    if include_notes:
+        result["notes"] = observation.notes
+    else:
+        notes = (observation.notes or "").strip()
+        result["notesPreview"] = (notes[:200] + "…") if len(notes) > 200 else notes
+    return result
+
+
+def _filter_observations_by_target(query: Any, target: dict[str, Any]):
+    from app.models import DeepskyObject, Observation
+
+    object_type, target_id = target["objectType"], target["targetId"]
+    if object_type == "dso":
+        return query.filter(Observation.deepsky_objects.any(DeepskyObject.id == target_id))
+    column = {
+        "double_star": Observation.double_star_id,
+        "planet": Observation.planet_id,
+        "planet_moon": Observation.planet_moon_id,
+        "comet": Observation.comet_id,
+        "minor_planet": Observation.minor_planet_id,
+    }[object_type]
+    return query.filter(column == target_id)
+
+
+def observation_log_list_payload(
+    *,
+    object_id: str | None,
+    query: str | None,
+    observing_session_id: int | str | None,
+    date_from: str | None,
+    date_to: str | None,
+    limit: int,
+    offset: int,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_mcp_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+    parse_observation_object_id_func: Callable[[str | None], tuple[str, int] | None],
+    resolve_global_object_func: Callable[[str], dict[str, Any] | None],
+) -> dict[str, Any]:
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
+
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1 or limit > MAX_OBSERVATION_LIST_LIMIT:
+        raise ValueError(f"limit must be an integer from 1 to {MAX_OBSERVATION_LIST_LIMIT}")
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError("offset must be a non-negative integer")
+    parsed_session_id = _parse_optional_positive_int(observing_session_id, field_name="observing_session_id")
+    parsed_from = parse_observing_session_datetime(date_from, field_name="date_from") if date_from else None
+    parsed_to = parse_observing_session_datetime(date_to, field_name="date_to") if date_to else None
+
+    app = get_app()
+    with app.app_context():
+        from app.models import Observation
+
+        observations = Observation.query.filter(Observation.user_id == resolved_user_id)
+
+        target = None
+        if (object_id or "").strip() or (query or "").strip():
+            target, error_reason = _resolve_observation_target(
+                app=app,
+                object_id=object_id,
+                query=query,
+                parse_observation_object_id_func=parse_observation_object_id_func,
+                resolve_global_object_func=resolve_global_object_func,
+            )
+            if error_reason:
+                return {"found": False, "reason": error_reason, "total": 0, "observations": []}
+            observations = _filter_observations_by_target(observations, target)
+
+        if parsed_session_id is not None:
+            observations = observations.filter(Observation.observing_session_id == parsed_session_id)
+        if parsed_from is not None:
+            observations = observations.filter(Observation.date_from >= parsed_from)
+        if parsed_to is not None:
+            observations = observations.filter(Observation.date_from <= parsed_to)
+
+        total = observations.count()
+        rows = (
+            observations.order_by(Observation.date_from.desc(), Observation.id.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+        return {
+            "found": total > 0,
+            "reason": "ok" if total else "no_observations",
+            "objectId": target["objectId"] if target else None,
+            "total": total,
+            "offset": offset,
+            "nextOffset": offset + len(rows) if offset + len(rows) < total else None,
+            "observations": [serialize_observation(row, include_notes=False) for row in rows],
+        }
+
+
+def observation_log_get_payload(
+    *,
+    observation_id: int | str,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_mcp_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
+    parsed_id = _parse_optional_positive_int(observation_id, field_name="observation_id")
+    if parsed_id is None:
+        raise ValueError("observation_id is required")
+
+    app = get_app()
+    with app.app_context():
+        from app.models import Observation
+
+        observation = Observation.query.filter_by(id=parsed_id, user_id=resolved_user_id).first()
+        if observation is None:
+            return {"found": False, "reason": "observation_not_found", "observation": None}
+        return {"found": True, "reason": "found", "observation": serialize_observation(observation)}

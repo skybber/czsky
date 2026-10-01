@@ -209,6 +209,11 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
         )
         self.wishlist = type("WishList", (), {"id": 77})()
 
+        # These payload tests run without an MCP token, i.e. in stub mode.
+        env_patch = patch.dict("os.environ", {"MCP_ENABLE_TOKEN_AUTH": "0"})
+        env_patch.start()
+        self.addCleanup(env_patch.stop)
+
     def test_wishlist_list_payload_paginates(self):
         with patch("app.mcp_server._resolve_mcp_user_id", return_value=5), \
              patch("app.mcp_server._load_wishlist_items_for_user",
@@ -265,9 +270,27 @@ class McpWishlistPayloadTestCase(unittest.TestCase):
 
     def test_resolve_mcp_user_id_accepts_explicit_stub_user(self):
         with patch("app.mcp_server._get_access_token", return_value=None), \
-             patch.dict("os.environ", {}, clear=True):
+             patch.dict("os.environ", {"MCP_ENABLE_TOKEN_AUTH": "0"}, clear=True):
             resolved = mcp_server._resolve_mcp_user_id(user_id=12)
         self.assertEqual(resolved, 12)
+
+    def test_missing_token_with_auth_enabled_rejects_client_user_id(self):
+        with patch("app.mcp_server._get_access_token", return_value=None), \
+             patch.dict("os.environ", {"MCP_USER_ID": "7"}, clear=True):
+            with self.assertRaises(PermissionError):
+                mcp_server._resolve_mcp_user_id(user_id=12)
+            with self.assertRaises(PermissionError):
+                mcp_server._resolve_mcp_user_id()
+            with self.assertRaises(PermissionError):
+                mcp_server._require_scope_if_available("wishlist:read")
+
+    def test_broken_auth_context_fails_closed(self):
+        with patch(
+            "mcp.server.auth.middleware.auth_context.get_access_token",
+            side_effect=RuntimeError("context lost"),
+        ):
+            with self.assertRaises(PermissionError):
+                mcp_server._get_access_token()
 
     def test_wishlist_list_formats_items_inside_app_context(self):
         def _summary_with_current_app(*_args, **_kwargs):
@@ -740,7 +763,7 @@ class _DummyToolServer:
     def __init__(self):
         self.tool_names = []
 
-    def tool(self, name=None):
+    def tool(self, name=None, **_kwargs):
         def decorator(fn):
             self.tool_names.append(name or fn.__name__)
             return fn
@@ -794,8 +817,12 @@ class McpSessionPlanToolsRegistrationTestCase(unittest.TestCase):
             session_plan_remove_items_resolver=_noop,
             session_plan_clear_resolver=_noop,
             dso_list_get_id_by_name_resolver=_noop,
+            session_plan_schedule_resolver=_noop,
+            session_plan_export_resolver=_noop,
         )
 
+        self.assertIn("session_plan.schedule", server.tool_names)
+        self.assertIn("session_plan.export", server.tool_names)
         self.assertIn("session_plan.create", server.tool_names)
         self.assertIn("session_plan.get", server.tool_names)
         self.assertIn("session_plan.list", server.tool_names)
@@ -818,9 +845,13 @@ class McpObservationLogToolsRegistrationTestCase(unittest.TestCase):
         observation_log_tools.register_tools(
             server,
             observation_log_upsert_resolver=_noop,
+            observation_log_list_resolver=_noop,
+            observation_log_get_resolver=_noop,
         )
 
         self.assertIn("observation_log.upsert", server.tool_names)
+        self.assertIn("observation_log.list", server.tool_names)
+        self.assertIn("observation_log.get", server.tool_names)
 
 
 class McpObservingSessionToolsRegistrationTestCase(unittest.TestCase):
@@ -835,7 +866,12 @@ class McpObservingSessionToolsRegistrationTestCase(unittest.TestCase):
             observing_session_create_resolver=_noop,
             observing_session_set_active_resolver=_noop,
             observing_session_get_active_resolver=_noop,
+            observing_session_list_resolver=_noop,
+            observing_session_get_resolver=_noop,
         )
+
+        self.assertIn("observing_session.list", server.tool_names)
+        self.assertIn("observing_session.get", server.tool_names)
 
         self.assertIn("observing_session.create", server.tool_names)
         self.assertIn("observing_session.set_active", server.tool_names)
@@ -878,3 +914,41 @@ class McpDsoToolsRegistrationTestCase(unittest.TestCase):
 
         self.assertIn("dso.find", server.tool_names)
         self.assertIn("dso.list_sources", server.tool_names)
+
+
+class McpNewToolsRegistrationTestCase(unittest.TestCase):
+    def test_registers_new_tool_modules(self):
+        from app.mcp.tools import astro, catalogue, chart, equipment, location, solar_system
+
+        server = _DummyToolServer()
+
+        def _noop(**_kwargs):
+            return {}
+
+        location.register_tools(server, location_find_resolver=_noop)
+        equipment.register_tools(server, equipment_list_resolver=_noop)
+        astro.register_tools(server, visibility_get_resolver=_noop, night_info_resolver=_noop)
+        solar_system.register_tools(
+            server,
+            comet_list_bright_resolver=_noop,
+            minor_planet_list_bright_resolver=_noop,
+            supernova_list_recent_resolver=_noop,
+            planet_positions_resolver=_noop,
+        )
+        catalogue.register_tools(
+            server,
+            observed_list_resolver=_noop,
+            observed_stats_resolver=_noop,
+            dso_list_progress_resolver=_noop,
+            double_star_find_resolver=_noop,
+        )
+        chart.register_tools(server, chart_image_resolver=_noop)
+
+        self.assertEqual(
+            sorted(server.tool_names),
+            sorted([
+                "location.find", "equipment.list", "visibility.get", "night.info",
+                "comet.list_bright", "minor_planet.list_bright", "supernova.list_recent", "planet.positions",
+                "observed.list", "observed.stats", "dso_list.progress", "double_star.find", "chart.image",
+            ]),
+        )

@@ -23,8 +23,9 @@ def get_access_token():
     try:
         return get_token()
     except Exception as exc:
+        # Fail closed: a broken auth context must never fall back to client supplied identity.
         logging.getLogger(__name__).error("Failed to get MCP access token: %s", exc)
-        return None
+        raise PermissionError("Authentication context is unavailable") from exc
 
 
 def is_env_flag_enabled(name: str, default: bool = True) -> bool:
@@ -32,6 +33,10 @@ def is_env_flag_enabled(name: str, default: bool = True) -> bool:
     if raw_value is None:
         return default
     return raw_value.strip().lower() not in ENV_FALSE_VALUES
+
+
+def is_token_auth_enabled() -> bool:
+    return is_env_flag_enabled("MCP_ENABLE_TOKEN_AUTH", True)
 
 
 def normalize_host_for_url(host: str) -> str:
@@ -116,6 +121,10 @@ def resolve_mcp_user_id(
             raise PermissionError("Provided user_id does not match authenticated token subject")
         return token_user_id
 
+    # Client supplied user_id / MCP_USER_ID are allowed only in stub mode (token auth explicitly disabled).
+    if is_token_auth_enabled():
+        raise PermissionError("Missing authenticated MCP token")
+
     if user_id is not None:
         return user_id
 
@@ -136,6 +145,8 @@ def require_scope_if_available(
 ) -> None:
     access_token = get_access_token_func()
     if access_token is None:
+        if is_token_auth_enabled():
+            raise PermissionError("Missing authenticated MCP token")
         return
 
     token_scopes = getattr(access_token, "scopes", None)

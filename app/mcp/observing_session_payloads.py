@@ -393,3 +393,120 @@ def observing_session_get_active_payload(
             "reason": "found",
             "observingSession": _serialize_observing_session_summary(observing_session),
         }
+
+
+MAX_OBSERVING_SESSION_LIST_LIMIT = 100
+MAX_SESSION_OBSERVATIONS = 300
+
+
+def _visible_location_name(observing_session: Any) -> str | None:
+    location = observing_session.location
+    if location is None:
+        return None
+    if location.user_id == observing_session.user_id or (location.is_public and location.is_for_observation):
+        return location.name
+    return None
+
+
+def _serialize_observing_session_list_item(observing_session: Any, observation_count: int) -> dict[str, Any]:
+    result = _serialize_observing_session_summary(observing_session)
+    result["locationName"] = _visible_location_name(observing_session)
+    result["rating"] = observing_session.rating // 2 if observing_session.rating else None
+    result["observationCount"] = observation_count
+    return result
+
+
+def observing_session_list_payload(
+    *,
+    date_from: str | None,
+    date_to: str | None,
+    limit: int,
+    offset: int,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_mcp_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
+
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1 or limit > MAX_OBSERVING_SESSION_LIST_LIMIT:
+        raise ValueError(f"limit must be an integer from 1 to {MAX_OBSERVING_SESSION_LIST_LIMIT}")
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError("offset must be a non-negative integer")
+    parsed_from = parse_observing_session_datetime(date_from, field_name="date_from") if date_from else None
+    parsed_to = parse_observing_session_datetime(date_to, field_name="date_to") if date_to else None
+
+    app = get_app()
+    with app.app_context():
+        from sqlalchemy import func
+
+        from app import db
+        from app.models import Observation, ObservingSession
+
+        sessions = ObservingSession.query.filter(ObservingSession.user_id == resolved_user_id)
+        if parsed_from is not None:
+            sessions = sessions.filter(ObservingSession.date_to >= parsed_from)
+        if parsed_to is not None:
+            sessions = sessions.filter(ObservingSession.date_from <= parsed_to)
+
+        total = sessions.count()
+        rows = sessions.order_by(ObservingSession.date_from.desc()).offset(offset).limit(limit).all()
+        counts = dict(
+            db.session.query(Observation.observing_session_id, func.count(Observation.id))
+            .filter(Observation.observing_session_id.in_([row.id for row in rows]))
+            .group_by(Observation.observing_session_id)
+            .all()
+        ) if rows else {}
+        return {
+            "found": total > 0,
+            "reason": "ok" if total else "no_observing_sessions",
+            "total": total,
+            "offset": offset,
+            "nextOffset": offset + len(rows) if offset + len(rows) < total else None,
+            "observingSessions": [_serialize_observing_session_list_item(row, counts.get(row.id, 0)) for row in rows],
+        }
+
+
+def observing_session_get_payload(
+    *,
+    observing_session_id: int | str,
+    user_id: int | None,
+    require_scope_if_available_func: Callable[[str], None],
+    required_scope: str,
+    resolve_mcp_user_id_func: Callable[[int | None], int],
+    get_app: Callable[[], Any],
+) -> dict[str, Any]:
+    from app.mcp.observation_log_payloads import _parse_optional_positive_int, serialize_observation
+
+    require_scope_if_available_func(required_scope)
+    resolved_user_id = resolve_mcp_user_id_func(user_id)
+    parsed_id = _parse_optional_positive_int(observing_session_id, field_name="observing_session_id")
+    if parsed_id is None:
+        raise ValueError("observing_session_id is required")
+
+    app = get_app()
+    with app.app_context():
+        observing_session = _load_owned_observing_session(resolved_user_id, parsed_id)
+        if observing_session is None:
+            return {"found": False, "reason": "observing_session_not_found", "observingSession": None}
+
+        observations = sorted(observing_session.observations, key=lambda o: (o.date_from or datetime.min, o.id))
+        detail = _serialize_observing_session_list_item(observing_session, len(observations))
+        detail.update({
+            "sqm": observing_session.sqm,
+            "faintestStar": observing_session.faintest_star,
+            "seeing": observing_session.seeing.value if observing_session.seeing else None,
+            "transparency": observing_session.transparency.value if observing_session.transparency else None,
+            "weather": observing_session.weather,
+            "equipment": observing_session.equipment,
+            "notes": observing_session.notes,
+            "defaultTelescopeId": observing_session.default_telescope_id,
+            "observations": [
+                serialize_observation(observation, include_notes=False)
+                for observation in observations[:MAX_SESSION_OBSERVATIONS]
+            ],
+            "observationsTruncated": len(observations) > MAX_SESSION_OBSERVATIONS,
+        })
+        return {"found": True, "reason": "found", "observingSession": detail}

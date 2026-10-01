@@ -17,6 +17,8 @@ def register_tools(
     session_plan_remove_items_resolver: Callable[..., dict[str, Any]],
     session_plan_clear_resolver: Callable[..., dict[str, Any]],
     dso_list_get_id_by_name_resolver: Callable[..., dict[str, Any]],
+    session_plan_schedule_resolver: Callable[..., dict[str, Any]],
+    session_plan_export_resolver: Callable[..., dict[str, Any]],
 ) -> None:
     @server.tool(name="session_plan.create")
     def session_plan_create(
@@ -156,3 +158,27 @@ def register_tools(
         dso_list_id parameter when filtering session plan items by DSO list.
         """
         return dso_list_get_id_by_name_resolver(name=name, user_id=user_id)
+
+    @server.tool(name="session_plan.schedule")
+    def session_plan_schedule(
+        session_plan_id: int,
+        user_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Session plan items ordered by transit time with local rise / transit / set times.
+
+        Also returns the dark window of the plan's night, so the observing order
+        and the best time for each object can be read directly.
+        """
+        return session_plan_schedule_resolver(session_plan_id=session_plan_id, user_id=user_id)
+
+    @server.tool(name="session_plan.export")
+    def session_plan_export(
+        session_plan_id: int,
+        format: str = "csv",
+        user_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Export a session plan as "csv" (semicolon separated, with rise/transit/set) or "oal" (OpenAstronomyLog XML).
+
+        Returns fileName, mimeType and the file content as text.
+        """
+        return session_plan_export_resolver(session_plan_id=session_plan_id, format=format, user_id=user_id)

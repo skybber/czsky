@@ -6,11 +6,19 @@ from app.commons.comet_utils import fetch_recent_cobs_observations
 from app.commons.global_search_resolver import resolve_global_object
 from app.commons.mcp_sky_object_formatters import format_resolved_object
 from app.mcp import app_context
+from app.mcp import astro_payloads as mcp_astro_payloads
 from app.mcp import auth as mcp_auth
+from app.mcp import catalogue_payloads as mcp_catalogue_payloads
+from app.mcp import chart_payloads as mcp_chart_payloads
+from app.mcp import equipment_payloads as mcp_equipment_payloads
+from app.mcp import location_payloads as mcp_location_payloads
 from app.mcp import observation_log_payloads as mcp_observation_log_payloads
 from app.mcp import observing_session_payloads as mcp_observing_session_payloads
+from app.mcp import prompts as mcp_prompts
+from app.mcp import resources as mcp_resources
 from app.mcp import runtime as mcp_runtime
 from app.mcp import sky_objects_payloads as mcp_sky_objects
+from app.mcp import solar_system_payloads as mcp_solar_system_payloads
 from app.mcp import dso_payloads as mcp_dso_payloads
 from app.mcp import session_plan_payloads as mcp_session_plan_payloads
 from app.mcp import wishlist_lookup_payloads as mcp_wishlist_lookup_payloads
@@ -18,11 +26,17 @@ from app.mcp import wishlist_payloads as mcp_wishlist_payloads
 from app.mcp import wishlist_query
 from app.mcp import wishlist_repo
 from app.mcp import wishlist_write_payloads as mcp_wishlist_write_payloads
+from app.mcp.tools import astro as astro_tools
+from app.mcp.tools import catalogue as catalogue_tools
+from app.mcp.tools import chart as chart_tools
 from app.mcp.tools import dso as dso_tools
+from app.mcp.tools import equipment as equipment_tools
+from app.mcp.tools import location as location_tools
 from app.mcp.tools import observation_log as observation_log_tools
 from app.mcp.tools import observing_session as observing_session_tools
 from app.mcp.tools import session_plan as session_plan_tools
 from app.mcp.tools import sky_objects as sky_object_tools
+from app.mcp.tools import solar_system as solar_system_tools
 from app.mcp.tools import wishlist as wishlist_tools
 
 # MCP runs as a sidecar process. It is not mounted into Flask routes and only
@@ -36,6 +50,12 @@ SESSION_PLAN_WRITE_SCOPE = "sessionplan:write"
 OBSERVING_SESSION_READ_SCOPE = "observingsession:read"
 OBSERVING_SESSION_WRITE_SCOPE = "observingsession:write"
 OBSERVATION_LOG_WRITE_SCOPE = "observationlog:write"
+OBSERVATION_LOG_READ_SCOPE = "observationlog:read"
+LOCATION_READ_SCOPE = "location:read"
+EQUIPMENT_READ_SCOPE = "equipment:read"
+OBSERVED_READ_SCOPE = "observed:read"
+# Public sky data (visibility, night, comets, planets, charts) share the catalogue read scope.
+SKY_READ_SCOPE = DSO_READ_SCOPE
 MAX_WISHLIST_PAGE_SIZE = wishlist_query.MAX_WISHLIST_PAGE_SIZE
 _USER_SUBJECT_PATTERNS = mcp_auth.USER_SUBJECT_PATTERNS
 _ENV_FALSE_VALUES = mcp_auth.ENV_FALSE_VALUES
@@ -744,6 +764,114 @@ def session_plan_remove_item_payload(
     )
 
 
+def _payload_kwargs(required_scope: str) -> dict[str, Any]:
+    return {
+        "require_scope_if_available_func": _require_scope_if_available,
+        "required_scope": required_scope,
+        "resolve_mcp_user_id_func": _resolve_mcp_user_id,
+        "get_app": get_app,
+    }
+
+
+def location_find_payload(**kwargs) -> dict[str, Any]:
+    return mcp_location_payloads.location_find_payload(**kwargs, **_payload_kwargs(LOCATION_READ_SCOPE))
+
+
+def equipment_list_payload(**kwargs) -> dict[str, Any]:
+    return mcp_equipment_payloads.equipment_list_payload(**kwargs, **_payload_kwargs(EQUIPMENT_READ_SCOPE))
+
+
+def observing_session_list_payload(**kwargs) -> dict[str, Any]:
+    return mcp_observing_session_payloads.observing_session_list_payload(
+        **kwargs, **_payload_kwargs(OBSERVING_SESSION_READ_SCOPE),
+    )
+
+
+def observing_session_get_payload(**kwargs) -> dict[str, Any]:
+    return mcp_observing_session_payloads.observing_session_get_payload(
+        **kwargs, **_payload_kwargs(OBSERVING_SESSION_READ_SCOPE),
+    )
+
+
+def observation_log_list_payload(**kwargs) -> dict[str, Any]:
+    return mcp_observation_log_payloads.observation_log_list_payload(
+        **kwargs,
+        **_payload_kwargs(OBSERVATION_LOG_READ_SCOPE),
+        parse_observation_object_id_func=_parse_observation_object_id,
+        resolve_global_object_func=resolve_global_object,
+    )
+
+
+def observation_log_get_payload(**kwargs) -> dict[str, Any]:
+    return mcp_observation_log_payloads.observation_log_get_payload(
+        **kwargs, **_payload_kwargs(OBSERVATION_LOG_READ_SCOPE),
+    )
+
+
+def visibility_get_payload(**kwargs) -> dict[str, Any]:
+    return mcp_astro_payloads.visibility_get_payload(
+        **kwargs, **_payload_kwargs(SKY_READ_SCOPE), resolve_global_object_func=resolve_global_object,
+    )
+
+
+def night_info_payload(**kwargs) -> dict[str, Any]:
+    return mcp_astro_payloads.night_info_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def session_plan_schedule_payload(**kwargs) -> dict[str, Any]:
+    return mcp_astro_payloads.session_plan_schedule_payload(**kwargs, **_payload_kwargs(SESSION_PLAN_READ_SCOPE))
+
+
+def session_plan_export_payload(format: str = "csv", **kwargs) -> dict[str, Any]:
+    return mcp_astro_payloads.session_plan_export_payload(
+        export_format=format, **kwargs, **_payload_kwargs(SESSION_PLAN_READ_SCOPE),
+    )
+
+
+def comet_list_bright_payload(**kwargs) -> dict[str, Any]:
+    return mcp_solar_system_payloads.comet_list_bright_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def minor_planet_list_bright_payload(**kwargs) -> dict[str, Any]:
+    return mcp_solar_system_payloads.minor_planet_list_bright_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def supernova_list_recent_payload(**kwargs) -> dict[str, Any]:
+    return mcp_solar_system_payloads.supernova_list_recent_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def planet_positions_payload(**kwargs) -> dict[str, Any]:
+    return mcp_solar_system_payloads.planet_positions_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def observed_list_payload(**kwargs) -> dict[str, Any]:
+    return mcp_catalogue_payloads.observed_list_payload(**kwargs, **_payload_kwargs(OBSERVED_READ_SCOPE))
+
+
+def observed_stats_payload(**kwargs) -> dict[str, Any]:
+    return mcp_catalogue_payloads.observed_stats_payload(**kwargs, **_payload_kwargs(OBSERVED_READ_SCOPE))
+
+
+def dso_list_progress_payload(**kwargs) -> dict[str, Any]:
+    return mcp_catalogue_payloads.dso_list_progress_payload(**kwargs, **_payload_kwargs(OBSERVED_READ_SCOPE))
+
+
+def double_star_find_payload(**kwargs) -> dict[str, Any]:
+    return mcp_catalogue_payloads.double_star_find_payload(**kwargs, **_payload_kwargs(SKY_READ_SCOPE))
+
+
+def chart_image_payload(**kwargs) -> Any:
+    """Image content for the client, or a dict with the failure reason."""
+    image_bytes, image_format, info = mcp_chart_payloads.chart_image_payload(
+        **kwargs, **_payload_kwargs(SKY_READ_SCOPE), resolve_global_object_func=resolve_global_object,
+    )
+    if image_bytes is None:
+        return info
+    from mcp.server.fastmcp import Image
+
+    return [Image(data=image_bytes, format=image_format), info]
+
+
 def build_mcp_server():
     def _register_tools(server):
         dso_tools.register_tools(
@@ -770,17 +898,47 @@ def build_mcp_server():
             session_plan_remove_items_resolver=session_plan_remove_items_payload,
             session_plan_clear_resolver=session_plan_clear_payload,
             dso_list_get_id_by_name_resolver=dso_list_get_id_by_name_payload,
+            session_plan_schedule_resolver=session_plan_schedule_payload,
+            session_plan_export_resolver=session_plan_export_payload,
         )
         observing_session_tools.register_tools(
             server,
             observing_session_create_resolver=observing_session_create_payload,
             observing_session_set_active_resolver=observing_session_set_active_payload,
             observing_session_get_active_resolver=observing_session_get_active_payload,
+            observing_session_list_resolver=observing_session_list_payload,
+            observing_session_get_resolver=observing_session_get_payload,
         )
         observation_log_tools.register_tools(
             server,
             observation_log_upsert_resolver=observation_log_upsert_payload,
+            observation_log_list_resolver=observation_log_list_payload,
+            observation_log_get_resolver=observation_log_get_payload,
         )
+        location_tools.register_tools(server, location_find_resolver=location_find_payload)
+        equipment_tools.register_tools(server, equipment_list_resolver=equipment_list_payload)
+        astro_tools.register_tools(
+            server,
+            visibility_get_resolver=visibility_get_payload,
+            night_info_resolver=night_info_payload,
+        )
+        solar_system_tools.register_tools(
+            server,
+            comet_list_bright_resolver=comet_list_bright_payload,
+            minor_planet_list_bright_resolver=minor_planet_list_bright_payload,
+            supernova_list_recent_resolver=supernova_list_recent_payload,
+            planet_positions_resolver=planet_positions_payload,
+        )
+        catalogue_tools.register_tools(
+            server,
+            observed_list_resolver=observed_list_payload,
+            observed_stats_resolver=observed_stats_payload,
+            dso_list_progress_resolver=dso_list_progress_payload,
+            double_star_find_resolver=double_star_find_payload,
+        )
+        chart_tools.register_tools(server, chart_image_resolver=chart_image_payload)
+        mcp_resources.register_resources(server, get_app=get_app)
+        mcp_prompts.register_prompts(server)
         wishlist_tools.register_tools(
             server,
             wishlist_list_resolver=wishlist_list_payload,

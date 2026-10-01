@@ -19,7 +19,11 @@ SUPPORTED_SCOPES = (
     "sessionplan:write",
     "observingsession:read",
     "observingsession:write",
+    "observationlog:read",
     "observationlog:write",
+    "observed:read",
+    "location:read",
+    "equipment:read",
 )
 
 

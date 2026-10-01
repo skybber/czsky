@@ -9,6 +9,8 @@ def register_tools(
     observing_session_create_resolver: Callable[..., dict[str, Any]],
     observing_session_set_active_resolver: Callable[..., dict[str, Any]],
     observing_session_get_active_resolver: Callable[..., dict[str, Any]],
+    observing_session_list_resolver: Callable[..., dict[str, Any]],
+    observing_session_get_resolver: Callable[..., dict[str, Any]],
 ) -> None:
     @server.tool(name="observing_session.create")
     def observing_session_create(
@@ -73,3 +75,33 @@ def register_tools(
     ) -> dict[str, Any]:
         """Return the current active observing session for the user."""
         return observing_session_get_active_resolver(user_id=user_id)
+
+    @server.tool(name="observing_session.list")
+    def observing_session_list(
+        date_from: str | None = None,
+        date_to: str | None = None,
+        limit: int = 20,
+        offset: int = 0,
+        user_id: int | None = None,
+    ) -> dict[str, Any]:
+        """List the user's observing sessions, newest first.
+
+        date_from / date_to: optional ISO dates limiting the period. Each session
+        includes location name, rating (0-5) and observationCount. Paginate with
+        offset / nextOffset.
+        """
+        return observing_session_list_resolver(
+            date_from=date_from, date_to=date_to, limit=limit, offset=offset, user_id=user_id,
+        )
+
+    @server.tool(name="observing_session.get")
+    def observing_session_get(
+        observing_session_id: int,
+        user_id: int | None = None,
+    ) -> dict[str, Any]:
+        """Detail of an observing session: conditions, notes and its observations.
+
+        Observation notes are shortened to notesPreview; use observation_log.get for
+        the full text.
+        """
+        return observing_session_get_resolver(observing_session_id=observing_session_id, user_id=user_id)
