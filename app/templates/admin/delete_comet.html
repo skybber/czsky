@@ -1,0 +1,26 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+<div class="ui stackable centered grid container">
+    <div class="twelve wide column">
+        <h2 class="ui header">{{ _('Delete comet') }}: {{ comet.designation }}</h2>
+        {% set flashes = {'error': get_flashed_messages(category_filter=['form-error'])} %}
+        {{ f.display_standard_flashes(flashes) }}
+        {% if references %}
+            <div class="ui warning message">
+                <p>{{ _('This comet cannot be deleted because it has linked records:') }}</p>
+                <ul>{% for label in references %}<li>{{ label }}</li>{% endfor %}</ul>
+                <p>{{ _('The comet and its linked records will be preserved.') }}</p>
+            </div>
+            <a class="ui button" href="{{ url_for('admin.edit_comet', comet_id=comet.id) }}">{{ _('Back') }}</a>
+        {% else %}
+            <p>{{ _('Permanently delete this manually added comet? It will disappear from the public catalogue and maps. This action cannot be undone.') }}</p>
+            {{ f.begin_form(form, flashes) }}
+                {{ form.submit(class='ui negative button') }}
+                <a class="ui button" href="{{ url_for('admin.edit_comet', comet_id=comet.id) }}">{{ _('Cancel') }}</a>
+            {{ f.end_form() }}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
