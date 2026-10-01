@@ -28,7 +28,12 @@ from app.main.usersettings.mcp_token_service import (
     generate_unique_token_id,
     parse_plain_mcp_token,
 )
-from app.models import McpOAuthAuthorizationCode, McpOAuthClient, McpUserToken
+from app.models import (
+    McpOAuthAuthorizationCode,
+    McpOAuthClient,
+    McpOAuthRefreshTokenHistory,
+    McpUserToken,
+)
 
 REFRESH_TOKEN_PREFIX = "czmcpr_"
 ACCESS_TOKEN_TTL_SECONDS = 3600
@@ -302,7 +307,11 @@ def _issue_tokens(token_row: McpUserToken, expected_refresh_hash: str | None = N
     """Set fresh access + refresh secrets on the row (rotation) and return the token response.
 
     With ``expected_refresh_hash`` the rotation is a conditional UPDATE, so only one
-    of concurrent refreshes using the same refresh token can win.
+    of concurrent refreshes using the same refresh token can win. The rotated-out
+    hash is kept in history to recognise its later replay.
+
+    Refresh secrets are 256-bit random values, so plain SHA-256 is sufficient and
+    allows looking up the history by hash.
     """
     access_secret = generate_secret()
     refresh_secret = generate_secret()
@@ -311,7 +320,7 @@ def _issue_tokens(token_row: McpUserToken, expected_refresh_hash: str | None = N
         "token_prefix": access_secret[:8],
         "token_hash": generate_password_hash(access_secret),
         "expires_date": now + timedelta(seconds=ACCESS_TOKEN_TTL_SECONDS),
-        "refresh_token_hash": generate_password_hash(refresh_secret),
+        "refresh_token_hash": _sha256_hex(refresh_secret),
         "refresh_expires_date": now + timedelta(days=REFRESH_TOKEN_TTL_DAYS),
         "update_date": now,
     }
@@ -329,6 +338,11 @@ def _issue_tokens(token_row: McpUserToken, expected_refresh_hash: str | None = N
             db.session.rollback()
             _revoke_token_row_id(token_row.id)
             raise OAuthError("invalid_grant", "Refresh token was already used")
+        db.session.add(McpOAuthRefreshTokenHistory(
+            token_row_id=token_row.id,
+            token_hash=expected_refresh_hash,
+            create_date=now,
+        ))
     db.session.commit()
     return {
         "access_token": build_plain_mcp_token(token_row.token_id, access_secret),
@@ -370,25 +384,34 @@ def exchange_authorization_code(
         raise OAuthError("invalid_grant", "Invalid authorization code")
 
     # Consume the code atomically; only one concurrent request can flip is_used.
+    # Consumption, token creation and code_row.token_row_id are committed in one
+    # transaction, so a concurrent replay waits on the row lock and then always
+    # sees token_row_id of the issued token.
     consumed = (
         McpOAuthAuthorizationCode.query
         .filter_by(id=code_row.id, is_used=False)
         .update({"is_used": True}, synchronize_session=False)
     )
-    db.session.commit()
     if consumed != 1:
+        db.session.commit()
+        db.session.refresh(code_row)
         # RFC 6749 4.1.2: code replay -> revoke tokens issued from it.
         _revoke_token_row_id(code_row.token_row_id)
         raise OAuthError("invalid_grant", "Authorization code was already used")
 
-    if code_row.expires_date < datetime.now():
-        raise OAuthError("invalid_grant", "Authorization code expired")
-    if redirect_uri is not None and redirect_uri != code_row.redirect_uri:
-        raise OAuthError("invalid_grant", "redirect_uri mismatch")
-    if not verify_pkce(code_verifier, code_row.code_challenge):
-        raise OAuthError("invalid_grant", "PKCE verification failed")
-    if resource and code_row.resource and resource != code_row.resource:
-        raise OAuthError("invalid_target", "resource mismatch")
+    try:
+        if code_row.expires_date < datetime.now():
+            raise OAuthError("invalid_grant", "Authorization code expired")
+        if redirect_uri is not None and redirect_uri != code_row.redirect_uri:
+            raise OAuthError("invalid_grant", "redirect_uri mismatch")
+        if not verify_pkce(code_verifier, code_row.code_challenge):
+            raise OAuthError("invalid_grant", "PKCE verification failed")
+        if resource and code_row.resource and resource != code_row.resource:
+            raise OAuthError("invalid_target", "resource mismatch")
+    except OAuthError:
+        # Failed attempt still burns the code.
+        db.session.commit()
+        raise
 
     now = datetime.now()
     token_row = McpUserToken(
@@ -431,10 +454,17 @@ def refresh_access_token(
         or (token_row.refresh_expires_date and token_row.refresh_expires_date < datetime.now())
     ):
         raise OAuthError("invalid_grant", "Invalid refresh token")
-    if not check_password_hash(token_row.refresh_token_hash, secret):
-        # token_id is unguessable, so a known id with a wrong secret is a replay of
-        # an already rotated refresh token (RFC 9700 4.14.2): revoke the grant.
-        _revoke_token_row_id(token_row.id)
+    secret_hash = _sha256_hex(secret)
+    if not hmac.compare_digest(secret_hash, token_row.refresh_token_hash):
+        # Replay of an already rotated refresh token (RFC 9700 4.14.2) revokes the grant.
+        # Any other secret is just invalid: token_id is part of the access token too,
+        # so a wrong secret alone must not be able to revoke someone's grant.
+        replayed = McpOAuthRefreshTokenHistory.query.filter_by(
+            token_row_id=token_row.id,
+            token_hash=secret_hash,
+        ).first()
+        if replayed is not None:
+            _revoke_token_row_id(token_row.id)
         raise OAuthError("invalid_grant", "Invalid refresh token")
 
     if scope:
@@ -451,19 +481,24 @@ def refresh_access_token(
 
 def revoke_token(client: McpOAuthClient, raw_token: str | None) -> None:
     """RFC 7009: always succeed, revoke only tokens owned by the client."""
+    is_refresh = True
     parsed = _parse_refresh_token(raw_token)
-    hash_attr = "refresh_token_hash"
     if parsed is None:
+        is_refresh = False
         parsed = parse_plain_mcp_token(raw_token or "")
-        hash_attr = "token_hash"
     if parsed is None:
         return
     token_id, secret = parsed
     token_row = McpUserToken.query.filter_by(token_id=token_id).first()
     if token_row is None or token_row.oauth_client_id != client.client_id or token_row.is_revoked:
         return
-    stored_hash = getattr(token_row, hash_attr)
-    if not stored_hash or not check_password_hash(stored_hash, secret):
+    if is_refresh:
+        matches = bool(token_row.refresh_token_hash) and hmac.compare_digest(
+            _sha256_hex(secret), token_row.refresh_token_hash
+        )
+    else:
+        matches = bool(token_row.token_hash) and check_password_hash(token_row.token_hash, secret)
+    if not matches:
         return
     _revoke_row(token_row)
     db.session.commit()

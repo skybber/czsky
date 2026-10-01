@@ -7,7 +7,7 @@ from typing import Any
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
-from app.models import McpUserToken
+from app.models import McpOAuthRefreshTokenHistory, McpUserToken
 
 TOKEN_PREFIX = "czmcp_"
 DEFAULT_SCOPE = "wishlist:read"
@@ -146,6 +146,7 @@ def delete_user_mcp_token(user_id: int, token_row_id: int) -> bool:
     if token_row is None:
         return False
 
+    McpOAuthRefreshTokenHistory.query.filter_by(token_row_id=token_row.id).delete(synchronize_session=False)
     db.session.delete(token_row)
     db.session.commit()
     return True

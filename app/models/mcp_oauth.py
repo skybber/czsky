@@ -41,3 +41,16 @@ class McpOAuthAuthorizationCode(db.Model):
 
     def __repr__(self):
         return f"<McpOAuthAuthorizationCode '{self.id}'>"
+
+
+class McpOAuthRefreshTokenHistory(db.Model):
+    """SHA-256 hashes of rotated-out refresh tokens, to detect their replay."""
+    __tablename__ = "mcp_oauth_refresh_token_history"
+
+    id = db.Column(db.Integer, primary_key=True)
+    token_row_id = db.Column(db.Integer, db.ForeignKey("mcp_user_tokens.id"), nullable=False, index=True)
+    token_hash = db.Column(db.String(64), nullable=False, unique=True, index=True)
+    create_date = db.Column(db.DateTime, default=datetime.now)
+
+    def __repr__(self):
+        return f"<McpOAuthRefreshTokenHistory '{self.id}'>"

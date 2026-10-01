@@ -269,6 +269,43 @@ class McpOAuthTestCase(unittest.TestCase):
         self.assertIsNone(verify_user_mcp_token(attacker['access_token']))
         self.assertEqual(400, self._refresh(client_id, attacker['refresh_token']).status_code)
 
+    def test_code_consumption_is_committed_together_with_token(self):
+        from app.main.oauth import oauth_service
+
+        client_id = self._register()['client_id']
+        code = self._get_code(client_id)
+        client = oauth_service.get_client(client_id)
+
+        with mock.patch.object(oauth_service, 'generate_unique_token_id', side_effect=RuntimeError):
+            with self.assertRaises(RuntimeError):
+                oauth_service.exchange_authorization_code(client, code, REDIRECT_URI, CODE_VERIFIER)
+        db.session.rollback()
+
+        # No intermediate commit: the failed issue left the code unconsumed.
+        self.assertFalse(McpOAuthAuthorizationCode.query.one().is_used)
+
+    def test_forged_refresh_secret_does_not_revoke_grant(self):
+        client_id = self._register()['client_id']
+        tokens = self._exchange(client_id, self._get_code(client_id)).get_json()
+
+        # token_id is visible in the access token; a forged secret must not revoke the grant.
+        token_id = tokens['access_token'][len('czmcp_'):].split('.', 1)[0]
+        response = self._refresh(client_id, f'czmcpr_{token_id}.' + 'x' * 43)
+        self.assertEqual(400, response.status_code)
+        self.assertIsNotNone(verify_user_mcp_token(tokens['access_token']))
+        self.assertEqual(200, self._refresh(client_id, tokens['refresh_token']).status_code)
+
+    def test_replay_after_multiple_rotations_revokes_grant(self):
+        client_id = self._register()['client_id']
+        tokens = self._exchange(client_id, self._get_code(client_id)).get_json()
+
+        latest = tokens
+        for _ in range(3):
+            latest = self._refresh(client_id, latest['refresh_token']).get_json()
+
+        self.assertEqual(400, self._refresh(client_id, tokens['refresh_token']).status_code)
+        self.assertIsNone(verify_user_mcp_token(latest['access_token']))
+
     def test_token_endpoint_rejects_foreign_resource(self):
         client_id = self._register()['client_id']
         self._login()
