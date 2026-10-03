@@ -4,6 +4,7 @@ import os
 import subprocess
 from datetime import datetime
 import skyfield
+import click
 
 from flask import (
     current_app,
@@ -202,6 +203,13 @@ def import_dso_list():
     import_billionaries_club('data/dsolist/BillionairesClub.csv')
     import_deep_man_600('data/dsolist/DeepMan600.csv')
     import_minimistr_dn('data/dsolist/MiniMistr_DN.csv')
+
+
+@app.cli.command("fix_hnsky_decimal_commas")
+@click.option('--apply', is_flag=True, help='Commit changes, otherwise dry run only.')
+def fix_hnsky_decimal_commas(apply):
+    from imports.import_hnsky import fix_hnsky_decimal_comma_dsos
+    fix_hnsky_decimal_comma_dsos('data/deep_sky.hnd', dry_run=not apply)
 
 
 @app.cli.command("import_hnsky_supplements")

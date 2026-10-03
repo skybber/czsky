@@ -58,6 +58,40 @@ cat_priorities = {
 }
 
 
+def fix_hnsky_decimal_commas(items):
+    """
+    deep_sky.hnd (version 2024-05-06) contains some values written with decimal comma, which splits
+    them into two items. PGC lines have split brightness (e.g. '141,89'), PK lines have split
+    length and width (e.g. '0,9,0,7').
+    """
+    if len(items) != 10:
+        return items
+    first_name = items[3].split('/')[0]
+    if first_name.startswith('PGC'):
+        return items[:5] + [items[5] + '.' + items[6]] + items[7:]
+    if first_name.startswith('PK_'):
+        return items[:6] + [items[6] + '.' + items[7], items[8] + '.' + items[9]]
+    return items
+
+
+def _normalize_hnsky_name(name):
+    name = name.strip()
+
+    if name.startswith('PN_'):
+        name = name[3:]
+
+    if name.startswith('A66_'):
+        name = 'Abell' + name[4:]
+
+    if name.startswith('PK_'):
+        name = 'PK' + _denormalize_pk_name(name[3:])
+
+    if name.startswith('Arp_'):
+        name = 'Arp' + name[4:]
+
+    return name
+
+
 def _save_dso_list(dso_count, line_cnt, dso_list, master_dso_map, save_master_dsos):
     for dso in dso_list:
         if save_master_dsos:
@@ -108,7 +142,7 @@ def import_hnsky(hnsky_dso_file):
         for line in lines:
             if len(line) == 0:
                 continue
-            items = line.split(',')
+            items = fix_hnsky_decimal_commas(line.split(','))
 
             ra = 2.0 * np.pi * float(items[0])/864000.0
             dec = np.pi * float(items[1])/(324000.0 * 2.0)
@@ -123,7 +157,7 @@ def import_hnsky(hnsky_dso_file):
             if len(items) > 5:
                 str_brightness = items[5].strip()
                 try:
-                    brightness = float(str_brightness)/10.0 if str_brightness else 100.0
+                    brightness = round(float(str_brightness)/10.0, 3) if str_brightness else 100.0
                 except (ValueError, TypeError):
                     pass
                 
@@ -157,7 +191,7 @@ def import_hnsky(hnsky_dso_file):
 
             if str_length:
                 try:
-                    rlong = float(str_length) * 6
+                    rlong = round(float(str_length) * 6, 2)
                 except (ValueError, TypeError):
                     pass
 
@@ -165,7 +199,7 @@ def import_hnsky(hnsky_dso_file):
             str_width = items[7].strip() if len(items) > 7 else None
             if str_width:
                 try:
-                    rshort = float(str_width) * 6
+                    rshort = round(float(str_width) * 6, 2)
                 except (ValueError, TypeError):
                     pass
 
@@ -186,19 +220,7 @@ def import_hnsky(hnsky_dso_file):
 
             for name1 in names:
                 for name in name1.split(';'):
-                    name = name.strip()
-                    
-                    if name.startswith('PN_'):
-                        name = name[3:]
-                        
-                    if name.startswith('A66_'):
-                        name = 'Abell' + name[4:]
-
-                    if name.startswith('PK_'):
-                        name = 'PK' + _denormalize_pk_name(name[3:])
-
-                    if name.startswith('Arp_'):
-                        name = 'Arp' + name[4:]
+                    name = _normalize_hnsky_name(name)
 
                     if name in dso_set:
                         continue
@@ -405,3 +427,81 @@ def fix_masters_after_hnsky_import():
         print('\nIntegrity error {}'.format(err))
         db.session.rollback()
     print('') # finish on new line
+
+
+def _parse_hnsky_dims(items):
+    def _to_float(i, mul):
+        s = items[i].strip() if len(items) > i else ''
+        try:
+            return round(float(s) * mul, 3) if s else None
+        except ValueError:
+            return None
+    return _to_float(6, 6), _to_float(7, 6), _to_float(8, 1), _to_float(5, 0.1)
+
+
+def _set_hnsky_dims(dso, major, minor, position_angle, brightness):
+    dso.major_axis = major
+    dso.minor_axis = minor
+    dso.position_angle = position_angle
+    dso.surface_bright = brightness
+    axis_ratio = 1
+    if major is not None and minor is not None:
+        if major < minor:
+            major, minor = minor, major
+        if major > 0:
+            axis_ratio = minor / major
+    dso.axis_ratio = axis_ratio
+
+
+def fix_hnsky_decimal_comma_dsos(hnsky_dso_file, dry_run=True):
+    """
+    Fix DSOs imported from deep_sky.hnd lines containing decimal commas (see fix_hnsky_decimal_commas).
+    Updates only HNSKY DSOs whose size still equals the wrongly imported value.
+    """
+    with open(hnsky_dso_file, 'r', encoding='ISO-8859-1') as hnd_file:
+        lines = hnd_file.readlines()[2:]
+
+    fixed_cnt = 0
+    try:
+        for line in lines:
+            raw_items = line.split(',')
+            items = fix_hnsky_decimal_commas(raw_items)
+            if items is raw_items:
+                continue
+
+            old_major, old_minor, _, _ = _parse_hnsky_dims(raw_items)
+            major, minor, position_angle, brightness = _parse_hnsky_dims(items)
+
+            names = set()
+            for name1 in items[3].split('/'):
+                for name in name1.split(';'):
+                    names.add(_normalize_hnsky_name(name))
+
+            dsos = {}
+            for dso in DeepskyObject.query.filter(DeepskyObject.name.in_(names),
+                                                  DeepskyObject.import_source == IMPORT_SOURCE_HNSKY).all():
+                dsos[dso.id] = dso
+                if dso.master_dso is not None and dso.master_dso.import_source == IMPORT_SOURCE_HNSKY:
+                    dsos[dso.master_dso.id] = dso.master_dso
+                for child in DeepskyObject.query.filter_by(master_id=dso.id, import_source=IMPORT_SOURCE_HNSKY).all():
+                    dsos[child.id] = child
+
+            for dso in dsos.values():
+                if dso.major_axis != old_major or dso.minor_axis != old_minor:
+                    continue
+                print('{}: {}x{} PA={} SB={} -> {}x{} PA={} SB={}'.format(
+                    dso.name, dso.major_axis, dso.minor_axis, dso.position_angle, dso.surface_bright,
+                    major, minor, position_angle, brightness))
+                _set_hnsky_dims(dso, major, minor, position_angle, brightness)
+                db.session.add(dso)
+                fixed_cnt += 1
+
+        if dry_run:
+            print('Dry run: {} DSOs would be fixed.'.format(fixed_cnt))
+            db.session.rollback()
+        else:
+            db.session.commit()
+            print('{} DSOs fixed.'.format(fixed_cnt))
+    except IntegrityError as err:
+        print('\nIntegrity error {}'.format(err))
+        db.session.rollback()

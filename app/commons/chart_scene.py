@@ -258,9 +258,17 @@ def scene_dso_id_from_name(name: str) -> str:
     return str(name).replace(" ", "")
 
 
+def _dso_axis_to_scene_radius(axis_arcsec: Any) -> float:
+    # DB axis is full diameter in arcsec, scene expects semi-axis in radians
+    if axis_arcsec is None or not axis_arcsec > 0:
+        return -1.0
+    return _round_coord(math.radians(float(axis_arcsec) / 3600.0) / 2.0)
+
+
 def build_scene_dso_item_from_model(dso: Any) -> SceneDsoItem:
     raw_type = str(getattr(dso, "type", "") or "")
     scene_type = CZSKY_TYPE_TO_SCENE.get(raw_type, raw_type)
+    position_angle = getattr(dso, "position_angle", None)
     return {
         "id": scene_dso_id_from_name(getattr(dso, "name", "")),
         "label": dso.denormalized_name() if hasattr(dso, "denormalized_name") else str(getattr(dso, "name", "")),
@@ -268,9 +276,9 @@ def build_scene_dso_item_from_model(dso: Any) -> SceneDsoItem:
         "dec": _round_coord(getattr(dso, "dec")),
         "mag": float(getattr(dso, "mag")) if getattr(dso, "mag", None) is not None else 99.0,
         "type": scene_type,
-        "rlong_rad": _round_coord(getattr(dso, "rlong")) if getattr(dso, "rlong", None) is not None else -1.0,
-        "rshort_rad": _round_coord(getattr(dso, "rshort")) if getattr(dso, "rshort", None) is not None else -1.0,
-        "position_angle_rad": _sig4(getattr(dso, "position_angle")) if getattr(dso, "position_angle", None) is not None else (math.pi * 0.5),
+        "rlong_rad": _dso_axis_to_scene_radius(getattr(dso, "major_axis", None)),
+        "rshort_rad": _dso_axis_to_scene_radius(getattr(dso, "minor_axis", None)),
+        "position_angle_rad": _sig4(math.radians(position_angle)) if position_angle is not None else (math.pi * 0.5),
     }
 
 

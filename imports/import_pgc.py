@@ -119,7 +119,9 @@ def import_pgc(filename):
             master_id = None
             for alt_dso_name, alt_dso in found_dsos:
                 if alt_dso:
-                    if alt_dso.master_id is not None and alt_dso.master_id in existing_dso_ids:
+                    if alt_dso.master_id is None:
+                        master_id = alt_dso.id
+                    elif alt_dso.master_id in existing_dso_ids:
                         master_id = alt_dso.master_id
                     break
 
