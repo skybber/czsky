@@ -63,6 +63,17 @@
         };
     }
 
+    function sanitizeSource(src) {
+        if (!src || typeof src !== 'object' || !Number.isFinite(Number(src.id))) return null;
+        return {
+            id: Number(src.id),
+            name: String(src.name || ''),
+            updateDate: src.updateDate ? String(src.updateDate) : null,
+            isOwner: !!src.isOwner,
+            isPublic: !!src.isPublic,
+        };
+    }
+
     function radToDegStr(rad) {
         // 4 decimals in degrees ~ 0.36 arcsec, enough for hand-drawn shapes.
         return String(Number((rad * 180.0 / Math.PI).toFixed(4)));
@@ -128,9 +139,13 @@
     // Store: items + visibility, persisted in localStorage, with snapshot-based undo.
     // ---------------------------------------------------------------------------------
 
+    // source: saved drawing set the working copy comes from ({ id, name, updateDate, isOwner, isPublic })
+    // or null; dirty: the working copy has changes not saved to that set.
     window.SkySceneDrawingStore = function () {
         this.items = [];
         this.visible = true;
+        this.source = null;
+        this.dirty = false;
         this.undoStack = [];
         this.listeners = [];
         this._load();
@@ -151,6 +166,8 @@
             const data = JSON.parse(raw);
             this.items = Codec.fromJSON(data);
             this.visible = data.visible !== false;
+            this.source = sanitizeSource(data.source);
+            this.dirty = !!data.dirty;
         } catch (e) {
             this.items = [];
         }
@@ -160,6 +177,8 @@
         try {
             const data = Codec.toJSON(this.items);
             data.visible = this.visible;
+            data.source = this.source;
+            data.dirty = this.dirty;
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         } catch (e) {
             // Storage may be unavailable (private mode, quota); drawings still live in memory.
@@ -176,11 +195,43 @@
 
     // Every mutation goes through here so it is undoable and persisted.
     Store.prototype.mutate = function (fn) {
+        this.pushUndo();
+        fn(this.items);
+        this.markChanged();
+    };
+
+    Store.prototype.pushUndo = function () {
         this.undoStack.push(cloneItems(this.items));
         if (this.undoStack.length > MAX_UNDO) this.undoStack.shift();
-        fn(this.items);
+    };
+
+    // Items were modified in place (e.g. vertex drag) after pushUndo().
+    Store.prototype.markChanged = function () {
+        this.dirty = true;
         this._save();
         this._notify();
+    };
+
+    // Replace the working copy by a saved set (or by unsaved drawings when source is null).
+    Store.prototype.load = function (items, source) {
+        this.items = items;
+        this.source = sanitizeSource(source);
+        this.dirty = false;
+        this.undoStack = [];
+        this._save();
+        this._notify();
+    };
+
+    Store.prototype.markSaved = function (source) {
+        this.source = sanitizeSource(source);
+        this.dirty = false;
+        this._save();
+        this._notify();
+    };
+
+    // True when replacing the working copy would lose work.
+    Store.prototype.hasUnsavedWork = function () {
+        return this.items.length > 0 && (this.dirty || !this.source);
     };
 
     Store.prototype.canUndo = function () {
@@ -190,8 +241,7 @@
     Store.prototype.undo = function () {
         if (!this.undoStack.length) return false;
         this.items = this.undoStack.pop();
-        this._save();
-        this._notify();
+        this.markChanged();
         return true;
     };
 
@@ -343,7 +393,7 @@
         if (!this.draft) return;
         const type = this.draft.type;
         if (this.draft.coords.length < MIN_VERTICES[type]) {
-            this.setMode(MODE_NONE);
+            this.setMode(MODE_EDIT);
             return;
         }
         const item = { id: newId(), type: type, coords: this.draft.coords, label: '' };
@@ -363,7 +413,7 @@
     };
 
     Tool.prototype.cancelDraft = function () {
-        this.setMode(MODE_NONE);
+        this.setMode(MODE_EDIT);
     };
 
     Tool.prototype.undo = function () {
@@ -510,7 +560,7 @@
         if (!item || !pos) return true;
         if (!d.snapshotTaken) {
             // One undo step for the whole drag.
-            this.store.undoStack.push(cloneItems(this.store.items));
+            this.store.pushUndo();
             if (d.insert) item.coords.splice(d.vertex, 0, pos);
             d.snapshotTaken = true;
         }
@@ -526,8 +576,7 @@
         const d = this.drag;
         this.drag = null;
         if (d.moved) {
-            this.store._save();
-            this.store._notify();
+            this.store.markChanged();
         } else if (!d.insert) {
             this.selection = { itemId: d.itemId, vertex: d.vertex };
             this._emitState();
@@ -541,10 +590,7 @@
         if (!this.drag || oe.pointerId !== this.drag.pointerId) return false;
         const moved = this.drag.moved;
         this.drag = null;
-        if (moved) {
-            this.store._save();
-            this.store._notify();
-        }
+        if (moved) this.store.markChanged();
         return true;
     };
 
@@ -609,6 +655,9 @@
                 this.draft.coords = [];
                 this._emitState();
                 this.scene.requestDraw();
+            } else if (this.draft) {
+                // Leave the drawing mode, keep the toolbar open.
+                this.setMode(MODE_EDIT);
             } else {
                 this.setMode(MODE_NONE);
             }

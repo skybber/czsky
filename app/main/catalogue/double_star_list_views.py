@@ -18,8 +18,6 @@ from flask import (
 
 from flask_login import current_user
 
-from app import csrf
-
 from app.models import (
     Constellation,
     DoubleStar,

@@ -5,6 +5,7 @@ module (as opposed to just their python files)
 
 from .commons import *
 from .catalogue import *
+from .chart_drawing import *
 from .chart_theme import *
 from .constellation import *
 from .comet import *

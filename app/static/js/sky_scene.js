@@ -800,13 +800,40 @@
     };
 
     SkyScene.prototype.centerObjectInFov = function () {
+        this._setViewCenterEquatorial(this.obj_ra, this.obj_dec);
+        this.setCenterToHiddenInputs();
+        this.syncQueryString();
+        this.forceReloadImage();
+    };
+
+    // Center the view on ra/dec (radians) and optionally switch to the smallest field >= fovDeg.
+    SkyScene.prototype.lookAtEquatorial = function (ra, dec, fovDeg) {
+        this._setViewCenterEquatorial(ra, dec);
+        if (Number.isFinite(fovDeg)) {
+            let idx = this.fieldSizes.findIndex((fs) => fs >= fovDeg - 1e-9);
+            if (idx < 0) idx = this.fieldSizes.length - 1;
+            this.fldSizeIndex = idx;
+            this.targetFldSizeIndex = idx;
+            this.renderFovDeg = this.fieldSizes[idx];
+            this.renderMaglim = this._maglimForFieldIndex(idx);
+            this.renderDsoMaglim = this._dsoMaglimForFieldIndex(idx);
+            if (this.onFieldChangeCallback) {
+                this.onFieldChangeCallback.call(this, idx);
+            }
+        }
+        this.setCenterToHiddenInputs();
+        this.syncQueryString();
+        this.forceReloadImage();
+    };
+
+    SkyScene.prototype._setViewCenterEquatorial = function (raValue, decValue) {
         if (this.isEquatorial) {
-            this.viewCenter.phi = this.obj_ra;
-            this.viewCenter.theta = this.obj_dec;
+            this.viewCenter.phi = raValue;
+            this.viewCenter.theta = decValue;
         } else {
             const lat = Number(this.latitude);
-            const ra = Number(this.obj_ra);
-            const dec = Number(this.obj_dec);
+            const ra = Number(raValue);
+            const dec = Number(decValue);
             const timeISO = this._resolveRequestTimeISO();
             const lst = this._getChartLst(timeISO);
 
@@ -821,9 +848,6 @@
                 }
             }
         }
-        this.setCenterToHiddenInputs();
-        this.syncQueryString();
-        this.forceReloadImage();
     };
 
     SkyScene.prototype.reloadImage = function () {

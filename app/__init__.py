@@ -191,6 +191,8 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_chart)
         from .main.chart import main_chart_theme as main_chart_theme
         app.register_blueprint(main_chart_theme)
+        from .main.chart import main_chart_drawing as main_chart_drawing
+        app.register_blueprint(main_chart_drawing)
         from .main.news import main_news as main_news
         app.register_blueprint(main_news)
         from .main.equipment import main_equipment as main_equipment

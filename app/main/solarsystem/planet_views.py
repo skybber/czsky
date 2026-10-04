@@ -22,7 +22,7 @@ from flask_login import current_user
 
 from skyfield.api import load
 
-from app import db, csrf
+from app import db
 import fchart3
 
 from .planet_forms import (

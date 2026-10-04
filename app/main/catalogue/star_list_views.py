@@ -13,8 +13,6 @@ from flask import (
     url_for,
 )
 
-from app import csrf
-
 from app.models import Constellation, StarList, StarListItem, StarListDescription, User, UserDsoDescription
 from app.commons.dso_utils import CHART_STAR_PREFIX
 from app.commons.search_utils import process_session_search

@@ -19,7 +19,7 @@ from flask import (
 
 from flask_login import current_user
 
-from app import db, csrf
+from app import db
 
 from .planet_forms import (
     PlanetFindChartForm,

@@ -150,6 +150,38 @@ def parse_drawings_compact(value):
     return _apply_limits(drawings)
 
 
+def drawings_to_json(drawings):
+    """Serialize parsed drawings to the normalized JSON transport/storage format."""
+    return json.dumps({
+        'version': 1,
+        'items': [
+            {'type': d.kind, 'coords': [[ra, dec] for ra, dec in d.coords], 'label': d.label or ''}
+            for d in drawings
+        ],
+    })
+
+
+def compute_drawings_view(drawings, field_sizes):
+    """Return (center_ra, center_dec, fld_size_deg) framing all vertices, or (None, None, None)."""
+    vecs = [_radec_to_vec(ra, dec) for d in drawings for ra, dec in d.coords]
+    if not vecs:
+        return None, None, None
+    sx = sum(v[0] for v in vecs)
+    sy = sum(v[1] for v in vecs)
+    sz = sum(v[2] for v in vecs)
+    norm = math.sqrt(sx * sx + sy * sy + sz * sz)
+    if norm < 1e-9:
+        # Vertices spread around the whole sphere.
+        return 0.0, 0.0, field_sizes[-1]
+    center = (sx / norm, sy / norm, sz / norm)
+    max_dist = max(math.acos(max(-1.0, min(1.0, v[0] * center[0] + v[1] * center[1] + v[2] * center[2])))
+                   for v in vecs)
+    needed = math.degrees(2.0 * max_dist) * 1.3
+    fld_size = next((fs for fs in field_sizes if fs >= needed), field_sizes[-1])
+    center_ra, center_dec = _vec_to_radec(center)
+    return center_ra, center_dec, fld_size
+
+
 def get_drawings_from_request():
     payload = request.form.get(DRAWINGS_FORM_FIELD) if request.method == 'POST' else None
     if payload:

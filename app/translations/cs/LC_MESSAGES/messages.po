@@ -3652,9 +3652,6 @@ msgstr "Polygon"
 msgid "Point"
 msgstr "Bod"
 
-msgid "Edit drawings"
-msgstr "Upravit kresby"
-
 msgid "Hide drawings"
 msgstr "Skrýt kresby"
 
@@ -3670,11 +3667,11 @@ msgstr "Kopírovat odkaz"
 msgid "Link copied to clipboard"
 msgstr "Odkaz zkopírován do schránky"
 
-msgid "Delete all drawings"
-msgstr "Smazat všechny kresby"
+msgid "Delete all objects"
+msgstr "Smazat všechny objekty"
 
-msgid "Delete all drawings?"
-msgstr "Smazat všechny kresby?"
+msgid "Delete all objects of the current drawing?"
+msgstr "Smazat všechny objekty aktuální kresby?"
 
 msgid "Landscape"
 msgstr "Na šířku"
@@ -3706,17 +3703,140 @@ msgstr "Zavřít (Esc)"
 msgid "Done"
 msgstr "Hotovo"
 
-msgid "Click to add vertices, double click or Enter to finish."
-msgstr "Klikáním přidávejte vrcholy, dvojklik nebo Enter tvar dokončí."
-
-msgid "Click to place a point."
-msgstr "Kliknutím umístíte bod."
-
-msgid "Drag vertices to move them, drag small circles to add a vertex."
-msgstr "Tažením vrcholy posunete, tažením malých koleček přidáte vrchol."
-
 msgid "The link contains drawings. Replace your current drawings?"
 msgstr "Odkaz obsahuje kresby. Nahradit vaše současné kresby?"
 
 msgid "Cancel"
 msgstr "Zrušit"
+
+msgid "Are you sure you want to delete this drawing?"
+msgstr "Opravdu chcete tuto kresbu smazat?"
+
+msgid "Chart Drawings"
+msgstr "Kresby na mapě"
+
+msgid "Connection error."
+msgstr "Chyba spojení."
+
+msgid "Copy of %(name)s"
+msgstr "Kopie – %(name)s"
+
+msgid "Delete"
+msgstr "Smazat"
+
+msgid "Delete Drawing"
+msgstr "Smazat kresbu"
+
+msgid "Discard the current unsaved drawings?"
+msgstr "Zahodit současné neuložené kresby?"
+
+msgid "Drawing saved"
+msgstr "Kresba uložena"
+
+msgid "Drawing successfully updated"
+msgstr "Kresba byla upravena"
+
+msgid "Drawing was deleted"
+msgstr "Kresba byla smazána"
+
+msgid "Drawing was duplicated"
+msgstr "Kresba byla zkopírována"
+
+msgid "Drawing was imported"
+msgstr "Kresba byla importována"
+
+msgid "Drawings are created in the chart (Tools → Polyline / Polygon / Point) and saved via Tools → Saved drawings → Save as."
+msgstr "Kresby se vytvářejí v mapě (Nástroje → Lomená čára / Polygon / Bod) a ukládají přes Nástroje → Uložené kresby → Uložit jako."
+
+msgid "Duplicate"
+msgstr "Duplikovat"
+
+msgid "Edit Drawing"
+msgstr "Upravit kresbu"
+
+msgid "Export JSON"
+msgstr "Export JSON"
+
+msgid "Import JSON"
+msgstr "Import JSON"
+
+msgid "Imported drawing"
+msgstr "Importovaná kresba"
+
+msgid "Last change"
+msgstr "Poslední změna"
+
+msgid "Lines, areas and points drawn on the chart"
+msgstr "Čáry, oblasti a body nakreslené v mapě"
+
+msgid "Log in to save drawings"
+msgstr "Pro uložení kreseb se přihlaste"
+
+msgid "Manage drawings…"
+msgstr "Spravovat kresby…"
+
+msgid "Maximum number of saved drawings reached."
+msgstr "Dosažen maximální počet uložených kreseb."
+
+msgid "Name is required."
+msgstr "Název je povinný."
+
+msgid "New drawing"
+msgstr "Nová kresba"
+
+msgid "Nothing to save."
+msgstr "Není co uložit."
+
+msgid "Objects"
+msgstr "Objekty"
+
+msgid "Open drawing"
+msgstr "Otevřít kresbu"
+
+msgid "Open in chart"
+msgstr "Otevřít v mapě"
+
+msgid "Please log in again."
+msgstr "Přihlaste se prosím znovu."
+
+msgid "Public"
+msgstr "Veřejná"
+
+msgid "Public (anyone with the link can view it)"
+msgstr "Veřejná (kdokoli s odkazem ji může zobrazit)"
+
+msgid "Save"
+msgstr "Uložit"
+
+msgid "Save as…"
+msgstr "Uložit jako…"
+
+msgid "Save drawing as"
+msgstr "Uložit kresbu jako"
+
+msgid "Saving failed."
+msgstr "Uložení se nezdařilo."
+
+msgid "Search…"
+msgstr "Hledat…"
+
+msgid "Share link"
+msgstr "Odkaz pro sdílení"
+
+msgid "The drawing was changed elsewhere in the meantime. Overwrite it?"
+msgstr "Kresba byla mezitím změněna jinde. Přepsat ji?"
+
+msgid "The drawing was not found or it is not public."
+msgstr "Kresba nebyla nalezena nebo není veřejná."
+
+msgid "The file does not contain any valid drawings."
+msgstr "Soubor neobsahuje žádné platné kresby."
+
+msgid "You have no saved drawings yet."
+msgstr "Zatím nemáte žádné uložené kresby."
+
+msgid "Drawing"
+msgstr "Kreslení"
+
+msgid "Open drawing…"
+msgstr "Otevřít kresbu…"

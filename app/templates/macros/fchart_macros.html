@@ -59,22 +59,34 @@
       padding: 4px 6px;
       white-space: nowrap;
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: center;
-      gap: 8px;
+      gap: 6px 8px;
+      width: max-content;
+      max-width: calc(100% - 16px);
     }
-    #drawing-panel .drawing-panel-hint {
-      font-size: 12px;
-      opacity: 0.8;
-    }
-    #tools_dropdown .menu > .item.active-mode {
+    #drawing-panel .drawing-panel-name {
+      font-size: 13px;
       font-weight: bold;
+      padding-left: 4px;
+    }
+    #drawing-panel .ui.buttons {
+      margin: 0;
+    }
+    #drawing-open-modal .drawing-list {
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    #drawing-open-modal .drawing-list .item {
+      cursor: pointer;
     }
     @media (max-width: 767px) {
       #tools_dropdown .fchart-desktop-only {
         display: none !important;
       }
-      #drawing-panel .drawing-panel-hint {
-        display: none;
+      #drawing-panel .drawing-panel-name {
+        display: none !important;
       }
     }
     #top-menu .ui.dropdown.active[data-tooltip]::before,
@@ -559,27 +571,19 @@
                 <div id="tools_dropdown" class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('Tools') }}" data-position="bottom center" data-variation="tiny basic">
                     <i class="tools icon"></i>
                     <div class="menu">
-                        <div class="item drawing-tool-item" data-drawing-mode="polyline">
-                            <i class="bezier curve icon"></i>{{ _('Polyline') }}
+                        <div id="drawing_start" class="item">
+                            <i class="pencil alternate icon"></i>{{ _('Drawing') }}
                         </div>
-                        <div class="item drawing-tool-item" data-drawing-mode="polygon">
-                            <i class="draw polygon icon"></i>{{ _('Polygon') }}
+                        {% if current_user.is_authenticated %}
+                        <div id="drawing_open" class="item">
+                            <i class="folder open outline icon"></i>{{ _('Open drawing…') }}
                         </div>
-                        <div class="item drawing-tool-item" data-drawing-mode="point">
-                            <i class="map marker alternate icon"></i>{{ _('Point') }}
-                        </div>
-                        <div class="item drawing-tool-item" data-drawing-mode="edit">
-                            <i class="edit icon"></i>{{ _('Edit drawings') }}
-                        </div>
-                        <div class="divider drawing-tool-item"></div>
-                        <div id="drawing_toggle_visible" class="item drawing-tool-item">
+                        {% endif %}
+                        <div id="drawing_toggle_visible" class="item">
                             <i class="eye icon"></i><span class="text">{{ _('Hide drawings') }}</span>
                         </div>
-                        <div id="drawing_clear" class="item drawing-tool-item">
-                            <i class="trash alternate icon"></i>{{ _('Delete all drawings') }}
-                        </div>
                         {% if fchart_pdf_url is not none %}
-                        <div class="divider drawing-tool-item fchart-desktop-only"></div>
+                        <div class="divider fchart-desktop-only"></div>
                         <div class="item fchart-desktop-only">
                             <i class="dropdown icon"></i>
                             <span class="text"><i class="file pdf icon"></i>PDF</span>
@@ -699,16 +703,31 @@
         <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-large" style="width: 90px;"></div></a>
     </div>
     <div id="drawing-panel" class="ui mini compact segment" style="display:none">
-        <span id="drawing-panel-hint" class="drawing-panel-hint"></span>
+        <span id="drawing-panel-name" class="drawing-panel-name"></span>
+        <div class="ui mini buttons">
+            <button type="button" class="ui mini icon button" data-drawing-mode="polyline" data-inverted="" data-tooltip="{{ _('Polyline') }}" data-position="top center"><i class="bezier curve icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-mode="polygon" data-inverted="" data-tooltip="{{ _('Polygon') }}" data-position="top center"><i class="draw polygon icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-mode="point" data-inverted="" data-tooltip="{{ _('Point') }}" data-position="top center"><i class="map marker alternate icon"></i></button>
+        </div>
         <div class="ui mini buttons">
             <button type="button" class="ui mini icon button" data-drawing-action="finish" data-drawing-show="create" data-inverted="" data-tooltip="{{ _('Finish (Enter, double click)') }}" data-position="top center"><i class="check icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="undo" data-inverted="" data-tooltip="{{ _('Undo (Ctrl+Z)') }}" data-position="top center"><i class="undo icon"></i></button>
             <button type="button" class="ui mini icon button" data-drawing-action="label" data-drawing-show="selection" data-inverted="" data-tooltip="{{ _('Label') }}" data-position="top center"><i class="tag icon"></i></button>
             <button type="button" class="ui mini icon button" data-drawing-action="delete-vertex" data-drawing-show="vertex" data-inverted="" data-tooltip="{{ _('Delete vertex (Del, double click)') }}" data-position="top center"><i class="times circle outline icon"></i></button>
             <button type="button" class="ui mini icon button" data-drawing-action="delete-item" data-drawing-show="selection" data-inverted="" data-tooltip="{{ _('Delete object') }}" data-position="top center"><i class="trash alternate icon"></i></button>
-            <button type="button" class="ui mini icon button" data-drawing-action="undo" data-inverted="" data-tooltip="{{ _('Undo (Ctrl+Z)') }}" data-position="top center"><i class="undo icon"></i></button>
-            <button type="button" class="ui mini icon button" data-drawing-action="copy-link" data-inverted="" data-tooltip="{{ _('Copy link with drawings') }}" data-position="top center"><i class="linkify icon"></i></button>
-            <button type="button" class="ui mini button" data-drawing-action="close" data-inverted="" data-tooltip="{{ _('Close (Esc)') }}" data-position="top center">{{ _('Done') }}</button>
         </div>
+        <div class="ui mini buttons">
+            {% if current_user.is_authenticated %}
+            <button type="button" class="ui mini icon button" data-drawing-action="save" data-inverted="" data-tooltip="{{ _('Save') }}" data-position="top center"><i class="save icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="save-as" data-inverted="" data-tooltip="{{ _('Save as…') }}" data-position="top center"><i class="copy outline icon"></i></button>
+            {% else %}
+            <button type="button" class="ui mini icon button" data-drawing-action="login" data-inverted="" data-tooltip="{{ _('Log in to save drawings') }}" data-position="top center"><i class="sign in icon"></i></button>
+            {% endif %}
+            <button type="button" class="ui mini icon button" data-drawing-action="new" data-inverted="" data-tooltip="{{ _('New drawing') }}" data-position="top center"><i class="file outline icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="copy-link" data-inverted="" data-tooltip="{{ _('Copy link with drawings') }}" data-position="top center"><i class="linkify icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="clear" data-inverted="" data-tooltip="{{ _('Delete all objects') }}" data-position="top center"><i class="eraser icon"></i></button>
+        </div>
+        <button type="button" class="ui mini button" data-drawing-action="close" data-inverted="" data-tooltip="{{ _('Close (Esc)') }}" data-position="top center">{{ _('Done') }}</button>
     </div>
 </div>
 
@@ -720,6 +739,21 @@
     <div class="actions">
         <div class="ui negative cancel button">{{ _('No') }}</div>
         <div class="ui positive right labeled icon approve button">{{ _('Yes') }}<i class="checkmark icon"></i></div>
+    </div>
+</div>
+<div id="drawing-open-modal" class="ui tiny modal" style="z-index:10000;">
+    <div class="header">{{ _('Open drawing') }}</div>
+    <div class="content">
+        <div class="ui fluid icon input" style="margin-bottom:1em">
+            <input type="text" class="drawing-filter" placeholder="{{ _('Search…') }}">
+            <i class="search icon"></i>
+        </div>
+        <div class="ui divided selection list drawing-list"></div>
+        <div class="ui message drawing-list-empty" style="display:none">{{ _('You have no saved drawings yet.') }}</div>
+    </div>
+    <div class="actions">
+        <a class="ui left floated basic button" href="{{ url_for('main_chart_drawing.chart_drawings') }}">{{ _('Manage drawings…') }}</a>
+        <div class="ui cancel button">{{ _('Cancel') }}</div>
     </div>
 </div>
 <div id="drawing-prompt-modal" class="ui tiny modal" style="z-index:10000;">
@@ -1072,28 +1106,31 @@
 
     const chartDrawingStore = new SkySceneDrawingStore();
     let chartDrawingTool = null;
-    const drawingModeHints = {
-        polyline: {{ _('Click to add vertices, double click or Enter to finish.')|tojson }},
-        polygon: {{ _('Click to add vertices, double click or Enter to finish.')|tojson }},
-        point: {{ _('Click to place a point.')|tojson }},
-        edit: {{ _('Drag vertices to move them, drag small circles to add a vertex.')|tojson }},
-    };
+    const DRAWING_PANEL_NAME_MAX_LEN = 24;
 
     // Drawings are mirrored into the page URL (like ra/dec/fsz) as long as they fit,
     // so the address bar is always shareable. Bigger drawings live only in localStorage.
     const DRAWINGS_URL_MAX_LEN = 2000;
 
+    // A clean copy of a saved set is referenced by its id (dset), anything else is mirrored as drw.
     function syncDrawingsToUrl() {
         const params = new URLSearchParams(window.location.search);
-        const value = chartDrawingStore.toCompact();
-        if (value && value.length <= DRAWINGS_URL_MAX_LEN) {
-            if (params.get('{{ drawings_query_param }}') === value) return;
-            params.set('{{ drawings_query_param }}', value);
-        } else {
-            if (!params.has('{{ drawings_query_param }}')) return;
+        const before = params.toString();
+        const src = chartDrawingStore.source;
+        if (src && !chartDrawingStore.dirty) {
+            params.set('dset', String(src.id));
             params.delete('{{ drawings_query_param }}');
+        } else {
+            params.delete('dset');
+            const value = chartDrawingStore.toCompact();
+            if (value && value.length <= DRAWINGS_URL_MAX_LEN) {
+                params.set('{{ drawings_query_param }}', value);
+            } else {
+                params.delete('{{ drawings_query_param }}');
+            }
         }
         const qs = params.toString();
+        if (qs === before) return;
         history.replaceState(null, null, window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
         if (typeof fchart !== 'undefined' && fchart && typeof fchart.propagateUrlToParent === 'function') {
             fchart.propagateUrlToParent();
@@ -1130,16 +1167,207 @@
         }).modal('show');
     }
 
+    function drawingToast(message, cls) {
+        $('body').toast({ message: message, class: cls || 'success', displayTime: cls === 'error' ? 5000 : 2000 });
+    }
+
+    // Asks before an action that would replace the working copy with unsaved work.
+    function confirmReplaceWorkingCopy(message, action) {
+        if (chartDrawingStore.hasUnsavedWork()) {
+            $(function() { drawingConfirm(message, action); });
+        } else {
+            action();
+        }
+    }
+
+    // --- saved drawing sets (JSON API, see app/main/chart/chart_drawing_views.py) ---
+    const chartDrawingsApiUrl = "{{ url_for('main_chart_drawing.api_chart_drawings') }}";
+    const chartDrawingsLoginUrl = "{{ url_for('account.login') }}";
+    const isUserAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+
+    function drawingsApi(method, url, body) {
+        const opts = { method: method, headers: { 'Accept': 'application/json' }, credentials: 'same-origin' };
+        if (body !== undefined) {
+            opts.headers['Content-Type'] = 'application/json';
+            opts.body = JSON.stringify(body);
+        }
+        return fetch(url, opts).then(function(resp) {
+            if (resp.redirected) {
+                // login_required redirected to the login page (session expired)
+                return { status: 401, ok: false, data: { error: {{ _('Please log in again.')|tojson }} } };
+            }
+            return resp.json().catch(function() { return {}; }).then(function(data) {
+                return { status: resp.status, ok: resp.ok, data: data, redirected: resp.redirected };
+            });
+        });
+    }
+
+    function sourceFromApi(data) {
+        return {
+            id: data.id,
+            name: data.name,
+            updateDate: data.update_date,
+            isOwner: data.is_owner !== false,
+            isPublic: !!data.is_public,
+        };
+    }
+
+    function loadSavedDrawing(id, lookAt) {
+        return drawingsApi('GET', chartDrawingsApiUrl + '/' + encodeURIComponent(id)).then(function(r) {
+            if (!r.ok) {
+                drawingToast({{ _('The drawing was not found or it is not public.')|tojson }}, 'error');
+                syncDrawingsToUrl();
+                return;
+            }
+            const items = SkySceneDrawingStore.codec.fromJSON(r.data.definition);
+            chartDrawingStore.load(items, sourceFromApi(r.data));
+            chartDrawingStore.setVisible(true);
+            if (lookAt && r.data.center_ra !== null && r.data.center_ra !== undefined) {
+                pendingDrawingLookAt = [r.data.center_ra, r.data.center_dec, r.data.fld_size];
+                applyPendingDrawingLookAt();
+            }
+        }, function() {
+            drawingToast({{ _('Connection error.')|tojson }}, 'error');
+        });
+    }
+
+    // The chart may not exist yet when a ?dset link is resolved during page load.
+    let pendingDrawingLookAt = null;
+
+    function applyPendingDrawingLookAt() {
+        if (!pendingDrawingLookAt || typeof fchart === 'undefined' || !fchart
+                || typeof fchart.lookAtEquatorial !== 'function') return;
+        const target = pendingDrawingLookAt;
+        pendingDrawingLookAt = null;
+        fchart.lookAtEquatorial(target[0], target[1], target[2]);
+    }
+
+    function saveDrawingAs() {
+        if (!isUserAuthenticated) {
+            window.location.href = chartDrawingsLoginUrl;
+            return;
+        }
+        if (chartDrawingStore.isEmpty()) {
+            drawingToast({{ _('Nothing to save.')|tojson }}, 'warning');
+            return;
+        }
+        const src = chartDrawingStore.source;
+        const defaultName = src && src.isOwner ? src.name : '';
+        drawingPrompt({{ _('Save drawing as')|tojson }}, defaultName, { maxLength: 128 }, function(name) {
+            name = (name || '').trim();
+            if (!name) return;
+            const body = { name: name, definition: SkySceneDrawingStore.codec.toJSON(chartDrawingStore.items) };
+            drawingsApi('POST', chartDrawingsApiUrl, body).then(function(r) {
+                if (r.status !== 201) {
+                    drawingToast(r.data.error || {{ _('Saving failed.')|tojson }}, 'error');
+                    return;
+                }
+                chartDrawingStore.markSaved(sourceFromApi(Object.assign({ is_owner: true }, r.data)));
+                drawingToast({{ _('Drawing saved')|tojson }});
+            }, function() {
+                drawingToast({{ _('Connection error.')|tojson }}, 'error');
+            });
+        });
+    }
+
+    function saveDrawing(force) {
+        const src = chartDrawingStore.source;
+        if (!src || !src.isOwner) {
+            saveDrawingAs();
+            return;
+        }
+        if (chartDrawingStore.isEmpty()) {
+            drawingToast({{ _('Nothing to save.')|tojson }}, 'warning');
+            return;
+        }
+        const body = {
+            definition: SkySceneDrawingStore.codec.toJSON(chartDrawingStore.items),
+            base_update_date: src.updateDate,
+            force: !!force,
+        };
+        drawingsApi('PUT', chartDrawingsApiUrl + '/' + src.id, body).then(function(r) {
+            if (r.status === 409) {
+                drawingConfirm({{ _('The drawing was changed elsewhere in the meantime. Overwrite it?')|tojson }},
+                    function() { saveDrawing(true); });
+                return;
+            }
+            if (r.status === 404) {
+                saveDrawingAs();
+                return;
+            }
+            if (!r.ok) {
+                drawingToast(r.data.error || {{ _('Saving failed.')|tojson }}, 'error');
+                return;
+            }
+            chartDrawingStore.markSaved(Object.assign({}, src, { updateDate: r.data.update_date, name: r.data.name }));
+            drawingToast({{ _('Drawing saved')|tojson }});
+        }, function() {
+            drawingToast({{ _('Connection error.')|tojson }}, 'error');
+        });
+    }
+
+    function newDrawing() {
+        confirmReplaceWorkingCopy({{ _('Discard the current unsaved drawings?')|tojson }}, function() {
+            chartDrawingStore.load([], null);
+        });
+    }
+
+    function openDrawingDialog() {
+        const $modal = $('#drawing-open-modal');
+        const $list = $modal.find('.drawing-list').empty();
+        const $filter = $modal.find('.drawing-filter').val('');
+        drawingsApi('GET', chartDrawingsApiUrl).then(function(r) {
+            const items = r.ok && r.data.items ? r.data.items : [];
+            $modal.find('.drawing-list-empty').toggle(items.length === 0);
+            items.forEach(function(d) {
+                const date = d.update_date ? d.update_date.substring(0, 16).replace('T', ' ') : '';
+                const $item = $('<div class="item"></div>').attr('data-id', d.id);
+                $('<div class="right floated content"></div>').text(date).appendTo($item);
+                const $content = $('<div class="content"></div>').appendTo($item);
+                $('<div class="header"></div>').text(d.name).appendTo($content);
+                $('<div class="description"></div>')
+                    .text({{ _('Objects')|tojson }} + ': ' + d.item_count + (d.is_public ? ' · ' + {{ _('Public')|tojson }} : ''))
+                    .appendTo($content);
+                $item.appendTo($list);
+            });
+        });
+        $filter.off('input.drawing').on('input.drawing', function() {
+            const q = $(this).val().toLowerCase();
+            $list.children('.item').each(function() {
+                $(this).toggle($(this).find('.header').text().toLowerCase().indexOf(q) >= 0);
+            });
+        });
+        $list.off('click.drawing').on('click.drawing', '.item', function() {
+            const id = $(this).data('id');
+            $modal.modal('hide');
+            confirmReplaceWorkingCopy({{ _('Discard the current unsaved drawings?')|tojson }}, function() {
+                loadSavedDrawing(id, true);
+            });
+        });
+        $modal.modal({ onShow: raiseModalDimmer }).modal('show');
+    }
+
     function importDrawingsFromUrl() {
-        const value = new URLSearchParams(window.location.search).get('{{ drawings_query_param }}');
+        const params = new URLSearchParams(window.location.search);
+        const dset = params.get('dset');
+        if (dset !== null) {
+            const src = chartDrawingStore.source;
+            if (src && String(src.id) === dset && chartDrawingStore.dirty) return;  // keep local edits
+            // A bare ?dset=ID link carries no view position: center the chart on the drawing.
+            const lookAt = !params.has('ra') && !params.has('az');
+            confirmReplaceWorkingCopy({{ _('The link contains drawings. Replace your current drawings?')|tojson }},
+                function() { loadSavedDrawing(dset, lookAt); });
+            return;
+        }
+        const value = params.get('{{ drawings_query_param }}');
         if (value === null || value === chartDrawingStore.toCompact()) return;
         const items = SkySceneDrawingStore.codec.fromCompact(value);
         if (!items.length) return;
+        // URL has priority; ask only when it would overwrite different local drawings.
         const apply = function() {
-            chartDrawingStore.replaceAll(items);
+            chartDrawingStore.load(items, null);
             chartDrawingStore.setVisible(true);
         };
-        // URL has priority; ask only when it would overwrite different local drawings.
         if (chartDrawingStore.isEmpty()) {
             apply();
         } else {
@@ -1154,21 +1382,34 @@
         $('#drawing_toggle_visible .text').text(chartDrawingStore.visible
             ? {{ _('Hide drawings')|tojson }} : {{ _('Show drawings')|tojson }});
         $('#drawing_toggle_visible i').attr('class', chartDrawingStore.visible ? 'eye slash icon' : 'eye icon');
-        $('#tools_dropdown [data-drawing-mode]').removeClass('active-mode');
+        const src = chartDrawingStore.source;
+        const isEmpty = chartDrawingStore.isEmpty();
+        // Save overwrites the user's own drawing, otherwise it falls back to "save as".
+        const canSave = !isEmpty && (!src || !src.isOwner || chartDrawingStore.dirty);
+        // The panel names the user's own saved drawing (dot = unsaved changes) or a new, not yet
+        // saved drawing; a foreign public drawing is not named.
+        const ownName = src ? (src.isOwner ? src.name : '') : {{ _('New drawing')|tojson }};
+        let shortName = ownName.length > DRAWING_PANEL_NAME_MAX_LEN
+            ? ownName.substring(0, DRAWING_PANEL_NAME_MAX_LEN - 1).trimEnd() + '…' : ownName;
+        if (src && ownName && chartDrawingStore.dirty) shortName += ' •';
+        $('#drawing-panel-name').text(shortName).attr('title', ownName).toggle(!!ownName);
         const $panel = $('#drawing-panel');
         if (!st || st.mode === 'none') {
             $panel.css('display', 'none');
             return;
         }
-        $('#tools_dropdown [data-drawing-mode="' + st.mode + '"]').addClass('active-mode');
+        $panel.find('[data-drawing-mode]').each(function() {
+            $(this).toggleClass('active', $(this).data('drawing-mode') === st.mode);
+        });
         const creating = st.mode !== 'edit';
         $panel.find('[data-drawing-show="create"]').toggle(creating && st.mode !== 'point')
             .toggleClass('disabled', !st.canFinish);
         $panel.find('[data-drawing-show="selection"]').toggle(!creating && st.hasSelection);
         $panel.find('[data-drawing-show="vertex"]').toggle(!creating && st.hasVertexSelection);
         $panel.find('[data-drawing-action="undo"]').toggleClass('disabled', !st.canUndo);
-        $panel.find('[data-drawing-action="copy-link"]').toggleClass('disabled', !st.hasItems);
-        $('#drawing-panel-hint').text(drawingModeHints[st.mode] || '');
+        $panel.find('[data-drawing-action="save"]').toggleClass('disabled', !canSave);
+        $panel.find('[data-drawing-action="save-as"], [data-drawing-action="copy-link"], [data-drawing-action="clear"]')
+            .toggleClass('disabled', isEmpty);
         $panel.css('display', 'flex');
     }
 
@@ -1176,7 +1417,9 @@
         if (typeof chart.setDrawingStore === 'function') {
             chartDrawingTool = chart.setDrawingStore(chartDrawingStore);
             chartDrawingTool.onStateChange(syncDrawingUi);
-            $('#tools_dropdown .drawing-tool-item').show();
+            $('#drawing_start').show();
+            // createFChart() assigns the global fchart after this returns.
+            setTimeout(applyPendingDrawingLookAt, 0);
         } else {
             // Legacy server-rendered chart: drawings are rendered into the PNG, no editing.
             chartDrawingTool = null;
@@ -1185,7 +1428,7 @@
                 return url + '&{{ drawings_query_param }}=' + encodeURIComponent(chartDrawingStore.toCompact());
             };
             chartDrawingStore.onChange(function() { chart.forceReloadImage(); });
-            $('#tools_dropdown .drawing-tool-item').hide();
+            $('#drawing_start').hide();
         }
         syncDrawingUi();
     }
@@ -2043,26 +2286,32 @@
     });
     {% endif %}
 
-    $('#tools_dropdown [data-drawing-mode]').click(function() {
-        if (!chartDrawingTool) return;
-        const mode = $(this).data('drawing-mode');
-        chartDrawingTool.setMode(chartDrawingTool.mode === mode ? 'none' : mode);
+    // Tools menu: entry point to the drawing toolbar, open a saved drawing, visibility.
+    $('#drawing_start').click(function() {
+        if (chartDrawingTool) chartDrawingTool.setMode('edit');
     });
-
+    $('#drawing_open').click(function() { openDrawingDialog(); });
     $('#drawing_toggle_visible').click(function() {
         chartDrawingStore.setVisible(!chartDrawingStore.visible);
     });
 
-    $('#drawing_clear').click(function() {
+    // Toolbar mode buttons; clicking the active mode goes back to editing.
+    $('#drawing-panel [data-drawing-mode]').click(function() {
+        if (!chartDrawingTool) return;
+        const mode = $(this).data('drawing-mode');
+        chartDrawingTool.setMode(chartDrawingTool.mode === mode ? 'edit' : mode);
+    });
+
+    function clearDrawingObjects() {
         if (chartDrawingStore.isEmpty()) return;
-        drawingConfirm({{ _('Delete all drawings?')|tojson }}, function() {
+        drawingConfirm({{ _('Delete all objects of the current drawing?')|tojson }}, function() {
             if (chartDrawingTool) {
                 chartDrawingTool.clearAll();
             } else {
                 chartDrawingStore.replaceAll([]);
             }
         });
-    });
+    }
 
     function showLinkToCopy(link) {
         drawingPrompt({{ _('Copy link')|tojson }}, link, { readonly: true });
@@ -2070,8 +2319,12 @@
 
     function copyDrawingsLink() {
         const url = new URL(window.location.href);
+        const src = chartDrawingStore.source;
         url.searchParams.delete('{{ drawings_query_param }}');
-        if (!chartDrawingStore.isEmpty()) {
+        url.searchParams.delete('dset');
+        if (src && src.isPublic && !chartDrawingStore.dirty) {
+            url.searchParams.set('dset', String(src.id));
+        } else if (!chartDrawingStore.isEmpty()) {
             url.searchParams.set('{{ drawings_query_param }}', chartDrawingStore.toCompact());
         }
         const link = url.toString();
@@ -2083,8 +2336,7 @@
         }
     }
 
-    $('#drawing-panel [data-drawing-action]').click(function(e) {
-        e.stopPropagation();
+    $('#drawing-panel [data-drawing-action]').click(function() {
         if (!chartDrawingTool) return;
         switch ($(this).data('drawing-action')) {
             case 'finish': chartDrawingTool.finishDraft(); break;
@@ -2097,6 +2349,11 @@
                 break;
             }
             case 'copy-link': copyDrawingsLink(); break;
+            case 'save': saveDrawing(false); break;
+            case 'save-as': saveDrawingAs(); break;
+            case 'new': newDrawing(); break;
+            case 'clear': clearDrawingObjects(); break;
+            case 'login': window.location.href = chartDrawingsLoginUrl; break;
             case 'close': chartDrawingTool.setMode('none'); break;
         }
     });

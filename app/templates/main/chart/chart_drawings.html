@@ -1,0 +1,82 @@
+{% extends 'layouts/base.html' %}
+{% import 'macros/form_macros.html' as f %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet fourteen wide computer column">
+            <a class="ui basic compact button" href="{{ url_for('main_userdata.userdata_menu') }}">
+                <i class="caret left icon"></i>
+                {{ _('Settings') }}
+            </a>
+            <form id="fmimport" method="POST" enctype="multipart/form-data"
+                  action="{{ url_for('main_chart_drawing.chart_drawing_import') }}" style="float:right">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
+                <input type="file" id="import_file" name="file" accept=".json,application/json" style="display:none">
+                <button type="button" id="bimport" class="ui icon button">
+                    <i class="upload icon"></i>
+                    {{ _('Import JSON') }}
+                </button>
+            </form>
+            <h2 class="ui header">
+                {{ _('Chart Drawings') }}
+                <div class="sub header">{{ _('Drawings are created in the chart (Tools → Polyline / Polygon / Point) and saved via Tools → Saved drawings → Save as.') }}</div>
+            </h2>
+
+            {% set flashes = {
+                'error':   get_flashed_messages(category_filter=['form-error']),
+                'info':    get_flashed_messages(category_filter=['form-info']),
+                'success': get_flashed_messages(category_filter=['form-success'])
+            } %}
+            {{ f.display_standard_flashes(flashes) }}
+
+            {% if chart_drawings %}
+            <div style="overflow-x: auto;">
+                <table class="ui unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Name') }}</th>
+                            <th class="collapsing">{{ _('Objects') }}</th>
+                            <th class="collapsing">{{ _('Last change') }}</th>
+                            <th class="collapsing">{{ _('Public') }}</th>
+                            <th class="collapsing"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in chart_drawings %}
+                        <tr>
+                            <td><a href="{{ url_for('main_chart_drawing.chart_drawing_edit', drawing_id=d.id) }}">{{ d.name }}</a></td>
+                            <td class="right aligned">{{ d.item_count }}</td>
+                            <td>{{ d.update_date.strftime('%Y-%m-%d %H:%M') if d.update_date else '' }}</td>
+                            <td class="center aligned">{% if d.is_public %}<i class="green check icon"></i>{% endif %}</td>
+                            <td class="collapsing">
+                                <a class="ui mini icon button" href="{{ chart_url_for_drawing(d) }}"
+                                   data-inverted="" data-tooltip="{{ _('Open in chart') }}" data-position="left center">
+                                    <i class="map outline icon"></i>
+                                </a>
+                                <a class="ui mini icon button" href="{{ url_for('main_chart_drawing.chart_drawing_export', drawing_id=d.id) }}"
+                                   data-inverted="" data-tooltip="{{ _('Export JSON') }}" data-position="left center">
+                                    <i class="download icon"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="ui message">{{ _('You have no saved drawings yet.') }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('#bimport').click(function() {
+            $('#import_file').click();
+        });
+        $('#import_file').change(function() {
+            if (this.files.length) {
+                $('#fmimport').submit();
+            }
+        });
+    </script>
+{% endblock %}
