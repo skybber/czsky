@@ -13,6 +13,8 @@ from flask import (
     url_for,
 )
 
+from app import csrf
+
 from app.models import Constellation, StarList, StarListItem, StarListDescription, User, UserDsoDescription
 from app.commons.dso_utils import CHART_STAR_PREFIX
 from app.commons.search_utils import process_session_search
@@ -194,7 +196,8 @@ def star_list_chart_scene_v1(star_list_id):
     return jsonify(scene)
 
 
-@main_star_list.route('/star-list/<string:star_list_id>/chart-pdf', methods=['GET'])
+@main_star_list.route('/star-list/<string:star_list_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def star_list_chart_pdf(star_list_id):
     star_list = _find_star_list(star_list_id)
     if star_list is None:

@@ -47,6 +47,7 @@ from .solar_system_chart_utils import get_solsys_bodies, get_planet_moons
 
 from .utils import to_float
 from .chart_theme_definition import COMMON_THEMES, ChartThemeDefinition
+from .chart_drawings import get_drawings_from_request, install_drawings_renderer
 from .dso_utils import CHART_COMET_PREFIX
 
 MOBILE_WIDTH = 768
@@ -1133,6 +1134,8 @@ def _create_chart(png_fobj, visible_objects, obj_ra, obj_dec, is_equatorial, phi
 
     engine.set_field(phi, theta, deg2rad(fld_size)/2.0, fld_label, mirror_x, mirror_y)
 
+    install_drawings_renderer(engine, get_drawings_from_request())
+
     if not highlights_pos_list and (obj_ra is not None) and (obj_dec is not None):
         highlights = _create_highlights(obj_ra, obj_dec, config.highlight_linewidth*1.3)
     elif highlights_pos_list:
@@ -1255,6 +1258,7 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
         artist = fchart3.CairoDrawing(pdf_fobj, 180, 267, format='pdf', landscape=landscape)
     engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
     engine.set_configuration(config)
+    install_drawings_renderer(engine, get_drawings_from_request())
 
     mirror_x = FlagValue.MIRROR_X.value in flags
     mirror_y = FlagValue.MIRROR_Y.value in flags

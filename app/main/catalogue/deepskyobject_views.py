@@ -618,7 +618,8 @@ def deepskyobject_chart_pos_img(dso_id):
     return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf', methods=['GET'])
+@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def chart_pdf(dso_id):
     dso, orig_dso = _find_dso(dso_id)
     if dso is None:

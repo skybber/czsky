@@ -372,7 +372,8 @@ def supernova_chart_scene_v1(designation):
     return jsonify(scene)
 
 
-@main_supernova.route('/supernova/<string:designation>/chart-pdf', methods=['GET'])
+@main_supernova.route('/supernova/<string:designation>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def supernova_chart_pdf(designation):
     supernova = Supernova.query.filter_by(designation=designation).first()
     if supernova is None:

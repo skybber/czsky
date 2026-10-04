@@ -19,7 +19,7 @@ from flask import (
 
 from flask_login import current_user
 
-from app import db
+from app import db, csrf
 
 from .planet_forms import (
     PlanetFindChartForm,
@@ -198,7 +198,8 @@ def planet_moon_chart_scene_v1(planet_moon_name):
     return jsonify(scene)
 
 
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf', methods=['GET'])
+@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def planet_moon_chart_pdf(planet_moon_name):
     planet_moon = PlanetMoon.get_by_name(planet_moon_name)
     if planet_moon is None:

@@ -861,7 +861,8 @@ def session_plan_chart_scene_v1(session_plan_id):
     return jsonify(scene)
 
 
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf', methods=['GET'])
+@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def session_plan_chart_pdf(session_plan_id):
     session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
     _check_session_plan(session_plan, allow_public=True)

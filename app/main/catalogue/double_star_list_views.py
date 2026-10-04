@@ -18,6 +18,8 @@ from flask import (
 
 from flask_login import current_user
 
+from app import csrf
+
 from app.models import (
     Constellation,
     DoubleStar,
@@ -310,7 +312,8 @@ def double_star_list_chart_scene_v1(double_star_list_id):
     return jsonify(scene)
 
 
-@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pdf', methods=['GET'])
+@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def double_star_list_chart_pdf(double_star_list_id):
     double_star_list = _find_double_star_list(double_star_list_id)
     if double_star_list is None:

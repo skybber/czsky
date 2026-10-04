@@ -361,7 +361,8 @@ def wish_list_chart_scene_v1():
     return jsonify(scene)
 
 
-@main_wishlist.route('/wish-list/chart-pdf', methods=['GET'])
+@main_wishlist.route('/wish-list/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def wish_list_chart_pdf():
     wish_list = WishList.query.filter_by(user_id=current_user.id).first()
     wish_list_items = _get_wish_list_items(wish_list)

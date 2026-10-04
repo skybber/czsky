@@ -266,7 +266,8 @@ def comets_chart_scene_v1():
     return jsonify(scene)
 
 
-@main_comet.route('/comets/chart-pdf', methods=['GET'])
+@main_comet.route('/comets/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def comets_chart_pdf():
     comets = _chart_comets_query().all()
     highlights_pos_list = [
@@ -591,7 +592,8 @@ def comet_chart_scene_v1(comet_id):
     return jsonify(scene)
 
 
-@main_comet.route('/comet/<string:comet_id>/chart-pdf', methods=['GET'])
+@main_comet.route('/comet/<string:comet_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def comet_chart_pdf(comet_id):
     comet = find_mpc_comet(comet_id)
     if comet is None:

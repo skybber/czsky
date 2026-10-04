@@ -22,7 +22,7 @@ from flask_login import current_user
 
 from skyfield.api import load
 
-from app import db
+from app import db, csrf
 import fchart3
 
 from .planet_forms import (
@@ -264,7 +264,8 @@ def moon_chart_scene_v1():
     return jsonify(scene)
 
 
-@main_planet.route('/moon/chart-pdf', methods=['GET'])
+@main_planet.route('/moon/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def moon_chart_pdf():
     img_bytes = common_chart_pdf_img(None, None)
     return send_file(img_bytes, mimetype='application/pdf')
@@ -426,7 +427,8 @@ def planet_chart_scene_v1(planet_iau_code):
     return jsonify(scene)
 
 
-@main_planet.route('/planet/<string:planet_iau_code>/chart-pdf', methods=['GET'])
+@main_planet.route('/planet/<string:planet_iau_code>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def planet_chart_pdf(planet_iau_code):
     planet = Planet.get_by_iau_code(planet_iau_code)
     if planet is None:

@@ -363,7 +363,8 @@ def minor_planets_chart_scene_v1():
     return jsonify(scene)
 
 
-@main_minor_planet.route('/minor-planets/chart-pdf', methods=['GET'])
+@main_minor_planet.route('/minor-planets/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def minor_planets_chart_pdf():
     minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 12.0).all()
     highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
@@ -560,7 +561,8 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     return jsonify(scene)
 
 
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET'])
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def minor_planet_chart_pdf(minor_planet_id):
     minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
     if minor_planet is None:

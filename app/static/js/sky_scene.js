@@ -232,6 +232,7 @@
         this.arrowRenderer = new window.SkySceneArrowRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
         this.widgetLayer = new window.SkySceneWidgetLayer();
+        this.drawingTool = null;
         this._getThemeColorFn = this.getThemeColor.bind(this);
         this._registerSelectableFn = this._registerSelectable.bind(this);
 
@@ -491,6 +492,12 @@
         }
         this.adjustCanvasSize();
         this.forceReloadImage();
+    };
+
+    SkyScene.prototype.setDrawingStore = function (store) {
+        this.drawingTool = store ? new window.SkySceneDrawingTool(this, store) : null;
+        this.requestDraw();
+        return this.drawingTool;
     };
 
     SkyScene.prototype.onFieldChange = function (cb) { this.onFieldChangeCallback = cb; };
@@ -1461,6 +1468,9 @@
         measure('trajectory', () => this.trajectoryRenderer.draw(ctx({})));
         measure('highlights', () => this.highlightRenderer.draw(ctx({})));
         measure('arrow', () => this.arrowRenderer.draw(ctx({})));
+        if (this.drawingTool) {
+            measure('drawings', () => this.drawingTool.draw(ctx({})));
+        }
 
         measure('selection_finalize', () => this.selectionIndex.finalize());
         measure('center_pick', () => this._updateCenterPick());

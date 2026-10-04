@@ -278,7 +278,8 @@ def constellation_chart_scene_v1(constellation_id):
     return jsonify(scene)
 
 
-@main_constellation.route('/constellation/<string:constellation_id>/chart-pdf', methods=['GET'])
+@main_constellation.route('/constellation/<string:constellation_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def constellation_chart_pdf(constellation_id):
     constellation = _find_constellation(constellation_id)
     if constellation is None:

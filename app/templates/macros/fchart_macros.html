@@ -2,6 +2,8 @@
 
 {% macro fchart(fchart_url, fchart_img_url, fchart_legend_url, fchart_pdf_url, fchart_items_url, fchart_form, default_chart_iframe_url='', embed='', search_url_params='', obj_ra='',
                 obj_dec='', back=none, back_id=none, default_back=none, back_anchor=none, disable_to_detail=False, fchart_scene_url=none) %}
+{# Must match DRAWINGS_QUERY_PARAM in app/commons/chart_drawings.py #}
+{% set drawings_query_param = 'drw' %}
 
 <style>
     .ui.button.custom-nav {
@@ -47,6 +49,34 @@
         display: none !important;
       }
     }
+    #drawing-panel {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 120;
+      margin: 0;
+      padding: 4px 6px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #drawing-panel .drawing-panel-hint {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    #tools_dropdown .menu > .item.active-mode {
+      font-weight: bold;
+    }
+    @media (max-width: 767px) {
+      #tools_dropdown .fchart-desktop-only {
+        display: none !important;
+      }
+      #drawing-panel .drawing-panel-hint {
+        display: none;
+      }
+    }
     #top-menu .ui.dropdown.active[data-tooltip]::before,
     #top-menu .ui.dropdown.active[data-tooltip]::after,
     #top-menu .ui.dropdown.visible[data-tooltip]::before,
@@ -56,6 +86,10 @@
       display: none !important;
     }
     @media only screen and (max-width: 768px) {
+      #fchart-div.fchart-mobile-menu-bottom #drawing-panel {
+        top: 8px;
+        bottom: auto;
+      }
       #fchart-div.fchart-mobile-menu-bottom #top-menu {
         position: absolute;
         left: 0;
@@ -522,34 +556,60 @@
                         </div>
                     </div>
                 </div>
-                {% if fchart_pdf_url is not none %}
-                <div class="ui floating small icon dropdown button mobile hidden" data-inverted="" data-tooltip="{{ _('PDF export') }}" data-position="bottom center" data-variation="tiny basic">
-                    <i class="download icon"></i>
+                <div id="tools_dropdown" class="ui floating small icon dropdown button" data-inverted="" data-tooltip="{{ _('Tools') }}" data-position="bottom center" data-variation="tiny basic">
+                    <i class="tools icon"></i>
                     <div class="menu">
-                        {% if fchart_items_url is not none %}
-                            <div class="item">
-                                <i class="dropdown icon"></i>
-                                <span class="text">Landscape</span>
-                                <div class="right menu">
-                                    <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                    <a id="download_items_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
+                        <div class="item drawing-tool-item" data-drawing-mode="polyline">
+                            <i class="bezier curve icon"></i>{{ _('Polyline') }}
+                        </div>
+                        <div class="item drawing-tool-item" data-drawing-mode="polygon">
+                            <i class="draw polygon icon"></i>{{ _('Polygon') }}
+                        </div>
+                        <div class="item drawing-tool-item" data-drawing-mode="point">
+                            <i class="map marker alternate icon"></i>{{ _('Point') }}
+                        </div>
+                        <div class="item drawing-tool-item" data-drawing-mode="edit">
+                            <i class="edit icon"></i>{{ _('Edit drawings') }}
+                        </div>
+                        <div class="divider drawing-tool-item"></div>
+                        <div id="drawing_toggle_visible" class="item drawing-tool-item">
+                            <i class="eye icon"></i><span class="text">{{ _('Hide drawings') }}</span>
+                        </div>
+                        <div id="drawing_clear" class="item drawing-tool-item">
+                            <i class="trash alternate icon"></i>{{ _('Delete all drawings') }}
+                        </div>
+                        {% if fchart_pdf_url is not none %}
+                        <div class="divider drawing-tool-item fchart-desktop-only"></div>
+                        <div class="item fchart-desktop-only">
+                            <i class="dropdown icon"></i>
+                            <span class="text"><i class="file pdf icon"></i>PDF</span>
+                            <div class="menu">
+                                {% if fchart_items_url is not none %}
+                                <div class="item">
+                                    <i class="dropdown icon"></i>
+                                    <span class="text">{{ _('Landscape') }}</span>
+                                    <div class="menu">
+                                        <a id="download_pdf_landscape" class="item" href="" target="_blank">{{ _('Download PDF') }}</a>
+                                        <a id="download_items_landscape" class="item" href="" target="_blank">{{ _('Items') }}</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="item">
-                                <i class="dropdown icon"></i>
-                                <span class="text">Portrait</span>
-                                <div class="right menu">
-                                    <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Download PDF</a>
-                                    <a id="download_items_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Items</a>
+                                <div class="item">
+                                    <i class="dropdown icon"></i>
+                                    <span class="text">{{ _('Portrait') }}</span>
+                                    <div class="menu">
+                                        <a id="download_pdf_portrait" class="item" href="" target="_blank">{{ _('Download PDF') }}</a>
+                                        <a id="download_items_portrait" class="item" href="" target="_blank">{{ _('Items') }}</a>
+                                    </div>
                                 </div>
+                                {% else %}
+                                <a id="download_pdf_landscape" class="item" href="" target="_blank">{{ _('Landscape') }}</a>
+                                <a id="download_pdf_portrait" class="item" href="" target="_blank">{{ _('Portrait') }}</a>
+                                {% endif %}
                             </div>
-                        {% else %}
-                            <a id="download_pdf_landscape" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Landscape</a>
-                            <a id="download_pdf_portrait" class="item" href="" target="_blank" data-position="bottom center" data-variation="tiny basic">Portrait</a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
-                {% endif %}
                 </div>
             </div>
 
@@ -638,9 +698,39 @@
     <div class="aladin-logo-container mobile hidden" style="z-index:100;">
         <a href="http://aladin.unistra.fr/" title="Powered by Aladin Lite" target="_blank"><div class="aladin-logo aladin-logo-large" style="width: 90px;"></div></a>
     </div>
+    <div id="drawing-panel" class="ui mini compact segment" style="display:none">
+        <span id="drawing-panel-hint" class="drawing-panel-hint"></span>
+        <div class="ui mini buttons">
+            <button type="button" class="ui mini icon button" data-drawing-action="finish" data-drawing-show="create" data-inverted="" data-tooltip="{{ _('Finish (Enter, double click)') }}" data-position="top center"><i class="check icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="label" data-drawing-show="selection" data-inverted="" data-tooltip="{{ _('Label') }}" data-position="top center"><i class="tag icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="delete-vertex" data-drawing-show="vertex" data-inverted="" data-tooltip="{{ _('Delete vertex (Del, double click)') }}" data-position="top center"><i class="times circle outline icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="delete-item" data-drawing-show="selection" data-inverted="" data-tooltip="{{ _('Delete object') }}" data-position="top center"><i class="trash alternate icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="undo" data-inverted="" data-tooltip="{{ _('Undo (Ctrl+Z)') }}" data-position="top center"><i class="undo icon"></i></button>
+            <button type="button" class="ui mini icon button" data-drawing-action="copy-link" data-inverted="" data-tooltip="{{ _('Copy link with drawings') }}" data-position="top center"><i class="linkify icon"></i></button>
+            <button type="button" class="ui mini button" data-drawing-action="close" data-inverted="" data-tooltip="{{ _('Close (Esc)') }}" data-position="top center">{{ _('Done') }}</button>
+        </div>
+    </div>
 </div>
 
 <div id="fchart-aladin-div" style="position:fixed;left:-9999px; top:-9999px; z-index:0;">
+</div>
+
+<div id="drawing-confirm-modal" class="ui tiny modal" style="z-index:10000;">
+    <div class="content"><p class="drawing-modal-message"></p></div>
+    <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <div class="ui positive right labeled icon approve button">{{ _('Yes') }}<i class="checkmark icon"></i></div>
+    </div>
+</div>
+<div id="drawing-prompt-modal" class="ui tiny modal" style="z-index:10000;">
+    <div class="header"></div>
+    <div class="content">
+        <div class="ui fluid input"><input type="text"></div>
+    </div>
+    <div class="actions">
+        <div class="ui cancel button">{{ _('Cancel') }}</div>
+        <div class="ui primary approve button">OK</div>
+    </div>
 </div>
 
 <div class="ui tiny modal fchartHelpModal" style="z-index:10000;">
@@ -755,6 +845,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_perf.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_screen_mode.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_input.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/sky_scene_drawings.js') }}"></script>
 
 <script type="text/javascript">
     const fullScreenWrapperId = 'fullscreen-wrapper';
@@ -979,6 +1070,133 @@
         $('#boldmode').toggleClass('disabled', unavailable);
     }
 
+    const chartDrawingStore = new SkySceneDrawingStore();
+    let chartDrawingTool = null;
+    const drawingModeHints = {
+        polyline: {{ _('Click to add vertices, double click or Enter to finish.')|tojson }},
+        polygon: {{ _('Click to add vertices, double click or Enter to finish.')|tojson }},
+        point: {{ _('Click to place a point.')|tojson }},
+        edit: {{ _('Drag vertices to move them, drag small circles to add a vertex.')|tojson }},
+    };
+
+    // Drawings are mirrored into the page URL (like ra/dec/fsz) as long as they fit,
+    // so the address bar is always shareable. Bigger drawings live only in localStorage.
+    const DRAWINGS_URL_MAX_LEN = 2000;
+
+    function syncDrawingsToUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const value = chartDrawingStore.toCompact();
+        if (value && value.length <= DRAWINGS_URL_MAX_LEN) {
+            if (params.get('{{ drawings_query_param }}') === value) return;
+            params.set('{{ drawings_query_param }}', value);
+        } else {
+            if (!params.has('{{ drawings_query_param }}')) return;
+            params.delete('{{ drawings_query_param }}');
+        }
+        const qs = params.toString();
+        history.replaceState(null, null, window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+        if (typeof fchart !== 'undefined' && fchart && typeof fchart.propagateUrlToParent === 'function') {
+            fchart.propagateUrlToParent();
+        }
+    }
+
+    // Fomantic dimmer has z-index 1000, the chart in fullscreen/splitview mode has 9999.
+    function raiseModalDimmer() {
+        $(this).closest('.ui.dimmer').css('z-index', 10001);
+    }
+
+    function drawingConfirm(message, onYes) {
+        const $modal = $('#drawing-confirm-modal');
+        $modal.find('.drawing-modal-message').text(message);
+        $modal.modal({ onShow: raiseModalDimmer, onApprove: function() { onYes(); } }).modal('show');
+    }
+
+    // opts: { readonly: bool, maxLength: int }; onOk(value) is called only on approve.
+    function drawingPrompt(title, value, opts, onOk) {
+        const $modal = $('#drawing-prompt-modal');
+        const $input = $modal.find('input');
+        $modal.find('.header').text(title);
+        $input.val(value).prop('readonly', !!opts.readonly).attr('maxlength', opts.maxLength || null);
+        $input.off('keydown.drawing').on('keydown.drawing', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                $modal.find('.approve').click();
+            }
+        });
+        $modal.modal({
+            onShow: raiseModalDimmer,
+            onVisible: function() { $input.trigger('focus').trigger('select'); },
+            onApprove: function() { if (onOk) onOk($input.val()); },
+        }).modal('show');
+    }
+
+    function importDrawingsFromUrl() {
+        const value = new URLSearchParams(window.location.search).get('{{ drawings_query_param }}');
+        if (value === null || value === chartDrawingStore.toCompact()) return;
+        const items = SkySceneDrawingStore.codec.fromCompact(value);
+        if (!items.length) return;
+        const apply = function() {
+            chartDrawingStore.replaceAll(items);
+            chartDrawingStore.setVisible(true);
+        };
+        // URL has priority; ask only when it would overwrite different local drawings.
+        if (chartDrawingStore.isEmpty()) {
+            apply();
+        } else {
+            $(function() {
+                drawingConfirm({{ _('The link contains drawings. Replace your current drawings?')|tojson }}, apply);
+            });
+        }
+    }
+
+    function syncDrawingUi(state) {
+        const st = state || (chartDrawingTool ? chartDrawingTool.getState() : null);
+        $('#drawing_toggle_visible .text').text(chartDrawingStore.visible
+            ? {{ _('Hide drawings')|tojson }} : {{ _('Show drawings')|tojson }});
+        $('#drawing_toggle_visible i').attr('class', chartDrawingStore.visible ? 'eye slash icon' : 'eye icon');
+        $('#tools_dropdown [data-drawing-mode]').removeClass('active-mode');
+        const $panel = $('#drawing-panel');
+        if (!st || st.mode === 'none') {
+            $panel.css('display', 'none');
+            return;
+        }
+        $('#tools_dropdown [data-drawing-mode="' + st.mode + '"]').addClass('active-mode');
+        const creating = st.mode !== 'edit';
+        $panel.find('[data-drawing-show="create"]').toggle(creating && st.mode !== 'point')
+            .toggleClass('disabled', !st.canFinish);
+        $panel.find('[data-drawing-show="selection"]').toggle(!creating && st.hasSelection);
+        $panel.find('[data-drawing-show="vertex"]').toggle(!creating && st.hasVertexSelection);
+        $panel.find('[data-drawing-action="undo"]').toggleClass('disabled', !st.canUndo);
+        $panel.find('[data-drawing-action="copy-link"]').toggleClass('disabled', !st.hasItems);
+        $('#drawing-panel-hint').text(drawingModeHints[st.mode] || '');
+        $panel.css('display', 'flex');
+    }
+
+    function setupChartDrawings(chart) {
+        if (typeof chart.setDrawingStore === 'function') {
+            chartDrawingTool = chart.setDrawingStore(chartDrawingStore);
+            chartDrawingTool.onStateChange(syncDrawingUi);
+            $('#tools_dropdown .drawing-tool-item').show();
+        } else {
+            // Legacy server-rendered chart: drawings are rendered into the PNG, no editing.
+            chartDrawingTool = null;
+            chart.chartUrlDecorator = function(url) {
+                if (!chartDrawingStore.visible || chartDrawingStore.isEmpty()) return url;
+                return url + '&{{ drawings_query_param }}=' + encodeURIComponent(chartDrawingStore.toCompact());
+            };
+            chartDrawingStore.onChange(function() { chart.forceReloadImage(); });
+            $('#tools_dropdown .drawing-tool-item').hide();
+        }
+        syncDrawingUi();
+    }
+
+    chartDrawingStore.onChange(function() {
+        syncDrawingUi();
+        syncDrawingsToUrl();
+    });
+    importDrawingsFromUrl();
+    syncDrawingsToUrl();
+
     function createFChart(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
                           longitude, latitude, useCurrentTime, chartDateTimeISO,
                           theme, legendUrl, chartUrl, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues) {
@@ -1183,6 +1401,7 @@
 
         applyPerfMeterStateToChart(fchart);
 
+        setupChartDrawings(fchart);
         return fchart;
     }
 
@@ -1804,14 +2023,83 @@
     });
 
     {% if fchart_pdf_url is not none %}
-    $('#download_pdf_landscape').click(function(){
-        $('#download_pdf_landscape').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=true'));
+    // PDF is POSTed so that user drawings (possibly large) travel in the request body.
+    function submitChartPdf(url) {
+        const $form = $('<form method="post" target="_blank" style="display:none"></form>').attr('action', url);
+        if (chartDrawingStore.visible && !chartDrawingStore.isEmpty()) {
+            $('<input type="hidden" name="drawings">').val(chartDrawingStore.toJSONString()).appendTo($form);
+        }
+        $form.appendTo('body').submit().remove();
+    }
+
+    $('#download_pdf_landscape').click(function(e){
+        e.preventDefault();
+        submitChartPdf(fchart.formatUrl(getChartPdfUrl() + '&landscape=true'));
     });
 
-    $('#download_pdf_portrait').click(function(){
-        $('#download_pdf_portrait').attr("href", fchart.formatUrl(getChartPdfUrl() + '&landscape=false'));
+    $('#download_pdf_portrait').click(function(e){
+        e.preventDefault();
+        submitChartPdf(fchart.formatUrl(getChartPdfUrl() + '&landscape=false'));
     });
     {% endif %}
+
+    $('#tools_dropdown [data-drawing-mode]').click(function() {
+        if (!chartDrawingTool) return;
+        const mode = $(this).data('drawing-mode');
+        chartDrawingTool.setMode(chartDrawingTool.mode === mode ? 'none' : mode);
+    });
+
+    $('#drawing_toggle_visible').click(function() {
+        chartDrawingStore.setVisible(!chartDrawingStore.visible);
+    });
+
+    $('#drawing_clear').click(function() {
+        if (chartDrawingStore.isEmpty()) return;
+        drawingConfirm({{ _('Delete all drawings?')|tojson }}, function() {
+            if (chartDrawingTool) {
+                chartDrawingTool.clearAll();
+            } else {
+                chartDrawingStore.replaceAll([]);
+            }
+        });
+    });
+
+    function showLinkToCopy(link) {
+        drawingPrompt({{ _('Copy link')|tojson }}, link, { readonly: true });
+    }
+
+    function copyDrawingsLink() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('{{ drawings_query_param }}');
+        if (!chartDrawingStore.isEmpty()) {
+            url.searchParams.set('{{ drawings_query_param }}', chartDrawingStore.toCompact());
+        }
+        const link = url.toString();
+        const done = function() { $('body').toast({ message: {{ _('Link copied to clipboard')|tojson }}, class: 'success', displayTime: 2000 }); };
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(link).then(done, function() { showLinkToCopy(link); });
+        } else {
+            showLinkToCopy(link);
+        }
+    }
+
+    $('#drawing-panel [data-drawing-action]').click(function(e) {
+        e.stopPropagation();
+        if (!chartDrawingTool) return;
+        switch ($(this).data('drawing-action')) {
+            case 'finish': chartDrawingTool.finishDraft(); break;
+            case 'undo': chartDrawingTool.undo(); break;
+            case 'delete-vertex': chartDrawingTool.deleteSelectedVertex(); break;
+            case 'delete-item': chartDrawingTool.deleteSelectedItem(); break;
+            case 'label': {
+                drawingPrompt({{ _('Label')|tojson }}, chartDrawingTool.getState().selectionLabel, { maxLength: 64 },
+                    function(label) { chartDrawingTool.setSelectedLabel(label); });
+                break;
+            }
+            case 'copy-link': copyDrawingsLink(); break;
+            case 'close': chartDrawingTool.setMode('none'); break;
+        }
+    });
 
     {% if fchart_items_url is not none %}
     $('#download_items_landscape').click(function(){
@@ -2262,6 +2550,7 @@
         {% endif %}
 
         $('#layers_dropdown').dropdown({ displayType : 'block' });
+        $('#tools_dropdown').dropdown({ action: 'hide' });
         syncOldModeButton();
         persistPerfMeterEnabled(false);
         syncPerfMeterButton();

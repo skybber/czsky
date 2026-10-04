@@ -73,6 +73,7 @@
 
     SkyScene.prototype._shouldHandleKeyboardEvent = function (e) {
         if (!this.keyboardCaptureActive) return false;
+        if ($('.ui.modals.dimmer.active').length) return false;
         if (this._isUiInteractiveTarget(e.target)) {
             return false;
         }
@@ -84,6 +85,11 @@
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+        const drawingCursor = this.drawingTool ? this.drawingTool.cursorAt(x, y) : null;
+        if (drawingCursor !== null) {
+            this.canvas.style.cursor = drawingCursor;
+            return;
+        }
         const selected = this.findSelectableObjectAt(x, y);
         this.canvas.style.cursor = selected ? 'pointer' : '';
     };
@@ -174,6 +180,10 @@
             this.move.moved = false;
             return;
         }
+        if (this.drawingTool && this.drawingTool.isActive()) {
+            const p = this._clientToCanvasXY(e.clientX, e.clientY);
+            if (this.drawingTool.handleTap(p.x, p.y)) return;
+        }
         const selected = this.findSelectableObject(e);
         this._openSelected(selected);
     };
@@ -186,6 +196,7 @@
 
         const p = this._eventClientXY(e);
         const pt = this._clientToCanvasXY(p.x, p.y);
+        if (this.drawingTool && this.drawingTool.handleDblClick(pt.x, pt.y)) return;
         const dx = (this.canvas.width * 0.5) - pt.x;
         const dy = (this.canvas.height * 0.5) - pt.y;
         if (Math.abs(dx) + Math.abs(dy) < 1.0) return;
@@ -203,6 +214,11 @@
         const dtTap = now - this.input.lastTapTs;
         const distTap = Math.hypot(clientX - this.input.lastTapX, clientY - this.input.lastTapY);
         this.input.suppressClickUntilTs = now + 320;
+
+        if (this.drawingTool && this.drawingTool.isActive()) {
+            const tapPt = this._clientToCanvasXY(clientX, clientY);
+            if (this.drawingTool.handleTap(tapPt.x, tapPt.y)) return;
+        }
 
         if (dtTap <= this.doubleTapWindowMs && distTap <= this.doubleTapRadiusPx) {
             const curIdx = this.targetFldSizeIndex;
@@ -272,6 +288,10 @@
             try { this.canvas.setPointerCapture(oe.pointerId); } catch (err) {}
         }
         const p = this._eventClientXY(e);
+        if (this.drawingTool && this.input.activePointers.size === 0) {
+            const cp = this._clientToCanvasXY(p.x, p.y);
+            if (this.drawingTool.handlePointerDown(oe, cp.x, cp.y)) return;
+        }
         this.input.activePointers.set(oe.pointerId, p);
         this.input.pointerType = oe.pointerType || 'mouse';
         const cnt = this.input.activePointers.size;
@@ -309,6 +329,13 @@
             this.move.pointerInside = true;
             this.move.pointerClientX = oe.clientX;
             this.move.pointerClientY = oe.clientY;
+        }
+        if (this.drawingTool) {
+            const cp = this._clientToCanvasXY(oe.clientX, oe.clientY);
+            if (this.drawingTool.handlePointerMove(oe, cp.x, cp.y)) {
+                e.preventDefault();
+                return;
+            }
         }
         if (!this.input.activePointers.has(oe.pointerId)) {
             if (oe.pointerType === 'mouse') {
@@ -366,6 +393,11 @@
 
     SkyScene.prototype.onPointerUp = function (e) {
         const oe = e.originalEvent || e;
+        if (this.drawingTool && this.drawingTool.handlePointerUp(oe)) {
+            e.preventDefault();
+            this.input.suppressClickUntilTs = Date.now() + 250;
+            return;
+        }
         if (!this.input.activePointers.has(oe.pointerId)) return;
         e.preventDefault();
         const p = this._eventClientXY(e);
@@ -414,6 +446,7 @@
 
     SkyScene.prototype.onPointerCancel = function (e) {
         const oe = e.originalEvent || e;
+        if (this.drawingTool && this.drawingTool.cancelDrag(oe)) return;
         this.input.activePointers.delete(oe.pointerId);
         if (oe.pointerId === this.input.primaryId) {
             this.input.primaryId = null;
@@ -748,6 +781,10 @@
     };
 
     SkyScene.prototype.onKeyDown = function (e) {
+        if (this.drawingTool && this.drawingTool.handleKeyDown(e.originalEvent || e)) {
+            e.preventDefault();
+            return;
+        }
         // Visual map movement vectors; mirror inversion is handled in _applyKeyboardPanDelta.
         const keyMoveMap = {
             37: [1, 0],

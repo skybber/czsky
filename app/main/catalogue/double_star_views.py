@@ -515,7 +515,8 @@ def double_star_chart_scene_v1(double_star_id):
     return jsonify(scene)
 
 
-@main_double_star.route('/double-star/<string:double_star_id>/chart-pdf', methods=['GET'])
+@main_double_star.route('/double-star/<string:double_star_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def double_star_chart_pdf(double_star_id):
     double_star = DoubleStar.query.filter_by(id=double_star_id).first()
     if double_star is None:

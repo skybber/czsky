@@ -10,6 +10,8 @@ from flask import (
     url_for,
 )
 
+from app import csrf
+
 from .chart_forms import (
     ChartForm,
 )
@@ -145,7 +147,8 @@ def chart_constellation_boundaries_catalog_v1():
     return jsonify(build_constellation_boundaries_catalog_v1())
 
 
-@main_chart.route('/chart/chart-pdf', methods=['GET'])
+@main_chart.route('/chart/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def chart_pdf():
     img_bytes = common_chart_pdf_img(None, None)
     return send_file(img_bytes, mimetype='application/pdf')

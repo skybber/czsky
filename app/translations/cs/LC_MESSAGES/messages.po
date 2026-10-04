@@ -3639,3 +3639,84 @@ msgstr "Výborná"
 msgctxt "transparency"
 msgid "Unusual"
 msgstr "Neobvyklá"
+
+msgid "Tools"
+msgstr "Nástroje"
+
+msgid "Polyline"
+msgstr "Lomená čára"
+
+msgid "Polygon"
+msgstr "Polygon"
+
+msgid "Point"
+msgstr "Bod"
+
+msgid "Edit drawings"
+msgstr "Upravit kresby"
+
+msgid "Hide drawings"
+msgstr "Skrýt kresby"
+
+msgid "Show drawings"
+msgstr "Zobrazit kresby"
+
+msgid "Copy link with drawings"
+msgstr "Kopírovat odkaz s kresbami"
+
+msgid "Copy link"
+msgstr "Kopírovat odkaz"
+
+msgid "Link copied to clipboard"
+msgstr "Odkaz zkopírován do schránky"
+
+msgid "Delete all drawings"
+msgstr "Smazat všechny kresby"
+
+msgid "Delete all drawings?"
+msgstr "Smazat všechny kresby?"
+
+msgid "Landscape"
+msgstr "Na šířku"
+
+msgid "Portrait"
+msgstr "Na výšku"
+
+msgid "Download PDF"
+msgstr "Stáhnout PDF"
+
+msgid "Finish (Enter, double click)"
+msgstr "Dokončit (Enter, dvojklik)"
+
+msgid "Label"
+msgstr "Popisek"
+
+msgid "Delete vertex (Del, double click)"
+msgstr "Smazat vrchol (Del, dvojklik)"
+
+msgid "Delete object"
+msgstr "Smazat objekt"
+
+msgid "Undo (Ctrl+Z)"
+msgstr "Zpět (Ctrl+Z)"
+
+msgid "Close (Esc)"
+msgstr "Zavřít (Esc)"
+
+msgid "Done"
+msgstr "Hotovo"
+
+msgid "Click to add vertices, double click or Enter to finish."
+msgstr "Klikáním přidávejte vrcholy, dvojklik nebo Enter tvar dokončí."
+
+msgid "Click to place a point."
+msgstr "Kliknutím umístíte bod."
+
+msgid "Drag vertices to move them, drag small circles to add a vertex."
+msgstr "Tažením vrcholy posunete, tažením malých koleček přidáte vrchol."
+
+msgid "The link contains drawings. Replace your current drawings?"
+msgstr "Odkaz obsahuje kresby. Nahradit vaše současné kresby?"
+
+msgid "Cancel"
+msgstr "Zrušit"

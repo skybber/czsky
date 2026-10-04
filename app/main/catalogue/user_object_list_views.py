@@ -380,7 +380,8 @@ def user_object_list_chart_scene_v1(user_object_list_id):
     return jsonify(scene)
 
 
-@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-pdf', methods=['GET'])
+@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def user_object_list_chart_pdf(user_object_list_id):
     user_object_list = UserObjectList.query.filter_by(id=user_object_list_id).first()
     _check_user_object_list(user_object_list, allow_public=True)

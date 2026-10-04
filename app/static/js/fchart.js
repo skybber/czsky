@@ -829,6 +829,9 @@ FChart.prototype.forceReloadImage = function() {
 
 FChart.prototype.doReloadImage = function(forceReload) {
     let url = this.formatUrl(this.chartUrl) + '&t=' + new Date().getTime();
+    if (typeof this.chartUrlDecorator === 'function') {
+        url = this.chartUrlDecorator(url);
+    }
 
     if (forceReload) {
         url += '&hqual=1';

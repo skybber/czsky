@@ -385,7 +385,8 @@ def star_chart_scene_v1(star_id):
     return jsonify(scene)
 
 
-@main_star.route('/star/<string:star_id>/chart-pdf', methods=['GET'])
+@main_star.route('/star/<string:star_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def star_chart_pdf(star_id):
     star = Star.query.filter_by(id=star_id).first()
     if star is None:

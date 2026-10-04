@@ -635,7 +635,8 @@ def observing_session_chart_scene_v1(observing_session_id):
     return jsonify(scene)
 
 
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pdf', methods=['GET'])
+@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
 def observing_session_chart_pdf(observing_session_id):
     observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
     _check_observing_session(observing_session, allow_public=True)
