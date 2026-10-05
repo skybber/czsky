@@ -3836,7 +3836,43 @@ msgid "You have no saved drawings yet."
 msgstr "Zatím nemáte žádné uložené kresby."
 
 msgid "Drawing"
-msgstr "Kreslení"
+msgstr "Kresba"
 
 msgid "Open drawing…"
 msgstr "Otevřít kresbu…"
+
+msgid "Edit drawing"
+msgstr "Upravit kresbu"
+
+msgid "Select and edit"
+msgstr "Výběr a úpravy"
+
+msgid "Finish object (Enter, double click)"
+msgstr "Dokončit objekt (Enter, dvojklik)"
+
+msgid "Discard unfinished object"
+msgstr "Zahodit rozkreslený objekt"
+
+msgid "Save drawing"
+msgstr "Uložit kresbu"
+
+msgid "Close editor, the drawing stays on the chart (Esc)"
+msgstr "Zavřít editor, kresba zůstane na mapě (Esc)"
+
+msgid "unsaved changes"
+msgstr "neuložené změny"
+
+msgid "Click to add vertices, finish with double click or ✓."
+msgstr "Klikáním přidávejte vrcholy, dokončete dvojklikem nebo ✓."
+
+msgid "Click to place a point."
+msgstr "Kliknutím umístěte bod."
+
+msgid "Click an object to edit it."
+msgstr "Klikněte na objekt, který chcete upravit."
+
+msgid "Drag vertices to move them, drag small circles to add a vertex."
+msgstr "Tažením posunete vrchol, tažením malého kroužku přidáte vrchol."
+
+msgid "Start a new drawing…"
+msgstr "Začít novou kresbu…"

@@ -362,7 +362,7 @@
             hasItems: !this.store.isEmpty(),
             draftCount: this.draft ? this.draft.coords.length : 0,
             canFinish: !!(this.draft && this.draft.coords.length >= minDraft),
-            canUndo: this.draft ? this.draft.coords.length > 0 : this.store.canUndo(),
+            canUndo: !!(this.draft && this.draft.coords.length) || this.store.canUndo(),
             hasSelection: !!sel,
             hasVertexSelection: !!(sel && this.selection.vertex !== null && sel.type !== TYPE_POINT),
             selectionLabel: sel ? (sel.label || '') : '',
@@ -378,11 +378,28 @@
         return this.mode !== MODE_NONE;
     };
 
+    // Store a draft that already has enough vertices as a regular (undoable) object.
+    // Returns the id of the new object, or null when there was nothing to keep.
+    Tool.prototype._commitDraft = function () {
+        const draft = this.draft;
+        this.draft = null;
+        if (!draft || draft.type === TYPE_POINT || draft.coords.length < MIN_VERTICES[draft.type]) return null;
+        const item = { id: newId(), type: draft.type, coords: draft.coords, label: '' };
+        this.store.mutate((items) => items.push(item));
+        return item.id;
+    };
+
+    // Leaving a drawing mode (switching tools, closing the toolbar) never loses a finishable draft.
     Tool.prototype.setMode = function (mode) {
         if (mode !== MODE_EDIT && CREATE_MODES.indexOf(mode) < 0) mode = MODE_NONE;
+        const committedId = this._commitDraft();
         this.draft = CREATE_MODES.indexOf(mode) >= 0 ? { type: mode, coords: [] } : null;
         this.drag = null;
-        if (mode !== MODE_EDIT) this.selection = null;
+        if (mode !== MODE_EDIT) {
+            this.selection = null;
+        } else if (committedId) {
+            this.selection = { itemId: committedId, vertex: null };
+        }
         this.mode = mode;
         if (mode !== MODE_NONE && !this.store.visible) this.store.setVisible(true);
         this._emitState();
@@ -412,8 +429,22 @@
         this.scene.requestDraw();
     };
 
+    // Explicitly throw away the object being drawn; the drawing mode stays active.
     Tool.prototype.cancelDraft = function () {
-        this.setMode(MODE_EDIT);
+        if (!this.draft || !this.draft.coords.length) return;
+        this.draft.coords = [];
+        this._emitState();
+        this.scene.requestDraw();
+    };
+
+    // Store a finishable draft before the drawing is saved or shared; drawing mode stays active.
+    Tool.prototype.commitDraft = function () {
+        const draft = this.draft;
+        if (!draft || draft.type === TYPE_POINT || draft.coords.length < MIN_VERTICES[draft.type]) return;
+        this._commitDraft();
+        this.draft = { type: draft.type, coords: [] };
+        this._emitState();
+        this.scene.requestDraw();
     };
 
     Tool.prototype.undo = function () {
@@ -652,9 +683,7 @@
                 this._emitState();
                 this.scene.requestDraw();
             } else if (this.draft && this.draft.coords.length) {
-                this.draft.coords = [];
-                this._emitState();
-                this.scene.requestDraw();
+                this.cancelDraft();
             } else if (this.draft) {
                 // Leave the drawing mode, keep the toolbar open.
                 this.setMode(MODE_EDIT);
