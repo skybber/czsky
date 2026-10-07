@@ -8,6 +8,7 @@
     // the server for PDF rendering (see app/commons/chart_drawings.py).
 
     const STORAGE_KEY = 'czsky.chart.drawings.v1';
+    const VISIBILITY_VERSION = 1;
     const FORMAT_VERSION = 1;
     const MAX_UNDO = 50;
     const MAX_LABEL_LEN = 64;
@@ -143,7 +144,8 @@
     // or null; dirty: the working copy has changes not saved to that set.
     window.SkySceneDrawingStore = function () {
         this.items = [];
-        this.visible = true;
+        // Drawings start hidden unless the user explicitly chose a visibility state.
+        this.visible = false;
         this.source = null;
         this.dirty = false;
         this.undoStack = [];
@@ -165,9 +167,16 @@
             if (!raw) return;
             const data = JSON.parse(raw);
             this.items = Codec.fromJSON(data);
-            this.visible = data.visible !== false;
             this.source = sanitizeSource(data.source);
             this.dirty = !!data.dirty;
+            if (data.visibilityVersion >= VISIBILITY_VERSION) {
+                this.visible = data.visible === true;
+            } else {
+                // Older releases persisted the default `true` as if it were a user choice.
+                // Migrate once to hidden; subsequent explicit toggles are remembered.
+                this.visible = false;
+                this._save();
+            }
         } catch (e) {
             this.items = [];
         }
@@ -177,6 +186,7 @@
         try {
             const data = Codec.toJSON(this.items);
             data.visible = this.visible;
+            data.visibilityVersion = VISIBILITY_VERSION;
             data.source = this.source;
             data.dirty = this.dirty;
             window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

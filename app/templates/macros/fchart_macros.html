@@ -1473,8 +1473,12 @@
 
     function syncDrawingUi(state) {
         const st = state || (chartDrawingTool ? chartDrawingTool.getState() : null);
+        const hasDrawings = !chartDrawingStore.isEmpty() || !!(st && st.draftCount);
         $('#drawing_toggle_visible .text').text(chartDrawingStore.visible
             ? {{ _('Hide drawings')|tojson }} : {{ _('Show drawings')|tojson }});
+        $('#drawing_toggle_visible')
+            .toggleClass('disabled', !hasDrawings)
+            .attr('aria-disabled', String(!hasDrawings));
         $('#drawing_toggle_visible i').attr('class', chartDrawingStore.visible ? 'eye slash icon' : 'eye icon');
         const src = chartDrawingStore.source;
         // A finishable draft is stored before saving or sharing, so it counts as content.
@@ -2403,6 +2407,7 @@
     });
     $('#drawing_open').click(function() { openDrawingDialog(); });
     $('#drawing_toggle_visible').click(function() {
+        if ($(this).hasClass('disabled')) return;
         const visible = !chartDrawingStore.visible;
         if (!visible && chartDrawingTool) chartDrawingTool.setMode('none');
         chartDrawingStore.setVisible(visible);
