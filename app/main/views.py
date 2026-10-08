@@ -23,7 +23,12 @@ from app.commons.dso_utils import (
     CHART_MINOR_PLANET_PREFIX,
     dso_name_to_simbad_id,
 )
-from app.commons.simbad_utils import simbad_query, simbad_obj_to_deepsky, get_otype_from_simbad
+from app.commons.simbad_utils import (
+    get_dso_lookup_names_from_simbad,
+    get_otype_from_simbad,
+    simbad_obj_to_deepsky,
+    simbad_query,
+)
 
 from app.commons.utils import get_site_lang_code, is_safe_url
 from app.commons.coordinates import parse_radec
@@ -269,21 +274,33 @@ def do_global_search(query, level):
     if level != 2:
         simbad_obj = simbad_query(dso_name_to_simbad_id(query))
         if simbad_obj is not None:
-            simbad_obj = simbad_obj[0]
-            if simbad_obj['MAIN_ID'] != query and level == 1:
-                res = do_global_search(simbad_obj['MAIN_ID'], 2)
+            if simbad_obj['main_id'] != query and level == 1:
+                res = do_global_search(simbad_obj['main_id'], 2)
             if not res:
-                if get_otype_from_simbad(simbad_obj) is not None:
+                dso = _find_dso_by_simbad_obj(simbad_obj)
+                if dso is None and get_otype_from_simbad(simbad_obj) is not None:
                     dso = DeepskyObject()
                     simbad_obj_to_deepsky(simbad_obj, dso)
-                    db.session.add(dso)
-                    db.session.commit()
-                    res = do_global_search(simbad_obj['MAIN_ID'], 2)
+                    if len(dso.name) <= DeepskyObject.name.type.length:
+                        db.session.add(dso)
+                        db.session.commit()
+                    else:
+                        dso = None
+                if dso is not None:
+                    res = do_global_search(dso.name, 2)
                 else:
-                    ra_dec_query = '{} {}'.format(simbad_obj['RA'], simbad_obj['DEC'])
-                    res = _search_by_ra_dec(ra_dec_query)
+                    res = redirect(url_for('main_chart.simbad_object_chart',
+                                           sid=simbad_obj['main_id'],
+                                           fullscreen=request.args.get('fullscreen'),
+                                           splitview=request.args.get('splitview'),
+                                           embed=request.args.get('embed'),
+                                           dt=request.args.get('dt'),
+                                           realfullscreen=request.args.get('realfullscreen')))
             if res:
                 return res
+
+    if level == 2:
+        return None
 
     back_url_enc = request.args.get('back_url')
     if back_url_enc:
@@ -306,16 +323,28 @@ def _search_by_ra_dec(query):
     try:
         ra, dec = parse_radec(query)
         if ra is not None and dec is not None:
-            return redirect(url_for('main_chart.chart',
-                                    mra=ra,
-                                    mdec=dec,
-                                    fullscreen=request.args.get('fullscreen'),
-                                    splitview=request.args.get('splitview'),
-                                    embed=request.args.get('embed'),
-                                    dt=request.args.get('dt'),
-                                    realfullscreen=request.args.get('realfullscreen')))
+            return _redirect_to_chart_radec(ra, dec)
     except ValueError:
         pass
+
+
+def _find_dso_by_simbad_obj(simbad_obj):
+    for name in get_dso_lookup_names_from_simbad(simbad_obj):
+        dso = search_dso(name)
+        if dso is not None:
+            return dso
+    return None
+
+
+def _redirect_to_chart_radec(ra, dec):
+    return redirect(url_for('main_chart.chart',
+                            mra=ra,
+                            mdec=dec,
+                            fullscreen=request.args.get('fullscreen'),
+                            splitview=request.args.get('splitview'),
+                            embed=request.args.get('embed'),
+                            dt=request.args.get('dt'),
+                            realfullscreen=request.args.get('realfullscreen')))
 
 
 def _search_chart_ids(query):

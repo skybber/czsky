@@ -1,8 +1,12 @@
+from collections import OrderedDict
+from threading import Lock
+
 import numpy as np
 
+from flask import current_app
 from astroquery.simbad import Simbad
 
-from app.commons.dso_utils import get_catalog_from_dsoname
+from app.commons.dso_utils import get_catalog_from_dsoname, normalize_dso_name, denormalize_dso_name
 from app.commons.utils import to_float
 from app.models import Constellation, IMPORT_SOURCE_SIMBAD
 
@@ -181,55 +185,186 @@ SIMBAD_TO_CZSKY = {
     'HII': 'HII'
 }
 
+SIMBAD_OTYPE_DESCRIPTIONS = {d[0]: d[3] for d in SIMBAD_OTYPE_DEFS}
+
+# Star-like otypes (incl. candidates) that never represent a deepsky object
+_NON_STELLAR_STAR_OTYPES = {'**', 'Cl*', 'As*', 'St*'}
+SIMBAD_STELLAR_OTYPES = {d[0] for d in SIMBAD_OTYPE_DEFS if d[0].endswith('*') and d[0] not in _NON_STELLAR_STAR_OTYPES} | \
+                        {d[2] for d in SIMBAD_OTYPE_DEFS if d[2] and d[0].endswith('*') and d[0] not in _NON_STELLAR_STAR_OTYPES}
+
+SIMBAD_NAME_PREFIX = 'NAME '
+SIMBAD_CLUSTER_PREFIX = 'Cl '
+
+SIMBAD_CACHE_SIZE = 256
+
+# (connect, read) timeout in seconds for HTTP requests to Simbad
+SIMBAD_TIMEOUT = (3, 5)
+
+_simbad_cache = OrderedDict()
+_simbad_cache_lock = Lock()
+
+
+def _to_str(value):
+    if value is None or np.ma.is_masked(value):
+        return None
+    value = str(value).strip()
+    return value or None
+
+
+def _set_session_timeout(session, timeout):
+    # astroquery's Simbad TAP (pyvo) issues requests without any timeout, force it on the underlying session
+    request = session.request
+
+    def request_with_timeout(method, url, **kwargs):
+        if kwargs.get('timeout') is None:
+            kwargs['timeout'] = timeout
+        return request(method, url, **kwargs)
+
+    session.request = request_with_timeout
+
+
+def _query_simbad_row(query, fields):
+    simbad = Simbad()
+    simbad.ROW_LIMIT = 1
+    _set_session_timeout(simbad._session, SIMBAD_TIMEOUT)
+    simbad.add_votable_fields(*fields)
+    result = simbad.query_object(query)
+    return result[0] if result is not None and len(result) > 0 else None
+
+
 def simbad_query(query):
+    """
+    Query Simbad by object identifier. Returns dict with normalized keys:
+    main_id, ra, dec (radians), otype, otypes (list), ids (list), morph_type, sp_type,
+    galdim_majaxis, galdim_minaxis, galdim_angle, flux_v. Returns None if not found.
+    Successful results are cached in memory.
+    """
+    with _simbad_cache_lock:
+        if query in _simbad_cache:
+            _simbad_cache.move_to_end(query)
+            return dict(_simbad_cache[query])
+
+    simbad_obj = _simbad_query_uncached(query)
+
+    if simbad_obj is not None:
+        with _simbad_cache_lock:
+            _simbad_cache[query] = simbad_obj
+            if len(_simbad_cache) > SIMBAD_CACHE_SIZE:
+                _simbad_cache.popitem(last=False)
+        simbad_obj = dict(simbad_obj)
+    return simbad_obj
+
+
+def _simbad_query_uncached(query):
     try:
-        Simbad.ROW_LIMIT=1
-        simbad = Simbad()
-        simbad.TIMEOUT = 5
-        simbad.add_votable_fields('ids', 'otype', 'dim_minaxis' , 'dim_majaxis', 'dim_angle', 'sptype', 'sao', 'otypes', 'morphtype',
-                                  'flux(U)', 'flux(B)', 'flux(V)', 'flux(R)', 'flux(J)', 'flux(H)', 'flux(K)', )
-        simbad_obj = simbad.query_object(query)
-        return simbad_obj
-    except:
+        row = _query_simbad_row(query, ('otype', 'alltypes', 'ids', 'galdim_minaxis', 'galdim_majaxis', 'galdim_angle',
+                                        'sp_type', 'morph_type'))
+        if row is None:
+            return None
+        otypes = _to_str(row['alltypes.otypes'])
+        ids = _to_str(row['ids'])
+        simbad_obj = {
+            'main_id': ' '.join(str(row['main_id']).split()),
+            'ra': float(row['ra']) * np.pi / 180.0,
+            'dec': float(row['dec']) * np.pi / 180.0,
+            'otype': _to_str(row['otype']),
+            'otypes': otypes.split('|') if otypes else [],
+            'ids': [' '.join(i.split()) for i in ids.split('|')] if ids else [],
+            'morph_type': _to_str(row['morph_type']),
+            'sp_type': _to_str(row['sp_type']),
+            'galdim_majaxis': _to_str(row['galdim_majaxis']),
+            'galdim_minaxis': _to_str(row['galdim_minaxis']),
+            'galdim_angle': _to_str(row['galdim_angle']),
+            'flux_v': None,
+        }
+    except Exception:
+        current_app.logger.exception('Simbad query failed for %s', query)
         return None
 
+    # flux fields are inner-joined in Simbad TAP, objects without V flux would be dropped from the main query
+    try:
+        flux_row = _query_simbad_row(query, ('V',))
+        if flux_row is not None:
+            simbad_obj['flux_v'] = _to_str(flux_row['V'])
+    except Exception:
+        current_app.logger.exception('Simbad flux query failed for %s', query)
+    return simbad_obj
+
+
 def get_otype_from_simbad(simbad):
-    if simbad['OTYPES']:
-        for stype in simbad['OTYPES'].split('|'):
-            if stype in SIMBAD_TO_CZSKY:
-                return SIMBAD_TO_CZSKY[stype]
+    otype = simbad['otype']
+    if otype in SIMBAD_TO_CZSKY:
+        return SIMBAD_TO_CZSKY[otype]
+    if otype in SIMBAD_STELLAR_OTYPES:
+        # a star, possibly member of multiple system - secondary otypes as '**' must not turn it into DSO
+        return None
+    for stype in simbad['otypes']:
+        if stype in SIMBAD_TO_CZSKY:
+            return SIMBAD_TO_CZSKY[stype]
     return None
 
+
+def _get_known_catalog(simbad_id, dso_name):
+    cat = get_catalog_from_dsoname(dso_name)
+    if cat is not None and simbad_id.split(' ', 1)[0].upper() == cat.code.upper():
+        return cat
+    return None
+
+
+def _strip_prefix(simbad_id, prefix):
+    return simbad_id[len(prefix):].strip() if simbad_id.startswith(prefix) else simbad_id
+
+
+def get_dso_name_from_simbad(simbad):
+    """
+    Returns (name, common_name) for a DSO created from Simbad object. Simbad 'NAME xxx' identifiers are proper names,
+    they go to common_name and designation from the most significant catalog known in czsky is used as name.
+    """
+    main_id = simbad['main_id']
+    if not main_id.startswith(SIMBAD_NAME_PREFIX):
+        return normalize_dso_name(denormalize_dso_name(_strip_prefix(main_id, SIMBAD_CLUSTER_PREFIX))), None
+
+    common_name = _strip_prefix(main_id, SIMBAD_NAME_PREFIX)
+    best_name, best_cat = None, None
+    for simbad_id in simbad['ids']:
+        if simbad_id.startswith(SIMBAD_NAME_PREFIX):
+            continue
+        simbad_id = _strip_prefix(simbad_id, SIMBAD_CLUSTER_PREFIX)
+        dso_name = normalize_dso_name(denormalize_dso_name(simbad_id))
+        cat = _get_known_catalog(simbad_id, dso_name)
+        if cat is not None and (best_cat is None or cat.id < best_cat.id):
+            best_name, best_cat = dso_name, cat
+    if best_name is not None:
+        return best_name, common_name
+    return normalize_dso_name(denormalize_dso_name(common_name)), common_name
+
+
+def get_dso_lookup_names_from_simbad(simbad):
+    """ All names under which the Simbad object could be stored in the db. """
+    names = [simbad['main_id']] + simbad['ids']
+    for prefix in (SIMBAD_NAME_PREFIX, SIMBAD_CLUSTER_PREFIX):
+        names += [_strip_prefix(n, prefix) for n in names if n.startswith(prefix)]
+    return list(dict.fromkeys(names))
+
+
 def simbad_obj_to_deepsky(simbad, dso):
-    dso.name = simbad['MAIN_ID'].replace(' ', '')
+    dso.name, common_name = get_dso_name_from_simbad(simbad)
     dso.type = get_otype_from_simbad(simbad)
 
-    dso.subtype = simbad['MORPH_TYPE']
+    dso.subtype = simbad['morph_type']
 
-    ra_segm = simbad['RA'].split(' ')
-    dso.ra = float(ra_segm[0]) * np.pi / 12.0
-    if len(ra_segm) > 1:
-        dso.ra += float(ra_segm[1]) * np.pi / (12.0 * 60.0)
-    if len(ra_segm) > 2:
-        dso.ra += float(ra_segm[2]) * np.pi / (12 * 60.0 * 60)
-
-    dec_segm = simbad['DEC'].split(' ')
-    dso.dec = float(dec_segm[0]) * np.pi / 180.0
-    mul_dec = 1 if dso.dec >= 0 else -1
-    if len(dec_segm) > 1:
-        dso.dec += mul_dec * float(dec_segm[1]) * np.pi / (180.0 * 60)
-    if len(dec_segm) > 2:
-        dso.dec += mul_dec * float(dec_segm[2]) * np.pi / (180.0 * 60 * 60)
+    dso.ra = simbad['ra']
+    dso.dec = simbad['dec']
 
     dso.constellation_id = Constellation.get_constellation_by_position(dso.ra, dso.dec).id
     cat = get_catalog_from_dsoname(dso.name)
     dso.catalogue_id = cat.id if cat else None
 
-    major_axis = to_float(simbad['GALDIM_MAJAXIS'], None)
+    major_axis = to_float(simbad['galdim_majaxis'], None)
     if major_axis is not None:
         dso.major_axis = major_axis * 60
 
-    minor_axis = to_float(simbad['GALDIM_MINAXIS'], None)
+    minor_axis = to_float(simbad['galdim_minaxis'], None)
     if minor_axis is not None:
         dso.minor_axis = minor_axis * 60
 
@@ -238,13 +373,13 @@ def simbad_obj_to_deepsky(simbad, dso):
     else:
         dso.axis_ratio = 1.0
 
-    dso.position_angle = to_float(simbad['GALDIM_ANGLE'], None)
-    dso.mag = to_float(simbad['FLUX_V'], 100)
+    dso.position_angle = to_float(simbad['galdim_angle'], None)
+    dso.mag = to_float(simbad['flux_v'], 100)
 
     dso.surface_bright = None
     dso.c_star_b_mag = None
     dso.c_star_v_mag = None
     dso.distance = None
-    dso.common_name = None
+    dso.common_name = common_name
     dso.descr = None
     dso.import_source = IMPORT_SOURCE_SIMBAD

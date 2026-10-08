@@ -150,7 +150,7 @@ def _search_star_from_catalog(query):
             cat = cat.upper()
             if cat == 'HR':
                 star = Star.query.filter_by(hr=int(sid)).first()
-            if not not star and cat == 'HD':
+            if not star and cat == 'HD':
                 star = Star.query.filter_by(hd=int(sid)).first()
             if not star and cat == 'SAO':
                 star = Star.query.filter_by(sao=int(sid)).first()

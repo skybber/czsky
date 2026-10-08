@@ -1,12 +1,14 @@
 import base64
 
 from flask import (
+    abort,
     Blueprint,
     jsonify,
     redirect,
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
 
@@ -25,6 +27,7 @@ from app.commons.chart_generator import (
     set_horiz_from_equatorial,
 )
 from app.commons.chart_scene import (
+    build_cross_highlight,
     build_scene_v1,
     build_stars_zones_v1,
     build_milkyway_catalog_v1,
@@ -33,6 +36,10 @@ from app.commons.chart_scene import (
     build_constellation_lines_catalog_v1,
     build_constellation_boundaries_catalog_v1,
 )
+from app.commons.coordinates import ra_to_str, dec_to_str
+from app.commons.simbad_utils import simbad_query, SIMBAD_OTYPE_DESCRIPTIONS
+from app.commons.utils import is_splitview_supported
+from app.models import Constellation
 from ... import csrf
 
 main_chart = Blueprint('main_chart', __name__)
@@ -149,4 +156,94 @@ def chart_constellation_boundaries_catalog_v1():
 @csrf.exempt
 def chart_pdf():
     img_bytes = common_chart_pdf_img(None, None)
+    return send_file(img_bytes, mimetype='application/pdf')
+
+
+def _get_simbad_obj_or_404():
+    simbad_id = request.args.get('sid', '').strip()
+    if not simbad_id:
+        abort(404)
+    simbad_obj = simbad_query(simbad_id)
+    if simbad_obj is None:
+        abort(404)
+    return simbad_obj
+
+
+@main_chart.route('/chart/simbad', methods=['GET', 'POST'])
+@csrf.exempt
+def simbad_object_chart():
+    """View a chart of an object found in Simbad only (not present in the db)."""
+    simbad_obj = _get_simbad_obj_or_404()
+
+    if (
+        request.method == 'GET'
+        and not request.args.get('embed')
+        and not request.args.get('fullscreen')
+        and not request.args.get('splitview')
+        and is_splitview_supported()
+    ):
+        args = request.args.to_dict(flat=True)
+        args['splitview'] = 'true'
+        return redirect(url_for('main_chart.simbad_object_chart', **args))
+
+    form = ChartForm()
+    common_ra_dec_dt_fsz_from_request(form, simbad_obj['ra'], simbad_obj['dec'], 60)
+    chart_control = common_prepare_chart_data(form)
+
+    default_chart_iframe_url = url_for('main_chart.simbad_object_info', sid=simbad_obj['main_id'], embed='fc')
+
+    return render_template('main/chart/simbad_object_info.html', type='chart', simbad_obj=simbad_obj,
+                           fchart_form=form, chart_control=chart_control,
+                           default_chart_iframe_url=default_chart_iframe_url, embed=request.args.get('embed'))
+
+
+@main_chart.route('/chart/simbad/info', methods=['GET'])
+def simbad_object_info():
+    """View info of an object found in Simbad only."""
+    simbad_obj = _get_simbad_obj_or_404()
+
+    constellation = Constellation.get_constellation_by_position(simbad_obj['ra'], simbad_obj['dec'])
+
+    return render_template('main/chart/simbad_object_info.html', type='info', simbad_obj=simbad_obj,
+                           otype_descr=SIMBAD_OTYPE_DESCRIPTIONS.get(simbad_obj['otype']),
+                           constellation=constellation,
+                           ra_str=ra_to_str(simbad_obj['ra']), dec_str=dec_to_str(simbad_obj['dec']),
+                           embed=request.args.get('embed'))
+
+
+@main_chart.route('/chart/simbad/chart-pos-img', methods=['GET'])
+def simbad_object_chart_pos_img():
+    simbad_obj = _get_simbad_obj_or_404()
+
+    flags = request.args.get('json')
+    visible_objects = [] if flags else None
+    img_bytes, img_format = common_chart_pos_img(simbad_obj['ra'], simbad_obj['dec'], visible_objects=visible_objects)
+    img = base64.b64encode(img_bytes.read()).decode()
+    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
+
+
+@main_chart.route('/chart/simbad/scene-v1', methods=['GET'])
+def simbad_object_chart_scene_v1():
+    simbad_obj = _get_simbad_obj_or_404()
+
+    scene = build_scene_v1()
+    scene_objects = scene.setdefault('objects', {})
+    highlights = scene_objects.setdefault('highlights', [])
+    highlights.append(
+        build_cross_highlight(
+            highlight_id=simbad_obj['main_id'],
+            label=simbad_obj['main_id'],
+            ra=simbad_obj['ra'],
+            dec=simbad_obj['dec'],
+            theme_name=session.get('theme'),
+        )
+    )
+    return jsonify(scene)
+
+
+@main_chart.route('/chart/simbad/chart-pdf', methods=['GET', 'POST'])
+@csrf.exempt
+def simbad_object_chart_pdf():
+    simbad_obj = _get_simbad_obj_or_404()
+    img_bytes = common_chart_pdf_img(simbad_obj['ra'], simbad_obj['dec'])
     return send_file(img_bytes, mimetype='application/pdf')
