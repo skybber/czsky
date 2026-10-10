@@ -1,4 +1,9 @@
 (function () {
+    // Loaded both by the navigation and by chart pages; keep the first instance (it owns host state).
+    if (window.FullscreenShell) {
+        return;
+    }
+
     // Real (browser) fullscreen shell shared by FChart and SkyScene.
     //
     // The page that enters fullscreen (host) puts a wrapper with an iframe into native fullscreen.

@@ -105,6 +105,13 @@
     </div>
 {% endmacro %}
 
+{% macro exit_fullscreen_item() %}
+    {# Shown only inside the real fullscreen shell, see render_nav #}
+    <a class="icon item exit-fullscreen-item" title="{{ _('Exit fullscreen') }}" style="display:none;">
+        <i class="compress icon"></i>
+    </a>
+{% endmacro %}
+
 {% macro mobile_nav(current_user) %}
     <div class="mobile only row">
         <div class="ui fixed inverted black main menu">
@@ -123,6 +130,7 @@
                         <i class="search icon"></i>
                     </div>
                 </div>
+                {{ exit_fullscreen_item() }}
                 <div class="right menu">
                     <a class="icon item" id="open-nav"><i class="sidebar icon"></i></a>
                 </div>
@@ -150,6 +158,7 @@
                     </a>
                 {% endif %}
                 <div class="right menu">
+                    {{ exit_fullscreen_item() }}
                     <div class="ui item">
                         <div class="ui small icon input">
                             <input class="globsearch" type="text" placeholder="{{ _('Search...') }}">
@@ -185,7 +194,15 @@
         {{ mobile_nav(current_user) }}
         {{ desktop_nav(current_user) }}
     </nav>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/fullscreen_shell.js') }}"></script>
     <script type="text/javascript">
+        if (FullscreenShell.isShellContent()) {
+            $('.exit-fullscreen-item').show().on('click', function(event) {
+                event.preventDefault();
+                FullscreenShell.requestExit();
+            });
+        }
+
         $('.globsearch').keypress(function(event) {
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if(keycode == '13'){
