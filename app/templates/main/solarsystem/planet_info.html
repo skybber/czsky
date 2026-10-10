@@ -224,6 +224,11 @@
                     <div class="active section">
                         {{ planet.get_localized_name().capitalize() }}
                     </div>
+                    {% if embed == 'fc' %}
+                        <a id="bpin" class="ui basic circular icon compact button" data-tooltip="{{ _('Pin object') }}" data-variation="mini" data-inverted="" data-position="bottom left">
+                            <i class="crosshairs icon"></i>
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -240,6 +245,12 @@
         </div>
     </div>
     <script type="text/javascript">
+        {% if embed == 'fc' %}
+            $('#bpin').click(function() {
+                navigateParent(appendScreenWidthToUrl('{{ url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, back=back, back_id=back_id, splitview='true') | safe }}'));
+                return true;
+            });
+        {% endif %}
         {% if not is_new_observation_log %}
             $('.ui.modal.deleteObservationLogModal').modal({
                 onApprove: function() {
