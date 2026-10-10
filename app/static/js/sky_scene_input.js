@@ -209,11 +209,12 @@
         }
         const p = this._clientToCanvasXY(e.clientX, e.clientY);
         const hit = this._findSelectableAt(p.x, p.y);
+        const target = this._selectableTarget(hit);
         const clickCount = (e.originalEvent || e).detail;
         if (!(clickCount > 1)) {
-            this._rememberClickedObject(hit);
+            this.lastClickedObject = target ? { target: target, ts: Date.now() } : null;
         }
-        this._openSelected(hit ? hit.id : null);
+        this._openSelected(hit ? hit.id : null, target);
     };
 
     // Object position (ra/dec) of a selectable hit, or null if its center is unknown.
@@ -223,13 +224,6 @@
         const pos = this._unprojectCanvasToFrame(hit.anchor.x, hit.anchor.y,
             this.viewCenter.phi, this.viewCenter.theta, fovDeg);
         return pos ? this._viewCenterToEquatorial(pos.phi, pos.theta) : null;
-    };
-
-    // Opening the clicked object may change the layout (fullscreen -> split view) before the dblclick
-    // arrives, so the object picked by the first click of a double click is remembered.
-    SkyScene.prototype._rememberClickedObject = function (hit) {
-        const target = this._selectableTarget(hit);
-        this.lastClickedObject = target ? { target: target, ts: Date.now() } : null;
     };
 
     SkyScene.prototype._dblClickObjectTarget = function (pt) {
@@ -294,8 +288,8 @@
         this.input.lastTapY = clientY;
 
         const pt = this._clientToCanvasXY(clientX, clientY);
-        const selected = this.findSelectableObjectAt(pt.x, pt.y);
-        this._openSelected(selected);
+        const hit = this._findSelectableAt(pt.x, pt.y);
+        this._openSelected(hit ? hit.id : null, this._selectableTarget(hit));
     };
 
     SkyScene.prototype.onMouseDown = function (e) {

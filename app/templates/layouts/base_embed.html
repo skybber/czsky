@@ -34,6 +34,20 @@
                 parent.window.location.href = topUrl;
             };
 
+            // Pin button of the object panel: center the chart on the shown object in place,
+            // or load its chart page (topUrl) when the chart cannot do that.
+            window.pinObjectInParent = function(topUrl) {
+                try {
+                    const chart = parent !== window ? parent.fchart : null;
+                    if (chart && typeof chart.centerOnPanelObject === 'function' && chart.centerOnPanelObject(topUrl)) {
+                        return;
+                    }
+                } catch (e) {
+                    // Cross-origin parent, fall back to navigation
+                }
+                navigateParent(topUrl);
+            };
+
             document.addEventListener('click', function(event) {
                 const link = event.target.closest && event.target.closest('a[data-embed-map-url]');
                 if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {

@@ -423,7 +423,7 @@
             {% endif %}
             {% if cur_wrap %}
                 $('#bpin' ).click(function() {
-                    navigateParent(appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}'), true);
+                    pinObjectInParent(appendScreenWidthToUrl('{{ cur_wrap.top_url() | safe }}'));
                     return true;
                 });
             {% endif %}

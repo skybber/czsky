@@ -247,7 +247,7 @@
     <script type="text/javascript">
         {% if embed == 'fc' %}
             $('#bpin').click(function() {
-                navigateParent(appendScreenWidthToUrl('{{ url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, back=back, back_id=back_id, splitview='true') | safe }}'));
+                pinObjectInParent(appendScreenWidthToUrl('{{ url_for('main_planet.planet_info', planet_iau_code=planet.iau_code, back=back, back_id=back_id, splitview='true') | safe }}'));
                 return true;
             });
         {% endif %}

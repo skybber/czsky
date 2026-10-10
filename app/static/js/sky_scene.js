@@ -288,6 +288,8 @@
             this._setZoomLock(null);
         }
         this.lastClickedObject = null;
+        this.panelObject = null;
+        this.pinnedHighlight = null;
         this.dblClickObjectWindowMs = 600;
 
         this.applyScreenMode();
@@ -790,6 +792,62 @@
         this.requestDraw();
     };
 
+    // Pin from the object panel: the object shown there becomes the chart object and the view is
+    // centered on it without reloading; pageUrl (the object's chart page) replaces the address,
+    // so a reload keeps the pinned object. Returns false if its position is unknown (caller reloads).
+    SkyScene.prototype.centerOnPanelObject = function (pageUrl) {
+        // Without a selection the panel still shows the chart's own object.
+        const target = this.panelObject
+            ? this.panelObject.target
+            : (this.hasObject ? { ra: this.obj_ra, dec: this.obj_dec } : null);
+        if (!target) return false;
+        this.obj_ra = target.ra;
+        this.obj_dec = target.dec;
+        this.hasObject = true;
+        if (pageUrl) {
+            this._replacePagePath(pageUrl);
+        }
+        if (this.panelObject) {
+            // Same cross as the server's build_cross_highlight for the chart object.
+            this.pinnedHighlight = {
+                shape: 'cross',
+                id: this.panelObject.id,
+                label: this.panelObject.id,
+                ra: target.ra,
+                dec: target.dec,
+                size: 1.0,
+                line_width: 0.39,
+                color: this.theme === 'night' ? [1.0, 0.2, 0.05] : [0.0, 0.5, 0.0],
+            };
+            this._applyPinnedHighlight();
+        }
+        this.centerObjectInFov();
+        return true;
+    };
+
+    // The scene comes from the chart page's endpoint, which marks the page's own object with the
+    // selection cross; move that cross to the pinned object. List crosses (with 'dashed') stay.
+    // It goes first, the off-screen arrow points to the first cross.
+    SkyScene.prototype._applyPinnedHighlight = function () {
+        if (!this.pinnedHighlight || !this.sceneData) return;
+        const objects = this.sceneData.objects || (this.sceneData.objects = {});
+        const highlights = Array.isArray(objects.highlights) ? objects.highlights : [];
+        const others = highlights.filter((hl) => hl && hl !== this.pinnedHighlight
+            && !(hl.shape === 'cross' && !('dashed' in hl)));
+        objects.highlights = [this.pinnedHighlight].concat(others);
+    };
+
+    // Switches the address to url's path and parameters, keeping the current view parameters
+    // (field, screen mode, drawings, ...) that url does not set.
+    SkyScene.prototype._replacePagePath = function (url) {
+        const target = new URL(url, window.location.href);
+        if (target.origin !== window.location.origin) return;
+        const params = new URLSearchParams(window.location.search);
+        target.searchParams.forEach((value, key) => params.set(key, value));
+        params.delete('screenWidth');
+        history.replaceState(null, null, target.pathname + '?' + params.toString() + window.location.hash);
+    };
+
     SkyScene.prototype.centerObjectInFov = function () {
         this._centerOnTarget({ ra: this.obj_ra, dec: this.obj_dec }, this.hasObject);
     };
@@ -965,6 +1023,7 @@
         $.getJSON(url).done((data) => {
             if (epoch !== this.sceneRequestEpoch) return;
             this.sceneData = data;
+            this._applyPinnedHighlight();
             this.mwSelectionRevision += 1;
             if (!this.zoomAnim && data && data.meta && Number.isFinite(data.meta.maglim)) {
                 this.renderMaglim = data.meta.maglim;

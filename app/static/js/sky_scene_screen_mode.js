@@ -280,13 +280,16 @@
         }
     };
 
-    SkyScene.prototype._openSelected = function (selected) {
+    // target: position (ra/dec) of the selected object if known, used by the panel's pin button.
+    SkyScene.prototype._openSelected = function (selected, target) {
         if (!selected) return;
         if (this.isInSplitView()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=' + this.embed;
+            this.panelObject = { id: selected, target: target || null };
             $(this.iframe).attr('src', url);
         } else if (this.isInFullScreen()) {
             const url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected)) + '&embed=fc';
+            this.panelObject = { id: selected, target: target || null };
             $(this.iframe).attr('src', url);
             this.toggleSplitView();
         } else {
