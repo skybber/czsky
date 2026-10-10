@@ -41,10 +41,11 @@
 {% endmacro %}
 
 {% macro header_items_mobile(current_user) %}
-    {% set endpoints = [
-      ('main.index', config.APP_NAME, 'home'),
-    ]%}
-    {{ render_menu_items( endpoints ) }}
+    {# App name is hidden inside the real fullscreen shell to make room for the exit button #}
+    <a class="item {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">
+        <i class="home icon"></i>
+        <span class="mobile-app-name">{{ config.APP_NAME }}</span>
+    </a>
 {% endmacro %}
 
 {# This renders the right hand side of the navigation bar. If the user is logged in, it links to
@@ -197,6 +198,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/fullscreen_shell.js') }}"></script>
     <script type="text/javascript">
         if (FullscreenShell.isShellContent()) {
+            $('.mobile-app-name').hide();
             $('.exit-fullscreen-item').show().on('click', function(event) {
                 event.preventDefault();
                 FullscreenShell.requestExit();
