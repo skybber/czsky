@@ -728,3 +728,9 @@ def tmp_update_hnsky():
 def tmp_import_messier_marathon():
     from imports.import_dso_lists import import_messier_marathon
     import_messier_marathon('data/dsolist/MessierMarathon.csv')
+
+
+@app.cli.command("tmp_import_carbon_stars")
+def tmp_import_carbon_stars():
+    from imports.import_star_lists import import_carbon_stars
+    import_carbon_stars('data/starlist/CarbonStars.txt')
