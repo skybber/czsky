@@ -55,26 +55,11 @@
         this.splitview = splitview;
         this.fullScreen = fullScreen;
         this.isRealFullScreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled || document.msFullscreenEnabled;
-        // Track if we're in iframe fullscreen mode
-        this.isInFullscreenIframe = (function() {
-            // Check URL parameter first
-            if (new URLSearchParams(window.location.search).get('realfullscreen') === 'iframe') {
-                return true;
-            }
-            // Fallback: check if top window has fullscreen wrapper (we're in iframe without the URL param)
-            try {
-                if (window !== top && top.document.getElementById('fullscreen-wrapper')) {
-                    return true;
-                }
-            } catch(e) {
-                // Cross-origin, ignore
-            }
-            return false;
-        })();
-        this.isInEmbeddedIframePanel = false;
-        if (!this.isInFullscreenIframe) {
-            this.isInEmbeddedIframePanel = window !== top;
-        }
+        // Page shown in the real fullscreen shell iframe vs. a nested iframe panel.
+        this.isInFullscreenIframe = FullscreenShell.isShellContent();
+        this.isInEmbeddedIframePanel = FullscreenShell.isEmbeddedPanel();
+        // Map expanded by the user inside the shell; its toggle shrinks it instead of leaving fullscreen.
+        this.expandedInShell = false;
         // Disable real fullscreen in iframe mode
         if (this.isInFullscreenIframe || this.isInEmbeddedIframePanel) {
             this.isRealFullScreenSupported = false;
@@ -85,8 +70,6 @@
             this.fullScreen = false;
             $('#fchart-iframe-placeholder').hide();
         }
-        this.fullscreenWrapper = null;
-        this.fullscreenIframe = null;
         this.fullScreenWrapperId = fullScreenWrapperId || 'fullscreen-wrapper';
         this.basePageDormant = false;
         this.basePageDormantDisplays = null;
@@ -295,9 +278,6 @@
         this.keyboardCaptureActive = true;
         this.lastInputWasTouch = false;
         this.URL_ANG_PRECISION = 9;
-
-        // Pending navigation URL for exitAndNavigate (used by fullscreenchange handler)
-        this.pendingNavigateUrl = null;
 
         this.applyScreenMode();
 

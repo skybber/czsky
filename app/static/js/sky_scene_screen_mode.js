@@ -2,7 +2,7 @@
     const U = window.SkySceneUtils;
 
     // SkyScene screen modes: split view with the object iframe, CSS fullscreen and real
-    // fullscreen hosted in an iframe wrapper that talks to the parent page via postMessage.
+    // fullscreen hosted in the FullscreenShell iframe wrapper.
 
     SkyScene.prototype._bindScreenModeEvents = function () {
         $(this.separator).on('mousedown', (e) => {
@@ -38,74 +38,12 @@
                 this.requestDraw();
             });
         });
-
-        // Handle fullscreen changes for iframe-based fullscreen (standard and WebKit events).
-        const onFullscreenChange = () => {
-            const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
-            if (fullscreenElement === this.fullscreenWrapper) {
-                this._setBasePageMapDormant(true);
-                return;
-            }
-            if (!fullscreenElement && this.fullscreenWrapper) {
-                this.fullscreenWrapper.remove();
-                this.fullscreenWrapper = null;
-                this.fullscreenIframe = null;
-
-                // Navigate to pending URL if set (from exitAndNavigate), otherwise reload current position
-                if (this.pendingNavigateUrl) {
-                    window.location.href = this.pendingNavigateUrl;
-                    this.pendingNavigateUrl = null;
-                } else {
-                    window.location.reload();
-                }
-            }
-        };
-        document.addEventListener('fullscreenchange', onFullscreenChange);
-        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-
-        // Listen for messages from iframe
-        window.addEventListener('message', (e) => {
-            if (e.data && e.data.type === 'exitRealFullscreen') {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else if (document.webkitFullscreenElement) {
-                    document.webkitExitFullscreen();
-                } else if (document.msFullscreenElement) {
-                    document.msExitFullscreen();
-                }
-            } else if (e.data && e.data.type === 'urlUpdate') {
-                history.replaceState(null, null, e.data.url);
-            } else if (e.data && e.data.type === 'exitAndNavigate') {
-                // Store URL for fullscreenchange handler (exitFullscreen triggers that event)
-                this.pendingNavigateUrl = e.data.url;
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                } else if (document.webkitFullscreenElement) {
-                    document.webkitExitFullscreen();
-                } else if (document.msFullscreenElement) {
-                    document.msExitFullscreen();
-                } else {
-                    // No fullscreen element found, navigate directly
-                    window.location.href = e.data.url;
-                }
-            } else if (e.data && e.data.type === 'navigateInSplitview') {
-                // Navigate in splitview - reload middle iframe with new object, staying in fullscreen
-                let url = new URL(e.data.url, window.location.origin);
-                url.searchParams.set('realfullscreen', 'iframe');
-                window.location.href = url.toString();
-            }
-        });
     };
 
     // Propagate URL changes to parent window when in iframe fullscreen mode
     SkyScene.prototype.propagateUrlToParent = function() {
-        if (this.isInFullscreenIframe && top !== window) {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('realfullscreen');
-            top.postMessage({
-                type: 'urlUpdate',
-                url: url.search
-            }, '*');
+        if (this.isInFullscreenIframe) {
+            FullscreenShell.notifyUrl();
         }
     };
 
@@ -257,9 +195,10 @@
     };
 
     SkyScene.prototype.doToggleFullscreen = function (toggleClass, exitFullScreen) {
-        // In iframe mode, send message to parent to exit fullscreen
-        if (this.isInFullscreenIframe && top !== window) {
-            top.postMessage({ type: 'exitRealFullscreen' }, '*');
+        // Inside the fullscreen shell the browser is already in fullscreen: a map loaded expanded leaves it,
+        // a map expanded inside the shell (e.g. on a detail page) only toggles its CSS layout below.
+        if (this.isInFullscreenIframe && !this.expandedInShell && (this.fullScreen || this.splitview)) {
+            FullscreenShell.requestExit();
             return;
         }
 
@@ -273,52 +212,18 @@
         if (this.isRealFullScreenSupported) {
             if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
                 if (!exitFullScreen) {
-                    // Create wrapper and iframe
-                    this.fullscreenWrapper = document.createElement('div');
-                    this.fullscreenWrapper.id = this.fullScreenWrapperId;
-                    this.fullscreenWrapper.style.cssText = 'width:100%;height:100%;background:#000';
-
-                    // Iframe with current URL + parameter
+                    // Shell iframe with the current URL
                     let iframeUrl = new URL(window.location.href);
-                    iframeUrl.searchParams.set('realfullscreen', 'iframe');
                     iframeUrl.searchParams.set('fullscreen', 'true');
                     iframeUrl.searchParams.delete('splitview');
-                    this.fullscreenIframe = document.createElement('iframe');
-                    this.fullscreenIframe.src = iframeUrl.toString();
-                    this.fullscreenIframe.style.cssText = 'width:100%;height:100%;border:none';
-                    this.fullscreenIframe.id = 'realfullscreen-iframe';
-
-                    this.fullscreenWrapper.appendChild(this.fullscreenIframe);
-                    document.body.appendChild(this.fullscreenWrapper);
-
-                    let fullscreenPromise = null;
-                    if (this.fullscreenWrapper.requestFullscreen) {
-                        fullscreenPromise = this.fullscreenWrapper.requestFullscreen();
-                    } else if (this.fullscreenWrapper.webkitRequestFullscreen) {
-                        fullscreenPromise = this.fullscreenWrapper.webkitRequestFullscreen();
-                    } else if (this.fullscreenWrapper.msRequestFullscreen) {
-                        fullscreenPromise = this.fullscreenWrapper.msRequestFullscreen();
-                    }
-
-                    if (fullscreenPromise) {
-                        fullscreenPromise.catch(() => {
-                            if (this.fullscreenWrapper) {
-                                this.fullscreenWrapper.remove();
-                                this.fullscreenWrapper = null;
-                                this.fullscreenIframe = null;
-                            }
-                            this._setBasePageMapDormant(false);
-                        });
-                    }
+                    FullscreenShell.enter(iframeUrl.toString(), {
+                        wrapperId: this.fullScreenWrapperId,
+                        onEnter: () => this._setBasePageMapDormant(true),
+                        onFail: () => this._setBasePageMapDormant(false),
+                    });
                 }
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
+                FullscreenShell.requestExit();
             }
 
             if (exitFullScreen) {
@@ -343,6 +248,10 @@
             } else {
                 this.fullScreen = !this.fullScreen;
             }
+        }
+
+        if (this.isInFullscreenIframe) {
+            this.expandedInShell = this.fullScreen || this.splitview;
         }
 
         this.applyScreenMode();
@@ -381,12 +290,7 @@
             $(this.iframe).attr('src', url);
             this.toggleSplitView();
         } else {
-            let url = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
-            // Preserve realfullscreen parameter in iframe fullscreen mode
-            if (this.isInFullscreenIframe) {
-                url += (url.includes('?') ? '&' : '?') + 'realfullscreen=iframe';
-            }
-            window.location.href = url;
+            window.location.href = this.searchUrl.replace('__SEARCH__', encodeURIComponent(selected));
         }
     };
 })();
