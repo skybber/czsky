@@ -223,6 +223,12 @@ def _set_session_timeout(session, timeout):
     session.request = request_with_timeout
 
 
+def _to_rounded_float(value, ndigits=2):
+    # Simbad returns float32 values, e.g. 15.3 -> 15.300000190734863
+    value = _to_str(value)
+    return round(float(value), ndigits) if value is not None else None
+
+
 def _query_simbad_row(query, fields):
     simbad = Simbad()
     simbad.ROW_LIMIT = 1
@@ -272,9 +278,9 @@ def _simbad_query_uncached(query):
             'ids': [' '.join(i.split()) for i in ids.split('|')] if ids else [],
             'morph_type': _to_str(row['morph_type']),
             'sp_type': _to_str(row['sp_type']),
-            'galdim_majaxis': _to_str(row['galdim_majaxis']),
-            'galdim_minaxis': _to_str(row['galdim_minaxis']),
-            'galdim_angle': _to_str(row['galdim_angle']),
+            'galdim_majaxis': _to_rounded_float(row['galdim_majaxis']),
+            'galdim_minaxis': _to_rounded_float(row['galdim_minaxis']),
+            'galdim_angle': _to_rounded_float(row['galdim_angle']),
             'flux_v': None,
         }
     except Exception:
@@ -285,7 +291,7 @@ def _simbad_query_uncached(query):
     try:
         flux_row = _query_simbad_row(query, ('V',))
         if flux_row is not None:
-            simbad_obj['flux_v'] = _to_str(flux_row['V'])
+            simbad_obj['flux_v'] = _to_rounded_float(flux_row['V'])
     except Exception:
         current_app.logger.exception('Simbad flux query failed for %s', query)
     return simbad_obj
@@ -362,11 +368,11 @@ def simbad_obj_to_deepsky(simbad, dso):
 
     major_axis = to_float(simbad['galdim_majaxis'], None)
     if major_axis is not None:
-        dso.major_axis = major_axis * 60
+        dso.major_axis = round(major_axis * 60, 2)
 
     minor_axis = to_float(simbad['galdim_minaxis'], None)
     if minor_axis is not None:
-        dso.minor_axis = minor_axis * 60
+        dso.minor_axis = round(minor_axis * 60, 2)
 
     if dso.minor_axis is not None and dso.major_axis is not None:
         dso.axis_ratio = dso.minor_axis / dso.major_axis
