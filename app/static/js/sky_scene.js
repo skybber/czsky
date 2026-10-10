@@ -1285,7 +1285,8 @@
     SkyScene.prototype._pickerFallbackSelectedIdAt = function (x, y) {
         if (!this._isInsidePickerRect(x, y)) return null;
         if (!this.centerPick || !this.centerPick.id) return null;
-        if (this.centerPick.kind !== 'dso' && this.centerPick.kind !== 'moon') return null;
+        const kind = this.centerPick.kind;
+        if (kind !== 'dso' && kind !== 'moon' && kind !== 'planet') return null;
         return this.centerPick.id;
     };
 
@@ -1351,11 +1352,11 @@
         };
     };
 
-    SkyScene.prototype._findNearestMoonInPicker = function () {
-        const picked = this.planetRenderer.getNearestMoonForPick();
+    SkyScene.prototype._findNearestBodyInPicker = function () {
+        const picked = this.planetRenderer.getNearestBodyForPick();
         if (!picked || !picked.id) return null;
         return {
-            kind: 'moon',
+            kind: picked.kind,
             id: picked.id,
             mag: Number.isFinite(picked.mag) ? picked.mag : null,
         };
@@ -1389,9 +1390,9 @@
             this.centerPick = pickedDso;
             return;
         }
-        const pickedMoon = this._findNearestMoonInPicker();
-        if (pickedMoon) {
-            this.centerPick = pickedMoon;
+        const pickedBody = this._findNearestBodyInPicker();
+        if (pickedBody) {
+            this.centerPick = pickedBody;
             return;
         }
         this.centerPick = this._findNearestStarAtCenter();

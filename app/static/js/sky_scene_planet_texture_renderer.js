@@ -166,7 +166,7 @@
 
     window.SkyScenePlanetTextureRenderer = function () {
         this._lastLabelPlacementById = new Map();
-        this._pickMoon = null;
+        this._pickBody = null;
         this._textures = {};
         this._texturesLoading = {};
         this._onImageLoaded = null;
@@ -667,12 +667,14 @@
         }
     }
 
-    window.SkyScenePlanetTextureRenderer.prototype.getNearestMoonForPick = function () {
-        if (!this._pickMoon) return null;
+    // Nearest planet or moon within the picker radius: { id, kind: 'planet'|'moon', mag, dist2 }.
+    window.SkyScenePlanetTextureRenderer.prototype.getNearestBodyForPick = function () {
+        if (!this._pickBody) return null;
         return {
-            id: this._pickMoon.id || null,
-            mag: hasFinite(this._pickMoon.mag) ? this._pickMoon.mag : null,
-            dist2: hasFinite(this._pickMoon.dist2) ? this._pickMoon.dist2 : null,
+            id: this._pickBody.id || null,
+            kind: this._pickBody.kind,
+            mag: hasFinite(this._pickBody.mag) ? this._pickBody.mag : null,
+            dist2: hasFinite(this._pickBody.dist2) ? this._pickBody.dist2 : null,
         };
     };
 
@@ -708,7 +710,7 @@
         if (!objects.length) return;
 
         this._lastLabelPlacementById = new Map();
-        this._pickMoon = null;
+        this._pickBody = null;
 
         const renderer = sceneCtx.renderer && sceneCtx.renderer.ready && typeof sceneCtx.renderer.drawTriangles === 'function'
             && !sceneCtx.renderer.isGlContextLost()
@@ -762,11 +764,16 @@
             const px = sceneCtx.projection.projectEquatorialToPx(p.ra, p.dec);
             if (!px) continue;
 
-            if (pickRadius2 > 0 && p.type === 'moon' && p.id) {
+            if (pickRadius2 > 0 && p.id) {
                 const d2 = (px.x - pickCx) ** 2 + (px.y - pickCy) ** 2;
                 if (d2 <= pickRadius2 && d2 < bestPickDist2) {
                     bestPickDist2 = d2;
-                    this._pickMoon = { id: p.id, mag: hasFinite(p.mag) ? p.mag : null, dist2: d2 };
+                    this._pickBody = {
+                        id: p.id,
+                        kind: p.type === 'moon' ? 'moon' : 'planet',
+                        mag: hasFinite(p.mag) ? p.mag : null,
+                        dist2: d2,
+                    };
                 }
             }
 
