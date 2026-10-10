@@ -3,6 +3,7 @@ webassets-external/
 app/static/content/
 app/static/scripts/
 app/static/styles/
+app/static/images/planets/
 private_data/
 user_data/
 backup/
@@ -22,7 +23,12 @@ dist
 dump.rdb
 USNO-NOMAD-1e8.dat
 CometEls.txt
-de421.bsp
+*.bsp
+czsky.log
+czsky.log.*
+/data/landscapes/
+/MPCORB.9999.DAT
 
 #fchart3
 fchart3/
+/cometelements
