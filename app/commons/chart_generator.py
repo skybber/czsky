@@ -1441,6 +1441,7 @@ def _get_chart_legend_flags(form):
 
     if form.show_telrad.data == 'true':
         legend_flags += FlagValue.FOV_TELRAD.value
+        chart_flags += FlagValue.FOV_TELRAD.value
 
     if form.show_picker.data == 'true':
         legend_flags += FlagValue.SHOW_PICKER.value
