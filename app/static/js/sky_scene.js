@@ -279,6 +279,17 @@
         this.lastInputWasTouch = false;
         this.URL_ANG_PRECISION = 9;
 
+        // Wheel/pinch zoom keeps the lock target (chart object or double clicked object, ra/dec)
+        // in the center until the user moves the map.
+        this.hasObject = obj_ra != null && obj_dec != null;
+        this.zoomLockReleasePx = 4;
+        this._setZoomLock(this.hasObject ? { ra: obj_ra, dec: obj_dec } : null);
+        if (!this._isViewCenteredOnLockTarget()) {
+            this._setZoomLock(null);
+        }
+        this.lastClickedObject = null;
+        this.dblClickObjectWindowMs = 600;
+
         this.applyScreenMode();
 
         window.addEventListener('resize', () => this.onResize());
@@ -780,15 +791,26 @@
     };
 
     SkyScene.prototype.centerObjectInFov = function () {
-        this._setViewCenterEquatorial(this.obj_ra, this.obj_dec);
+        this._centerOnTarget({ ra: this.obj_ra, dec: this.obj_dec }, this.hasObject);
+    };
+
+    // Centers the view exactly on target (ra/dec); lockZoom keeps wheel/pinch zoom on it.
+    SkyScene.prototype._centerOnTarget = function (target, lockZoom) {
+        this._setMilkywayInteractionActive(true);
+        this._requestMilkyWaySelection({ optimized: true, immediate: true });
+        this._setViewCenterEquatorial(target.ra, target.dec);
+        this._setZoomLock(lockZoom ? target : null);
         this.setCenterToHiddenInputs();
         this.syncQueryString();
+        this._setMilkywayInteractionActive(false);
+        this._requestMilkyWaySelection({ optimized: false, immediate: true });
         this.forceReloadImage();
     };
 
     // Center the view on ra/dec (radians) and optionally switch to the smallest field >= fovDeg.
     SkyScene.prototype.lookAtEquatorial = function (ra, dec, fovDeg) {
         this._setViewCenterEquatorial(ra, dec);
+        this._setZoomLock(null);
         if (Number.isFinite(fovDeg)) {
             let idx = this.fieldSizes.findIndex((fs) => fs >= fovDeg - 1e-9);
             if (idx < 0) idx = this.fieldSizes.length - 1;
@@ -807,27 +829,75 @@
     };
 
     SkyScene.prototype._setViewCenterEquatorial = function (raValue, decValue) {
-        if (this.isEquatorial) {
-            this.viewCenter.phi = raValue;
-            this.viewCenter.theta = decValue;
-        } else {
-            const lat = Number(this.latitude);
-            const ra = Number(raValue);
-            const dec = Number(decValue);
-            const timeISO = this._resolveRequestTimeISO();
-            const lst = this._getChartLst(timeISO);
-
-            if (Number.isFinite(lat)
-                && Number.isFinite(ra)
-                && Number.isFinite(dec)
-                && Number.isFinite(lst)) {
-                const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
-                if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
-                    this.viewCenter.phi = U.normalizeRa(hor.az);
-                    this.viewCenter.theta = U.clampLatitude(hor.alt);
-                }
+        const center = this._equatorialToViewCenter(raValue, decValue);
+        if (center) {
+            this.viewCenter.phi = center.phi;
+            this.viewCenter.theta = center.theta;
+            // A running zoom animation would restore its own center on the next frame;
+            // let it finish the field change only.
+            if (this.zoomAnim) {
+                this.zoomAnim.anchor = null;
             }
         }
+    };
+
+    // View center (phi/theta in the current coordinate system) for ra/dec, or null if unresolvable.
+    SkyScene.prototype._equatorialToViewCenter = function (raValue, decValue) {
+        if (this.isEquatorial) {
+            return { phi: raValue, theta: decValue };
+        }
+        const lat = Number(this.latitude);
+        const ra = Number(raValue);
+        const dec = Number(decValue);
+        const timeISO = this._resolveRequestTimeISO();
+        const lst = this._getChartLst(timeISO);
+
+        if (Number.isFinite(lat)
+            && Number.isFinite(ra)
+            && Number.isFinite(dec)
+            && Number.isFinite(lst)) {
+            const hor = window.AstroMath.equatorialToHorizontal(lst, lat, ra, dec);
+            if (hor && Number.isFinite(hor.az) && Number.isFinite(hor.alt)) {
+                return { phi: U.normalizeRa(hor.az), theta: U.clampLatitude(hor.alt) };
+            }
+        }
+        return null;
+    };
+
+    // Inverse of _equatorialToViewCenter: ra/dec of a view frame position, or null if unresolvable.
+    SkyScene.prototype._viewCenterToEquatorial = function (phi, theta) {
+        if (this.isEquatorial) {
+            return { ra: phi, dec: theta };
+        }
+        const lat = Number(this.latitude);
+        const lst = this._getChartLst(this._resolveRequestTimeISO());
+        if (Number.isFinite(lat) && Number.isFinite(phi) && Number.isFinite(theta) && Number.isFinite(lst)) {
+            const eq = window.AstroMath.horizontalToEquatorial(lst, lat, phi, theta);
+            if (eq && Number.isFinite(eq.ra) && Number.isFinite(eq.dec)) {
+                return { ra: U.normalizeRa(eq.ra), dec: eq.dec };
+            }
+        }
+        return null;
+    };
+
+    // Locks wheel/pinch zoom to the target (ra/dec) kept in the view center, or releases it (null).
+    SkyScene.prototype._setZoomLock = function (target) {
+        this.zoomLockTarget = target;
+        this.zoomLockedToCenter = !!target;
+        this.zoomLockPanPx = { x: 0, y: 0 };
+    };
+
+    // True when the view center is on the zoom lock target (within 2% of the field size).
+    SkyScene.prototype._isViewCenteredOnLockTarget = function () {
+        if (!this.zoomLockTarget) return false;
+        const target = this._equatorialToViewCenter(this.zoomLockTarget.ra, this.zoomLockTarget.dec);
+        if (!target) return false;
+        const c = this.viewCenter;
+        const cosDist = Math.sin(c.theta) * Math.sin(target.theta)
+            + Math.cos(c.theta) * Math.cos(target.theta) * Math.cos(c.phi - target.phi);
+        const dist = Math.acos(Math.max(-1, Math.min(1, cosDist)));
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
+        return dist <= 0.02 * U.deg2rad(fovDeg);
     };
 
     SkyScene.prototype.reloadImage = function () {
@@ -1185,7 +1255,10 @@
             return;
         }
         if (shape.shape === 'rect') {
-            this.selectionIndex.addRect(shape.id, shape.x1, shape.y1, shape.x2, shape.y2, priority);
+            const anchor = Number.isFinite(shape.anchorX) && Number.isFinite(shape.anchorY)
+                ? { x: shape.anchorX, y: shape.anchorY }
+                : null;
+            this.selectionIndex.addRect(shape.id, shape.x1, shape.y1, shape.x2, shape.y2, priority, anchor);
         }
     };
 
@@ -1515,6 +1588,14 @@
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         return this.findSelectableObjectAt(x, y);
+    };
+
+    // Selected object at canvas x/y: { id, anchor } where anchor is the object's canvas center if known.
+    SkyScene.prototype._findSelectableAt = function (x, y) {
+        const item = this.selectionIndex ? this.selectionIndex.hitTestItem(x, y) : null;
+        if (item) return { id: item.id, anchor: item.anchor };
+        const id = this.findSelectableObjectAt(x, y);
+        return id ? { id: id, anchor: null } : null;
     };
 
     SkyScene.prototype.findSelectableObjectAt = function (x, y) {

@@ -119,6 +119,28 @@
         return { x: clientX - rect.left, y: clientY - rect.top };
     };
 
+    // Zoom pivot for wheel/pinch: the pointer position, or the canvas center (null) while the zoom
+    // is locked. The locked target is re-centered first, so pointer jitter or sky rotation in
+    // horizontal coordinates does not grow into an offset while zooming in.
+    SkyScene.prototype._zoomPivot = function (clientPoint) {
+        if (!this.zoomLockedToCenter) return clientPoint;
+        this._setViewCenterEquatorial(this.zoomLockTarget.ra, this.zoomLockTarget.dec);
+        this._setZoomLock(this.zoomLockTarget);
+        this.setCenterToHiddenInputs();
+        return null;
+    };
+
+    // Pointer jitter on click/tap also pans by a pixel or so; release the lock only once
+    // the map has really been moved since locking.
+    SkyScene.prototype._trackZoomLockPan = function (dx, dy) {
+        if (!this.zoomLockedToCenter) return;
+        this.zoomLockPanPx.x += dx;
+        this.zoomLockPanPx.y += dy;
+        if (Math.hypot(this.zoomLockPanPx.x, this.zoomLockPanPx.y) > this.zoomLockReleasePx) {
+            this._setZoomLock(null);
+        }
+    };
+
     SkyScene.prototype._applyPanDelta = function (dx, dy) {
         const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
         const fovRad = U.deg2rad(fovDeg);
@@ -130,6 +152,7 @@
         this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * fovRad / wh / cosDec);
         this.viewCenter.theta += dirY * dy * fovRad / wh;
         this.viewCenter.theta = U.clampLatitude(this.viewCenter.theta);
+        this._trackZoomLockPan(dx, dy);
         this.setCenterToHiddenInputs();
         this._requestMilkyWaySelection({ optimized: true, immediate: false });
         this.requestDraw();
@@ -184,8 +207,38 @@
             const p = this._clientToCanvasXY(e.clientX, e.clientY);
             if (this.drawingTool.handleTap(p.x, p.y)) return;
         }
-        const selected = this.findSelectableObject(e);
-        this._openSelected(selected);
+        const p = this._clientToCanvasXY(e.clientX, e.clientY);
+        const hit = this._findSelectableAt(p.x, p.y);
+        const clickCount = (e.originalEvent || e).detail;
+        if (!(clickCount > 1)) {
+            this._rememberClickedObject(hit);
+        }
+        this._openSelected(hit ? hit.id : null);
+    };
+
+    // Object position (ra/dec) of a selectable hit, or null if its center is unknown.
+    SkyScene.prototype._selectableTarget = function (hit) {
+        if (!hit || !hit.anchor) return null;
+        const fovDeg = this.renderFovDeg ?? this.fieldSizes[this.fldSizeIndex];
+        const pos = this._unprojectCanvasToFrame(hit.anchor.x, hit.anchor.y,
+            this.viewCenter.phi, this.viewCenter.theta, fovDeg);
+        return pos ? this._viewCenterToEquatorial(pos.phi, pos.theta) : null;
+    };
+
+    // Opening the clicked object may change the layout (fullscreen -> split view) before the dblclick
+    // arrives, so the object picked by the first click of a double click is remembered.
+    SkyScene.prototype._rememberClickedObject = function (hit) {
+        const target = this._selectableTarget(hit);
+        this.lastClickedObject = target ? { target: target, ts: Date.now() } : null;
+    };
+
+    SkyScene.prototype._dblClickObjectTarget = function (pt) {
+        const clicked = this.lastClickedObject;
+        this.lastClickedObject = null;
+        if (clicked && (Date.now() - clicked.ts) < this.dblClickObjectWindowMs) {
+            return clicked.target;
+        }
+        return this._selectableTarget(this._findSelectableAt(pt.x, pt.y));
     };
 
     SkyScene.prototype.onDblClick = function (e) {
@@ -197,6 +250,14 @@
         const p = this._eventClientXY(e);
         const pt = this._clientToCanvasXY(p.x, p.y);
         if (this.drawingTool && this.drawingTool.handleDblClick(pt.x, pt.y)) return;
+
+        // Double click on an object centers it exactly and locks wheel/pinch zoom to it.
+        const target = this._dblClickObjectTarget(pt);
+        if (target) {
+            this._centerOnTarget(target, true);
+            return;
+        }
+
         const dx = (this.canvas.width * 0.5) - pt.x;
         const dy = (this.canvas.height * 0.5) - pt.y;
         if (Math.abs(dx) + Math.abs(dy) < 1.0) return;
@@ -364,7 +425,7 @@
                             x: 0.5 * (pts[0].x + pts[1].x),
                             y: 0.5 * (pts[0].y + pts[1].y),
                         };
-                        this.startZoomToIndex(newIndex, pivot);
+                        this.startZoomToIndex(newIndex, this._zoomPivot(pivot));
                     }
                     this.input.pinchStartDist = dist;
                 }
@@ -492,8 +553,7 @@
             let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
             if (newIndex === this.targetFldSizeIndex) return;
-            const p = this._eventClientXY(e);
-            this.startZoomToIndex(newIndex, p);
+            this.startZoomToIndex(newIndex, this._zoomPivot(this._eventClientXY(e)));
             return;
         }
 
@@ -526,8 +586,7 @@
             let newIndex = this.targetFldSizeIndex + steps;
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));
             if (newIndex !== this.targetFldSizeIndex) {
-                const p = this._eventClientXY(e);
-                this.startZoomToIndex(newIndex, p);
+                this.startZoomToIndex(newIndex, this._zoomPivot(this._eventClientXY(e)));
             }
             this.wheel.lastStepTs = now;
         }
@@ -724,6 +783,7 @@
         this.viewCenter.phi = U.normalizeRa(this.viewCenter.phi + dirX * dx * dAng);
         this.viewCenter.theta += dirY * dy * dAng;
         this.viewCenter.theta = U.clampLatitude(this.viewCenter.theta);
+        this._setZoomLock(null);
         this.setCenterToHiddenInputs();
         this._requestMilkyWaySelection({ optimized: true, immediate: false });
         this.requestDraw();

@@ -25,10 +25,12 @@
         return { x1: ax1, y1: ay1, x2: ax2, y2: ay2 };
     };
 
-    SelectionIndex.prototype.addRect = function (id, x1, y1, x2, y2, priority) {
+    // anchor: optional canvas point of the object's center ({x, y}), used to center the view on it.
+    SelectionIndex.prototype.addRect = function (id, x1, y1, x2, y2, priority, anchor) {
         if (!id) return;
         const box = this._clampRect(x1, y1, x2, y2);
         if (!box) return;
+        const hasAnchor = anchor && Number.isFinite(anchor.x) && Number.isFinite(anchor.y);
         this.items.push({
             id: id,
             priority: Number.isFinite(priority) ? priority : 10,
@@ -36,12 +38,13 @@
             y1: box.y1,
             x2: box.x2,
             y2: box.y2,
+            anchor: hasAnchor ? { x: anchor.x, y: anchor.y } : null,
         });
     };
 
     SelectionIndex.prototype.addCircle = function (id, cx, cy, r, priority) {
         if (!Number.isFinite(cx) || !Number.isFinite(cy) || !(r > 0)) return;
-        this.addRect(id, cx - r, cy - r, cx + r, cy + r, priority);
+        this.addRect(id, cx - r, cy - r, cx + r, cy + r, priority, { x: cx, y: cy });
     };
 
     SelectionIndex.prototype.addPolylineBounds = function (id, points, padPx, priority) {
@@ -72,15 +75,20 @@
         });
     };
 
-    SelectionIndex.prototype.hitTest = function (x, y) {
+    SelectionIndex.prototype.hitTestItem = function (x, y) {
         if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
         for (let i = 0; i < this.items.length; i++) {
             const it = this.items[i];
             if (x >= it.x1 && x <= it.x2 && y >= it.y1 && y <= it.y2) {
-                return it.id;
+                return it;
             }
         }
         return null;
+    };
+
+    SelectionIndex.prototype.hitTest = function (x, y) {
+        const it = this.hitTestItem(x, y);
+        return it ? it.id : null;
     };
 
     window.SelectionIndex = SelectionIndex;

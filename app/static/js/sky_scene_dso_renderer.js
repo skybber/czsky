@@ -433,6 +433,8 @@
                     y1: bounds.y1 - 3.0,
                     x2: bounds.x2 + 3.0,
                     y2: bounds.y2 + 3.0,
+                    anchorX: centerPx.x,
+                    anchorY: centerPx.y,
                     priority: priority,
                 });
                 return;
