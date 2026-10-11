@@ -18,14 +18,14 @@
     {% set endpoints = [
         ('main_comet.comet_info', _('Map'), 'info'),
         ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
-        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
         ('main_comet.comet_light_curve', _('Light curve'), 'chart line'),
+        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
-        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
         ('main_comet.comet_light_curve', _('Light curve'), 'chart line'),
+        ('main_comet.comet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 

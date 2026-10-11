@@ -18,14 +18,14 @@
     {% set endpoints = [
         ('main_minor_planet.minor_planet_info', _('Map'), 'info'),
         ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table'),
-        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
         ('main_minor_planet.minor_planet_light_curve', _('Light curve'), 'chart line'),
+        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table'),
-        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
         ('main_minor_planet.minor_planet_light_curve', _('Light curve'), 'chart line'),
+        ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
     ] %}
 {% endif %}
 

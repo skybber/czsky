@@ -462,8 +462,7 @@ def visibility():
             output_file=None,
             theme=theme,
             return_svg_string=True,
-            num_points=40,
-            scale=1.2
+            num_points=40
         )
         return Response(svg, mimetype='image/svg+xml')
     except Exception as e:

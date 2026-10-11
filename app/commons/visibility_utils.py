@@ -20,6 +20,9 @@ except ImportError:
     ASTRO_AVAILABLE = False
 
 
+# Default left (embed) panel is ~430 px wide; matplotlib SVG uses 72 pt per inch, browsers 4/3 px per pt.
+PANEL_FIGSIZE = (4.4, 3.4)
+
 THEMES = {
     'light': {
         'bg_color': 'white',
@@ -134,15 +137,18 @@ def create_visibility_chart(
         "legend": 10,
     }
     if panel_mode:
+        # sized for the default left (embed) panel, see PANEL_FIGSIZE
         base_fonts = {
-            "title": 18,
-            "label": 15,
-            "ticks": 14,
-            "legend": 14,
+            "title": 10,
+            "label": 9,
+            "ticks": 8,
+            "legend": 7.5,
         }
 
     # Apply global scale
     scale = float(scale)
+    # line widths are tuned for the large (non-panel) figure
+    line_scale = scale * (0.5 if panel_mode else 1.0)
     base_fonts = {k: v * scale for k, v in base_fonts.items()}
 
     # Apply optional per-field overrides
@@ -188,14 +194,16 @@ def create_visibility_chart(
         dec_fmt = coord.dec.to_string(unit=u.deg, sep=':', precision=1, alwayssign=True, pad=True)
         object_label = f"RA {ra_fmt}  Dec {dec_fmt}"
 
-    # Figure sizing: for small panels, smaller figsize + higher DPI tends to render nicer
-    dpi = 140 if panel_mode else 100
-    figsize = (12, 6.5) if panel_mode else (16, 9)
+    # Figure sizing: panel mode matches the default left panel width, so the SVG is shown 1:1 there
+    dpi = 100
+    figsize = PANEL_FIGSIZE if panel_mode else (16, 9)
 
-    fig = Figure(figsize=figsize, facecolor=colors['bg_color'], dpi=dpi)
+    fig = Figure(figsize=figsize, dpi=dpi)
     canvas = FigureCanvasSVG(fig)
+    # transparent background, so the chart blends with the page in every theme
+    fig.patch.set_alpha(0.0)
     ax = fig.add_subplot(111)
-    ax.set_facecolor(colors['bg_color'])
+    ax.patch.set_alpha(0.0)
 
     twilight_colors = {
         'day': (colors['day'][0], colors['day'][1]),
@@ -227,7 +235,7 @@ def create_visibility_chart(
         times_plot,
         altitudes,
         color=colors['object_color'],
-        linewidth=3 * scale,
+        linewidth=3 * line_scale,
         label=object_label,
         zorder=10
     )
@@ -237,7 +245,7 @@ def create_visibility_chart(
         y=0,
         color=colors['horizon_color'],
         linestyle='-',
-        linewidth=2.5 * scale,
+        linewidth=2.5 * line_scale,
         label='Horizon',
         zorder=5
     )
@@ -248,7 +256,7 @@ def create_visibility_chart(
             y=alt,
             color=colors['grid_color'],
             linestyle=':',
-            linewidth=1.0 * scale,
+            linewidth=1.0 * line_scale,
             alpha=0.5,
             zorder=2
         )
@@ -267,7 +275,7 @@ def create_visibility_chart(
         which='major',
         alpha=grid_alpha,
         linestyle=grid_linestyle,
-        linewidth=grid_linewidth * scale,
+        linewidth=grid_linewidth * line_scale,
         color=colors['grid_color'],
         zorder=2
     )
@@ -277,7 +285,7 @@ def create_visibility_chart(
             which='minor',
             alpha=grid_alpha * 0.6,
             linestyle=':',
-            linewidth=max(0.5, grid_linewidth * 0.7) * scale,
+            linewidth=max(0.5, grid_linewidth * 0.7) * line_scale,
             color=colors['grid_color'],
             zorder=2
         )
@@ -305,7 +313,7 @@ def create_visibility_chart(
         f'{object_label} — {location_name} — {date_str}',
         fontsize=base_fonts["title"],
         fontweight='bold',
-        pad=20,
+        pad=6 if panel_mode else 20,
         color=colors['fg_color']
     )
 
@@ -315,12 +323,12 @@ def create_visibility_chart(
 
     # Spines
     for spine in ax.spines.values():
-        spine.set_edgecolor(colors['fg_color'])
+        spine.set_edgecolor(colors['grid_color'] if panel_mode else colors['fg_color'])
 
     # Legend (simplified for speed)
     legend_elements = [
-        Line2D([0], [0], color=colors['object_color'], linewidth=3 * scale, label=object_label),
-        Line2D([0], [0], color=colors['horizon_color'], linewidth=2.5 * scale, label='Horizon'),
+        Line2D([0], [0], color=colors['object_color'], linewidth=3 * line_scale, label=object_label),
+        Line2D([0], [0], color=colors['horizon_color'], linewidth=2.5 * line_scale, label='Horizon'),
         Patch(facecolor=colors['day'][0], alpha=colors['day'][1], label='Day'),
         Patch(facecolor=colors['night'][0], alpha=colors['night'][1], label='Night'),
     ]
@@ -328,13 +336,12 @@ def create_visibility_chart(
         handles=legend_elements,
         loc='upper right',
         fontsize=base_fonts["legend"],
-        framealpha=0.9,
-        facecolor=colors['bg_color'],
-        edgecolor=colors['fg_color']
+        framealpha=0.0,
+        edgecolor=colors['grid_color']
     )
     plt.setp(legend.get_texts(), color=colors['fg_color'])
 
-    fig.tight_layout()
+    fig.tight_layout(pad=0.4 if panel_mode else 1.08)
 
     try:
         if return_svg_string:

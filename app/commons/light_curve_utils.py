@@ -114,9 +114,10 @@ def create_light_curve_svg(dates, magnitudes, cursor_dt=None, observations=None,
 
     fig = Figure(figsize=LIGHT_CURVE_FIGSIZE, dpi=100)
     FigureCanvasSVG(fig)
-    fig.patch.set_facecolor(colors['bg_color'])
+    # transparent background, so the chart blends with the page in every theme
+    fig.patch.set_alpha(0.0)
     ax = fig.add_subplot(111)
-    ax.set_facecolor(colors['bg_color'])
+    ax.patch.set_alpha(0.0)
 
     mags = np.asarray(magnitudes, dtype=float)
     finite = np.isfinite(mags)
@@ -170,11 +171,11 @@ def create_light_curve_svg(dates, magnitudes, cursor_dt=None, observations=None,
     ax.xaxis.get_offset_text().set_color(fg)
     ax.xaxis.get_offset_text().set_fontsize(FONT_TICKS)
     if model_label or (observations and observations_label):
-        legend = ax.legend(loc='best', fontsize=FONT_TICKS, facecolor=colors['bg_color'], edgecolor=colors['grid_color'])
+        legend = ax.legend(loc='best', fontsize=FONT_TICKS, frameon=True, framealpha=0.0, edgecolor=colors['grid_color'])
         for text in legend.get_texts():
             text.set_color(fg)
     fig.tight_layout(pad=0.4)
 
     out = io.StringIO()
-    fig.savefig(out, format='svg', facecolor=fig.get_facecolor())
+    fig.savefig(out, format='svg', transparent=True)
     return out.getvalue()
