@@ -285,7 +285,7 @@
                     <i class="crosshairs icon"></i>
                     <div class="ui vertical buttons menu">
                         <div class="item">
-                            <button id="bcenterobj" type="button" class="ui toggle labeled tiny icon button" style="text-align:left">
+                            <button id="bcenterobj" type="button" class="ui labeled tiny icon button" style="text-align:left">
                                 <i class="crosshairs icon"></i>
                                 {{ _('Center object') }}
                             </button>
@@ -587,7 +587,7 @@
                                 {{ _('Flip vertically')}}
                             </button>
                         </div>
-                        <div class="item">
+                        <div class="item" style="display:none;">
                             <button id="boptitraffic" type="button" class="ui toggle labeled tiny icon button{{ ' active' if fchart_form.optimize_traffic.data=='true' else ''}}" style="text-align:left" >
                                 <i class="wifi icon"></i>
                                 {{ _('Optimize traffic')}}
@@ -925,11 +925,79 @@
   border: none;
   box-shadow: none;
 }
-{% if chart_control.theme!='night' %}
-.ui.active.toggle.button {
-  background-color: #2185d0 !important;
-}
+{# On/off state of toggle buttons in the chart menus is shown by a switch on the right, not by the button background. #}
+{% if chart_control.theme == 'night' %}
+    {% set tgl = {'hover': 'rgba(255,255,255,.05)', 'off': '#3a2525', 'on': '#7d3434', 'knob': '#be9e9e', 'fg': '#be9e9e'} %}
+{% elif chart_control.theme == 'light' %}
+    {% set tgl = {'hover': 'rgba(0,0,0,.06)', 'off': 'rgba(0,0,0,.18)', 'on': '#2185d0', 'knob': '#ffffff', 'fg': 'rgba(0,0,0,.6)'} %}
+{% else %}
+    {% set tgl = {'hover': 'rgba(255,255,255,.07)', 'off': '#4c505c', 'on': '#2185d0', 'knob': '#dbdbdb', 'fg': '#dbdbdb'} %}
 {% endif %}
+#viewcenter_dropdown > .ui.vertical.menu,
+#layers_dropdown > .ui.vertical.menu {
+  /* fixed 15rem would clip labels next to the switch */
+  width: auto;
+}
+/* items look like menu rows, not like separate buttons */
+#viewcenter_dropdown > .ui.vertical.menu .ui.button,
+#layers_dropdown > .ui.vertical.menu .ui.button,
+#viewcenter_dropdown > .ui.vertical.menu .ui.button > .icon,
+#layers_dropdown > .ui.vertical.menu .ui.button > .icon {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+#viewcenter_dropdown > .ui.vertical.menu .ui.button:hover,
+#layers_dropdown > .ui.vertical.menu .ui.button:hover {
+  background: {{ tgl.hover }} !important;
+}
+/* specific enough to override the compact menu padding from app.scss */
+#viewcenter_dropdown .menu .item .ui.labeled.icon.toggle.button,
+#layers_dropdown .menu .item .ui.labeled.icon.toggle.button {
+  position: relative;
+  padding-right: 3.6em !important;
+}
+#viewcenter_dropdown .ui.toggle.button.active,
+#layers_dropdown .ui.toggle.button.active {
+  color: {{ tgl.fg }} !important;
+}
+#viewcenter_dropdown .ui.toggle.button::before,
+#layers_dropdown .ui.toggle.button::before {
+  content: '';
+  position: absolute;
+  right: 0.8em;
+  top: 50%;
+  width: 2.2em;
+  height: 1.2em;
+  margin-top: -0.6em;
+  border-radius: 0.6em;
+  background: {{ tgl.off }};
+  transition: background 0.15s ease;
+}
+#viewcenter_dropdown .ui.toggle.button::after,
+#layers_dropdown .ui.toggle.button::after {
+  content: '';
+  position: absolute;
+  right: 1.9em;
+  top: 50%;
+  width: 0.9em;
+  height: 0.9em;
+  margin-top: -0.45em;
+  border-radius: 50%;
+  background: {{ tgl.knob }};
+  opacity: 0.6;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3);
+  transition: right 0.15s ease, opacity 0.15s ease;
+}
+#viewcenter_dropdown .ui.toggle.button.active::before,
+#layers_dropdown .ui.toggle.button.active::before {
+  background: {{ tgl.on }};
+}
+#viewcenter_dropdown .ui.toggle.button.active::after,
+#layers_dropdown .ui.toggle.button.active::after {
+  right: 0.95em;
+  opacity: 1;
+}
 </style>
 
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
@@ -1975,7 +2043,8 @@
         fchart.reloadImage();
     });
 
-    $('#btelrad').click(function(){
+    $('#btelrad').click(function(event){
+        event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_telrad').val() == 'true' ? 'false' : 'true';
         $('#show_telrad').val(value);
@@ -1985,7 +2054,8 @@
         reloadLegendOrSceneWidgets();
     });
 
-    $('#bpicker').click(function(){
+    $('#bpicker').click(function(event){
+        event.stopPropagation();
         $(this).toggleClass('active');
         var value = $('#show_picker').val() == 'true' ? 'false' : 'true';
         $('#show_picker').val(value);
