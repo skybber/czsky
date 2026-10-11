@@ -428,14 +428,20 @@
         }
 
         if (oe.pointerId !== this.input.primaryId || this.input.gesture !== 'pan') return;
+        if (this.input.tapCandidate) {
+            if (Math.hypot(p.x - this.input.tapStartX, p.y - this.input.tapStartY) > this.tapMoveThresholdPx) {
+                this.input.tapCandidate = false;
+            } else if (oe.pointerType !== 'mouse') {
+                // Finger jitter during a tap must neither pan the map nor turn the tap into a drag;
+                // once the threshold is crossed, the accumulated movement is applied at once.
+                return;
+            }
+        }
         const dx = p.x - this.input.lastX;
         const dy = p.y - this.input.lastY;
         this.input.lastX = p.x;
         this.input.lastY = p.y;
         if (Math.abs(dx) + Math.abs(dy) > 1) this.move.moved = true;
-        if (this.input.tapCandidate && Math.hypot(p.x - this.input.tapStartX, p.y - this.input.tapStartY) > this.tapMoveThresholdPx) {
-            this.input.tapCandidate = false;
-        }
 
         if (dx === 0 && dy === 0) return;
         const now = performance.now();
