@@ -6,6 +6,7 @@
 
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/common_macros.html' as commons %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
@@ -18,11 +19,13 @@
         ('main_minor_planet.minor_planet_info', _('Map'), 'info'),
         ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table'),
         ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
+        ('main_minor_planet.minor_planet_light_curve', _('Light curve'), 'chart line'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_minor_planet.minor_planet_catalogue_data', _('Catalog'), 'table'),
         ('main_minor_planet.minor_planet_visibility', _('Visibility'), 'eye'),
+        ('main_minor_planet.minor_planet_light_curve', _('Light curve'), 'chart line'),
     ] %}
 {% endif %}
 
@@ -103,6 +106,21 @@
             <tr><td class="three wide">{{ _('Set') }}</td><td>{{ rise_transit_set.set_utc if rise_transit_set.set_utc else '-' }} UTC</td></tr>
         </table>
     </div>
+    {% endif %}
+{% endmacro %}
+
+{# --- Light curve --- #}
+{% macro minor_planet_light_curve() %}
+    {% if minor_planet.magnitude_H is not none %}
+        {{ commons.light_curve_range_menu('main_minor_planet.minor_planet_light_curve', light_curve_ranges, light_curve_range,
+                                          minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id, embed=embed) }}
+        <div style="width:100%; text-align:center;">
+            <img src="{{ url_for('main_minor_planet.minor_planet_light_curve_img', minor_planet_id=minor_planet.url_id(), range=light_curve_range, theme=chart_theme, dt=request.args.get('dt')) }}"
+                 style="max-width:100%; height:auto;"
+                 alt="{{ _('Light curve') }} {{ minor_planet.designation }}"/>
+        </div>
+    {% else %}
+        <p>{{ _('Absolute magnitude is not available.') }}</p>
     {% endif %}
 {% endmacro %}
 
@@ -238,6 +256,8 @@
                 {{ minor_planet_info() }}
             {% elif type == 'visibility' %}
                 {{ minor_planet_visibility() }}
+            {% elif type == 'light_curve' %}
+                {{ minor_planet_light_curve() }}
             {% elif type == 'observation_log' %}
                 {{ minor_planet_observation_log() }}
             {% else %}

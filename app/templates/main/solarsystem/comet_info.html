@@ -19,11 +19,13 @@
         ('main_comet.comet_info', _('Map'), 'info'),
         ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
         ('main_comet.comet_visibility', _('Visibility'), 'eye'),
+        ('main_comet.comet_light_curve', _('Light curve'), 'chart line'),
     ] %}
 {% else %}
     {% set endpoints = [
         ('main_comet.comet_cobs_observations', 'COBS', 'cobs'),
         ('main_comet.comet_visibility', _('Visibility'), 'eye'),
+        ('main_comet.comet_light_curve', _('Light curve'), 'chart line'),
     ] %}
 {% endif %}
 
@@ -116,6 +118,17 @@
 
 {# --- Catalogue Data --- #}
 {% macro comet_catalogue_data() %}
+{% endmacro %}
+
+{# --- Light curve --- #}
+{% macro comet_light_curve() %}
+    {{ commons.light_curve_range_menu('main_comet.comet_light_curve', light_curve_ranges, light_curve_range,
+                                      comet_id=comet.comet_id, back=back, back_id=back_id, embed=embed) }}
+    <div style="width:100%; text-align:center;">
+        <img src="{{ url_for('main_comet.comet_light_curve_img', comet_id=comet.comet_id, range=light_curve_range, theme=chart_theme, dt=request.args.get('dt')) }}"
+             style="max-width:100%; height:auto;"
+             alt="{{ _('Light curve') }} {{ comet.designation }}"/>
+    </div>
 {% endmacro %}
 
 {# --- Visibility --- #}
@@ -278,6 +291,8 @@
                 {{ comet_cobs_observations() }}
             {% elif type == 'visibility' %}
                 {{ comet_visibility() }}
+            {% elif type == 'light_curve' %}
+                {{ comet_light_curve() }}
             {% elif type == 'observation_log' %}
                 {{ comet_observation_log() }}
             {% else %}

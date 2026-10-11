@@ -145,3 +145,14 @@
         </div>
     </div>
 {% endmacro %}
+
+{% macro light_curve_range_menu(route, ranges, selected) %}
+    {% set labels = {90: _('±3 months'), 180: _('±6 months'), 365: _('±1 year'), 730: _('±2 years')} %}
+    <div class="ui mini compact menu" style="margin-bottom:10px;">
+        {% for days in ranges %}
+            <a class="item {% if days == selected %}active{% endif %}" href="{{ url_for(route, range=days, dt=request.args.get('dt'), **kwargs) }}">
+                {{ labels.get(days, days) }}
+            </a>
+        {% endfor %}
+    </div>
+{% endmacro %}

@@ -3876,3 +3876,27 @@ msgstr "Tažením posunete vrchol, tažením malého kroužku přidáte vrchol."
 
 msgid "Start a new drawing…"
 msgstr "Začít novou kresbu…"
+
+msgid "Light curve"
+msgstr "Světelná křivka"
+
+msgid "Magnitude"
+msgstr "Magnituda"
+
+msgid "Prediction"
+msgstr "Předpověď"
+
+msgid "±3 months"
+msgstr "±3 měsíce"
+
+msgid "±6 months"
+msgstr "±6 měsíců"
+
+msgid "±1 year"
+msgstr "±1 rok"
+
+msgid "±2 years"
+msgstr "±2 roky"
+
+msgid "Absolute magnitude is not available."
+msgstr "Absolutní magnituda není k dispozici."

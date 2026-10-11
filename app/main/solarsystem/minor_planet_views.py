@@ -17,11 +17,13 @@ from flask import (
     redirect,
     render_template,
     request,
+    Response,
     send_file,
     session,
     url_for,
 )
 
+from flask_babel import gettext
 from flask_login import current_user, login_required
 from sqlalchemy import func, or_
 
@@ -85,6 +87,13 @@ from app.commons.observing_session_utils import find_observing_session, show_obs
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.visibility_utils import get_rise_transit_set_utc
+from app.commons.light_curve_utils import (
+    LIGHT_CURVE_RANGES,
+    create_light_curve_svg,
+    light_curve_dates,
+    minor_planet_light_curve as eval_minor_planet_light_curve,
+    parse_light_curve_range,
+)
 from app.commons.chart_scene import (
     build_cross_highlight,
     build_list_cross_highlight,
@@ -392,6 +401,8 @@ def minor_planet_seltab(minor_planet_id):
         return _do_redirect('main_minor_planet.minor_planet_catalogue_data', minor_planet)
     if seltab == 'visibility':
         return _do_redirect('main_minor_planet.minor_planet_visibility', minor_planet)
+    if seltab == 'light_curve':
+        return _do_redirect('main_minor_planet.minor_planet_light_curve', minor_planet)
 
     if show_observation_log():
         return _do_redirect('main_minor_planet.minor_planet_observation_log', minor_planet)
@@ -680,6 +691,44 @@ def minor_planet_visibility(minor_planet_id):
                            chart_theme=chart_theme, chart_date=chart_date,
                            rise_transit_set=rise_transit_set,
                            )
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/light-curve', methods=['GET'])
+def minor_planet_light_curve(minor_planet_id):
+    """View predicted light curve of a minor planet."""
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
+    if minor_planet is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['minor_planet_embed_seltab'] = 'light_curve'
+
+    show_obs_log = show_observation_log()
+
+    return render_template('main/solarsystem/minor_planet_info.html', type='light_curve', minor_planet=minor_planet,
+                           embed=embed, show_obs_log=show_obs_log, chart_theme=session.get('theme', 'dark'),
+                           light_curve_range=parse_light_curve_range(request.args.get('range')),
+                           light_curve_ranges=LIGHT_CURVE_RANGES)
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/light-curve-img', methods=['GET'])
+def minor_planet_light_curve_img(minor_planet_id):
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
+    if minor_planet is None or minor_planet.magnitude_H is None:
+        abort(404)
+
+    mpc_minor_planet = find_mpc_minor_planet(minor_planet)
+    if mpc_minor_planet is None:
+        abort(404)
+
+    cursor_dt = get_chart_datetime().astimezone(utc)
+    dates = light_curve_dates(cursor_dt, parse_light_curve_range(request.args.get('range')))
+    magnitudes = eval_minor_planet_light_curve(mpc_minor_planet, minor_planet.magnitude_H, minor_planet.magnitude_G, dates)
+    svg = create_light_curve_svg(dates, magnitudes, cursor_dt=cursor_dt, theme=request.args.get('theme', 'dark'),
+                                 title=minor_planet.designation, x_label=gettext('Date'),
+                                 y_label=gettext('Magnitude'))
+    return Response(svg, mimetype='image/svg+xml')
 
 
 @main_minor_planet.route('/minor_planet/<string:minor_planet_id>/observation-log', methods=['GET', 'POST'])

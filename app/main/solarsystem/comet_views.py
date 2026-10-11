@@ -13,11 +13,13 @@ from flask import (
     redirect,
     render_template,
     request,
+    Response,
     send_file,
     session,
     url_for,
 )
 
+from flask_babel import gettext
 from flask_login import current_user, login_required
 from sqlalchemy import and_, or_
 
@@ -67,6 +69,13 @@ from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
 from app.commons.visibility_utils import get_rise_transit_set_utc
+from app.commons.light_curve_utils import (
+    LIGHT_CURVE_RANGES,
+    comet_light_curve as eval_comet_light_curve,
+    create_light_curve_svg,
+    light_curve_dates,
+    parse_light_curve_range,
+)
 from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_datetime
 from app.commons.chart_scene import (
     build_comet_highlight,
@@ -301,6 +310,8 @@ def comet_seltab(comet_id):
         return _do_redirect('main_comet.comet_cobs_observations', comet)
     if seltab == 'visibility':
         return _do_redirect('main_comet.comet_visibility', comet)
+    if seltab == 'light_curve':
+        return _do_redirect('main_comet.comet_light_curve', comet)
 
     kwargs = {}
     if is_splitview_supported():
@@ -515,6 +526,59 @@ def comet_visibility(comet_id):
                            chart_theme=chart_theme, chart_date=chart_date,
                            rise_transit_set=rise_transit_set,
                            )
+
+
+@main_comet.route('/comet/<string:comet_id>/light-curve', methods=['GET'])
+def comet_light_curve(comet_id):
+    """View predicted light curve of a comet together with COBS observations."""
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is None:
+        abort(404)
+
+    embed = request.args.get('embed', None)
+    if embed:
+        session['comet_embed_seltab'] = 'light_curve'
+
+    show_obs_log = show_observation_log()
+
+    prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet)
+
+    return render_template('main/solarsystem/comet_info.html', type='light_curve', comet=comet,
+                           embed=embed, show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
+                           chart_theme=session.get('theme', 'dark'),
+                           light_curve_range=parse_light_curve_range(request.args.get('range')),
+                           light_curve_ranges=LIGHT_CURVE_RANGES)
+
+
+@main_comet.route('/comet/<string:comet_id>/light-curve-img', methods=['GET'])
+def comet_light_curve_img(comet_id):
+    mpc_comet = find_mpc_comet(comet_id)
+    if mpc_comet is None or not _has_comet_magnitude_params(mpc_comet):
+        abort(404)
+
+    cursor_dt = get_chart_datetime().astimezone(utc)
+    dates = light_curve_dates(cursor_dt, parse_light_curve_range(request.args.get('range')))
+    magnitudes = eval_comet_light_curve(mpc_comet, dates)
+
+    observations = []
+    comet = Comet.query.filter_by(comet_id=comet_id).first()
+    if comet is not None:
+        cobs_observations = CometObservation.query.filter_by(comet_id=comet.id) \
+            .filter(CometObservation.date >= dates[0].replace(tzinfo=None)) \
+            .filter(CometObservation.date <= dates[-1].replace(tzinfo=None)) \
+            .all()
+        observations = [(o.date.replace(tzinfo=utc), o.mag) for o in cobs_observations if o.date is not None]
+
+    svg = create_light_curve_svg(dates, magnitudes, cursor_dt=cursor_dt, observations=observations,
+                                 theme=request.args.get('theme', 'dark'), title=mpc_comet['designation'],
+                                 model_label=gettext('Prediction'), observations_label='COBS',
+                                 x_label=gettext('Date'), y_label=gettext('Magnitude'))
+    return Response(svg, mimetype='image/svg+xml')
+
+
+def _has_comet_magnitude_params(mpc_comet):
+    g, k = mpc_comet['magnitude_g'], mpc_comet['magnitude_k']
+    return g is not None and k is not None and np.isfinite(g) and np.isfinite(k)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pos-img', methods=['GET'])
