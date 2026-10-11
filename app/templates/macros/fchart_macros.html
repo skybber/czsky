@@ -167,6 +167,16 @@
         margin-left: 0 !important;
       }
 
+      /* The keyboard would cover the search input at the bottom: open it at the top instead. */
+      #fchart-div.fchart-mobile-menu-bottom #iisearch2 {
+        position: fixed !important;
+        top: calc(8px + env(safe-area-inset-top, 0px));
+        left: 8px;
+        right: 8px !important;
+        width: auto !important;
+        margin-right: 0 !important;
+      }
+
       #fchart-div.fchart-mobile-menu-bottom #right-menu {
         position: absolute;
         right: -4px;
@@ -2418,56 +2428,6 @@
             $('#iisearch2').transition('fade');
         }
     });
-
-    // With the bottom menu the mobile keyboard covers the search input: lift it above the keyboard.
-    // The keyboard shrinks the top window's visual viewport (the chart may run in the fullscreen iframe).
-    (function() {
-        var $box = $('#isearch2');
-        var shift = 0;
-        function topViewport() {
-            try {
-                return window.top.visualViewport || null;
-            } catch (e) {
-                return window.visualViewport || null;
-            }
-        }
-        function update() {
-            var vv = topViewport();
-            if (!vv) return;
-            var bottom = $box[0].getBoundingClientRect().bottom + shift;
-            if (window.frameElement) {
-                bottom += window.frameElement.getBoundingClientRect().top;
-            }
-            var overlap = bottom + 8 - (vv.offsetTop + vv.height);
-            shift = Math.max(0, overlap);
-            $box.css('transform', shift > 0 ? 'translateY(' + (-shift) + 'px)' : '');
-        }
-        // Listeners go to the viewport they were attached to; pagehide covers navigation
-        // after Enter, which leaves the document without a blur.
-        var attachedVv = null;
-        function detach() {
-            if (attachedVv) {
-                attachedVv.removeEventListener('resize', update);
-                attachedVv.removeEventListener('scroll', update);
-                attachedVv = null;
-            }
-            window.removeEventListener('scroll', update, true);
-            window.removeEventListener('pagehide', detach);
-            shift = 0;
-            $box.css('transform', '');
-        }
-        $('#iiisearch2').on('focus', function() {
-            detach();
-            attachedVv = topViewport();
-            if (attachedVv) {
-                attachedVv.addEventListener('resize', update);
-                attachedVv.addEventListener('scroll', update);
-            }
-            window.addEventListener('scroll', update, true);
-            window.addEventListener('pagehide', detach);
-            update();
-        }).on('blur', detach);
-    })();
 
     $(document).on('click', function(event) {
         if (!$('#iisearch2').hasClass('hidden') && !$(event.target).closest('#isearch2').length) {
