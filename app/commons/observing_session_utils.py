@@ -14,6 +14,8 @@ from app.models import (
 )
 
 def find_observing_session(back, back_id):
+    if current_user.is_anonymous:
+        abort(404)
     if back == 'running_plan':
         observation_plan_run = ObsSessionPlanRun.query.filter_by(id=back_id).first()
         if observation_plan_run is not None and observation_plan_run.session_plan.user_id == current_user.id:
@@ -22,13 +24,15 @@ def find_observing_session(back, back_id):
         observing_session = ObservingSession.query.filter_by(id=back_id).first()
         if observing_session is not None and observing_session.user_id == current_user.id:
             return observing_session
-    elif not current_user.is_anonymous:
+    else:
         active_observing_session = ObservingSession.query.filter_by(user_id=current_user.id, is_active=True).first()
         if active_observing_session is not None:
             return active_observing_session
     abort(404)
 
 def show_observation_log():
+    if current_user.is_anonymous:
+        return False
     back = request.args.get('back')
     back_id = request.args.get('back_id')
     if back == 'running_plan':
@@ -39,9 +43,9 @@ def show_observation_log():
     elif back == 'observation':
         if back_id:
             observing_session = ObservingSession.query.filter_by(id=back_id).first()
-            if observing_session and not current_user.is_anonymous and observing_session.user_id == current_user.id and not observing_session.is_finished:
+            if observing_session and observing_session.user_id == current_user.id and not observing_session.is_finished:
                 return True
-    elif not current_user.is_anonymous:
+    else:
         active_observing_session = ObservingSession.query.filter_by(user_id=current_user.id, is_active=True).first()
         if active_observing_session:
             return True

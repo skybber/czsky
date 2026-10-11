@@ -120,7 +120,7 @@ def common_highlights_from_user_object_list(user_object_list):
 
     if user_object_list and allow_view_user_object_list(user_object_list):
         for item in user_object_list.list_items:
-            if item.deepsky_objects is not None:
+            if item.deepsky_objects:
                 highlights_dso_list.extend(item.deepsky_objects)
             elif item.double_star_id is not None:
                 highlights_pos_list.append([item.double_star.ra_first, item.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(item.double_star_id), item.double_star.get_catalog_name()])

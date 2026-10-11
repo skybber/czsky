@@ -173,7 +173,7 @@ def supernova_info(designation):
 
     embed = request.args.get('embed')
     if embed:
-        session['supernova_embed_seltab'] = 'catalogue_data'
+        session['supernova_embed_seltab'] = 'info'
 
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(supernova)
 
@@ -267,7 +267,7 @@ def supernova_chart(designation):
 
     embed = request.args.get('embed')
     if embed:
-        session['supernova_embed_seltab'] = 'info'
+        session['supernova_embed_seltab'] = 'chart'
 
     form = ChartForm()
 

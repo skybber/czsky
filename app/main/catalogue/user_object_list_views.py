@@ -51,6 +51,7 @@ from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
 
 from app.main.chart.chart_forms import ChartForm
 from app.commons.prevnext_utils import get_default_chart_iframe_url, parse_prefix_obj_id
+from app.commons.sky_object_wrapper import OBJ_ID_DSO_PREFIX, OBJ_ID_DOUBLE_STAR_PREFIX
 
 main_user_object_list = Blueprint('main_user_object_list', __name__)
 
@@ -83,13 +84,13 @@ def user_user_object_lists(user_id):
     offset = (page - 1) * per_page
 
     user_object_lists = UserObjectList.query.filter_by(user_id=user_id, is_public=True) \
-        .order_by(UserObjectList.date_from.desc())
+        .order_by(UserObjectList.create_date.desc())
     search = False
 
-    obs_sessions_for_render = user_object_lists.limit(per_page).offset(offset).all()
+    uol_for_render = user_object_lists.limit(per_page).offset(offset).all()
 
-    pagination = Pagination(page=page, per_page=per_page, total=user_object_lists.count(), search=search, record_name='observations', css_framework='semantic')
-    return render_template('main/catalogue/user_object_lists.html', user_object_lists=obs_sessions_for_render, pagination=pagination, user=user)
+    pagination = Pagination(page=page, per_page=per_page, total=user_object_lists.count(), search=search, record_name='user_object_list', css_framework='semantic')
+    return render_template('main/catalogue/user_object_lists.html', user_object_lists=uol_for_render, pagination=pagination, user=user)
 
 
 def _check_user_object_list(user_object_list, allow_public=False):
@@ -263,12 +264,12 @@ def user_object_list_chart(user_object_list_id):
     user_object_list_item = None
 
     for oitem in user_object_list.list_items:
-        if oitem.item_type == UserObjectListItemType.DSO:
+        if oitem.item_type == UserObjectListItemType.DSO and prefix in (None, OBJ_ID_DSO_PREFIX):
             for oitem_dso in oitem.deepsky_objects:
                 if obj_id is None or oitem_dso.id == obj_id:
                     user_object_list_item = oitem
                     break
-        elif oitem.item_type == UserObjectListItemType.DBL_STAR:
+        elif oitem.item_type == UserObjectListItemType.DBL_STAR and prefix in (None, OBJ_ID_DOUBLE_STAR_PREFIX):
             if obj_id is None or oitem.double_star_id == obj_id:
                 user_object_list_item = oitem
         if user_object_list_item is not None:
@@ -279,12 +280,12 @@ def user_object_list_chart(user_object_list_id):
                                       user_object_list_item.get_dec() if user_object_list_item else None)
 
     chart_control = common_prepare_chart_data(form)
-    default_chart_iframe_url = get_default_chart_iframe_url(user_object_list_item, back='observation', back_id=user_object_list.id)
+    default_chart_iframe_url = get_default_chart_iframe_url(user_object_list_item, back='user_object_list', back_id=user_object_list.id)
 
     return render_template('main/catalogue/user_object_list_info.html', fchart_form=form, type='chart',
                            user_object_list=user_object_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_user_object_list=is_mine_user_object_list,
-                           back='observation', back_id=user_object_list.id)
+                           back='user_object_list', back_id=user_object_list.id)
 
 
 @main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-pos-img', methods=['GET'])
@@ -316,12 +317,12 @@ def user_object_list_chart_scene_v1(user_object_list_id):
     selected_dec = None
 
     for oitem in user_object_list.list_items:
-        if oitem.item_type == UserObjectListItemType.DSO:
+        if oitem.item_type == UserObjectListItemType.DSO and prefix in (None, OBJ_ID_DSO_PREFIX):
             for dso in oitem.deepsky_objects:
                 if obj_id is None or dso.id == obj_id:
                     selected_dso = dso
                     break
-        elif oitem.item_type == UserObjectListItemType.DBL_STAR:
+        elif oitem.item_type == UserObjectListItemType.DBL_STAR and prefix in (None, OBJ_ID_DOUBLE_STAR_PREFIX):
             if obj_id is None or oitem.double_star_id == obj_id:
                 selected_ds = oitem.double_star
         if selected_dso is not None or selected_ds is not None:

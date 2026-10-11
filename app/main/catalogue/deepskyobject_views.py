@@ -123,7 +123,7 @@ def deepskyobjects():
             ('dso_catal', search_form.catalogue),
             ('dso_maglim', search_form.maglim),
             ('dec_min', search_form.dec_min),
-            ('max_axis_ratio', search_form.max_axis_ratio),
+            ('dso_max_axis_ratio', search_form.max_axis_ratio),
             ('items_per_page', search_form.items_per_page)
         ])
 
@@ -199,6 +199,8 @@ def deepskyobject_search():
 
 
 def _find_dso(dso_id):
+    if dso_id is None:
+        return None, None
     try:
         int_id = int(dso_id)
         dso = DeepskyObject.query.filter_by(id=int_id).first()
@@ -640,102 +642,102 @@ def deepskyobject_edit(dso_id):
     if dso is None:
         abort(404)
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
-    user_descr = None
+    if editor_user is None:
+        abort(404)
     form = DeepskyObjectEditForm()
-    if editor_user:
-        user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
-        authors = {}
+    user_descr = UserDsoDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang).first()
+    authors = {}
 
-        is_new = False
-        if not user_descr:
-            user_descr = UserDsoDescription(
+    is_new = False
+    if not user_descr:
+        user_descr = UserDsoDescription(
+            dso_id=dso_id,
+            user_id=editor_user.id,
+            rating=form.rating.data,
+            lang_code=lang,
+            common_name='',
+            text='',
+            references='',
+            cons_order=1,
+            create_by=current_user.id,
+            create_date=datetime.now(),
+            )
+        is_new = True
+
+    all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
+                                                                       .order_by(UserDsoApertureDescription.aperture_class)
+
+    user_apert_descriptions = []
+    # create missing UserDsoApertureDescription
+    for aperture_class in SHOWN_APERTURE_DESCRIPTIONS:
+        for ad in all_user_apert_descrs:
+            if ad.aperture_class == aperture_class:
+                user_apert_descriptions.append(ad)
+                break
+        else:
+            ad = UserDsoApertureDescription(
                 dso_id=dso_id,
                 user_id=editor_user.id,
-                rating=form.rating.data,
+                rating=1,
                 lang_code=lang,
-                common_name='',
+                aperture_class=aperture_class,
                 text='',
-                references='',
-                cons_order=1,
                 create_by=current_user.id,
                 create_date=datetime.now(),
-                )
-            is_new = True
+            )
+            user_apert_descriptions.append(ad)
 
-        all_user_apert_descrs = UserDsoApertureDescription.query.filter_by(dso_id=dso.id, user_id=editor_user.id, lang_code=lang) \
-                                                                           .order_by(UserDsoApertureDescription.aperture_class)
-
-        user_apert_descriptions = []
-        # create missing UserDsoApertureDescription
-        for aperture_class in SHOWN_APERTURE_DESCRIPTIONS:
-            for ad in all_user_apert_descrs:
-                if ad.aperture_class == aperture_class:
-                    user_apert_descriptions.append(ad)
-                    break
-            else:
-                ad = UserDsoApertureDescription(
-                    dso_id=dso_id,
-                    user_id=editor_user.id,
-                    rating=1,
-                    lang_code=lang,
-                    aperture_class=aperture_class,
-                    text='',
-                    create_by=current_user.id,
-                    create_date=datetime.now(),
-                )
-                user_apert_descriptions.append(ad)
-
-        if request.method == 'GET':
-            form.common_name.data = user_descr.common_name
-            form.text.data = user_descr.text
-            form.references.data = user_descr.references
-            form.rating.data = user_descr.rating
+    if request.method == 'GET':
+        form.common_name.data = user_descr.common_name
+        form.text.data = user_descr.text
+        form.references.data = user_descr.references
+        form.rating.data = user_descr.rating
+        for ad in user_apert_descriptions:
+            adi = form.aperture_descr_items.append_entry()
+            adi.aperture_class.data = ad.aperture_class
+            adi.text.data = ad.text
+            adi.is_public.data = ad.is_public
+            adi.text.label = ad.aperture_class
+    elif form.validate_on_submit():
+        was_text_changed = user_descr.text != form.text.data
+        has_descr = False
+        for adi in form.aperture_descr_items:
             for ad in user_apert_descriptions:
-                adi = form.aperture_descr_items.append_entry()
-                adi.aperture_class.data = ad.aperture_class
-                adi.text.data = ad.text
-                adi.is_public.data = ad.is_public
-                adi.text.label = ad.aperture_class
-        elif form.validate_on_submit():
-            was_text_changed = user_descr.text != form.text.data
-            has_descr = False
-            for adi in form.aperture_descr_items:
-                for ad in user_apert_descriptions:
-                    if ad.aperture_class == adi.aperture_class.data:
-                        if adi.text.data:
-                            ad.text = adi.text.data
-                            ad.is_public = adi.is_public.data
-                            ad.update_by = current_user.id
-                            ad.update_date = datetime.now()
-                            db.session.add(ad)
-                            has_descr = True
-                        elif ad.id is not None:
-                            db.session.delete(ad)
-            if is_new or was_text_changed or user_descr.common_name != form.common_name.data or \
-                    user_descr.references != form.references.data or user_descr.rating != form.rating.data:
-                user_descr.common_name = form.common_name.data
-                user_descr.references = form.references.data
-                user_descr.text = form.text.data
-                user_descr.rating = form.rating.data
-                if was_text_changed:
-                    user_descr.update_by = current_user.id
-                    user_descr.update_date = datetime.now()
-                if has_descr or user_descr.text:
-                    db.session.add(user_descr)
-                else:
-                    db.session.delete(user_descr)
-            db.session.commit()
+                if ad.aperture_class == adi.aperture_class.data:
+                    if adi.text.data:
+                        ad.text = adi.text.data
+                        ad.is_public = adi.is_public.data
+                        ad.update_by = current_user.id
+                        ad.update_date = datetime.now()
+                        db.session.add(ad)
+                        has_descr = True
+                    elif ad.id is not None:
+                        db.session.delete(ad)
+        if is_new or was_text_changed or user_descr.common_name != form.common_name.data or \
+                user_descr.references != form.references.data or user_descr.rating != form.rating.data:
+            user_descr.common_name = form.common_name.data
+            user_descr.references = form.references.data
+            user_descr.text = form.text.data
+            user_descr.rating = form.rating.data
+            if was_text_changed:
+                user_descr.update_by = current_user.id
+                user_descr.update_date = datetime.now()
+            if has_descr or user_descr.text:
+                db.session.add(user_descr)
+            elif not is_new:
+                db.session.delete(user_descr)
+        db.session.commit()
 
-            flash('Deepsky object successfully updated', 'form-success')
+        flash('Deepsky object successfully updated', 'form-success')
 
-            if form.goback.data != 'true':
-                return redirect(url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso_id))
+        if form.goback.data != 'true':
+            return redirect(url_for('main_deepskyobject.deepskyobject_edit', dso_id=dso_id))
 
-            back = request.args.get('back')
-            back_id = request.args.get('back_id')
-            if back == 'constell':
-                return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='dso' + str(dso.id)))
-            return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
+        back = request.args.get('back')
+        back_id = request.args.get('back_id')
+        if back == 'constell':
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='dso' + str(dso.id)))
+        return redirect(url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id))
 
     authors['dso'] = _create_author_entry(user_descr.update_by, user_descr.update_date)
     for ad in user_apert_descriptions:
@@ -846,8 +848,10 @@ def deepskyobject_observation_log_delete(dso_id):
 def _create_author_entry(update_by, update_date):
     if update_by is None:
         return '', ''
-    user_name = User.query.filter_by(id=update_by).first().user_name
-    return user_name, update_date.strftime("%Y-%m-%d %H:%M")
+    user = User.query.filter_by(id=update_by).first()
+    if user is None:
+        return '', ''
+    return user.user_name, update_date.strftime("%Y-%m-%d %H:%M") if update_date else ''
 
 
 def _filter_apert_descriptions(all_user_apert_descrs):

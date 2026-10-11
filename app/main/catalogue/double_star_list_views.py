@@ -30,7 +30,7 @@ from app.models import (
     WishList,
 )
 
-from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX
+from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX, normalize_double_star_name
 from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 from app.commons.chart_generator import (
     common_chart_pos_img,
@@ -111,7 +111,8 @@ def double_star_list_detail(double_star_list_id):
     if current_user.is_authenticated:
         wish_list = [item.double_star_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items]
         observed_list = [item.double_star_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items]
-        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+            .order_by(SessionPlan.for_date.desc()).all()
     else:
         session_plan_id = session.get('session_plan_id')
         if session_plan_id:
@@ -135,7 +136,7 @@ def double_star_list_info(double_star_list_id):
         search_form.season.data = None
 
     ret, page, sort_by = process_paginated_session_search('dbl_star_list_search_page', 'dbl_list_sort_by', [
-        ('dbl_star_search', search_form.q),
+        ('dbl_list_search', search_form.q),
         ('dbl_list_season', search_form.season),
         ('dbl_list_mag_max', search_form.mag_max),
         ('dbl_list_delta_mag_min', search_form.delta_mag_min),
@@ -154,7 +155,7 @@ def double_star_list_info(double_star_list_id):
         .join(DoubleStarListItem.double_star)
 
     if search_form.q.data:
-        dbl_list_query = dbl_list_query.filter(or_(DoubleStar.common_cat_id == search_form.q.data,
+        dbl_list_query = dbl_list_query.filter(or_(DoubleStar.common_cat_id == normalize_double_star_name(search_form.q.data),
                                                    DoubleStar.wds_number == search_form.q.data.strip(),
                                                    DoubleStar.norm_other_designation.like('%;' + search_form.q.data.strip() + ';%')
                                                    ))
