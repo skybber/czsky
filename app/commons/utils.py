@@ -79,7 +79,7 @@ def get_lang_and_all_editor_users_from_request(for_constell_descr=False):
         all_editors = [editor_users_by_name[user_name] for user_name in all_editors_ar if user_name in editor_users_by_name]
     else:
         editor = User.query.filter_by(user_name=current_app.config.get('EDITOR_USER_NAME_' + editor_env_lang.upper())).first()
-        all_editors = ( editor, )
+        all_editors = (editor, ) if editor is not None else ()
     return lang, all_editors
 
 

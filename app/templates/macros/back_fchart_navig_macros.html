@@ -45,6 +45,11 @@
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>
+        {% elif back == 'user_object_list' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=back_id) }}{{anchor}}"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
         {% elif back == 'running_plan' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" href="{{ url_for('main_observing_session.observing_session_run_plan_redirect', observing_session_plan_run_id=back_id) }}{{anchor}}"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
@@ -112,6 +117,11 @@
             </a>
         {% elif back == 'dbl_star_list' and back_id %}
             <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_double_star_list.double_star_list_info', double_star_list_id=back_id, nvgback=1) }}')"
+               data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
+                <i class="caret left{{ icon_extra }} icon"></i>
+            </a>
+        {% elif back == 'user_object_list' and back_id %}
+            <a id="{{ link_id }}" class="ui small icon button{{ extra_class }}" onclick="navigateParent('{{ url_for('main_user_object_list.user_object_list_info', user_object_list_id=back_id) }}{{anchor}}')"
                data-inverted="" data-tooltip="{{ _('List') }}" data-position="bottom left" data-variation="tiny basic" style="{{ style}}">
                 <i class="caret left{{ icon_extra }} icon"></i>
             </a>

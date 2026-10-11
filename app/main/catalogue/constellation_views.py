@@ -110,6 +110,7 @@ def constellation_info(constellation_id):
     star_descriptions = None
     title_images = None
     ug_bl_dsos = None
+    aperture_descr_map = {}
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
     lang_dso, editor_user_dso = get_lang_and_editor_user_from_request(for_constell_descr=False)
     cs_editor_user = get_cs_editor_user()
@@ -126,13 +127,9 @@ def constellation_info(constellation_id):
                                                      .all()
         star_descriptions = _sort_star_descr(star_descriptions)
 
-        all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs')\
-                                                          .join(UserDsoDescription.deepsky_object) \
-                                                          .filter(DeepskyObject.constellation_id == constellation.id, DeepskyObject.type != 'AST') \
-                                                          .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
-                                                          .all()
+        all_cs_dso_descriptions = _get_cs_dso_descriptions(cs_editor_user, constellation, exclude_asterisms=True)
 
-        if lang != 'cs':
+        if lang != 'cs' and editor_user_dso is not None:
             # Show all objects that are in CS version plus UG-BL objects
             existing = set(dsod.dso_id for dsod in all_cs_dso_descriptions)
             all_dso_descriptions = []
@@ -148,7 +145,7 @@ def constellation_info(constellation_id):
                 available_dso_descriptions_map[dsod.dso_id] = dsod
                 if dsod.dso_id in existing:
                     all_dso_descriptions.append(dsod)
-                elif dsod.deepsky_object.mag<10.0:
+                elif dsod.deepsky_object.mag is not None and dsod.deepsky_object.mag < 10.0:
                     all_dso_descriptions.append(dsod)
                     existing.add(dsod.dso_id)
 
@@ -175,8 +172,6 @@ def constellation_info(constellation_id):
                     title_images[dsod.dso_id] = image_info[0]
 
         lang, all_editor_users = get_lang_and_all_editor_users_from_request(for_constell_descr=False)
-
-        aperture_descr_map = {}
 
         for apert_editor_user in all_editor_users:
             dso_apert_descriptions = UserDsoApertureDescription.query.filter_by(user_id=apert_editor_user.id, lang_code=lang)\
@@ -212,7 +207,8 @@ def constellation_info(constellation_id):
     if current_user.is_authenticated:
         wish_list = [item.dso_id for item in WishList.create_get_wishlist_by_user_id(current_user.id).wish_list_items]
         observed_list = [item.dso_id for item in ObservedList.create_get_observed_list_by_user_id(current_user.id).observed_list_items]
-        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+        offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+            .order_by(SessionPlan.for_date.desc()).all()
     else:
         session_plan_id = session.get('session_plan_id')
         if session_plan_id:
@@ -301,37 +297,37 @@ def constellation_edit(constellation_id):
         abort(404)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=True)
-    user_descr = None
+    if editor_user is None:
+        abort(404)
     form = ConstellationEditForm()
     goback = False
-    if editor_user:
-        user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang).first()
-        if user_descr is None:
-            user_descr = UserConsDescription(
-                constellation_id=constellation_id,
-                user_id=editor_user.id,
-                common_name='',
-                text='',
-                lang_code=lang,
-                create_by=current_user.id,
-                update_by=current_user.id,
-                create_date=datetime.now(),
-                update_date=datetime.now(),
-                )
-        if request.method == 'GET':
-            form.common_name.data = user_descr.common_name
-            form.text.data = user_descr.text
-        elif form.validate_on_submit():
-            user_descr.common_name = form.common_name.data
-            user_descr.text = form.text.data
-            user_descr.update_by = current_user.id
-            user_descr.update_date = datetime.now()
-            db.session.add(user_descr)
-            db.session.commit()
-            flash(gettext('Constellation successfully updated'), 'form-success')
-            if form.goback.data != 'true':
-                return redirect(url_for('main_constellation.constellation_edit', constellation_id=constellation_id))
-            goback = True
+    user_descr = UserConsDescription.query.filter_by(constellation_id=constellation.id, user_id=editor_user.id, lang_code=lang).first()
+    if user_descr is None:
+        user_descr = UserConsDescription(
+            constellation_id=constellation_id,
+            user_id=editor_user.id,
+            common_name='',
+            text='',
+            lang_code=lang,
+            create_by=current_user.id,
+            update_by=current_user.id,
+            create_date=datetime.now(),
+            update_date=datetime.now(),
+            )
+    if request.method == 'GET':
+        form.common_name.data = user_descr.common_name
+        form.text.data = user_descr.text
+    elif form.validate_on_submit():
+        user_descr.common_name = form.common_name.data
+        user_descr.text = form.text.data
+        user_descr.update_by = current_user.id
+        user_descr.update_date = datetime.now()
+        db.session.add(user_descr)
+        db.session.commit()
+        flash(gettext('Constellation successfully updated'), 'form-success')
+        if form.goback.data != 'true':
+            return redirect(url_for('main_constellation.constellation_edit', constellation_id=constellation_id))
+        goback = True
 
     if goback:
         return redirect(url_for('main_constellation.constellation_info', constellation_id=constellation.iau_code))
@@ -345,8 +341,10 @@ def constellation_edit(constellation_id):
 def _create_author_entry(update_by, update_date):
     if update_by is None:
         return '', ''
-    user_name = User.query.filter_by(id=update_by).first().user_name
-    return user_name, update_date.strftime("%Y-%m-%d %H:%M")
+    user = User.query.filter_by(id=update_by).first()
+    if user is None:
+        return '', ''
+    return user.user_name, update_date.strftime("%Y-%m-%d %H:%M") if update_date else ''
 
 
 @main_constellation.route('/constellation/<string:constellation_id>/stars')
@@ -421,11 +419,7 @@ def constellation_deepskyobjects(constellation_id):
 
     cs_editor_user = get_cs_editor_user()
 
-    all_cs_dso_descriptions = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs') \
-        .join(UserDsoDescription.deepsky_object) \
-        .filter(DeepskyObject.constellation_id == constellation.id) \
-        .order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag) \
-        .all()
+    all_cs_dso_descriptions = _get_cs_dso_descriptions(cs_editor_user, constellation, exclude_asterisms=False)
 
     described_dsos = set()
     for dsod in all_cs_dso_descriptions:
@@ -434,6 +428,17 @@ def constellation_deepskyobjects(constellation_id):
     return render_template('main/catalogue/constellation_info.html', constellation=constellation, type='dso', common_name=common_name,
                            constellation_dsos=sorted(constellation_dsos, key=lambda d: d.mag if d.mag is not None else float('inf')),
                            dso_synonymas=dso_synonymas, described_dsos=described_dsos, observed=observed)
+
+
+def _get_cs_dso_descriptions(cs_editor_user, constellation, exclude_asterisms):
+    if cs_editor_user is None:
+        return []
+    query = UserDsoDescription.query.filter_by(user_id=cs_editor_user.id, lang_code='cs') \
+        .join(UserDsoDescription.deepsky_object) \
+        .filter(DeepskyObject.constellation_id == constellation.id)
+    if exclude_asterisms:
+        query = query.filter(DeepskyObject.type != 'AST')
+    return query.order_by(UserDsoDescription.rating.desc(), DeepskyObject.mag).all()
 
 
 def _sort_star_descr(star_descriptions):

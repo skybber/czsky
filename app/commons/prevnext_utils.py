@@ -19,10 +19,13 @@ from app.models import (
     MinorPlanet,
     SessionPlan,
     StarList,
+    UserObjectList,
+    UserObjectListItem,
+    UserObjectListItemType,
     WishList,
 )
 
-from app.commons.permission_utils import allow_view_session_plan
+from app.commons.permission_utils import allow_view_session_plan, allow_view_user_object_list
 from app.commons.dso_utils import CHART_COMET_PREFIX, CHART_MINOR_PLANET_PREFIX
 from app.commons.sky_object_wrapper import (
     OBJ_ID_DSO_PREFIX,
@@ -73,6 +76,12 @@ def get_default_chart_iframe_url(obj_item, back, back_id=None):
         if type(obj_item) == Observation:
             if obj_item.target_type == ObservationTargetType.DSO:
                 # special handling for multiple dso in obserrvation
+                dso = obj_item.deepsky_objects[0] if len(obj_item.deepsky_objects) > 0 else None
+                if dso:
+                    return url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id, embed='fc', allow_back='true')
+                return None
+        elif type(obj_item) == UserObjectListItem:
+            if obj_item.item_type == UserObjectListItemType.DSO:
                 dso = obj_item.deepsky_objects[0] if len(obj_item.deepsky_objects) > 0 else None
                 if dso:
                     return url_for('main_deepskyobject.deepskyobject_info', dso_id=dso.name, back=back, back_id=back_id, embed='fc', allow_back='true')
@@ -184,6 +193,30 @@ def _get_prev_next_from_observing_session(observing_session, sky_obj):
     return prev_item, next_item
 
 
+def _user_object_list_sky_objects(user_object_list):
+    sky_objs = []
+    for item in sorted(user_object_list.list_items, key=lambda x: (x.order or 0, x.id)):
+        if item.item_type == UserObjectListItemType.DSO:
+            sky_objs.extend(item.deepsky_objects)
+        elif item.item_type == UserObjectListItemType.DBL_STAR:
+            sky_objs.append(item.double_star)
+        elif item.item_type == UserObjectListItemType.COMET:
+            sky_objs.append(item.comet)
+        elif item.item_type == UserObjectListItemType.M_PLANET:
+            sky_objs.append(item.minor_planet)
+    return [obj for obj in sky_objs if obj is not None]
+
+
+def _get_prev_next_from_user_object_list(user_object_list, sky_obj):
+    sky_objs = _user_object_list_sky_objects(user_object_list)
+    for i, obj in enumerate(sky_objs):
+        if type(obj) is type(sky_obj) and obj.id == sky_obj.id:
+            prev_obj = sky_objs[i - 1] if i > 0 else None
+            next_obj = sky_objs[i + 1] if i < len(sky_objs) - 1 else None
+            return prev_obj, next_obj
+    return None, None
+
+
 def _get_prev_next_from_common_list(common_list, sky_obj):
     sorted_list = sorted(common_list, key=lambda x: x.id)
     constell_ids = Constellation.get_season_constell_ids(request.args.get('season', None))
@@ -290,6 +323,10 @@ def create_navigation_wrappers(sky_obj, tab=None):
             prev_item, cur_item, next_item = _get_prev_next_from_double_star_list(double_star_list, sky_obj)
             prev_obj = prev_item.double_star if prev_item else None
             next_obj = next_item.double_star if next_item else None
+    elif back == 'user_object_list' and back_id is not None:
+        user_object_list = UserObjectList.query.filter_by(id=back_id).first()
+        if allow_view_user_object_list(user_object_list):
+            prev_obj, next_obj = _get_prev_next_from_user_object_list(user_object_list, sky_obj)
     else:
         if isinstance(sky_obj, DeepskyObject):
             prev_obj, next_obj = sky_obj.get_prev_next_dso()

@@ -172,14 +172,21 @@ def double_star_info(double_star_id):
     observed_list = None
     offered_session_plans = None
     if current_user.is_authenticated:
-        wish_item = WishListItem.query.filter_by(double_star_id=double_star.id).first()
+        wish_item = WishListItem.query.filter_by(double_star_id=double_star.id) \
+            .join(WishList) \
+            .filter(WishList.user_id == current_user.id) \
+            .first()
         wish_list = [wish_item.double_star_id] if wish_item else []
 
-        observed_item = ObservedListItem.query.filter_by(double_star_id=double_star.id).first()
+        observed_item = ObservedListItem.query.filter_by(double_star_id=double_star.id) \
+            .join(ObservedList) \
+            .filter(ObservedList.user_id == current_user.id) \
+            .first()
         observed_list = [observed_item.double_star_id] if observed_item else []
 
         if embed != 'pl':
-            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False).all()
+            offered_session_plans = SessionPlan.query.filter_by(user_id=current_user.id, is_archived=False) \
+                .order_by(SessionPlan.for_date.desc()).all()
     else:
         if embed != 'pl':
             session_plan_id = session.get('session_plan_id')
@@ -227,7 +234,7 @@ def double_star_observations(double_star_id):
 
     observations = None
     if current_user.is_authenticated:
-        observations = _get_observations_query().all()
+        observations = _get_observations_query(double_star).all()
 
     if not observations:
         return _do_redirect('main_double_star.double_star_info', double_star)
@@ -398,6 +405,8 @@ def double_star_seltab(double_star_id):
             return _do_redirect('main_double_star.double_star_chart', double_star)
         if seltab == 'observations':
             return _do_redirect('main_double_star.double_star_observations', double_star)
+        if seltab == 'catalogue_data':
+            return _do_redirect('main_double_star.double_star_catalogue_data', double_star)
         if seltab == 'visibility':
             return _do_redirect('main_double_star.double_star_visibility', double_star)
 
@@ -434,7 +443,7 @@ def double_star_chart(double_star_id):
 
     embed = request.args.get('embed')
     if embed:
-        session['double_star_embed_seltab'] = 'catalogue_data'
+        session['double_star_embed_seltab'] = 'chart'
 
     form = ChartForm()
 
@@ -567,8 +576,8 @@ def double_star_observation_log(double_star_id):
     if request.method == 'POST':
         if form.validate_on_submit():
             observation.notes = form.notes.data
-            form.telescope.data = observation.telescope_id if observation.telescope_id is not None else -1
-            form.eyepiece.data = observation.eyepiece_id if observation.eyepiece_id is not None else -1
+            observation.telescope_id = form.telescope.data if form.telescope.data != -1 else None
+            observation.eyepiece_id = form.eyepiece.data if form.eyepiece.data != -1 else None
             observation.date_from = combine_observing_session_date_time(observing_session, form.date_from.data, form.time_from.data)
             observation.update_by = current_user.id
             observation.update_date = datetime.now()
@@ -590,7 +599,7 @@ def double_star_observation_log(double_star_id):
 
     embed = request.args.get('embed')
     if embed:
-        session['dso_embed_seltab'] = 'obs_log'
+        session['double_star_embed_seltab'] = 'obs_log'
 
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(double_star, tab='observation_log')
 
@@ -632,42 +641,43 @@ def double_star_edit(double_star_id):
         abort(404)
 
     lang, editor_user = get_lang_and_editor_user_from_request(for_constell_descr=False)
+    if editor_user is None:
+        abort(404)
     form = DoubleStarEditForm()
-    if editor_user:
-        user_descr = UserDoubleStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id).first()
-        is_new = False
-        if not user_descr:
-            user_descr = UserDoubleStarDescription(
-                double_star_id=double_star_id,
-                user_id=editor_user.id,
-                lang_code=lang,
-                common_name='',
-                text='',
-                references='',
-                cons_order=1,
-                create_by=current_user.id,
-                create_date=datetime.now(),
-                )
-            is_new = True
+    user_descr = UserDoubleStarDescription.query.filter_by(double_star_id=double_star_id, user_id=editor_user.id, lang_code=lang).first()
+    is_new = False
+    if not user_descr:
+        user_descr = UserDoubleStarDescription(
+            double_star_id=double_star_id,
+            user_id=editor_user.id,
+            lang_code=lang,
+            common_name='',
+            text='',
+            references='',
+            cons_order=1,
+            create_by=current_user.id,
+            create_date=datetime.now(),
+            )
+        is_new = True
 
-        if request.method == 'GET':
-            form.common_name.data = user_descr.common_name
-            form.text.data = user_descr.text
-        elif form.validate_on_submit():
-            user_descr.common_name = form.common_name.data
-            user_descr.text = form.text.data
-            user_descr.update_by = current_user.id
-            user_descr.update_date = datetime.now()
-            db.session.add(user_descr)
-            db.session.commit()
-            flash('Double star description successfully updated', 'form-success')
-            if form.goback.data != 'true':
-                return redirect(url_for('main_double_star.double_star_edit', double_star_id=double_star_id))
-            back = request.args.get('back')
-            back_id = request.args.get('back_id')
-            if back == 'constell':
-                return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='doublestar' + str(double_star_id)))
-            return redirect(url_for('main_double_star.double_star_info', double_star_id=double_star_id))
+    if request.method == 'GET':
+        form.common_name.data = user_descr.common_name
+        form.text.data = user_descr.text
+    elif form.validate_on_submit():
+        user_descr.common_name = form.common_name.data
+        user_descr.text = form.text.data
+        user_descr.update_by = current_user.id
+        user_descr.update_date = datetime.now()
+        db.session.add(user_descr)
+        db.session.commit()
+        flash('Double star description successfully updated', 'form-success')
+        if form.goback.data != 'true':
+            return redirect(url_for('main_double_star.double_star_edit', double_star_id=double_star_id))
+        back = request.args.get('back')
+        back_id = request.args.get('back_id')
+        if back == 'constell':
+            return redirect(url_for('main_constellation.constellation_info', constellation_id=back_id, _anchor='doublestar' + str(double_star_id)))
+        return redirect(url_for('main_double_star.double_star_info', double_star_id=double_star_id))
 
     return render_template('main/catalogue/double_star_edit.html', form=form, double_star=double_star, user_descr=user_descr, is_new=is_new)
 
