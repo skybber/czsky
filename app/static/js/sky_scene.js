@@ -264,6 +264,7 @@
         this.inertiaStartThreshold = 0.02; // px/ms
         this.inertiaStopThreshold = 0.004; // px/ms
         this.inertiaMaxStepMs = 250; // avoid multi-second catch-up on slow mobile frames
+        this.inertiaReleaseIdleMs = 60; // no inertia if the finger rested this long before release
         this.keyboardMoveSecPerScreen = 2.0;
         this.kbdMove = {
             active: false,

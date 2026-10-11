@@ -437,9 +437,15 @@
             this.input.tapCandidate = false;
         }
 
+        if (dx === 0 && dy === 0) return;
         const now = performance.now();
         const dt = Math.max(1, now - this.input.lastMoveTs);
         this.input.lastMoveTs = now;
+        if (dt > this.inertiaReleaseIdleMs) {
+            // resuming after a pause: stale velocity must not leak into the new movement
+            this.input.velocityX = 0;
+            this.input.velocityY = 0;
+        }
         const alpha = 0.25;
         this.input.velocityX = (1 - alpha) * this.input.velocityX + alpha * (dx / dt);
         this.input.velocityY = (1 - alpha) * this.input.velocityY + alpha * (dy / dt);
@@ -479,7 +485,8 @@
         this._setMilkywayInteractionActive(false);
 
         if (this.move.moved) {
-            const started = (this.input.pointerType === 'touch')
+            const idleMs = performance.now() - this.input.lastMoveTs;
+            const started = (this.input.pointerType === 'touch' && idleMs <= this.inertiaReleaseIdleMs)
                 ? this._startInertia(this.input.velocityX, this.input.velocityY)
                 : false;
             if (!started) {
