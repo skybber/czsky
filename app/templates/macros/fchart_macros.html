@@ -311,9 +311,12 @@
                                     </button>
                                     <div class="right menu">
                                         {% for eyepiece in chart_control.equipment_eyepieces %}
-                                            <div class="item" onclick="setEyepieceFov({{ telescope.get_fov(eyepiece) }})">
+                                            {% set eyepiece_fov = telescope.get_fov(eyepiece) %}
+                                            {% if eyepiece_fov %}
+                                            <div class="item eyepiece-item" data-fov="{{ eyepiece_fov }}" onclick="event.stopPropagation(); setEyepieceFov({{ eyepiece_fov }}, this)">
                                                 {{ eyepiece.name }}
                                             </div>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -997,6 +1000,33 @@
 #layers_dropdown .ui.toggle.button.active::after {
   right: 0.95em;
   opacity: 1;
+}
+/* eyepieces exclude each other, so they use a radio mark instead of a switch */
+#viewcenter_dropdown .right.menu > .item.eyepiece-item,
+#fchart-div #viewcenter_dropdown .item > .right.menu > .item.eyepiece-item {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  padding-right: 2.6em !important;
+}
+#viewcenter_dropdown .right.menu > .item.eyepiece-item::after {
+  content: '';
+  position: absolute;
+  right: 0.8em;
+  top: 50%;
+  width: 1.1em;
+  height: 1.1em;
+  margin-top: -0.55em;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid {{ tgl.off }};
+}
+#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active::after {
+  border-color: {{ tgl.on }};
+  background: radial-gradient(circle, {{ tgl.on }} 0 38%, transparent 44%);
+}
+#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active {
+  font-weight: bold !important;
 }
 </style>
 
@@ -1880,6 +1910,7 @@
         }
     }
 
+    syncEyepieceSelection();
     const initialEyepieceFov = ($('#eyepiece_fov').val() || '').trim();
     if (initialEyepieceFov !== '') {
         legendUrlEq = addOrReplaceQueryParamLocal(legendUrlEq, 'epfov', initialEyepieceFov);
@@ -2049,6 +2080,7 @@
         var value = $('#show_telrad').val() == 'true' ? 'false' : 'true';
         $('#show_telrad').val(value);
         $('#eyepiece_fov').val('');
+        syncEyepieceSelection();
         chart_param_ajax('chart_show_telrad', value);
         setChartUrlFlag('T', value);
         reloadLegendOrSceneWidgets();
@@ -2668,8 +2700,32 @@
         }
     }
 
-    function setEyepieceFov(eyepieceFov) {
+    // eyepieces are mutually exclusive (one FOV), show the selected one as a checked radio
+    function syncEyepieceSelection(selectedItem) {
+        $('.eyepiece-item').removeClass('eyepiece-active');
+        if (!selectedItem) {
+            const fov = parseFloat($('#eyepiece_fov').val());
+            if (isNaN(fov)) {
+                return;
+            }
+            selectedItem = $('.eyepiece-item').filter(function() {
+                return Math.abs(parseFloat($(this).data('fov')) - fov) < 1e-6;
+            }).get(0);
+            if (!selectedItem) {
+                return;
+            }
+        }
+        $(selectedItem).addClass('eyepiece-active');
+    }
+
+    function setEyepieceFov(eyepieceFov, selectedItem) {
+        // clicking the selected eyepiece again unselects it
+        if (selectedItem && $(selectedItem).hasClass('eyepiece-active')) {
+            eyepieceFov = '';
+            selectedItem = null;
+        }
         $('#eyepiece_fov').val(eyepieceFov);
+        syncEyepieceSelection(selectedItem);
         fchart.setLegendUrlParam('epfov', eyepieceFov);
         {% if fchart_pdf_url is not none %}
         chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', eyepieceFov);
@@ -2679,6 +2735,7 @@
 
     function unselectFov() {
         $('#eyepiece_fov').val('');
+        syncEyepieceSelection();
         $('#show_telrad').val('false');
         $('#btelrad').removeClass('active');
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
