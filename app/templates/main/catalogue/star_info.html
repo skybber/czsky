@@ -66,7 +66,7 @@
 
 {% macro star_user_info(user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset">
-        <div class="ui blue segment" style="display: inline-block">
+        <div class="ui segment" style="display: inline-block">
             <div class="markdown">
                 {% if editable %}
                     <a class="ui icon right floated mini button" href="{{ url_for('main_star.star_edit', star_descr_id=user_descr.id, back=back, back_id=back_id) }}">

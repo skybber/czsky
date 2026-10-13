@@ -109,9 +109,10 @@ footer{background:#3e2e2e;border-top:1px solid #313131}
 .ui .text.black{color:#be9e9e}
 .ui .text.black:hover{color:#dbdbdb}
 .ui.secondary.segment{background:#1c0e0e}
-.ui.secondary.pointing.menu .active.item{color:#dbdbdb;border:0;background:#211010}
+.ui.secondary.pointing.menu{border-bottom-color:#4c3333}
+.ui.secondary.pointing.menu .active.item{color:#dbdbdb;border-color:#ab6363;background:transparent}
 .ui.user.list .item:not(:first-child){border-top:1px solid #5c4c4c}
-.ui.secondary.pointing.menu .active.item:hover{border-color:#af8b4c;color:#dbdbdb;background:#624b4b}
+.ui.secondary.pointing.menu .active.item:hover{border-color:#cc7575;color:#dbdbdb;background:transparent}
 .ui.secondary.pointing.menu .dropdown.item:hover,.ui.secondary.pointing.menu .link.item:hover,.ui.secondary.pointing.menu a.item:hover{color:#dbdbdb}
 .ui.checkbox label,.ui.checkbox+label,.ui.form .field>label{color:#be9e9e!important}
 .ui.form .inline.field>label,.ui.form .inline.field>p,.ui.form .inline.fields .field>label,.ui.form .inline.fields .field>p,.ui.form .inline.fields>label{color:#be9e9e!important}

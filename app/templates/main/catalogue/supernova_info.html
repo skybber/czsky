@@ -45,7 +45,7 @@
 
 {% macro supernova_info(user_descr) %}
     <div id="items-fieldset" class="ui segments" data-toggle="fieldset" style="width:100%">
-        <div class="ui blue segment" style="display: inline-block; width:100%">
+        <div class="ui segment" style="display: inline-block; width:100%">
             <h3>&nbsp;
                 {% if supernova.constellation is not none %}
                     <a class="ui label" style="float:left;" href="{{ url_for('main_constellation.constellation_info', constellation_id=supernova.constellation.iau_code) }}">
