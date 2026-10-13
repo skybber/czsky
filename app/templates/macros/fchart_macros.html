@@ -1034,6 +1034,19 @@
 #layers_dropdown .right.menu > .item.theme-item.theme-active {
   font-weight: bold !important;
 }
+/* time/location popup switches use the same theme colors as menu switches */
+.ui.toggle.checkbox input#cb_use_current_time ~ label::before,
+.ui.toggle.checkbox input#cb_use_auto_location ~ label::before {
+  background: {{ tgl.off }} !important;
+}
+.ui.toggle.checkbox input#cb_use_current_time:checked ~ label::before,
+.ui.toggle.checkbox input#cb_use_auto_location:checked ~ label::before {
+  background: {{ tgl.on }} !important;
+}
+.ui.toggle.checkbox input#cb_use_current_time ~ label::after,
+.ui.toggle.checkbox input#cb_use_auto_location ~ label::after {
+  background: {{ tgl.knob }} !important;
+}
 </style>
 
 {% assets 'aladin_js' %}<script type="text/javascript" src="{{ ASSET_URL }}"></script>{% endassets %}
