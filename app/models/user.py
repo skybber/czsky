@@ -150,7 +150,7 @@ class User(UserMixin, db.Model):
         """Verify the new email for this user."""
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data = s.loads(token, max_age=expiration)
+            data = s.loads(token, salt=b"czsky", max_age=expiration)
         except (BadSignature, SignatureExpired):
             return False
         if data.get('change_email') != self.id:
@@ -169,7 +169,7 @@ class User(UserMixin, db.Model):
         """Verify the new password for this user."""
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
-            data = s.loads(token, max_age=expiration)
+            data = s.loads(token, salt=b"czsky", max_age=expiration)
         except (BadSignature, SignatureExpired):
             return False
         if data.get('reset') != self.id:
