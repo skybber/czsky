@@ -405,10 +405,16 @@ $(function(){
                         <i class="caret edit icon"></i>
                         <div class="menu">
                             <a class="item" href="{{ url_for('main_observing_session.observing_session_edit', observing_session_id=observing_session.id) }}">
+                                <i class="pencil alternate icon"></i>
                                 {{ _('Edit Header')}}
                             </a>
                             <a class="item" href="{{ url_for('main_observing_session.observing_session_items_edit', observing_session_id=observing_session.id) }}">
+                                <i class="pencil alternate icon"></i>
                                 {{ _('Edit Items')}}
+                            </a>
+                            <a id="bdelete_main" class="item" href="#">
+                                <i class="red trash alternate icon"></i>
+                                {{ _('Delete Observing Session') }}
                             </a>
                         </div>
                     </div>
@@ -442,9 +448,31 @@ $(function(){
             {% endif %}
         </div>
     </div>
+    {% if is_mine_observing_session %}
+        <div class="ui tiny modal deleteMainModal">
+          <div class="header">{{ _('Delete Observing Session') }}</div>
+          <div class="content">
+            <p>{{ _('Are you sure you want to delete observing session?') }}</p>
+          </div>
+          <div class="actions">
+            <div class="ui negative cancel button">{{ _('No') }}</div>
+            <a class="ui positive right labeled icon approve button" href="{{ url_for('main_observing_session.observing_session_delete', observing_session_id=observing_session.id) }}">
+                {{ _('Yes') }}
+                <i class="checkmark icon"></i>
+            </a>
+          </div>
+        </div>
+    {% endif %}
+
     <script type="text/javascript">
         $('.ui.rating')
         .rating();
+
+        $('#bdelete_main').click(function(e) {
+            e.preventDefault();
+            $('.ui.modal.deleteMainModal')
+                .modal('show');
+        });
     </script>
 
 {% endblock %}

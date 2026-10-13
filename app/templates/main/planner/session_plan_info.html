@@ -206,10 +206,19 @@
                     </div>
                 </div>
                 {% if session_plan.is_anonymous or is_mine_session_plan %}
-                <a class="ui icon right floated mini button" href="{{ url_for('main_sessionplan.session_plan_edit', session_plan_id=session_plan.id) }}"
-                   data-inverted="" data-position="bottom center" data-tooltip="{{ _('Edit Session Plan Header')}}" data-variation="tiny basic">
+                <div class="ui right floated floating dropdown icon mini button">
                     <i class="caret edit icon"></i>
-                </a>
+                    <div class="menu">
+                        <a class="item" href="{{ url_for('main_sessionplan.session_plan_edit', session_plan_id=session_plan.id) }}">
+                            <i class="pencil alternate icon"></i>
+                            {{ _('Edit Header')}}
+                        </a>
+                        <a id="bdelete_main" class="item" href="#">
+                            <i class="red trash alternate icon"></i>
+                            {{ _('Delete Plan') }}
+                        </a>
+                    </div>
+                </div>
                 {% endif %}
             </div>
 
@@ -235,7 +244,28 @@
     </div>
     {% endif %}
 
+{% if session_plan.is_anonymous or is_mine_session_plan %}
+    <div class="ui tiny modal deleteMainModal">
+      <div class="header">{{ _('Delete Session Plan') }}</div>
+      <div class="content">
+        <p>{{ _('Are you sure you want to delete session plan?') }}</p>
+      </div>
+      <div class="actions">
+        <div class="ui negative cancel button">{{ _('No') }}</div>
+        <a class="ui positive right labeled icon approve button" href="{{ url_for('main_sessionplan.session_plan_delete', session_plan_id=session_plan.id) }}">
+            {{ _('Yes') }}
+            <i class="checkmark icon"></i>
+        </a>
+      </div>
+    </div>
+{% endif %}
+
 <script type="text/javascript">
+    $('#bdelete_main').click(function(e) {
+        e.preventDefault();
+        $('.ui.modal.deleteMainModal')
+            .modal('show');
+    });
 /*
     $('.planner-separator').bind('mousedown',  (function(e) {
         var md = {
