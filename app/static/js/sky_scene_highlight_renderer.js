@@ -199,8 +199,17 @@
             ctx.strokeStyle = U.rgba(tailColor, 0.98);
             for (let i = 0; i < dirs.length; i++) {
                 const d = dirs[i];
-                const ex = centerPx.x + Math.sin(d.pa) * len * d.scale;
-                const ey = centerPx.y - Math.cos(d.pa) * len * d.scale;
+                // tail_pa is an equatorial position angle, not a screen angle.
+                // Project its local direction to include chart rotation and mirrors.
+                const probe = U.destinationRaDec(hl.ra, hl.dec, d.pa, 1e-3);
+                const probePx = sceneCtx.projection.projectEquatorialToPx(probe.ra, probe.dec);
+                if (!probePx) continue;
+                const dx = probePx.x - centerPx.x;
+                const dy = probePx.y - centerPx.y;
+                const distance = Math.hypot(dx, dy);
+                if (!(distance > U.EPS)) continue;
+                const ex = centerPx.x + dx / distance * len * d.scale;
+                const ey = centerPx.y + dy / distance * len * d.scale;
                 ctx.beginPath();
                 ctx.moveTo(centerPx.x, centerPx.y);
                 ctx.lineTo(ex, ey);
