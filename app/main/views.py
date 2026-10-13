@@ -1,14 +1,18 @@
 import base64
+import json
+import os
 import urllib.parse
 from datetime import datetime, timezone
 
 from flask import (
     abort,
     Blueprint,
+    current_app,
     redirect,
     render_template,
     request,
     Response,
+    send_from_directory,
     session,
     url_for,
 )
@@ -67,6 +71,47 @@ def index():
     lang_code = get_site_lang_code()
     news_list = News.query.filter_by(is_released=True, lang_code=lang_code).order_by(News.id.desc()).limit(3).all()
     return render_template('main/index.html', is_anonymous=current_user.is_anonymous, news_list=news_list)
+
+
+@main.route('/manifest.webmanifest')
+def pwa_manifest():
+    manifest = {
+        'name': current_app.config.get('APP_NAME', 'CzSky'),
+        'short_name': current_app.config.get('APP_NAME', 'CzSky'),
+        'description': current_app.config.get('APP_DESCRIPTION', ''),
+        'id': url_for('main.index'),
+        'start_url': url_for('main.index'),
+        'scope': url_for('main.index'),
+        'display': 'fullscreen',
+        'display_override': ['fullscreen', 'standalone'],
+        'orientation': 'any',
+        'background_color': '#0b1020',
+        'theme_color': '#000000',
+        'icons': [
+            {
+                'src': url_for('static', filename='images/pwa/icon-192.png'),
+                'sizes': '192x192',
+                'type': 'image/png',
+                'purpose': 'any maskable',
+            },
+            {
+                'src': url_for('static', filename='images/pwa/icon-512.png'),
+                'sizes': '512x512',
+                'type': 'image/png',
+                'purpose': 'any maskable',
+            },
+        ],
+    }
+    return Response(json.dumps(manifest), mimetype='application/manifest+json')
+
+
+@main.route('/sw.js')
+def pwa_service_worker():
+    # Served from the root so that the service worker scope covers the whole app.
+    response = send_from_directory(os.path.join(current_app.static_folder, 'js'), 'sw.js',
+                                   mimetype='application/javascript', max_age=0)
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
 
 
 @main.route('/about')

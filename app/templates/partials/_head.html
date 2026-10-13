@@ -3,6 +3,16 @@
 <title>{% block page_title %}{{ config.APP_NAME }}{% endblock %}</title>
 <meta name="description" content="{{ config.APP_DESCRIPTION }}">
 <meta name="keywords" content="{{ config.APP_KEYWORDS }}">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="{{ url_for('main.pwa_manifest') }}">
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='images/pwa/icon-192.png') }}">
+<script type="text/javascript">
+  if ('serviceWorker' in navigator && window === window.top) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register("{{ url_for('main.pwa_service_worker') }}").catch(function () {});
+    });
+  }
+</script>
 
 {% assets 'vendor_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
 {% assets 'app_css' %}<link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">{% endassets %}
