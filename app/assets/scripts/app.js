@@ -20,6 +20,17 @@ $(document).ready(function () {
   // Enable dropdowns
   $('.dropdown').dropdown();
   $('select').dropdown();
+
+  // Keep theme menu open after theme switch (page is reloaded by server redirect)
+  $('.theme-switch .menu .item').on('click', function () {
+    try { sessionStorage.setItem('reopenThemeMenu', '1'); } catch (e) {}
+  });
+  try {
+    if (sessionStorage.getItem('reopenThemeMenu')) {
+      sessionStorage.removeItem('reopenThemeMenu');
+      $('.theme-switch:visible').first().dropdown('show');
+    }
+  } catch (e) {}
   function icontains(elem, text) {
     return (elem.textContent || elem.innerText || $(elem).text() || "")
       .toLowerCase().indexOf((text || "").toLowerCase()) > -1;

@@ -569,11 +569,12 @@
                                 <span class="text">{{ _('Chart Themes') }}<i class="dropdown icon"></i></span>
                             </button>
                             <div class="right menu">
-                                <div class="item" onclick="setTheme('dark')">{{ _('Dark Mode') }}</div>
-                                <div class="item" onclick="setTheme('light')">{{ _('Light Mode') }}</div>
-                                <div class="item" onclick="setTheme('night')">{{ _('Night Mode') }}</div>
+                                {% set cur_custom_theme_id = session.get('cur_custom_theme_id') %}
+                                {% for theme_name, theme_label in [('dark', _('Dark Mode')), ('light', _('Light Mode')), ('night', _('Night Mode'))] %}
+                                    <div class="item theme-item{{ ' theme-active' if not cur_custom_theme_id and chart_control.theme == theme_name else '' }}" onclick="setTheme('{{ theme_name }}')">{{ theme_label }}</div>
+                                {% endfor %}
                                 {% for t in current_user.user_themes %}
-                                    <div class="item" onclick="setCustomTheme({{ t.id }})">{{ t.name }}</div>
+                                    <div class="item theme-item{{ ' theme-active' if cur_custom_theme_id|string == t.id|string else '' }}" onclick="setCustomTheme({{ t.id }})">{{ t.name }}</div>
                                 {% endfor %}
                             </div>
                         </div>
@@ -1001,15 +1002,18 @@
   right: 0.95em;
   opacity: 1;
 }
-/* eyepieces exclude each other, so they use a radio mark instead of a switch */
+/* eyepieces and chart themes exclude each other, so they use a radio mark instead of a switch */
 #viewcenter_dropdown .right.menu > .item.eyepiece-item,
-#fchart-div #viewcenter_dropdown .item > .right.menu > .item.eyepiece-item {
+#fchart-div #viewcenter_dropdown .item > .right.menu > .item.eyepiece-item,
+#layers_dropdown .right.menu > .item.theme-item,
+#fchart-div #layers_dropdown .item > .right.menu > .item.theme-item {
   position: relative;
   display: flex !important;
   align-items: center;
   padding-right: 2.6em !important;
 }
-#viewcenter_dropdown .right.menu > .item.eyepiece-item::after {
+#viewcenter_dropdown .right.menu > .item.eyepiece-item::after,
+#layers_dropdown .right.menu > .item.theme-item::after {
   content: '';
   position: absolute;
   right: 0.8em;
@@ -1021,11 +1025,13 @@
   border-radius: 50%;
   border: 2px solid {{ tgl.off }};
 }
-#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active::after {
+#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active::after,
+#layers_dropdown .right.menu > .item.theme-item.theme-active::after {
   border-color: {{ tgl.on }};
   background: radial-gradient(circle, {{ tgl.on }} 0 38%, transparent 44%);
 }
-#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active {
+#viewcenter_dropdown .right.menu > .item.eyepiece-item.eyepiece-active,
+#layers_dropdown .right.menu > .item.theme-item.theme-active {
   font-weight: bold !important;
 }
 </style>
@@ -2943,12 +2949,30 @@
             method: "GET",
             cache: false
         }).always(function () {
+            try { sessionStorage.setItem('reopenChartThemeMenu', '1'); } catch (e) {}
             const $form = $("#fmchart");
             if ($form.length) {
+                // Keep current URL arguments (fullscreen, splitview, position, drawings...)
+                $form.attr('action', window.location.pathname + window.location.search);
                 $form[0].submit();
             } else {
                 window.location.reload();
             }
+        });
+    }
+
+    // Theme switch reloads the page, so reopen Settings > Chart Themes menu afterwards
+    function reopenChartThemeMenu() {
+        try {
+            if (!sessionStorage.getItem('reopenChartThemeMenu')) {
+                return;
+            }
+            sessionStorage.removeItem('reopenChartThemeMenu');
+        } catch (e) {
+            return;
+        }
+        $('#layers_dropdown').dropdown('show', function() {
+            $('#layers_dropdown .theme-item').first().closest('.submenu-parent-item').trigger('mouseenter');
         });
     }
 
@@ -2983,6 +3007,7 @@
         {% endif %}
 
         $('#layers_dropdown').dropdown({ displayType : 'block' });
+        reopenChartThemeMenu();
         $('#tools_dropdown').dropdown({ action: 'hide' });
         $('#drawing-save-dropdown').dropdown({
             action: 'hide',

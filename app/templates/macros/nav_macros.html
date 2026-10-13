@@ -69,7 +69,7 @@
 {% endmacro %}
 
 {% macro switch_theme(current_user) %}
-    <div class="ui dropdown item">
+    <div class="ui dropdown item theme-switch">
         <i class="low vision icon"></i>
         {% if session.get('cur_custom_theme_name') %}
             {% set theme_name = session.get('cur_custom_theme_name') %}
@@ -93,7 +93,7 @@
 {% endmacro %}
 
 {% macro switch_theme_mobile(current_user) %}
-    <div class="ui dropdown item">
+    <div class="ui dropdown item theme-switch">
         <i class="low vision icon"></i>
         <div class="menu">
             <a href="{{ url_for('main.theme_dark') }}" class="item">{{ _('Dark Mode') }}</a>
