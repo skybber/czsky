@@ -449,6 +449,20 @@
                         {% endif %}
                         <label style="margin-left: 10px;">{{ _('User location') }}</label>
                     </div>
+                    <div id="night_info" class="night-info" style="display: none;">
+                        <div class="night-info-row" data-night-row="sun">
+                            <i class="sun icon"></i><span class="night-info-label">{{ _('Sun') }}</span>
+                            <span class="night-info-values"></span>
+                        </div>
+                        <div class="night-info-row" data-night-row="dark">
+                            <i class="star icon"></i><span class="night-info-label">{{ _('Astronomical night') }}</span>
+                            <span class="night-info-values"></span>
+                        </div>
+                        <div class="night-info-row" data-night-row="moon">
+                            <i class="moon icon"></i><span class="night-info-label">{{ _('Moon') }}</span>
+                            <span class="night-info-values"></span>
+                        </div>
+                    </div>
                 </div>
                 <div id="layers_dropdown" class="ui small icon floating dropdown icon button" data-inverted="" data-tooltip="{{ _('Settings') }}" data-position="bottom center" data-variation="tiny basic">
                     <i class="layer group icon"></i>
@@ -1046,6 +1060,38 @@
 .ui.toggle.checkbox input#cb_use_current_time ~ label::after,
 .ui.toggle.checkbox input#cb_use_auto_location ~ label::after {
   background: {{ tgl.knob }} !important;
+}
+/* night events summary in the time/location popup */
+#night_info {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+  font-size: 0.92em;
+}
+#night_info .night-info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+#night_info .night-info-label {
+  min-width: 9.5em;
+  opacity: 0.75;
+}
+#night_info .night-info-values {
+  font-variant-numeric: tabular-nums;
+}
+#night_info .night-info-time {
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 1px dotted currentColor;
+}
+#night_info .night-info-time:hover {
+  border-bottom-style: solid;
+}
+#night_info .night-info-note {
+  opacity: 0.75;
 }
 </style>
 
@@ -1724,6 +1770,7 @@
         fchart.onChartTimeChanged(function(chartTimeISO) {
             $('#chart_date_time').val(chartTimeISO);
             syncDateTimeComponentsInputs(true);
+            refreshNightInfo();
         });
 
         fchart.onShortcutKey(function(key, event) {
@@ -2633,6 +2680,7 @@
                     fchart.setDateTimeISO(date.toISOString());
                     fchart.reloadImage();
                 }
+                refreshNightInfo();
             }
         }
     });
@@ -2788,6 +2836,7 @@
             fchart.setDateTimeISO(dateISO);
             fchart.reloadImage();
         }
+        refreshNightInfo();
     }
 
     function syncDateTimeComponentsInputs(syncCalChartDateTime) {
@@ -2880,8 +2929,144 @@
         $('#cal_chart_date_time').calendar('set date', date);
     }
 
+    var nightInfoMoonPhases = {
+        new: {{ _('new moon')|tojson }},
+        waxing_crescent: {{ _('waxing crescent')|tojson }},
+        first_quarter: {{ _('first quarter')|tojson }},
+        waxing_gibbous: {{ _('waxing gibbous')|tojson }},
+        full: {{ _('full moon')|tojson }},
+        waning_gibbous: {{ _('waning gibbous')|tojson }},
+        last_quarter: {{ _('last quarter')|tojson }},
+        waning_crescent: {{ _('waning crescent')|tojson }},
+    };
+    var nightInfoKey = null;
+    var nightInfoTimer = null;
+
+    // Observing night of the chart time: it starts at the site's mean solar noon (independent of the browser
+    // time zone), so early morning belongs to the previous day.
+    function chartNightStart(longitudeDeg) {
+        let chartTime = $('#cb_use_current_time').prop('checked') ? new Date() : new Date($('#chart_date_time').val());
+        if (isNaN(chartTime.getTime())) {
+            chartTime = new Date();
+        }
+        const dayMs = 24 * 3600 * 1000;
+        const noonOffsetMs = Math.round((12 - longitudeDeg / 15) * 60) * 60 * 1000;
+        const utcMidnight = Date.UTC(chartTime.getUTCFullYear(), chartTime.getUTCMonth(), chartTime.getUTCDate());
+        let start = utcMidnight + noonOffsetMs;
+        while (start > chartTime.getTime()) {
+            start -= dayMs;
+        }
+        while (start + dayMs <= chartTime.getTime()) {
+            start += dayMs;
+        }
+        return new Date(start);
+    }
+
+    function nightInfoTimeLink(prefix, iso) {
+        // round to whole minutes, the time inputs and calendar work with minutes
+        const date = new Date(Math.round(new Date(iso).getTime() / 60000) * 60000);
+        const text = String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+        return $('<a class="night-info-time"></a>')
+            .attr('data-time', date.toISOString())
+            .attr('title', {{ _('Set chart time')|tojson }})
+            .text(prefix + text);
+    }
+
+    function nightInfoNote(text) {
+        return $('<span class="night-info-note"></span>').text(text);
+    }
+
+    function nightInfoEvents(events) {
+        // events: [[prefix, iso], ...]; missing events are skipped, the rest shown chronologically
+        return events.filter(e => e[1])
+            .sort((a, b) => new Date(a[1]) - new Date(b[1]))
+            .map(e => nightInfoTimeLink(e[0], e[1]));
+    }
+
+    function renderNightInfo(data) {
+        const $info = $('#night_info');
+        const rowValues = name => $info.find('[data-night-row="' + name + '"] .night-info-values');
+        const fill = ($el, items) => {
+            $el.empty();
+            items.forEach((item, i) => $el.append(i > 0 ? ' ' : '', item));
+        };
+
+        let sunItems = nightInfoEvents([['↓ ', data.sun.set], ['↑ ', data.sun.rise]]);
+        if (data.sun.upAllNight) {
+            sunItems = [nightInfoNote({{ _('above horizon all night')|tojson }})];
+        } else if (data.sun.downAllNight) {
+            sunItems = [nightInfoNote({{ _('below horizon all day')|tojson }})];
+        }
+        fill(rowValues('sun'), sunItems);
+
+        const night = data.astronomicalNight;
+        if (night.from && night.to) {
+            fill(rowValues('dark'), [nightInfoTimeLink('', night.from), '–', nightInfoTimeLink('', night.to)]);
+        } else {
+            fill(rowValues('dark'), [nightInfoNote({{ _('does not occur')|tojson }})]);
+        }
+
+        const moon = data.moon;
+        let moonItems = nightInfoEvents([['↑ ', moon.rise], ['↓ ', moon.set]]);
+        if (moonItems.length === 0) {
+            moonItems = [nightInfoNote(moon.upAtStart ? {{ _('above horizon all night')|tojson }} : {{ _('below horizon all night')|tojson }})];
+        }
+        const phase = nightInfoMoonPhases[moon.phaseName] || moon.phaseName;
+        moonItems.push(nightInfoNote('(' + Math.round(moon.illumination * 100) + ' %, ' + phase + ')'));
+        fill(rowValues('moon'), moonItems);
+
+        $info.show();
+    }
+
+    function refreshNightInfo() {
+        // #latitude and #longitude hold radians, like the chart itself
+        const latitude = parseFloat($('#latitude').val()) * 180 / Math.PI;
+        const longitude = parseFloat($('#longitude').val()) * 180 / Math.PI;
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return;
+        }
+        const nightStart = chartNightStart(longitude).toISOString();
+        const key = latitude.toFixed(2) + ',' + longitude.toFixed(2) + ',' + nightStart;
+        if (key === nightInfoKey) {
+            return;
+        }
+        nightInfoKey = key;
+        clearTimeout(nightInfoTimer);
+        nightInfoTimer = setTimeout(function() {
+            $.getJSON("{{ url_for('main_chart.chart_night_info') }}", {lat: latitude, lon: longitude, start: nightStart})
+                .done(function(data) {
+                    if (key === nightInfoKey) {
+                        renderNightInfo(data);
+                    }
+                })
+                .fail(function() {
+                    if (key === nightInfoKey) {
+                        nightInfoKey = null;
+                        $('#night_info').hide();
+                    }
+                });
+        }, 300);
+    }
+
+    $('#night_info').on('click', '.night-info-time', function(event) {
+        event.preventDefault();
+        const date = new Date($(this).attr('data-time'));
+        if ($('#cb_use_current_time').prop('checked')) {
+            $('#cb_use_current_time').prop('checked', false);
+            updateDateTimeControls(false);
+        }
+        $('#chart_date_time').val(date.toISOString());
+        syncDateTimeComponentsInputs(false);
+        $('#cal_chart_date_time').calendar('set date', date, true, false);
+        if (fchart) {
+            fchart.setDateTimeISO(date.toISOString());
+            fchart.reloadImage();
+        }
+    });
+
     $('#cb_use_current_time').change(function() {
         updateDateTimeControls(this.checked);
+        refreshNightInfo();
     });
 
     $('#cb_use_auto_location').change(function() {
@@ -2900,6 +3085,7 @@
             fchart.setLatitude(response.data.latitude);
         }
         fchart.reloadImage();
+        refreshNightInfo();
     });
 
     $('.increment-year').on('click', function(){ changeDateTimeValue('year', +1); });
@@ -3041,6 +3227,7 @@
 
         updateDateTimeControls({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
         syncDateTimeComponentsInputs(true);
+        refreshNightInfo();
 
         $('.ui.dropdown.dlocation').dropdown({
             allowAdditions: true,
@@ -3059,11 +3246,15 @@
                     );
                     $('#cb_use_auto_location').checkbox('set unchecked');
                     $('#location_city_name').text(cityName);
-                    $('#longitude').val(longitude);
-                    $('#latitude').val(latitude);
-                    fchart.setLongitude(longitude);
-                    fchart.setLatitude(latitude);
+                    // autocomplete returns degrees, the chart works in radians
+                    const longitudeRad = parseFloat(longitude) * Math.PI / 180;
+                    const latitudeRad = parseFloat(latitude) * Math.PI / 180;
+                    $('#longitude').val(longitudeRad);
+                    $('#latitude').val(latitudeRad);
+                    fchart.setLongitude(longitudeRad);
+                    fchart.setLatitude(latitudeRad);
                     fchart.reloadImage();
+                    refreshNightInfo();
                 }
             }
         });

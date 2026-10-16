@@ -3900,3 +3900,48 @@ msgstr "±2 roky"
 
 msgid "Absolute magnitude is not available."
 msgstr "Absolutní magnituda není k dispozici."
+
+msgid "Sun"
+msgstr "Slunce"
+
+msgid "Astronomical night"
+msgstr "Astronomická noc"
+
+msgid "new moon"
+msgstr "nov"
+
+msgid "waxing crescent"
+msgstr "dorůstající srpek"
+
+msgid "first quarter"
+msgstr "první čtvrť"
+
+msgid "waxing gibbous"
+msgstr "dorůstající"
+
+msgid "full moon"
+msgstr "úplněk"
+
+msgid "waning gibbous"
+msgstr "couvající"
+
+msgid "last quarter"
+msgstr "poslední čtvrť"
+
+msgid "waning crescent"
+msgstr "ubývající srpek"
+
+msgid "Set chart time"
+msgstr "Nastavit čas mapy"
+
+msgid "above horizon all night"
+msgstr "celou noc nad obzorem"
+
+msgid "below horizon all day"
+msgstr "celý den pod obzorem"
+
+msgid "below horizon all night"
+msgstr "celou noc pod obzorem"
+
+msgid "does not occur"
+msgstr "nenastane"

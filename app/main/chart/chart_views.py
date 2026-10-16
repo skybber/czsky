@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 
 from flask import (
     abort,
@@ -37,6 +38,7 @@ from app.commons.chart_scene import (
     build_constellation_boundaries_catalog_v1,
 )
 from app.commons.coordinates import ra_to_str, dec_to_str
+from app.commons.night_events import night_info
 from app.commons.simbad_utils import simbad_query, SIMBAD_OTYPE_DESCRIPTIONS
 from app.commons.utils import is_splitview_supported
 from app.models import Constellation
@@ -90,6 +92,20 @@ def chart():
     chart_control = common_prepare_chart_data(form)
 
     return render_template('main/chart/chart.html', fchart_form=form, chart_control=chart_control, mark_ra=ra, mark_dec=dec)
+
+
+@main_chart.route('/chart/night-info', methods=['GET'])
+def chart_night_info():
+    """Sun, astronomical night and Moon events of the night starting at ``start`` (local noon, ISO)."""
+    try:
+        latitude = float(request.args['lat'])
+        longitude = float(request.args['lon'])
+        night_start = datetime.fromisoformat(request.args['start'].replace('Z', '+00:00'))
+    except (KeyError, ValueError):
+        return jsonify({'status': 'error', 'message': 'Expected lat, lon and ISO start.'}), 400
+    if not (-90.0 <= latitude <= 90.0 and -180.0 <= longitude <= 360.0) or not 1900 <= night_start.year <= 2050:
+        return jsonify({'status': 'error', 'message': 'Value out of range.'}), 400
+    return jsonify(night_info(latitude, longitude, night_start))
 
 
 @main_chart.route('/chart/chart-pos-img', methods=['GET'])

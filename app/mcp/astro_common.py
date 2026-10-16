@@ -9,20 +9,15 @@ import math
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
-DEFAULT_TIMEZONE = "Europe/Prague"
-EPHEMERIS_FILE = "de421.bsp"
+from app.commons.night_events import (
+    get_ephemeris,
+    get_timescale,
+    moon_events,
+    skyfield_observer,
+    twilight_events,
+)
 
-# almanac.dark_twilight_day states: 0 dark, 1 astronomical, 2 nautical, 3 civil twilight, 4 day.
-_TWILIGHT_TRANSITIONS = {
-    (4, 3): "sunset",
-    (3, 2): "civilDusk",
-    (2, 1): "nauticalDusk",
-    (1, 0): "astronomicalDusk",
-    (0, 1): "astronomicalDawn",
-    (1, 2): "nauticalDawn",
-    (2, 3): "civilDawn",
-    (3, 4): "sunrise",
-}
+DEFAULT_TIMEZONE = "Europe/Prague"
 
 
 class McpLookupError(Exception):
@@ -38,18 +33,6 @@ class McpLookupError(Exception):
         if self.candidates:
             payload["candidates"] = self.candidates
         return payload
-
-
-def get_ephemeris():
-    from app.commons.solar_system_chart_utils import _get_ephemeris
-
-    return _get_ephemeris(EPHEMERIS_FILE)
-
-
-def get_timescale():
-    from skyfield.api import load
-
-    return load.timescale(builtin=True)
 
 
 def get_location_timezone(location: Any = None):
@@ -221,95 +204,14 @@ def fmt_local(dt: datetime | None, tz: Any) -> str | None:
     return dt.astimezone(tz).isoformat(timespec="minutes")
 
 
-def _skyfield_observer(latitude: float, longitude: float, elevation: float = 0.0):
-    from skyfield.api import wgs84
-
-    return wgs84.latlon(latitude, longitude, elevation_m=elevation or 0.0)
-
-
 def compute_twilight(latitude: float, longitude: float, day: date, tz: Any) -> dict[str, Any]:
     """Sun and twilight events of the night starting on ``day`` (local noon to next noon)."""
-    from skyfield import almanac
-
-    eph = get_ephemeris()
-    ts = get_timescale()
-    t1 = ts.from_datetime(local_datetime(day, 12, tz))
-    t2 = ts.from_datetime(local_datetime(day, 36, tz))
-    f = almanac.dark_twilight_day(eph, _skyfield_observer(latitude, longitude))
-    times, states = almanac.find_discrete(t1, t2, f)
-
-    events: dict[str, Any] = {name: None for name in _TWILIGHT_TRANSITIONS.values()}
-    previous = int(f(t1))
-    for t, state in zip(times, states):
-        name = _TWILIGHT_TRANSITIONS.get((previous, int(state)))
-        if name and events[name] is None:
-            events[name] = t.utc_datetime()
-        previous = int(state)
-
-    # Darkest available window: astronomical night, otherwise nautical twilight (summer at high latitude).
-    dark_from, dark_to = events["astronomicalDusk"], events["astronomicalDawn"]
-    darkness = "astronomical"
-    if dark_from is None or dark_to is None:
-        dark_from, dark_to = events["civilDusk"], events["civilDawn"]
-        darkness = "nautical" if dark_from and dark_to else "none"
-    return {
-        "events": events,
-        "darkFrom": dark_from,
-        "darkTo": dark_to,
-        "darkness": darkness,
-    }
-
-
-def _moon_phase_name(phase_deg: float) -> str:
-    # Principal phases are instants; keep them within +-10 degrees (about +-20 hours).
-    names = [
-        (10, "new"), (80, "waxing_crescent"), (100, "first_quarter"), (170, "waxing_gibbous"),
-        (190, "full"), (260, "waning_gibbous"), (280, "last_quarter"), (350, "waning_crescent"),
-    ]
-    for limit, name in names:
-        if phase_deg < limit:
-            return name
-    return "new"
+    return twilight_events(latitude, longitude, local_datetime(day, 12, tz))
 
 
 def compute_moon(latitude: float, longitude: float, day: date, tz: Any) -> dict[str, Any]:
     """Moon phase at local midnight and its rise/set events from local noon to next noon."""
-    from skyfield import almanac
-
-    eph = get_ephemeris()
-    ts = get_timescale()
-    t1 = ts.from_datetime(local_datetime(day, 12, tz))
-    t2 = ts.from_datetime(local_datetime(day, 36, tz))
-    t_mid = ts.from_datetime(local_datetime(day, 24, tz))
-    f = almanac.risings_and_settings(eph, eph["moon"], _skyfield_observer(latitude, longitude))
-    times, ups = almanac.find_discrete(t1, t2, f)
-
-    up_intervals = []
-    is_up = bool(f(t1))
-    start = t1.utc_datetime() if is_up else None
-    rise = moon_set = None
-    for t, up in zip(times, ups):
-        if up:
-            rise = rise or t.utc_datetime()
-            start = t.utc_datetime()
-        else:
-            moon_set = moon_set or t.utc_datetime()
-            if start is not None:
-                up_intervals.append((start, t.utc_datetime()))
-            start = None
-    if start is not None:
-        up_intervals.append((start, t2.utc_datetime()))
-
-    phase_deg = float(almanac.moon_phase(eph, t_mid).degrees) % 360
-    illumination = float(almanac.fraction_illuminated(eph, "moon", t_mid))
-    return {
-        "rise": rise,
-        "set": moon_set,
-        "upIntervals": up_intervals,
-        "phaseDeg": round(phase_deg, 1),
-        "phaseName": _moon_phase_name(phase_deg),
-        "illumination": round(illumination, 3),
-    }
+    return moon_events(latitude, longitude, local_datetime(day, 12, tz))
 
 
 def moonless_windows(dark_from: datetime | None, dark_to: datetime | None,
@@ -391,7 +293,7 @@ def altaz_at(latitude: float, longitude: float, elevation: float, ra: float, dec
 
     eph = get_ephemeris()
     t = get_timescale().from_datetime(dt_utc.replace(tzinfo=timezone.utc))
-    observer = eph["earth"] + _skyfield_observer(latitude, longitude, elevation)
+    observer = eph["earth"] + skyfield_observer(latitude, longitude, elevation)
     star = Star(ra=Angle(radians=ra), dec=Angle(radians=dec))
     alt, az, _ = observer.at(t).observe(star).apparent().altaz()
     return round(float(alt.degrees), 1), round(float(az.degrees), 1)
