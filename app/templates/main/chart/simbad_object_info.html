@@ -9,8 +9,6 @@
 {# --- Chart --- #}
 {% macro simbad_object_chart(simbad_obj) %}
     {{ fchart.fchart(url_for('main_chart.simbad_object_chart', sid=simbad_obj.main_id),
-                     url_for('main_chart.simbad_object_chart_pos_img', sid=simbad_obj.main_id, flags=chart_control.chart_flags),
-                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_chart.simbad_object_chart_pdf', sid=simbad_obj.main_id,
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
                      None,

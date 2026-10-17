@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import math
-import base64
 import gzip
 import uuid
 
@@ -62,7 +61,6 @@ from app.main.forms import ObservationLogNoFilterForm
 from app.main.chart.chart_forms import ChartForm
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
@@ -321,22 +319,6 @@ def minor_planets_chart():
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
-@main_minor_planet.route('/minor-planets/chart-pos-img', methods=['GET'])
-def minor_planets_chart_pos_img():
-    minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 13.0).all()
-
-    highlights_pos_list = [(x.cur_ra, x.cur_dec, CHART_MINOR_PLANET_PREFIX + str(x.id), x.designation, x.eval_mag) for x in minor_planets if minor_planets]
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(
-        None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list,
-        highlights_show_labels=True,
-    )
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
 @main_minor_planet.route('/minor-planets/chart/scene-v1', methods=['GET'])
 def minor_planets_chart_scene_v1():
     minor_planets = MinorPlanet.query.filter(MinorPlanet.eval_mag < 13.0).all()
@@ -500,24 +482,6 @@ def minor_planet_info(minor_planet_id):
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
                            trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
                            is_observed=is_observed)
-
-
-@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pos-img', methods=['GET'])
-def minor_planet_chart_pos_img(minor_planet_id):
-    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
-    if minor_planet is None:
-        abort(404)
-
-    minor_planet_ra = to_float(request.args.get('obj_ra'), None)
-    minor_planet_dec = to_float(request.args.get('obj_dec'), None)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
-
-    img_bytes, img_format = common_chart_pos_img(minor_planet_ra, minor_planet_dec, visible_objects=visible_objects, trajectory=trajectory)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart/scene-v1', methods=['GET'])

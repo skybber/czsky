@@ -1,5 +1,4 @@
 from datetime import datetime
-import base64
 
 from flask import (
     abort,
@@ -36,7 +35,6 @@ from app.commons.search_utils import ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
@@ -286,21 +284,6 @@ def user_object_list_chart(user_object_list_id):
                            user_object_list=user_object_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_user_object_list=is_mine_user_object_list,
                            back='user_object_list', back_id=user_object_list.id)
-
-
-@main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart-pos-img', methods=['GET'])
-def user_object_list_chart_pos_img(user_object_list_id):
-    user_object_list = UserObjectList.query.filter_by(id=user_object_list_id).first()
-    is_mine_user_object_list = _check_user_object_list(user_object_list, allow_public=True)
-
-    highlights_dso_list, highlights_pos_list = common_highlights_from_user_object_list(user_object_list)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_user_object_list.route('/user-object-list/<int:user_object_list_id>/chart/scene-v1', methods=['GET'])

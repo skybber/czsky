@@ -2,7 +2,6 @@ import os
 import csv
 from io import StringIO, BytesIO
 from datetime import datetime, timedelta
-import base64
 import pytz
 import codecs
 
@@ -62,8 +61,6 @@ from app.commons.search_utils import (
 )
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -767,23 +764,6 @@ def session_plan_chart(session_plan_id):
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_session_plan=is_mine_session_plan,
                            back='session_plan', back_id=session_plan.id,
                            )
-
-
-@main_sessionplan.route('/session-plan/<int:session_plan_id>/chart-pos-img', methods=['GET'])
-def session_plan_chart_pos_img(session_plan_id):
-    session_plan = SessionPlan.query.filter_by(id=session_plan_id).first()
-    _check_session_plan(session_plan, allow_public=True)
-
-    highlights_dso_list, highlights_pos_list = common_highlights_from_session_plan(session_plan)
-    observed_dso_ids = find_session_plan_observed(session_plan)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
-                                                 observed_dso_ids=observed_dso_ids)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_sessionplan.route('/session-plan/<int:session_plan_id>/chart/scene-v1', methods=['GET'])

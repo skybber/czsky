@@ -1,5 +1,4 @@
 from datetime import datetime
-import base64
 
 from flask import (
     abort,
@@ -18,7 +17,6 @@ from app.commons.dso_utils import CHART_STAR_PREFIX
 from app.commons.search_utils import process_session_search
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -121,22 +119,6 @@ def star_list_chart(star_list_id):
                                            back='star_list', back_id=star_list.id, embed='fc', allow_back='true')
     return render_template('main/catalogue/star_list_info.html', fchart_form=form, type='chart', star_list=star_list, star_list_descr=star_list_descr,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)
-
-
-@main_star_list.route('/star-list/<string:star_list_id>/chart-pos-img', methods=['GET'])
-def star_list_chart_pos_img(star_list_id):
-    star_list = _find_star_list(star_list_id)
-    if star_list is None:
-        abort(404)
-
-    star_list = StarList.query.filter_by(id=star_list.id).first()
-    highlights_pos_list = [(x.star.ra, x.star.dec, CHART_STAR_PREFIX + str(x.star.id), x.star.get_name()) for x in star_list.star_list_items if star_list]
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_star_list.route('/star-list/<string:star_list_id>/chart/scene-v1', methods=['GET'])

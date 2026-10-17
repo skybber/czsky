@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import base64
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -43,7 +42,6 @@ from .comet_forms import (
 from app.main.forms import ObservationLogForm
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
@@ -215,29 +213,6 @@ def _comet_visible_on_chart(comet, maglim):
     return (comet.cur_ra is not None and comet.cur_dec is not None
             and ((mag is not None and mag <= maglim)
                  or (mag is None and getattr(comet, 'is_manual', False))))
-
-
-@main_comet.route('/comets/chart-pos-img', methods=['GET'])
-def comets_chart_pos_img():
-    comets = _chart_comets_query().all()
-    _, _, i_, dso_maglim = get_fld_size_mags_from_request()
-    if dso_maglim < 16.0:
-        dso_maglim = 16.0
-    comets = [c for c in comets if _comet_visible_on_chart(c, dso_maglim)]
-    highlights_pos_list = [
-        (x.cur_ra, x.cur_dec, CHART_COMET_PREFIX + str(x.id), x.designation,
-         {'mag': _chart_comet_magnitude(x), 'tail_pa': x.cur_tail_pa})
-        for x in comets if comets
-    ]
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(
-        None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list,
-        highlights_style='comet', highlights_size=1.0,
-    )
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_comet.route('/comets/chart/scene-v1', methods=['GET'])
@@ -579,32 +554,6 @@ def comet_light_curve_img(comet_id):
 def _has_comet_magnitude_params(mpc_comet):
     g, k = mpc_comet['magnitude_g'], mpc_comet['magnitude_k']
     return g is not None and k is not None and np.isfinite(g) and np.isfinite(k)
-
-
-@main_comet.route('/comet/<string:comet_id>/chart-pos-img', methods=['GET'])
-def comet_chart_pos_img(comet_id):
-    comet = find_mpc_comet(comet_id)
-    if comet is None:
-        abort(404)
-
-    comet_ra = to_float(request.args.get('obj_ra'), None)
-    comet_dec = to_float(request.args.get('obj_dec'), None)
-
-    request_dt = request.args.get('dt', None)
-    if request_dt is not None:
-        try:
-            dt = datetime.fromisoformat(request_dt)
-            comet_ra, comet_dec = get_comet_radec(comet_id, dt)
-        except ValueError:
-            pass
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
-
-    img_bytes, img_format = common_chart_pos_img(comet_ra, comet_dec, visible_objects=visible_objects, trajectory=trajectory)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart/scene-v1', methods=['GET'])

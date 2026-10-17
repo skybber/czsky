@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timedelta
 import numpy as np
-import base64
 
 from flask import (
     abort,
@@ -41,8 +40,6 @@ from app.models import (
 
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -285,24 +282,6 @@ def supernova_chart(designation):
     return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed,)
-
-
-@main_supernova.route('/supernova/<string:designation>/chart-pos-img', methods=['GET'])
-def supernova_chart_pos_img(designation):
-    supernova = Supernova.query.filter_by(designation=designation).first()
-    if supernova is None:
-        abort(404)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-
-    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
-
-    img_bytes, img_format = common_chart_pos_img(supernova.ra, supernova.dec, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
-
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_supernova.route('/supernova/<string:designation>/chart/scene-v1', methods=['GET'])

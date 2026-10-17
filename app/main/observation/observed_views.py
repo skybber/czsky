@@ -2,12 +2,9 @@ import os
 import csv
 from datetime import datetime
 from io import StringIO, BytesIO
-import base64
 from typing import Optional
 
 from werkzeug.utils import secure_filename
-
-from sqlalchemy.orm import joinedload, load_only
 
 from flask import (
     abort,
@@ -32,11 +29,10 @@ from .observed_forms import (
     SearchObservedForm,
 )
 
-from app.models import ObservedList, ObservedListItem, DeepskyObject, DoubleStar, Comet, MinorPlanet
+from app.models import ObservedList, ObservedListItem, DeepskyObject
 from app.commons.search_utils import process_paginated_session_search, get_items_per_page, ITEMS_PER_PAGE
 from app.commons.pagination import Pagination, get_page_parameter, get_page_args
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
@@ -255,21 +251,6 @@ def observed_list_chart():
                            default_chart_iframe_url=default_chart_iframe_url,)
 
 
-@main_observed.route('/observed-list/chart-pos-img', methods=['GET'])
-@login_required
-def observed_list_chart_pos_img():
-    observed_list_items = _get_observed_list_items(current_user.id)
-    highlights_dso_list, highlights_pos_list = common_highlights_from_observed_list_items(observed_list_items)
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
-                                                 highlights_style='cross', highlights_size=0.75,
-                                                 dso_highlights_style='cross', dso_highlights_size=0.75)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
 def build_obs_highlight_cross(
         highlight_id: str,
         label: str,
@@ -371,26 +352,3 @@ def observed_list_chart_scene_v1():
         'id': str(observed_list.id),
     }
     return jsonify(scene)
-
-
-def _get_observed_list_items(user_id):
-    observed_list = ObservedList.query.options(load_only(ObservedList.id)).filter_by(user_id=user_id).first()
-    if observed_list:
-        ret = db.session.query(ObservedListItem).options(
-                load_only(ObservedListItem.id, ObservedListItem.observed_list_id, ObservedListItem.dso_id, ObservedListItem.double_star_id,
-                          ObservedListItem.comet_id, ObservedListItem.minor_planet_id),
-                joinedload(ObservedListItem.deepsky_object).load_only(DeepskyObject.id, DeepskyObject.name),
-                joinedload(ObservedListItem.double_star).load_only(
-                    DoubleStar.id, DoubleStar.ra_first, DoubleStar.dec_first, DoubleStar.common_cat_id, DoubleStar.wds_number
-                ),
-                joinedload(ObservedListItem.comet).load_only(
-                    Comet.id, Comet.designation, Comet.cur_ra, Comet.cur_dec, Comet.real_mag, Comet.cur_tail_pa
-                ),
-                joinedload(ObservedListItem.minor_planet).load_only(
-                    MinorPlanet.id, MinorPlanet.designation, MinorPlanet.cur_ra, MinorPlanet.cur_dec
-                ),
-                ) \
-                .filter(ObservedListItem.observed_list_id == observed_list.id) \
-                .all()
-        return ret
-    return []

@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-import base64
 from io import StringIO, BytesIO
 import codecs
 from werkzeug.utils import secure_filename
@@ -55,8 +54,6 @@ from app.commons.pagination import Pagination, get_page_parameter
 from app.commons.observation_target_utils import set_observation_targets
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
     common_chart_pdf_img,
@@ -539,21 +536,6 @@ def observing_session_chart(observing_session_id):
                            observing_session=observing_session, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_observing_session=is_mine_observing_session,
                            back='observation', back_id=observing_session.id)
-
-
-@main_observing_session.route('/observing-session/<int:observing_session_id>/chart-pos-img', methods=['GET'])
-def observing_session_chart_pos_img(observing_session_id):
-    observing_session = ObservingSession.query.filter_by(id=observing_session_id).first()
-    is_mine_observing_session = _check_observing_session(observing_session, allow_public=True)
-
-    highlights_dso_list, highlights_pos_list = common_highlights_from_observing_session(observing_session)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_observing_session.route('/observing-session/<int:observing_session_id>/chart/scene-v1', methods=['GET'])

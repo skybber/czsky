@@ -440,42 +440,6 @@ def common_chart_pos_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, 
     return img_bytes, out_img_format
 
 
-def common_chart_legend_img():
-    gui_fld_size, gui_fld_label, maglim, dso_maglim = get_fld_size_mags_from_request()
-
-    is_equatorial = request.args.get('ra') is not None
-    if is_equatorial:
-        phi = request.args.get('ra', type=float)
-        theta = request.args.get('dec', type=float)
-    else:
-        phi = request.args.get('az', type=float)
-        theta = request.args.get('alt', type=float)
-
-    if phi is None or theta is None:
-        abort(404)
-
-    width = request.args.get('width', type=int)
-    height = request.args.get('height', type=int)
-
-    if width is None or height is None:
-        abort(404)
-
-    if width > MAX_IMG_WIDTH:
-        width = MAX_IMG_WIDTH
-    if height > MAX_IMG_HEIGHT:
-        height = MAX_IMG_HEIGHT
-
-    flags = request.args.get('flags')
-
-    eyepiece_fov = to_float(request.args.get('epfov'), None)
-
-    img_bytes = BytesIO()
-    _create_chart_legend(img_bytes, is_equatorial, phi, theta, width, height, gui_fld_size, gui_fld_label, maglim, dso_maglim, eyepiece_fov,
-                         flags=flags, img_format='png')
-    img_bytes.seek(0)
-    return img_bytes
-
-
 def common_chart_pdf_img(obj_ra, obj_dec, dso_names=None, visible_objects=None, highlights_dso_list=None,
                          observed_dso_ids=None, trajectory=None, highlights_pos_list=None,
                          highlights_style='cross', highlights_size=0.75,
@@ -1297,53 +1261,6 @@ def _create_chart_pdf(pdf_fobj, visible_objects, obj_ra, obj_dec, is_equatorial,
                     visible_objects=visible_objects)
 
     print("PDF map created within : {} ms".format(str(time()-tm)), flush=True)
-
-
-def _create_chart_legend(png_fobj, is_equatorial, phi, theta, width, height, fld_size, fld_label, star_maglim, dso_maglim, eyepiece_fov, flags='', img_format='png'):
-    # tm = time()
-
-    flags = '' if flags is None else flags
-
-    used_catalogs = load_used_catalogs()
-
-    config = fchart3.EngineConfiguration()
-    _setup_skymap_graphics(config, fld_size, width, DEFAULT_SCREEN_FONT_SIZE)
-
-    config.widget_mode = fchart3.WidgetMode.WIDGET_ONLY
-    config.show_mag_scale_legend = True
-    config.show_numeric_map_scale_legend = True
-
-    config.show_field_border = False
-    config.show_equatorial_grid = False
-    config.show_horizontal_grid = False
-    config.show_picker = FlagValue.SHOW_PICKER.value in flags
-    config.picker_radius = PICKER_RADIUS
-
-    config.fov_telrad = FlagValue.FOV_TELRAD.value in flags
-
-    config.eyepiece_fov = eyepiece_fov
-    config.star_mag_shift = 1.0  # increase radius of star by 1 magnitude
-
-    config.show_flamsteed = (fld_size <= 20)
-    config.projection = fchart3.ProjectionType.STEREOGRAPHIC
-
-    if dso_maglim is None:
-        dso_maglim = -10
-
-    artist = fchart3.CairoDrawing(png_fobj, width if width else 220, height if height else 220, format=img_format, pixels=True if width else False)
-    engine = fchart3.SkymapEngine(artist, language=fchart3.LABELi18N, lm_stars=star_maglim, lm_deepsky=dso_maglim)
-    engine.set_configuration(config)
-
-    mirror_x = FlagValue.MIRROR_X.value in flags
-    mirror_y = FlagValue.MIRROR_Y.value in flags
-
-    engine.set_field(phi, theta, deg2rad(fld_size) / 2.0, fld_label, mirror_x, mirror_y)
-
-    engine.make_map(used_catalogs, transparent=True)
-
-    free_star_memory(1)
-
-    # app.logger.info("Map created within : %s ms", str(time()-tm))
 
 
 def _create_highlights(obj_ra, obj_dec, line_width, force_light_mode=False):

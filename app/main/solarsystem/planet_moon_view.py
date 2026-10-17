@@ -1,4 +1,3 @@
-import base64
 import math
 
 from datetime import date, datetime, timedelta
@@ -34,7 +33,6 @@ from app.models import (
 )
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -148,22 +146,6 @@ def planet_moon_info(planet_moon_name):
     return render_template('main/solarsystem/planet_moon_info.html', fchart_form=form, type='info',
                            planet_moon=planet_moon, plm_ra=plm_obj.ra, plm_dec=plm_obj.dec, chart_control=chart_control,
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
-
-
-@main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart-pos-img', methods=['GET'])
-def planet_moon_chart_pos_img(planet_moon_name):
-    planet_moon = PlanetMoon.get_by_name(planet_moon_name)
-    if planet_moon is None:
-        abort(404)
-
-    plm_ra = to_float(request.args.get('obj_ra'), None)
-    plm_dec = to_float(request.args.get('obj_dec'), None)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(plm_ra, plm_dec, visible_objects=visible_objects,)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_planet_moon.route('/planet-moon/<string:planet_moon_name>/chart/scene-v1', methods=['GET'])

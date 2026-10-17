@@ -1,4 +1,3 @@
-import base64
 import math
 from datetime import datetime
 
@@ -19,8 +18,6 @@ from .chart_forms import (
 )
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -114,25 +111,6 @@ def chart_night_info():
     if not (-90.0 <= latitude <= 90.0 and -180.0 <= longitude <= 360.0) or not 1900 <= night_start.year <= 2050:
         return jsonify({'status': 'error', 'message': 'Value out of range.'}), 400
     return jsonify(night_info(latitude, longitude, night_start))
-
-
-@main_chart.route('/chart/chart-pos-img', methods=['GET'])
-def chart_pos_img():
-    flags = request.args.get('json')
-
-    f_mark_ra, f_mark_dec = _mark_ra_dec_from_request()
-
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(f_mark_ra, f_mark_dec, visible_objects=visible_objects)
-
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
-@main_chart.route('/chart/chart-legend-img', methods=['GET'])
-def chart_legend_img():
-    img_bytes = common_chart_legend_img()
-    return send_file(img_bytes, mimetype='image/png')
 
 
 @main_chart.route('/chart/scene-v1', methods=['GET'])
@@ -240,17 +218,6 @@ def simbad_object_info():
                            constellation=constellation,
                            ra_str=ra_to_str(simbad_obj['ra']), dec_str=dec_to_str(simbad_obj['dec']),
                            embed=request.args.get('embed'))
-
-
-@main_chart.route('/chart/simbad/chart-pos-img', methods=['GET'])
-def simbad_object_chart_pos_img():
-    simbad_obj = _get_simbad_obj_or_404()
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(simbad_obj['ra'], simbad_obj['dec'], visible_objects=visible_objects)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_chart.route('/chart/simbad/scene-v1', methods=['GET'])

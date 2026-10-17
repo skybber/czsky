@@ -1,6 +1,5 @@
 from datetime import datetime
 import os
-import base64
 
 from io import BytesIO
 
@@ -22,7 +21,6 @@ from app import db, csrf
 
 from app.models import Star, UserStarDescription
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -302,21 +300,6 @@ def star_descr_chart(star_descr_id):
     return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
                            embed=embed, )
-
-
-@main_star.route('/star/<string:star_id>/chart-pos-img', methods=['GET'])
-def star_chart_pos_img(star_id):
-    star = Star.query.filter_by(id=star_id).first()
-    if star is None:
-        abort(404)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
-    img_bytes, img_format = common_chart_pos_img(star.ra, star.dec, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_star.route('/star/<int:star_id>/chart/scene-v1', methods=['GET'])

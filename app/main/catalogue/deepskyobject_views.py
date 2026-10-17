@@ -1,5 +1,4 @@
 import numpy as np
-import base64
 import urllib.parse
 
 from datetime import datetime
@@ -59,8 +58,6 @@ from app.main.forms import ObservationLogForm
 from app.main.chart.chart_forms import ChartForm
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -598,26 +595,6 @@ def deepskyobject_chart_scene_v1(dso_id):
         'dec': float(dso.dec),
     }
     return jsonify(scene)
-
-
-@main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pos-img', methods=['GET'])
-def deepskyobject_chart_pos_img(dso_id):
-    dso, orig_dso = _find_dso(dso_id)
-    if dso is None:
-        abort(404)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-
-    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
-    observed_dso_ids = create_observed_dso_ids_list()
-
-    img_bytes, img_format = common_chart_pos_img(dso.ra, dso.dec, dso_names=(dso.name,), visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
-                                                 observed_dso_ids=observed_dso_ids)
-
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_deepskyobject.route('/deepskyobject/<string:dso_id>/chart-pdf', methods=['GET', 'POST'])

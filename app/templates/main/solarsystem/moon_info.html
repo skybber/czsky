@@ -38,9 +38,6 @@
 
 {% macro moon_info() %}
     {{ fchart.fchart(url_for('main_planet.moon_info', back=back, back_id=back_id),
-                     url_for('main_planet.moon_chart_pos_img', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_flags),
-                     url_for('main_chart.chart_legend_img', flags=chart_control.legend_flags, epfov=chart_control.eyepiece_fov),
                      url_for('main_planet.moon_chart_pdf', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                               flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
                      None,

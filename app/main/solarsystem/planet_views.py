@@ -1,5 +1,4 @@
 import math
-import base64
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -38,8 +37,6 @@ from app.models import (
 )
 
 from app.commons.chart_generator import (
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -203,28 +200,6 @@ def moon_visibility():
     )
 
 
-@main_planet.route('/moon/chart-pos-img', methods=['GET'])
-def moon_chart_pos_img():
-    moon_ra = to_float(request.args.get('obj_ra'), None)
-    moon_dec = to_float(request.args.get('obj_dec'), None)
-
-    if moon_ra is None or moon_dec is None:
-        dt = _get_request_datetime_utc(request.args.get('dt'))
-        _, lat, lon = resolve_chart_city_lat_lon()
-        moon = _resolve_earth_moon(dt, lat, lon, 0.0)
-        if moon is None:
-            abort(404)
-        moon_ra = moon.ra
-        moon_dec = moon.dec
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-
-    img_bytes, img_format = common_chart_pos_img(moon_ra, moon_dec, visible_objects=visible_objects)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
-
-
 @main_planet.route('/moon/chart/scene-v1', methods=['GET'])
 def moon_chart_scene_v1():
     moon_ra = to_float(request.args.get('obj_ra'), None)
@@ -366,25 +341,6 @@ def planet_info(planet_iau_code):
     return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
-
-
-@main_planet.route('/planet/<string:planet_iau_code>/chart-pos-img', methods=['GET'])
-def planet_chart_pos_img(planet_iau_code):
-    planet = Planet.get_by_iau_code(planet_iau_code)
-    if planet is None:
-        abort(404)
-
-    planet_ra = to_float(request.args.get('obj_ra'), None)
-    planet_dec = to_float(request.args.get('obj_dec'), None)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
-
-    img_bytes, img_format = common_chart_pos_img(planet_ra, planet_dec, visible_objects=visible_objects,
-                                                 trajectory=trajectory)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_planet.route('/planet/<string:planet_iau_code>/chart/scene-v1', methods=['GET'])

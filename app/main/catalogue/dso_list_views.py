@@ -1,5 +1,4 @@
 import numpy as np
-import base64
 from functools import lru_cache
 
 from sqlalchemy import or_
@@ -39,7 +38,6 @@ from app.commons.highlights_list_utils import find_dso_list_observed
 from app.commons.search_utils import process_paginated_session_search, create_table_sort, get_order_by_field
 from app.commons.utils import get_lang_and_editor_user_from_request
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -217,22 +215,6 @@ def dso_list_chart(dso_list_id):
     return render_template('main/catalogue/dso_list_info.html', fchart_form=form, type='chart',
                            dso_list=dso_list, dso_list_descr=dso_list_descr, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, back='dso_list', back_id=dso_list.id,)
-
-
-@main_dso_list.route('/dso-list/<string:dso_list_id>/chart-pos-img', methods=['GET'])
-def dso_list_chart_pos_img(dso_list_id):
-    dso_list_dsos = _find_dso_list_dsos(dso_list_id)
-    if dso_list_dsos is None:
-        abort(404)
-
-    observed_dso_ids = find_dso_list_observed(dso_list_id)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=dso_list_dsos, observed_dso_ids=observed_dso_ids)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_dso_list.route('/dso-list/<string:dso_list_id>/chart/scene-v1', methods=['GET'])

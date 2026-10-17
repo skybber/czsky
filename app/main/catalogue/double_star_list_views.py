@@ -1,4 +1,3 @@
-import base64
 
 import numpy as np
 from sqlalchemy import or_
@@ -33,7 +32,6 @@ from app.models import (
 from app.commons.dso_utils import CHART_DOUBLE_STAR_PREFIX, normalize_double_star_name
 from app.commons.utils import get_lang_and_editor_user_from_request, get_lang_and_all_editor_users_from_request
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_prepare_chart_data,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
@@ -250,23 +248,6 @@ def double_star_list_chart(double_star_list_id):
     return render_template('main/catalogue/double_star_list_info.html', fchart_form=form, type='chart', double_star_list=double_star_list,
                            double_star_list_descr=double_star_list_descr, chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
                            back='dbl_star_list', back_id=double_star_list.id, )
-
-
-@main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart-pos-img', methods=['GET'])
-def double_star_list_chart_pos_img(double_star_list_id):
-    double_star_list = _find_double_star_list(double_star_list_id)
-    if double_star_list is None:
-        abort(404)
-
-    double_star_list = DoubleStarList.query.filter_by(id=double_star_list.id).first()
-    highlights_pos_list = [(x.double_star.ra_first, x.double_star.dec_first, CHART_DOUBLE_STAR_PREFIX + str(x.double_star.id),
-                            x.double_star.get_catalog_name()) for x in double_star_list.double_star_list_items if double_star_list]
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects, highlights_pos_list=highlights_pos_list)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_double_star_list.route('/double-star-list/<string:double_star_list_id>/chart/scene-v1', methods=['GET'])

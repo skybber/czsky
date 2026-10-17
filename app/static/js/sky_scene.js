@@ -5,7 +5,7 @@
 
     window.SkyScene = function (
         fchartDiv, fldSizeIndex, fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec, longitude, latitude,
-        useCurrentTime, dateTimeISO, theme, legendUrl, chartUrl, sceneUrl, searchUrl,
+        useCurrentTime, dateTimeISO, theme, sceneUrl, searchUrl,
         fullScreen, splitview, mirror_x, mirror_y, default_chart_iframe_url, embed, aladin, showAladin, projection,
         fullScreenWrapperId, magRangeValues, dsoMagRangeValues
     ) {
@@ -42,8 +42,6 @@
         this.sceneFrameTimeISO = null;
         this.theme = theme;
 
-        this.legendUrl = legendUrl;
-        this.chartUrl = chartUrl;
         this.sceneUrl = sceneUrl;
         this.searchUrl = searchUrl;
 
@@ -637,10 +635,6 @@
         return url;
     };
 
-    SkyScene.prototype.reloadLegendImage = function () {
-        // No-op in scene/data mode: legend widgets are rendered directly in sky_scene overlay.
-    };
-
     SkyScene.prototype._setUrlFlag = function (urlValue, flag, newValue) {
         const url = new URL(urlValue, window.location.origin);
         let flags = url.searchParams.get('flags') || '';
@@ -661,13 +655,10 @@
 
     SkyScene.prototype.setChartUrlFlag = function (flag, value) {
         const on = (typeof value === 'string') ? (value.toLowerCase() === 'true') : !!value;
-        this.chartUrl = this._setUrlFlag(this.chartUrl, flag, on);
         this.sceneUrl = this._setUrlFlag(this.sceneUrl, flag, on);
-        this.legendUrl = this._setUrlFlag(this.legendUrl, flag, on);
     };
 
-    SkyScene.prototype.setLegendUrlParam = function (key, value) {
-        this.legendUrl = U.addOrReplaceQueryParam(this.legendUrl, key, value);
+    SkyScene.prototype.setSceneUrlParam = function (key, value) {
         this.sceneUrl = U.addOrReplaceQueryParam(this.sceneUrl, key, value);
     };
 
@@ -736,7 +727,7 @@
         return 10.0;
     };
 
-    SkyScene.prototype.updateUrls = function (isEquatorial, legendUrl, chartUrl, sceneUrl) {
+    SkyScene.prototype.updateUrls = function (isEquatorial, sceneUrl) {
         const coordSwitched = this.isEquatorial !== isEquatorial;
         this.isEquatorial = isEquatorial;
 
@@ -774,8 +765,6 @@
             this.setCenterToHiddenInputs();
         }
 
-        this.legendUrl = legendUrl;
-        this.chartUrl = chartUrl;
         if (sceneUrl) {
             this.sceneUrl = sceneUrl;
         }

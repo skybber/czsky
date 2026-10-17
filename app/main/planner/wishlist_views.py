@@ -1,4 +1,3 @@
-import base64
 import csv
 import os
 from io import StringIO, BytesIO
@@ -37,8 +36,6 @@ from app.models import (
 from app.commons.search_utils import process_session_search
 from app.commons.chart_generator import (
     common_chart_pdf_img,
-    common_chart_pos_img,
-    common_chart_legend_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
 )
@@ -280,22 +277,6 @@ def wish_list_chart():
 
     return render_template('main/planner/wish_list.html', fchart_form=form, type='chart', wish_list=wish_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, )
-
-
-@main_wishlist.route('/wish-list/chart-pos-img', methods=['GET'])
-@login_required
-def wish_list_chart_pos_img():
-    wish_list = WishList.query.filter_by(user_id=current_user.id).first()
-    wish_list_items = _get_wish_list_items(wish_list)
-    highlights_dso_list, highlights_pos_list = common_highlights_from_wishlist_items(wish_list_items)
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-    observed_dso_ids = find_wish_list_observed(wish_list)
-    img_bytes, img_format = common_chart_pos_img(None, None, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list,
-                                                 observed_dso_ids=observed_dso_ids)
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_wishlist.route('/wish-list/chart/scene-v1', methods=['GET'])

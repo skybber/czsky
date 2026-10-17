@@ -1,6 +1,5 @@
 from datetime import datetime
 import numpy as np
-import base64
 
 from sqlalchemy import or_
 
@@ -37,7 +36,6 @@ from app.models import (
 
 from app.commons.pagination import Pagination
 from app.commons.chart_generator import (
-    common_chart_pos_img,
     common_chart_pdf_img,
     common_prepare_chart_data,
     common_ra_dec_dt_fsz_from_request,
@@ -466,24 +464,6 @@ def double_star_chart(double_star_id):
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed, user_descr=user_descr,
                            has_observations=has_observations, show_obs_log=show_obs_log,)
-
-
-@main_double_star.route('/double-star/<string:double_star_id>/chart-pos-img', methods=['GET'])
-def double_star_chart_pos_img(double_star_id):
-    double_star = DoubleStar.query.filter_by(id=double_star_id).first()
-    if double_star is None:
-        abort(404)
-
-    flags = request.args.get('json')
-    visible_objects = [] if flags else None
-
-    highlights_dso_list, highlights_pos_list = create_hightlights_lists()
-
-    img_bytes, img_format = common_chart_pos_img(double_star.ra_first, double_star.dec_first, visible_objects=visible_objects,
-                                                 highlights_dso_list=highlights_dso_list, highlights_pos_list=highlights_pos_list, )
-
-    img = base64.b64encode(img_bytes.read()).decode()
-    return jsonify(img=img, img_format=img_format, img_map=visible_objects)
 
 
 @main_double_star.route('/double-star/<int:double_star_id>/chart/scene-v1', methods=['GET'])

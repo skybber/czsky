@@ -1201,7 +1201,6 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
         },
         "selection_index": selection_index,
         "img_map": img_map,
-        "legend_url": request.url_root.rstrip("/") + request.path.replace("/scene-v1", "/chart-legend-img"),
     }
 
 
