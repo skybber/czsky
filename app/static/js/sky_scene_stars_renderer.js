@@ -90,10 +90,18 @@
         return isGreekToken(firstToken(text));
     }
 
+    const SUPERSCRIPT_DIGITS = '\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079';
+
+    // Render Bayer index digits as superscript, e.g. "α2" -> "α²".
+    function bayerSuperscript(text) {
+        return String(text || '').replace(/([α-ω])([0-9]+)/gi,
+            (m, letter, digits) => letter + digits.replace(/[0-9]/g, (d) => SUPERSCRIPT_DIGITS[d]));
+    }
+
     function displayLabelText(fullText) {
         const trimmed = String(fullText || '').trim();
         if (!trimmed) return '';
-        if (isBayerLabel(trimmed)) return firstToken(trimmed);
+        if (isBayerLabel(trimmed)) return bayerSuperscript(firstToken(trimmed));
         if (isFlamsteedLabel(trimmed)) return trimmed;
         return trimmed;
     }
@@ -654,7 +662,7 @@
         ctx.font = fontPx.toFixed(1) + 'px sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'alphabetic';
-        const fullText = pickStar.labelSuffix ? (text + '(' + pickStar.labelSuffix + ')') : text;
+        const fullText = pickStar.labelSuffix ? (text + '(' + bayerSuperscript(pickStar.labelSuffix) + ')') : text;
         ctx.fillText(fullText, pickStar.xPx + rPx + fontPx / 6.0, pickStar.yPx);
         ctx.restore();
     };
