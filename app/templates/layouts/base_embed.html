@@ -38,7 +38,7 @@
             // or load its chart page (topUrl) when the chart cannot do that.
             window.pinObjectInParent = function(topUrl) {
                 try {
-                    const chart = parent !== window ? parent.fchart : null;
+                    const chart = parent !== window ? parent.skyScene : null;
                     if (chart && typeof chart.centerOnPanelObject === 'function' && chart.centerOnPanelObject(topUrl)) {
                         return;
                     }

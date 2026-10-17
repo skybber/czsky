@@ -1254,8 +1254,8 @@
         const qs = params.toString();
         if (qs === before) return;
         history.replaceState(null, null, window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
-        if (typeof fchart !== 'undefined' && fchart && typeof fchart.propagateUrlToParent === 'function') {
-            fchart.propagateUrlToParent();
+        if (typeof skyScene !== 'undefined' && skyScene && typeof skyScene.propagateUrlToParent === 'function') {
+            skyScene.propagateUrlToParent();
         }
     }
 
@@ -1364,11 +1364,11 @@
     let pendingDrawingLookAt = null;
 
     function applyPendingDrawingLookAt() {
-        if (!pendingDrawingLookAt || typeof fchart === 'undefined' || !fchart
-                || typeof fchart.lookAtEquatorial !== 'function') return;
+        if (!pendingDrawingLookAt || typeof skyScene === 'undefined' || !skyScene
+                || typeof skyScene.lookAtEquatorial !== 'function') return;
         const target = pendingDrawingLookAt;
         pendingDrawingLookAt = null;
-        fchart.lookAtEquatorial(target[0], target[1], target[2]);
+        skyScene.lookAtEquatorial(target[0], target[1], target[2]);
     }
 
     function saveDrawingAs() {
@@ -1569,7 +1569,7 @@
         chartDrawingTool = chart.setDrawingStore(chartDrawingStore);
         chartDrawingTool.onStateChange(syncDrawingUi);
         $('#drawing_start').show();
-        // createSkyScene() assigns the global fchart after this returns.
+        // createSkyScene() assigns the global skyScene after this returns.
         setTimeout(applyPendingDrawingLookAt, 0);
         syncDrawingUi();
     }
@@ -1588,7 +1588,7 @@
         $('.aladin-logo-container').toggle(showAladin);
 
         var searchUrl = "{{ url_for('main.global_search') }}?q=__SEARCH__{{ (('&' + search_url_params) if search_url_params else '') |safe}}";
-        var fchart = new SkyScene(
+        var skyScene = new SkyScene(
             '#fchart-div',
             {{ chart_form.radius.data }},
             fieldSizes,
@@ -1618,13 +1618,13 @@
             dsoMagRangeValues
         );
 
-        fchart.onFieldChange(function(fldSizeIndex) {
+        skyScene.onFieldChange(function(fldSizeIndex) {
             submitDisabled = true;
             $('#radius').val(fldSizeIndex);
-            $('#maglim').val(fchart.magRangeValues[fldSizeIndex]);
-            $('#dso_maglim').val(fchart.dsoMagRangeValues[fldSizeIndex]);
-            $('#smaglim').text(fchart.magRangeValues[fldSizeIndex].toString());
-            $('#sdso_maglim').text(fchart.dsoMagRangeValues[fldSizeIndex].toString());
+            $('#maglim').val(skyScene.magRangeValues[fldSizeIndex]);
+            $('#dso_maglim').val(skyScene.dsoMagRangeValues[fldSizeIndex]);
+            $('#smaglim').text(skyScene.magRangeValues[fldSizeIndex].toString());
+            $('#sdso_maglim').text(skyScene.dsoMagRangeValues[fldSizeIndex].toString());
 
             $('#maglim_menu').empty();
             for (var i = magRanges[fldSizeIndex][0]; i <= magRanges[fldSizeIndex][1]; i++) {
@@ -1639,7 +1639,7 @@
             submitDisabled = false;
         });
 
-        fchart.onScreenModeChange(function(fullScreen, splitView, realFullScreen) {
+        skyScene.onScreenModeChange(function(fullScreen, splitView, realFullScreen) {
             $('#fullscreen').val(fullScreen);
             $('#splitview').val(splitView);
 
@@ -1684,13 +1684,13 @@
             updateDateTimeControls($('#cb_use_current_time').prop('checked'));
         });
 
-        fchart.onChartTimeChanged(function(chartTimeISO) {
+        skyScene.onChartTimeChanged(function(chartTimeISO) {
             $('#chart_date_time').val(chartTimeISO);
             syncDateTimeComponentsInputs(true);
             refreshNightInfo();
         });
 
-        fchart.onShortcutKey(function(key, event) {
+        skyScene.onShortcutKey(function(key, event) {
             const keyActionMap = {
                 e: 'toggle_egrid',
                 z: 'toggle_hgrid',
@@ -1749,10 +1749,10 @@
             return true;
         });
 
-        applyPerfMeterStateToChart(fchart);
+        applyPerfMeterStateToChart(skyScene);
 
-        setupChartDrawings(fchart);
-        return fchart;
+        setupChartDrawings(skyScene);
+        return skyScene;
     }
 
     function adjustAladinVisibility() {
@@ -1922,7 +1922,7 @@
 
     var projection = new Projection();
     var aladin = null;
-    var fchart;
+    var skyScene;
     var initialAladinLayer = '{{ chart_form.dss_layer.data }}';
     if (IS_NIGHT_THEME && initialAladinLayer !== '') {
         initialAladinLayer = 'blue';
@@ -1965,11 +1965,11 @@
                 let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
                 aladin.setImageSurvey(customSurvey);
             }
-            fchart = createSkyScene(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+            skyScene = createSkyScene(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
                                     longitude, latitude, useCurrentTime, chartDateTimeISO,
                                     theme, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues);
-            fchart.setUseCurrentTime({{ 'true' if chart_form.use_current_time.data=='true' else 'false' }});
-            fchart.onWindowLoad();
+            skyScene.setUseCurrentTime({{ 'true' if chart_form.use_current_time.data=='true' else 'false' }});
+            skyScene.onWindowLoad();
         });
     } else {
         showChartUnsupported();
@@ -1997,7 +1997,7 @@
         if (surveyCustomName in SURVEY_OPTIONS) {
             if (aladin != null) {
                 const surveyConfig = SURVEY_OPTIONS[surveyCustomName] || SURVEY_OPTIONS.colored;
-                const longRev = (fchart.isMirrorX() ^ fchart.isMirrorY()) != 0;
+                const longRev = (skyScene.isMirrorX() ^ skyScene.isMirrorY()) != 0;
                 let customSurvey = aladin.createImageSurvey(
                     surveyConfig.id,
                     surveyConfig.name,
@@ -2007,10 +2007,10 @@
                     { longitudeReversed: longRev }
                 );
                 aladin.setImageSurvey(customSurvey);
-                aladin.setViewCenter2NorthPoleAngle(fchart.isMirrorY() ? 180.0 : 0);
+                aladin.setViewCenter2NorthPoleAngle(skyScene.isMirrorY() ? 180.0 : 0);
             }
         }
-        fchart.setAladinLayer(surveyCustomName);
+        skyScene.setAladinLayer(surveyCustomName);
     }
 
     function clearAladinHipsCache() {
@@ -2037,7 +2037,7 @@
         } else {
             setAladinLayer($('#dss_layer').val());
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#btelrad').click(function(event){
@@ -2069,7 +2069,7 @@
         $('#show_constell_shapes').val(value);
         chart_param_ajax('chart_show_constell_shapes', value);
         setChartUrlFlag('C', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bconstellborders').click(function(event){
@@ -2079,7 +2079,7 @@
         $('#show_constell_borders').val(value);
         chart_param_ajax('chart_show_constell_borders', value);
         setChartUrlFlag('B', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#begrid').click(function(event){
@@ -2095,7 +2095,7 @@
             chart_param_ajax('chart_show_horizontal_grid', 'false');
             setChartUrlFlag('H', 'false');
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bhgrid').click(function(event){
@@ -2111,7 +2111,7 @@
             chart_param_ajax('chart_show_equatorial_grid', 'false');
             setChartUrlFlag('E', 'false');
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bperfmeter').click(function(event){
@@ -2119,7 +2119,7 @@
         const enabled = !isPerfMeterEnabled();
         persistPerfMeterEnabled(enabled);
         syncPerfMeterButton();
-        applyPerfMeterStateToChart(fchart);
+        applyPerfMeterStateToChart(skyScene);
     });
 
     $('#bdso').click(function(event){
@@ -2129,7 +2129,7 @@
         $('#show_dso').val(value);
         chart_param_ajax('chart_show_dso', value);
         setChartUrlFlag('D', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bmilkyway').click(function(event){
@@ -2139,7 +2139,7 @@
         $('#show_milky_way').val(value);
         chart_param_ajax('chart_show_milky_way', value);
         setChartUrlFlag('W', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bslsystem').click(function(event){
@@ -2149,7 +2149,7 @@
         $('#show_solar_system').val(value);
         chart_param_ajax('chart_show_solar_system', value);
         setChartUrlFlag('O', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bcomettail').click(function(event){
@@ -2159,7 +2159,7 @@
         $('#show_comet_tail').val(value);
         chart_param_ajax('chart_show_comet_tail', value);
         setChartUrlFlag('K', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bdsomag').click(function(event){
@@ -2169,7 +2169,7 @@
         $('#show_dso_mag').val(value);
         chart_param_ajax('chart_show_dso_mag', value);
         setChartUrlFlag('M', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bstarlbl').click(function(event){
@@ -2179,7 +2179,7 @@
         $('#show_star_lbl').val(value);
         chart_param_ajax('chart_show_star_lbl', value);
         setChartUrlFlag('N', value);
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#bdsscolored').click(function(event){
@@ -2240,14 +2240,14 @@
         $('#mirror_x').val(value);
         setChartUrlFlag('X', value);
         chart_param_ajax('chart_mirror_x', value);
-        fchart.setMirrorX(value);
+        skyScene.setMirrorX(value);
         if ($('#dss_layer').val() != '') {
             clearAladinHipsCache();
             setAladinLayer($('#dss_layer').val());
         } else {
             setAladinLayer('');
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#mirrory').click(function(event){
@@ -2257,14 +2257,14 @@
         $('#mirror_y').val(value);
         setChartUrlFlag('Y', value);
         chart_param_ajax('chart_mirror_y', value);
-        fchart.setMirrorY(value);
+        skyScene.setMirrorY(value);
         if ($('#dss_layer').val() != '') {
             clearAladinHipsCache();
             setAladinLayer($('#dss_layer').val());
         } else {
             setAladinLayer('');
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#boptitraffic').click(function(event){
@@ -2280,29 +2280,29 @@
         var value = $('#mobile_menu_bottom').val() == 'true' ? 'false' : 'true';
         applyMobileMenuBottom(value == 'true');
         chart_param_ajax('chart_mobile_menu_bottom', value);
-        if (fchart) {
-            fchart.reloadImage();
+        if (skyScene) {
+            skyScene.reloadImage();
         }
     });
 
     $('#bcenterobj').click(function(){
-        fchart.centerObjectInFov();
+        skyScene.centerObjectInFov();
     });
 
     $('#bfullscreen').click(function(){
-        fchart.toggleFullscreen();
+        skyScene.toggleFullscreen();
     });
 
     $('#bhideleftpanel').click(function(){
-        fchart.toggleSplitView();
+        skyScene.toggleSplitView();
     });
 
     $('#bshowleftpanel1').click(function(){
-        fchart.toggleSplitView();
+        skyScene.toggleSplitView();
     });
 
     $('#bshowleftpanel2').click(function(){
-        fchart.toggleSplitView();
+        skyScene.toggleSplitView();
     });
 
     $('#bhelp').click(function(){
@@ -2329,11 +2329,11 @@
         var maglimArr = extractMaglimArray(response);
         if (maglimArr.length == magRangeValues.length) {
             magRangeValues = maglimArr.slice();
-            if (fchart && typeof fchart.setMagRangeValues === 'function') {
-                fchart.setMagRangeValues(magRangeValues);
+            if (skyScene && typeof skyScene.setMagRangeValues === 'function') {
+                skyScene.setMagRangeValues(magRangeValues);
             }
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     $('#dso_maglim').change(function() {
@@ -2342,11 +2342,11 @@
         var dsoMaglimArr = extractMaglimArray(response);
         if (dsoMaglimArr.length == dsoMagRangeValues.length) {
             dsoMagRangeValues = dsoMaglimArr.slice();
-            if (fchart && typeof fchart.setDsoMagRangeValues === 'function') {
-                fchart.setDsoMagRangeValues(dsoMagRangeValues);
+            if (skyScene && typeof skyScene.setDsoMagRangeValues === 'function') {
+                skyScene.setDsoMagRangeValues(dsoMagRangeValues);
             }
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
     });
 
     {% if chart_pdf_url is not none %}
@@ -2361,12 +2361,12 @@
 
     $('#download_pdf_landscape').click(function(e){
         e.preventDefault();
-        submitChartPdf(fchart.formatUrl(getChartPdfUrl() + '&landscape=true'));
+        submitChartPdf(skyScene.formatUrl(getChartPdfUrl() + '&landscape=true'));
     });
 
     $('#download_pdf_portrait').click(function(e){
         e.preventDefault();
-        submitChartPdf(fchart.formatUrl(getChartPdfUrl() + '&landscape=false'));
+        submitChartPdf(skyScene.formatUrl(getChartPdfUrl() + '&landscape=false'));
     });
     {% endif %}
 
@@ -2467,10 +2467,10 @@
 
     {% if chart_items_url is not none %}
     $('#download_items_landscape').click(function(){
-        $('#download_items_landscape').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=true'));
+        $('#download_items_landscape').attr("href", skyScene.formatUrl(chartItemsUrl + '&landscape=true'));
     });
     $('#download_items_portrait').click(function(){
-        $('#download_items_portrait').attr("href", fchart.formatUrl(chartItemsUrl + '&landscape=false'));
+        $('#download_items_portrait').attr("href", skyScene.formatUrl(chartItemsUrl + '&landscape=false'));
     });
     {% endif %}
 
@@ -2566,9 +2566,9 @@
             if (date) {
                 $('#chart_date_time').val(date.toISOString());
                 syncDateTimeComponentsInputs(false);
-                if (fchart) {
-                    fchart.setDateTimeISO(date.toISOString());
-                    fchart.reloadImage();
+                if (skyScene) {
+                    skyScene.setDateTimeISO(date.toISOString());
+                    skyScene.reloadImage();
                 }
                 refreshNightInfo();
             }
@@ -2597,7 +2597,7 @@
     }
 
     function setChartUrlFlag(flag, value) {
-        fchart.setChartUrlFlag(flag, value);
+        skyScene.setChartUrlFlag(flag, value);
         if (value == 'true') {
             chartPdfUrl = addFlag(chartPdfUrl, flag);
             sceneUrlEq = addFlag(sceneUrlEq, flag);
@@ -2625,7 +2625,7 @@
 
     function updateChartUrls() {
         sceneUrl = isEquatorial ? sceneUrlEq : sceneUrlHoriz;
-        fchart.updateUrls(isEquatorial, sceneUrl);
+        skyScene.updateUrls(isEquatorial, sceneUrl);
     }
 
     function applyMobileMenuBottom(enabled) {
@@ -2645,7 +2645,7 @@
     }
 
     function reloadLegendOrSceneWidgets() {
-        fchart.reloadImage();
+        skyScene.reloadImage();
     }
 
     // eyepieces are mutually exclusive (one FOV), show the selected one as a checked radio
@@ -2674,7 +2674,7 @@
         }
         $('#eyepiece_fov').val(eyepieceFov);
         syncEyepieceSelection(selectedItem);
-        fchart.setSceneUrlParam('epfov', eyepieceFov);
+        skyScene.setSceneUrlParam('epfov', eyepieceFov);
         {% if chart_pdf_url is not none %}
         chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', eyepieceFov);
         {% endif %}
@@ -2688,7 +2688,7 @@
         $('#btelrad').removeClass('active');
         chart_param_ajax('chart_eyepiece_fov', '', 'chart_show_telrad', 'false');
         setChartUrlFlag('T', 'false');
-        fchart.setSceneUrlParam('epfov', '');
+        skyScene.setSceneUrlParam('epfov', '');
         {% if chart_pdf_url is not none %}
         chartPdfUrl = addOrReplaceQueryParamLocal(chartPdfUrl, 'epfov', '');
         {% endif %}
@@ -2713,9 +2713,9 @@
         const d = new Date(year, month - 1, day, hour, minute, second);
         const dateISO = d.toISOString();
         $('#chart_date_time').val(dateISO);
-        if (fchart) {
-            fchart.setDateTimeISO(dateISO);
-            fchart.reloadImage();
+        if (skyScene) {
+            skyScene.setDateTimeISO(dateISO);
+            skyScene.reloadImage();
         }
         refreshNightInfo();
     }
@@ -2762,9 +2762,9 @@
 
         $('#cal_chart_date_time').toggleClass("disabled", useCurrentTime);
 
-        if (fchart) {
-            fchart.setUseCurrentTime(useCurrentTime);
-            fchart.reloadImage();
+        if (skyScene) {
+            skyScene.setUseCurrentTime(useCurrentTime);
+            skyScene.reloadImage();
         }
     }
 
@@ -2939,9 +2939,9 @@
         $('#chart_date_time').val(date.toISOString());
         syncDateTimeComponentsInputs(false);
         $('#cal_chart_date_time').calendar('set date', date, true, false);
-        if (fchart) {
-            fchart.setDateTimeISO(date.toISOString());
-            fchart.reloadImage();
+        if (skyScene) {
+            skyScene.setDateTimeISO(date.toISOString());
+            skyScene.reloadImage();
         }
     });
 
@@ -2962,10 +2962,10 @@
             $('#location_city_name').text(response.data.location_city_name);
             $('#longitude').val(response.data.longitude);
             $('#latitude').val(response.data.latitude);
-            fchart.setLongitude(response.data.longitude);
-            fchart.setLatitude(response.data.latitude);
+            skyScene.setLongitude(response.data.longitude);
+            skyScene.setLatitude(response.data.latitude);
         }
-        fchart.reloadImage();
+        skyScene.reloadImage();
         refreshNightInfo();
     });
 
@@ -3061,7 +3061,7 @@
     }
 
     function openFchartHelpModal() {
-        const modalContext = (fchart && fchart.isInRealFullScreen && fchart.isInRealFullScreen())
+        const modalContext = (skyScene && skyScene.isInRealFullScreen && skyScene.isInRealFullScreen())
             ? '#' + fullScreenWrapperId
             : 'body';
         $('.ui.modal.fchartHelpModal')
@@ -3079,8 +3079,8 @@
     }
 
     window.onload = function() {
-        if (fchart) {
-            fchart.onWindowLoad();
+        if (skyScene) {
+            skyScene.onWindowLoad();
         }
         {% if chart_control.show_not_found %}
         $('.ui.modal.notFoundModal').modal('show');
@@ -3103,7 +3103,7 @@
         });
         persistPerfMeterEnabled(false);
         syncPerfMeterButton();
-        applyPerfMeterStateToChart(fchart);
+        applyPerfMeterStateToChart(skyScene);
 
         updateDateTimeControls({{ 'true' if chart_form.use_current_time.data=='true' else 'false' }});
         syncDateTimeComponentsInputs(true);
@@ -3131,9 +3131,9 @@
                     const latitudeRad = parseFloat(latitude) * Math.PI / 180;
                     $('#longitude').val(longitudeRad);
                     $('#latitude').val(latitudeRad);
-                    fchart.setLongitude(longitudeRad);
-                    fchart.setLatitude(latitudeRad);
-                    fchart.reloadImage();
+                    skyScene.setLongitude(longitudeRad);
+                    skyScene.setLatitude(latitudeRad);
+                    skyScene.reloadImage();
                     refreshNightInfo();
                 }
             }
