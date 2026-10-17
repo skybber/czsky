@@ -1569,7 +1569,7 @@
         chartDrawingTool = chart.setDrawingStore(chartDrawingStore);
         chartDrawingTool.onStateChange(syncDrawingUi);
         $('#drawing_start').show();
-        // createFChart() assigns the global fchart after this returns.
+        // createSkyScene() assigns the global fchart after this returns.
         setTimeout(applyPendingDrawingLookAt, 0);
         syncDrawingUi();
     }
@@ -1581,9 +1581,9 @@
     importDrawingsFromUrl();
     syncDrawingsToUrl();
 
-    function createFChart(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
-                          longitude, latitude, useCurrentTime, chartDateTimeISO,
-                          theme, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues) {
+    function createSkyScene(fieldSizes, initialIsEquatorial, phi, theta, obj_ra, obj_dec,
+                            longitude, latitude, useCurrentTime, chartDateTimeISO,
+                            theme, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues) {
         var showAladin = (aladin != null) && {{ 'true' if fchart_form.dss_layer.data in ['colored', 'blue', 'fram'] else 'false' }};
         $('.aladin-logo-container').toggle(showAladin);
 
@@ -1965,9 +1965,9 @@
                 let customSurvey = aladin.createImageSurvey(surveyConfig.id, surveyConfig.name, surveyConfig.url, 'equatorial', 9, surveyOptions);
                 aladin.setImageSurvey(customSurvey);
             }
-            fchart = createFChart(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
-                                  longitude, latitude, useCurrentTime, chartDateTimeISO,
-                                  theme, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues);
+            fchart = createSkyScene(fieldSizes, isEquatorial, phi, theta, obj_ra, obj_dec,
+                                    longitude, latitude, useCurrentTime, chartDateTimeISO,
+                                    theme, sceneUrl, aladin, projection, fullScreenWrapperId, magRangeValues, dsoMagRangeValues);
             fchart.setUseCurrentTime({{ 'true' if fchart_form.use_current_time.data=='true' else 'false' }});
             fchart.onWindowLoad();
         });
