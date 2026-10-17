@@ -42,6 +42,12 @@ def _get_user_chart_theme_or_404(chart_theme_id):
     return chart_theme
 
 
+def _refresh_selected_chart_theme(chart_theme):
+    if str(session.get('cur_custom_theme_id')) == str(chart_theme.id):
+        session['cur_custom_theme_name'] = chart_theme.name
+        session['theme'] = chart_theme.default_type.value.lower()
+
+
 def _reset_selected_chart_theme(chart_theme):
     if str(session.get('cur_custom_theme_id')) == str(chart_theme.id):
         session.pop('cur_custom_theme_name', None)
@@ -79,9 +85,12 @@ def chart_theme_edit(chart_theme_id):
         chart_theme.update_date = datetime.now()
         db.session.add(chart_theme)
         db.session.commit()
-        flash(gettext('Constellation successfully updated'), 'form-success')
-
-        _reset_selected_chart_theme(chart_theme)
+        if chart_theme.is_active:
+            _refresh_selected_chart_theme(chart_theme)
+        else:
+            _reset_selected_chart_theme(chart_theme)
+        flash(gettext('Chart theme successfully updated'), 'form-success')
+        return redirect(url_for('main_chart_theme.chart_theme_edit', chart_theme_id=chart_theme.id))
 
     return render_template('main/chart/chart_theme_edit.html', form=form, chart_theme=chart_theme)
 
@@ -116,7 +125,12 @@ def new_chart_theme():
         return redirect(url_for('main_chart_theme.chart_themes'))
 
     form = ChartThemeNewForm()
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'GET':
+        form.definition.data = MERGED_DARK_THEME_TEMPL
+        form.dark_definition.data = MERGED_DARK_THEME_TEMPL
+        form.light_definition.data = MERGED_LIGHT_THEME_TEMPL
+        form.night_definition.data = MERGED_NIGHT_THEME_TEMPL
+    elif form.validate_on_submit():
         chart_theme = ChartTheme(
             name=form.name.data,
             default_type=form.default_type.data,
@@ -130,11 +144,6 @@ def new_chart_theme():
         )
         db.session.add(chart_theme)
         db.session.commit()
-        flash('Chart theme successfully created', 'form-success')
+        flash(gettext('Chart theme successfully created'), 'form-success')
         return redirect(url_for('main_chart_theme.chart_theme_edit', chart_theme_id=chart_theme.id))
-    else:
-        form.definition.data = MERGED_DARK_THEME_TEMPL
-        form.dark_definition.data = MERGED_DARK_THEME_TEMPL
-        form.light_definition.data = MERGED_LIGHT_THEME_TEMPL
-        form.night_definition.data = MERGED_NIGHT_THEME_TEMPL
     return render_template('main/chart/chart_theme_edit.html', form=form, is_new=True)

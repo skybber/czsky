@@ -667,6 +667,10 @@ def _get_lst_lat_lot():
 
 
 def common_prepare_chart_data(form, cancel_selection_url=None):
+    # radius is an index into FIELD_SIZES and may come from the submitted form
+    if not form.radius.validate(form):
+        form.radius.errors = []
+        form.radius.data = len(FIELD_SIZES) - 1
     fld_size = FIELD_SIZES[form.radius.data]
 
     cur_mag_scale = MAG_SCALES[form.radius.data]

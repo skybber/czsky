@@ -8,13 +8,16 @@ from wtforms.fields import (
 from wtforms.validators import (
     InputRequired,
     Length,
+    NumberRange,
 )
 
+from app.commons.chart_generator import FIELD_SIZES
 from app.main.utils.validators import location_lonlat_check
 
 
 class ChartForm(FlaskForm):
-    radius = IntegerField(lazy_gettext('Field radius'), default=22, validators=[Length(min=1, max=23)])
+    radius = IntegerField(lazy_gettext('Field radius'), default=len(FIELD_SIZES) - 1,
+                          validators=[NumberRange(min=0, max=len(FIELD_SIZES) - 1)])
     maglim = IntegerField(lazy_gettext('Limit mag'), default=7)
     dso_maglim = IntegerField(lazy_gettext('DSO limit mag'), default=8)
     mirror_x = HiddenField('mirror_x', default='false')

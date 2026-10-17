@@ -2606,6 +2606,14 @@ msgstr "Opravdu chcete toto mapové téma smazat?"
 msgid "Chart theme was deleted"
 msgstr "Mapové téma bylo smazáno"
 
+#: app/main/chart/chart_theme_views.py
+msgid "Chart theme successfully updated"
+msgstr "Mapové téma bylo úspěšně upraveno"
+
+#: app/main/chart/chart_theme_views.py
+msgid "Chart theme successfully created"
+msgstr "Mapové téma bylo úspěšně vytvořeno"
+
 #: app/templates/main/chart/chart_theme_edit.html:76
 msgid "Load Theme"
 msgstr "Nahrát téma"

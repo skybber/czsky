@@ -1,4 +1,5 @@
 import base64
+import math
 from datetime import datetime
 
 from flask import (
@@ -47,6 +48,14 @@ from ... import csrf
 main_chart = Blueprint('main_chart', __name__)
 
 
+def _mark_ra_dec_from_request():
+    ra = request.args.get('mra', type=float)
+    dec = request.args.get('mdec', type=float)
+    if ra is None or dec is None or not (math.isfinite(ra) and math.isfinite(dec)):
+        return None, None
+    return ra, dec
+
+
 @main_chart.route('/chart-fullscreen', methods=['GET'])
 @csrf.exempt
 def chart_fullscreen():
@@ -80,11 +89,10 @@ def chart():
     """View a chart."""
     form = ChartForm()
 
-    ra = request.args.get('mra', None)
-    dec = request.args.get('mdec', None)
-    if ra is not None and dec is not None:
-        form.ra.data = float(ra)
-        form.dec.data = float(dec)
+    ra, dec = _mark_ra_dec_from_request()
+    if ra is not None:
+        form.ra.data = ra
+        form.dec.data = dec
     if not common_ra_dec_dt_fsz_from_request(form):
         common_set_initial_celestial_position(form)
         set_horiz_from_equatorial(form)
@@ -112,13 +120,7 @@ def chart_night_info():
 def chart_pos_img():
     flags = request.args.get('json')
 
-    mark_ra = request.args.get('mra', None)
-    mark_dec = request.args.get('mdec', None)
-    if mark_ra is not None and mark_dec is not None:
-        f_mark_ra = float(mark_ra)
-        f_mark_dec = float(mark_dec)
-    else:
-        f_mark_ra, f_mark_dec = None, None
+    f_mark_ra, f_mark_dec = _mark_ra_dec_from_request()
 
     visible_objects = [] if flags else None
     img_bytes, img_format = common_chart_pos_img(f_mark_ra, f_mark_dec, visible_objects=visible_objects)
@@ -135,7 +137,20 @@ def chart_legend_img():
 
 @main_chart.route('/chart/scene-v1', methods=['GET'])
 def chart_scene_v1():
-    return jsonify(build_scene_v1())
+    scene = build_scene_v1()
+    mark_ra, mark_dec = _mark_ra_dec_from_request()
+    if mark_ra is not None:
+        highlights = scene.setdefault('objects', {}).setdefault('highlights', [])
+        highlights.append(
+            build_cross_highlight(
+                highlight_id='mark',
+                label='',
+                ra=mark_ra,
+                dec=mark_dec,
+                theme_name=session.get('theme'),
+            )
+        )
+    return jsonify(scene)
 
 
 @main_chart.route('/chart/stars-v1/zones', methods=['GET'])
