@@ -75,6 +75,7 @@ class ChartThemeDefinition:
         self.sun_color = None
         self.telrad_color = None
         self.telrad_linewidth = None
+        self.trajectory_linewidth = None
         self.uranus_color = None
         self.venus_color = None
 
@@ -140,6 +141,7 @@ class ChartThemeDefinition:
         self.sun_color = self._parse_color(defs, 'sun_color', self.sun_color, errors)
         self.telrad_color = self._parse_color(defs, 'telrad_color', self.telrad_color, errors)
         self.telrad_linewidth = self._parse_linewidth(defs, 'telrad_linewidth', self.telrad_linewidth, errors)
+        self.trajectory_linewidth = self._parse_linewidth(defs, 'trajectory_linewidth', self.trajectory_linewidth, errors)
         self.uranus_color = self._parse_color(defs, 'uranus_color', self.uranus_color, errors)
         self.venus_color = self._parse_color(defs, 'venus_color', self.venus_color, errors)
 
@@ -211,6 +213,8 @@ class ChartThemeDefinition:
         config.sun_color = self.sun_color
         config.telrad_color = self.telrad_color
         config.telrad_linewidth = self.telrad_linewidth
+        if self.trajectory_linewidth is not None and hasattr(config, 'trajectory_linewidth'):
+            config.trajectory_linewidth = self.trajectory_linewidth
         config.uranus_color = self.uranus_color
         config.venus_color = self.venus_color
 
@@ -334,6 +338,7 @@ class ChartThemeDefinition:
                 'open_cluster': self.open_cluster_linewidth,
                 'galaxy_cluster': self.galaxy_cluster_linewidth,
                 'milky_way': self.milky_way_linewidth,
+                'trajectory': self.trajectory_linewidth,
             },
             'font_scales': {
                 'font_size': self.font_size,
@@ -494,6 +499,7 @@ star_colors=True
 star_mag_shift=0.0
 sun_color=(1.0, 1.0, 0.0)
 telrad_linewidth=0.3
+trajectory_linewidth=0.2
 uranus_color=(0.6, 0.8, 1.0)
 venus_color=(0.9, 0.8, 0.6)
 '''

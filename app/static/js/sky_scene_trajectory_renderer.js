@@ -8,10 +8,13 @@
         const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
             ? sceneCtx.themeConfig.line_widths : null;
         const lwMm = lws && Number.isFinite(lws.constellation) ? lws.constellation : 0.3;
+        const trajLwMm = lws && Number.isFinite(lws.trajectory) ? lws.trajectory : lwMm;
         const color = sceneCtx.getThemeColor('dso', [0.6, 0.6, 0.6]);
         return {
             color: U.finiteColor(color) ? color : [0.6, 0.6, 0.6],
-            lineWidthPx: Math.max(0.75, U.mmToPx(lwMm)),
+            // Ticks keep the constellation line width so they stay visible on a thin trajectory.
+            lineWidthPx: Math.max(0.75, U.mmToPx(trajLwMm)),
+            tickWidthPx: Math.max(0.75, U.mmToPx(lwMm)),
         };
     };
 
@@ -29,12 +32,13 @@
         const ddy = dy / d;
         const px = -ddy;
         const py = ddx;
+        const prevLw = ctx.lineWidth;
         ctx.lineWidth = Math.max(1.0, 1.5 * lw);
         ctx.beginPath();
         ctx.moveTo(x2 - px * tlen, y2 - py * tlen);
         ctx.lineTo(x2 + px * tlen, y2 + py * tlen);
         ctx.stroke();
-        ctx.lineWidth = lw;
+        ctx.lineWidth = prevLw;
     };
 
     window.SkySceneTrajectoryRenderer.prototype._drawTailFan = function (sceneCtx, ptPx, sunPx, style) {
@@ -177,10 +181,10 @@
             const curPt = points[i];
             if (i === 1) {
                 // Keep parity with fchart3: first trajectory mark is drawn on the first segment start.
-                this._drawTick(ctx, p2.x, p2.y, p1.x, p1.y, style.lineWidthPx);
+                this._drawTick(ctx, p2.x, p2.y, p1.x, p1.y, style.tickWidthPx);
             }
             if (curPt && curPt.label) {
-                this._drawTick(ctx, p1.x, p1.y, p2.x, p2.y, style.lineWidthPx);
+                this._drawTick(ctx, p1.x, p1.y, p2.x, p2.y, style.tickWidthPx);
                 labels.push({ x: p2.x, y: p2.y, tx: tx, ty: ty, text: String(curPt.label) });
             }
 
