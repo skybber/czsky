@@ -67,6 +67,8 @@ from app.commons.chart_generator import (
     common_ra_dec_dt_fsz_from_request,
     get_trajectory_b64,
     decode_trajectory_b64,
+    build_refinable_trajectory,
+    get_trajectory_dates_from_request,
 )
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
@@ -441,6 +443,7 @@ def minor_planet_info(minor_planet_id):
     chart_dt = get_chart_datetime()
     t = ts.from_datetime(chart_dt)
     trajectory_b64 = None
+    traj_from, traj_to = None, None
     if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
@@ -450,6 +453,7 @@ def minor_planet_info(minor_planet_id):
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
         trajectory_b64 = get_trajectory_b64(d1, d2, ts, observer, body, is_comet=False)
+        traj_from, traj_to = d1.date().isoformat(), d2.date().isoformat()
 
     minor_planet_ra_ang, minor_planet_dec_ang, distance = observer.at(t).observe(body).radec()
     minor_planet_ra = minor_planet_ra_ang.radians
@@ -480,7 +484,8 @@ def minor_planet_info(minor_planet_id):
 
     return render_template('main/solarsystem/minor_planet_info.html', chart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
-                           trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
+                           trajectory=trajectory_b64, traj_from=traj_from, traj_to=traj_to,
+                           embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
                            is_observed=is_observed)
 
 
@@ -546,7 +551,17 @@ def minor_planet_chart_pdf(minor_planet_id):
     # minor_planet_ra = to_float(request.args.get('obj_ra'), None)
     # minor_planet_dec = to_float(request.args.get('obj_dec'), None)
 
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+    trajectory = None
+    d1, d2 = get_trajectory_dates_from_request()
+    if d1 is not None:
+        # Compute the trajectory here, so fchart3 can smooth it for the PDF projection.
+        ts = load.timescale(builtin=True)
+        eph = load('de421.bsp')
+        sun, earth = eph['sun'], eph['earth']
+        _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
+        observer = earth + wgs84.latlon(latitude_degrees=observer_lat, longitude_degrees=observer_lon)
+        body = sun + mpc.mpcorb_orbit(find_mpc_minor_planet(minor_planet), ts, GM_SUN)
+        trajectory = build_refinable_trajectory(d1, d2, ts, observer, body, is_comet=False)
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 

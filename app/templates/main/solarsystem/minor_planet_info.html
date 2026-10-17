@@ -50,7 +50,7 @@
 {% macro minor_planet_info() %}
     {{ sky_chart.interactive_chart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id),
                                    url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.url_id(), obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                                            flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
+                                            flags=chart_control.chart_pdf_flags, traj_from=traj_from, traj_to=traj_to, epfov=chart_control.eyepiece_fov, ),
                                    None,
                                    chart_form,
                                    default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,

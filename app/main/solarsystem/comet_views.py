@@ -47,6 +47,8 @@ from app.commons.chart_generator import (
     common_chart_pdf_img,
     get_trajectory_b64,
     decode_trajectory_b64,
+    build_refinable_trajectory,
+    get_trajectory_dates_from_request,
     common_ra_dec_dt_fsz_from_request,
     get_fld_size_mags_from_request,
 )
@@ -334,6 +336,7 @@ def comet_info(comet_id):
 
     t = ts.now()
     trajectory_b64 = None
+    traj_from, traj_to = None, None
     if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
         d2 = datetime(form.date_to.data.year, form.date_to.data.month, form.date_to.data.day)
@@ -344,6 +347,7 @@ def comet_info(comet_id):
             t = ts.from_datetime(d2.replace(tzinfo=utc))
 
         trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body, is_comet=True, sun=sun)
+        traj_from, traj_to = d1.date().isoformat(), d2.date().isoformat()
 
     comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(body).radec()
     comet_ra = comet_ra_ang.radians
@@ -366,7 +370,7 @@ def comet_info(comet_id):
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet_db) if comet_db else (None, None, None)
 
     return render_template('main/solarsystem/comet_info.html', chart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
+                           chart_control=chart_control, trajectory=trajectory_b64, traj_from=traj_from, traj_to=traj_to, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
                            show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
@@ -615,7 +619,15 @@ def comet_chart_pdf(comet_id):
     # comet_ra = to_float(request.args.get('obj_ra'), None)
     # comet_dec = to_float(request.args.get('obj_dec'), None)
 
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
+    trajectory = None
+    d1, d2 = get_trajectory_dates_from_request()
+    if d1 is not None:
+        # Compute the trajectory here, so fchart3 can smooth it for the PDF projection.
+        ts = load.timescale(builtin=True)
+        eph = load('de421.bsp')
+        sun, earth = eph['sun'], eph['earth']
+        body = sun + mpc.comet_orbit(comet, ts, GM_SUN)
+        trajectory = build_refinable_trajectory(d1, d2, ts, earth, body, is_comet=True, sun=sun)
 
     img_bytes = common_chart_pdf_img(None, None, trajectory=trajectory)
 

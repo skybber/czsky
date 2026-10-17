@@ -6,7 +6,7 @@ import ipaddress
 
 import geoip2.database
 from datetime import timedelta
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from io import BytesIO
 from math import pi, sqrt, sin, cos, acos
 from time import time
@@ -861,15 +861,15 @@ def decode_trajectory_b64(trajectory_b64):
     return [_trajectory_point_from_dict(item) for item in data]
 
 
-def get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False, sun=None):
-    if d1 >= d2:
+def _build_trajectory_utc(d1, d2, ts, earth, body, is_comet, sun, refinable):
+    if d1 is None or d2 is None or d1 >= d2:
         return None
     if d1.tzinfo is None:
         d1 = d1.replace(tzinfo=timezone.utc)
     if d2.tzinfo is None:
         d2 = d2.replace(tzinfo=timezone.utc)
 
-    trajectory = build_trajectory(
+    return build_trajectory(
         dt_from=d1,
         dt_to=d2,
         ts=ts,
@@ -877,7 +877,29 @@ def get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False, sun=None):
         body=body,
         is_comet=is_comet,
         sun=sun,
+        refinable=refinable,
     )
+
+
+def build_refinable_trajectory(d1, d2, ts, earth, body, is_comet=False, sun=None):
+    """Trajectory that fchart3 densifies (smooths) once the chart projection is known."""
+    return _build_trajectory_utc(d1, d2, ts, earth, body, is_comet, sun, refinable=True)
+
+
+def get_trajectory_dates_from_request():
+    """Return (d1, d2) from the 'traj_from'/'traj_to' request args (ISO dates), or (None, None)."""
+    try:
+        d1 = date.fromisoformat(request.args.get('traj_from', ''))
+        d2 = date.fromisoformat(request.args.get('traj_to', ''))
+    except ValueError:
+        return None, None
+    if d1 >= d2:
+        return None, None
+    return datetime(d1.year, d1.month, d1.day), datetime(d2.year, d2.month, d2.day)
+
+
+def get_trajectory_b64(d1, d2, ts, earth, body, is_comet=False, sun=None):
+    trajectory = _build_trajectory_utc(d1, d2, ts, earth, body, is_comet, sun, refinable=False)
     if not trajectory:
         return None
 
