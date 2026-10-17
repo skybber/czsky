@@ -6,7 +6,7 @@
 
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
@@ -206,15 +206,15 @@
 
 {# ---  Chart --- #}
 {% macro deepskyobject_chart() %}
-    {{ fchart.fchart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
-                     url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''),
-                     search_url_params=search_url_params,
-                     obj_ra=dso.ra, obj_dec=dso.dec,
-                     back=back, back_id=back_id, default_back='deepskyobjects', back_anchor='#dso{}'.format(dso.id),
-                     fchart_scene_url=url_for('main_deepskyobject.deepskyobject_chart_scene_v1', dso_id=dso.name, flags=chart_control.chart_flags, back=back, back_id=back_id))
+    {{ sky_chart.interactive_chart(url_for('main_deepskyobject.deepskyobject_chart', dso_id=dso.name, back=back, back_id=back_id),
+                                   url_for('main_deepskyobject.chart_pdf', dso_id=dso.id, flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url,embed=(embed if embed else ''),
+                                   search_url_params=search_url_params,
+                                   obj_ra=dso.ra, obj_dec=dso.dec,
+                                   back=back, back_id=back_id, default_back='deepskyobjects', back_anchor='#dso{}'.format(dso.id),
+                                   chart_scene_url=url_for('main_deepskyobject.deepskyobject_chart_scene_v1', dso_id=dso.name, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 

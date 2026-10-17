@@ -4,7 +4,7 @@
     {% extends 'layouts/base_embed.html' %}
 {% endif %}
 
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
@@ -37,16 +37,16 @@
 {% endmacro %}
 
 {% macro moon_info() %}
-    {{ fchart.fchart(url_for('main_planet.moon_info', back=back, back_id=back_id),
-                     url_for('main_planet.moon_chart_pdf', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=moon_ra|string, obj_dec=moon_dec|string,
-                     back=back, back_id=back_id, default_back='planets',
-                     fchart_scene_url=url_for('main_planet.moon_chart_scene_v1',
-                                              flags=chart_control.chart_flags, back=back, back_id=back_id)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_planet.moon_info', back=back, back_id=back_id),
+                                   url_for('main_planet.moon_chart_pdf', obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                                            flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, obj_ra=moon_ra|string, obj_dec=moon_dec|string,
+                                   back=back, back_id=back_id, default_back='planets',
+                                   chart_scene_url=url_for('main_planet.moon_chart_scene_v1',
+                                                            flags=chart_control.chart_flags, back=back, back_id=back_id)
+                                   )
     }}
 {% endmacro %}
 

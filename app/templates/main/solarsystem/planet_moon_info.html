@@ -5,7 +5,7 @@
 {% endif %}
 
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
 {% set back = request.args.get('back') %}
@@ -49,17 +49,17 @@
 
 {# --- Find Chart --- #}
 {% macro planet_moon_info() %}
-    {{ fchart.fchart(url_for('main_planet_moon.planet_moon_info', planet_moon_name=planet_moon.name, back=back, back_id=back_id),
-                     url_for('main_planet_moon.planet_moon_chart_pdf', planet_moon_name=planet_moon.name, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=plm_ra|string, obj_dec=plm_dec|string,
-                     back=back, back_id=back_id, default_back='planet_moons',
-                     fchart_scene_url=url_for('main_planet_moon.planet_moon_chart_scene_v1',
-                                              planet_moon_name=planet_moon.name, flags=chart_control.chart_flags,
-                                              back=back, back_id=back_id)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_planet_moon.planet_moon_info', planet_moon_name=planet_moon.name, back=back, back_id=back_id),
+                                   url_for('main_planet_moon.planet_moon_chart_pdf', planet_moon_name=planet_moon.name, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                                            flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, obj_ra=plm_ra|string, obj_dec=plm_dec|string,
+                                   back=back, back_id=back_id, default_back='planet_moons',
+                                   chart_scene_url=url_for('main_planet_moon.planet_moon_chart_scene_v1',
+                                                            planet_moon_name=planet_moon.name, flags=chart_control.chart_flags,
+                                                            back=back, back_id=back_id)
+                                   )
     }}
 {% endmacro %}
 

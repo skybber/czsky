@@ -5,7 +5,7 @@
 {% endif %}
 
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
@@ -48,17 +48,17 @@
 
 {# --- Find Chart --- #}
 {% macro minor_planet_info() %}
-    {{ fchart.fchart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id),
-                     url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.url_id(), obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,
-                     back=back, back_id=back_id, default_back='minor_planets',
-                     fchart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.url_id(),
-                                              flags=chart_control.chart_flags, back=back, back_id=back_id,
-                                              trajectory=trajectory)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_minor_planet.minor_planet_info', minor_planet_id=minor_planet.url_id(), back=back, back_id=back_id),
+                                   url_for('main_minor_planet.minor_planet_chart_pdf', minor_planet_id=minor_planet.url_id(), obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                                            flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, obj_ra=minor_planet_ra|string, obj_dec=minor_planet_dec|string,
+                                   back=back, back_id=back_id, default_back='minor_planets',
+                                   chart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.url_id(),
+                                                            flags=chart_control.chart_flags, back=back, back_id=back_id,
+                                                            trajectory=trajectory)
+                                   )
     }}
 {% endmacro %}
 

@@ -5,7 +5,7 @@
 {% endif %}
 
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/back_navig_macros.html' as back_navig %}
 
@@ -48,17 +48,17 @@
 
 {# --- Find Chart --- #}
 {% macro comet_info() %}
-    {{ fchart.fchart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
-                     url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, obj_ra=comet_ra|string, obj_dec=comet_dec|string,
-                     back=back, back_id=back_id, default_back='comets',
-                     fchart_scene_url=url_for('main_comet.comet_chart_scene_v1', comet_id=comet.comet_id,
-                                              flags=chart_control.chart_flags, back=back, back_id=back_id,
-                                              trajectory=trajectory)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_comet.comet_info', comet_id=comet.comet_id, back=back, back_id=back_id),
+                                   url_for('main_comet.comet_chart_pdf', comet_id=comet.comet_id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                                            flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, obj_ra=comet_ra|string, obj_dec=comet_dec|string,
+                                   back=back, back_id=back_id, default_back='comets',
+                                   chart_scene_url=url_for('main_comet.comet_chart_scene_v1', comet_id=comet.comet_id,
+                                                            flags=chart_control.chart_flags, back=back, back_id=back_id,
+                                                            trajectory=trajectory)
+                                   )
     }}
 {% endmacro %}
 

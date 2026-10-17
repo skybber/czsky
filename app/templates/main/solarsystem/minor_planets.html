@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/common_macros.html' as commons %}
 {% import 'macros/common_macros.html' as commons %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% macro navigation() %}
     <div class="ui icon secondary pointing menu">
@@ -128,16 +128,16 @@
 
 {# --- Chart --- #}
 {% macro minor_planets_chart() %}
-    {{ fchart.fchart(url_for('main_minor_planet.minor_planets_chart', back=back, back_id=back_id),
-                     url_for('main_minor_planet.minor_planets_chart_pdf', flags=chart_control.chart_pdf_flags,
-                              epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, embed='minor_planets',
-                     default_back='minor_planets',
-                     fchart_scene_url=url_for('main_minor_planet.minor_planets_chart_scene_v1',
-                                              flags=chart_control.chart_flags)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_minor_planet.minor_planets_chart', back=back, back_id=back_id),
+                                   url_for('main_minor_planet.minor_planets_chart_pdf', flags=chart_control.chart_pdf_flags,
+                                            epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, embed='minor_planets',
+                                   default_back='minor_planets',
+                                   chart_scene_url=url_for('main_minor_planet.minor_planets_chart_scene_v1',
+                                                            flags=chart_control.chart_flags)
+                                   )
     }}
 {% endmacro %}
 

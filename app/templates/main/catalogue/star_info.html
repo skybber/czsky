@@ -5,7 +5,7 @@
 {% endif %}
 
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% if user_descr %}
     {% if user_descr.star %}
@@ -88,16 +88,16 @@
 
 {# --- Chart --- #}
 {% macro star_chart(star) %}
-    {{ fchart.fchart(url_for('main_star.star_chart', star_id=star.id, back=back, back_id=back_id),
-                     url_for('main_star.star_chart_pdf', star_id=star.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
-                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url,
-                     search_url_params=search_url_params,
-                     fchart_scene_url=url_for('main_star.star_chart_scene_v1', star_id=star.id,
-                                              flags=chart_control.chart_flags, back=back, back_id=back_id)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_star.star_chart', star_id=star.id, back=back, back_id=back_id),
+                                   url_for('main_star.star_chart_pdf', star_id=star.id, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
+                                            flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url,
+                                   search_url_params=search_url_params,
+                                   chart_scene_url=url_for('main_star.star_chart_scene_v1', star_id=star.id,
+                                                            flags=chart_control.chart_flags, back=back, back_id=back_id)
+                                   )
     }}
 {% endmacro %}
 

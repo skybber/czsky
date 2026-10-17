@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 {% import 'macros/common_macros.html' as commons %}
 
 {% if not back %}
@@ -115,16 +115,16 @@
 
 {# --- Chart --- #}
 {% macro observing_session_chart(observing_session) %}
-    {{ fchart.fchart(url_for('main_observing_session.observing_session_chart', observing_session_id=observing_session.id, back=back, back_id=back_id),
-                     url_for('main_observing_session.observing_session_chart_pdf', observing_session_id=observing_session.id,
-                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id),
-                     back=back, back_id=back_id, back_anchor='',
-                     fchart_scene_url=url_for('main_observing_session.observing_session_chart_scene_v1',
-                                              observing_session_id=observing_session.id, flags=chart_control.chart_flags, back=back, back_id=back_id)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_observing_session.observing_session_chart', observing_session_id=observing_session.id, back=back, back_id=back_id),
+                                   url_for('main_observing_session.observing_session_chart_pdf', observing_session_id=observing_session.id,
+                                            flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id),
+                                   back=back, back_id=back_id, back_anchor='',
+                                   chart_scene_url=url_for('main_observing_session.observing_session_chart_scene_v1',
+                                                            observing_session_id=observing_session.id, flags=chart_control.chart_flags, back=back, back_id=back_id)
+                                   )
     }}
 {% endmacro %}
 

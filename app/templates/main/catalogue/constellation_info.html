@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% set endpoints = [
     ('main_constellation.constellation_info', _('Info'), 'info'),
@@ -302,14 +302,14 @@
 
 {# ---  Chart --- #}
 {% macro constellation_chart(constellation) %}
-    {{ fchart.fchart(url_for('main_constellation.constellation_chart', constellation_id=constellation.id, back=back, back_id=back_id),
-                     url_for('main_constellation.constellation_chart_pdf', constellation_id=constellation.id,
-                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     fchart_scene_url=url_for('main_constellation.constellation_chart_scene_v1',
-                                              constellation_id=constellation.id,
-                                              flags=chart_control.chart_flags))
+    {{ sky_chart.interactive_chart(url_for('main_constellation.constellation_chart', constellation_id=constellation.id, back=back, back_id=back_id),
+                                   url_for('main_constellation.constellation_chart_pdf', constellation_id=constellation.id,
+                                            flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   chart_scene_url=url_for('main_constellation.constellation_chart_scene_v1',
+                                                            constellation_id=constellation.id,
+                                                            flags=chart_control.chart_flags))
     }}
 {% endmacro %}
 

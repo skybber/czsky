@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% set endpoints = [
     ('main_chart.chart', 'Map', 'Map')
@@ -8,12 +8,12 @@
 
 {# --- Find Chart --- #}
 {% macro chart_info() %}
-    {{ fchart.fchart(url_for('main_chart.chart', back=back, back_id=back_id),
-                     url_for('main_chart.chart_pdf', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     disable_to_detail=True,
-                     fchart_scene_url=url_for('main_chart.chart_scene_v1', flags=chart_control.chart_flags, mra=mark_ra, mdec=mark_dec))
+    {{ sky_chart.interactive_chart(url_for('main_chart.chart', back=back, back_id=back_id),
+                                   url_for('main_chart.chart_pdf', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   disable_to_detail=True,
+                                   chart_scene_url=url_for('main_chart.chart_scene_v1', flags=chart_control.chart_flags, mra=mark_ra, mdec=mark_dec))
     }}
 {% endmacro %}
 

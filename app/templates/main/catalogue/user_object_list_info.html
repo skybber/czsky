@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% set endpoints = [
     ('main_user_object_list.user_object_list_info', _('Info'), 'info'),
@@ -64,11 +64,11 @@
 
 {# --- Chart --- #}
 {% macro user_object_list_chart(user_object_list) %}
-    {{ fchart.fchart(url_for('main_user_object_list.user_object_list_chart', user_object_list_id=user_object_list.id, back=back, back_id=back_id),
-                     None,
-                     None,
-                     fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list',
-                     fchart_scene_url=url_for('main_user_object_list.user_object_list_chart_scene_v1', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
+    {{ sky_chart.interactive_chart(url_for('main_user_object_list.user_object_list_chart', user_object_list_id=user_object_list.id, back=back, back_id=back_id),
+                                   None,
+                                   None,
+                                   fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list',
+                                   chart_scene_url=url_for('main_user_object_list.user_object_list_chart_scene_v1', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 

@@ -4,19 +4,19 @@
     {% extends 'layouts/base_embed.html' %}
 {% endif %}
 
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {# --- Chart --- #}
 {% macro simbad_object_chart(simbad_obj) %}
-    {{ fchart.fchart(url_for('main_chart.simbad_object_chart', sid=simbad_obj.main_id),
-                     url_for('main_chart.simbad_object_chart_pdf', sid=simbad_obj.main_id,
-                              flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url,
-                     fchart_scene_url=url_for('main_chart.simbad_object_chart_scene_v1', sid=simbad_obj.main_id,
-                                              flags=chart_control.chart_flags)
-                     )
+    {{ sky_chart.interactive_chart(url_for('main_chart.simbad_object_chart', sid=simbad_obj.main_id),
+                                   url_for('main_chart.simbad_object_chart_pdf', sid=simbad_obj.main_id,
+                                            flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url,
+                                   chart_scene_url=url_for('main_chart.simbad_object_chart_scene_v1', sid=simbad_obj.main_id,
+                                                            flags=chart_control.chart_flags)
+                                   )
     }}
 {% endmacro %}
 

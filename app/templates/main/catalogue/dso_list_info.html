@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 {% import 'macros/common_macros.html' as commons %}
-{% import 'macros/fchart_macros.html' as fchart with context %}
+{% import 'macros/sky_chart_macros.html' as sky_chart with context %}
 
 {% if not back %}
     {% set back = request.args.get('back') %}
@@ -226,15 +226,15 @@
 
 {# --- Chart --- #}
 {% macro dso_list_chart(dso_list) %}
-    {{ fchart.fchart(url_for('main_dso_list.dso_list_chart', dso_list_id=dso_list.id, back=back, back_id=back_id),
-                     url_for('main_dso_list.dso_list_chart_pdf', dso_list_id=dso_list.id, flags=chart_control.chart_pdf_flags,
-                              epfov=chart_control.eyepiece_fov, ),
-                     None,
-                     fchart_form,
-                     default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id),
-                     back=back, back_id=back_id,
-                     fchart_scene_url=url_for('main_dso_list.dso_list_chart_scene_v1',
-                                              dso_list_id=dso_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
+    {{ sky_chart.interactive_chart(url_for('main_dso_list.dso_list_chart', dso_list_id=dso_list.id, back=back, back_id=back_id),
+                                   url_for('main_dso_list.dso_list_chart_pdf', dso_list_id=dso_list.id, flags=chart_control.chart_pdf_flags,
+                                            epfov=chart_control.eyepiece_fov, ),
+                                   None,
+                                   fchart_form,
+                                   default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=dso_list&back_id={}'.format(dso_list.id),
+                                   back=back, back_id=back_id,
+                                   chart_scene_url=url_for('main_dso_list.dso_list_chart_scene_v1',
+                                                            dso_list_id=dso_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}
 
