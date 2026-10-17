@@ -234,7 +234,7 @@ def constellation_chart(constellation_id):
     chart_control = common_prepare_chart_data(form)
 
     common_name = _get_constellation_common_name(constellation)
-    return render_template('main/catalogue/constellation_info.html', fchart_form=form, type='chart', constellation=constellation,
+    return render_template('main/catalogue/constellation_info.html', chart_form=form, type='chart', constellation=constellation,
                            chart_control=chart_control, common_name=common_name, )
 
 

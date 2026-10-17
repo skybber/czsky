@@ -460,7 +460,7 @@ def double_star_chart(double_star_id):
 
     default_chart_iframe_url = url_for('main_double_star.double_star_info', back=back, back_id=back_id, double_star_id=double_star_id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/double_star_info.html', fchart_form=form, type='chart', double_star=double_star, chart_control=chart_control,
+    return render_template('main/catalogue/double_star_info.html', chart_form=form, type='chart', double_star=double_star, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed, user_descr=user_descr,
                            has_observations=has_observations, show_obs_log=show_obs_log,)

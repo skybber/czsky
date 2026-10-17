@@ -247,7 +247,7 @@ def observed_list_chart():
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(observed_list_item, back='observed_list')
 
-    return render_template('main/observation/observed_list.html', fchart_form=form, type='chart', observed_list=observed_list, chart_control=chart_control,
+    return render_template('main/observation/observed_list.html', chart_form=form, type='chart', observed_list=observed_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url,)
 
 

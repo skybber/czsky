@@ -152,7 +152,7 @@ def moon_info():
     return render_template(
         'main/solarsystem/moon_info.html',
         type='info',
-        fchart_form=form,
+        chart_form=form,
         chart_control=chart_control,
         moon_ra=moon.ra,
         moon_dec=moon.dec,
@@ -338,7 +338,7 @@ def planet_info(planet_iau_code):
                                        back=request.args.get('back'), back_id=request.args.get('back_id'),
                                        embed='planets', allow_back='false')
 
-    return render_template('main/solarsystem/planet_info.html', fchart_form=form, type='info', planet=planet,
+    return render_template('main/solarsystem/planet_info.html', chart_form=form, type='info', planet=planet,
                            planet_ra=planet_ra, planet_dec=planet_dec, chart_control=chart_control, trajectory=None,
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 

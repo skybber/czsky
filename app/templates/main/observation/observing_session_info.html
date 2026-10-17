@@ -119,7 +119,7 @@
                                    url_for('main_observing_session.observing_session_chart_pdf', observing_session_id=observing_session.id,
                                             flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov),
                                    None,
-                                   fchart_form,
+                                   chart_form,
                                    default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observation&back_id={}'.format(observing_session.id),
                                    back=back, back_id=back_id, back_anchor='',
                                    chart_scene_url=url_for('main_observing_session.observing_session_chart_scene_v1',

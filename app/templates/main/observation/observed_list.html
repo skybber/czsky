@@ -210,7 +210,7 @@
     {{ sky_chart.interactive_chart(url_for('main_observed.observed_list_chart', back=back, back_id=back_id),
                                    None,
                                    None,
-                                   fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observed_list',
+                                   chart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=observed_list',
                                    chart_scene_url=url_for('main_observed.observed_list_chart_scene_v1', flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}

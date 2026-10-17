@@ -1,4 +1,4 @@
-{% import 'macros/back_fchart_navig_macros.html' as back_fchart_navig %}
+{% import 'macros/back_sky_chart_navig_macros.html' as back_sky_chart_navig %}
 
 {% macro interactive_chart(chart_url, chart_pdf_url, chart_items_url, chart_form, default_chart_iframe_url='', embed='', search_url_params='', obj_ra='',
                            obj_dec='', back=none, back_id=none, default_back=none, back_anchor=none, disable_to_detail=False, chart_scene_url=none) %}
@@ -203,7 +203,7 @@
                 <a id="bhome" class="ui small icon button" href="{{ url_for('main.index') }}" data-inverted="" data-tooltip="{{ _('Home') }}" data-position="bottom left" data-variation="tiny basic" style="display:none;">
                     <i class="home icon"></i>
                 </a>
-                {{ back_fchart_navig.back_navig_inner(back, back_id, default_back, false, back_anchor, 'bback', '', 'display:none;', '', false) }}
+                {{ back_sky_chart_navig.back_navig_inner(back, back_id, default_back, false, back_anchor, 'bback', '', 'display:none;', '', false) }}
                 {% if default_chart_iframe_url and not disable_to_detail %}
                 <a id="bdetail" class="ui small icon button" data-inverted="" data-tooltip="{{ _('Detail') }}" data-position="bottom left" data-variation="tiny basic" style="display:none;"
                    onclick="window.location.href=removeParamFromRelativeUrl('{{ default_chart_iframe_url }}', 'embed');">
@@ -758,7 +758,7 @@
             <i class="home {{ 'inverted' if chart_control.theme!='light' else ''}} icon"></i>
         </a>
 
-        {{ back_fchart_navig.back_navig_inner(back, back_id, default_back, false, back_anchor, 'bback_mob', ' item', 'z-index:100;margin-bottom:8px;', ' inverted' if chart_control.theme!='light' else '') }}
+        {{ back_sky_chart_navig.back_navig_inner(back, back_id, default_back, false, back_anchor, 'bback_mob', ' item', 'z-index:100;margin-bottom:8px;', ' inverted' if chart_control.theme!='light' else '') }}
     </div>
 
     <div class="ui" style="position: absolute; top: 0; bottom: 0; display: flex; align-items: center;">

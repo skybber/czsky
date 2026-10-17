@@ -100,7 +100,7 @@ class UserObjectListViewsTestCase(unittest.TestCase):
 
     def test_back_button_returns_to_user_object_list(self):
         list_url = '/user-object-list/{}/info'.format(self.public_list.id)
-        template = "{% from 'macros/back_fchart_navig_macros.html' import back_navig_inner %}" \
+        template = "{% from 'macros/back_sky_chart_navig_macros.html' import back_navig_inner %}" \
                    "{{ back_navig_inner('user_object_list', back_id, 'deepskyobjects', embed) }}"
         with self.app.test_request_context('/'):
             for embed in (None, 'fc'):

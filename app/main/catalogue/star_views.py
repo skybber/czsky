@@ -249,7 +249,7 @@ def star_chart(star_id):
     back_id = request.args.get('back_id')
     default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control,
+    return render_template('main/catalogue/star_info.html', chart_form=form, type='chart', star=star, user_descr=None, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed, )
 
@@ -297,7 +297,7 @@ def star_descr_chart(star_descr_id):
     back_id = request.args.get('back_id')
     default_chart_iframe_url = url_for('main_star.star_info', back=back, back_id=back_id, star_id=star.id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/star_info.html', fchart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
+    return render_template('main/catalogue/star_info.html', chart_form=form, type='chart', user_descr=user_descr, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap, default_chart_iframe_url=default_chart_iframe_url,
                            embed=embed, )
 

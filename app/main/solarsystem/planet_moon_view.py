@@ -143,7 +143,7 @@ def planet_moon_info(planet_moon_name):
                                        back=request.args.get('back'), back_id=request.args.get('back_id'),
                                        planet_moon_name=planet_moon_name, embed='planet_moons', allow_back='false')
 
-    return render_template('main/solarsystem/planet_moon_info.html', fchart_form=form, type='info',
+    return render_template('main/solarsystem/planet_moon_info.html', chart_form=form, type='info',
                            planet_moon=planet_moon, plm_ra=plm_obj.ra, plm_dec=plm_obj.dec, chart_control=chart_control,
                            show_obs_log=show_obs_log, embed=embed, default_chart_iframe_url=default_chart_iframe_url)
 

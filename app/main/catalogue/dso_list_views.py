@@ -212,7 +212,7 @@ def dso_list_chart(dso_list_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/dso_list_info.html', fchart_form=form, type='chart',
+    return render_template('main/catalogue/dso_list_info.html', chart_form=form, type='chart',
                            dso_list=dso_list, dso_list_descr=dso_list_descr, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, back='dso_list', back_id=dso_list.id,)
 

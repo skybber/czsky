@@ -275,7 +275,7 @@ def wish_list_chart():
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(wish_list_item, back='wishlist')
 
-    return render_template('main/planner/wish_list.html', fchart_form=form, type='chart', wish_list=wish_list, chart_control=chart_control,
+    return render_template('main/planner/wish_list.html', chart_form=form, type='chart', wish_list=wish_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, )
 
 

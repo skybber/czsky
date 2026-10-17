@@ -280,7 +280,7 @@ def user_object_list_chart(user_object_list_id):
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(user_object_list_item, back='user_object_list', back_id=user_object_list.id)
 
-    return render_template('main/catalogue/user_object_list_info.html', fchart_form=form, type='chart',
+    return render_template('main/catalogue/user_object_list_info.html', chart_form=form, type='chart',
                            user_object_list=user_object_list, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_user_object_list=is_mine_user_object_list,
                            back='user_object_list', back_id=user_object_list.id)

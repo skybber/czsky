@@ -315,7 +315,7 @@ def minor_planets_chart():
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/solarsystem/minor_planets.html', type='chart', fchart_form=form, chart_control=chart_control,
+    return render_template('main/solarsystem/minor_planets.html', type='chart', chart_form=form, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
@@ -478,7 +478,7 @@ def minor_planet_info(minor_planet_id):
                 minor_planet_id=minor_planet.id,
             ).first() is not None
 
-    return render_template('main/solarsystem/minor_planet_info.html', fchart_form=form, type='info', minor_planet=minor_planet,
+    return render_template('main/solarsystem/minor_planet_info.html', chart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
                            trajectory=trajectory_b64, embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
                            is_observed=is_observed)

@@ -245,7 +245,7 @@ def double_star_list_chart(double_star_list_id):
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/catalogue/double_star_list_info.html', fchart_form=form, type='chart', double_star_list=double_star_list,
+    return render_template('main/catalogue/double_star_list_info.html', chart_form=form, type='chart', double_star_list=double_star_list,
                            double_star_list_descr=double_star_list_descr, chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
                            back='dbl_star_list', back_id=double_star_list.id, )
 

@@ -551,7 +551,7 @@ def deepskyobject_chart(dso_id):
     has_observations = _has_dso_observations(dso, orig_dso)
     show_obs_log = show_observation_log()
 
-    return render_template('main/catalogue/deepskyobject_info.html', fchart_form=form, type='chart', dso=dso,
+    return render_template('main/catalogue/deepskyobject_info.html', chart_form=form, type='chart', dso=dso,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url,
                            embed=embed, has_observations=has_observations, show_obs_log=show_obs_log,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,

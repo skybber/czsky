@@ -67,7 +67,7 @@
     {{ sky_chart.interactive_chart(url_for('main_user_object_list.user_object_list_chart', user_object_list_id=user_object_list.id, back=back, back_id=back_id),
                                    None,
                                    None,
-                                   fchart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list',
+                                   chart_form, default_chart_iframe_url=default_chart_iframe_url, search_url_params='back=user_object_list',
                                    chart_scene_url=url_for('main_user_object_list.user_object_list_chart_scene_v1', user_object_list_id=user_object_list.id, flags=chart_control.chart_flags, back=back, back_id=back_id))
     }}
 {% endmacro %}

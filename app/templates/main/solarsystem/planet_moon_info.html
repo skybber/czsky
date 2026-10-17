@@ -53,7 +53,7 @@
                                    url_for('main_planet_moon.planet_moon_chart_pdf', planet_moon_name=planet_moon.name, obj_ra='_OBJ_RA_', obj_dec='_OBJ_DEC_',
                                             flags=chart_control.chart_pdf_flags, trajectory=trajectory, epfov=chart_control.eyepiece_fov, ),
                                    None,
-                                   fchart_form,
+                                   chart_form,
                                    default_chart_iframe_url=default_chart_iframe_url, obj_ra=plm_ra|string, obj_dec=plm_dec|string,
                                    back=back, back_id=back_id, default_back='planet_moons',
                                    chart_scene_url=url_for('main_planet_moon.planet_moon_chart_scene_v1',

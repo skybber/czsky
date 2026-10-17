@@ -122,7 +122,7 @@
     {{ sky_chart.interactive_chart(url_for('main_comet.comets_chart', back=back, back_id=back_id),
                                    url_for('main_comet.comets_chart_pdf', flags=chart_control.chart_pdf_flags, epfov=chart_control.eyepiece_fov, ),
                                    None,
-                                   fchart_form,
+                                   chart_form,
                                    default_chart_iframe_url=default_chart_iframe_url, embed='comets',
                                    default_back='comets',
                                    chart_scene_url=url_for('main_comet.comets_chart_scene_v1',

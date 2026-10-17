@@ -279,7 +279,7 @@ def supernova_chart(designation):
 
     default_chart_iframe_url = url_for('main_supernova.supernova_info', designation=designation, back=back, back_id=back_id, embed='fc', allow_back='true')
 
-    return render_template('main/catalogue/supernova_info.html', fchart_form=form, type='chart', supernova=supernova, chart_control=chart_control,
+    return render_template('main/catalogue/supernova_info.html', chart_form=form, type='chart', supernova=supernova, chart_control=chart_control,
                            prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap,
                            default_chart_iframe_url=default_chart_iframe_url, embed=embed,)
 

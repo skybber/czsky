@@ -1404,7 +1404,7 @@ def _get_chart_legend_flags(form):
     return chart_flags, legend_flags
 
 
-class FChartDsoListMenu:
+class ChartDsoListMenu:
     def __init__(self, dso_lists, is_wish_list, session_plans, observing_sessions):
         self.dso_lists = dso_lists
         self.is_wish_list = is_wish_list
@@ -1423,7 +1423,7 @@ def _common_chart_dso_list_menu():
         session_plans = None
         observing_sessions = None
 
-    return FChartDsoListMenu(dso_lists, is_wish_list, session_plans, observing_sessions)
+    return ChartDsoListMenu(dso_lists, is_wish_list, session_plans, observing_sessions)
 
 
 def _common_equipment():

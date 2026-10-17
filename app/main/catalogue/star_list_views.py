@@ -117,7 +117,7 @@ def star_list_chart(star_list_id):
     if star_list_item:
         default_chart_iframe_url = url_for('main_star.star_info', star_id=star_list_item.star_id,
                                            back='star_list', back_id=star_list.id, embed='fc', allow_back='true')
-    return render_template('main/catalogue/star_list_info.html', fchart_form=form, type='chart', star_list=star_list, star_list_descr=star_list_descr,
+    return render_template('main/catalogue/star_list_info.html', chart_form=form, type='chart', star_list=star_list, star_list_descr=star_list_descr,
                            chart_control=chart_control, default_chart_iframe_url=default_chart_iframe_url)
 
 

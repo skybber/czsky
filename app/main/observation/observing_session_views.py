@@ -532,7 +532,7 @@ def observing_session_chart(observing_session_id):
     chart_control = common_prepare_chart_data(form)
     default_chart_iframe_url = get_default_chart_iframe_url(observing_session_item, back='observation', back_id=observing_session.id)
 
-    return render_template('main/observation/observing_session_info.html', fchart_form=form, type='chart',
+    return render_template('main/observation/observing_session_info.html', chart_form=form, type='chart',
                            observing_session=observing_session, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, is_mine_observing_session=is_mine_observing_session,
                            back='observation', back_id=observing_session.id)

@@ -193,7 +193,7 @@ def comets_chart():
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/solarsystem/comets.html', fchart_form=form, type='chart', chart_control=chart_control,
+    return render_template('main/solarsystem/comets.html', chart_form=form, type='chart', chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url)
 
 
@@ -365,7 +365,7 @@ def comet_info(comet_id):
 
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet_db) if comet_db else (None, None, None)
 
-    return render_template('main/solarsystem/comet_info.html', fchart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
+    return render_template('main/solarsystem/comet_info.html', chart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
                            chart_control=chart_control, trajectory=trajectory_b64, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
                            show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 

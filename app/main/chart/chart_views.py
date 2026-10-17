@@ -96,7 +96,7 @@ def chart():
 
     chart_control = common_prepare_chart_data(form)
 
-    return render_template('main/chart/chart.html', fchart_form=form, chart_control=chart_control, mark_ra=ra, mark_dec=dec)
+    return render_template('main/chart/chart.html', chart_form=form, chart_control=chart_control, mark_ra=ra, mark_dec=dec)
 
 
 @main_chart.route('/chart/night-info', methods=['GET'])
@@ -202,7 +202,7 @@ def simbad_object_chart():
     default_chart_iframe_url = url_for('main_chart.simbad_object_info', sid=simbad_obj['main_id'], embed='fc')
 
     return render_template('main/chart/simbad_object_info.html', type='chart', simbad_obj=simbad_obj,
-                           fchart_form=form, chart_control=chart_control,
+                           chart_form=form, chart_control=chart_control,
                            default_chart_iframe_url=default_chart_iframe_url, embed=request.args.get('embed'))
 
 
