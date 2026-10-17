@@ -4,7 +4,7 @@
         return;
     }
 
-    // Real (browser) fullscreen shell shared by FChart and SkyScene.
+    // Real (browser) fullscreen shell used by SkyScene.
     //
     // The page that enters fullscreen (host) puts a wrapper with an iframe into native fullscreen.
     // All further navigation happens inside that iframe (shell content), so Home, lists and details

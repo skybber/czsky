@@ -4,6 +4,19 @@
     // SkyScene input handling: mouse, touch (pan, pinch, tap, inertia), wheel/touchpad
     // and keyboard panning and zooming, including the animated zoom around a pivot.
 
+    // Wheel direction as -1, 0 or 1, across deltaMode units and the legacy wheelDelta.
+    function normalizeDelta(e) {
+        const oe = e.originalEvent || e;
+        if (typeof oe.deltaY === 'number') {
+            const L = (oe.deltaMode === 1) ? 16 : (oe.deltaMode === 2) ? 100 : 1;
+            return Math.sign(oe.deltaY * L);
+        }
+        if (typeof oe.wheelDelta === 'number') {
+            return -Math.sign(oe.wheelDelta);
+        }
+        return 0;
+    }
+
     SkyScene.prototype._bindInputEvents = function () {
         window.addEventListener('focus', () => this._restoreKeyboardCapture());
 
@@ -554,8 +567,7 @@
 
         // mouse
         if (this.isMouseWheelLike(e)) {
-            // normalizeDelta() is a global shared with the legacy chart in fchart.js.
-            const delta = window.normalizeDelta(e);
+            const delta = normalizeDelta(e);
             if (delta === 0) return;
             let newIndex = this.targetFldSizeIndex + (delta > 0 ? 1 : -1);
             newIndex = Math.max(0, Math.min(this.fieldSizes.length - 1, newIndex));

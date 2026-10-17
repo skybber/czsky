@@ -1065,7 +1065,7 @@ def _build_scene_index(req: SceneRequest, center_ra: float, center_dec: float, l
             return
         x1, y1, x2, y2 = bbox
         selection_index.append({"id": obj_id, "bbox": [x1, y1, x2, y2]})
-        # Keep compatibility with existing fchart.js flat img_map parser.
+        # Flat [id, x1, y1, x2, y2, ...] list read by SkyScene as selectableRegions.
         img_map.extend([obj_id, x1, y1, x2, y2])
 
     for dso in dso_items:
