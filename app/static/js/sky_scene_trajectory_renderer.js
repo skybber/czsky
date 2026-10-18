@@ -3,6 +3,8 @@
 
     window.SkySceneTrajectoryRenderer = function () {};
     const EPS = U.EPS;
+    // The online trajectory line is drawn thicker than the theme width (comet tails and ticks keep it).
+    const PATH_WIDTH_SCALE = 1.5;
 
     window.SkySceneTrajectoryRenderer.prototype._style = function (sceneCtx) {
         const lws = sceneCtx.themeConfig && sceneCtx.themeConfig.line_widths
@@ -14,6 +16,7 @@
             color: U.finiteColor(color) ? color : [0.6, 0.6, 0.6],
             // Ticks keep the constellation line width so they stay visible on a thin trajectory.
             lineWidthPx: Math.max(0.75, U.mmToPx(trajLwMm)),
+            pathWidthPx: PATH_WIDTH_SCALE * Math.max(0.75, U.mmToPx(trajLwMm)),
             tickWidthPx: Math.max(0.75, U.mmToPx(lwMm)),
         };
     };
@@ -132,17 +135,15 @@
             proj.push(px);
         }
 
-        ctx.save();
-        ctx.strokeStyle = U.rgba(style.color, 0.98);
-        ctx.lineWidth = style.lineWidthPx;
-        ctx.setLineDash([]);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
         const labels = [];
+        const ticks = [];
+        const tails = [];
         let tailSideSum = 0.0;
         let tailSideCount = 0;
-        const selectable = [];
+        let bx1 = Infinity;
+        let by1 = Infinity;
+        let bx2 = -Infinity;
+        let by2 = -Infinity;
         if (proj[0] && points[0] && points[0].label) {
             labels.push({ x: proj[0].x, y: proj[0].y, tx: null, ty: null, text: String(points[0].label) });
         }
@@ -152,9 +153,20 @@
             if (sun0) {
                 sun0.ra = points[0].sun_ra;
                 sun0.dec = points[0].sun_dec;
-                this._drawTailFan(sceneCtx, proj[0], sun0, style);
+                tails.push({ pt: proj[0], sun: sun0 });
             }
         }
+
+        // The whole line is one path stroked once; ticks, tails and labels are drawn after it.
+        ctx.save();
+        ctx.strokeStyle = U.rgba(style.color, 0.98);
+        ctx.lineWidth = style.pathWidthPx;
+        ctx.setLineDash([]);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        let penAt = null;
+        let hasLine = false;
 
         for (let i = 1; i < proj.length; i++) {
             const p1 = proj[i - 1];
@@ -171,20 +183,24 @@
                 labels[0].ty = ty;
             }
 
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
+            if (penAt !== p1) {
+                ctx.moveTo(p1.x, p1.y);
+            }
             ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-            selectable.push({ x: p1.x, y: p1.y });
-            selectable.push({ x: p2.x, y: p2.y });
+            penAt = p2;
+            hasLine = true;
+            bx1 = Math.min(bx1, p1.x, p2.x);
+            by1 = Math.min(by1, p1.y, p2.y);
+            bx2 = Math.max(bx2, p1.x, p2.x);
+            by2 = Math.max(by2, p1.y, p2.y);
 
             const curPt = points[i];
             if (i === 1) {
                 // Keep parity with fchart3: first trajectory mark is drawn on the first segment start.
-                this._drawTick(ctx, p2.x, p2.y, p1.x, p1.y, style.tickWidthPx);
+                ticks.push([p2.x, p2.y, p1.x, p1.y]);
             }
             if (curPt && curPt.label) {
-                this._drawTick(ctx, p1.x, p1.y, p2.x, p2.y, style.tickWidthPx);
+                ticks.push([p1.x, p1.y, p2.x, p2.y]);
                 labels.push({ x: p2.x, y: p2.y, tx: tx, ty: ty, text: String(curPt.label) });
             }
 
@@ -209,9 +225,20 @@
                     }
                     sunPx.ra = curPt.sun_ra;
                     sunPx.dec = curPt.sun_dec;
-                    this._drawTailFan(sceneCtx, p2, sunPx, style);
+                    tails.push({ pt: p2, sun: sunPx });
                 }
             }
+        }
+
+        if (hasLine) {
+            ctx.stroke();
+        }
+        for (let i = 0; i < ticks.length; i++) {
+            const t = ticks[i];
+            this._drawTick(ctx, t[0], t[1], t[2], t[3], style.tickWidthPx);
+        }
+        for (let i = 0; i < tails.length; i++) {
+            this._drawTailFan(sceneCtx, tails[i].pt, tails[i].sun, style);
         }
 
         ctx.restore();
@@ -246,12 +273,15 @@
             ctx.restore();
         }
 
-        if (selectable.length && sceneCtx && typeof sceneCtx.registerSelectable === 'function' && tr.id) {
+        if (hasLine && sceneCtx && typeof sceneCtx.registerSelectable === 'function' && tr.id) {
+            const pad = 6;
             sceneCtx.registerSelectable({
                 id: tr.id,
-                shape: 'polyline',
-                points: selectable,
-                padPx: 6,
+                shape: 'rect',
+                x1: bx1 - pad,
+                y1: by1 - pad,
+                x2: bx2 + pad,
+                y2: by2 + pad,
                 priority: 9,
             });
         }

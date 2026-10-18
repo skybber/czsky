@@ -65,10 +65,20 @@ from app.commons.chart_generator import (
     common_prepare_date_from_to,
     common_chart_pdf_img,
     common_ra_dec_dt_fsz_from_request,
-    get_trajectory_b64,
-    decode_trajectory_b64,
     build_refinable_trajectory,
     get_trajectory_dates_from_request,
+)
+from app.commons.online_trajectory import (
+    MINOR_PLANET_ELEMENT_FIELDS,
+    TrajectoryEvaluationError,
+    TrajectoryRequestError,
+    TrajectorySource,
+    build_descriptor,
+    get_trajectory_payload,
+    normalize_interval,
+    orbit_elements,
+    trajectory_error_response,
+    trajectory_json_response,
 )
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
@@ -97,7 +107,6 @@ from app.commons.light_curve_utils import (
 from app.commons.chart_scene import (
     build_cross_highlight,
     build_list_cross_highlight,
-    build_scene_trajectory_item,
     build_scene_v1,
 )
 
@@ -442,7 +451,6 @@ def minor_planet_info(minor_planet_id):
 
     chart_dt = get_chart_datetime()
     t = ts.from_datetime(chart_dt)
-    trajectory_b64 = None
     traj_from, traj_to = None, None
     if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
@@ -452,7 +460,6 @@ def minor_planet_info(minor_planet_id):
             t = ts.from_datetime(d1.replace(tzinfo=utc))
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, observer, body, is_comet=False)
         traj_from, traj_to = d1.date().isoformat(), d2.date().isoformat()
 
     minor_planet_ra_ang, minor_planet_dec_ang, distance = observer.at(t).observe(body).radec()
@@ -484,7 +491,7 @@ def minor_planet_info(minor_planet_id):
 
     return render_template('main/solarsystem/minor_planet_info.html', chart_form=form, type='info', minor_planet=minor_planet,
                            minor_planet_ra=minor_planet_ra, minor_planet_dec=minor_planet_dec, chart_control=chart_control,
-                           trajectory=trajectory_b64, traj_from=traj_from, traj_to=traj_to,
+                           traj_from=traj_from, traj_to=traj_to,
                            embed=embed, show_obs_log=show_obs_log, default_chart_iframe_url=default_chart_iframe_url,
                            is_observed=is_observed)
 
@@ -513,13 +520,12 @@ def minor_planet_chart_scene_v1(minor_planet_id):
     if minor_planet_ra is None or minor_planet_dec is None:
         minor_planet_ra = to_float(request.args.get('obj_ra'), None)
         minor_planet_dec = to_float(request.args.get('obj_dec'), None)
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
 
     scene = build_scene_v1()
     scene_meta = scene.setdefault('meta', {})
     scene_objects = scene.setdefault('objects', {})
     highlights = scene_objects.setdefault('highlights', [])
-    trajectories = scene_objects.setdefault('trajectories', [])
+    scene_objects.setdefault('trajectories', [])
     cur_theme = session.get('theme')
 
     if minor_planet_ra is not None and minor_planet_dec is not None:
@@ -527,10 +533,7 @@ def minor_planet_chart_scene_v1(minor_planet_id):
             build_cross_highlight(highlight_id=CHART_MINOR_PLANET_PREFIX + str(minor_planet.id), label=minor_planet.designation, ra=minor_planet_ra, dec=minor_planet_dec, theme_name=cur_theme,)
         )
 
-    if trajectory:
-        trajectories.append(
-            build_scene_trajectory_item(trajectory_id='MINOR_PLANET_TRAJ_' + str(minor_planet.id), label=minor_planet.designation, points=trajectory, trajectory_type='minor_planet',)
-        )
+    scene_meta['trajectory_source'] = _minor_planet_trajectory_descriptor(minor_planet)
 
     scene_meta['object_context'] = {
         'kind': 'minor_planet',
@@ -539,6 +542,54 @@ def minor_planet_chart_scene_v1(minor_planet_id):
         'dec': float(minor_planet_dec) if minor_planet_dec is not None else None,
     }
     return jsonify(scene)
+
+
+def _minor_planet_trajectory_source(minor_planet, traj_from, traj_to):
+    """Topocentric trajectory source, raises TrajectoryRequestError or KeyError (unknown orbit)."""
+    dt_from, dt_to = normalize_interval(traj_from, traj_to)
+    mpc_minor_planet = find_mpc_minor_planet(minor_planet)
+    _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
+    return TrajectorySource(
+        kind='minor_planet',
+        object_id=str(minor_planet.id),
+        label=minor_planet.designation,
+        trajectory_id='MINOR_PLANET_TRAJ_' + str(minor_planet.id),
+        trajectory_type='minor_planet',
+        elements=orbit_elements(mpc_minor_planet, MINOR_PLANET_ELEMENT_FIELDS),
+        build_body=lambda ts, sun: sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN),
+        observer=(float(observer_lat), float(observer_lon), 0.0),
+        dt_from=dt_from,
+        dt_to=dt_to,
+    )
+
+
+def _minor_planet_trajectory_descriptor(minor_planet):
+    traj_from, traj_to = request.args.get('traj_from'), request.args.get('traj_to')
+    if not traj_from or not traj_to:
+        return None
+    try:
+        source = _minor_planet_trajectory_source(minor_planet, traj_from, traj_to)
+    except (TrajectoryRequestError, KeyError):
+        return None
+    return build_descriptor(source, url_for('main_minor_planet.minor_planet_chart_trajectory_v1', minor_planet_id=minor_planet.url_id()))
+
+
+@main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart/trajectory-v1', methods=['GET'])
+def minor_planet_chart_trajectory_v1(minor_planet_id):
+    minor_planet = _get_minor_planet_by_url_id(minor_planet_id)
+    if minor_planet is None:
+        abort(404)
+    try:
+        source = _minor_planet_trajectory_source(minor_planet, request.args.get('traj_from'), request.args.get('traj_to'))
+    except TrajectoryRequestError as e:
+        return trajectory_error_response(400, str(e))
+    except KeyError:
+        abort(404)
+    try:
+        payload = get_trajectory_payload(source)
+    except TrajectoryEvaluationError as e:
+        return trajectory_error_response(422, str(e))
+    return trajectory_json_response(payload)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/chart-pdf', methods=['GET', 'POST'])

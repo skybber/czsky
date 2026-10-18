@@ -57,7 +57,7 @@
                                    back=back, back_id=back_id, default_back='minor_planets',
                                    chart_scene_url=url_for('main_minor_planet.minor_planet_chart_scene_v1', minor_planet_id=minor_planet.url_id(),
                                                             flags=chart_control.chart_flags, back=back, back_id=back_id,
-                                                            trajectory=trajectory)
+                                                            traj_from=traj_from, traj_to=traj_to)
                                    )
     }}
 {% endmacro %}

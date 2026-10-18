@@ -210,6 +210,13 @@
         this.horizonRenderer = new window.SkySceneHorizonRenderer();
         this.highlightRenderer = new window.SkySceneHighlightRenderer();
         this.trajectoryRenderer = new window.SkySceneTrajectoryRenderer();
+        this.trajectoryLoader = new window.SkySceneTrajectoryLoader({
+            onChange: () => {
+                if (!this.sceneData) return;
+                this.trajectoryLoader.attach(this.sceneData);
+                this.requestDraw();
+            },
+        });
         this.arrowRenderer = new window.SkySceneArrowRenderer();
         this.infoPanelRenderer = new window.SkySceneInfoPanelRenderer();
         this.widgetLayer = new window.SkySceneWidgetLayer();
@@ -299,6 +306,14 @@
                 clearInterval(this.infoPanelTimer);
                 this.infoPanelTimer = null;
             }
+        });
+        // Abort a pending trajectory request; kept points still work after a back/forward cache restore.
+        window.addEventListener('pagehide', () => this.trajectoryLoader.suspend());
+        window.addEventListener('pageshow', (event) => {
+            // Resume a trajectory load aborted by pagehide; loaded points do not cause a request.
+            if (!event.persisted || !this.sceneData) return;
+            this.trajectoryLoader.handleScene(this.sceneData);
+            this.requestDraw();
         });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -1013,6 +1028,7 @@
         $.getJSON(url).done((data) => {
             if (epoch !== this.sceneRequestEpoch) return;
             this.sceneData = data;
+            this.trajectoryLoader.handleScene(data);
             this._applyPinnedHighlight();
             this.mwSelectionRevision += 1;
             if (!this.zoomAnim && data && data.meta && Number.isFinite(data.meta.maglim)) {

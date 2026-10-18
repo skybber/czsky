@@ -45,8 +45,6 @@ from app.commons.chart_generator import (
     common_prepare_chart_data,
     common_prepare_date_from_to,
     common_chart_pdf_img,
-    get_trajectory_b64,
-    decode_trajectory_b64,
     build_refinable_trajectory,
     get_trajectory_dates_from_request,
     common_ra_dec_dt_fsz_from_request,
@@ -80,8 +78,19 @@ from app.commons.chart_generator import resolve_chart_city_lat_lon, get_chart_da
 from app.commons.chart_scene import (
     build_comet_highlight,
     build_cross_highlight,
-    build_scene_trajectory_item,
     build_scene_v1,
+)
+from app.commons.online_trajectory import (
+    COMET_ELEMENT_FIELDS,
+    TrajectoryEvaluationError,
+    TrajectoryRequestError,
+    TrajectorySource,
+    build_descriptor,
+    get_trajectory_payload,
+    normalize_interval,
+    orbit_elements,
+    trajectory_error_response,
+    trajectory_json_response,
 )
 from app.commons.prevnext_utils import create_navigation_wrappers
 
@@ -335,7 +344,6 @@ def comet_info(comet_id):
         form.date_to.data = today + timedelta(days=7)
 
     t = ts.now()
-    trajectory_b64 = None
     traj_from, traj_to = None, None
     if (form.date_from.data is not None) and (form.date_to.data is not None) and form.date_from.data < form.date_to.data:
         d1 = datetime(form.date_from.data.year, form.date_from.data.month, form.date_from.data.day)
@@ -346,7 +354,6 @@ def comet_info(comet_id):
         elif today > d2.date():
             t = ts.from_datetime(d2.replace(tzinfo=utc))
 
-        trajectory_b64 = get_trajectory_b64(d1, d2, ts, earth, body, is_comet=True, sun=sun)
         traj_from, traj_to = d1.date().isoformat(), d2.date().isoformat()
 
     comet_ra_ang, comet_dec_ang, distance = earth.at(t).observe(body).radec()
@@ -370,7 +377,7 @@ def comet_info(comet_id):
     prev_wrap, cur_wrap, next_wrap = create_navigation_wrappers(comet_db) if comet_db else (None, None, None)
 
     return render_template('main/solarsystem/comet_info.html', chart_form=form, type='info', comet=comet, comet_ra=comet_ra, comet_dec=comet_dec,
-                           chart_control=chart_control, trajectory=trajectory_b64, traj_from=traj_from, traj_to=traj_to, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
+                           chart_control=chart_control, traj_from=traj_from, traj_to=traj_to, embed=embed, default_chart_iframe_url=default_chart_iframe_url,
                            show_obs_log=show_obs_log, prev_wrap=prev_wrap, cur_wrap=cur_wrap, next_wrap=next_wrap)
 
 
@@ -576,13 +583,11 @@ def comet_chart_scene_v1(comet_id):
         except ValueError:
             pass
 
-    trajectory = decode_trajectory_b64(request.args.get('trajectory'))
-
     scene = build_scene_v1()
     scene_meta = scene.setdefault('meta', {})
     scene_objects = scene.setdefault('objects', {})
     highlights = scene_objects.setdefault('highlights', [])
-    trajectories = scene_objects.setdefault('trajectories', [])
+    scene_objects.setdefault('trajectories', [])
     cur_theme = session.get('theme')
 
     if comet_ra is not None and comet_dec is not None:
@@ -590,15 +595,7 @@ def comet_chart_scene_v1(comet_id):
             build_cross_highlight(highlight_id=CHART_COMET_PREFIX + str(comet_id), label=comet.designation, ra=comet_ra, dec=comet_dec, theme_name=cur_theme,)
         )
 
-    if trajectory:
-        trajectories.append(
-            build_scene_trajectory_item(
-                trajectory_id='COMET_TRAJ_' + str(comet_id),
-                label=comet.designation,
-                points=trajectory,
-                trajectory_type='comet',
-            )
-        )
+    scene_meta['trajectory_source'] = _comet_trajectory_descriptor(comet_id, comet)
 
     scene_meta['object_context'] = {
         'kind': 'comet',
@@ -607,6 +604,51 @@ def comet_chart_scene_v1(comet_id):
         'dec': float(comet_dec) if comet_dec is not None else None,
     }
     return jsonify(scene)
+
+
+def _comet_trajectory_source(comet_id, comet, traj_from, traj_to):
+    """Geocentric trajectory source, raises TrajectoryRequestError for an invalid interval."""
+    dt_from, dt_to = normalize_interval(traj_from, traj_to)
+    return TrajectorySource(
+        kind='comet',
+        object_id=str(comet_id),
+        label=comet['designation'],
+        trajectory_id='COMET_TRAJ_' + str(comet_id),
+        trajectory_type='comet',
+        elements=orbit_elements(comet, COMET_ELEMENT_FIELDS),
+        build_body=lambda ts, sun: sun + mpc.comet_orbit(comet, ts, GM_SUN),
+        observer=None,
+        dt_from=dt_from,
+        dt_to=dt_to,
+        with_sun=True,
+    )
+
+
+def _comet_trajectory_descriptor(comet_id, comet):
+    traj_from, traj_to = request.args.get('traj_from'), request.args.get('traj_to')
+    if not traj_from or not traj_to:
+        return None
+    try:
+        source = _comet_trajectory_source(comet_id, comet, traj_from, traj_to)
+    except TrajectoryRequestError:
+        return None
+    return build_descriptor(source, url_for('main_comet.comet_chart_trajectory_v1', comet_id=comet_id))
+
+
+@main_comet.route('/comet/<string:comet_id>/chart/trajectory-v1', methods=['GET'])
+def comet_chart_trajectory_v1(comet_id):
+    comet = find_mpc_comet(comet_id)
+    if comet is None:
+        abort(404)
+    try:
+        source = _comet_trajectory_source(comet_id, comet, request.args.get('traj_from'), request.args.get('traj_to'))
+    except TrajectoryRequestError as e:
+        return trajectory_error_response(400, str(e))
+    try:
+        payload = get_trajectory_payload(source)
+    except TrajectoryEvaluationError as e:
+        return trajectory_error_response(422, str(e))
+    return trajectory_json_response(payload)
 
 
 @main_comet.route('/comet/<string:comet_id>/chart-pdf', methods=['GET', 'POST'])
