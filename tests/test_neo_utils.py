@@ -376,6 +376,62 @@ class NearEarthAsteroidsViewTestCase(NeoDbTestCase):
         self.assertIn('(1862) Apollo', html)
         self.assertNotIn('2026 XX', html)
 
+    def _store_sort_fixture(self):
+        now = datetime.utcnow()
+        store_close_approaches([
+            # 1862 Apollo: ~9.1 mag, in 10 days; 2026 UK: ~16.3 mag, in 2 days; 2026 XX unmatched: ~12 mag, in 5 days
+            self._approach('1862', h=16.1, dist_au=0.04) | {'approach_time': now + timedelta(days=10)},
+            self._approach('2026 UK', h=24.8, dist_au=0.02) | {'approach_time': now + timedelta(days=2)},
+            self._approach('2026 XX', h=22.0, dist_au=0.01) | {'approach_time': now + timedelta(days=5)},
+        ], now)
+        db.session.query(MinorPlanet).filter_by(mpc_designation='K26U00K').update({'eval_mag': 19.0})
+        db.session.query(MinorPlanet).filter_by(mpc_designation='01862').update({'eval_mag': 15.0})
+        db.session.commit()
+
+    def _listed_order(self, query=''):
+        html = self.app.test_client().get('/near-earth-asteroids?period=30' + query).get_data(as_text=True)
+        tbody = html[html.index('<tbody>'):]
+        return sorted(['(1862) Apollo', '2026 UK', '2026 XX'], key=tbody.index)
+
+    def test_default_sort_is_brightest_first(self):
+        self._store_sort_fixture()
+        self.assertEqual(self._listed_order(), ['(1862) Apollo', '2026 XX', '2026 UK'])
+
+    def test_sortable_columns(self):
+        self._store_sort_fixture()
+        self.assertEqual(self._listed_order('&sortby=date'), ['2026 UK', '2026 XX', '(1862) Apollo'])
+        self.assertEqual(self._listed_order('&sortby=-date'), ['(1862) Apollo', '2026 XX', '2026 UK'])
+        self.assertEqual(self._listed_order('&sortby=dist'), ['2026 XX', '2026 UK', '(1862) Apollo'])
+        self.assertEqual(self._listed_order('&sortby=name'), ['(1862) Apollo', '2026 UK', '2026 XX'])
+        # The unmatched asteroid has no current brightness and stays last in both directions.
+        self.assertEqual(self._listed_order('&sortby=cur_mag'), ['(1862) Apollo', '2026 UK', '2026 XX'])
+        self.assertEqual(self._listed_order('&sortby=-cur_mag'), ['2026 UK', '(1862) Apollo', '2026 XX'])
+        self.assertEqual(self._listed_order('&sortby=bogus'), self._listed_order())
+
+    def test_sort_links_keep_filters(self):
+        self._store_sort_fixture()
+        html = self.app.test_client().get('/near-earth-asteroids?period=7&dist_max_ld=10&pha_only=y').get_data(
+            as_text=True)
+        self.assertIn('sortby=date', html)
+        link = html[html.index('sortby=date') - 200:html.index('sortby=date') + 200]
+        for arg in ('period=7', 'dist_max_ld=10', 'pha_only=y'):
+            self.assertIn(arg, link)
+        self.assertIn('name="sortby" value="peak_mag"', html)
+        # Server-side sorting only: the 'sortable' class would also enable client-side tablesort.
+        table_tag = html[html.index('<table'):html.index('>', html.index('<table'))]
+        self.assertNotIn('sortable', table_tag)
+
+    def test_distance_all_is_a_selectable_choice(self):
+        self._store_sort_fixture()
+        client = self.app.test_client()
+
+        html = client.get('/near-earth-asteroids').get_data(as_text=True)
+        self.assertRegex(html, r'<option selected value="all">|<option value="all" selected>')
+        self.assertEqual(self._listed_order('&dist_max_ld=all'), self._listed_order())
+        self.assertEqual(len(self._listed_order('&dist_max_ld=')), 3)  # old empty value still works
+        html = client.get('/near-earth-asteroids?dist_max_ld=5').get_data(as_text=True)
+        self.assertNotIn('(1862) Apollo', html[html.index('<tbody>'):])  # 0.04 au ~ 15.6 LD
+
     def test_invalid_filter_values_fall_back_to_defaults(self):
         now = datetime.utcnow()
         store_close_approaches([self._approach('1862', h=16.1) | {'approach_time': now + timedelta(days=3)}], now)

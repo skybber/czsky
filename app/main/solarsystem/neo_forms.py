@@ -13,11 +13,12 @@ class SearchNeoForm(FlaskForm):
         ('30', lazy_gettext('30 days')),
         ('60', lazy_gettext('60 days')),
     ], default='30')
+    # Not an empty value: Semantic UI dropdowns treat value="" as a placeholder, not a choice.
     dist_max_ld = SelectField(lazy_gettext('Max. distance'), choices=[
-        ('', lazy_gettext('All')),
+        ('all', lazy_gettext('All')),
         ('1', '1 LD'),
         ('5', '5 LD'),
         ('10', '10 LD'),
-    ], default='')
+    ], default='all')
     maglim = FloatField(lazy_gettext('Limit mag'), default=None, validators=[NumberRange(min=-30.0, max=30.0), Optional()])
     pha_only = BooleanField(lazy_gettext('PHA only'), default=False)

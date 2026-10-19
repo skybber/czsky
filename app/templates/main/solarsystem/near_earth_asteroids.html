@@ -1,5 +1,13 @@
 {% extends 'layouts/base.html' %}
 
+{% macro sort_header(column, label, extra_class='') %}
+    <th{% if extra_class %} class="{{ extra_class }}"{% endif %}>
+        <a href="{{ url_for('main_neo.near_earth_asteroids', sortby=table_sort[column].sort, **filter_args) }}" style="color: inherit;">
+            {{ label }} {{ table_sort[column].icon | safe }}
+        </a>
+    </th>
+{% endmacro %}
+
 {% block content %}
     <div class="ui stackable grid container">
         <div class="fourteen wide tablet sixteen wide computer column">
@@ -17,6 +25,7 @@
             </div>
 
             <form action="{{ url_for('main_neo.near_earth_asteroids') }}" method="get" name="search">
+                <input type="hidden" name="sortby" value="{{ sort_by }}">
                 <div class="ui menu">
                     <div class="ui item">
                         {{ form.period(class='ui compact tiny dropdown button', onchange='this.form.submit()') }}
@@ -50,15 +59,15 @@
                 <table class="ui unstackable selectable celled table">
                     <thead>
                         <tr>
-                            <th>{{ _('Name') }}</th>
-                            <th>{{ _('Date') }} (UTC)</th>
-                            <th>{{ _('Distance') }}</th>
-                            <th class="mobile hidden">{{ _('Velocity') }}</th>
-                            <th class="mobile hidden">H</th>
-                            <th>{{ _('Est. max. brightness') }}</th>
+                            {{ sort_header('name', _('Name')) }}
+                            {{ sort_header('date', _('Date') ~ ' (UTC)') }}
+                            {{ sort_header('dist', _('Distance')) }}
+                            {{ sort_header('v_rel', _('Velocity'), 'mobile hidden') }}
+                            {{ sort_header('h', 'H', 'mobile hidden') }}
+                            {{ sort_header('peak_mag', _('Est. max. brightness')) }}
                             <th class="mobile hidden">{{ _('Orbit') }}</th>
                             <th class="mobile hidden"><i class="lastfm icon"></i></th>
-                            <th>{{ _('Brightness') }}</th>
+                            {{ sort_header('cur_mag', _('Brightness')) }}
                         </tr>
                     </thead>
                     <tbody>
