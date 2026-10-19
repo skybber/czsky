@@ -34,6 +34,7 @@ from app import create_app, csrf, db, scheduler
 
 from app.models import (
     DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY,
+    DB_UPDATE_MPCORB_DOWNLOAD_KEY,
     Constellation,
     MinorPlanet,
     Observation,
@@ -167,7 +168,7 @@ def _update_minor_planet_positions():
 def _download_mpcorb_dat():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_MINOR_PLANETS_POS_BRIGHT_KEY, timedelta(hours=1)):
+        if ask_dbupdate_permit(DB_UPDATE_MPCORB_DOWNLOAD_KEY, timedelta(hours=1)):
             data_dir = os.path.join(os.getcwd(), 'data/')
             output_tmp_file_path = data_dir + f"MPCORB.9999.DAT.{uuid.uuid4().hex}.tmp"
             output_file_path = os.path.join(os.getcwd(), MPCORB_EXCERPT_FILE)

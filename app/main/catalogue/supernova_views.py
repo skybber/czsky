@@ -76,13 +76,15 @@ main_supernova = Blueprint('main_supernova', __name__)
 def _update_supernovae():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        if ask_dbupdate_permit(DB_UPDATE_SUPERNOVAE, timedelta(days=1)):
+        # Runs at 6:00 and 18:00, so the claim must expire well before the next run.
+        if ask_dbupdate_permit(DB_UPDATE_SUPERNOVAE, timedelta(hours=6)):
             update_supernovae_from_rochesterastronomy()
 
 def _delete_obsolete_supernovae():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
-        if ask_dbupdate_permit(DB_DELETE_SUPERNOVAE, timedelta(days=1)):
+        # Daily job with jitter: a full day claim would skip about every other run.
+        if ask_dbupdate_permit(DB_DELETE_SUPERNOVAE, timedelta(hours=20)):
             threshold_date = datetime.utcnow() - timedelta(days=50)
             supernovas_to_delete = Supernova.query.filter(Supernova.latest_observed < threshold_date).all()
             for supernova in supernovas_to_delete:
