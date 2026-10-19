@@ -243,6 +243,15 @@ def import_minor_planets():
     # update_minor_planets_brightness(True)
 
 
+@app.cli.command("update_neos")
+@click.option('--force', is_flag=True, help='Run even when the update lock is held, e.g. after a crashed run.')
+def update_neos_command(force):
+    """Downloads NEA.txt and close approaches from JPL CNEOS, imports the selected near-Earth asteroids."""
+    from app.commons.neo_utils import update_neos
+    if not update_neos(force=force):
+        print('Skipped: the NEA update is running or ran recently. Use --force to run anyway.')
+
+
 @app.cli.command("import_comets")
 def import_comets():
     from app.commons.comet_utils import (load_all_mpc_comets, import_update_comets, update_evaluated_comet_brightness,

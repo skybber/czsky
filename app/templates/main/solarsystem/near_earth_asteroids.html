@@ -1,0 +1,111 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+    <div class="ui stackable grid container">
+        <div class="fourteen wide tablet sixteen wide computer column">
+            <div>
+                <div class="ui huge breadcrumb">
+                    <a class="ui basic compact button" href="{{ url_for('main_solarsystem.solarsystem_menu') }}">
+                        <i class="caret left icon"></i>
+                        <i class="sun icon"></i>
+                    </a>
+                    <div class="divider">  </div>
+                    <div class="active section">
+                        {{ _('Near-Earth Asteroids') }}
+                    </div>
+                </div>
+            </div>
+
+            <form action="{{ url_for('main_neo.near_earth_asteroids') }}" method="get" name="search">
+                <div class="ui menu">
+                    <div class="ui item">
+                        {{ form.period(class='ui compact tiny dropdown button', onchange='this.form.submit()') }}
+                        <div class="top right aligned floating ui tiny label">{{ _('Period') }}</div>
+                    </div>
+                    <div class="ui item">
+                        {{ form.dist_max_ld(class='ui compact tiny dropdown button', onchange='this.form.submit()') }}
+                        <div class="top right aligned floating ui tiny label">{{ _('Max. distance') }}</div>
+                    </div>
+                    <div class="ui input item">
+                        {{ form.maglim(class='ui tiny input', size=4, onchange='this.form.submit()') }}
+                        {% if form.maglim.errors %}
+                            <div class="bottom aligned red pointing floating ui label">
+                                {{ form.maglim.errors[0] | safe }}
+                            </div>
+                        {% endif %}
+                        <div class="top right aligned floating ui tiny label">{{ _('Limit mag') }}</div>
+                    </div>
+                    <div class="ui item">
+                        <div class="ui checkbox">
+                            {{ form.pha_only(onchange='this.form.submit()') }}
+                            <label for="{{ form.pha_only.id }}">{{ _('PHA only') }}</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            {# Use overflow-x: scroll so that mobile views don't freak out
+             # when the table is too wide #}
+            <div style="overflow-x: scroll;width: 100%">
+                <table class="ui unstackable selectable celled table">
+                    <thead>
+                        <tr>
+                            <th>{{ _('Name') }}</th>
+                            <th>{{ _('Date') }} (UTC)</th>
+                            <th>{{ _('Distance') }}</th>
+                            <th class="mobile hidden">{{ _('Velocity') }}</th>
+                            <th class="mobile hidden">H</th>
+                            <th>{{ _('Est. max. brightness') }}</th>
+                            <th class="mobile hidden">{{ _('Orbit') }}</th>
+                            <th class="mobile hidden"><i class="lastfm icon"></i></th>
+                            <th>{{ _('Brightness') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for approach in approaches %}
+                        {% set mp = approach.minor_planet %}
+                        {% if mp %}
+                            {% set minor_planet_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=mp.url_id(), back='near_earth_asteroids') %}
+                        {% endif %}
+                        <tr {% if mp %}class="sw-onclick" onclick="window.location.href = '{{ minor_planet_url }}';"{% endif %}
+                            {% if approach.approach_time < now %}style="opacity: 0.6;"{% endif %}>
+                            <td>
+                                {% if mp %}
+                                    <a href="{{ minor_planet_url }}">{{ mp.designation }}</a>
+                                    {% if mp.is_pha %}<span class="ui mini red label">PHA</span>{% endif %}
+                                {% else %}
+                                    {{ approach.designation }}
+                                {% endif %}
+                            </td>
+                            <td>{{ approach.approach_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {{ "%.1f" | format(approach.dist_ld()) }} LD
+                                <span class="mobile hidden">({{ "%.4f" | format(approach.dist_au) }}au)</span>
+                                {% if approach.dist_au < neo_imprecise_dist_au %}
+                                    <i class="exclamation triangle orange icon" title="{{ _('Very close approach: the computed position is only approximate.') }}"></i>
+                                {% endif %}
+                            </td>
+                            <td class="mobile hidden">{{ "%.1f" | format(approach.v_rel_kms) if approach.v_rel_kms is not none else '-' }} km/s</td>
+                            <td class="mobile hidden">{{ "%.1f" | format(approach.h) if approach.h is not none else '-' }}</td>
+                            <td>~{{ "%.1f" | format(approach.est_peak_mag) if approach.est_peak_mag is not none else '-' }}</td>
+                            <td class="mobile hidden">{{ mp.orbit_type_name() or '' if mp else '' }}</td>
+                            <td class="mobile hidden">{{ mp.cur_constellation_iau_code() or '' if mp else '' }}</td>
+                            <td>{{ mp.displayed_mag() if mp else '' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="9">{{ _('No close approaches in the selected period.') }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="ui small grey text">
+                {{ _('Close approaches within 0.05 au from JPL CNEOS, estimated brightness up to 18 mag. The estimate ignores the phase angle. LD = lunar distance.') }}
+            </p>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(function(){
+            $('tr.sw-onclick').appendScreenWidth('onclick');
+        });
+    </script>
+{% endblock %}

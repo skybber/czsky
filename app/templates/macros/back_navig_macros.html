@@ -20,6 +20,11 @@
                 <i class="caret left icon"></i>
                 <i class="eye icon mobile hidden"></i>
             </a>
+        {% elif back == 'near_earth_asteroids' %}
+            <a class="ui basic icon compact button" href="{{ url_for('main_neo.near_earth_asteroids') }}">
+                <i class="caret left icon"></i>
+                <i class="list icon mobile hidden"></i>
+            </a>
         {% elif back == 'wishlist' %}
             <a class="ui basic icon compact button" href="{{ url_for('main_wishlist.wish_list_info', nvgback=1) }}">
                 <i class="caret left icon"></i>

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import math
 import gzip
 import io
@@ -36,34 +37,57 @@ MPCORB_EXCERPT_FILE = 'data/MPCORB.9999.DAT'
 MPCORB_FULL_GZ_FILE = 'data/MPCORB.DAT.gz'
 MPCORB_URL = 'https://minorplanetcenter.net/iau/MPCORB/MPCORB.DAT.gz'
 MPCORB_MAX_AGE = timedelta(days=1)
+NEA_FILE = 'data/NEA.txt'
+NEA_URL = 'https://minorplanetcenter.net/iau/MPCORB/NEA.txt'
+NEA_MAX_AGE = timedelta(days=1)
+NEA_STALE_WARNING_AGE = timedelta(days=7)
+NEA_MIN_ROWS = 10000  # sanity check against saving an error page or a truncated download
 
 
 all_minor_planets_source_stamp = None
 
 
-def _mpc_source_stamp():
-    # Changes whenever the excerpt file is replaced or appended to, in any process.
+def _file_stamp(file_path):
     try:
-        st = os.stat(MPCORB_EXCERPT_FILE)
+        st = os.stat(file_path)
         return st.st_ino, st.st_mtime_ns, st.st_size
     except FileNotFoundError:
         return None
 
 
+def _mpc_source_stamp():
+    # Changes whenever any elements file is replaced or appended to, in any process.
+    return _file_stamp(MPCORB_EXCERPT_FILE), _file_stamp(NEA_FILE)
+
+
+def _load_mpcorb_file(file_path):
+    with load.open(file_path) as f:
+        minor_planets = mpc.load_mpcorb_dataframe(f)
+    minor_planets = minor_planets[~minor_planets.semimajor_axis_au.isnull()].copy()
+    minor_planets['designation_packed'] = minor_planets['designation_packed'].astype(str).str.strip()
+    return minor_planets
+
+
 def get_all_mpc_minor_planets():
+    """
+    Elements of all known minor planets: the MPCORB excerpt merged with MPC NEA.txt.
+    NEA.txt (daily) takes precedence over the excerpt (weekly) for the same designation.
+    Without NEA.txt only the excerpt is used. Reloaded when any source file changes.
+    """
     global all_minor_planets, all_minor_planets_source_stamp
     source_stamp = _mpc_source_stamp()
     if all_minor_planets is not None and source_stamp != all_minor_planets_source_stamp:
         reset_minor_planets_cache()
     if all_minor_planets is None:
         all_minor_planets_source_stamp = source_stamp
-        with load.open(MPCORB_EXCERPT_FILE) as f:
-            all_minor_planets = mpc.load_mpcorb_dataframe(f)
-            bad_orbits = all_minor_planets.semimajor_axis_au.isnull()
-            all_minor_planets = all_minor_planets[~bad_orbits]
-            all_minor_planets['designation_packed'] = all_minor_planets['designation_packed'].astype(str).str.strip()
-            all_minor_planets['minor_planet_id'] = all_minor_planets['designation_packed']
-            all_minor_planets = all_minor_planets.set_index('designation_packed', drop=False)
+        frames = []
+        if source_stamp[1] is not None:
+            frames.append(_load_mpcorb_file(NEA_FILE))
+        frames.append(_load_mpcorb_file(MPCORB_EXCERPT_FILE))
+        merged = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
+        merged = merged.drop_duplicates(subset='designation_packed', keep='first')
+        merged['minor_planet_id'] = merged['designation_packed']
+        all_minor_planets = merged.set_index('designation_packed', drop=False)
     return all_minor_planets
 
 
@@ -150,6 +174,14 @@ def _get_minor_planet_cached(
 def get_minor_planet_radec(minor_planet, dt: datetime, observer_lat=None, observer_lon=None, observer_elevation=0.0):
     # Check for a changed elements file before the cache can return an old position.
     get_all_mpc_minor_planets()
+    if getattr(minor_planet, 'is_neo', False):
+        # A close NEA moves up to ~1.4"/s; the 300 s cache step would shift it by minutes of arc.
+        dt = dt.astimezone(utc) if dt.tzinfo is not None else dt.replace(tzinfo=utc)
+        ra_ang, dec_ang = get_mpc_minor_planet_position(
+            find_mpc_minor_planet(minor_planet), dt,
+            observer_lat=observer_lat, observer_lon=observer_lon, observer_elevation=observer_elevation,
+        )
+        return ra_ang.radians, dec_ang.radians
     normalized_dt = _normalize_to_300s(dt)
     return _get_minor_planet_cached(
         _get_minor_planet_mpc_designation(minor_planet),
@@ -350,11 +382,80 @@ def update_minor_planets_elements_from_mpc(show_progress=False):
     current_app.logger.info('Minor planets elements updated from MPC.')
 
 
+def update_neo_positions(update_elements=False):
+    """
+    Recomputes position and brightness of near-Earth asteroids only (hundreds of rows,
+    cheap enough to run hourly). With update_elements also copies their current elements
+    from the elements file (NEA.txt takes precedence) into the DB.
+    """
+    get_all_mpc_minor_planets()
+
+    ts = load.timescale(builtin=True)
+    eph = load('de421.bsp')
+    t = ts.now()
+    sun, earth = eph['sun'], eph['earth']
+    _, _, earth_sun_distance = earth.at(t).observe(sun).apparent().radec()
+    constellation_at = load_constellation_map()
+
+    neos = MinorPlanet.query.filter(MinorPlanet.is_neo.is_(True)).all()
+    updated = 0
+    try:
+        for minor_planet in neos:
+            mpc_minor_planet = _find_mpc_minor_planet_or_none(minor_planet)
+            if mpc_minor_planet is None:
+                continue
+            if update_elements:
+                assign_minor_planet_from_mpc_row(minor_planet, mpc_minor_planet)
+            _calculate_minor_planet_current_values(minor_planet, mpc_minor_planet, ts, eph, t, constellation_at)
+            _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance)
+            updated += 1
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+    current_app.logger.info('Updated {} of {} near-Earth asteroids.'.format(updated, len(neos)))
+
+
 def _mpcorb_file_is_fresh(file_path):
     if not os.path.exists(file_path):
         return False
     mtime = datetime.fromtimestamp(os.path.getmtime(file_path), tz=utc)
     return datetime.now(tz=utc) - mtime <= MPCORB_MAX_AGE
+
+
+def ensure_nea_file(force_reload=False):
+    """
+    Downloads MPC NEA.txt when older than a day. On failure keeps the last downloaded
+    file (warning when older than a week). Returns the file path, or None when no file exists.
+    """
+    if not force_reload and _mpcorb_file_is_fresh(NEA_FILE):
+        return NEA_FILE
+
+    data_dir = os.path.dirname(NEA_FILE) or '.'
+    os.makedirs(data_dir, exist_ok=True)
+    tmp_file_path = os.path.join(data_dir, 'NEA.txt.{}.tmp'.format(uuid.uuid4().hex))
+    try:
+        response = requests.get(NEA_URL, timeout=120)
+        response.raise_for_status()
+        rows = len(mpc.load_mpcorb_dataframe(io.BytesIO(response.content)))
+        if rows < NEA_MIN_ROWS:
+            raise RuntimeError('NEA.txt has only {} rows.'.format(rows))
+        with open(tmp_file_path, 'wb') as f:
+            f.write(response.content)
+        os.replace(tmp_file_path, NEA_FILE)
+        current_app.logger.info('File NEA.txt updated, {} rows.'.format(rows))
+    except Exception:
+        if os.path.exists(tmp_file_path):
+            os.remove(tmp_file_path)
+        if not os.path.exists(NEA_FILE):
+            current_app.logger.exception('Download NEA.txt failed and no previous file exists.')
+            return None
+        age = datetime.now(tz=utc) - datetime.fromtimestamp(os.path.getmtime(NEA_FILE), tz=utc)
+        if age > NEA_STALE_WARNING_AGE:
+            current_app.logger.exception('Download NEA.txt failed, using file {} days old.'.format(age.days))
+        else:
+            current_app.logger.warning('Download NEA.txt failed, using previous file.', exc_info=True)
+    return NEA_FILE
 
 
 def ensure_full_mpcorb_file(force_reload=False):

@@ -32,6 +32,11 @@ class SearchMinorPlanetForm(FlaskForm):
         ('autumn',lazy_gettext('Autumn')),
         ('southern',lazy_gettext('Southern')),
     ], default='')
+    orbit_group = SelectField(lazy_gettext('Orbit'), choices=[
+        ('all', lazy_gettext('All')),
+        ('neo', lazy_gettext('Near-Earth only')),
+        ('not_neo', lazy_gettext('Without near-Earth')),
+    ], default='all')
     maglim = FloatField(lazy_gettext('Limit mag'), default=None, validators=[NumberRange(min=-30.0, max=30.0), Optional()])
     dec_min = FloatField(lazy_gettext('Dec min'), default=None, validators=[NumberRange(min=-90.0, max=90.0), Optional()])
     angular_dist_from_sun_min = FloatField(lazy_gettext('Sun Ang. Dist. min'), default=None, validators=[NumberRange(min=0.0, max=180.0), Optional()])

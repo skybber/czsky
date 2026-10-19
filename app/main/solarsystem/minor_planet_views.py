@@ -35,6 +35,8 @@ from app.models import (
     DB_UPDATE_MPCORB_DOWNLOAD_KEY,
     Constellation,
     MinorPlanet,
+    NEO_IMPRECISE_DIST_AU,
+    NeoCloseApproach,
     Observation,
     ObservationTargetType,
     ObservedList,
@@ -268,6 +270,7 @@ def minor_planets():
         ('minor_planet_maglim', search_form.maglim),
         ('dec_min', search_form.dec_min),
         ('angular_dist_from_sun_min', search_form.angular_dist_from_sun_min),
+        ('minor_planet_orbit_group', search_form.orbit_group),
     ])
 
     per_page = get_items_per_page(search_form.items_per_page)
@@ -291,6 +294,10 @@ def minor_planets():
             minor_planet_query = minor_planet_query.filter(MinorPlanet.eval_mag <= search_form.maglim.data)
         if search_form.angular_dist_from_sun_min.data:
             minor_planet_query = minor_planet_query.filter(MinorPlanet.cur_angular_dist_from_sun > (np.pi * search_form.angular_dist_from_sun_min.data / 180.0))
+        if search_form.orbit_group.data == 'neo':
+            minor_planet_query = minor_planet_query.filter(MinorPlanet.is_neo.is_(True))
+        elif search_form.orbit_group.data == 'not_neo':
+            minor_planet_query = minor_planet_query.filter(MinorPlanet.is_neo.is_(False))
         if search_form.season.data and search_form.season.data != 'All':
             minor_planet_query = minor_planet_query.join(Constellation) \
                                                    .filter(Constellation.season == search_form.season.data)
@@ -341,14 +348,28 @@ def minor_planets_chart_scene_v1():
     scene_objects = scene.setdefault('objects', {})
     highlights = scene_objects.setdefault('highlights', [])
     cur_theme = session.get('theme')
+    try:
+        chart_dt = get_chart_datetime()
+    except ValueError:
+        chart_dt = datetime.now(utc)
+    _, observer_lat, observer_lon = resolve_chart_city_lat_lon()
 
     for minor_planet in minor_planets:
+        ra, dec = minor_planet.cur_ra, minor_planet.cur_dec
+        if minor_planet.is_neo:
+            # Stored positions are geocentric and up to an hour old; a close NEA moves too fast
+            # and its parallax is large, so compute it for the chart time and observer.
+            try:
+                ra, dec = get_minor_planet_radec(minor_planet, chart_dt,
+                                                 observer_lat=observer_lat, observer_lon=observer_lon)
+            except KeyError:
+                pass
         highlights.append(
             build_list_cross_highlight(
                 highlight_id=CHART_MINOR_PLANET_PREFIX + str(minor_planet.id),
                 label=minor_planet.designation,
-                ra=minor_planet.cur_ra,
-                dec=minor_planet.cur_dec,
+                ra=ra,
+                dec=dec,
                 dashed=False,
                 theme_name=cur_theme,
                 show_label=True,
@@ -641,6 +662,13 @@ def minor_planet_catalogue_data(minor_planet_id):
 
     minor_planet_data = MinorPlanetData(1000, mp_ra, mp_dec, minor_planet.eval_mag, mp_distance_km)
 
+    neo_approaches = []
+    if minor_planet.is_neo:
+        neo_approaches = NeoCloseApproach.query \
+            .filter(NeoCloseApproach.minor_planet_id == minor_planet.id,
+                    NeoCloseApproach.approach_time >= datetime.utcnow() - timedelta(days=1)) \
+            .order_by(NeoCloseApproach.approach_time).all()
+
     embed = request.args.get('embed')
     if embed:
         session['minor_planet_embed_seltab'] = 'catalogue_data'
@@ -658,7 +686,8 @@ def minor_planet_catalogue_data(minor_planet_id):
 
     return render_template('main/solarsystem/minor_planet_info.html', type='catalogue_data', minor_planet=minor_planet,
                            minor_planet_data=minor_planet_data, embed=embed, show_obs_log=show_obs_log,
-                           is_observed=is_observed)
+                           is_observed=is_observed, neo_approaches=neo_approaches,
+                           neo_imprecise_dist_au=NEO_IMPRECISE_DIST_AU)
 
 
 @main_minor_planet.route('/minor-planet/<string:minor_planet_id>/switch-observed-list', methods=['GET'])

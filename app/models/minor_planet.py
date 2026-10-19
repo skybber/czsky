@@ -6,6 +6,14 @@ from .. import db
 from app.commons.coordinates import ra_to_str_short, dec_to_str_short, ra_to_str, dec_to_str
 
 
+MPC_ORBIT_TYPE_NAMES = {
+    1: 'Atira',
+    2: 'Aten',
+    3: 'Apollo',
+    4: 'Amor',
+}
+
+
 class MinorPlanet(db.Model):
     __tablename__ = 'minor_planets'
     id = db.Column(db.Integer, primary_key=True)
@@ -38,11 +46,18 @@ class MinorPlanet(db.Model):
     cur_angular_dist_from_sun = db.Column(db.Float)
     cur_constell_id = db.Column(db.Integer, db.ForeignKey('constellations.id'), index=True)
     eval_mag = db.Column(db.Float)
+    # Derived from hex_flags: MPC orbit type (1 Atira, 2 Aten, 3 Apollo, 4 Amor, ...), NEO and PHA flags.
+    orbit_type = db.Column(db.SmallInteger)
+    is_neo = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false(), index=True)
+    is_pha = db.Column(db.Boolean, nullable=False, default=False, server_default=db.false(), index=True)
 
     def url_id(self):
         if self.int_designation is not None:
             return self.int_designation
         return self.mpc_designation
+
+    def orbit_type_name(self):
+        return MPC_ORBIT_TYPE_NAMES.get(self.orbit_type)
 
     def displayed_mag(self):
         if self.eval_mag is not None:

@@ -24,6 +24,25 @@ def _int_designation_from_mpc_row(mpc_mp):
         return None
 
 
+MPC_ORBIT_TYPE_MASK = 0x003F
+MPC_FLAG_NEO = 0x0800
+MPC_FLAG_PHA = 0x8000
+
+
+def parse_mpc_hex_flags(hex_flags):
+    """
+    Returns (orbit_type, is_neo, is_pha) from the 4-digit MPCORB hex flags.
+    orbit_type: 1 Atira, 2 Aten, 3 Apollo, 4 Amor, 5 q < 1.665 AU, 6 Hungaria, 8 Hilda,
+    9 Jupiter Trojan, 10 distant object; None when unknown.
+    """
+    try:
+        flags = int(str(hex_flags).strip(), 16)
+    except (TypeError, ValueError):
+        return None, False, False
+    orbit_type = flags & MPC_ORBIT_TYPE_MASK
+    return (orbit_type or None), bool(flags & MPC_FLAG_NEO), bool(flags & MPC_FLAG_PHA)
+
+
 def assign_minor_planet_from_mpc_row(minor_planet, mpc_mp):
     mpc_designation = str(mpc_mp['designation_packed']).strip()
     minor_planet.mpc_designation = mpc_designation
@@ -48,6 +67,7 @@ def assign_minor_planet_from_mpc_row(minor_planet, mpc_mp):
     minor_planet.precise_perturbers = mpc_mp['precise_perturbers']
     minor_planet.computer_name = mpc_mp['computer_name']
     minor_planet.hex_flags = mpc_mp['hex_flags']
+    minor_planet.orbit_type, minor_planet.is_neo, minor_planet.is_pha = parse_mpc_hex_flags(mpc_mp['hex_flags'])
     minor_planet.designation = mpc_mp['designation']
     minor_planet.last_observation_date = mpc_mp['last_observation_date']
 

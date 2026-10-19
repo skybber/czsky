@@ -3953,3 +3953,60 @@ msgstr "celou noc pod obzorem"
 
 msgid "does not occur"
 msgstr "nenastane"
+
+msgid "Orbit"
+msgstr "Dráha"
+
+msgid "Near-Earth only"
+msgstr "Jen blízkozemní"
+
+msgid "Without near-Earth"
+msgstr "Bez blízkozemních"
+
+msgid "Near-Earth asteroid"
+msgstr "Blízkozemní planetka"
+
+msgid "Potentially hazardous asteroid"
+msgstr "Potenciálně nebezpečná planetka"
+
+msgid "Close approaches to Earth"
+msgstr "Přiblížení k Zemi"
+
+msgid "Velocity"
+msgstr "Rychlost"
+
+msgid "Est. max. brightness"
+msgstr "Odhad max. jasnosti"
+
+msgid "Very close approach: the computed position is only approximate."
+msgstr "Velmi těsné přiblížení: vypočtená poloha je jen přibližná."
+
+msgid "Near-Earth Asteroids"
+msgstr "Blízkozemní planetky"
+
+msgid "Upcoming close approaches to Earth"
+msgstr "Blížící se přiblížení k Zemi"
+
+msgid "Period"
+msgstr "Období"
+
+msgid "7 days"
+msgstr "7 dní"
+
+msgid "30 days"
+msgstr "30 dní"
+
+msgid "60 days"
+msgstr "60 dní"
+
+msgid "Max. distance"
+msgstr "Max. vzdálenost"
+
+msgid "PHA only"
+msgstr "Jen PHA"
+
+msgid "No close approaches in the selected period."
+msgstr "Ve zvoleném období nejsou žádná přiblížení."
+
+msgid "Close approaches within 0.05 au from JPL CNEOS, estimated brightness up to 18 mag. The estimate ignores the phase angle. LD = lunar distance."
+msgstr "Přiblížení do 0,05 au podle JPL CNEOS s odhadem jasnosti do 18 mag. Odhad nezohledňuje fázový úhel. LD = vzdálenost Měsíce."

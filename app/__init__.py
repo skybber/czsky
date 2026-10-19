@@ -183,6 +183,8 @@ def create_app(config, web=True, default_locale=None):
         app.register_blueprint(main_comet)
         from .main.solarsystem import main_minor_planet as main_minor_panet
         app.register_blueprint(main_minor_panet)
+        from .main.solarsystem import main_neo as main_neo
+        app.register_blueprint(main_neo)
         from .main.solarsystem import main_planet as main_planet
         app.register_blueprint(main_planet)
         from .main.solarsystem import main_planet_moon as main_planet_moon

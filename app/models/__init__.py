@@ -18,6 +18,7 @@ from .import_history import *
 from .location import *
 from .miscellaneous import *
 from .minor_planet import *
+from .neo_close_approach import *
 from .mcp_oauth import *
 from .mcp_token import *
 from .news import *

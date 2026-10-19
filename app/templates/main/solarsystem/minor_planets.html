@@ -24,6 +24,10 @@
                 {{ search_form.season(class='ui compact tiny dropdown button',onchange='this.form.submit()') }}
                 <div class="top right aligned floating ui tiny label">{{ _('Season') }}</div>
             </div>
+            <div class="ui item">
+                {{ search_form.orbit_group(class='ui compact tiny dropdown button',onchange='this.form.submit()') }}
+                <div class="top right aligned floating ui tiny label">{{ _('Orbit') }}</div>
+            </div>
             <div class="ui input item">
                 {{ search_form.maglim(class='ui tiny input', size=4) }}
                 {% if search_form.maglim.errors %}
@@ -105,12 +109,15 @@
                 {% for mp in minor_planets %}
                     {% set minor_planet_url = url_for('main_minor_planet.minor_planet_seltab', minor_planet_id=mp.url_id(), back='minor_planets', back_id=mp.url_id()) %}
                     <tr class="sw-onclick" onclick="window.location.href = '{{ minor_planet_url }}';">
-                        <td><a href="{{ minor_planet_url }}">{{ mp.designation }}</a></td>
+                        <td>
+                            <a href="{{ minor_planet_url }}">{{ mp.designation }}</a>
+                            {% if mp.is_pha %}<span class="ui mini red label">PHA</span>{% elif mp.is_neo %}<span class="ui mini label">NEA</span>{% endif %}
+                        </td>
                         <td class="mobile hidden">{{ mp.cur_ra_str_short() }}</td>
                         <td class="mobile hidden">{{ mp.cur_dec_str_short() }}</td>
-                        <td class="mobile hidden">{{ mp.cur_angular_dist_from_sun_deg()  | round(1) }}</td>
+                        <td class="mobile hidden">{{ mp.cur_angular_dist_from_sun_deg() | round(1) if mp.cur_angular_dist_from_sun is not none else '' }}</td>
                         <td>{{ mp.cur_constell().iau_code if mp.cur_constell_id is not none else '' }}</td>
-                        <td>{{ mp.eval_mag  | round(1) }}</td>
+                        <td>{{ mp.eval_mag | round(1) if mp.eval_mag is not none else '' }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

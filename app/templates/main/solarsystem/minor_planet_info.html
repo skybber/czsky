@@ -84,8 +84,47 @@
         <tr><td class="three wide">{{ _('Distance') }}</td><td>{{ "%.3f" | format(minor_planet_data.distance_au) }}au ({{ "%.2f" | format(minor_planet_data.distance/1000000.0) }}M km) </td></tr>
         <tr><td class="three wide">RA</td><td>{{ minor_planet_data.ra_str() }}</td></tr>
         <tr><td class="three wide">Dec</td><td>{{ minor_planet_data.dec_str() }}</td></tr>
-        <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{  "%.2f" | format(minor_planet_data.mag) }}mag</td></tr>
+        <tr><td class="three wide">{{ _('Brightness') }}</td><td>{{ "%.2f" | format(minor_planet_data.mag) if minor_planet_data.mag is not none else '-' }}mag</td></tr>
+        {% if minor_planet.is_neo %}
+        <tr>
+            <td class="three wide">{{ _('Orbit') }}</td>
+            <td>
+                {{ _('Near-Earth asteroid') }}{% if minor_planet.orbit_type_name() %} ({{ minor_planet.orbit_type_name() }}){% endif %}
+                {% if minor_planet.is_pha %}
+                    <span class="ui tiny red label" title="{{ _('Potentially hazardous asteroid') }}">PHA</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endif %}
     </table>
+    {% if neo_approaches %}
+        <h4 class="ui header">{{ _('Close approaches to Earth') }}</h4>
+        <table class="ui compact celled unstackable table">
+            <thead>
+                <tr>
+                    <th>{{ _('Date') }} (UTC)</th>
+                    <th>{{ _('Distance') }}</th>
+                    <th class="mobile hidden">{{ _('Velocity') }}</th>
+                    <th>{{ _('Est. max. brightness') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for approach in neo_approaches %}
+                <tr>
+                    <td>{{ approach.approach_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {{ "%.1f" | format(approach.dist_ld()) }} LD ({{ "%.4f" | format(approach.dist_au) }}au)
+                        {% if approach.dist_au < neo_imprecise_dist_au %}
+                            <i class="exclamation triangle orange icon" title="{{ _('Very close approach: the computed position is only approximate.') }}"></i>
+                        {% endif %}
+                    </td>
+                    <td class="mobile hidden">{{ "%.1f" | format(approach.v_rel_kms) if approach.v_rel_kms is not none else '-' }} km/s</td>
+                    <td>~{{ "%.1f" | format(approach.est_peak_mag) if approach.est_peak_mag is not none else '-' }}mag</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endmacro %}
 
 {# --- Visibility --- #}

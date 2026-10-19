@@ -24,6 +24,8 @@
                                     description=_('Show planet moons'), theme_image='/static/images/planet') }}
                 {{ dash.dashboard_option(_('Minor planets'), 'main_minor_planet.minor_planets',
                                     description=_('Show Minor Planets'), theme_image='/static/images/planet_minor') }}
+                {{ dash.dashboard_option(_('Near-Earth Asteroids'), 'main_neo.near_earth_asteroids',
+                                    description=_('Upcoming close approaches to Earth'), theme_image='/static/images/planet_minor') }}
                 {{ dash.dashboard_option(_('Comets'), 'main_comet.comets',
                                     description=_('Show comets'), icon='meteor icon') }}
             </div>
