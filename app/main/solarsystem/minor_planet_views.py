@@ -1,8 +1,6 @@
 import numpy as np
 import os
 import math
-import gzip
-import uuid
 
 from datetime import date, datetime, timedelta
 import datetime as dt_module
@@ -84,15 +82,15 @@ from app.commons.online_trajectory import (
 
 from app.commons.utils import to_float, is_splitview_supported, is_mobile
 from app.commons.minor_planet_utils import (
-    MPCORB_EXCERPT_FILE,
-    append_mpcorb_excerpt_lines_by_designations,
     ensure_full_mpcorb_file,
+    rebuild_mpcorb_excerpt,
     find_mpc_minor_planet,
     get_minor_planet_radec,
     import_minor_planet_by_designation,
     reset_minor_planets_cache,
     update_minor_planets_positions,
     update_minor_planets_brightness,
+    update_minor_planets_elements_from_mpc,
 )
 from app.commons.observing_session_utils import find_observing_session, show_observation_log, combine_observing_session_date_time
 from app.commons.observation_form_utils import assign_equipment_choices
@@ -169,20 +167,8 @@ def _download_mpcorb_dat():
     app = create_app(os.getenv('FLASK_CONFIG') or 'default', web=False)
     with app.app_context():
         if ask_dbupdate_permit(DB_UPDATE_MPCORB_DOWNLOAD_KEY, timedelta(hours=1)):
-            data_dir = os.path.join(os.getcwd(), 'data/')
-            output_tmp_file_path = data_dir + f"MPCORB.9999.DAT.{uuid.uuid4().hex}.tmp"
-            output_file_path = os.path.join(os.getcwd(), MPCORB_EXCERPT_FILE)
-
             try:
                 gz_file_path = ensure_full_mpcorb_file(force_reload=True)
-                with gzip.open(gz_file_path, 'rt') as gz_file:
-                    with open(output_tmp_file_path, 'w') as output_file:
-                        for current_row, line in enumerate(gz_file, start=1):
-                            if current_row >= 44:
-                                output_file.write(line)
-                            if current_row >= 10042:
-                                break
-                os.rename(output_tmp_file_path, output_file_path)
                 extra_mpc_designations = [
                     mp.mpc_designation
                     for mp in MinorPlanet.query
@@ -190,11 +176,22 @@ def _download_mpcorb_dat():
                     .filter((MinorPlanet.int_designation.is_(None)) | (MinorPlanet.int_designation > 9999))
                     .all()
                 ]
-                append_mpcorb_excerpt_lines_by_designations(extra_mpc_designations, gz_file_path)
+                not_found = rebuild_mpcorb_excerpt(gz_file_path, extra_mpc_designations)
+                if not_found:
+                    current_app.logger.warning('Minor planets not found in MPCORB.DAT: {}'.format(sorted(not_found)))
                 reset_minor_planets_cache()
                 current_app.logger.info('File MPCORB.9999.DAT updated.')
             except Exception:
                 current_app.logger.exception('Download MPCORB.DAT.gz failed.')
+                return
+
+            # The file is in place first, so other processes never see a DB row
+            # whose elements are missing from the file. Positions and brightness
+            # follow in the daily update at 14:00.
+            try:
+                update_minor_planets_elements_from_mpc()
+            except Exception:
+                current_app.logger.exception('Updating minor planets from MPCORB failed.')
 
 
 job1 = scheduler.add_job(_update_minor_planet_positions, 'cron', hour=14, replace_existing=True, jitter=60)

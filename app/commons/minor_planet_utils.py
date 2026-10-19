@@ -38,9 +38,25 @@ MPCORB_URL = 'https://minorplanetcenter.net/iau/MPCORB/MPCORB.DAT.gz'
 MPCORB_MAX_AGE = timedelta(days=1)
 
 
+all_minor_planets_source_stamp = None
+
+
+def _mpc_source_stamp():
+    # Changes whenever the excerpt file is replaced or appended to, in any process.
+    try:
+        st = os.stat(MPCORB_EXCERPT_FILE)
+        return st.st_ino, st.st_mtime_ns, st.st_size
+    except FileNotFoundError:
+        return None
+
+
 def get_all_mpc_minor_planets():
-    global all_minor_planets
+    global all_minor_planets, all_minor_planets_source_stamp
+    source_stamp = _mpc_source_stamp()
+    if all_minor_planets is not None and source_stamp != all_minor_planets_source_stamp:
+        reset_minor_planets_cache()
     if all_minor_planets is None:
+        all_minor_planets_source_stamp = source_stamp
         with load.open(MPCORB_EXCERPT_FILE) as f:
             all_minor_planets = mpc.load_mpcorb_dataframe(f)
             bad_orbits = all_minor_planets.semimajor_axis_au.isnull()
@@ -73,6 +89,13 @@ def _get_minor_planet_mpc_designation(minor_planet):
 def find_mpc_minor_planet(minor_planet):
     mpc_designation = _get_minor_planet_mpc_designation(minor_planet)
     return get_all_mpc_minor_planets().loc[mpc_designation]
+
+
+def _find_mpc_minor_planet_or_none(minor_planet):
+    try:
+        return find_mpc_minor_planet(minor_planet)
+    except KeyError:
+        return None
 
 
 def get_mpc_minor_planet_position(mpc_minor_planet, dt, observer_lat=None, observer_lon=None, observer_elevation=0.0):
@@ -125,6 +148,8 @@ def _get_minor_planet_cached(
 
 
 def get_minor_planet_radec(minor_planet, dt: datetime, observer_lat=None, observer_lon=None, observer_elevation=0.0):
+    # Check for a changed elements file before the cache can return an old position.
+    get_all_mpc_minor_planets()
     normalized_dt = _normalize_to_300s(dt)
     return _get_minor_planet_cached(
         _get_minor_planet_mpc_designation(minor_planet),
@@ -214,7 +239,7 @@ def update_minor_planets_positions(show_progress=False):
     i = 0
 
     for minor_planet in MinorPlanet.query.all():
-        mpc_mplanet = find_mpc_minor_planet(minor_planet)
+        mpc_mplanet = _find_mpc_minor_planet_or_none(minor_planet)
         if mpc_mplanet is not None:
             _calculate_minor_planet_current_values(minor_planet, mpc_mplanet, ts, eph, t, constellation_at)
             minor_planets.append(minor_planet)
@@ -267,16 +292,9 @@ def update_minor_planets_brightness(show_progress=False):
     i = 0
 
     for minor_planet in MinorPlanet.query.all():
-        mpc_minor_planet = find_mpc_minor_planet(minor_planet)
-        body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
-        ra, dec, sun_body_distance = sun.at(t).observe(body).radec()
-        ra, dec, earth_body_distance = earth.at(t).observe(body).apparent().radec()
-
-        apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G,
-                                                        earth_body_distance.au, sun_body_distance.au,
-                                                        earth_sun_distance.au)
-        if apparent_magnitude:
-            minor_planet.eval_mag = apparent_magnitude
+        mpc_minor_planet = _find_mpc_minor_planet_or_none(minor_planet)
+        if mpc_minor_planet is not None and _calculate_minor_planet_brightness(
+                minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance):
             minor_planets.append(minor_planet)
         if show_progress:
             progress(i, len(mpc_minor_planets), 'Evaluating minor planet brightness...')
@@ -286,6 +304,50 @@ def update_minor_planets_brightness(show_progress=False):
 
     _save_minor_planets(minor_planets, show_progress, 'Saving minor planets...')
     current_app.logger.info('Minor planets\' brightnesses updated.')
+
+
+def _calculate_minor_planet_brightness(minor_planet, mpc_minor_planet, ts, sun, earth, t, earth_sun_distance):
+    body = sun + mpc.mpcorb_orbit(mpc_minor_planet, ts, GM_SUN)
+    _, _, sun_body_distance = sun.at(t).observe(body).radec()
+    _, _, earth_body_distance = earth.at(t).observe(body).apparent().radec()
+    apparent_magnitude = _get_apparent_magnitude_hg(minor_planet.magnitude_H, minor_planet.magnitude_G,
+                                                    earth_body_distance.au, sun_body_distance.au,
+                                                    earth_sun_distance.au)
+    if apparent_magnitude:
+        minor_planet.eval_mag = apparent_magnitude
+        return True
+    return False
+
+
+def update_minor_planets_elements_from_mpc(show_progress=False):
+    """
+    Copies current MPC elements, H/G and flags from the elements file into all DB rows,
+    in one transaction. Cheap: no Skyfield computation. Position and brightness from
+    the new elements are recomputed by the daily update at the low-traffic hour.
+    """
+    get_all_mpc_minor_planets()
+
+    minor_planets = MinorPlanet.query.all()
+    missing = 0
+    try:
+        for i, minor_planet in enumerate(minor_planets, start=1):
+            mpc_minor_planet = _find_mpc_minor_planet_or_none(minor_planet)
+            if mpc_minor_planet is None:
+                missing += 1
+                continue
+            assign_minor_planet_from_mpc_row(minor_planet, mpc_minor_planet)
+            if show_progress:
+                progress(i, len(minor_planets), 'Updating minor planets elements from MPC...')
+        if show_progress:
+            print('')
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
+
+    if missing:
+        current_app.logger.warning('{} minor planets not found in MPC elements file.'.format(missing))
+    current_app.logger.info('Minor planets elements updated from MPC.')
 
 
 def _mpcorb_file_is_fresh(file_path):
@@ -373,36 +435,43 @@ def _append_mpcorb_excerpt_line(line):
         f.write(line)
 
 
-def append_mpcorb_excerpt_lines_by_designations(mpc_designations, mpcorb_file=None):
-    needed_designations = {str(x).strip() for x in mpc_designations if x}
-    if not needed_designations:
-        return
+MPCORB_EXCERPT_FIRST_ROW = 44      # first data row after the MPCORB.DAT header
+MPCORB_EXCERPT_LAST_ROW = 10042    # first ~10k numbered minor planets
 
-    existing_designations = set()
-    if os.path.exists(MPCORB_EXCERPT_FILE):
-        with open(MPCORB_EXCERPT_FILE, 'r', encoding='ascii', errors='ignore') as f:
-            existing_designations = {line[:7].strip() for line in f}
-    needed_designations -= existing_designations
-    if not needed_designations:
-        return
 
-    mpcorb_file = mpcorb_file or ensure_full_mpcorb_file()
+def rebuild_mpcorb_excerpt(mpcorb_file, extra_mpc_designations):
+    """
+    Writes the excerpt (first ~10k numbered minor planets plus extra_mpc_designations)
+    to a temporary file and moves it into place only when complete, so other processes
+    never load a partial excerpt. Returns the extra designations not found.
+    """
+    needed_designations = {str(x).strip() for x in extra_mpc_designations if x}
+    data_dir = os.path.dirname(MPCORB_EXCERPT_FILE) or '.'
+    tmp_file_path = os.path.join(data_dir, 'MPCORB.9999.DAT.{}.tmp'.format(uuid.uuid4().hex))
     opener = gzip.open if mpcorb_file.endswith('.gz') else open
-    found_lines = []
-    with opener(mpcorb_file, 'rt', encoding='ascii', errors='ignore') as f:
-        for line in f:
-            if line[:7].strip() in needed_designations:
-                found_lines.append(line)
-                needed_designations.remove(line[:7].strip())
-                if not needed_designations:
-                    break
-
-    if found_lines:
-        with open(MPCORB_EXCERPT_FILE, 'a', encoding='ascii') as f:
-            for line in found_lines:
+    try:
+        with opener(mpcorb_file, 'rt', encoding='ascii', errors='ignore') as src, \
+                open(tmp_file_path, 'w', encoding='ascii') as out:
+            for row, line in enumerate(src, start=1):
+                if row < MPCORB_EXCERPT_FIRST_ROW:
+                    continue
                 if not line.endswith('\n'):
                     line += '\n'
-                f.write(line)
+                mpc_designation = line[:7].strip()
+                if row <= MPCORB_EXCERPT_LAST_ROW:
+                    out.write(line)
+                    needed_designations.discard(mpc_designation)
+                elif not needed_designations:
+                    break
+                elif mpc_designation in needed_designations:
+                    out.write(line)
+                    needed_designations.remove(mpc_designation)
+        os.replace(tmp_file_path, MPCORB_EXCERPT_FILE)
+    except Exception:
+        if os.path.exists(tmp_file_path):
+            os.remove(tmp_file_path)
+        raise
+    return needed_designations
 
 
 def import_minor_planet_by_designation(query):
